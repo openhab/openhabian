@@ -73,6 +73,7 @@ chroot /rootfs chown -hR openhab:openhab /etc/openhab2
 chroot /rootfs /bin/systemctl enable smbd.service || fail
 echo "OK"
 
+# Provide system statistics as message-of-the-day
 #echo -n "Downloading FireMotD..."
 #chroot /rootfs /usr/bin/git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD &>/dev/null
 #if [ $? -eq 0 ]; then
@@ -82,5 +83,20 @@ echo "OK"
 #fi
 #echo "\n\n/opt/FireMotD/FireMotD --theme Modern" >> /rootfs/home/pi/.bashrc
 
+#make green LED blink as heartbeat on finished first boot
+echo -n "Activate heartbeat on first boot..."
+cat <<EOT >> /rootfs/etc/rc.local
+#!/bin/bash
+
+FLAG="/var/lock/firstboot.lock"
+if [ ! -f $FLAG ]; then
+   echo "openhabian booting for the first time!"
+   modprobe ledtrig_heartbeat
+   echo "heartbeat" >/sys/class/leds/led0/trigger
+
+   touch $FLAG
+fi
+EOT
+echo "OK"
 
 # vim: filetype=sh
