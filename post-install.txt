@@ -88,7 +88,7 @@ echo -n "[openhabian] Activate heartbeat on first boot..."
 cat <<EOT >> /rootfs/etc/rc.local
 #!/bin/bash
 
-FLAG="/var/lock/firstboot.lock"
+FLAG="/var/lock/firstbootblink.lock"
 if [ ! -f $FLAG ]; then
    echo "openhabian booting for the first time!"
    modprobe ledtrig_heartbeat
