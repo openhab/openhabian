@@ -1,2 +1,0 @@
-echo "Hallo" > /home/pi/test.txt
-cat /etc/hostname > /home/test2.txt

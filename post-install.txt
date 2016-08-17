@@ -1,0 +1,86 @@
+#!/bin/sh
+
+#chroot /rootfs /usr/bin/timedatectl set-timezone Europe/Berlin
+#chroot /rootfs /usr/sbin/locale-gen en_US-UTF-8 de_DE.UTF-8
+#chroot /rootfs /usr/sbin/update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+
+echo "Hallo" > /rootfs/home/pi/test.txt
+cat /etc/hostname > /rootfs/home/test2.txt
+
+# install basic packages
+echo -n "[openhabian] Installing basic can't-be-wrong packages (screen, vim, ...)..."
+chroot /rootfs /usr/bin/apt-get -y install screen vim nano mc vfu htop curl wget git bzip2 zip unzip xz-utils software-properties-common &>/dev/null
+if [ $? -eq 0 ]; then
+    echo "OK"
+else
+    echo "FAILED !"
+fi
+
+# install Oracle Java 8 - prerequisite for openHAB
+# install apt-transport-https - update packages through https repository (https://openhab.ci.cloudbees.com/...)
+# install samba - network sharing
+# install bc + sysstat - needed for FireMotD
+echo -n "[openhabian] Installing additional needed packages (oracle-java8-jdk, apt-transport-https, samba)..."
+chroot /rootfs /usr/bin/apt-get -y install oracle-java8-jdk apt-transport-https samba bc sysstat &>/dev/null
+if [ $? -eq 0 ]; then
+    echo "OK"
+else
+    echo "FAILED !"
+fi
+
+# add openHAB 2 repository
+echo -n "[openhabian] Add openHAB 2 Snapshot repositories to sources.list.d... "
+cat <<EOT >> /rootfs/etc/apt/sources.list.d/openhab2.list
+deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-offline/target/apt-repo/ /
+deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-online/target/apt-repo/ / 
+EOT
+echo "OK"
+
+# apt-get update after adding repository needed
+echo -n "[openhabian] Updating package lists... "
+chroot /rootfs /usr/bin/apt-get update &>/dev/null
+echo "OK"
+
+## add openhab system user
+#echo -n "[openhabian] Manually add openhab user to system (for manual installation?)... "
+#chroot /rootfs /usr/sbin/adduser --system --no-create-home --group --disabled-login openhab &>/dev/null
+#echo "OK"
+
+# install openhab2-offline
+echo -n "[openhabian] Installing openhab2-offline..."
+chroot /rootfs /usr/bin/apt-get -y install openhab2-offline &>/dev/null
+if [ $? -eq 0 ]; then
+    echo "OK"
+else
+    echo "FAILED !"
+fi
+
+# activate openhab service
+echo -n "[openhabian] Activate openHAB..."
+chroot /rootfs /bin/systemctl daemon-reload  || fail
+chroot /rootfs /bin/systemctl enable openhab2.service || fail
+echo "OK"
+
+echo -n "[openhabian] Configure samba..."
+# TODO
+# edit
+echo "TODO"
+
+# Samba setup
+echo -n "[openhabian] Add samba user..."
+chroot /rootfs ( (echo "habopen"; echo "habopen") | /usr/bin/smbpasswd -s -a openhab || fail )
+chroot /rootfs chown -hR openhab:openhab /etc/openhab2
+chroot /rootfs /bin/systemctl enable smbd.service || fail
+echo "OK"
+
+#echo -n "Downloading FireMotD..."
+#chroot /rootfs /usr/bin/git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD &>/dev/null
+#if [ $? -eq 0 ]; then
+#    echo "OK"
+#else
+#    echo "FAILED !"
+#fi
+#echo "\n\n/opt/FireMotD/FireMotD --theme Modern" >> /rootfs/home/pi/.bashrc
+
+
+# vim: filetype=sh
