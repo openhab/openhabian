@@ -7,6 +7,29 @@ touch /rootfs/home/pi/OPENHABIAN-install-failed
 #chroot /rootfs /usr/sbin/locale-gen en_US-UTF-8 de_DE.UTF-8
 #chroot /rootfs /usr/sbin/update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
+# bashrc
+
+cat <<EOT >> /rootfs/home/pi/.bashrc
+export CLICOLOR=1
+
+# enable bash completion in interactive shells
+if [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+fi
+
+export GREP_OPTIONS='--color=always' 
+
+alias ls="ls --color=auto"
+alias ll="ls -alhF"
+alias openhablog="tail -f /var/log/openhab2/openhab.log -f /var/log/openhab2/events.log"
+
+export PS1="\[\[\033[1;34m\][\$(date +%H:%M)] \033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
+export EDITOR="vim"
+export SVN_EDITOR="vim"
+
+echo "openhabian logo here ..."
+EOT
+
 # install basic packages
 echo -n "[openhabian] Installing basic can't-be-wrong packages (screen, vim, ...)..."
 chroot /rootfs /usr/bin/apt-get -y install screen vim nano mc vfu htop curl wget git bzip2 zip unzip xz-utils software-properties-common &>/dev/null
