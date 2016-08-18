@@ -11,7 +11,8 @@ fi
 /bin/bash build.sh
 /bin/bash buildroot.sh
 
-rm -rf raspbian-ua-netinst-*.bz2
+rm -rf raspbian-ua-netinst-*.bz2 &>/dev/null
+rm -rf raspbian-ua-netinst-*.xz &>/dev/null
 
 for file in raspbian-ua-netinst-*.*
 do
