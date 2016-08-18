@@ -57,7 +57,7 @@ if [ -n "$force_color_prompt" ]; then
 fi
 
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\[\033[1;34m\][\$(date +%H:%M)] \033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[1;34m\][\t] \033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
 else
     PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
 fi
@@ -114,4 +114,13 @@ if ! shopt -oq posix; then
   fi
 fi
 
-echo "openhabian logo here ..."
+cat << 'EOF'
+
+     Welcome to             __  _____    ____  _
+    ____  ____  ___  ____  / / / /   |  / __ )(_)___ _____
+   / __ \/ __ \/ _ \/ __ \/ /_/ / /| | / __  / / __ `/ __ \
+  / /_/ / /_/ /  __/ / / / __  / ___ |/ /_/ / / /_/ / / / /
+  \____/ .___/\___/_/ /_/_/ /_/_/  |_/_____/_/\__,_/_/ /_/
+      /_/
+
+EOF

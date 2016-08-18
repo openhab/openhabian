@@ -3,34 +3,22 @@
 # file to inform user of a problem. will be deleted at the end of this script
 touch /rootfs/home/pi/OPENHABIAN-install-failed
 
-# install git package
 echo -n "[openhabian] Installing git package..."
 chroot /rootfs /usr/bin/apt-get -y install git &>/dev/null
-if [ $? -eq 0 ]; then
-    echo "OK"
-else
-    echo "FAILED !"
-    exit 1
-fi
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-
-# clone repository for later updates
 echo -n "[openhabian] Cloning myself..."
 chroot /rootfs /usr/bin/git clone https://github.com/ThomDietrich/openhabian.git /opt/openhabian &>/dev/null
-if [ $? -eq 0 ]; then
-    echo "OK"
-else
-    echo "FAILED !"
-    exit 1
-fi
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 echo "[openhabian] Executing 'openhabian-setup.sh':"
-chroot /rootfs /bin/bash /opt/openhabian/openhabian-setup.sh
+chroot /rootfs /bin/bash /opt/openhabian/openhabian-setup.sh unattended
 if [ $? -eq 0 ]; then
-    echo "OK"
+  echo "OK"
+  rm /rootfs/home/pi/OPENHABIAN-install-failed
+  touch /rootfs/home/pi/OPENHABIAN-install-successful
 else
-    echo "FAILED !"
-    exit 1
+  echo "FAILED"
 fi
 
 # vim: filetype=sh
