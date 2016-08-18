@@ -3,6 +3,17 @@
 # file to inform user of a problem. will be deleted at the end of this script
 touch /rootfs/home/pi/OPENHABIAN-install-failed
 
+# install git package
+echo -n "[openhabian] Installing git package..."
+chroot /rootfs /usr/bin/apt-get -y install git &>/dev/null
+if [ $? -eq 0 ]; then
+    echo "OK"
+else
+    echo "FAILED !"
+    exit 1
+fi
+
+
 # clone repository for later updates
 echo -n "[openhabian] Cloning myself..."
 chroot /rootfs /usr/bin/git clone https://github.com/ThomDietrich/openhabian.git /opt/openhabian &>/dev/null
@@ -13,124 +24,13 @@ else
     exit 1
 fi
 
-#chroot /rootfs /bin/bash /opt/openhabian/openhabian-setup.sh
-# bashrc
-echo -n "[openhabian] Adding .bashrc to users profile..."
-cp /rootfs/opt/openhabian/includes/.bashrc /rootfs/home/pi/.bashrc
-echo "OK"
-
-# install basic packages
-echo -n "[openhabian] Installing basic can't-be-wrong packages (screen, vim, ...)..."
-chroot /rootfs /usr/bin/apt-get -y install screen vim nano mc vfu bash-completion htop curl wget git bzip2 zip unzip xz-utils software-properties-common &>/dev/null
+echo "[openhabian] Executing 'openhabian-setup.sh':"
+chroot /rootfs /bin/bash /opt/openhabian/openhabian-setup.sh
 if [ $? -eq 0 ]; then
     echo "OK"
 else
     echo "FAILED !"
     exit 1
 fi
-
-# install Oracle Java 8 - prerequisite for openHAB
-# install apt-transport-https - update packages through https repository (https://openhab.ci.cloudbees.com/...)
-# install samba - network sharing
-# install bc + sysstat - needed for FireMotD
-echo -n "[openhabian] Installing additional needed packages (oracle-java8-jdk, apt-transport-https, samba)..."
-chroot /rootfs /usr/bin/apt-get -y install oracle-java8-jdk apt-transport-https samba bc sysstat &>/dev/null
-if [ $? -eq 0 ]; then
-    echo "OK"
-else
-    echo "FAILED !"
-    exit 1
-fi
-
-# add openHAB 2 repository
-echo -n "[openhabian] Adding openHAB 2 Snapshot repositories to sources.list.d... "
-cat <<EOT >> /rootfs/etc/apt/sources.list.d/openhab2.list
-deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-offline/target/apt-repo/ /
-deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-online/target/apt-repo/ /
-EOT
-echo "OK"
-
-# apt-get update after adding repository needed
-echo -n "[openhabian] Updating package lists... "
-chroot /rootfs /usr/bin/apt-get update &>/dev/null
-echo "OK"
-
-## add openhab system user
-#echo -n "[openhabian] Manually adding openhab user to system (for manual installation?)... "
-#chroot /rootfs /usr/sbin/adduser --system --no-create-home --group --disabled-login openhab &>/dev/null
-#echo "OK"
-
-# install openhab2-offline
-echo -n "[openhabian] Installing openhab2-offline (force ignore auth)..."
-chroot /rootfs /usr/bin/apt-get --yes --force-yes install openhab2-offline &>/dev/null
-if [ $? -eq 0 ]; then
-    echo "OK"
-else
-    echo "FAILED !"
-    exit 1
-fi
-
-# activate openhab service
-echo -n "[openhabian] Activating openHAB..."
-chroot /rootfs /bin/systemctl daemon-reload  || fail
-chroot /rootfs /bin/systemctl enable openhab2.service || fail
-echo "OK"
-
-# samba setup
-echo -n "[openhabian] Modifying Samba config..."
-# TODO
-# edit
-echo "TODO"
-
-echo -n "[openhabian] Adding openhab as Samba user..."
-chroot /rootfs ( (echo "habopen"; echo "habopen") | /usr/bin/smbpasswd -s -a openhab || fail )
-chroot /rootfs chown -hR openhab:openhab /etc/openhab2
-echo "OK"
-
-echo -n "[openhabian] Activating Samba..."
-chroot /rootfs /bin/systemctl enable smbd.service || fail
-echo "OK"
-
-# provide system statistics as message-of-the-day
-echo -n "[openhabian] Downloading FireMotD..."
-chroot /rootfs /usr/bin/git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD &>/dev/null
-if [ $? -eq 0 ]; then
-    echo "OK"
-    echo -e "\n\n/opt/FireMotD/FireMotD --theme Modern" >> /rootfs/home/pi/.bashrc
-else
-    echo "FAILED !"
-    exit 1
-fi
-
-# make green LED blink as heartbeat on finished first boot
-echo -n "[openhabian] Activating heartbeat on first boot..."
-cat <<EOT > /rootfs/etc/rc.local
-#!/bin/sh -e
-#
-# This script is executed at the end of each multiuser runlevel.
-# Make sure that the script will "exit 0" on success or any other
-# value on error.
-
-FLAG="/var/lock/firstbootblink.lock"
-if [ ! -f $FLAG ]; then
-    echo "openhabian booting for the first time!"
-    if [ -f "/home/pi/OPENHABIAN-install-failed" ]; then
-        modprobe ledtrig_timer
-        echo "timer" >/sys/class/leds/led0/trigger
-        echo 100 >/sys/class/leds/led0/delay_on
-        echo 100 >/sys/class/leds/led0/delay_off
-    else
-        modprobe ledtrig_heartbeat
-        echo "heartbeat" >/sys/class/leds/led0/trigger
-    fi
-    touch $FLAG
-fi
-
-exit 0
-EOT
-echo "OK"
-
-rm /rootfs/home/pi/OPENHABIAN-install-failed
-touch /rootfs/home/pi/OPENHABIAN-install-successful
 
 # vim: filetype=sh
