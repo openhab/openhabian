@@ -1,0 +1,22 @@
+#!/bin/sh -e
+#
+# This script is executed at the end of each multiuser runlevel.
+# Make sure that the script will "exit 0" on success or any other
+# value on error.
+
+FLAG="/var/lock/firstbootblink.lock"
+if [ ! -f $FLAG ]; then
+    echo "openhabian booting for the first time!"
+    if [ -f "/home/pi/OPENHABIAN-install-failed" ]; then
+        modprobe ledtrig_timer
+        echo "timer" >/sys/class/leds/led0/trigger
+        echo 100 >/sys/class/leds/led0/delay_on
+        echo 100 >/sys/class/leds/led0/delay_off
+    else
+        modprobe ledtrig_heartbeat
+        echo "heartbeat" >/sys/class/leds/led0/trigger
+    fi
+    touch $FLAG
+fi
+
+exit 0
