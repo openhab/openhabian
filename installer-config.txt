@@ -6,3 +6,5 @@ userpw=raspberry
 user_is_admin=1
 timeserver=0.pool.ntp.org
 timezone=Europe/Berlin
+locales=en_US-UTF-8 de_DE.UTF-8
+system_default_locale=en_US-UTF-8

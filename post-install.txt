@@ -3,36 +3,25 @@
 # file to inform user of a problem. will be deleted at the end of this script
 touch /rootfs/home/pi/OPENHABIAN-install-failed
 
-#chroot /rootfs /usr/bin/timedatectl set-timezone Europe/Berlin
-#chroot /rootfs /usr/sbin/locale-gen en_US-UTF-8 de_DE.UTF-8
-#chroot /rootfs /usr/sbin/update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-
-# bashrc
-
-cat <<EOT >> /rootfs/home/pi/.bashrc
-export CLICOLOR=1
-
-# enable bash completion in interactive shells
-if [ -f /etc/bash_completion ]; then
-    . /etc/bash_completion
+# clone repository for later updates
+echo -n "[openhabian] Cloning myself..."
+chroot /rootfs /usr/bin/git clone https://github.com/ThomDietrich/openhabian.git /opt/openhabian &>/dev/null
+if [ $? -eq 0 ]; then
+    echo "OK"
+else
+    echo "FAILED !"
+    exit 1
 fi
 
-export GREP_OPTIONS='--color=always' 
-
-alias ls="ls --color=auto"
-alias ll="ls -alhF"
-alias openhablog="tail -f /var/log/openhab2/openhab.log -f /var/log/openhab2/events.log"
-
-export PS1="\[\[\033[1;34m\][\$(date +%H:%M)] \033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "
-export EDITOR="vim"
-export SVN_EDITOR="vim"
-
-echo "openhabian logo here ..."
-EOT
+#chroot /rootfs /bin/bash /opt/openhabian/openhabian-setup.sh
+# bashrc
+echo -n "[openhabian] Adding .bashrc to users profile..."
+cp /rootfs/opt/openhabian/includes/.bashrc /rootfs/home/pi/.bashrc
+echo "OK"
 
 # install basic packages
 echo -n "[openhabian] Installing basic can't-be-wrong packages (screen, vim, ...)..."
-chroot /rootfs /usr/bin/apt-get -y install screen vim nano mc vfu htop curl wget git bzip2 zip unzip xz-utils software-properties-common &>/dev/null
+chroot /rootfs /usr/bin/apt-get -y install screen vim nano mc vfu bash-completion htop curl wget git bzip2 zip unzip xz-utils software-properties-common &>/dev/null
 if [ $? -eq 0 ]; then
     echo "OK"
 else
@@ -140,17 +129,6 @@ fi
 exit 0
 EOT
 echo "OK"
-
-# clone repository for later updates
-echo -n "[openhabian] Cloning myself..."
-chroot /rootfs /usr/bin/git clone https://github.com/ThomDietrich/openhabian.git /opt/openhabian &>/dev/null
-if [ $? -eq 0 ]; then
-    echo "OK"
-    #echo "\n\n/opt/openhabian/..." >> /rootfs/home/pi/.bashrc
-else
-    echo "FAILED !"
-    exit 1
-fi
 
 rm /rootfs/home/pi/OPENHABIAN-install-failed
 touch /rootfs/home/pi/OPENHABIAN-install-successful
