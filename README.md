@@ -13,16 +13,20 @@ All packages will be downloaded in their newest version.
 * custom bashrc and vimrc
 * useful packages like screen, mc, htop ...
 
+The set of scripts may later also be used to configure any other kind of Linux system.
+
+Another idea is to provide an interactive configuration wizard, installing and configuring packages like HABmin, homegear or Grafana.
+
 ## Setup
 
-* Write image on SD card
-* Connect ethernet, SD card and power to your Raspberry Pi
-* Wait up to 30 minutes (setup will take long as everything is downloaded live)
+* Write image to SD card
+* Connect Ethernet, SD card and power to your Raspberry Pi
+* Wait up to **45 minutes** (setup will take long as everything is downloaded live)
 * Green LED will indicate when setup is finished
   * Irregular blinking: setup in progress...
-  * Steady "heartbeat": setup successfully
+  * Steady "heartbeat": **setup successful**
   * Fast blinking: error while setup, check `/boot/raspbian...log`, create GitHub Issue
 * Connect to the openHAB 2 portal (available after another 15 minutes): [http://openhabianpi.local:8080](http://openhabianpi.local:8080)
-* Connect via ssh with `pi:raspberry`
 * Connect to the Samba network share with `openhab:habopen`
+* Connect via ssh with `pi:raspberry`
 * enjoy!
