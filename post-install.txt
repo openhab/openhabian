@@ -14,11 +14,10 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 echo "[openhabian] Executing 'openhabian-setup.sh':"
 chroot /rootfs /bin/bash /opt/openhabian/openhabian-setup.sh unattended
 if [ $? -eq 0 ]; then
-  echo "OK"
   rm /rootfs/home/pi/OPENHABIAN-install-failed
   touch /rootfs/home/pi/OPENHABIAN-install-successful
 else
-  echo "FAILED"
+  touch /rootfs/home/pi/OPENHABIAN-install-failed
 fi
 
 # vim: filetype=sh
