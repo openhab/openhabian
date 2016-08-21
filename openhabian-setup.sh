@@ -1,10 +1,19 @@
 #!/usr/bin/env bash
 
+# Make sure only root can run our script
+echo -n "[openhabian] checking for root privileges... "
+if [[ $EUID -ne 0 ]]; then
+  echo "This script must be run as root" 1>&2
+  exit 1
+else
+  echo "OK"
+fi
+
 # script will be called with unattended argument by post-install.txt
 # execution without "unattended" may later provide an interactive version with more optional components
 if [[ "$1" = "unattended" ]]
 then
-    UNATTENDED=1
+  UNATTENDED=1
 fi
 
 #if [[ -n "$UNATTENDED" ]]
@@ -36,12 +45,13 @@ cp /opt/openhabian/includes/.vimrc /home/pi/.vimrc
 chown pi:pi /home/pi/.vimrc
 echo "OK"
 
+# install raspi-config - configuration tool for the Raspberry Pi + Raspbian
 # install Oracle Java 8 - prerequisite for openHAB
 # install apt-transport-https - update packages through https repository (https://openhab.ci.cloudbees.com/...)
 # install samba - network sharing
 # install bc + sysstat - needed for FireMotD
-echo -n "[openhabian] Installing additional needed packages (oracle-java8-jdk, apt-transport-https, samba)... "
-apt -y install oracle-java8-jdk apt-transport-https samba bc sysstat &>/dev/null
+echo -n "[openhabian] Installing additional needed packages (raspi-config oracle-java8-jdk, apt-transport-https, samba)... "
+apt -y install raspi-config oracle-java8-jdk apt-transport-https samba bc sysstat &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 # add openHAB 2 repository
@@ -94,11 +104,22 @@ echo "OK"
 #echo -n "[openhabian] Downloading FireMotD... "
 #git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD &>/dev/null
 #if [ $? -eq 0 ]; then
-#    echo "OK"
-#    echo -e "\n\n/opt/FireMotD/FireMotD --theme Modern" >> /home/pi/.bashrc
+#  echo "OK"
+#  echo -e "\n\n/opt/FireMotD/FireMotD --theme Modern" >> /home/pi/.bashrc
 #else
-#    echo "FAILED"
-#    exit 1
+#  echo "FAILED"
 #fi
+
+# install etckeeper packages
+echo -n "[openhabian] Installing etckeeper (git based /etc backup)... "
+apt -y install etckeeper &>/dev/null
+if [ $? -eq 0 ]; then
+  sed -i 's/VCS="bzr"/\#VCS="bzr"/g' /etc/etckeeper/etckeeper.conf
+  sed -i 's/\#VCS="git"/VCS="git"/g' /etc/etckeeper/etckeeper.conf
+  /bin/bash -c "cd /etc && etckeeper init && git config user.email 'etckeeper@localhost' && git config user.name 'openhabian' && git commit -m 'initial checkin' && git gc" &>/dev/null
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+else
+  echo "FAILED";
+fi
 
 # vim: filetype=sh
