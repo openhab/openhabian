@@ -50,7 +50,7 @@ echo "OK"
 # install apt-transport-https - update packages through https repository (https://openhab.ci.cloudbees.com/...)
 # install samba - network sharing
 # install bc + sysstat - needed for FireMotD
-echo -n "[openhabian] Installing additional needed packages (raspi-config oracle-java8-jdk, apt-transport-https, samba)... "
+echo -n "[openhabian] Installing additional needed packages (raspi-config, oracle-java8-jdk, apt-transport-https, samba)... "
 apt -y install raspi-config oracle-java8-jdk apt-transport-https samba bc sysstat &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
