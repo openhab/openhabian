@@ -118,6 +118,11 @@ if ! shopt -oq posix; then
   fi
 fi
 
+if [ -f /opt/FireMotD/FireMotD ]; then
+  echo
+  /opt/FireMotD/FireMotD --theme gray
+fi
+
 cat << 'EOF'
 
      Welcome to             __  _____    ____  _

@@ -109,15 +109,17 @@ echo -n "[openhabian] Activating Samba... "
 /bin/systemctl enable smbd.service &>/dev/null
 echo "OK"
 
-## provide system statistics as message-of-the-day
-#echo -n "[openhabian] Downloading FireMotD... "
+# provide system statistics as message-of-the-day
+echo -n "[openhabian] Downloading FireMotD... "
 #git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD &>/dev/null
-#if [ $? -eq 0 ]; then
-#  echo "OK"
-#  echo -e "\n\n/opt/FireMotD/FireMotD --theme Modern" >> /home/pi/.bashrc
-#else
-#  echo "FAILED"
-#fi
+git clone -b issue-15 https://github.com/ThomDietrich/FireMotD.git /opt/FireMotD &>/dev/null
+if [ $? -eq 0 ]; then
+  #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/pi/.bashrc
+  echo "3 3 * * * root /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
+  echo "OK"
+else
+  echo "FAILED"
+fi
 
 # install etckeeper packages
 echo -n "[openhabian] Installing etckeeper (git based /etc backup)... "

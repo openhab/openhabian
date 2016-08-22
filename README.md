@@ -8,14 +8,14 @@ The provided image of only 64MB contains a minimal boot system. This system will
 
 * openHAB 2 latest snapshot (package repository)
 * Samba (preconfigured)
-* custom bashrc and vimrc
-* uses whole sd card by default
+* custom .bashrc and .vimrc
+* uses whole SD card by default
 * 16MB GPU memory split
 * useful packages like screen, mc, htop ...
 
 The set of scripts may later also be used to configure any other kind of Linux system.
 
-The next milestone is to provide an interactive configuration wizard, installing and configuring packages like HABmin, homegear or Grafana.
+The next milestone is to provide an interactive configuration wizard, installing and configuring packages like HABmin, Homegear or Grafana.
 
 **Setup**
 
