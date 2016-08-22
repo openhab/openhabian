@@ -54,6 +54,15 @@ echo -n "[openhabian] Installing additional needed packages (raspi-config oracle
 apt -y install raspi-config oracle-java8-jdk apt-transport-https samba bc sysstat &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
+# memory split down to 16MB for graphics card
+echo -n "[openhabian] Setting the GPU memory split down to 16MB for headless system... "
+if grep -q "gpu_mem" /boot/config.txt; then
+  sed -i 's/gpu_mem=.*/gpu_mem=16/g' /boot/config.txt
+else
+  echo "gpu_mem=16" >> /boot/config.txt
+fi
+echo "OK"
+
 # add openHAB 2 repository
 echo -n "[openhabian] Adding openHAB 2 Snapshot repositories to sources.list.d... "
 cat <<EOT >> /etc/apt/sources.list.d/openhab2.list
