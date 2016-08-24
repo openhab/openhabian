@@ -7,6 +7,7 @@ Hassle-free [openHAB 2](http://openhab.org) Raspbian image as a minimal unattend
 The provided image of only 64MB contains a minimal boot system. This system will then install Raspbian followed by openHAB and a set of useful tools. All packages will be downloaded in their newest version.
 
 * openHAB 2 latest snapshot (package repository)
+* Oracle Java 8 (newer version needed for my.openhab)
 * Samba (preconfigured)
 * custom .bashrc and .vimrc
 * uses whole SD card by default

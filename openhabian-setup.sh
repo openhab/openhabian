@@ -28,6 +28,15 @@ echo -n "[openhabian] Activating heartbeat on first boot... "
 cp /opt/openhabian/includes/rc.local /etc/rc.local
 echo "OK"
 
+# memory split down to 16MB for graphics card
+echo -n "[openhabian] Setting the GPU memory split down to 16MB for headless system... "
+if grep -q "gpu_mem" /boot/config.txt; then
+  sed -i 's/gpu_mem=.*/gpu_mem=16/g' /boot/config.txt
+else
+  echo "gpu_mem=16" >> /boot/config.txt
+fi
+echo "OK"
+
 # install basic packages
 echo -n "[openhabian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
 apt -y install screen vim nano mc vfu bash-completion htop curl wget git bzip2 zip unzip xz-utils software-properties-common &>/dev/null
@@ -46,22 +55,33 @@ chown pi:pi /home/pi/.vimrc
 echo "OK"
 
 # install raspi-config - configuration tool for the Raspberry Pi + Raspbian
-# install Oracle Java 8 - prerequisite for openHAB
 # install apt-transport-https - update packages through https repository (https://openhab.ci.cloudbees.com/...)
 # install samba - network sharing
 # install bc + sysstat - needed for FireMotD
-echo -n "[openhabian] Installing additional needed packages (raspi-config, oracle-java8-jdk, apt-transport-https, samba)... "
+echo -n "[openhabian] Installing additional needed packages... "
 apt -y install raspi-config oracle-java8-jdk apt-transport-https samba bc sysstat &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-# memory split down to 16MB for graphics card
-echo -n "[openhabian] Setting the GPU memory split down to 16MB for headless system... "
-if grep -q "gpu_mem" /boot/config.txt; then
-  sed -i 's/gpu_mem=.*/gpu_mem=16/g' /boot/config.txt
-else
-  echo "gpu_mem=16" >> /boot/config.txt
-fi
-echo "OK"
+# install Oracle Java 8 - prerequisite for openHAB
+echo -n "[openhabian] Installing Oracle Java 8 (Web Upd8 PPA)... "
+#add-apt-repository ppa:webupd8team/java
+cat <<EOT >> /etc/apt/sources.list.d/webupd8team-java.list
+deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
+deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
+EOT
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886 &>/dev/null
+if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
+echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+apt update &>/dev/null
+apt -y install oracle-java8-installer &>/dev/null
+if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+apt -y install oracle-java8-set-default &>/dev/null
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+
+## add openhab system user
+#echo -n "[openhabian] Manually adding openhab user to system (for manual installation?)... "
+#adduser --system --no-create-home --group --disabled-login openhab &>/dev/null
+#echo "OK"
 
 # add openHAB 2 repository
 echo -n "[openhabian] Adding openHAB 2 Snapshot repositories to sources.list.d... "
@@ -69,17 +89,8 @@ cat <<EOT >> /etc/apt/sources.list.d/openhab2.list
 deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-offline/target/apt-repo/ /
 deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-online/target/apt-repo/ /
 EOT
-echo "OK"
-
-# apt-get update after adding repository needed
-echo -n "[openhabian] Updating package lists... "
 apt update &>/dev/null
-echo "OK"
-
-## add openhab system user
-#echo -n "[openhabian] Manually adding openhab user to system (for manual installation?)... "
-#adduser --system --no-create-home --group --disabled-login openhab &>/dev/null
-#echo "OK"
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 # openhab2-offline install
 echo -n "[openhabian] Installing openhab2-offline (force ignore auth)... "
