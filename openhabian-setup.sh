@@ -59,7 +59,7 @@ echo "OK"
 # install samba - network sharing
 # install bc + sysstat - needed for FireMotD
 echo -n "[openhabian] Installing additional needed packages... "
-apt -y install raspi-config oracle-java8-jdk apt-transport-https samba bc sysstat &>/dev/null
+apt -y install raspi-config apt-transport-https samba bc sysstat &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 # install Oracle Java 8 - prerequisite for openHAB
@@ -71,7 +71,8 @@ deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
 EOT
 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886 &>/dev/null
 if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
-echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | sudo /usr/bin/debconf-set-selections
+echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+if [ $? -ne 0 ]; then echo "FAILED (debconf)"; exit 1; fi
 apt update &>/dev/null
 apt -y install oracle-java8-installer &>/dev/null
 if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
