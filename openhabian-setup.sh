@@ -54,6 +54,20 @@ cp /opt/openhabian/includes/.vimrc /home/pi/.vimrc
 chown pi:pi /home/pi/.vimrc
 echo "OK"
 
+# add vim syntax highlighting, these may go to "/usr/share/vim/vimfiles"
+echo -n "[openhabian] Adding openHAB syntax to vim editor... "
+mkdir -p /home/pi/.vim/{ftdetect,syntax}
+wget -O /home/pi/.vim/syntax/openhab.vim https://raw.githubusercontent.com/cyberkov/openhab-vim/master/syntax/openhab.vim &>/dev/null
+wget -O /home/pi/.vim/ftdetect/openhab.vim https://raw.githubusercontent.com/cyberkov/openhab-vim/master/ftdetect/openhab.vim &>/dev/null
+chown -R pi:pi /home/pi/.vim
+echo "OK"
+
+# add nano syntax highlighting
+echo -n "[openhabian] Adding openHAB syntax to nano editor... "
+wget -O /usr/share/nano/openhab.nanorc https://raw.githubusercontent.com/airix1/openhabnano/master/openhab.nanorc &>/dev/null
+echo -e "\n## openHAB files\ninclude \"/usr/share/nano/openhab.nanorc\"" >> /etc/nanorc
+echo "OK"
+
 # install raspi-config - configuration tool for the Raspberry Pi + Raspbian
 # install apt-transport-https - update packages through https repository (https://openhab.ci.cloudbees.com/...)
 # install samba - network sharing
