@@ -24,7 +24,7 @@ fi
 #fi
 
 # make green LED blink as heartbeat on finished first boot
-echo -n "[openhabian] Activating heartbeat on first boot... "
+echo -n "[openhabian] Activating first boot script... "
 cp /opt/openhabian/includes/rc.local /etc/rc.local
 echo "OK"
 
@@ -94,24 +94,24 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 # add let's encrypt to java keytool
 # alternative to installing newest java revision through webupd8team repository, which is not working in chroot
-echo -n "[openhabian] Adding letsencrypt certs to Oracle Java 8 keytool (needed for my.openhab)... "
-FAILED=0
-CERTS="isrgrootx1.der
-lets-encrypt-x1-cross-signed.der
-lets-encrypt-x2-cross-signed.der
-lets-encrypt-x3-cross-signed.der
-lets-encrypt-x4-cross-signed.der
-letsencryptauthorityx1.der
-letsencryptauthorityx2.der"
-for cert in $CERTS
-do
-  namewoext="${cert%%.*}"
-  wget "https://letsencrypt.org/certs/$cert" || ((FAILED++))
-  /usr/bin/keytool -importcert -keystore /usr/lib/jvm/jdk-8-oracle-arm32-vfp-hflt/jre/lib/security/cacerts \
-    -storepass changeit -noprompt -trustcacerts -alias $namewoext -file $cert || ((FAILED++))
-  rm $cert
-done
-if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+#echo -n "[openhabian] Adding letsencrypt certs to Oracle Java 8 keytool (needed for my.openhab)... "
+#FAILED=0
+#CERTS="isrgrootx1.der
+#lets-encrypt-x1-cross-signed.der
+#lets-encrypt-x2-cross-signed.der
+#lets-encrypt-x3-cross-signed.der
+#lets-encrypt-x4-cross-signed.der
+#letsencryptauthorityx1.der
+#letsencryptauthorityx2.der"
+#for cert in $CERTS
+#do
+#  namewoext="${cert%%.*}"
+#  wget "https://letsencrypt.org/certs/$cert" || ((FAILED++))
+#  /usr/bin/keytool -importcert -keystore /usr/lib/jvm/jdk-8-oracle-arm32-vfp-hflt/jre/lib/security/cacerts \
+#    -storepass changeit -noprompt -trustcacerts -alias $namewoext -file $cert || ((FAILED++))
+#  rm $cert
+#done
+#if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
 ## add openhab system user
 #echo -n "[openhabian] Manually adding openhab user to system (for manual installation?)... "
@@ -135,7 +135,7 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 # openhab service activate
 echo -n "[openhabian] Activating openHAB... "
 systemctl daemon-reload &> /dev/null
-if [ $? -eq 0 ]; then echo -n "OK "; else echo -n "FAILED "; fi
+#if [ $? -eq 0 ]; then echo -n "OK "; else echo -n "FAILED "; fi
 systemctl enable openhab2.service &> /dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
