@@ -62,21 +62,42 @@ echo -n "[openhabian] Installing additional needed packages... "
 apt -y install raspi-config oracle-java8-jdk apt-transport-https samba bc sysstat &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-## install Oracle Java 8 - prerequisite for openHAB
-#echo -n "[openhabian] Installing Oracle Java 8 (Web Upd8 PPA)... "
-#cat <<EOT >> /etc/apt/sources.list.d/webupd8team-java.list
-#deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
-#deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
-#EOT
-#apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886 &>/dev/null
-#if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
-#echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
-#if [ $? -ne 0 ]; then echo "FAILED (debconf)"; exit 1; fi
-#apt update &>/dev/null
-#apt -y install oracle-java8-installer &>/dev/null
+# prepare (not install) Oracle Java 8 newest revision
+echo -n "[openhabian] Preparing Oracle Java 8 Web Upd8 repository... "
+cat <<EOT >> /etc/apt/sources.list.d/webupd8team-java.list
+deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
+deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main
+EOT
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886 &>/dev/null
+if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
+echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
+if [ $? -ne 0 ]; then echo "FAILED (debconf)"; exit 1; fi
+apt update &>/dev/null
+#apt -y install oracle-java8-installer &>/dev/null #FAILS with "readelf: Error: '/proc/self/exe': No such file"
 #if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
 #apt -y install oracle-java8-set-default &>/dev/null
-#if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+
+# add let's encrypt to java keytool
+# alternative to installing newest java revision through webupd8team repository, which is not working in chroot
+echo -n "[openhabian] Adding letsencrypt certs to Oracle Java 8 keytool (needed for my.openhab)... "
+FAILED=0
+CERTS="isrgrootx1.der
+lets-encrypt-x1-cross-signed.der
+lets-encrypt-x2-cross-signed.der
+lets-encrypt-x3-cross-signed.der
+lets-encrypt-x4-cross-signed.der
+letsencryptauthorityx1.der
+letsencryptauthorityx2.der"
+for cert in $CERTS
+do
+  namewoext="${cert%%.*}"
+  wget "https://letsencrypt.org/certs/$cert" || ((FAILED++))
+  /usr/bin/keytool -importcert -keystore /usr/lib/jvm/jdk-8-oracle-arm32-vfp-hflt/jre/lib/security/cacerts \
+    -storepass changeit -noprompt -trustcacerts -alias $namewoext -file $cert || ((FAILED++))
+  rm $cert
+done
+if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
 ## add openhab system user
 #echo -n "[openhabian] Manually adding openhab user to system (for manual installation?)... "
