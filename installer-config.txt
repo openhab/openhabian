@@ -1,5 +1,5 @@
-hostname=openahabianpi
-boot_volume_label=openhabian
+hostname=openHABianPi
+boot_volume_label=openHABian
 disable_root=1
 username=pi
 userpw=raspberry
