@@ -5,12 +5,13 @@
 # value on error.
 
 FLAG="/var/lock/firstbootblink.lock"
-LOG="/var/log/raspbian-ua-netinst.log"
+LOG="/var/log/raspbian-ua-netinst-bootup.log"
 FAILED=0
 if [ ! -f $FLAG ]; then
   echo "" >> LOG
   echo "[openHABian] Booting for the first time!" >> LOG
 
+  systemctl stop openhab2.service
   echo -n "[openHABian] installing Oracle Java 8 from Web Upd8 repository" >> LOG
   echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections || ((FAILED++))
   apt -y install oracle-java8-installer &>/dev/null || ((FAILED++))
@@ -20,6 +21,7 @@ if [ ! -f $FLAG ]; then
   else
     echo "FAILED" >> LOG
   fi
+  systemctl restart openhab2.service
 
   if [ -f "/home/pi/openHABian-install-failed" ]; then
     echo "[openHABian] Indicating failure through green LED fast blinking" >> LOG

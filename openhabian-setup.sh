@@ -14,6 +14,9 @@ fi
 if [[ "$1" = "unattended" ]]
 then
   UNATTENDED=1
+else
+  echo "We are sorry, interactive mode not implemented yet."
+  exit 1
 fi
 
 #if [[ -n "$UNATTENDED" ]]
@@ -147,6 +150,7 @@ echo "OK"
 # samba user
 echo -n "[openHABian] Adding openhab as Samba user... "
 ( (echo "habopen"; echo "habopen") | /usr/bin/smbpasswd -s -a openhab > /dev/null )
+#( (echo "raspberry"; echo "raspberry") | /usr/bin/smbpasswd -s -a pi > /dev/null )
 chown -hR openhab:openhab /etc/openhab2
 echo "OK"
 
