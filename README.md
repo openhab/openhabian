@@ -1,4 +1,4 @@
-# openhabian
+# openHABian
 
 Hassle-free [openHAB 2](http://openhab.org) Raspbian image as a minimal unattended netinstaller for Raspberry Pi Models 1B, 1B+, 2B and 3B.
 
