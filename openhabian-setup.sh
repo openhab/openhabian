@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Make sure only root can run our script
-echo -n "[openHABian] checking for root privileges... "
+echo -n "[openHABian] Checking for root privileges... "
 if [[ $EUID -ne 0 ]]; then
   echo "This script must be run as root" 1>&2
   exit 1
@@ -42,7 +42,7 @@ echo "OK"
 
 # install basic packages
 echo -n "[openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
-apt -y install screen vim nano mc vfu bash-completion htop curl wget git bzip2 zip unzip xz-utils software-properties-common &>/dev/null
+apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 # add a slightly better bashrc
