@@ -89,6 +89,8 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 
 alias openhablog='tail -f /var/log/openhab2/openhab.log -f /var/log/openhab2/events.log'
+alias openhablog2='multitail /var/log/openhab2/openhab.log /var/log/openhab2/events.log'
+alias openhablog3='multitail /var/log/openhab2/openhab.log -ci yellow -I /var/log/openhab2/events.log'
 
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
