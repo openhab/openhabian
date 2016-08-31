@@ -88,7 +88,7 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
-alias openhablog='tail -f /var/log/openhab2/openhab.log -f /var/log/openhab2/events.log'
+alias openhablog='tail -n 100 -f /var/log/openhab2/openhab.log -f /var/log/openhab2/events.log'
 alias openhablog2='multitail /var/log/openhab2/openhab.log /var/log/openhab2/events.log'
 alias openhablog3='multitail /var/log/openhab2/openhab.log -ci yellow -I /var/log/openhab2/events.log'
 
@@ -125,6 +125,7 @@ if [ -f /opt/FireMotD/FireMotD ]; then
   /opt/FireMotD/FireMotD --theme gray
 fi
 
+OHVERSION=`awk '/Build/ {print $4}' /usr/share/openhab2/runtime/karaf/etc/branding.properties`
 cat << 'EOF'
 
               Welcome to            __  _____    ____  _
@@ -133,5 +134,6 @@ cat << 'EOF'
           / /_/ / /_/ /  __/ / / / __  / ___ |/ /_/ / / /_/ / / / /
           \____/ .___/\___/_/ /_/_/ /_/_/  |_/_____/_/\__,_/_/ /_/
               /_/
-
 EOF
+echo "                                         openHAB 2.0 Build $OHVERSION"
+echo ""
