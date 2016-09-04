@@ -28,7 +28,7 @@ The next milestone is to provide an interactive configuration wizard, installing
   * Irregular blinking: setup in progress...
   * Steady "heartbeat": setup **successful**
   * Fast blinking: error while setup, check `/var/log/raspbian-ua-netinst.log`, create GitHub Issue
-* Connect to the openHAB 2 portal (available after another 15 minutes): [http://openhabianpi.local:8080](http://openhabianpi.local:8080)
+* Connect to the openHAB 2 portal (available after another 15 minutes): [http://openhabianpi:8080](http://openhabianpi:8080)
 * Connect via ssh with `pi:raspberry`
 * Connect to the Samba network share with `openhab:habopen`
 * enjoy!
