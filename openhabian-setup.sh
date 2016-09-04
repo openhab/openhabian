@@ -212,11 +212,20 @@ etckeeper() {
   if [ $? -eq 0 ]; then
     sed -i 's/VCS="bzr"/\#VCS="bzr"/g' /etc/etckeeper/etckeeper.conf
     sed -i 's/\#VCS="git"/VCS="git"/g' /etc/etckeeper/etckeeper.conf
-    /bin/bash -c "cd /etc && etckeeper init && git config user.email 'etckeeper@localhost' && git config user.name 'openhabian' && git commit -m 'initial checkin' && git gc" &>/dev/null
+    bash -c "cd /etc && etckeeper init && git config user.email 'etckeeper@localhost' && git config user.name 'openhabian' && git commit -m 'initial checkin' && git gc" &>/dev/null
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   else
     echo "FAILED";
   fi
+}
+
+knxd-setup() {
+  echo -n "[openHABian] Installing knxd (http://michlstechblog.info/blog/raspberry-pi-eibd-with-a-knx-usb-interface)... "
+  wget -O /tmp/install_knxd_systemd.sh http://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh
+  bash /tmp/install_knxd_systemd.sh
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  systemctl start knxd.service
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 
 fresh-raspbian-mods() {
@@ -264,6 +273,7 @@ read_options(){
     1) fresh-raspbian-mods ;;
     2) openhab2-full-setup ;;
     3) samba-setup ;;
+    4) knxd-setup ;;
     x) exit 0 ;;
     *) echo -e "${RED}Error...${STD}" && sleep 2
   esac
