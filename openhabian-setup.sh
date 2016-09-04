@@ -219,32 +219,72 @@ etckeeper() {
   fi
 }
 
-
-if [[ -n "$UNATTENDED" ]]
-then
-  #unattended installation (from within raspbian-ua-netinst chroot)
+fresh-raspbian-mods() {
   first_boot_script
   memory_split
   basic-packages
   needed-packages
   bashrc-copy
   vimrc-copy
-  #
-  java-webupd8-prepare
-  #java-webupd8-install
-  #
+}
+
+openhab2-full-setup() {
   openhab2-addrepo
   openhab2-install
   openhab2-service
   vim-openhab-syntax
   nano-openhab-syntax
-  #
+}
+
+samba-setup() {
   samba-config
   samba-user
   samba-activate
-  #
+}
+
+show_menu() {
+  clear
+  echo "######################################"
+  echo "     openHABian - poor man's menu     "
+  echo "######################################"
+  echo "1. Apply modifications after raspbian setup"
+  echo "2. Set up openHAB 2"
+  echo "3. Set up Samba for openHAB 2"
+  echo "4. Set up knxd"
+  echo "x. Exit"
+}
+# read input from the keyboard and take a action
+# invoke the one() when the user select 1 from the menu option.
+# invoke the two() when the user select 2 from the menu option.
+# Exit when user the user select 3 form the menu option.
+read_options(){
+  local choice
+  read -p "Enter choice: " choice
+  case $choice in
+    1) fresh-raspbian-mods ;;
+    2) openhab2-full-setup ;;
+    3) samba-setup ;;
+    x) exit 0 ;;
+    *) echo -e "${RED}Error...${STD}" && sleep 2
+  esac
+}
+
+
+if [[ -n "$UNATTENDED" ]]
+then
+  #unattended installation (from within raspbian-ua-netinst chroot)
+  fresh-raspbian-mods
+  java-webupd8-prepare
+  #java-webupd8-install
+  openhab2-full-setup
+  samba-setup
   firemotd
   etckeeper
+else
+  while true; do
+    show_menu
+    read_options
+  done
 fi
 
 
