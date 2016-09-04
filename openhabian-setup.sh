@@ -70,6 +70,7 @@ needed-packages() {
 
 bashrc-copy() {
   echo -n "[openHABian] Adding slightly tuned .bashrc to users profile... "
+  #TODO seperate into /etc/bash.bashrc and /root/.bashrc
   cp /opt/openhabian/includes/.bashrc /home/pi/.bashrc
   chown pi:pi /home/pi/.bashrc
   echo "OK"
@@ -77,8 +78,7 @@ bashrc-copy() {
 
 vimrc-copy() {
   echo -n "[openHABian] Adding slightly tuned .vimrc to users profile... "
-  cp /opt/openhabian/includes/.vimrc /home/pi/.vimrc
-  chown pi:pi /home/pi/.vimrc
+  cp /opt/openhabian/includes/.vimrc /etc/vim/vimrc.local
   echo "OK"
 }
 
