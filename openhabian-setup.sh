@@ -54,8 +54,8 @@ memory_split() {
 
 basic-packages() {
   echo -n "[openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
-  if apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common &>/dev/null
-  then echo "OK"; else echo "FAILED"; exit 1; fi
+  apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common &>/dev/null
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 needed-packages() {
@@ -228,6 +228,16 @@ knxd-setup() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 
+1wire-setup() {
+  echo -n "[openHABian] Installing owserver (1wire)... "
+  apt -y install owserver ow-shell usbutils &>/dev/null
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  #sed -i 's/1/2/g' /etc/owfs.conf
+  #! server: server = localhost:4304
+  #server: device = /dev/ttyUSB0
+  #server: port = localhost:4304
+}
+
 fresh-raspbian-mods() {
   first_boot_script
   memory_split
@@ -260,6 +270,7 @@ show_menu() {
   echo "2. Set up openHAB 2"
   echo "3. Set up Samba for openHAB 2"
   echo "4. Set up knxd"
+  echo "5. Set owserver (1wire)"
   echo "x. Exit"
 }
 # read input from the keyboard and take a action
@@ -274,6 +285,7 @@ read_options(){
     2) openhab2-full-setup ;;
     3) samba-setup ;;
     4) knxd-setup ;;
+    5) 1wire-setup ;;
     x) exit 0 ;;
     *) echo -e "${RED}Error...${STD}" && sleep 2
   esac
