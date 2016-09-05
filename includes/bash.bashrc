@@ -1,6 +1,7 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
+# System-wide .bashrc file for interactive bash(1) shells.
+
+# To enable the settings / commands in this file for login shells as well,
+# this file has to be sourced in /etc/profile.
 
 # If not running interactively, don't do anything
 case $- in
@@ -137,21 +138,3 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-
-if [ -f /opt/FireMotD/FireMotD ]; then
-  echo
-  /opt/FireMotD/FireMotD --theme gray
-fi
-
-OHVERSION=`awk '/Build/ {print $4}' /usr/share/openhab2/runtime/karaf/etc/branding.properties`
-cat << 'EOF'
-
-              Welcome to            __  _____    ____  _
-            ____  ____  ___  ____  / / / /   |  / __ )(_)___ _____
-           / __ \/ __ \/ _ \/ __ \/ /_/ / /| | / __  / / __ `/ __ \
-          / /_/ / /_/ /  __/ / / / __  / ___ |/ /_/ / / /_/ / / / /
-          \____/ .___/\___/_/ /_/_/ /_/_/  |_/_____/_/\__,_/_/ /_/
-              /_/
-EOF
-echo "                                         openHAB 2.0 Build $OHVERSION"
-echo ""
