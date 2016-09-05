@@ -43,7 +43,6 @@ first_boot_script() {
 
 memory_split() {
   echo -n "[openHABian] Setting the GPU memory split down to 16MB for headless system... "
-  # memory split down to 16MB for graphics card
   if grep -q "gpu_mem" /boot/config.txt; then
     sed -i 's/gpu_mem=.*/gpu_mem=16/g' /boot/config.txt
   else
@@ -69,16 +68,17 @@ needed-packages() {
 }
 
 bashrc-copy() {
-  echo -n "[openHABian] Adding slightly tuned .bashrc to users profile... "
-  #TODO seperate into /etc/bash.bashrc and /root/.bashrc
-  cp /opt/openhabian/includes/.bashrc /home/pi/.bashrc
+  echo -n "[openHABian] Adding slightly tuned .bashrc files to system... "
+  cp /opt/openhabian/includes/bash.bashrc /etc/bash.bashrc
+  cp /opt/openhabian/includes/bashrc-root /root/.bashrc
+  cp /opt/openhabian/includes/bashrc /home/pi/.bashrc
   chown pi:pi /home/pi/.bashrc
   echo "OK"
 }
 
 vimrc-copy() {
-  echo -n "[openHABian] Adding slightly tuned .vimrc to users profile... "
-  cp /opt/openhabian/includes/.vimrc /etc/vim/vimrc.local
+  echo -n "[openHABian] Adding slightly tuned .vimrc file to system... "
+  cp /opt/openhabian/includes/vimrc /etc/vim/vimrc.local
   echo "OK"
 }
 

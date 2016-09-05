@@ -1,0 +1,21 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+if [ -f /opt/FireMotD/FireMotD ]; then
+  echo
+  /opt/FireMotD/FireMotD --theme gray
+fi
+
+OHVERSION=`awk '/Build/ {print $4}' /usr/share/openhab2/runtime/karaf/etc/branding.properties`
+cat << 'EOF'
+
+              Welcome to            __  _____    ____  _
+            ____  ____  ___  ____  / / / /   |  / __ )(_)___ _____
+           / __ \/ __ \/ _ \/ __ \/ /_/ / /| | / __  / / __ `/ __ \
+          / /_/ / /_/ /  __/ / / / __  / ___ |/ /_/ / / /_/ / / / /
+          \____/ .___/\___/_/ /_/_/ /_/_/  |_/_____/_/\__,_/_/ /_/
+              /_/
+EOF
+echo "                                         openHAB 2.0 Build $OHVERSION"
+echo ""
