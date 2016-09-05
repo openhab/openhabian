@@ -1,6 +1,6 @@
 # openHABian
 
-Hassle-free [openHAB 2](http://openhab.org) Raspbian image as a minimal unattended netinstaller for Raspberry Pi Models Zero, 1B, 1B+, 2B and 3B.
+Hassle-free [openHAB 2](http://openhab.org) Raspbian image as a minimal unattended netinstaller for the Raspberry Pi.
 
 > This project is based on the powerful [raspbian-ua-netinst](https://github.com/debian-pi/raspbian-ua-netinst) and most technical details can be taken from there.
 
@@ -8,11 +8,12 @@ The provided image of only 64MB contains a minimal boot system. This system will
 
 * openHAB 2 latest snapshot (package repository)
 * Oracle Java 8 (*build 1.8.0_101*, needed for my.openhab)
-* Samba (preconfigured)
-* custom .bashrc and .vimrc
-* openHAB syntax highlighting in vim and nano
+* Samba ([preconfigured](includes/smb.conf))
+* custom [.bashrc](includes/bash.bashrc) and [.vimrc](includes/vimrc) files
+* openHAB syntax highlighting in [vim](https://github.com/cyberkov/openhab-vim) and [nano](https://github.com/airix1/openhabnano)
 * uses whole SD card by default (8GB or 16GB SD card sufficient)
 * 16MB GPU memory split
+* git based versioning of `etc` by the help of [etckeeper](http://etckeeper.branchable.com)
 * useful packages like screen, mc, htop ...
 
 The set of scripts may later also be used to configure any other kind of Linux system.
@@ -21,9 +22,10 @@ The next milestone is to provide an interactive configuration wizard, installing
 
 **Setup**
 
+* Raspberry Pi models 1B+, 2B or 3B recommended
 * Write [image](https://github.com/ThomDietrich/openhabian/releases) to SD card ([instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md))
 * Connect Ethernet, SD card and power to your Raspberry Pi
-* Wait up to **45 minutes** (setup will take some time as everything is downloaded live)
+* Wait up to **45 minutes** (setup depends on your downlink as almost everything is downloaded live)
 * Green LED will indicate when setup is finished
   * Irregular blinking: setup in progress...
   * Steady "heartbeat": setup **successful**

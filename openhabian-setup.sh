@@ -29,9 +29,6 @@ fi
 if [[ "$1" = "unattended" ]]
 then
   UNATTENDED=1
-else
-  echo "We are sorry, interactive mode not implemented yet."
-  exit 1
 fi
 
 first_boot_script() {
@@ -219,13 +216,22 @@ etckeeper() {
   fi
 }
 
+openhab-shell-interfaces() {
+  echo -n "[openHABian] Binding the Karaf console on all interfaces... "
+  sed -e "s/sshHost = 127.0.0.1/sshHost = 0.0.0.0/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
+  systemctl restart openhab2.service
+  echo "OK"
+}
+
 knxd-setup() {
-  echo -n "[openHABian] Installing knxd (http://michlstechblog.info/blog/raspberry-pi-eibd-with-a-knx-usb-interface)... "
+  echo -n "[openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
+  echo -n "(http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd)... "
+  #TODO serve file from the repository
   wget -O /tmp/install_knxd_systemd.sh http://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh
   bash /tmp/install_knxd_systemd.sh
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
-  systemctl start knxd.service
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  if [ $? -eq 0 ]; then echo "OK. Please restart your system now..."; else echo "FAILED"; fi
+  #systemctl start knxd.service
+  #if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 
 1wire-setup() {
@@ -262,15 +268,17 @@ samba-setup() {
 }
 
 show_menu() {
-  clear
+  #clear
+  echo ""
   echo "######################################"
   echo "     openHABian - poor man's menu     "
   echo "######################################"
   echo "1. Apply modifications after raspbian setup"
   echo "2. Set up openHAB 2"
   echo "3. Set up Samba for openHAB 2"
-  echo "4. Set up knxd"
-  echo "5. Set owserver (1wire)"
+  echo "4. Bind Karaf console to all interfaces"
+  echo "5. Set up knxd"
+  echo "6. Set up owserver (1wire)"
   echo "x. Exit"
 }
 # read input from the keyboard and take a action
@@ -284,10 +292,11 @@ read_options(){
     1) fresh-raspbian-mods ;;
     2) openhab2-full-setup ;;
     3) samba-setup ;;
-    4) knxd-setup ;;
-    5) 1wire-setup ;;
+    4) openhab-shell-interfaces ;;
+    5) knxd-setup ;;
+    6) 1wire-setup ;;
     x) exit 0 ;;
-    *) echo -e "${RED}Error...${STD}" && sleep 2
+    *) echo "Error... " && sleep 2
   esac
 }
 
