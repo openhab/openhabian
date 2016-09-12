@@ -37,6 +37,7 @@ cond_redirect() {
     "$@" &>/dev/null
     return $?
   else
+    echo -e "\n$COL_BLUE\$ $@ $COL_DEF"
     "$@"
     return $?
   fi
@@ -96,7 +97,6 @@ calc_wt_size() {
   WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
 }
 # SNAP
-
 
 first_boot_script() {
   echo -n "[openHABian] Activating first boot script... "
@@ -274,8 +274,8 @@ etckeeper() {
   echo -n "[openHABian] Installing etckeeper (git based /etc backup)... "
   apt -y install etckeeper &>/dev/null
   if [ $? -eq 0 ]; then
-    sed -i 's/VCS="bzr"/\#VCS="bzr"/g' /etc/etckeeper/etckeeper.conf
-    sed -i 's/\#VCS="git"/VCS="git"/g' /etc/etckeeper/etckeeper.conf
+    cond_redirect sed -i 's/VCS="bzr"/\#VCS="bzr"/g' /etc/etckeeper/etckeeper.conf
+    cond_redirect sed -i 's/\#VCS="git"/VCS="git"/g' /etc/etckeeper/etckeeper.conf
     cond_redirect bash -c "cd /etc && etckeeper init && git config user.email 'etckeeper@localhost' && git config user.name 'openhabian' && git commit -m 'initial checkin' && git gc"
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   else
@@ -285,7 +285,9 @@ etckeeper() {
 
 openhab_shell_interfaces() {
   echo -n "[openHABian] Binding the Karaf console on all interfaces... "
-  sed -n -e "s/sshHost = 127.0.0.1/sshHost = 0.0.0.0/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
+  cond_redirect sed -i "s/sshHost = 127.0.0.1/sshHost = 0.0.0.0/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
+  #cond_redirect sed -i "s/\# keySize = 4096/\# keySize = 4096\nkeySize = 1024/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
+  #cond_redirect rm /usr/share/openhab2/runtime/karaf/etc/host.key
   cond_redirect systemctl restart openhab2.service
   echo "OK"
 }
@@ -294,7 +296,7 @@ knxd_setup() {
   echo -n "[openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
   echo -n "(http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd)... "
   #TODO serve file from the repository
-  wget -O /tmp/install_knxd_systemd.sh http://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh
+  cond_redirect wget -O /tmp/install_knxd_systemd.sh http://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh
   cond_redirect bash /tmp/install_knxd_systemd.sh
   if [ $? -eq 0 ]; then echo "OK. Please restart your system now..."; else echo "FAILED"; fi
   #systemctl start knxd.service
@@ -318,6 +320,10 @@ get_git_revision() {
   latesttag=`git describe --tags --abbrev=0`
   local revision="[$branch]$latesttag-$revcount($shorthash)"
   echo "$revision"
+}
+
+show_about() {
+  whiptail --title "openHABian $(get_git_revision)" --msgbox "The hassle-free openHAB 2 installation and configuration tool.\nhttps://github.com/ThomDietrich/openhabian \nhttps://community.openhab.org/t/openhabian-hassle-free-rpi-image/13379" 20 60 1
 }
 
 fresh_raspbian_mods() {
@@ -348,17 +354,17 @@ show_main_menu() {
   calc_wt_size
 
   choice=$(whiptail --title "openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
-  "1 Perform Basic Setup" "Perform all basic setup steps on a new system..." \
+  "1 Perform Basic Setup" "Perform all basic setup steps recommended for openHAB 2 on a new system" \
   "2 Set up openHAB 2" "Prepare and install the latest openHAB 2 snapshot" \
-  "3 Set up Samba" "Install the file sharing service Samba and set up shares useful with openHAB 2" \
-  "4 Karaf Console" "Bind the Karaf console to all interfaces..." \
+  "3 Set up Samba" "Install the filesharing service Samba and set up openHAB 2 shares" \
+  "4 Karaf Console" "Bind the Karaf console to all interfaces" \
   "5 Set up knxd" "Prepare and install kndx, the KNX daemon" \
   "6 Set up owserver" "Prepare and install owserver and related packages for working with 1wire" \
   "0 About openHABian" "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then
-    whiptail --title "openHABian Configuration Tool $(get_git_revision)" --msgbox "We hope you got what you came for! See you soon ;)" 20 60 1
+    whiptail --title "openHABian Configuration Tool $(get_git_revision)" --msgbox "We hope you got what you came for! See you again soon ;)" 20 60 1
     exit 0
   elif [ $RET -eq 0 ]; then
     case "$choice" in
@@ -368,7 +374,7 @@ show_main_menu() {
       4\ *) openhab_shell_interfaces ;;
       5\ *) knxd_setup ;;
       6\ *) 1wire_setup ;;
-      0\ *) do_about ;;
+      0\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 20 60 1 ;;
     esac || whiptail --msgbox "There was an error running option \"$choice\"" 20 60 1
   else
@@ -391,6 +397,7 @@ else
   whiptail --title "openHABian Configuration Tool $(get_git_revision)" --msgbox "Welcome to the openHABian Configuration Tool!" 8 78
   while true; do
     show_main_menu
+    echo ""
   done
 fi
 
