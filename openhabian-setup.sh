@@ -29,7 +29,18 @@ fi
 if [[ "$1" = "unattended" ]]
 then
   UNATTENDED=1
+  SILENT=1
 fi
+
+cond_redirect() {
+  if [ -n "$SILENT" ]; then
+    "$@" &>/dev/null
+    return $?
+  else
+    "$@"
+    return $?
+  fi
+}
 
 # Shamelessly taken from https://github.com/RPi-Distro/raspi-config/blob/bd21dedea3c9927814cf4f0438e116c6a31181a9/raspi-config#L11-L66
 # SNIP
@@ -75,7 +86,7 @@ calc_wt_size() {
   # stderr is a tty and so only gives default 80, 24 values
   WT_HEIGHT=17
   WT_WIDTH=$(tput cols)
-  
+
   if [ -z "$WT_WIDTH" ] || [ "$WT_WIDTH" -lt 60 ]; then
     WT_WIDTH=80
   fi
@@ -104,23 +115,23 @@ memory_split() {
   echo "OK"
 }
 
-basic-packages() {
+basic_packages() {
   echo -n "[openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
-  apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common &>/dev/null
+  cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-needed-packages() {
+needed_packages() {
   # install raspi-config - configuration tool for the Raspberry Pi + Raspbian
   # install apt-transport-https - update packages through https repository (https://openhab.ci.cloudbees.com/...)
   # install samba - network sharing
   # install bc + sysstat - needed for FireMotD
   echo -n "[openHABian] Installing additional needed packages... "
-  apt -y install raspi-config oracle-java8-jdk apt-transport-https samba bc sysstat &>/dev/null
+  cond_redirect apt -y install raspi-config oracle-java8-jdk apt-transport-https samba bc sysstat
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-bashrc-copy() {
+bashrc_copy() {
   echo -n "[openHABian] Adding slightly tuned .bashrc files to system... "
   cp /opt/openhabian/includes/bash.bashrc /etc/bash.bashrc
   cp /opt/openhabian/includes/bashrc-root /root/.bashrc
@@ -129,36 +140,36 @@ bashrc-copy() {
   echo "OK"
 }
 
-vimrc-copy() {
+vimrc_copy() {
   echo -n "[openHABian] Adding slightly tuned .vimrc file to system... "
   cp /opt/openhabian/includes/vimrc /etc/vim/vimrc.local
   echo "OK"
 }
 
-java-webupd8-prepare() {
+java_webupd8_prepare() {
   # prepare (not install) Oracle Java 8 newest revision
   echo -n "[openHABian] Preparing Oracle Java 8 Web Upd8 repository... "
   echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
   echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
-  apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886 &>/dev/null
+  cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
   if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
-  apt update &>/dev/null
+  cond_redirect apt update
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-java-webupd8-install() {
+java_webupd8_install() {
   # do not execute inside raspbian-ua-netinst chroot environment!
   # FAILS with "readelf: Error: '/proc/self/exe': No such file"
   echo -n "[openHABian] Installing Oracle Java 8 from Web Upd8 repository... "
   echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
   if [ $? -ne 0 ]; then echo "FAILED (debconf)"; exit 1; fi
-  apt -y install oracle-java8-installer &>/dev/null
+  cond_redirect apt -y install oracle-java8-installer
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
-  apt -y install oracle-java8-set-default &>/dev/null
+  cond_redirect apt -y install oracle-java8-set-default
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-# java-letsencrypt() {
+# java_letsencrypt() {
 #   # alternative to installing newest java revision through webupd8team repository, which is not working in chroot
 #   echo -n "[openHABian] Adding letsencrypt certs to Oracle Java 8 keytool (needed for my.openhab)... "
 #   FAILED=0
@@ -180,59 +191,59 @@ java-webupd8-install() {
 #   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 # }
 
-# openhab2-user() {
+# openhab2_user() {
 #   echo -n "[openHABian] Manually adding openhab user to system (for manual installation?)... "
 #   adduser --system --no-create-home --group --disabled-login openhab &>/dev/null
 #   echo "OK"
 # }
 
-openhab2-addrepo() {
+openhab2_addrepo() {
   echo -n "[openHABian] Adding openHAB 2 Snapshot repositories to sources.list.d... "
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-offline/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-online/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
-  apt update &>/dev/null
+  cond_redirect apt update
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-openhab2-install() {
+openhab2_install() {
   echo -n "[openHABian] Installing openhab2-offline (force ignore auth)... "
-  apt --yes --force-yes install openhab2-offline &>/dev/null
+  cond_redirect apt --yes --force-yes install openhab2-offline
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-openhab2-service() {
+openhab2_service() {
   echo -n "[openHABian] Activating openHAB... "
-  systemctl daemon-reload &> /dev/null
+  cond_redirect systemctl daemon-reload
   #if [ $? -eq 0 ]; then echo -n "OK "; else echo -n "FAILED "; fi
-  systemctl enable openhab2.service &> /dev/null
+  cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 
-vim-openhab-syntax() {
+vim_openhab_syntax() {
   echo -n "[openHABian] Adding openHAB syntax to vim editor... "
   # these may go to "/usr/share/vim/vimfiles" ?
   mkdir -p /home/pi/.vim/{ftdetect,syntax}
-  wget -O /home/pi/.vim/syntax/openhab.vim https://raw.githubusercontent.com/cyberkov/openhab-vim/master/syntax/openhab.vim &>/dev/null
-  wget -O /home/pi/.vim/ftdetect/openhab.vim https://raw.githubusercontent.com/cyberkov/openhab-vim/master/ftdetect/openhab.vim &>/dev/null
+  cond_redirect wget -O /home/pi/.vim/syntax/openhab.vim https://raw.githubusercontent.com/cyberkov/openhab-vim/master/syntax/openhab.vim
+  cond_redirect wget -O /home/pi/.vim/ftdetect/openhab.vim https://raw.githubusercontent.com/cyberkov/openhab-vim/master/ftdetect/openhab.vim
   chown -R pi:pi /home/pi/.vim
   echo "OK"
 }
 
-nano-openhab-syntax() {
+nano_openhab_syntax() {
   # add nano syntax highlighting
   echo -n "[openHABian] Adding openHAB syntax to nano editor... "
-  wget -O /usr/share/nano/openhab.nanorc https://raw.githubusercontent.com/airix1/openhabnano/master/openhab.nanorc &>/dev/null
+  cond_redirect wget -O /usr/share/nano/openhab.nanorc https://raw.githubusercontent.com/airix1/openhabnano/master/openhab.nanorc
   echo -e "\n## openHAB files\ninclude \"/usr/share/nano/openhab.nanorc\"" >> /etc/nanorc
   echo "OK"
 }
 
-samba-config() {
+samba_config() {
   echo -n "[openHABian] Modifying Samba config... "
   cp /opt/openhabian/includes/smb.conf /etc/samba/smb.conf
   echo "OK"
 }
 
-samba-user() {
+samba_user() {
   echo -n "[openHABian] Adding openhab as Samba user... "
   ( (echo "habopen"; echo "habopen") | /usr/bin/smbpasswd -s -a openhab > /dev/null )
   #( (echo "raspberry"; echo "raspberry") | /usr/bin/smbpasswd -s -a pi > /dev/null )
@@ -240,16 +251,16 @@ samba-user() {
   echo "OK"
 }
 
-samba-activate() {
+samba_activate() {
   echo -n "[openHABian] Activating Samba... "
-  /bin/systemctl enable smbd.service &>/dev/null
+  cond_redirect /bin/systemctl enable smbd.service
   echo "OK"
 }
 
 firemotd() {
   echo -n "[openHABian] Downloading FireMotD... "
   #git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD &>/dev/null
-  git clone -b issue-15 https://github.com/ThomDietrich/FireMotD.git /opt/FireMotD &>/dev/null
+  cond_redirect git clone -b issue-15 https://github.com/ThomDietrich/FireMotD.git /opt/FireMotD
   if [ $? -eq 0 ]; then
     #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/pi/.bashrc
     echo "3 3 * * * root /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
@@ -265,34 +276,34 @@ etckeeper() {
   if [ $? -eq 0 ]; then
     sed -i 's/VCS="bzr"/\#VCS="bzr"/g' /etc/etckeeper/etckeeper.conf
     sed -i 's/\#VCS="git"/VCS="git"/g' /etc/etckeeper/etckeeper.conf
-    bash -c "cd /etc && etckeeper init && git config user.email 'etckeeper@localhost' && git config user.name 'openhabian' && git commit -m 'initial checkin' && git gc" &>/dev/null
+    cond_redirect bash -c "cd /etc && etckeeper init && git config user.email 'etckeeper@localhost' && git config user.name 'openhabian' && git commit -m 'initial checkin' && git gc"
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   else
     echo "FAILED";
   fi
 }
 
-openhab-shell-interfaces() {
+openhab_shell_interfaces() {
   echo -n "[openHABian] Binding the Karaf console on all interfaces... "
-  sed -e "s/sshHost = 127.0.0.1/sshHost = 0.0.0.0/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
-  systemctl restart openhab2.service
+  sed -n -e "s/sshHost = 127.0.0.1/sshHost = 0.0.0.0/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
+  cond_redirect systemctl restart openhab2.service
   echo "OK"
 }
 
-knxd-setup() {
+knxd_setup() {
   echo -n "[openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
   echo -n "(http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd)... "
   #TODO serve file from the repository
   wget -O /tmp/install_knxd_systemd.sh http://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh
-  bash /tmp/install_knxd_systemd.sh
+  cond_redirect bash /tmp/install_knxd_systemd.sh
   if [ $? -eq 0 ]; then echo "OK. Please restart your system now..."; else echo "FAILED"; fi
   #systemctl start knxd.service
   #if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 
-1wire-setup() {
+1wire_setup() {
   echo -n "[openHABian] Installing owserver (1wire)... "
-  apt -y install owserver ow-shell usbutils &>/dev/null
+  cond_redirect apt -y install owserver ow-shell usbutils
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   #sed -i 's/1/2/g' /etc/owfs.conf
   #! server: server = localhost:4304
@@ -300,7 +311,7 @@ knxd-setup() {
   #server: port = localhost:4304
 }
 
-get-git-revision() {
+get_git_revision() {
   branch=`git rev-parse --abbrev-ref HEAD`
   shorthash=`git log --pretty=format:'%h' -n 1`
   revcount=`git log --oneline | wc -l`
@@ -309,34 +320,34 @@ get-git-revision() {
   echo "$revision"
 }
 
-fresh-raspbian-mods() {
+fresh_raspbian_mods() {
   first_boot_script
   memory_split
-  basic-packages
-  needed-packages
-  bashrc-copy
-  vimrc-copy
+  basic_packages
+  needed_packages
+  bashrc_copy
+  vimrc_copy
 }
 
-openhab2-full-setup() {
-  openhab2-addrepo
-  openhab2-install
-  openhab2-service
-  vim-openhab-syntax
-  nano-openhab-syntax
+openhab2_full_setup() {
+  openhab2_addrepo
+  openhab2_install
+  openhab2_service
+  vim_openhab_syntax
+  nano_openhab_syntax
 }
 
-samba-setup() {
-  samba-config
-  samba-user
-  samba-activate
+samba_setup() {
+  samba_config
+  samba_user
+  samba_activate
 }
 
-show-main-menu() {
+show_main_menu() {
   get_init_sys
   calc_wt_size
-  
-  choice=$(whiptail --title "openHABian Configuration Tool $(get-git-revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
+
+  choice=$(whiptail --title "openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
   "1 Perform Basic Setup" "Perform all basic setup steps on a new system..." \
   "2 Set up openHAB 2" "Prepare and install the latest openHAB 2 snapshot" \
   "3 Set up Samba" "Install the file sharing service Samba and set up shares useful with openHAB 2" \
@@ -347,16 +358,16 @@ show-main-menu() {
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then
-    whiptail --title "openHABian Configuration Tool $(get-git-revision)" --msgbox "We hope you got what you came for! See you soon ;)" 20 60 1
+    whiptail --title "openHABian Configuration Tool $(get_git_revision)" --msgbox "We hope you got what you came for! See you soon ;)" 20 60 1
     exit 0
   elif [ $RET -eq 0 ]; then
     case "$choice" in
-      1\ *) fresh-raspbian-mods ;;
-      2\ *) openhab2-full-setup ;;
-      3\ *) samba-setup ;;
-      4\ *) openhab-shell-interfaces ;;
-      5\ *) knxd-setup ;;
-      6\ *) 1wire-setup ;;
+      1\ *) fresh_raspbian_mods ;;
+      2\ *) openhab2_full_setup ;;
+      3\ *) samba_setup ;;
+      4\ *) openhab_shell_interfaces ;;
+      5\ *) knxd_setup ;;
+      6\ *) 1wire_setup ;;
       0\ *) do_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 20 60 1 ;;
     esac || whiptail --msgbox "There was an error running option \"$choice\"" 20 60 1
@@ -369,17 +380,17 @@ show-main-menu() {
 if [[ -n "$UNATTENDED" ]]
 then
   #unattended installation (from within raspbian-ua-netinst chroot)
-  fresh-raspbian-mods
-  java-webupd8-prepare
-  #java-webupd8-install
-  openhab2-full-setup
-  samba-setup
+  fresh_raspbian_mods
+  java_webupd8_prepare
+  #java_webupd8_install
+  openhab2_full_setup
+  samba_setup
   firemotd
   etckeeper
 else
-  whiptail --title "openHABian Configuration Tool $(get-git-revision)" --msgbox "Welcome to the openHABian Configuration Tool!" 8 78
+  whiptail --title "openHABian Configuration Tool $(get_git_revision)" --msgbox "Welcome to the openHABian Configuration Tool!" 8 78
   while true; do
-    show-main-menu
+    show_main_menu
   done
 fi
 
