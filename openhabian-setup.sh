@@ -31,6 +31,62 @@ then
   UNATTENDED=1
 fi
 
+# Shamelessly taken from https://github.com/RPi-Distro/raspi-config/blob/bd21dedea3c9927814cf4f0438e116c6a31181a9/raspi-config#L11-L66
+# SNIP
+is_pione() {
+  if grep -q "^Revision\s*:\s*00[0-9a-fA-F][0-9a-fA-F]$" /proc/cpuinfo; then
+    return 0
+  elif  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[0-36][0-9a-fA-F]$" /proc/cpuinfo ; then
+    return 0
+  else
+    return 1
+  fi
+}
+is_pitwo() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]04[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
+is_pizero() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]09[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
+get_pi_type() {
+  if is_pione; then
+    echo 1
+  elif is_pitwo; then
+    echo 2
+  else
+    echo 0
+  fi
+}
+get_init_sys() {
+  if command -v systemctl > /dev/null && systemctl | grep -q '\-\.mount'; then
+    SYSTEMD=1
+  elif [ -f /etc/init.d/cron ] && [ ! -h /etc/init.d/cron ]; then
+    SYSTEMD=0
+  else
+    echo "Unrecognised init system"
+    return 1
+  fi
+}
+calc_wt_size() {
+  # NOTE: it's tempting to redirect stderr to /dev/null, so supress error
+  # output from tput. However in this case, tput detects neither stdout or
+  # stderr is a tty and so only gives default 80, 24 values
+  WT_HEIGHT=17
+  WT_WIDTH=$(tput cols)
+  
+  if [ -z "$WT_WIDTH" ] || [ "$WT_WIDTH" -lt 60 ]; then
+    WT_WIDTH=80
+  fi
+  if [ "$WT_WIDTH" -gt 178 ]; then
+    WT_WIDTH=120
+  fi
+  WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
+}
+# SNAP
+
+
 first_boot_script() {
   echo -n "[openHABian] Activating first boot script... "
   # make green LED blink as heartbeat on finished first boot
@@ -244,6 +300,15 @@ knxd-setup() {
   #server: port = localhost:4304
 }
 
+get-git-revision() {
+  branch=`git rev-parse --abbrev-ref HEAD`
+  shorthash=`git log --pretty=format:'%h' -n 1`
+  revcount=`git log --oneline | wc -l`
+  latesttag=`git describe --tags --abbrev=0`
+  local revision="[$branch]$latesttag-$revcount($shorthash)"
+  echo "$revision"
+}
+
 fresh-raspbian-mods() {
   first_boot_script
   memory_split
@@ -267,39 +332,39 @@ samba-setup() {
   samba-activate
 }
 
-show_menu() {
-  #clear
-  echo ""
-  echo "######################################"
-  echo "     openHABian - poor man's menu     "
-  echo "######################################"
-  echo "1. Apply modifications after raspbian setup"
-  echo "2. Set up openHAB 2"
-  echo "3. Set up Samba for openHAB 2"
-  echo "4. Bind Karaf console to all interfaces"
-  echo "5. Set up knxd"
-  echo "6. Set up owserver (1wire)"
-  echo "x. Exit"
+show-main-menu() {
+  get_init_sys
+  calc_wt_size
+  
+  choice=$(whiptail --title "openHABian Configuration Tool $(get-git-revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
+  "1 Perform Basic Setup" "Perform all basic setup steps on a new system..." \
+  "2 Set up openHAB 2" "Prepare and install the latest openHAB 2 snapshot" \
+  "3 Set up Samba" "Install the file sharing service Samba and set up shares useful with openHAB 2" \
+  "4 Karaf Console" "Bind the Karaf console to all interfaces..." \
+  "5 Set up knxd" "Prepare and install kndx, the KNX daemon" \
+  "6 Set up owserver" "Prepare and install owserver and related packages for working with 1wire" \
+  "0 About openHABian" "Information about the openHABian project" \
+  3>&1 1>&2 2>&3)
+  RET=$?
+  if [ $RET -eq 1 ]; then
+    whiptail --title "openHABian Configuration Tool $(get-git-revision)" --msgbox "We hope you got what you came for! See you soon ;)" 20 60 1
+    exit 0
+  elif [ $RET -eq 0 ]; then
+    case "$choice" in
+      1\ *) fresh-raspbian-mods ;;
+      2\ *) openhab2-full-setup ;;
+      3\ *) samba-setup ;;
+      4\ *) openhab-shell-interfaces ;;
+      5\ *) knxd-setup ;;
+      6\ *) 1wire-setup ;;
+      0\ *) do_about ;;
+      *) whiptail --msgbox "Error: unrecognized option" 20 60 1 ;;
+    esac || whiptail --msgbox "There was an error running option \"$choice\"" 20 60 1
+  else
+    echo "Bye Bye! :)"
+    exit 1
+  fi
 }
-# read input from the keyboard and take a action
-# invoke the one() when the user select 1 from the menu option.
-# invoke the two() when the user select 2 from the menu option.
-# Exit when user the user select 3 form the menu option.
-read_options(){
-  local choice
-  read -p "Enter choice: " choice
-  case $choice in
-    1) fresh-raspbian-mods ;;
-    2) openhab2-full-setup ;;
-    3) samba-setup ;;
-    4) openhab-shell-interfaces ;;
-    5) knxd-setup ;;
-    6) 1wire-setup ;;
-    x) exit 0 ;;
-    *) echo "Error... " && sleep 2
-  esac
-}
-
 
 if [[ -n "$UNATTENDED" ]]
 then
@@ -312,9 +377,9 @@ then
   firemotd
   etckeeper
 else
+  whiptail --title "openHABian Configuration Tool $(get-git-revision)" --msgbox "Welcome to the openHABian Configuration Tool!" 8 78
   while true; do
-    show_menu
-    read_options
+    show-main-menu
   done
 fi
 
