@@ -281,8 +281,13 @@ firemotd() {
   #git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD &>/dev/null
   cond_redirect git clone -b issue-15 https://github.com/ThomDietrich/FireMotD.git /opt/FireMotD
   if [ $? -eq 0 ]; then
+    # the following is already in there by default
     #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/pi/.bashrc
+    # invoke apt update check every night
     echo "3 3 * * * root /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
+    # invoke apt update check after "apt upgrade" was called
+    # TODO testing needed
+    #echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then /opt/FireMotD/FireMotD -S &>/dev/null; fi\"; };" >> /etc/apt/apt.conf.d/15firemotd
     echo "OK"
   else
     echo "FAILED"
