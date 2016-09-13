@@ -132,16 +132,16 @@ needed_packages() {
 }
 
 bashrc_copy() {
-  echo -n "[openHABian] Adding slightly tuned .bashrc files to system... "
+  echo -n "[openHABian] Adding slightly tuned bash config files to system... "
   cp /opt/openhabian/includes/bash.bashrc /etc/bash.bashrc
   cp /opt/openhabian/includes/bashrc-root /root/.bashrc
   cp /opt/openhabian/includes/bash_profile /home/pi/.bash_profile
-  chown pi:pi /home/pi/.bashrc
+  chown pi:pi /home/pi/.bash_profile
   echo "OK"
 }
 
 vimrc_copy() {
-  echo -n "[openHABian] Adding slightly tuned .vimrc file to system... "
+  echo -n "[openHABian] Adding slightly tuned vim config file to system... "
   cp /opt/openhabian/includes/vimrc /etc/vim/vimrc.local
   echo "OK"
 }
