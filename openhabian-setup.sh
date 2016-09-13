@@ -368,7 +368,7 @@ show_main_menu() {
   calc_wt_size
 
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
-  "1 Update"                 "Pull the the newest version of the openHABian Configuration Tool from GitHub" \
+  "1 Update"                 "Pull the newest version of the openHABian Configuration Tool from GitHub" \
   "2 Basic Setup"            "Perform all basic setup steps recommended for openHAB 2 on a new system" \
   "3 Java 8"                 "Install the newest Revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
   "4 openHAB 2"              "Prepare and install the latest openHAB 2 snapshot" \
@@ -376,9 +376,9 @@ show_main_menu() {
   "6 Karaf Console"          "Bind the Karaf console to all interfaces" \
   "7 Optional: KNX"          "Prepare and install kndx, the KNX daemon" \
   "8 Optional: 1wire"        "Prepare and install owserver and related packages for working with 1wire" \
-  "9 Optional: homegear"     "(not yet implemented)"
-  "9 Optional: grafana"      "(not yet implemented)"
-  "9 Optional: mosquitto"    "(not yet implemented)"
+  "x Optional: homegear"     "(not yet implemented)" \
+  "x Optional: grafana"      "(not yet implemented)" \
+  "x Optional: mosquitto"    "(not yet implemented)" \
   "0 About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
@@ -387,7 +387,7 @@ show_main_menu() {
     exit 0
   elif [ $RET -eq 0 ]; then
     case "$choice" in
-      1\ *) openhabian_update ;;
+      1\ *) openhabian_update && echo "openHABian configuration tool successfully updated. Please run again. Exiting..." && exit 0 ;;
       2\ *) fresh_raspbian_mods ;;
       3\ *) java_webupd8_prepare && java_webupd8_install ;;
       4\ *) openhab2_full_setup ;;
