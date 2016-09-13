@@ -1,5 +1,15 @@
 #!/usr/bin/env bash
 
+# openHABian - hassle-free openHAB 2 installation and configuration tool
+# for the Raspberry Pi and other Linux systems
+#
+# https://community.openhab.org/t/openhabian-hassle-free-rpi-image/13379
+# https://github.com/ThomDietrich/openhabian
+#
+# 2016 Thomas Dietrich
+#
+
+SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Colors
 ESC="\033["
@@ -101,7 +111,7 @@ calc_wt_size() {
 first_boot_script() {
   echo -n "[openHABian] Activating first boot script... "
   # make green LED blink as heartbeat on finished first boot
-  cp /opt/openhabian/includes/rc.local /etc/rc.local
+  cp $SCRIPTDIR/includes/rc.local /etc/rc.local
   echo "OK"
 }
 
@@ -133,16 +143,16 @@ needed_packages() {
 
 bashrc_copy() {
   echo -n "[openHABian] Adding slightly tuned bash config files to system... "
-  cp /opt/openhabian/includes/bash.bashrc /etc/bash.bashrc
-  cp /opt/openhabian/includes/bashrc-root /root/.bashrc
-  cp /opt/openhabian/includes/bash_profile /home/pi/.bash_profile
+  cp $SCRIPTDIR/includes/bash.bashrc /etc/bash.bashrc
+  cp $SCRIPTDIR/includes/bashrc-root /root/.bashrc
+  cp $SCRIPTDIR/includes/bash_profile /home/pi/.bash_profile
   chown pi:pi /home/pi/.bash_profile
   echo "OK"
 }
 
 vimrc_copy() {
   echo -n "[openHABian] Adding slightly tuned vim config file to system... "
-  cp /opt/openhabian/includes/vimrc /etc/vim/vimrc.local
+  cp $SCRIPTDIR/includes/vimrc /etc/vim/vimrc.local
   echo "OK"
 }
 
@@ -239,7 +249,7 @@ nano_openhab_syntax() {
 
 samba_config() {
   echo -n "[openHABian] Modifying Samba config... "
-  cp /opt/openhabian/includes/smb.conf /etc/samba/smb.conf
+  cp $SCRIPTDIR/includes/smb.conf /etc/samba/smb.conf
   echo "OK"
 }
 
@@ -307,17 +317,21 @@ knxd_setup() {
   echo -n "[openHABian] Installing owserver (1wire)... "
   cond_redirect apt -y install owserver ow-shell usbutils
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-  #sed -i 's/1/2/g' /etc/owfs.conf
-  #! server: server = localhost:4304
-  #server: device = /dev/ttyUSB0
-  #server: port = localhost:4304
+}
+
+openhabian_update() {
+  echo -n "[openHABian] Updating myself... "
+  cond_redirect git --git-dir SCRIPTDIR fetch origin
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  cond_redirect git --git-dir SCRIPTDIR reset --hard origin/master
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 get_git_revision() {
-  branch=`git rev-parse --abbrev-ref HEAD`
-  shorthash=`git log --pretty=format:'%h' -n 1`
-  revcount=`git log --oneline | wc -l`
-  latesttag=`git describe --tags --abbrev=0`
+  local branch=`git --git-dir $SCRIPTDIR rev-parse --abbrev-ref HEAD`
+  local shorthash=`git --git-dir $SCRIPTDIR log --pretty=format:'%h' -n 1`
+  local revcount=`git --git-dir $SCRIPTDIR log --oneline | wc -l`
+  local latesttag=`git --git-dir $SCRIPTDIR describe --tags --abbrev=0`
   local revision="[$branch]$latesttag-$revcount($shorthash)"
   echo "$revision"
 }
@@ -353,7 +367,7 @@ show_main_menu() {
   get_init_sys
   calc_wt_size
 
-  choice=$(whiptail --title "openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Finish --ok-button Select \
+  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
   "1 Perform Basic Setup" "Perform all basic setup steps recommended for openHAB 2 on a new system" \
   "2 Set up openHAB 2" "Prepare and install the latest openHAB 2 snapshot" \
   "3 Set up Samba" "Install the filesharing service Samba and set up openHAB 2 shares" \
@@ -364,7 +378,7 @@ show_main_menu() {
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then
-    whiptail --title "openHABian Configuration Tool $(get_git_revision)" --msgbox "We hope you got what you came for! See you again soon ;)" 20 60 1
+    echo "We hope you got what you came for! See you again soon ;)"
     exit 0
   elif [ $RET -eq 0 ]; then
     case "$choice" in
@@ -394,7 +408,6 @@ then
   firemotd
   etckeeper
 else
-  whiptail --title "openHABian Configuration Tool $(get_git_revision)" --msgbox "Welcome to the openHABian Configuration Tool!" 8 78
   while true; do
     show_main_menu
     echo ""
