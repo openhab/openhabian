@@ -1,6 +1,4 @@
-# ~/.bashrc: executed by bash(1) for non-login shells.
-# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
-# for examples
+# ~/.bash_profile: executed by bash(1) for interactive shells.
 
 alias karafshell="sudo su -s /bin/bash -c '/usr/share/openhab2/runtime/karaf/bin/client' openhab"
 
