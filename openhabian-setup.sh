@@ -368,14 +368,18 @@ show_main_menu() {
   calc_wt_size
 
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
-  "1 Perform Basic Setup" "Perform all basic setup steps recommended for openHAB 2 on a new system" \
-  "2 Set up openHAB 2" "Prepare and install the latest openHAB 2 snapshot" \
-  "3 Set up Samba" "Install the filesharing service Samba and set up openHAB 2 shares" \
-  "4 Karaf Console" "Bind the Karaf console to all interfaces" \
-  "5 Set up knxd" "Prepare and install kndx, the KNX daemon" \
-  "6 Set up owserver" "Prepare and install owserver and related packages for working with 1wire" \
-  "9 Update" "Pull the the newest version of the openHABian Configuration Tool from GitHub" \
-  "0 About openHABian" "Information about the openHABian project" \
+  "1 Update"                 "Pull the the newest version of the openHABian Configuration Tool from GitHub" \
+  "2 Basic Setup"            "Perform all basic setup steps recommended for openHAB 2 on a new system" \
+  "3 Java 8"                 "Install the newest Revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
+  "4 openHAB 2"              "Prepare and install the latest openHAB 2 snapshot" \
+  "5 Samba"                  "Install the filesharing service Samba and set up openHAB 2 shares" \
+  "6 Karaf Console"          "Bind the Karaf console to all interfaces" \
+  "7 Optional: KNX"          "Prepare and install kndx, the KNX daemon" \
+  "8 Optional: 1wire"        "Prepare and install owserver and related packages for working with 1wire" \
+  "9 Optional: homegear"     "(not yet implemented)"
+  "9 Optional: grafana"      "(not yet implemented)"
+  "9 Optional: mosquitto"    "(not yet implemented)"
+  "0 About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then
@@ -383,13 +387,14 @@ show_main_menu() {
     exit 0
   elif [ $RET -eq 0 ]; then
     case "$choice" in
-      1\ *) fresh_raspbian_mods ;;
-      2\ *) openhab2_full_setup ;;
-      3\ *) samba_setup ;;
-      4\ *) openhab_shell_interfaces ;;
-      5\ *) knxd_setup ;;
-      6\ *) 1wire_setup ;;
-      9\ *) openhabian_update ;;
+      1\ *) openhabian_update ;;
+      2\ *) fresh_raspbian_mods ;;
+      3\ *) java_webupd8_prepare && java_webupd8_install ;;
+      4\ *) openhab2_full_setup ;;
+      5\ *) samba_setup ;;
+      6\ *) openhab_shell_interfaces ;;
+      7\ *) knxd_setup ;;
+      8\ *) 1wire_setup ;;
       0\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 20 60 1 ;;
     esac || whiptail --msgbox "There was an error running option \"$choice\"" 20 60 1
