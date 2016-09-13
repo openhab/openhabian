@@ -9,9 +9,16 @@
 # 2016 Thomas Dietrich
 #
 
-SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# Find the absolute script location dir
+SOURCE="${BASH_SOURCE[0]}"
+while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  SCRIPTDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$SCRIPTDIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+SCRIPTDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
-# Colors
+# Colors for later use
 ESC="\033["
 COL_DEF=$ESC"39;49;00m"
 COL_RED=$ESC"31;01m"
@@ -128,6 +135,8 @@ memory_split() {
 basic_packages() {
   echo -n "[openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
   cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  cond_redirect wget -O /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -302,6 +311,19 @@ openhab_shell_interfaces() {
   echo "OK"
 }
 
+homegear_setup() {
+  echo -n "[openHABian] Setting up Homematic CCU2 emulation software Homegear... "
+  echo "deb https://homegear.eu/packages/Raspbian/ jessie/" >> /etc/apt/sources.list.d/homegear.list
+  cond_redirect wget -O - http://homegear.eu/packages/Release.key | apt-key add -
+  cond_redirect apt update
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  cond_redirect apt -y install homegear homegear-homematicbidcos homegear-homematicwired
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  cond_redirect systemctl enable homegear.service
+  cond_redirect systemctl start homegear.service
+  echo "OK"
+}
+
 knxd_setup() {
   echo -n "[openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
   echo -n "(http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd)... "
@@ -374,8 +396,9 @@ show_main_menu() {
   "4 openHAB 2"              "Prepare and install the latest openHAB 2 snapshot" \
   "5 Samba"                  "Install the filesharing service Samba and set up openHAB 2 shares" \
   "6 Karaf Console"          "Bind the Karaf console to all interfaces" \
-  "7 Optional: KNX"          "Prepare and install kndx, the KNX daemon" \
-  "8 Optional: 1wire"        "Prepare and install owserver and related packages for working with 1wire" \
+  "7 Optional: KNX"          "Set up the KNX daemon knxd" \
+  "8 Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
+  "9 Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
   "x Optional: homegear"     "(not yet implemented)" \
   "x Optional: grafana"      "(not yet implemented)" \
   "x Optional: mosquitto"    "(not yet implemented)" \
@@ -394,7 +417,8 @@ show_main_menu() {
       5\ *) samba_setup ;;
       6\ *) openhab_shell_interfaces ;;
       7\ *) knxd_setup ;;
-      8\ *) 1wire_setup ;;
+      8\ *) homegear_setup ;;
+      9\ *) 1wire_setup ;;
       0\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 20 60 1 ;;
     esac || whiptail --msgbox "There was an error running option \"$choice\"" 20 60 1
