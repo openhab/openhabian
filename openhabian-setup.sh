@@ -317,15 +317,28 @@ openhab_shell_interfaces() {
 }
 
 homegear_setup() {
-  echo -n "[openHABian] Setting up Homematic CCU2 emulation software Homegear... "
-  echo "deb https://homegear.eu/packages/Raspbian/ jessie/" >> /etc/apt/sources.list.d/homegear.list
+  echo -n "[openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
   cond_redirect wget -O - http://homegear.eu/packages/Release.key | apt-key add -
+  echo "deb https://homegear.eu/packages/Raspbian/ jessie/" >> /etc/apt/sources.list.d/homegear.list
   cond_redirect apt update
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect apt -y install homegear homegear-homematicbidcos homegear-homematicwired
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect systemctl enable homegear.service
   cond_redirect systemctl start homegear.service
+  echo "OK"
+}
+
+mqtt_setup() {
+  echo -n "[openHABian] Setting up the MQTT broker software Mosquitto... "
+  cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
+  echo "deb http://repo.mosquitto.org/debian jessie main" >> /etc/apt/sources.list.d/mosquitto-jessie.list
+  cond_redirect apt update
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  cond_redirect apt -y install mosquitto
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  cond_redirect systemctl enable mosquitto.service
+  cond_redirect systemctl start mosquitto.service
   echo "OK"
 }
 
@@ -395,19 +408,18 @@ show_main_menu() {
   calc_wt_size
 
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
-  "1 Update"                 "Pull the newest version of the openHABian Configuration Tool from GitHub" \
-  "2 Basic Setup"            "Perform all basic setup steps recommended for openHAB 2 on a new system" \
-  "3 Java 8"                 "Install the newest Revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
-  "4 openHAB 2"              "Prepare and install the latest openHAB 2 snapshot" \
-  "5 Samba"                  "Install the filesharing service Samba and set up openHAB 2 shares" \
-  "6 Karaf Console"          "Bind the Karaf console to all interfaces" \
-  "7 Optional: KNX"          "Set up the KNX daemon knxd" \
-  "8 Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
-  "9 Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
-  "x Optional: homegear"     "(not yet implemented)" \
-  "x Optional: grafana"      "(not yet implemented)" \
-  "x Optional: mosquitto"    "(not yet implemented)" \
-  "0 About openHABian"       "Information about the openHABian project" \
+  "01 | Update"                 "Pull the newest version of the openHABian Configuration Tool from GitHub" \
+  "02 | Basic Setup"            "Perform all basic setup steps recommended for openHAB 2 on a new system" \
+  "03 | Java 8"                 "Install the newest Revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
+  "04 | openHAB 2"              "Prepare and install the latest openHAB 2 snapshot" \
+  "05 | Samba"                  "Install the filesharing service Samba and set up openHAB 2 shares" \
+  "06 | Karaf Console"          "Bind the Karaf console to all interfaces" \
+  "07 | Optional: KNX"          "Set up the KNX daemon knxd" \
+  "08 | Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
+  "09 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
+  "10 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
+  "11 | Optional: Grafana"      "(not yet implemented)" \
+  "99 | About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then
@@ -415,16 +427,17 @@ show_main_menu() {
     exit 0
   elif [ $RET -eq 0 ]; then
     case "$choice" in
-      1\ *) openhabian_update && echo "openHABian configuration tool successfully updated. Please run again. Exiting..." && exit 0 ;;
-      2\ *) fresh_raspbian_mods ;;
-      3\ *) java_webupd8_prepare && java_webupd8_install ;;
-      4\ *) openhab2_full_setup ;;
-      5\ *) samba_setup ;;
-      6\ *) openhab_shell_interfaces ;;
-      7\ *) knxd_setup ;;
-      8\ *) homegear_setup ;;
-      9\ *) 1wire_setup ;;
-      0\ *) show_about ;;
+      01\ *) openhabian_update && echo "openHABian configuration tool successfully updated. Please run again. Exiting..." && exit 0 ;;
+      02\ *) fresh_raspbian_mods ;;
+      03\ *) java_webupd8_prepare && java_webupd8_install ;;
+      04\ *) openhab2_full_setup ;;
+      05\ *) samba_setup ;;
+      06\ *) openhab_shell_interfaces ;;
+      07\ *) knxd_setup ;;
+      08\ *) homegear_setup ;;
+      09\ *) mqtt_setup ;;
+      10\ *) 1wire_setup ;;
+      99\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 20 60 1 ;;
     esac || whiptail --msgbox "There was an error running option \"$choice\"" 20 60 1
   else
