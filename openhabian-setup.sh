@@ -135,7 +135,7 @@ bashrc_copy() {
   echo -n "[openHABian] Adding slightly tuned .bashrc files to system... "
   cp /opt/openhabian/includes/bash.bashrc /etc/bash.bashrc
   cp /opt/openhabian/includes/bashrc-root /root/.bashrc
-  cp /opt/openhabian/includes/bashrc /home/pi/.bashrc
+  cp /opt/openhabian/includes/bash_profile /home/pi/.bash_profile
   chown pi:pi /home/pi/.bashrc
   echo "OK"
 }
