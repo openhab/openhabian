@@ -321,17 +321,17 @@ knxd_setup() {
 
 openhabian_update() {
   echo -n "[openHABian] Updating myself... "
-  cond_redirect git --git-dir SCRIPTDIR fetch origin
+  cond_redirect git -C $SCRIPTDIR fetch origin
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-  cond_redirect git --git-dir SCRIPTDIR reset --hard origin/master
+  cond_redirect git -C $SCRIPTDIR reset --hard origin/master
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 get_git_revision() {
-  local branch=`git --git-dir $SCRIPTDIR rev-parse --abbrev-ref HEAD`
-  local shorthash=`git --git-dir $SCRIPTDIR log --pretty=format:'%h' -n 1`
-  local revcount=`git --git-dir $SCRIPTDIR log --oneline | wc -l`
-  local latesttag=`git --git-dir $SCRIPTDIR describe --tags --abbrev=0`
+  local branch=`git -C $SCRIPTDIR rev-parse --abbrev-ref HEAD`
+  local shorthash=`git -C $SCRIPTDIR log --pretty=format:'%h' -n 1`
+  local revcount=`git -C $SCRIPTDIR log --oneline | wc -l`
+  local latesttag=`git -C $SCRIPTDIR describe --tags --abbrev=0`
   local revision="[$branch]$latesttag-$revcount($shorthash)"
   echo "$revision"
 }
@@ -374,6 +374,7 @@ show_main_menu() {
   "4 Karaf Console" "Bind the Karaf console to all interfaces" \
   "5 Set up knxd" "Prepare and install kndx, the KNX daemon" \
   "6 Set up owserver" "Prepare and install owserver and related packages for working with 1wire" \
+  "9 Update" "Pull the the newest version of the openHABian Configuration Tool from GitHub" \
   "0 About openHABian" "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
@@ -388,6 +389,7 @@ show_main_menu() {
       4\ *) openhab_shell_interfaces ;;
       5\ *) knxd_setup ;;
       6\ *) 1wire_setup ;;
+      9\ *) openhabian_update ;;
       0\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 20 60 1 ;;
     esac || whiptail --msgbox "There was an error running option \"$choice\"" 20 60 1
