@@ -3,11 +3,6 @@
 # file to inform user of a problem. will be deleted at the end of this script
 touch /rootfs/home/pi/openHABian-install-failed
 
-# Regional settings
-#chroot /rootfs /usr/bin/timedatectl set-timezone Europe/Berlin
-#chroot /rootfs /usr/sbin/locale-gen en_US.UTF-8 de_DE.UTF-8
-#chroot /rootfs /usr/sbin/update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
-
 echo -n "[openHABian] Installing git package..."
 chroot /rootfs /usr/bin/apt-get -y install git &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
