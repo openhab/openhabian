@@ -4,9 +4,9 @@
 touch /rootfs/home/pi/openHABian-install-failed
 
 # Regional settings
-chroot /rootfs /usr/bin/timedatectl set-timezone Europe/Berlin
-chroot /rootfs /usr/sbin/locale-gen en_US.UTF-8 de_DE.UTF-8
-chroot /rootfs /usr/sbin/update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+#chroot /rootfs /usr/bin/timedatectl set-timezone Europe/Berlin
+#chroot /rootfs /usr/sbin/locale-gen en_US.UTF-8 de_DE.UTF-8
+#chroot /rootfs /usr/sbin/update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
 echo -n "[openHABian] Installing git package..."
 chroot /rootfs /usr/bin/apt-get -y install git &>/dev/null
