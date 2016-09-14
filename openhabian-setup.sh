@@ -27,6 +27,7 @@ COL_YELLOW=$ESC"33;01m"
 COL_BLUE=$ESC"34;01m"
 COL_MAGENTA=$ESC"35;01m"
 COL_CYAN=$ESC"36;01m"
+COL_LGRAY=$ESC"37;01m"
 COL_DGRAY=$ESC"90;01m"
 
 # Trap CTRL+C, CTRL+Z and quit singles
@@ -54,10 +55,14 @@ cond_redirect() {
     "$@" &>/dev/null
     return $?
   else
-    echo -e "\n$COL_BLUE\$ $@ $COL_DEF"
+    echo -e "\n$COL_DGRAY\$ $@ $COL_DEF"
     "$@"
     return $?
   fi
+}
+
+hightlight() {
+  echo -e "$COL_LGRAY$@$COL_DEF"
 }
 
 # Shamelessly taken from https://github.com/RPi-Distro/raspi-config/blob/bd21dedea3c9927814cf4f0438e116c6a31181a9/raspi-config#L11-L66
@@ -125,9 +130,9 @@ locale_timezone_settings() {
   echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
   echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen
   cond_redirect /usr/sbin/locale-gen
-  if [ $? -ne 0 ]; then echo "FAILED"; fi
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect /usr/sbin/update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 first_boot_script() {
@@ -298,7 +303,9 @@ firemotd() {
   if [ $? -eq 0 ]; then
     # the following is already in there by default
     #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/pi/.bashrc
-    # invoke apt update check every night
+    # apt updates check
+    cond_redirect /opt/FireMotD/FireMotD -S
+    # invoke apt updates check every night
     echo "3 3 * * * root /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
     # invoke apt update check after "apt upgrade" was called
     # TODO testing needed
@@ -444,7 +451,7 @@ show_main_menu() {
     exit 0
   elif [ $RET -eq 0 ]; then
     case "$choice" in
-      01\ *) openhabian_update && echo "openHABian configuration tool successfully updated. Please run again. Exiting..." && exit 0 ;;
+      01\ *) openhabian_update && echo "\nopenHABian configuration tool successfully updated. Please run again. Exiting..." && exit 0 ;;
       02\ *) fresh_raspbian_mods ;;
       03\ *) java_webupd8_prepare && java_webupd8_install ;;
       04\ *) openhab2_full_setup ;;
