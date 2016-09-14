@@ -127,8 +127,8 @@ locale_timezone_settings() {
   cond_redirect rm /etc/localtime
   cond_redirect ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
   ## locale
-  echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
-  echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen
+  sed -i 's/\# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
+  sed -i 's/\# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/g' /etc/locale.gen
   cond_redirect /usr/sbin/locale-gen
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect /usr/sbin/update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
@@ -188,6 +188,7 @@ vimrc_copy() {
 java_webupd8_prepare() {
   # prepare (not install) Oracle Java 8 newest revision
   echo -n "[openHABian] Preparing Oracle Java 8 Web Upd8 repository... "
+  rm /etc/apt/sources.list.d/webupd8team-java.list
   echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
   echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
   cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
@@ -238,6 +239,7 @@ java_webupd8_install() {
 
 openhab2_addrepo() {
   echo -n "[openHABian] Adding openHAB 2 Snapshot repositories to sources.list.d... "
+  rm /etc/apt/sources.list.d/openhab2.list
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-offline/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-online/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
   cond_redirect apt update
@@ -306,11 +308,11 @@ firemotd() {
     # apt updates check
     cond_redirect /opt/FireMotD/FireMotD -S
     # invoke apt updates check every night
-    echo "3 3 * * * root /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
+    echo "3 3 * * * root /opt/FireMotD/FireMotD -S &>/dev/null" > /etc/cron.d/firemotd
     # invoke apt update check after "apt upgrade" was called
     # TODO testing needed
     # TODO seems to work but takes a long time that could irritate or annoy the user. run in background?
-    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count... '; /opt/FireMotD/FireMotD -S &>/dev/null; echo 'OK'; fi\"; };" >> /etc/apt/apt.conf.d/15firemotd
+    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count... '; /opt/FireMotD/FireMotD -S &>/dev/null; echo 'OK'; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
     echo "OK"
   else
     echo "FAILED"
@@ -342,7 +344,7 @@ openhab_shell_interfaces() {
 homegear_setup() {
   echo -n "[openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
   cond_redirect wget -O - http://homegear.eu/packages/Release.key | apt-key add -
-  echo "deb https://homegear.eu/packages/Raspbian/ jessie/" >> /etc/apt/sources.list.d/homegear.list
+  echo "deb https://homegear.eu/packages/Raspbian/ jessie/" > /etc/apt/sources.list.d/homegear.list
   cond_redirect apt update
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect apt -y install homegear homegear-homematicbidcos homegear-homematicwired
@@ -355,7 +357,7 @@ homegear_setup() {
 mqtt_setup() {
   echo -n "[openHABian] Setting up the MQTT broker software Mosquitto... "
   cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
-  echo "deb http://repo.mosquitto.org/debian jessie main" >> /etc/apt/sources.list.d/mosquitto-jessie.list
+  echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
   cond_redirect apt update
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect apt -y install mosquitto
@@ -377,9 +379,32 @@ knxd_setup() {
 }
 
 1wire_setup() {
+  FAILED=0
+  introtext="This will install owserver to support 1wire functionality in general, ow-shell and usbutils are helpfull tools to check USB (lsusb) and 1wire function (owdir, owread). For more details, have a look at http://owfs.com"
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the community forum or as a GitHub issue."
+  successtext="Setup was successful. Next, please configure your system in /etc/owfs.conf.
+Use # to comment/deactivate a line. All you should have to change is the following. Deactivate
+  server: FAKE = DS18S20,DS2405
+and activate one of these most common options (depending on your device):
+  #server: usb = all
+  #server: device = /dev/ttyS1
+  #server: device = /dev/ttyUSB0"
+
+  if [ -z "$UNATTENDED" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 60) then return 1; fi
+  fi
+
   echo -n "[openHABian] Installing owserver (1wire)... "
-  cond_redirect apt -y install owserver ow-shell usbutils
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  cond_redirect apt -y install owserver ow-shell usbutils || FAILED=1
+  if [ $FAILED -eq 1 ]; then echo "FAILED"; else echo "OK"; fi
+
+  if [ -z "$UNATTENDED" ]; then
+    if [ $FAILED -eq 1 ]; then
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+    else
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    fi
+  fi
 }
 
 openhabian_update() {
@@ -400,7 +425,7 @@ get_git_revision() {
 }
 
 show_about() {
-  whiptail --title "openHABian $(get_git_revision)" --msgbox "The hassle-free openHAB 2 installation and configuration tool.\nhttps://github.com/ThomDietrich/openhabian \nhttps://community.openhab.org/t/openhabian-hassle-free-rpi-image/13379" 20 60 1
+  whiptail --title "openHABian $(get_git_revision)" --msgbox "The hassle-free openHAB 2 installation and configuration tool.\nhttps://github.com/ThomDietrich/openhabian \nhttps://community.openhab.org/t/openhabian-hassle-free-rpi-image/13379" 12 80
 }
 
 fresh_raspbian_mods() {
@@ -451,7 +476,7 @@ show_main_menu() {
     exit 0
   elif [ $RET -eq 0 ]; then
     case "$choice" in
-      01\ *) openhabian_update && echo "\nopenHABian configuration tool successfully updated. Please run again. Exiting..." && exit 0 ;;
+      01\ *) openhabian_update && echo -e "\nopenHABian configuration tool successfully updated. Please run again. Exiting..." && exit 0 ;;
       02\ *) fresh_raspbian_mods ;;
       03\ *) java_webupd8_prepare && java_webupd8_install ;;
       04\ *) openhab2_full_setup ;;
@@ -462,8 +487,8 @@ show_main_menu() {
       09\ *) mqtt_setup ;;
       10\ *) 1wire_setup ;;
       99\ *) show_about ;;
-      *) whiptail --msgbox "Error: unrecognized option" 20 60 1 ;;
-    esac || whiptail --msgbox "There was an error running option \"$choice\"" 20 60 1
+      *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
+    esac || whiptail --msgbox "There was an error running option \"$choice\"" 10 60
   else
     echo "Bye Bye! :)"
     exit 1
