@@ -115,6 +115,21 @@ calc_wt_size() {
 }
 # SNAP
 
+locale_timezone_settings() {
+  echo -n "[openHABian] Setting timezone (Europe/Berlin) and locale (en_US.UTF-8)... "
+  ## timezone
+  cond_redirect echo "Europe/Berlin" > /etc/timezone
+  cond_redirect rm /etc/localtime
+  cond_redirect ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
+  ## locale
+  echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
+  echo "de_DE.UTF-8 UTF-8" >> /etc/locale.gen
+  cond_redirect /usr/sbin/locale-gen
+  if [ $? -ne 0 ]; then echo "FAILED"; fi
+  cond_redirect /usr/sbin/update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+}
+
 first_boot_script() {
   echo -n "[openHABian] Activating first boot script... "
   # make green LED blink as heartbeat on finished first boot
@@ -382,6 +397,7 @@ show_about() {
 }
 
 fresh_raspbian_mods() {
+  locale_timezone_settings
   first_boot_script
   memory_split
   basic_packages
