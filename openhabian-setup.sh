@@ -287,7 +287,8 @@ firemotd() {
     echo "3 3 * * * root /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
     # invoke apt update check after "apt upgrade" was called
     # TODO testing needed
-    #echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then /opt/FireMotD/FireMotD -S &>/dev/null; fi\"; };" >> /etc/apt/apt.conf.d/15firemotd
+    # TODO seems to work but takes a long time that could irritate or annoy the user. run in background?
+    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count... '; /opt/FireMotD/FireMotD -S &>/dev/null; echo 'OK'; fi\"; };" >> /etc/apt/apt.conf.d/15firemotd
     echo "OK"
   else
     echo "FAILED"
