@@ -2,7 +2,7 @@
 
 if [ -f "/home/pi/openHABian-install-failed" ]; then
   echo ""
-  echo "Attention: The openHABian setup process seems to have failed on your system. Sorry, this shouldn't happen! Please restart the installation process."
+  echo -e "\e[91mAttention:\e[39m The openHABian setup process seems to have failed on your system. Sorry, this shouldn't happen! Please restart the installation process."
   echo ""
   echo "Contact the openHAB community forum for help if the problem persists."
   echo "In order to debug and find the cause of the problem, please have a look at the installation log: 'sudo tail -n 20 /var/log/raspbian-ua-netinst.log'"

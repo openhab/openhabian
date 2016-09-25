@@ -242,15 +242,21 @@ openhab2_addrepo() {
   rm -f /etc/apt/sources.list.d/openhab2.list
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-offline/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-online/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
-  cond_redirect wget -O - http://www.openhab.org/keys/public-key-snapshots.asc | apt-key add -
-  if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
-  cond_redirect apt update
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  #cond_redirect wget -O - http://www.openhab.org/keys/public-key-snapshots.asc | apt-key add -
+  wget -O /opt/public-key-snapshots-wget.asc http://www.openhab.org/keys/public-key-snapshots.asc
+  curl -L http://www.openhab.org/keys/public-key-snapshots-curl.asc -o /opt/public-key-snapshots-curl.asc
+  apt-key add /opt/public-key-snapshots-wget.asc
+  apt-key add /opt/public-key-snapshots-curl.asc
+  #if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
+  #cond_redirect apt update
+  apt update
+  #if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 openhab2_install() {
   echo -n "[openHABian] Installing openhab2-offline... "
-  cond_redirect apt --yes install openhab2-offline
+  #cond_redirect
+  apt --yes install openhab2-offline
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
