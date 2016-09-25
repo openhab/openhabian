@@ -1,5 +1,15 @@
 # ~/.bash_profile: executed by bash(1) for interactive shells.
 
+if [ -f "/home/pi/openHABian-install-failed" ]; then
+  echo ""
+  echo "Attention: The openHABian setup process seems to have failed on your system. Sorry, this shouldn't happen! Please restart the installation process."
+  echo ""
+  echo "Contact the openHAB community forum for help if the problem persists."
+  echo "In order to debug and find the cause of the problem, please have a look at the installation log: 'sudo tail -n 20 /var/log/raspbian-ua-netinst.log'"
+  echo ""
+  return 0
+fi
+
 alias karafshell="sudo su -s /bin/bash -c '/usr/share/openhab2/runtime/karaf/bin/client' openhab"
 
 if [ -f /opt/FireMotD/FireMotD ]; then
