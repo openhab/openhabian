@@ -343,6 +343,19 @@ openhab_shell_interfaces() {
 }
 
 homegear_setup() {
+  FAILED=0
+  introtext="This will install Homegear, the Homematic CCU2 emulation software, in the latest stable release from the official repository."
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Setup was successful.
+Homegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'sudo homegear -r'.
+Please read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear
+To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/homematic/readme.html
+"
+
+  if [ -z "$UNATTENDED" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 60) then return 1; fi
+  fi
+
   echo -n "[openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
   cond_redirect wget -O - http://homegear.eu/packages/Release.key | apt-key add -
   echo "deb https://homegear.eu/packages/Raspbian/ jessie/" > /etc/apt/sources.list.d/homegear.list
@@ -353,6 +366,14 @@ homegear_setup() {
   cond_redirect systemctl enable homegear.service
   cond_redirect systemctl start homegear.service
   echo "OK"
+
+  if [ -z "$UNATTENDED" ]; then
+    if [ $FAILED -eq 0 ]; then
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    else
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+    fi
+  fi
 }
 
 mqtt_setup() {
