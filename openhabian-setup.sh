@@ -356,6 +356,18 @@ homegear_setup() {
 }
 
 mqtt_setup() {
+  FAILED=0
+  introtext="The MQTT broker software Mosquitto will be installed through the official repository, as desribed here: https://mosquitto.org/2013/01/mosquitto-debian-repository"
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Setup was successful.
+Mosquitto is now up and running in the background. You should now be able to make a first connection.
+To continue your integration in openHAB 2, please follow the instructions under: https://github.com/openhab/openhab/wiki/MQTT-Binding
+"
+
+  if [ -z "$UNATTENDED" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 60) then return 1; fi
+  fi
+
   echo -n "[openHABian] Setting up the MQTT broker software Mosquitto... "
   cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
   echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
@@ -366,6 +378,14 @@ mqtt_setup() {
   cond_redirect systemctl enable mosquitto.service
   cond_redirect systemctl start mosquitto.service
   echo "OK"
+
+  if [ -z "$UNATTENDED" ]; then
+    if [ $FAILED -eq 0 ]; then
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    else
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+    fi
+  fi
 }
 
 knxd_setup() {
