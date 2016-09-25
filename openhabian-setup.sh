@@ -188,7 +188,7 @@ vimrc_copy() {
 java_webupd8_prepare() {
   # prepare (not install) Oracle Java 8 newest revision
   echo -n "[openHABian] Preparing Oracle Java 8 Web Upd8 repository... "
-  rm /etc/apt/sources.list.d/webupd8team-java.list
+  rm -f /etc/apt/sources.list.d/webupd8team-java.list
   echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
   echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
   cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
@@ -226,7 +226,7 @@ java_webupd8_install() {
 #     wget "https://letsencrypt.org/certs/$cert" || ((FAILED++))
 #     /usr/bin/keytool -importcert -keystore /usr/lib/jvm/jdk-8-oracle-arm32-vfp-hflt/jre/lib/security/cacerts \
 #     -storepass changeit -noprompt -trustcacerts -alias $namewoext -file $cert || ((FAILED++))
-#     rm $cert
+#     rm -f $cert
 #   done
 #   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 # }
@@ -239,7 +239,7 @@ java_webupd8_install() {
 
 openhab2_addrepo() {
   echo -n "[openHABian] Adding openHAB 2 Snapshot repositories to sources.list.d... "
-  rm /etc/apt/sources.list.d/openhab2.list
+  rm -f /etc/apt/sources.list.d/openhab2.list
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-offline/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-online/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
   cond_redirect wget -O - http://www.openhab.org/keys/public-key-snapshots.asc | apt-key add -
@@ -337,7 +337,7 @@ openhab_shell_interfaces() {
   echo -n "[openHABian] Binding the Karaf console on all interfaces... "
   cond_redirect sed -i "s/sshHost = 127.0.0.1/sshHost = 0.0.0.0/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
   #cond_redirect sed -i "s/\# keySize = 4096/\# keySize = 4096\nkeySize = 1024/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
-  #cond_redirect rm /usr/share/openhab2/runtime/karaf/etc/host.key
+  #cond_redirect rm -f /usr/share/openhab2/runtime/karaf/etc/host.key
   cond_redirect systemctl restart openhab2.service
   echo "OK"
 }
