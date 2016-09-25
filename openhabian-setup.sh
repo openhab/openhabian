@@ -243,20 +243,16 @@ openhab2_addrepo() {
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-offline/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-online/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
   #cond_redirect wget -O - http://www.openhab.org/keys/public-key-snapshots.asc | apt-key add -
-  wget -O /opt/public-key-snapshots-wget.asc http://www.openhab.org/keys/public-key-snapshots.asc
-  curl -L http://www.openhab.org/keys/public-key-snapshots-curl.asc -o /opt/public-key-snapshots-curl.asc
-  apt-key add /opt/public-key-snapshots-wget.asc
-  apt-key add /opt/public-key-snapshots-curl.asc
-  #if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
-  #cond_redirect apt update
-  apt update
-  #if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  wget --retry-connrefused --tries=50 -O openhab-key.asc http://www.openhab.org/keys/public-key-snapshots.asc
+  apt-key add openhab-key.asc
+  rm openhab-key.asc
+  cond_redirect apt update
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 openhab2_install() {
   echo -n "[openHABian] Installing openhab2-offline... "
-  #cond_redirect
-  apt --yes install openhab2-offline
+  cond_redirect apt -y install openhab2-offline
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -320,7 +316,7 @@ firemotd() {
     # invoke apt update check after "apt upgrade" was called
     # TODO testing needed
     # TODO seems to work but takes a long time that could irritate or annoy the user. run in background?
-    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count... '; /opt/FireMotD/FireMotD -S &>/dev/null; echo 'OK'; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
+    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count... '; /opt/FireMotD/FireMotD -S; echo 'OK'; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
     echo "OK"
   else
     echo "FAILED"
@@ -360,7 +356,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
 "
 
   if [ -z "$UNATTENDED" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 60) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
   fi
 
   echo -n "[openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
@@ -393,7 +389,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
 "
 
   if [ -z "$UNATTENDED" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 60) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
   fi
 
   echo -n "[openHABian] Setting up the MQTT broker software Mosquitto... "
@@ -418,16 +414,16 @@ To continue your integration in openHAB 2, please follow the instructions under:
 
 knxd_setup() {
   FAILED=0
-  introtext="This will install and setup kndx (successor to eibd) as your EIB/KNX IP gateway and router to support your KNX bus system. This routine was provided by 'Michels Tech Blog' (http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd)."
+  introtext="This will install and setup kndx (successor to eibd) as your EIB/KNX IP gateway and router to support your KNX bus system. This routine was provided by 'Michels Tech Blog': https://goo.gl/qN2t0H"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
 Please edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help'
-Further details can be found unter: http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd
+Further details can be found unter: https://goo.gl/qN2t0H
 Integration into openHAB 2 is described here: https://github.com/openhab/openhab/wiki/KNX-Binding
 "
 
   if [ -z "$UNATTENDED" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 60) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
   fi
 
   echo -n "[openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
@@ -463,7 +459,7 @@ and activate one of these most common options (depending on your device):
 "
 
   if [ -z "$UNATTENDED" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 60) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
   fi
 
   echo -n "[openHABian] Installing owserver (1wire)... "
@@ -524,11 +520,12 @@ influxdb_grafana_setup() {
   /usr/local/go/bin/gem install fpm
 
   echo -n "phantomjs... "
-  curl -o /tmp/phantomjs_armhf.deb -L https://github.com/fg2it/phantomjs-on-raspberry/releases/download/v2.1.1-wheezy-jessie/phantomjs_2.1.1_armhf.deb
-  dpkg -i /tmp/phantomjs_armhf.deb
+  curl -o /opt/phantomjs_armhf.deb -L https://github.com/fg2it/phantomjs-on-raspberry/releases/download/v2.1.1-wheezy-jessie/phantomjs_2.1.1_armhf.deb
+  dpkg -i /opt/phantomjs_armhf.deb
+  rm /opt/phantomjs_armhf.deb
 
   echo -n "Grafana... "
-  export GOPATH=/tmp/graf-build
+  export GOPATH=/opt/graf-build
   mkdir -p $GOPATH
   cd $GOPATH
   go get github.com/grafana/grafana
@@ -537,8 +534,9 @@ influxdb_grafana_setup() {
   go run build.go setup
   $GOPATH/bin/godep restore
   npm install
-
   go run build.go build package
+
+  rm -rf $GOPATH
 }
 
 openhabian_update() {
