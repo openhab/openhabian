@@ -369,27 +369,50 @@ mqtt_setup() {
 }
 
 knxd_setup() {
+  FAILED=0
+  introtext="This will install and setup kndx (successor to eibd) as your EIB/KNX IP gateway and router to support your KNX bus system. This routine was provided by 'Michels Tech Blog' (http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd)."
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Setup was successful.
+Please edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help'
+Further details can be found unter: http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd
+Integration into openHAB 2 is described here: https://github.com/openhab/openhab/wiki/KNX-Binding
+"
+
+  if [ -z "$UNATTENDED" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 60) then return 1; fi
+  fi
+
   echo -n "[openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
   echo -n "(http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd)... "
   #TODO serve file from the repository
-  cond_redirect wget -O /tmp/install_knxd_systemd.sh http://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh
-  cond_redirect bash /tmp/install_knxd_systemd.sh
-  if [ $? -eq 0 ]; then echo "OK. Please restart your system now..."; else echo "FAILED"; fi
+  cond_redirect wget -O /tmp/install_knxd_systemd.sh http://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh || FAILED=1
+  cond_redirect bash /tmp/install_knxd_systemd.sh || FAILED=1
+  if [ $FAILED -eq 0 ]; then echo "OK. Please restart your system now..."; else echo "FAILED"; fi
   #systemctl start knxd.service
   #if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+
+  if [ -z "$UNATTENDED" ]; then
+    if [ $FAILED -eq 0 ]; then
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    else
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+    fi
+  fi
 }
 
 1wire_setup() {
   FAILED=0
   introtext="This will install owserver to support 1wire functionality in general, ow-shell and usbutils are helpfull tools to check USB (lsusb) and 1wire function (owdir, owread). For more details, have a look at http://owfs.com"
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the community forum or as a GitHub issue."
-  successtext="Setup was successful. Next, please configure your system in /etc/owfs.conf.
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Setup was successful.
+Next, please configure your system in /etc/owfs.conf.
 Use # to comment/deactivate a line. All you should have to change is the following. Deactivate
   server: FAKE = DS18S20,DS2405
 and activate one of these most common options (depending on your device):
   #server: usb = all
   #server: device = /dev/ttyS1
-  #server: device = /dev/ttyUSB0"
+  #server: device = /dev/ttyUSB0
+"
 
   if [ -z "$UNATTENDED" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 60) then return 1; fi
@@ -397,13 +420,13 @@ and activate one of these most common options (depending on your device):
 
   echo -n "[openHABian] Installing owserver (1wire)... "
   cond_redirect apt -y install owserver ow-shell usbutils || FAILED=1
-  if [ $FAILED -eq 1 ]; then echo "FAILED"; else echo "OK"; fi
+  if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
   if [ -z "$UNATTENDED" ]; then
-    if [ $FAILED -eq 1 ]; then
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
-    else
+    if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    else
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
     fi
   fi
 }
