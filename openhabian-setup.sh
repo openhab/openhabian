@@ -408,11 +408,80 @@ and activate one of these most common options (depending on your device):
   fi
 }
 
+influxdb_grafana_setup() {
+  echo -n "[openHABian] Setting up InfluxDB and Grafana... "
+  #cond_redirect apt update
+  #cond_redirect apt -y install bison ruby ruby-dev gcc make
+  #echo -n "Go... "
+  ##cond_redirect wget -O /root/gvm-installer https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer
+  ##cond_redirect /bin/bash /root/gvm-installer
+  #cond_redirect bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
+  #cond_redirect source /root/.gvm/scripts/gvm
+  #cond_redirect gvm install go1.4 --prefer-binary
+  #cond_redirect gvm use go1.4
+  #export GOROOT_BOOTSTRAP=$GOROOT
+  #cond_redirect gvm install go1.7
+  #cond_redirect gvm use go1.7 -–default
+
+  echo -n "InfluxDB... "
+  # https://docs.influxdata.com/influxdb/v1.0
+  curl -L https://dl.influxdata.com/influxdb/releases/influxdb-1.0.0_linux_armhf.tar.gz | tar xvz -C /
+  ln -s /usr/lib/influxdb/scripts/influxdb.service /lib/systemd/system/influxdb.service
+  adduser --system --no-create-home --group --disabled-login influxdb
+  chown -R influxdb:influxdb /var/lib/influxdb
+  systemctl daemon-reload
+  systemctl enable influxdb.service
+  systemctl start influxdb.service
+
+  #https://github.com/fg2it/grafana-on-raspberry/tree/master/wheezy-jessie
+  apt update
+  apt -y install curl git ca-certificates binutils gcc make libc-dev ruby ruby-dev rpm libfontconfig1 python g++
+
+  if is_pione ; then
+    echo -n "Go (ARMv6 architecture)... "
+    curl -L https://github.com/hypriot/golang-armbuilds/releases/download/v1.5.2/go1.5.2.linux-armv6.tar.gz | tar xvz -C /usr/local
+    curl -L https://nodejs.org/dist/v5.10.1/node-v5.10.1-linux-armv6l.tar.xz | tar xvJ --strip-components=1 -C /usr/local
+  else
+    echo -n "Go (ARMv7 architecture)... "
+    curl -L https://github.com/hypriot/golang-armbuilds/releases/download/v1.5.2/go1.5.2.linux-armv7.tar.gz | tar xvz -C /usr/local
+    curl -L https://nodejs.org/dist/v5.10.1/node-v5.10.1-linux-armv7l.tar.xz | tar xvJ --strip-components=1 -C /usr/local
+  fi
+
+  export PATH=/usr/local/go/bin:$PATH
+
+  echo -n "fpm... "
+  /usr/local/go/bin/gem install fpm
+
+  echo -n "phantomjs... "
+  curl -o /tmp/phantomjs_armhf.deb -L https://github.com/fg2it/phantomjs-on-raspberry/releases/download/v2.1.1-wheezy-jessie/phantomjs_2.1.1_armhf.deb
+  dpkg -i /tmp/phantomjs_armhf.deb
+
+  echo -n "Grafana... "
+  export GOPATH=/tmp/graf-build
+  mkdir -p $GOPATH
+  cd $GOPATH
+  go get github.com/grafana/grafana
+  cd $GOPATH/src/github.com/grafana/grafana
+  #git checkout v3.1.1
+  go run build.go setup
+  $GOPATH/bin/godep restore
+  npm install
+
+  go run build.go build package
+}
+
 openhabian_update() {
   echo -n "[openHABian] Updating myself... "
   cond_redirect git -C $SCRIPTDIR fetch origin
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect git -C $SCRIPTDIR reset --hard origin/master
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+}
+
+system_upgrade() {
+  echo -n "[openHABian] Upgrading system (apt update && apt upgrade)... "
+  cond_redirect apt update
+  cond_redirect apt --yes upgrade
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
