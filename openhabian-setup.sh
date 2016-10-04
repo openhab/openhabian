@@ -242,10 +242,7 @@ openhab2_addrepo() {
   rm -f /etc/apt/sources.list.d/openhab2.list
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-offline/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
   echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-online/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
-  #cond_redirect wget -O - http://www.openhab.org/keys/public-key-snapshots.asc | apt-key add -
-  wget --retry-connrefused --tries=50 -O openhab-key.asc http://www.openhab.org/keys/public-key-snapshots.asc
-  apt-key add openhab-key.asc
-  rm openhab-key.asc
+  cond_redirect wget --retry-connrefused --tries=50 -O - http://www.openhab.org/keys/public-key-snapshots.asc | apt-key add -
   cond_redirect apt update
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
