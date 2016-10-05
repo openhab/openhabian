@@ -61,6 +61,12 @@ cond_redirect() {
   fi
 }
 
+cond_echo() {
+  if [ -z "$SILENT" ]; then
+    echo -e "\n$COL_YELLOW$@$COL_DEF"
+  fi
+}
+
 hightlight() {
   echo -e "$COL_LGRAY$@$COL_DEF"
 }
@@ -364,15 +370,18 @@ wifi-setup-rpi3() {
   fi
   if [ -z "$UNATTENDED" ]; then
     SSID=$(whiptail --title "Wifi Setup" --inputbox "Which Wifi (SSID) do you want to connect to?" 10 60 3>&1 1>&2 2>&3)
+    if [ $? -ne 0 ]; then return 1; fi
     PASS=$(whiptail --title "Wifi Setup" --inputbox "What's the password for that Wifi?" 10 60 3>&1 1>&2 2>&3)
+    if [ $? -ne 0 ]; then return 1; fi
   else
+    echo -n "setting default SSID and password in 'wpa_supplicant.conf' "
     SSID="myWifiSSID"
     PASS="myWifiPassword"
   fi
   cond_redirect apt -y install firmware-brcm80211 wpasupplicant wireless-tools # pi-bluetooth
   echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\nnetwork={\n  ssid=\"$SSID\"\n  psk=\"$PASS\"\n}" > /etc/wpa_supplicant/wpa_supplicant.conf
   if grep -q "wlan0" /etc/network/interfaces; then
-    cond_redirect echo "Not writing to '/etc/network/interfaces', wlan0 entry already available. Please check, adopt or remove these lines."
+    cond_echo "Not writing to '/etc/network/interfaces', wlan0 entry already available. You might need to check, adopt or remove these lines."
   else
     echo -e "\nallow-hotplug wlan0\niface wlan0 inet manual\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\niface default inet dhcp" >> /etc/network/interfaces
   fi
@@ -641,7 +650,7 @@ show_main_menu() {
   "12 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
   "13 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
   "14 | Optional: Grafana"      "(not yet implemented)" \
-  "20 | RPi Wifi"               "Configure build-in Raspberry Pi 3 Wifi" \
+  "20 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
   "99 | About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
