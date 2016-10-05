@@ -80,6 +80,10 @@ is_pitwo() {
   grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]04[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
+is_pithree() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]08[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
 is_pizero() {
   grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]09[0-9a-fA-F]$" /proc/cpuinfo
   return $?
@@ -89,6 +93,8 @@ get_pi_type() {
     echo 1
   elif is_pitwo; then
     echo 2
+  elif is_pithree; then
+    echo 3
   else
     echo 0
   fi
@@ -347,6 +353,34 @@ openhab_shell_interfaces() {
   echo "OK"
 }
 
+wifi-setup-rpi3() {
+  echo -n "[openHABian] Setting up RPi 3 Wifi... "
+  if ! is_pithree ; then
+    if [ -z "$UNATTENDED" ]; then
+      whiptail --title "Incompatible Hardware Detected" --msgbox "Wifi setup: This option is for a Raspberry Pi 3 system only." 10 60
+    fi
+    echo "FAILED"
+    return 1
+  fi
+  if [ -z "$UNATTENDED" ]; then
+    SSID=$(whiptail --title "Wifi Setup" --inputbox "Which Wifi (SSID) do you want to connect to?" 10 60 3>&1 1>&2 2>&3)
+    PASS=$(whiptail --title "Wifi Setup" --inputbox "What's the password for that Wifi?" 10 60 3>&1 1>&2 2>&3)
+  else
+    SSID="myWifiSSID"
+    PASS="myWifiPassword"
+  fi
+  cond_redirect apt -y install firmware-brcm80211 wpasupplicant wireless-tools # pi-bluetooth
+  echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\nnetwork={\n  ssid=\"$SSID\"\n  psk=\"$PASS\"\n}" > /etc/wpa_supplicant/wpa_supplicant.conf
+  if grep -q "wlan0" /etc/network/interfaces; then
+    cond_redirect echo "Not writing to '/etc/network/interfaces', wlan0 entry already available. Please check, adopt or remove these lines."
+  else
+    echo -e "\nallow-hotplug wlan0\niface wlan0 inet manual\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\niface default inet dhcp" >> /etc/network/interfaces
+  fi
+  cond_redirect ifdown wlan0
+  cond_redirect ifup wlan0
+  echo "OK"
+}
+
 homegear_setup() {
   FAILED=0
   introtext="This will install Homegear, the Homematic CCU2 emulation software, in the latest stable release from the official repository."
@@ -602,11 +636,12 @@ show_main_menu() {
   "04 | openHAB 2"              "Prepare and install the latest openHAB 2 snapshot" \
   "05 | Samba"                  "Install the filesharing service Samba and set up openHAB 2 shares" \
   "06 | Karaf Console"          "Bind the Karaf console to all interfaces" \
-  "07 | Optional: KNX"          "Set up the KNX daemon knxd" \
-  "08 | Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
-  "09 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
-  "10 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
-  "11 | Optional: Grafana"      "(not yet implemented)" \
+  "10 | Optional: KNX"          "Set up the KNX daemon knxd" \
+  "11 | Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
+  "12 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
+  "13 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
+  "14 | Optional: Grafana"      "(not yet implemented)" \
+  "20 | RPi Wifi"               "Configure build-in Raspberry Pi 3 Wifi" \
   "99 | About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
@@ -621,10 +656,11 @@ show_main_menu() {
       04\ *) openhab2_full_setup ;;
       05\ *) samba_setup ;;
       06\ *) openhab_shell_interfaces ;;
-      07\ *) knxd_setup ;;
-      08\ *) homegear_setup ;;
-      09\ *) mqtt_setup ;;
-      10\ *) 1wire_setup ;;
+      10\ *) knxd_setup ;;
+      11\ *) homegear_setup ;;
+      12\ *) mqtt_setup ;;
+      13\ *) 1wire_setup ;;
+      20\ *) wifi-setup-rpi3 ;;
       99\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
     esac || whiptail --msgbox "There was an error running option \"$choice\"" 10 60
