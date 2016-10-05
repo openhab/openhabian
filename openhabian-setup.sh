@@ -388,7 +388,12 @@ wifi-setup-rpi3() {
   fi
   cond_redirect ifdown wlan0
   cond_redirect ifup wlan0
-  echo "OK"
+
+  if [ -n "$INTERACTIVE" ]; then
+    whiptail --title "Operation Successful!" --msgbox "Setup was successful. Your Wifi credentials were NOT tested. Please reboot now." 15 80
+  fi
+
+  echo "OK (Reboot needed)"
 }
 
 homegear_setup() {
