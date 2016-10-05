@@ -165,8 +165,9 @@ needed_packages() {
   # install apt-transport-https - update packages through https repository (https://openhab.ci.cloudbees.com/...)
   # install samba - network sharing
   # install bc + sysstat - needed for FireMotD
+  # install avahi-daemon - hostname based discovery on local networks
   echo -n "[openHABian] Installing additional needed packages... "
-  cond_redirect apt -y install raspi-config oracle-java8-jdk apt-transport-https samba bc sysstat
+  cond_redirect apt -y install raspi-config oracle-java8-jdk apt-transport-https samba bc sysstat avahi-daemon
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -569,8 +570,6 @@ show_about() {
 }
 
 fresh_raspbian_mods() {
-  locale_timezone_settings
-  first_boot_script
   memory_split
   basic_packages
   needed_packages
@@ -638,6 +637,8 @@ show_main_menu() {
 if [[ -n "$UNATTENDED" ]]
 then
   #unattended installation (from within raspbian-ua-netinst chroot)
+  locale_timezone_settings
+  first_boot_script
   fresh_raspbian_mods
   java_webupd8_prepare
   #java_webupd8_install
