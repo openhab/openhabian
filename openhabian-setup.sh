@@ -547,22 +547,27 @@ influxdb_grafana_setup() {
   fi
 
   echo -n "InfluxDB... "
-  cond_redirect curl -L https://dl.influxdata.com/influxdb/releases/influxdb-1.0.0_linux_armhf.tar.gz | tar xvz -C / --strip 2 || FAILED=1
-  cond_redirect ln -s /usr/lib/influxdb/scripts/influxdb.service /lib/systemd/system/influxdb.service || FAILED=1
+  cond_redirect wget -O /tmp/download.tar.gz https://dl.influxdata.com/influxdb/releases/influxdb-1.0.0_linux_armhf.tar.gz || FAILED=1
+  cond_redirect tar xvzf /tmp/download.tar.gz -C / --strip 2 || FAILED=1
+  #cond_redirect ln -s /usr/lib/influxdb/scripts/influxdb.service /lib/systemd/system/influxdb.service || FAILED=1 # this command is not valid as 'enable' doesn't accept symlinks
+  cond_redirect cp /usr/lib/influxdb/scripts/influxdb.service /lib/systemd/system/influxdb.service || FAILED=1
   cond_redirect adduser --system --no-create-home --group --disabled-login influxdb || FAILED=1
   cond_redirect chown -R influxdb:influxdb /var/lib/influxdb || FAILED=1
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable influxdb.service
   cond_redirect systemctl start influxdb.service
-  if [ $FAILED -eq 0 ]; then echo -n "OK "; else echo -n "FAILED "; fi
+  if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
 
   echo -n "Grafana (fg2it)... "
+  echo "deb https://dl.bintray.com/fg2it/deb jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
   cond_redirect apt install apt-transport-https
-  cond_redirect echo "deb https://dl.bintray.com/fg2it/deb jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list
-  cond_redirect apt update
-  cond_redirect apt-cache madison grafana
-  cond_redirect apt install grafana
-  if [ $FAILED -eq 0 ]; then echo -n "OK "; else echo -n "FAILED "; fi
+  cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61 || FAILED=2
+  cond_redirect apt update || FAILED=2
+  cond_redirect apt -y install grafana || FAILED=2
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl enable grafana-server.service
+  cond_redirect systemctl start grafana-server.service
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; else echo -n "OK "; fi
 
   echo -n "Connecting...  "
   #TODO
@@ -641,7 +646,7 @@ show_main_menu() {
   "11 | Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
   "12 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
   "13 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
-  "14 | Optional: Grafana"      "(not yet implemented)" \
+  "14 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
   "20 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
   "99 | About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
@@ -661,6 +666,7 @@ show_main_menu() {
       11\ *) homegear_setup ;;
       12\ *) mqtt_setup ;;
       13\ *) 1wire_setup ;;
+      14\ *) influxdb_grafana_setup ;;
       20\ *) wifi-setup-rpi3 ;;
       99\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
