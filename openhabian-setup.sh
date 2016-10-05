@@ -522,67 +522,53 @@ and activate one of these most common options (depending on your device):
 }
 
 influxdb_grafana_setup() {
-  echo -n "[openHABian] Setting up InfluxDB and Grafana... "
-  #cond_redirect apt update
-  #cond_redirect apt -y install bison ruby ruby-dev gcc make
-  #echo -n "Go... "
-  ##cond_redirect wget -O /root/gvm-installer https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer
-  ##cond_redirect /bin/bash /root/gvm-installer
-  #cond_redirect bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
-  #cond_redirect source /root/.gvm/scripts/gvm
-  #cond_redirect gvm install go1.4 --prefer-binary
-  #cond_redirect gvm use go1.4
-  #export GOROOT_BOOTSTRAP=$GOROOT
-  #cond_redirect gvm install go1.7
-  #cond_redirect gvm use go1.7 -–default
+  FAILED=0
+  introtext="This will install InfluxDB and Grafana and set up the connection between them and openHAB."
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Setup successful."
 
-  echo -n "InfluxDB... "
-  # https://docs.influxdata.com/influxdb/v1.0
-  curl -L https://dl.influxdata.com/influxdb/releases/influxdb-1.0.0_linux_armhf.tar.gz | tar xvz -C /
-  ln -s /usr/lib/influxdb/scripts/influxdb.service /lib/systemd/system/influxdb.service
-  adduser --system --no-create-home --group --disabled-login influxdb
-  chown -R influxdb:influxdb /var/lib/influxdb
-  systemctl daemon-reload
-  systemctl enable influxdb.service
-  systemctl start influxdb.service
-
-  #https://github.com/fg2it/grafana-on-raspberry/tree/master/wheezy-jessie
-  apt update
-  apt -y install curl git ca-certificates binutils gcc make libc-dev ruby ruby-dev rpm libfontconfig1 python g++
-
-  if is_pione ; then
-    echo -n "Go (ARMv6 architecture)... "
-    curl -L https://github.com/hypriot/golang-armbuilds/releases/download/v1.5.2/go1.5.2.linux-armv6.tar.gz | tar xvz -C /usr/local
-    curl -L https://nodejs.org/dist/v5.10.1/node-v5.10.1-linux-armv6l.tar.xz | tar xvJ --strip-components=1 -C /usr/local
-  else
-    echo -n "Go (ARMv7 architecture)... "
-    curl -L https://github.com/hypriot/golang-armbuilds/releases/download/v1.5.2/go1.5.2.linux-armv7.tar.gz | tar xvz -C /usr/local
-    curl -L https://nodejs.org/dist/v5.10.1/node-v5.10.1-linux-armv7l.tar.xz | tar xvJ --strip-components=1 -C /usr/local
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
   fi
 
-  export PATH=/usr/local/go/bin:$PATH
+  echo -n "[openHABian] Setting up InfluxDB and Grafana... "
 
-  echo -n "fpm... "
-  /usr/local/go/bin/gem install fpm
+  if is_pione ; then
+    if [ -n "$INTERACTIVE" ]; then
+      whiptail --title "Incompatible Hardware Detected" --msgbox "We are sorry. Grafana is not available for the Raspberry Pi 1 (ARMv6 architecture)." 10 60
+    fi
+    echo "FAILED"
+    return 1
+  fi
 
-  echo -n "phantomjs... "
-  curl -o /opt/phantomjs_armhf.deb -L https://github.com/fg2it/phantomjs-on-raspberry/releases/download/v2.1.1-wheezy-jessie/phantomjs_2.1.1_armhf.deb
-  dpkg -i /opt/phantomjs_armhf.deb
-  rm /opt/phantomjs_armhf.deb
+  echo -n "InfluxDB... "
+  cond_redirect curl -L https://dl.influxdata.com/influxdb/releases/influxdb-1.0.0_linux_armhf.tar.gz | tar xvz -C / --strip 2 || FAILED=1
+  cond_redirect ln -s /usr/lib/influxdb/scripts/influxdb.service /lib/systemd/system/influxdb.service || FAILED=1
+  cond_redirect adduser --system --no-create-home --group --disabled-login influxdb || FAILED=1
+  cond_redirect chown -R influxdb:influxdb /var/lib/influxdb || FAILED=1
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl enable influxdb.service
+  cond_redirect systemctl start influxdb.service
+  if [ $FAILED -eq 0 ]; then echo -n "OK "; else echo -n "FAILED "; fi
 
-  echo -n "Grafana... "
-  export GOPATH=/opt/graf-build
-  mkdir -p $GOPATH
-  cd $GOPATH
-  go get github.com/grafana/grafana
-  cd $GOPATH/src/github.com/grafana/grafana
-  #git checkout v3.1.1
-  go run build.go setup
-  $GOPATH/bin/godep restore
-  npm install
-  go run build.go build package
+  echo -n "Grafana (fg2it)... "
+  cond_redirect apt install apt-transport-https
+  cond_redirect echo "deb https://dl.bintray.com/fg2it/deb jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list
+  cond_redirect apt update
+  cond_redirect apt-cache madison grafana
+  cond_redirect apt install grafana
+  if [ $FAILED -eq 0 ]; then echo -n "OK "; else echo -n "FAILED "; fi
 
-  rm -rf $GOPATH
+  echo -n "Connecting...  "
+  #TODO
+
+  if [ -n "$INTERACTIVE" ]; then
+    if [ $FAILED -eq 0 ]; then
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    else
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+    fi
+  fi
 }
 
 openhabian_update() {
