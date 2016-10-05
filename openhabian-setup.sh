@@ -42,12 +42,13 @@ else
   echo "OK"
 fi
 
-# script will be called with unattended argument by post-install.txt
-# execution without "unattended" may later provide an interactive version with more optional components
+# script will be called with 'unattended' argument by post-install.txt
 if [[ "$1" = "unattended" ]]
 then
   UNATTENDED=1
   SILENT=1
+else
+  INTERACTIVE=1
 fi
 
 cond_redirect() {
@@ -362,13 +363,13 @@ openhab_shell_interfaces() {
 wifi-setup-rpi3() {
   echo -n "[openHABian] Setting up RPi 3 Wifi... "
   if ! is_pithree ; then
-    if [ -z "$UNATTENDED" ]; then
+    if [ -n "$INTERACTIVE" ]; then
       whiptail --title "Incompatible Hardware Detected" --msgbox "Wifi setup: This option is for a Raspberry Pi 3 system only." 10 60
     fi
     echo "FAILED"
     return 1
   fi
-  if [ -z "$UNATTENDED" ]; then
+  if [ -n "$INTERACTIVE" ]; then
     SSID=$(whiptail --title "Wifi Setup" --inputbox "Which Wifi (SSID) do you want to connect to?" 10 60 3>&1 1>&2 2>&3)
     if [ $? -ne 0 ]; then return 1; fi
     PASS=$(whiptail --title "Wifi Setup" --inputbox "What's the password for that Wifi?" 10 60 3>&1 1>&2 2>&3)
@@ -400,7 +401,7 @@ Please read up on the homegear documentation for more details: https://doc.homeg
 To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/homematic/readme.html
 "
 
-  if [ -z "$UNATTENDED" ]; then
+  if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
   fi
 
@@ -415,7 +416,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   cond_redirect systemctl start homegear.service
   echo "OK"
 
-  if [ -z "$UNATTENDED" ]; then
+  if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
     else
@@ -433,7 +434,7 @@ Mosquitto is now up and running in the background. You should now be able to mak
 To continue your integration in openHAB 2, please follow the instructions under: https://github.com/openhab/openhab/wiki/MQTT-Binding
 "
 
-  if [ -z "$UNATTENDED" ]; then
+  if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
   fi
 
@@ -448,7 +449,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   cond_redirect systemctl start mosquitto.service
   echo "OK"
 
-  if [ -z "$UNATTENDED" ]; then
+  if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
     else
@@ -467,7 +468,7 @@ Further details can be found unter: https://goo.gl/qN2t0H
 Integration into openHAB 2 is described here: https://github.com/openhab/openhab/wiki/KNX-Binding
 "
 
-  if [ -z "$UNATTENDED" ]; then
+  if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
   fi
 
@@ -480,7 +481,7 @@ Integration into openHAB 2 is described here: https://github.com/openhab/openhab
   #systemctl start knxd.service
   #if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
-  if [ -z "$UNATTENDED" ]; then
+  if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
     else
@@ -503,7 +504,7 @@ and activate one of these most common options (depending on your device):
   #server: device = /dev/ttyUSB0
 "
 
-  if [ -z "$UNATTENDED" ]; then
+  if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
   fi
 
@@ -511,7 +512,7 @@ and activate one of these most common options (depending on your device):
   cond_redirect apt -y install owserver ow-shell usbutils || FAILED=1
   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
-  if [ -z "$UNATTENDED" ]; then
+  if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
     else
