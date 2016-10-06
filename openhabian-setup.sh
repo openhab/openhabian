@@ -297,23 +297,16 @@ nano_openhab_syntax() {
   echo "OK"
 }
 
-samba_config() {
-  echo -n "[openHABian] Modifying Samba config... "
+samba_setup() {
+  echo -n "[openHABian] Setting up Samba... "
   cp $SCRIPTDIR/includes/smb.conf /etc/samba/smb.conf
-  echo "OK"
-}
-
-samba_user() {
-  echo -n "[openHABian] Adding openhab as Samba user... "
   ( (echo "habopen"; echo "habopen") | /usr/bin/smbpasswd -s -a openhab > /dev/null )
   #( (echo "raspberry"; echo "raspberry") | /usr/bin/smbpasswd -s -a pi > /dev/null )
-  chown -hR openhab:openhab /etc/openhab2
-  echo "OK"
-}
-
-samba_activate() {
-  echo -n "[openHABian] Activating Samba... "
+  cond_redirect chown -hR openhab:openhab /etc/openhab2
+  cond_redirect chown -hR openhab:openhab /var/lib/openhab2
+  cond_redirect chown -hR openhab:openhab /usr/share/openhab2/addons
   cond_redirect /bin/systemctl enable smbd.service
+  cond_redirect /bin/systemctl restart smbd.service
   echo "OK"
 }
 
@@ -623,12 +616,6 @@ openhab2_full_setup() {
   openhab2_service
   vim_openhab_syntax
   nano_openhab_syntax
-}
-
-samba_setup() {
-  samba_config
-  samba_user
-  samba_activate
 }
 
 show_main_menu() {
