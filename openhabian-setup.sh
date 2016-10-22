@@ -539,21 +539,28 @@ influxdb_grafana_setup() {
     return 1
   fi
 
+  cond_redirect apt -y install apt-transport-https
+
+  cond_echo ""
   echo -n "InfluxDB... "
-  cond_redirect wget -O /tmp/download.tar.gz https://dl.influxdata.com/influxdb/releases/influxdb-1.0.0_linux_armhf.tar.gz || FAILED=1
-  cond_redirect tar xvzf /tmp/download.tar.gz -C / --strip 2 || FAILED=1
-  #cond_redirect ln -s /usr/lib/influxdb/scripts/influxdb.service /lib/systemd/system/influxdb.service || FAILED=1 # this command is not valid as 'enable' doesn't accept symlinks
-  cond_redirect cp /usr/lib/influxdb/scripts/influxdb.service /lib/systemd/system/influxdb.service || FAILED=1
-  cond_redirect adduser --system --no-create-home --group --disabled-login influxdb || FAILED=1
-  cond_redirect chown -R influxdb:influxdb /var/lib/influxdb || FAILED=1
+  cond_redirect wget -O - https://repos.influxdata.com/influxdb.key | apt-key add - || FAILED=1
+  echo "deb https://repos.influxdata.com/debian jessie stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
+  cond_redirect apt update || FAILED=1
+  cond_redirect apt -y install influxdb || FAILED=1
+  # manual setup
+  #cond_redirect wget -O /tmp/download.tar.gz https://dl.influxdata.com/influxdb/releases/influxdb-1.0.0_linux_armhf.tar.gz || FAILED=1
+  #cond_redirect tar xvzf /tmp/download.tar.gz -C / --strip 2 || FAILED=1
+  #cond_redirect cp /usr/lib/influxdb/scripts/influxdb.service /lib/systemd/system/influxdb.service || FAILED=1
+  #cond_redirect adduser --system --no-create-home --group --disabled-login influxdb || FAILED=1
+  #cond_redirect chown -R influxdb:influxdb /var/lib/influxdb || FAILED=1
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable influxdb.service
   cond_redirect systemctl start influxdb.service
   if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
+  cond_echo ""
 
   echo -n "Grafana (fg2it)... "
   echo "deb https://dl.bintray.com/fg2it/deb jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
-  cond_redirect apt install apt-transport-https
   cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61 || FAILED=2
   cond_redirect apt update || FAILED=2
   cond_redirect apt -y install grafana || FAILED=2
@@ -561,8 +568,9 @@ influxdb_grafana_setup() {
   cond_redirect systemctl enable grafana-server.service
   cond_redirect systemctl start grafana-server.service
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; else echo -n "OK "; fi
+  cond_echo ""
 
-  echo -n "Connecting...  "
+  echo -n "Connecting (TODO)... "
   #TODO
 
   if [ -n "$INTERACTIVE" ]; then
