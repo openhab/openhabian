@@ -389,6 +389,69 @@ wifi-setup-rpi3() {
   echo "OK (Reboot needed)"
 }
 
+copysysroot2usb() {
+  NEWROOTDEV=/dev/sda
+  NEWROOTPART=/dev/sda1
+
+  INFOTEXT="DANGEROUS OPERATION, USE WITH PRECAUTION!\n
+This will move your system root from your SDCARD to an USB-Device like a ssd or an USB-Stick.\n
+1.) Make a backup of your SDCARD
+2.) Remove all USB massstorage devices from your PI
+3.) Insert the USB device to be used for the new system root. THIS DEVICE WILL BE FULLY DELETED
+\n
+Do you want to continue on your own risk?"
+
+  if ! (whiptail --title "Move system root to /dev/sda1" --yesno "$INFOTEXT" 18 78) then
+    echo "canceled, exit status was $?."
+  fi
+
+  if grep -q -F 'max_usb_current=1' /boot/config.txt; then
+     echo "max_usb_current already set, ok"
+  else
+     echo 'max_usb_current=1' >> /boot/config.txt
+     echo "REBOOT, run openhabian-setup.sh again and recall menu item 'Move sysroot to USB'"
+     whiptail --title "Reboot needed!" --msgbox "USB had to be set to high power (1A) first. Please REBOOT and RECALL this menu item" 15 78
+     exit
+  fi
+
+exit
+  
+  echo "stopping openhab"
+  systemctl stop openhab2
+
+  #delete all old partitions
+  #http://www.cyberciti.biz/faq/linux-remove-all-partitions-data-empty-disk/
+  dd if=/dev/zero of=$NEWROOTDEV  bs=512 count=1
+
+  #https://suntong.github.io/blogs/2015/12/25/use-sfdisk-to-partition-disks/
+  echo "partitioning on " $NEWROOTDEV
+  #create one big new partition
+  echo ';' | /sbin/sfdisk $NEWROOTDEV
+
+
+  echo "creating filesys on " $NEWROOTPART
+  #create new filesystem on partion 1
+  mkfs.ext4 -F -L oh_ssd $NEWROOTPART
+
+  echo "mounting new root " $NEWROOTPART
+  mount $NEWROOTPART /mnt 
+
+  echo "copying root sys, please be patient. Depending on the speed of your usb device, this can take 10 to 15 min"
+  tar cf - --one-file-system --exclude=/mnt/* --exclude=/proc/* --exclude=/lost+found/* --exclude=/sys/* --exclude=/media/* --exclude=/dev/* --exclude=/tmp/* --exclude=/boot/* --exclude=/run/* / | ( cd /mnt; sudo tar xfp -) 
+
+  echo "adjusting fstab on new root"
+  #adjust system root in fstab
+  sed -i "s#/dev/mmcblk0p2 /#"$NEWROOTPART" /#" /mnt/etc/fstab
+
+  echo "adjusting system root in kernel bootline"
+  #adjust system root in kernel bootline
+  sed -i "s#root=/dev/mmcblk0p2#root="$NEWROOTPART"#" /boot/cmdline.txt
+
+  echo
+  echo "OK, you re all set, please reboot"
+
+}
+
 homegear_setup() {
   FAILED=0
   introtext="This will install Homegear, the Homematic CCU2 emulation software, in the latest stable release from the official repository."
@@ -643,6 +706,7 @@ show_main_menu() {
   "13 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
   "14 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
   "20 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
+  "21 | Move sysroot to USB"     "Move the system root from the SDCARD to an USB device (ssd or usb-stick)" \
   "99 | About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
@@ -663,6 +727,7 @@ show_main_menu() {
       13\ *) 1wire_setup ;;
       14\ *) influxdb_grafana_setup ;;
       20\ *) wifi-setup-rpi3 ;;
+      21\ *) copysysroot2usb ;;
       99\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
     esac || whiptail --msgbox "There was an error running option \"$choice\"" 10 60
