@@ -38,3 +38,5 @@ if [ ! -f $FLAG ]; then
 fi # FLAG
 
 exit 0
+
+# vim: filetype=sh
