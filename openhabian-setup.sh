@@ -353,7 +353,7 @@ openhab_shell_interfaces() {
   echo "OK"
 }
 
-wifi-setup-rpi3() {
+wifi_setup_rpi3() {
   echo -n "[openHABian] Setting up RPi 3 Wifi... "
   if ! is_pithree ; then
     if [ -n "$INTERACTIVE" ]; then
@@ -389,28 +389,28 @@ wifi-setup-rpi3() {
   echo "OK (Reboot needed)"
 }
 
-copysysroot2usb() {
+move_root2usb() {
   NEWROOTDEV=/dev/sda
   NEWROOTPART=/dev/sda1
 
   infotext="DANGEROUS OPERATION, USE WITH PRECAUTION!\n
-This will move your system root from your SDCARD to an USB-Device like a ssd or an USB-Stick to reduce wear and failure or the SDCARD.\n
-1.) Make a backup of your SDCARD
-2.) Remove all USB massstorage devices from your PI
+This will move your system root from your SD card to a USB device like an SSD or a USB stick to reduce wear and failure or the SD card.\n
+1.) Make a backup of your SD card
+2.) Remove all USB massstorage devices from your Pi
 3.) Insert the USB device to be used for the new system root. THIS DEVICE WILL BE FULLY DELETED
 \n
 Do you want to continue on your own risk?"
 
   if ! (whiptail --title "Move system root to "$NEWROOTPART --yesno "$infotext" 18 78) then
-    echo "canceled, exit status was $?."
+    echo "cancelled, exit status was $?."
    return
   fi
 
-  #check if system root is on partion 2 of the SDCARD
+  #check if system root is on partion 2 of the SD card
   if ! grep -q "root=/dev/mmcblk0p2" /boot/cmdline.txt; then
-    infotext="It seems as if your systemroot is not on the SDCARD.
+    infotext="It seems as if your system root is not on the SD card.
        ***Aborting, process cant be started***"
-    whiptail --title "System root not on SDCARD?" --msgbox "$infotext" 8 78
+    whiptail --title "System root not on SD card?" --msgbox "$infotext" 8 78
     return
   fi
 
@@ -422,27 +422,27 @@ Do you want to continue on your own risk?"
 
      echo
      echo "********************************************************************************"
-     echo "REBOOT, run openhabian-setup.sh again and recall menu item 'Move sysroot to USB'"
+     echo "REBOOT, run openhabian-setup.sh again and recall menu item 'Move root to USB'"
      echo "********************************************************************************"
      whiptail --title "Reboot needed!" --msgbox "USB had to be set to high power (1A) first. Please REBOOT and RECALL this menu item" 15 78
      exit
   fi
 
-  #inform user to be patient ....
+  #inform user to be patient ...
   infotext="After confirming with OK, system root will be moved.
-Please be patient, this will taking 5 to 15 min depending mainly on the speed of your USB-Device.
-When the process is finished, you will be informed via msgbox"
+Please be patient. This will take 5 to 15 minutes, depending mainly on the speed of your USB device.
+When the process is finished, you will be informed via message box..."
 
-  whiptail --title "Moving system root ...." --msgbox "$infotext" 14 78
+  whiptail --title "Moving system root ..." --msgbox "$infotext" 14 78
   
-  echo "stopping openhab"
+  echo "stopping openHAB"
   systemctl stop openhab2
 
   #delete all old partitions
-  #http://www.cyberciti.biz/faq/linux-remove-all-partitions-data-empty-disk/
+  #http://www.cyberciti.biz/faq/linux-remove-all-partitions-data-empty-disk
   dd if=/dev/zero of=$NEWROOTDEV  bs=512 count=1
 
-  #https://suntong.github.io/blogs/2015/12/25/use-sfdisk-to-partition-disks/
+  #https://suntong.github.io/blogs/2015/12/25/use-sfdisk-to-partition-disks
   echo "partitioning on " $NEWROOTDEV
   #create one big new partition
   echo ';' | /sbin/sfdisk $NEWROOTDEV
@@ -481,8 +481,6 @@ When the process is finished, you will be informed via msgbox"
 
   infotext="OK, moving system root finished. PLEASE REBOOT"
   whiptail --title "Moving system root finished ...." --msgbox "$infotext" 8 78
-
-  return
 }
 
 homegear_setup() {
@@ -739,7 +737,7 @@ show_main_menu() {
   "13 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
   "14 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
   "20 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
-  "21 | Move sysroot to USB"     "Move the system root from the SDCARD to an USB device (ssd or usb-stick)" \
+  "21 | Move root to USB"       "Move the system root from the SD card to a USB device (ssd or usb-stick)" \
   "99 | About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
@@ -759,8 +757,8 @@ show_main_menu() {
       12\ *) mqtt_setup ;;
       13\ *) 1wire_setup ;;
       14\ *) influxdb_grafana_setup ;;
-      20\ *) wifi-setup-rpi3 ;;
-      21\ *) copysysroot2usb ;;
+      20\ *) wifi_setup_rpi3 ;;
+      21\ *) move_root2usb ;;
       99\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
     esac || whiptail --msgbox "There was an error running option \"$choice\"" 10 60
