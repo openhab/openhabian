@@ -394,7 +394,7 @@ move_root2usb() {
   NEWROOTPART=/dev/sda1
 
   infotext="DANGEROUS OPERATION, USE WITH PRECAUTION!\n
-This will move your system root from your SD card to a USB device like an SSD or a USB stick to reduce wear and failure or the SD card.\n
+This will move your system root from your SD card to a USB device like a SSD or a USB stick to reduce wear and failure or the SD card.\n
 1.) Make a backup of your SD card
 2.) Remove all USB massstorage devices from your Pi
 3.) Insert the USB device to be used for the new system root. THIS DEVICE WILL BE FULLY DELETED
@@ -477,10 +477,17 @@ When the process is finished, you will be informed via message box..."
   echo
   echo "*************************************************************"
   echo "OK, moving system root finished youre all set, PLEASE REBOOT"
+  echo
+  echo "In the unlikely case that the reboot does not suceed,"
+  echo "please put the SD card into another device and copy back" 
+  echo "/boot/cmdline.txt.sdcard to /boot/cmdline.txt"
   echo "*************************************************************"
 
-  infotext="OK, moving system root finished. PLEASE REBOOT"
-  whiptail --title "Moving system root finished ...." --msgbox "$infotext" 8 78
+  infotext="OK, moving system root finished. PLEASE REBOOT\n
+In the unlikely case that the reboot does not suceed,
+please put the SD card into another device and copy back 
+/boot/cmdline.txt.sdcard to /boot/cmdline.txt"
+  whiptail --title "Moving system root finished ...." --msgbox "$infotext" 12 78
 }
 
 homegear_setup() {
