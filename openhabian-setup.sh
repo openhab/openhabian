@@ -807,7 +807,7 @@ show_main_menu() {
 if [[ -n "$UNATTENDED" ]]
 then
   #unattended installation (from within raspbian-ua-netinst chroot)
-  #locale_timezone_settings
+  locale_timezone_settings
   first_boot_script
   fresh_raspbian_mods
   java_webupd8_prepare
