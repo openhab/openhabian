@@ -355,6 +355,31 @@ openhab_shell_interfaces() {
   echo "OK"
 }
 
+prepare_serial_port() {
+  introtext="Proceeding with this routine, the serial console normally provided by a Raspberry Pi will be disabled for the sake of a usable serial port.
+The provided port can henceforth be used by devices like Razberry or Busware SCC. For more details check: http://elinux.org/RPi_Serial_Connection"
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Serial Console successfully disabled. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0 (RPi3). You need to reboot your system now!"
+
+  echo -n "[openHABian] Disabling serial console for serial port peripherals... "
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
+  fi
+
+  if grep -q "enable_uart" /boot/config.txt; then
+    sed -i 's/^.*enable_uart=.*$/enable_uart=1/g' /boot/config.txt
+  else
+    echo "enable_uart=1" >> /boot/config.txt
+  fi
+  sed -i 's/console=tty.*console=tty1/console=tty1/g' /boot/cmdline.txt
+  sed -i 's/^T0/\#T0/g' /etc/inittab
+
+  if [ -n "$INTERACTIVE" ]; then
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+  fi
+  echo "OK (Reboot needed)"
+}
+
 wifi_setup_rpi3() {
   echo -n "[openHABian] Setting up RPi 3 Wifi... "
   if ! is_pithree ; then
@@ -745,8 +770,9 @@ show_main_menu() {
   "12 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
   "13 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
   "14 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
-  "20 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
-  "21 | Move root to USB"       "Move the system root from the SD card to a USB device (ssd or usb-stick)" \
+  "20 | Serial Port"            "Enable the RPi serial port for peripherals like Razberry, SCC, ..." \
+  "21 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
+  "22 | Move root to USB"       "Move the system root from the SD card to a USB device (ssd or usb stick)" \
   "99 | About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
@@ -766,8 +792,9 @@ show_main_menu() {
       12\ *) mqtt_setup ;;
       13\ *) 1wire_setup ;;
       14\ *) influxdb_grafana_setup ;;
-      20\ *) wifi_setup_rpi3 ;;
-      21\ *) move_root2usb ;;
+      20\ *) prepare_serial_port ;;
+      21\ *) wifi_setup_rpi3 ;;
+      22\ *) move_root2usb ;;
       99\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
     esac || whiptail --msgbox "There was an error running option \"$choice\"" 10 60
