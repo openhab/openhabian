@@ -11,7 +11,11 @@ set backspace=indent,eol,start
 syntax on
 
 " Enable file type detection and do language-dependent indenting.
+filetype plugin on
 filetype plugin indent on
+
+" Enable modeline support for file-specific overwrites.
+set modeline
 
 " Allow hidden buffers, don't limit to 1 file per window/split.
 set hidden
