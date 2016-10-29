@@ -304,7 +304,8 @@ samba_setup() {
   cp $SCRIPTDIR/includes/smb.conf /etc/samba/smb.conf
   ( (echo "habopen"; echo "habopen") | /usr/bin/smbpasswd -s -a openhab > /dev/null )
   #( (echo "raspberry"; echo "raspberry") | /usr/bin/smbpasswd -s -a pi > /dev/null )
-  cond_redirect chown -hR openhab:openhab /etc/openhab2
+  cond_redirect chown -h  openhab:pi /opt
+  cond_redirect chown -hR openhab:pi /etc/openhab2
   cond_redirect chown -hR openhab:openhab /var/lib/openhab2
   cond_redirect chown -hR openhab:openhab /usr/share/openhab2/addons
   cond_redirect /bin/systemctl enable smbd.service
