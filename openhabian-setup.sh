@@ -351,7 +351,9 @@ openhab_shell_interfaces() {
   introtext="The Karaf console is a powerful tool for every openHAB user. It allows you too have a deeper insight into the internals of your setup. Further details: http://docs.openhab.org/administration/console.html
 \nThis routine will bind the console to all interfaces and thereby make it available to other devices in your network. Please provide a secure password for this connection (letters and numbers only! default: habopen):"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="The Karaf console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the Console via 'ssh://openhab:<password>@<openhabian-IP> -p 8101'."
+  successtext="The Karaf console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the Console via:
+\n'ssh://openhab:<password>@<openhabian-IP> -p 8101'\n
+Please be aware, that the first connection attempt may take a few minutes or may result in a timeout."
 
   echo -n "[openHABian] Binding the Karaf console on all interfaces... "
   if [ -n "$INTERACTIVE" ]; then
