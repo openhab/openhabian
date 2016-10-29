@@ -347,11 +347,31 @@ etckeeper() {
 }
 
 openhab_shell_interfaces() {
+  introtext="The Karaf console is a powerful tool for every openHAB user. It allows you too have a deeper insight into the internals of your setup.
+Continuing with this routine will bind the console to all interfaces and thereby make it available to other devices in your network. Please provide a secure password for this connection (letters and numbers only!):"
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="The Karaf console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the Console via 'ssh://openhab:<password>@<openhabian-IP> -p 8101'."
+
   echo -n "[openHABian] Binding the Karaf console on all interfaces... "
-  cond_redirect sed -i "s/sshHost = 127.0.0.1/sshHost = 0.0.0.0/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
+  if [ -n "$INTERACTIVE" ]; then
+    sshPassword=$(whiptail --title "Please provide a " --inputbox "$introtext" 20 60 3>&1 1>&2 2>&3)
+    exitstatus=$?
+    if [ $exitstatus -ne 0 ]; then
+      echo "aborted"
+      return 0
+    fi
+  fi
+  [[ -z "${sshPassword// }" ]] && sshPassword="habopen"
+
   #cond_redirect sed -i "s/\# keySize = 4096/\# keySize = 4096\nkeySize = 1024/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
   #cond_redirect rm -f /usr/share/openhab2/runtime/karaf/etc/host.key
+  cond_redirect sed -i "s/sshHost = 127.0.0.1/sshHost = 0.0.0.0/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
+  cond_redirect sed -i "s/openhab = .*,/openhab = $sshPassword,/g" /usr/share/openhab2/runtime/karaf/etc/users.properties
   cond_redirect systemctl restart openhab2.service
+
+  if [ -n "$INTERACTIVE" ]; then
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+  fi
   echo "OK"
 }
 
