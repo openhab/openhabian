@@ -897,6 +897,7 @@ show_main_menu() {
   "04 | openHAB 2"              "Prepare and install the latest openHAB 2 snapshot" \
   "05 | Samba"                  "Install the filesharing service Samba and set up openHAB 2 shares" \
   "06 | Karaf Console"          "Bind the Karaf console to all interfaces" \
+  "07 | NGINX Setup"            "Setup a reverse proxy with password authentication or HTTPS access" \
   "10 | Optional: KNX"          "Set up the KNX daemon knxd" \
   "11 | Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
   "12 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
@@ -919,6 +920,7 @@ show_main_menu() {
       04\ *) openhab2_full_setup ;;
       05\ *) samba_setup ;;
       06\ *) openhab_shell_interfaces ;;
+      07\ *) nginx_setup ;;
       10\ *) knxd_setup ;;
       11\ *) homegear_setup ;;
       12\ *) mqtt_setup ;;
