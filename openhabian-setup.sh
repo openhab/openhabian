@@ -733,6 +733,115 @@ influxdb_grafana_setup() {
   fi
 }
 
+nginx_setup() {
+function comment {
+  sed -i "$1"' s/^/#/' "$2"
+}
+function uncomment {
+  sed -i "$1"' s/^ *#//' "$2"
+}
+
+echo "Installing NGINX and DNS Utilities..."
+apt -y -q install nginx dnsutils
+
+AUTH=false
+SECURE=false
+VALIDDOMAIN=false
+matched=false
+
+echo "Obtaining Public IP Address..."
+wanip=$(dig +short myip.opendns.com @resolver1.opendns.com)
+
+read -r -p "Would you like to sign in using a username and password? [y/N]:" response
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  read -p "Enter a username to sign into openHAB: " username
+  while [ "$matched" = false ]; do
+    read -s -p "Enter a password for $username: " password
+    echo ""
+    read -s -p "Please confirm the password: " secondpassword
+    echo ""
+    if [ "$password" = "$secondpassword" ]; then
+      matched=true
+      echo "Password accepted!"
+    else
+      echo "Password mismatch, please try again!"
+    fi
+  done
+  AUTH=true
+fi
+
+read -r -p "Would you like to secure your server with HTTPS? [y/N]:" response
+if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
+  SECURE=true
+  echo "If you have a registered domain enter it now, otherwise leave blank:"
+  read domain
+  while [ "$VALIDDOMAIN" = false ] && [ ! -z "$domain" ]; do
+    echo "Testing domain..."
+    domainip=$(dig +short $domain)
+    if [ "$wanip" = "$domainip" ]; then
+      echo "Domain is valid! Continuing!"
+      VALIDDOMAIN=true
+    else
+      echo "Domain is invalid, please enter a valid domain, otherwise leave blank:"
+      read domain
+    fi
+  done
+fi
+if [ "$VALIDDOMAIN" = false ]; then
+  domain=$wanip
+  echo "Server name set to IP address..."
+fi
+
+rm -rf /etc/nginx/sites-enabled/default
+cp $SCRIPTDIR/includes/nginx.conf /etc/nginx/sites-enabled/openhab
+
+sed -i "s/DOMAINNAME/${domain}/g" /etc/nginx/sites-enabled/openhab
+
+if [ "$AUTH" = true ]; then
+  echo "Installing password utilities..."
+  apt -y -q install apache2-utils
+  echo "Creating password file..."
+  htpasswd -b -c /etc/nginx/.htpasswd $username $password
+  uncomment 32,33 /etc/nginx/sites-enabled/openhab
+fi
+
+if [ "$SECURE" = true ]; then
+  if [ "$VALIDDOMAIN" = true ]; then
+    echo "deb http://ftp.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/backports.list
+    gpg --keyserver pgpkeys.mit.edu --recv-key 8B48AD6246925553
+    gpg -a --export 8B48AD6246925553 | apt-key add -
+    gpg --keyserver pgpkeys.mit.edu --recv-key 7638D0442B90D010
+    gpg -a --export 7638D0442B90D010 | apt-key add -
+    apt update
+    echo "Installing Certbot..."
+    apt -y -q --force-yes install certbot -t jessie-backports
+    mkdir -p /var/www/$domain
+    uncomment 37,39 /etc/nginx/sites-enabled/openhab
+    nginx -t && service nginx reload
+    echo "Creating Let's Encrypt certificate..."
+    certbot certonly --webroot -w /var/www/$domain -d $domain #This will cause a prompt
+    certpath="/etc/letsencrypt/live/$domain/fullchain.pem"
+    keypath="/etc/letsencrypt/live/$domain/privkey.pem"
+    echo "Installing cron job for certificate renewal..."
+    HOUR=$((RANDOM % 11))
+    MINUTE=$((RANDOM % 59))
+    echo "$MINUTE $HOUR-23/12 * * * root certbot renew --quiet" > /etc/cron.d/certrenew
+  else
+    mkdir -p /etc/ssl/certs
+    certpath="/etc/ssl/certs/openhab.crt"
+    keypath="/etc/ssl/certs/openhab.key"
+    openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout $keypath -out $certpath #This will cause a prompt
+  fi
+  uncomment 20,21 /etc/nginx/sites-enabled/openhab
+  sed -i "s|CERTPATH|${certpath}|g" /etc/nginx/sites-enabled/openhab
+  sed -i "s|KEYPATH|${keypath}|g" /etc/nginx/sites-enabled/openhab
+  uncomment 6,10 /etc/nginx/sites-enabled/openhab
+  uncomment 15,17 /etc/nginx/sites-enabled/openhab
+  comment 14 /etc/nginx/sites-enabled/openhab
+fi
+nginx -t && service nginx reload && echo "OK"
+}
+
 openhabian_update() {
   echo -n "[openHABian] Updating myself... "
   cond_redirect git -C $SCRIPTDIR fetch origin
