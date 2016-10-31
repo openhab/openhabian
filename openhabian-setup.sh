@@ -749,10 +749,11 @@ SECURE=false
 VALIDDOMAIN=false
 matched=false
 
-echo "Obtaining Public IP Address..."
+echo -n "Obtaining Public IP Address... "
 wanip=$(dig +short myip.opendns.com @resolver1.opendns.com)
+echo "$wanip"
 
-read -r -p "Would you like to sign in using a username and password? [y/N]:" response
+read -r -p "Would you like to secure your openHAB interface with username and password? [y/N]: " response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
   read -p "Enter a username to sign into openHAB: " username
   while [ "$matched" = false ]; do
@@ -770,19 +771,20 @@ if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
   AUTH=true
 fi
 
-read -r -p "Would you like to secure your server with HTTPS? [y/N]:" response
+read -r -p "Would you like to secure your openHAB interface with HTTPS? [y/N]: " response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]; then
   SECURE=true
-  echo "If you have a registered domain enter it now, otherwise leave blank:"
+  echo -n "If you have a registered domain enter it now, otherwise leave blank: "
   read domain
   while [ "$VALIDDOMAIN" = false ] && [ ! -z "$domain" ]; do
-    echo "Testing domain..."
+    echo -n "Testing domain... "
     domainip=$(dig +short $domain)
+    echo "resolves to $domainip"
     if [ "$wanip" = "$domainip" ]; then
       echo "Domain is valid! Continuing!"
       VALIDDOMAIN=true
     else
-      echo "Domain is invalid, please enter a valid domain, otherwise leave blank:"
+      echo -n "Domain does not resolve to your public IP address. Please enter a valid domain, leave blank to not use a domain name: "
       read domain
     fi
   done
