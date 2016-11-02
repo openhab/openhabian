@@ -734,7 +734,7 @@ influxdb_grafana_setup() {
 }
 
 nginx_setup() {
-  introtext="This will enable you to connect to openHAB through a HTTP port and optionally secure it with a username/password and an SSL certificate."
+  introtext="This will enable you to access the openHAB interface through the normal HTTP/HTTPS ports and optionally secure it with username/password and/or an SSL certificate."
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
 
   if [ -n "$INTERACTIVE" ]; then
@@ -748,7 +748,7 @@ nginx_setup() {
     sed -i "$1"' s/^ *#//' "$2"
   }
 
-  echo "Installing DNS Utilities..."
+  echo "Installing DNS utilities..."
   apt -y -q install dnsutils
 
   AUTH=false
@@ -780,28 +780,37 @@ nginx_setup() {
     SECURE=true
   fi
 
-  echo -n "Obtaining Public IP Address... "
+  echo -n "Obtaining public IP address... "
   wanip=$(dig +short myip.opendns.com @resolver1.opendns.com |tail -1)
-  echo "Public IP discovered as: $wanip"
+  echo "$wanip"
 
-  domain=$(whiptail --title "Domain Setup" --inputbox "If you have a registered domain enter it now, otherwise leave blank:" 15 80 3>&1 1>&2 2>&3)
+  domain=$(whiptail --title "Domain Setup" --inputbox "If you have a registered domain enter it now, if you have a static public IP enter \"IP\", otherwise leave blank:" 15 80 3>&1 1>&2 2>&3)
 
-  while [ "$VALIDDOMAIN" = false ] && [ ! -z "$domain" ]; do
+  while [ "$VALIDDOMAIN" = false ] && [ ! -z "$domain" ] && [ "$domain" != "IP" ]; do
+    echo -n "Obtaining domain IP address... "
     domainip=$(dig +short $domain |tail -1)
+    echo "$domainip"
     if [ "$wanip" = "$domainip" ]; then
       VALIDDOMAIN=true
+      echo "Public and domain IP address match"
     else
-      domain=$(whiptail --title "Domain Setup" --inputbox "Domain does not resolve to your public IP address. Please enter a valid domain, leave blank to not use a domain name:" 15 80 3>&1 1>&2 2>&3)
+      echo "Public and domain IP address mismatch!"
+      domain=$(whiptail --title "Domain Setup" --inputbox "Domain does not resolve to your public IP address. Please enter a valid domain, if you have a static public IP enter \"IP\",leave blank to not use a domain name:" 15 80 3>&1 1>&2 2>&3)
     fi
   done
 
   if [ "$VALIDDOMAIN" = false ]; then
-    domain=$wanip
+    if [ "$domain" == "IP" ]; then
+      echo "Setting domain to static public IP address $wanip"
+      domain=$wanip
+    else
+      echo "Setting no domain nor static public IP address"
+      domain="localhost"
+    fi
   fi
 
   if [ "$AUTH" = true ]; then
-    authtext="Authentication Enabled
-    - Username: $username"
+    authtext="Authentication Enabled\n- Username: $username"
   else
     authtext="Authentication Disabled"
   fi
@@ -814,16 +823,11 @@ nginx_setup() {
     protocol="HTTP"
   fi
 
-  confirmtext="The following settings have been chosen:
-
-- $authtext
-- $httpstext
-- Server IP or Domain: $domain
-
-If you proceed, you will be able to connect to openHAB on the default $protocol port. Do you wish to continue and setup an NGINX server?"
+  confirmtext="The following settings have been chosen:\n\n- $authtext\n- $httpstext\n- Domain: $domain (Public IP Address: $wanip)
+  \nIf you proceed, you will be able to connect to openHAB on the default $protocol port. Do you wish to continue and setup an NGINX server?"
 
   if (whiptail --title "Confirmation" --yesno "$confirmtext" 15 80) then
-    echo "Installing nginx..."
+    echo "Installing NGINX..."
     apt -y -q install nginx || FAILED=true
 
     rm -rf /etc/nginx/sites-enabled/default
@@ -841,18 +845,18 @@ If you proceed, you will be able to connect to openHAB on the default $protocol 
 
     if [ "$SECURE" = true ]; then
       if [ "$VALIDDOMAIN" = true ]; then
-        echo "deb http://ftp.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/backports.list
+        echo -e "# This file was added by openHABian to install certbot\ndeb http://ftp.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/backports.list
         gpg --keyserver pgpkeys.mit.edu --recv-key 8B48AD6246925553
         gpg -a --export 8B48AD6246925553 | apt-key add -
         gpg --keyserver pgpkeys.mit.edu --recv-key 7638D0442B90D010
         gpg -a --export 7638D0442B90D010 | apt-key add -
         apt update
-        echo "Installing Certbot..."
+        echo "Installing certbot..."
         apt -y -q --force-yes install certbot -t jessie-backports
         mkdir -p /var/www/$domain
         uncomment 37,39 /etc/nginx/sites-enabled/openhab
         nginx -t && service nginx reload
-        echo "Creating Let's Encrypt Certificate..."
+        echo "Creating Let's Encrypt certificate..."
         certbot certonly --webroot -w /var/www/$domain -d $domain || FAILED=true #This will cause a prompt
         if [ "$FAILED" = false ]; then
           certpath="/etc/letsencrypt/live/$domain/fullchain.pem"
@@ -878,7 +882,7 @@ If you proceed, you will be able to connect to openHAB on the default $protocol 
         comment 14 /etc/nginx/sites-enabled/openhab
       fi
     fi
-    nginx -t && service nginx reload || FAILED=true
+    nginx -t && systemctl reload nginx.service || FAILED=true
     if [ "$FAILED" = true ]; then
       whiptail --title "Operation Failed!" --msgbox "$failtext" 15 80
     else
