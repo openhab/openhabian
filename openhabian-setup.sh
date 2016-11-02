@@ -864,10 +864,6 @@ nginx_setup() {
         if [ "$FAILED" = false ]; then
           certpath="/etc/letsencrypt/live/$domain/fullchain.pem"
           keypath="/etc/letsencrypt/live/$domain/privkey.pem"
-          echo "Installing cron job for certificate renewal..."
-          HOUR=$((RANDOM % 11))
-          MINUTE=$((RANDOM % 59))
-          echo "$MINUTE $HOUR-23/12 * * * root certbot renew --quiet" > /etc/cron.d/certrenew
         fi
       else
         mkdir -p /etc/ssl/certs
