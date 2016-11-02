@@ -327,7 +327,7 @@ firemotd() {
     # invoke apt update check after "apt upgrade" was called
     # TODO testing needed
     # TODO seems to work but takes a long time that could irritate or annoy the user. run in background?
-    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count... '; /opt/FireMotD/FireMotD -S; echo 'OK'; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
+    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /opt/FireMotD/FireMotD -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
     echo "OK"
   else
     echo "FAILED"
@@ -818,15 +818,18 @@ nginx_setup() {
   if [ "$SECURE" = true ]; then
     httpstext="Proxy will be secured by HTTPS"
     protocol="HTTPS"
+    portwarning="Important! Before you continue, please make sure that port 80 (HTTP) of this machine is reachable from the internet (portforwarding, ...). Otherwise the certbot connection test will fail.\n\n"
   else
     httpstext="Proxy will not be secured by HTTPS"
     protocol="HTTP"
+    portwarning=""
   fi
 
   confirmtext="The following settings have been chosen:\n\n- $authtext\n- $httpstext\n- Domain: $domain (Public IP Address: $wanip)
-  \nIf you proceed, you will be able to connect to openHAB on the default $protocol port. Do you wish to continue and setup an NGINX server?"
+  \nYou will be able to connect to openHAB on the default $protocol port.
+  \n${portwarning}Do you wish to continue and setup an NGINX server now?"
 
-  if (whiptail --title "Confirmation" --yesno "$confirmtext" 15 80) then
+  if (whiptail --title "Confirmation" --yesno "$confirmtext" 22 80) then
     echo "Installing NGINX..."
     apt -y -q install nginx || FAILED=true
 
