@@ -898,6 +898,8 @@ openhabian_update() {
   local shorthash_before=`git -C $SCRIPTDIR log --pretty=format:'%h' -n 1`
   git -C $SCRIPTDIR fetch --quiet origin || FAILED=1
   git -C $SCRIPTDIR reset --quiet --hard origin/master || FAILED=1
+  git -C $SCRIPTDIR clean -x -d -f || FAILED=1
+  git -C $SCRIPTDIR checkout master || FAILED=1
   if [ $FAILED -eq 1 ]; then
     echo "FAILED - There was a problem fetching the latest changes for the openHABian configuration tool. Please check your internet connection and try again later..."
     return 1
