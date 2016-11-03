@@ -198,7 +198,7 @@ bashrc_copy() {
 
 vimrc_copy() {
   echo -n "[openHABian] Adding slightly tuned vim config file to system... "
-  cp $SCRIPTDIR/includes/vimrc /etc/vim/vimrc.local
+  cp $SCRIPTDIR/includes/vimrc /etc/vim/vimrc
   echo "OK"
 }
 
@@ -899,12 +899,12 @@ openhabian_update() {
   git -C $SCRIPTDIR fetch --quiet origin || FAILED=1
   git -C $SCRIPTDIR reset --quiet --hard origin/master || FAILED=1
   if [ $FAILED -eq 1 ]; then
-    echo -e "FAILED\nThere was a problem fetching the latest changes for the openHABian configuration tool. Please check your internet connection and try again later..."
+    echo "FAILED - There was a problem fetching the latest changes for the openHABian configuration tool. Please check your internet connection and try again later..."
     return 1
   fi
   local shorthash_after=`git -C $SCRIPTDIR log --pretty=format:'%h' -n 1`
   if [ "$shorthash_before" == "$shorthash_after" ]; then
-    echo -e "OK\nNo remote changes detected. You are up to date!"
+    echo "OK - No remote changes detected. You are up to date!"
     return 0
   else
     echo -e "OK - Commit history (oldest to newest):\n\n"
