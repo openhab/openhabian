@@ -9,6 +9,9 @@
 # 2016 Thomas Dietrich
 #
 
+#
+REPOSITORYURL="https://github.com/ThomDietrich/openhabian"
+
 # Find the absolute script location dir
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
@@ -324,9 +327,6 @@ firemotd() {
     cond_redirect /opt/FireMotD/FireMotD -S
     # invoke apt updates check every night
     echo "3 3 * * * root /opt/FireMotD/FireMotD -S &>/dev/null" > /etc/cron.d/firemotd
-    # invoke apt update check after "apt upgrade" was called
-    # TODO testing needed
-    # TODO seems to work but takes a long time that could irritate or annoy the user. run in background?
     echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /opt/FireMotD/FireMotD -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
     echo "OK"
   else
@@ -893,11 +893,27 @@ nginx_setup() {
 }
 
 openhabian_update() {
+  FAILED=0
   echo -n "[openHABian] Updating myself... "
-  cond_redirect git -C $SCRIPTDIR fetch origin
-  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
-  cond_redirect git -C $SCRIPTDIR reset --hard origin/master
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  local shorthash_before=`git -C $SCRIPTDIR log --pretty=format:'%h' -n 1`
+  git -C $SCRIPTDIR fetch --quiet origin || FAILED=1
+  git -C $SCRIPTDIR reset --quiet --hard origin/master || FAILED=1
+  if [ $FAILED -eq 1 ]; then
+    echo -e "FAILED\nThere was a problem fetching the latest changes for the openHABian configuration tool. Please check your internet connection and try again later..."
+    return 1
+  fi
+  local shorthash_after=`git -C $SCRIPTDIR log --pretty=format:'%h' -n 1`
+  if [ "$shorthash_before" == "$shorthash_after" ]; then
+    echo -e "OK\nNo remote changes detected. You are up to date!"
+    return 0
+  else
+    echo -e "OK - Commit history (oldest to newest):\n\n"
+    git -C $SCRIPTDIR log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --reverse --abbrev-commit --stat $shorthash_before..$shorthash_after
+    echo -e "\n"
+    echo "openHABian configuration tool successfully updated. Visit the development repository for more details: $REPOSITORYURL"
+    echo "You need to restart the tool. Exiting now..."
+    exit 0
+  fi
 }
 
 system_upgrade() {
@@ -917,7 +933,7 @@ get_git_revision() {
 }
 
 show_about() {
-  whiptail --title "openHABian $(get_git_revision)" --msgbox "The hassle-free openHAB 2 installation and configuration tool.\nhttps://github.com/ThomDietrich/openhabian \nhttps://community.openhab.org/t/openhabian-hassle-free-rpi-image/13379" 12 80
+  whiptail --title "openHABian $(get_git_revision)" --msgbox "The hassle-free openHAB 2 installation and configuration tool.\n$REPOSITORYURL \nhttps://community.openhab.org/t/openhabian-hassle-free-rpi-image/13379" 12 80
 }
 
 fresh_raspbian_mods() {
@@ -964,7 +980,7 @@ show_main_menu() {
     exit 0
   elif [ $RET -eq 0 ]; then
     case "$choice" in
-      01\ *) openhabian_update && echo -e "\nopenHABian configuration tool successfully updated. Please run again. Exiting..." && exit 0 ;;
+      01\ *) openhabian_update ;;
       02\ *) fresh_raspbian_mods ;;
       03\ *) java_webupd8_prepare && java_webupd8_install ;;
       04\ *) openhab2_full_setup ;;
