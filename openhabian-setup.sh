@@ -913,7 +913,7 @@ openhabian_update() {
     git -C $SCRIPTDIR log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --reverse --abbrev-commit --stat $shorthash_before..$shorthash_after
     echo -e "\n"
     echo "openHABian configuration tool successfully updated. Visit the development repository for more details: $REPOSITORYURL"
-    echo "You need to restart the tool. Exiting now..."
+    echo "You need to restart the tool. Exiting now... "
     exit 0
   fi
 }
