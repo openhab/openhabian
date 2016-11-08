@@ -592,7 +592,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
   cond_redirect apt update
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
-  cond_redirect apt -y install mosquitto
+  cond_redirect apt -y install mosquitto mosquitto-clients
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect systemctl enable mosquitto.service
   cond_redirect systemctl start mosquitto.service
