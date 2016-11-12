@@ -351,7 +351,7 @@ openhab_shell_interfaces() {
   introtext="The Karaf console is a powerful tool for every openHAB user. It allows you too have a deeper insight into the internals of your setup. Further details: http://docs.openhab.org/administration/console.html
 \nThis routine will bind the console to all interfaces and thereby make it available to other devices in your network. Please provide a secure password for this connection (letters and numbers only! default: habopen):"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="The Karaf console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the Console via:
+  successtext="The Karaf console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the console via:
 \n'ssh://openhab:<password>@<openhabian-IP> -p 8101'\n
 Please be aware, that the first connection attempt may take a few minutes or may result in a timeout."
 
@@ -368,8 +368,12 @@ Please be aware, that the first connection attempt may take a few minutes or may
 
   #cond_redirect sed -i "s/\# keySize = 4096/\# keySize = 4096\nkeySize = 1024/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
   #cond_redirect rm -f /usr/share/openhab2/runtime/karaf/etc/host.key
+  #TODO remove folowing two lines a few weeks after 2016-11-12
   cond_redirect sed -i "s/sshHost = 127.0.0.1/sshHost = 0.0.0.0/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
   cond_redirect sed -i "s/openhab = .*,/openhab = $sshPassword,/g" /usr/share/openhab2/runtime/karaf/etc/users.properties
+  #NEW
+  cond_redirect sed -i "s/sshHost = 127.0.0.1/sshHost = 0.0.0.0/g" /var/lib/openhab2/etc/org.apache.karaf.shell.cfg
+  cond_redirect sed -i "s/openhab = .*,/openhab = $sshPassword,/g" /var/lib/openhab2/etc/users.properties
   cond_redirect systemctl restart openhab2.service
 
   if [ -n "$INTERACTIVE" ]; then
