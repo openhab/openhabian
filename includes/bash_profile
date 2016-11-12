@@ -19,14 +19,14 @@ if [ -f "/home/pi/openHABian-install-failed" ]; then
   return 0
 fi
 
-alias karafshell="sudo su -s /bin/bash -c '/usr/share/openhab2/runtime/karaf/bin/client' openhab"
+alias karafshell="sudo su -s /bin/bash -c '/usr/share/openhab2/runtime/bin/client' openhab"
 
 if [ -f /opt/FireMotD/FireMotD ]; then
   echo
   /opt/FireMotD/FireMotD --theme gray
 fi
 
-OHVERSION=`awk '/Build/ {print $4}' /usr/share/openhab2/runtime/karaf/etc/branding.properties`
+OHVERSION=`awk '/Build/ {print $4}' /var/lib/openhab2/etc/branding.properties`
 cat << 'EOF'
 
               Welcome to            __  _____    ____  _
