@@ -687,11 +687,7 @@ influxdb_grafana_setup() {
   echo -n "[openHABian] Setting up InfluxDB and Grafana... "
 
   if is_pione ; then
-    if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Incompatible Hardware Detected" --msgbox "We are sorry. Grafana is not available for the Raspberry Pi 1 (ARMv6 architecture)." 10 60
-    fi
-    echo "FAILED"
-    return 1
+    GRAFANA_REPO_PI1='-rpi-1b'
   fi
 
   cond_redirect apt -y install apt-transport-https
@@ -715,7 +711,7 @@ influxdb_grafana_setup() {
   cond_echo ""
 
   echo -n "Grafana (fg2it)... "
-  echo "deb https://dl.bintray.com/fg2it/deb jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
+  echo "deb https://dl.bintray.com/fg2it/deb${GRAFANA_REPO_PI1} jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
   cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61 || FAILED=2
   cond_redirect apt update || FAILED=2
   cond_redirect apt -y install grafana || FAILED=2
