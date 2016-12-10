@@ -942,7 +942,8 @@ show_about() {
   whiptail --title "openHABian $(get_git_revision)" --msgbox "The hassle-free openHAB 2 installation and configuration tool.\n$REPOSITORYURL \nhttps://community.openhab.org/t/openhabian-hassle-free-rpi-image/13379" 12 80
 }
 
-fresh_raspbian_mods() {
+basic_raspbian_mods() {
+  first_boot_script
   memory_split
   basic_packages
   needed_packages
@@ -964,7 +965,7 @@ show_main_menu() {
 
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
   "01 | Update"                 "Pull the newest version of the openHABian Configuration Tool from GitHub" \
-  "02 | Basic Setup"            "Perform all basic setup steps recommended for openHAB 2 on a new system" \
+  "02 | Basic Setup"            "Perform all basic setup steps recommended for openHAB 2 on a new Raspbian system" \
   "03 | Java 8"                 "Install the newest Revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
   "04 | openHAB 2"              "Prepare and install the latest openHAB 2 snapshot" \
   "05 | Samba"                  "Install the filesharing service Samba and set up openHAB 2 shares" \
@@ -977,7 +978,7 @@ show_main_menu() {
   "14 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
   "20 | Serial Port"            "Enable the RPi serial port for peripherals like Razberry, SCC, ..." \
   "21 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
-  "22 | Move root to USB"       "Move the system root from the SD card to a USB device (ssd or usb stick)" \
+  "22 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
   "99 | About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
@@ -987,7 +988,7 @@ show_main_menu() {
   elif [ $RET -eq 0 ]; then
     case "$choice" in
       01\ *) openhabian_update ;;
-      02\ *) fresh_raspbian_mods ;;
+      02\ *) basic_raspbian_mods ;;
       03\ *) java_webupd8_prepare && java_webupd8_install ;;
       04\ *) openhab2_full_setup ;;
       05\ *) samba_setup ;;
@@ -1014,8 +1015,7 @@ if [[ -n "$UNATTENDED" ]]
 then
   #unattended installation (from within raspbian-ua-netinst chroot)
   locale_timezone_settings
-  first_boot_script
-  fresh_raspbian_mods
+  basic_raspbian_mods
   java_webupd8_prepare
   #java_webupd8_install
   openhab2_full_setup
