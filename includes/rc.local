@@ -5,7 +5,7 @@
 # value on error.
 
 FLAG="/root/afterfirstboot.lock"
-LOG="/var/log/raspbian-ua-netinst-bootup.log"
+LOG="/var/log/raspbian-ua-netinst.log"
 FAILED=0
 
 if [ ! -f $FLAG ]; then
