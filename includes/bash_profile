@@ -26,7 +26,8 @@ if [ -f /opt/FireMotD/FireMotD ]; then
   /opt/FireMotD/FireMotD --theme gray
 fi
 
-OHVERSION=`awk '/Build/ {print $4}' /var/lib/openhab2/etc/branding.properties`
+OHVERSION=`dpkg-query --showformat='${Version}' --show openhab2-offline`
+OHBUILD=`awk '/Build/ {print $4}' /var/lib/openhab2/etc/branding.properties`
 cat << 'EOF'
 
               Welcome to            __  _____    ____  _
@@ -36,7 +37,11 @@ cat << 'EOF'
           \____/ .___/\___/_/ /_/_/ /_/_/  |_/_____/_/\__,_/_/ /_/
               /_/
 EOF
-echo "                                         openHAB 2.0 Build $OHVERSION"
+echo "                       openHAB $OHVERSION (Build $OHBUILD)"
+echo ""
+echo ""
+echo "Looking for a place to get started? Check out 'sudo openhabian-config' and the"
+echo "documentation at http://docs.openhab.org/installation/openhabian.html"
 echo ""
 
 # vim: filetype=sh
