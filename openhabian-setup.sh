@@ -165,6 +165,9 @@ memory_split() {
   else
     echo "gpu_mem=16" >> /boot/config.txt
   fi
+  if ! grep -q "dtparam=audio" /boot/config.txt; then
+    echo "dtparam=audio=on" >> /boot/config.txt
+  fi
   echo "OK"
 }
 
