@@ -307,10 +307,8 @@ samba_setup() {
   cp $SCRIPTDIR/includes/smb.conf /etc/samba/smb.conf
   ( (echo "habopen"; echo "habopen") | /usr/bin/smbpasswd -s -a openhab > /dev/null )
   #( (echo "raspberry"; echo "raspberry") | /usr/bin/smbpasswd -s -a pi > /dev/null )
-  cond_redirect chown -h  openhab:pi /opt
-  cond_redirect chown -hR openhab:pi /etc/openhab2
-  cond_redirect chown -hR openhab:openhab /var/lib/openhab2
-  cond_redirect chown -hR openhab:openhab /usr/share/openhab2/addons
+  cond_redirect chown -R openhab:pi /opt /etc/openhab2
+  cond_redirect chmod -R g+w /opt /etc/openhab2
   cond_redirect /bin/systemctl enable smbd.service
   cond_redirect /bin/systemctl restart smbd.service
   echo "OK"
@@ -346,6 +344,19 @@ etckeeper() {
   else
     echo "FAILED";
   fi
+}
+
+misc_system_settings() {
+  echo -n "[openHABian] Applying multiple useful system settings (permissions, ...)... "
+  cond_redirect adduser openhab dialout
+  cond_redirect adduser openhab tty
+  cond_redirect adduser pi openhab
+  cond_redirect adduser pi dialout
+  cond_redirect adduser pi tty
+  cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' `realpath /usr/bin/java`
+  cond_redirect chown -R openhab:pi /opt /etc/openhab2
+  cond_redirect chmod -R g+w /opt /etc/openhab2
+  echo "OK"
 }
 
 openhab_shell_interfaces() {
@@ -568,6 +579,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect systemctl enable homegear.service
   cond_redirect systemctl start homegear.service
+  cond_redirect adduser pi homegear
   echo "OK"
 
   if [ -n "$INTERACTIVE" ]; then
@@ -944,29 +956,27 @@ show_about() {
 }
 
 basic_raspbian_mods() {
-  introtext="If you continue, this step will install and set up openHABian's basic system settings. This routine was executed on the initial setup but a subsequent call might refresh and update the changes.
+  introtext="If you continue, this step will update the openHABian basic system settings.
 
 The following steps are included:
-  - Set up the first-boot-script (redundant after first setup)
-  - Set the RPi memory split (redundant after first setup)
   - Install recommended packages (vim, git, htop, ...)
   - Install an improved bash configuration
   - Install an improved vim configuration
   - Set up FireMotD
+  - Make some permission changes ('adduser', 'chown', ...)
 
-Do NOT continue, if you are not on a openHABianPi system."
+Do NOT continue, if you are not on a openHABianPi system!"
 
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 20 80) then return 1; fi
   fi
 
-  first_boot_script
-  memory_split
   basic_packages
   needed_packages
   bashrc_copy
   vimrc_copy
   firemotd
+  misc_system_settings
 }
 
 openhab2_full_setup() {
@@ -1033,12 +1043,19 @@ if [[ -n "$UNATTENDED" ]]
 then
   #unattended installation (from within raspbian-ua-netinst chroot)
   locale_timezone_settings
-  basic_raspbian_mods
+  first_boot_script
+  memory_split
+  basic_packages
+  needed_packages
+  bashrc_copy
+  vimrc_copy
+  firemotd
   java_webupd8_prepare
   #java_webupd8_install
   openhab2_full_setup
   samba_setup
   etckeeper
+  misc_system_settings
 else
   while true; do
     show_main_menu
