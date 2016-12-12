@@ -23,7 +23,7 @@ alias karafshell="sudo su -s /bin/bash -c '/usr/share/openhab2/runtime/bin/clien
 
 if [ -f /opt/FireMotD/FireMotD ]; then
   echo
-  /opt/FireMotD/FireMotD --theme gray
+  bash /opt/FireMotD/FireMotD --theme gray
 fi
 
 OHVERSION=`dpkg-query --showformat='${Version}' --show openhab2-offline`
