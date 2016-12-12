@@ -399,22 +399,39 @@ Please be aware, that the first connection attempt may take a few minutes or may
 
 prepare_serial_port() {
   introtext="Proceeding with this routine, the serial console normally provided by a Raspberry Pi will be disabled for the sake of a usable serial port.
-The provided port can henceforth be used by devices like Razberry or Busware SCC. For more details check: http://elinux.org/RPi_Serial_Connection"
+The provided port can henceforth be used by devices like Razberry, UZB or Busware SCC. On a Raspberry Pi 3 the Bluetooth module will additionally be disabled, ensuring the operation of a Razberry (mutually exclusive, details: https://github.com/ThomDietrich/openhabian/issues/33).
+Finally, all common serial ports are made accessible to the openHAB java virtual machine."
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Serial Console successfully disabled. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0 (RPi3). You need to reboot your system now!"
+  successtext="Serial Console successfully disabled. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0 (RPi3). For stability reasons please update your Raspberry Pi firmware now and reboot afterwards.\n
+  sudo rpi-update
+  sudo reboot"
 
   echo -n "[openHABian] Disabling serial console for serial port peripherals... "
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
   fi
 
+  cond_echo "Adding 'enable_uart=1' to /boot/config.txt"
   if grep -q "enable_uart" /boot/config.txt; then
     sed -i 's/^.*enable_uart=.*$/enable_uart=1/g' /boot/config.txt
   else
     echo "enable_uart=1" >> /boot/config.txt
   fi
+
+  cond_echo "Removing serial console and login shell from /boot/cmdline.txt and /etc/inittab"
   sed -i 's/console=tty.*console=tty1/console=tty1/g' /boot/cmdline.txt
   sed -i 's/^T0/\#T0/g' /etc/inittab
+
+  if is_pithree ; then
+    systemctl disable hciuart &>/dev/null
+    if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
+      cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3)"
+      echo "dtoverlay=pi3-miniuart-bt" >> /boot/config.txt
+    fi
+  fi
+
+  cond_echo "Adding serial ports to openHAB java virtual machine in /etc/default/openhab2"
+  sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyAMA0"#g' /etc/default/openhab2
 
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
