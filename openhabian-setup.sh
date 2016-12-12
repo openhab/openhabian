@@ -318,15 +318,16 @@ samba_setup() {
 
 firemotd() {
   echo -n "[openHABian] Downloading FireMotD... "
-  #git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD &>/dev/null
-  cond_redirect git clone -b issue-15 https://github.com/ThomDietrich/FireMotD.git /opt/FireMotD
+  rm -rf /opt/FireMotD
+  cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
   if [ $? -eq 0 ]; then
-    # the following is already in there by default
-    #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/pi/.bashrc
-    # apt updates check
+    # the following is already in bash_profile by default
+    #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/pi/.bash_profile
+    # initial apt updates check
     cond_redirect /opt/FireMotD/FireMotD -S
     # invoke apt updates check every night
     echo "3 3 * * * root /opt/FireMotD/FireMotD -S &>/dev/null" > /etc/cron.d/firemotd
+    # invoke apt updates check after every apt action ('apt upgrade', ...)
     echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /opt/FireMotD/FireMotD -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
     echo "OK"
   else
@@ -949,6 +950,7 @@ basic_raspbian_mods() {
   needed_packages
   bashrc_copy
   vimrc_copy
+  firemotd
 }
 
 openhab2_full_setup() {
@@ -1020,7 +1022,6 @@ then
   #java_webupd8_install
   openhab2_full_setup
   samba_setup
-  firemotd
   etckeeper
 else
   while true; do
