@@ -324,7 +324,7 @@ firemotd() {
     # the following is already in bash_profile by default
     #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/pi/.bash_profile
     # initial apt updates check
-    cond_redirect /opt/FireMotD/FireMotD -S
+    cond_redirect bash /opt/FireMotD/FireMotD -S
     # invoke apt updates check every night
     echo "3 3 * * * root /opt/FireMotD/FireMotD -S &>/dev/null" > /etc/cron.d/firemotd
     # invoke apt updates check after every apt action ('apt upgrade', ...)
