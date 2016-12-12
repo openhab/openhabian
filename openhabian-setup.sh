@@ -176,6 +176,7 @@ basic_packages() {
   cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect wget -O /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update
+  cond_redirect chmod +x /usr/bin/rpi-update
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -408,7 +409,7 @@ Finally, all common serial ports are made accessible to the openHAB java virtual
 
   echo -n "[openHABian] Disabling serial console for serial port peripherals... "
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
   cond_echo "Adding 'enable_uart=1' to /boot/config.txt"
@@ -587,7 +588,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
 "
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
   echo -n "[openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
@@ -621,7 +622,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
 "
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
   echo -n "[openHABian] Setting up the MQTT broker software Mosquitto... "
@@ -655,7 +656,7 @@ Integration into openHAB 2 is described here: https://github.com/openhab/openhab
 "
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
   echo -n "[openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
@@ -691,7 +692,7 @@ and activate one of these most common options (depending on your device):
 "
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
   echo -n "[openHABian] Installing owserver (1wire)... "
@@ -714,7 +715,7 @@ influxdb_grafana_setup() {
   successtext="Setup successful."
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
   echo -n "[openHABian] Setting up InfluxDB and Grafana... "
@@ -775,7 +776,7 @@ nginx_setup() {
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
   function comment {
@@ -985,10 +986,13 @@ The following steps are included:
   - Set up FireMotD
   - Make some permission changes ('adduser', 'chown', ...)
 
+This step will NOT update your installed packages (including openHAB2).
+Please execute from the console: 'sudo apt update && sudo apt upgrade'
+
 Do NOT continue, if you are not on a openHABianPi system!"
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 20 80) then return 1; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 20 80) then return 0; fi
   fi
 
   basic_packages

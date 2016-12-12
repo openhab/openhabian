@@ -22,7 +22,8 @@ if [ ! -f $FLAG ]; then
   else
     echo "FAILED" >> $LOG
   fi
-  systemctl restart openhab2.service
+  systemctl enable openhab2.service
+  systemctl start openhab2.service
 
   if [ -f "/home/pi/openHABian-install-failed" ]; then
     echo "[openHABian] Indicating failure through green LED fast blinking." >> $LOG
