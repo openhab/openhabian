@@ -944,6 +944,22 @@ show_about() {
 }
 
 basic_raspbian_mods() {
+  introtext="If you continue, this step will install and set up openHABian's basic system settings. This routine was executed on the initial setup but a subsequent call might refresh and update the changes.
+
+The following steps are included:
+  - Set up the first-boot-script (redundant after first setup)
+  - Set the RPi memory split (redundant after first setup)
+  - Install recommended packages (vim, git, htop, ...)
+  - Install an improved bash configuration
+  - Install an improved vim configuration
+  - Set up FireMotD
+
+Do NOT continue, if you are not on a openHABianPi system."
+
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 20 80) then return 1; fi
+  fi
+
   first_boot_script
   memory_split
   basic_packages
