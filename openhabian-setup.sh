@@ -372,41 +372,62 @@ Please be aware, that the first connection attempt may take a few minutes or may
 }
 
 prepare_serial_port() {
-  introtext="Proceeding with this routine, the serial console normally provided by a Raspberry Pi will be disabled for the sake of a usable serial port.
-The provided port can henceforth be used by devices like Razberry, UZB or Busware SCC. On a Raspberry Pi 3 the Bluetooth module will additionally be disabled, ensuring the operation of a Razberry (mutually exclusive, details: https://github.com/openhab/openhabian/issues/33).
-Finally, all common serial ports are made accessible to the openHAB java virtual machine."
+  introtext="Proceeding with this routine, the serial console normally provided by a Raspberry Pi can be disabled for the sake of a usable serial port. The provided port can henceforth be used by devices like Razberry, UZB or Busware SCC.
+On a Raspberry Pi 3 the Bluetooth module can additionally be disabled, ensuring the operation of a Razberry (mutually exclusive).
+Finally, all common serial ports can be made accessible to the openHAB java virtual machine.
+\nPlease make your choice:"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Serial Console successfully disabled. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0 (RPi3). For stability reasons please update your Raspberry Pi firmware now and reboot afterwards.\n
+  successtext="All done. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0. For stability reasons please update your Raspberry Pi firmware now and reboot afterwards.\n
   sudo rpi-update
   sudo reboot"
 
   echo -n "[openHABian] Disabling serial console for serial port peripherals... "
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
-  fi
-
-  cond_echo ""
-  cond_echo "Adding 'enable_uart=1' to /boot/config.txt"
-  if grep -q "enable_uart" /boot/config.txt; then
-    sed -i 's/^.*enable_uart=.*$/enable_uart=1/g' /boot/config.txt
+    selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
+    "1"  "Disable serial console                 (Razberry, SCC, Enocean)" ON \
+    "2"  "Disable the RPi3 Bluetooth module      (Razberry)" OFF \
+    "3"  "Add common serial ports to openHAB JVM (Razberry, Enocean)" ON \
+    3>&1 1>&2 2>&3)
+    if [ $? -ne 0 ]; then return 0; fi
   else
-    echo "enable_uart=1" >> /boot/config.txt
+    selection="1 3"
   fi
 
-  cond_echo "Removing serial console and login shell from /boot/cmdline.txt and /etc/inittab"
-  sed -i 's/console=tty.*console=tty1/console=tty1/g' /boot/cmdline.txt
-  sed -i 's/^T0/\#T0/g' /etc/inittab
-
-  if is_pithree ; then
-    systemctl disable hciuart &>/dev/null
-    if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
-      cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3)"
-      echo "dtoverlay=pi3-miniuart-bt" >> /boot/config.txt
+  if [[ $selection == *"1"* ]]; then
+    cond_echo ""
+    cond_echo "Adding 'enable_uart=1' to /boot/config.txt"
+    if grep -q "enable_uart" /boot/config.txt; then
+      sed -i 's/^.*enable_uart=.*$/enable_uart=1/g' /boot/config.txt
+    else
+      echo "enable_uart=1" >> /boot/config.txt
     fi
+    cond_echo "Removing serial console and login shell from /boot/cmdline.txt and /etc/inittab"
+    sed -i 's/console=tty.*console=tty1/console=tty1/g' /boot/cmdline.txt
+    sed -i 's/^T0/\#T0/g' /etc/inittab
+  #else
+  #TODO this needs to be implemented when someone actually cares...
   fi
 
-  cond_echo "Adding serial ports to openHAB java virtual machine in /etc/default/openhab2"
-  sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyAMA0"#g' /etc/default/openhab2
+  if [[ $selection == *"2"* ]]; then
+    if is_pithree ; then
+      cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3)"
+      systemctl disable hciuart &>/dev/null
+      if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
+        echo "dtoverlay=pi3-miniuart-bt" >> /boot/config.txt
+      fi
+    fi
+  else
+    cond_echo "Removing 'dtoverlay=pi3-miniuart-bt' from /boot/config.txt"
+    sed -i '/dtoverlay=pi3-miniuart-bt/d' /boot/config.txt
+  fi
+
+  if [[ $selection == *"3"* ]]; then
+    cond_echo "Adding serial ports to openHAB java virtual machine in /etc/default/openhab2"
+    sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyAMA0"#g' /etc/default/openhab2
+  else
+    cond_echo "Removing serial ports from openHAB java virtual machine in /etc/default/openhab2"
+    sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS=""#g' /etc/default/openhab2
+  fi
 
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
@@ -460,13 +481,12 @@ move_root2usb() {
 This will move your system root from your SD card to a USB device like an SSD or a USB stick to reduce wear and failure or the SD card.\n
 1.) Make a backup of your SD card
 2.) Remove all USB massstorage devices from your Pi
-3.) Insert the USB device to be used for the new system root. THIS DEVICE WILL BE FULLY DELETED
-\n
+3.) Insert the USB device to be used for the new system root.
+    THIS DEVICE WILL BE FULLY DELETED\n\n
 Do you want to continue on your own risk?"
 
-  if ! (whiptail --title "Move system root to "$NEWROOTPART --yesno "$infotext" 18 78) then
-    echo "cancelled, exit status was $?."
-   return
+  if ! (whiptail --title "Move system root to "$NEWROOTPART --yes-button "Continue" --no-button "Back" --yesno "$infotext" 18 78) then
+    return 0
   fi
 
   #check if system root is on partion 2 of the SD card
@@ -997,11 +1017,11 @@ show_main_menu() {
   calc_wt_size
 
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
-  "01 | Update"                 "Pull the newest version of the openHABian Configuration Tool from GitHub" \
+  "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
   "02 | Basic Setup"            "Perform all basic setup steps recommended for openHAB 2 on a new Raspbian system" \
-  "03 | Java 8"                 "Install the newest Revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
-  "04 | openHAB 2"              "Prepare and install the latest openHAB 2 snapshot" \
-  "05 | Samba"                  "Install the filesharing service Samba and set up openHAB 2 shares" \
+  "03 | Java 8"                 "Install the latest revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
+  "04 | openHAB 2"              "Download and install the latest openHAB 2 snapshot" \
+  "05 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
   "06 | Karaf Console"          "Bind the Karaf console to all interfaces" \
   "07 | NGINX Setup"            "Setup a reverse proxy with password authentication or HTTPS access" \
   "10 | Optional: KNX"          "Set up the KNX daemon knxd" \
