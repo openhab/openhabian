@@ -23,7 +23,7 @@ The next milestone is to provide an interactive configuration wizard, installing
 **Setup**
 
 * Raspberry Pi models 1B+, 2B or 3B recommended
-* Write [image](https://github.com/ThomDietrich/openhabian/releases) to SD card ([instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md))
+* Write [image](https://github.com/openhab/openhabian/releases) to SD card ([instructions](https://www.raspberrypi.org/documentation/installation/installing-images/README.md))
 * Connect Ethernet, SD card and power to your Raspberry Pi
 * Wait up to **45 minutes** (setup depends on your downlink as almost everything is downloaded live)
 * Green LED will indicate when setup is finished

@@ -18,7 +18,7 @@ This gives other contributors a chance to point you in the right direction, give
 
 ### Create Issues...
 
-Any significant improvement should be documented as [a GitHub issue](https://github.com/ThomDietrich/openhabian/labels/enhancement) before anybody starts working on it.
+Any significant improvement should be documented as [a GitHub issue](https://github.com/openhab/openhabian/labels/enhancement) before anybody starts working on it.
 
 ### ...but Check for Existing Issues First!
 
