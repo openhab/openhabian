@@ -67,16 +67,14 @@ cond_redirect() {
 
 cond_echo() {
   if [ -z "$SILENT" ]; then
-    echo -e "\n$COL_YELLOW$@$COL_DEF"
+    echo -e "$COL_YELLOW$@$COL_DEF"
   fi
 }
 
-hightlight() {
-  echo -e "$COL_LGRAY$@$COL_DEF"
+is_pizero() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]09[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
 }
-
-# Shamelessly taken from https://github.com/RPi-Distro/raspi-config/blob/bd21dedea3c9927814cf4f0438e116c6a31181a9/raspi-config#L11-L66
-# SNIP
 is_pione() {
   if grep -q "^Revision\s*:\s*00[0-9a-fA-F][0-9a-fA-F]$" /proc/cpuinfo; then
     return 0
@@ -94,31 +92,7 @@ is_pithree() {
   grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]08[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
-is_pizero() {
-  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]09[0-9a-fA-F]$" /proc/cpuinfo
-  return $?
-}
-get_pi_type() {
-  if is_pione; then
-    echo 1
-  elif is_pitwo; then
-    echo 2
-  elif is_pithree; then
-    echo 3
-  else
-    echo 0
-  fi
-}
-get_init_sys() {
-  if command -v systemctl > /dev/null && systemctl | grep -q '\-\.mount'; then
-    SYSTEMD=1
-  elif [ -f /etc/init.d/cron ] && [ ! -h /etc/init.d/cron ]; then
-    SYSTEMD=0
-  else
-    echo "Unrecognised init system"
-    return 1
-  fi
-}
+
 calc_wt_size() {
   # NOTE: it's tempting to redirect stderr to /dev/null, so supress error
   # output from tput. However in this case, tput detects neither stdout or
@@ -134,7 +108,6 @@ calc_wt_size() {
   fi
   WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
 }
-# SNAP
 
 locale_timezone_settings() {
   echo -n "[openHABian] Setting timezone (Europe/Berlin) and locale (en_US.UTF-8)... "
@@ -412,6 +385,7 @@ Finally, all common serial ports are made accessible to the openHAB java virtual
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
+  cond_echo ""
   cond_echo "Adding 'enable_uart=1' to /boot/config.txt"
   if grep -q "enable_uart" /boot/config.txt; then
     sed -i 's/^.*enable_uart=.*$/enable_uart=1/g' /boot/config.txt
@@ -462,7 +436,9 @@ wifi_setup_rpi3() {
   cond_redirect apt -y install firmware-brcm80211 wpasupplicant wireless-tools # pi-bluetooth
   echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\nnetwork={\n  ssid=\"$SSID\"\n  psk=\"$PASS\"\n}" > /etc/wpa_supplicant/wpa_supplicant.conf
   if grep -q "wlan0" /etc/network/interfaces; then
+    cond_echo ""
     cond_echo "Not writing to '/etc/network/interfaces', wlan0 entry already available. You might need to check, adopt or remove these lines."
+    cond_echo ""
   else
     echo -e "\nallow-hotplug wlan0\niface wlan0 inet manual\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\niface default inet dhcp" >> /etc/network/interfaces
   fi
@@ -721,11 +697,9 @@ influxdb_grafana_setup() {
   echo -n "[openHABian] Setting up InfluxDB and Grafana... "
 
   if is_pione ; then
-    if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Incompatible Hardware Detected" --msgbox "We are sorry. Grafana is not available for the Raspberry Pi 1 (ARMv6 architecture)." 10 60
-    fi
-    echo "FAILED"
-    return 1
+    GRAFANA_REPO_PI1="-rpi-1b"
+  else
+    GRAFANA_REPO_PI1=""
   fi
 
   cond_redirect apt -y install apt-transport-https
@@ -749,7 +723,7 @@ influxdb_grafana_setup() {
   cond_echo ""
 
   echo -n "Grafana (fg2it)... "
-  echo "deb https://dl.bintray.com/fg2it/deb jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
+  echo "deb https://dl.bintray.com/fg2it/deb${GRAFANA_REPO_PI1} jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
   cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61 || FAILED=2
   cond_redirect apt update || FAILED=2
   cond_redirect apt -y install grafana || FAILED=2
@@ -932,6 +906,12 @@ nginx_setup() {
 
 openhabian_update() {
   FAILED=0
+  if git -C $SCRIPTDIR remote -v | grep -q "ThomDietrich"; then
+    cond_echo ""
+    cond_echo "Old origin URL found. Replacing with the new URL under the openHAB organization (https://github.com/openhab/openhabian.git)..."
+    cond_echo ""
+    git -C $SCRIPTDIR remote set-url origin https://github.com/openhab/openhabian.git
+  fi
   echo -n "[openHABian] Updating myself... "
   local shorthash_before=`git -C $SCRIPTDIR log --pretty=format:'%h' -n 1`
   git -C $SCRIPTDIR fetch --quiet origin || FAILED=1
@@ -947,10 +927,12 @@ openhabian_update() {
     echo "OK - No remote changes detected. You are up to date!"
     return 0
   else
-    echo -e "OK - Commit history (oldest to newest):\n\n"
+    echo "OK - Commit history (oldest to newest):"
+    echo -e "\n"
     git -C $SCRIPTDIR log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --reverse --abbrev-commit --stat $shorthash_before..$shorthash_after
     echo -e "\n"
-    echo "openHABian configuration tool successfully updated. Visit the development repository for more details: $REPOSITORYURL"
+    echo "openHABian configuration tool successfully updated."
+    echo "Visit the development repository for more details: $REPOSITORYURL"
     echo "You need to restart the tool. Exiting now... "
     exit 0
   fi
@@ -1012,7 +994,6 @@ openhab2_full_setup() {
 }
 
 show_main_menu() {
-  get_init_sys
   calc_wt_size
 
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
