@@ -4,13 +4,13 @@
 # for the Raspberry Pi and other Linux systems
 #
 # https://community.openhab.org/t/openhabian-hassle-free-rpi-image/13379
-# https://github.com/ThomDietrich/openhabian
+# https://github.com/openhab/openhabian
 #
 # 2016 Thomas Dietrich
 #
 
 #
-REPOSITORYURL="https://github.com/ThomDietrich/openhabian"
+REPOSITORYURL="https://github.com/openhab/openhabian"
 
 # Find the absolute script location dir
 SOURCE="${BASH_SOURCE[0]}"
@@ -400,7 +400,7 @@ Please be aware, that the first connection attempt may take a few minutes or may
 
 prepare_serial_port() {
   introtext="Proceeding with this routine, the serial console normally provided by a Raspberry Pi will be disabled for the sake of a usable serial port.
-The provided port can henceforth be used by devices like Razberry, UZB or Busware SCC. On a Raspberry Pi 3 the Bluetooth module will additionally be disabled, ensuring the operation of a Razberry (mutually exclusive, details: https://github.com/ThomDietrich/openhabian/issues/33).
+The provided port can henceforth be used by devices like Razberry, UZB or Busware SCC. On a Raspberry Pi 3 the Bluetooth module will additionally be disabled, ensuring the operation of a Razberry (mutually exclusive, details: https://github.com/openhab/openhabian/issues/33).
 Finally, all common serial ports are made accessible to the openHAB java virtual machine."
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Serial Console successfully disabled. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0 (RPi3). For stability reasons please update your Raspberry Pi firmware now and reboot afterwards.\n

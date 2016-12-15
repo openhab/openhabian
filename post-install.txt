@@ -8,7 +8,7 @@ chroot /rootfs /usr/bin/apt-get -y install git &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 echo -n "[openHABian] Cloning myself..."
-chroot /rootfs /usr/bin/git clone -b master https://github.com/ThomDietrich/openhabian.git /opt/openhabian &>/dev/null
+chroot /rootfs /usr/bin/git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 ln -s /opt/openhabian/openhabian-setup.sh /rootfs/usr/local/bin/openhabian-config
 
