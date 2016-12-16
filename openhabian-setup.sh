@@ -936,8 +936,8 @@ openhabian_update() {
   local shorthash_before=`git -C $SCRIPTDIR log --pretty=format:'%h' -n 1`
   git -C $SCRIPTDIR fetch --quiet origin || FAILED=1
   git -C $SCRIPTDIR reset --quiet --hard origin/master || FAILED=1
-  git -C $SCRIPTDIR clean -x -d -f || FAILED=1
-  git -C $SCRIPTDIR checkout master || FAILED=1
+  git -C $SCRIPTDIR clean --quiet --force -x -d || FAILED=1
+  git -C $SCRIPTDIR checkout --quiet master || FAILED=1
   if [ $FAILED -eq 1 ]; then
     echo "FAILED - There was a problem fetching the latest changes for the openHABian configuration tool. Please check your internet connection and try again later..."
     return 1
@@ -956,6 +956,35 @@ openhabian_update() {
     echo "You need to restart the tool. Exiting now... "
     exit 0
   fi
+}
+
+system_check_default_password() {
+  USERNAME="pi"
+  PASSWORD="raspberry"
+  introtext="The default password was detected on your system! That's a serious security concern. Others or malicious programs in your subnet are able to gain root access!
+  \nPlease set a strong password by simply typing 'passwd' in the console."
+  
+  echo -n "[openHABian] Checking for default Raspbian user:passwd combination... "
+  id -u $USERNAME &>/dev/null
+  if [ $? -ne 0 ]
+  then
+    echo "OK (unknown user)"
+    return 0
+  fi
+  export PASSWORD
+  ORIGPASS=`grep -w "$USERNAME" /etc/shadow | cut -d: -f2`
+  export ALGO=`echo $ORIGPASS | cut -d'$' -f2`
+  export SALT=`echo $ORIGPASS | cut -d'$' -f3`
+  GENPASS=$(perl -le 'print crypt("$ENV{PASSWORD}","\$$ENV{ALGO}\$$ENV{SALT}\$")')
+  if [ "$GENPASS" == "$ORIGPASS" ]; then
+    if [ -n "$INTERACTIVE" ]; then
+      whiptail --title "Default Password Detected!" --msgbox "$introtext" 12 60
+    fi
+    echo "FAILED"
+  else
+    echo "OK"
+  fi
+
 }
 
 system_upgrade() {
@@ -1082,6 +1111,7 @@ then
   etckeeper
   misc_system_settings
 else
+  system_check_default_password
   while true; do
     show_main_menu
     echo ""
