@@ -31,8 +31,10 @@ The next milestone is to provide an interactive configuration wizard, installing
   * Steady "heartbeat": setup **successful**
   * Fast blinking: error while setup, check `/var/log/raspbian-ua-netinst.log`, create GitHub Issue
 * Connect to the openHAB 2 portal (available after another 15 minutes): [http://openhabianpi:8080](http://openhabianpi:8080)
-* Connect via ssh with `pi:raspberry`
-* Connect to the Samba network share with `openhab:habopen`
+* Connect via ssh with `admin:raspberry`
+* Connect to the Samba network share with `admin:raspberry`
+* Connect to the local karaf console with `ssh admin@localhost -p 8101`. Password: `raspberry` <br>
+Generating key on first attempt, if its timeout retry 2-3 times.
 * enjoy!
 
 You may need to change the timezone setting through ssh and `sudo raspi-config` (Default is *GMT+01:00*). Besides that, you should be able to start working with openHAB 2 without further ssh contact.

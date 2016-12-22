@@ -25,7 +25,7 @@ if [ ! -f $FLAG ]; then
   systemctl enable openhab2.service
   systemctl start openhab2.service
 
-  if [ -f "/home/pi/openHABian-install-failed" ]; then
+  if [ -f "/home/`ls /home`/openHABian-install-failed" ]; then
     echo "[openHABian] Indicating failure through green LED fast blinking." >> $LOG
     modprobe ledtrig_timer
     echo "timer" >/sys/class/leds/led0/trigger

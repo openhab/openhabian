@@ -8,7 +8,7 @@ userpw=raspberry
 boot_volume_label=openHABian
 disable_root=1
 user_is_admin=1
-username=pi
+username=admin
 
 # Language and time
 timeserver=0.pool.ntp.org
