@@ -233,9 +233,8 @@ java_webupd8_install() {
 
 openhab2_addrepo() {
   echo -n "[openHABian] Adding openHAB 2 Snapshot repositories to sources.list.d... "
-  rm -f /etc/apt/sources.list.d/openhab2.list
-  echo "deb http://dl.bintray.com/openhab/apt-repo2 unstable main" >> /etc/apt/sources.list.d/openhab2.list
-  cond_redirect wget --retry-connrefused --tries=50 -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
+  echo "deb http://dl.bintray.com/openhab/apt-repo2 unstable main" > /etc/apt/sources.list.d/openhab2.list
+  cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
   cond_redirect apt-key add openhab-key.asc
   rm -f openhab-key.asc
   cond_redirect apt update
