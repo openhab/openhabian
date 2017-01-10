@@ -242,8 +242,8 @@ openhab2_addrepo() {
 }
 
 openhab2_install() {
-  echo -n "[openHABian] Installing openhab2-offline... "
-  cond_redirect apt -y install openhab2-offline
+  echo -n "[openHABian] Installing openhab2... "
+  cond_redirect apt -y install openhab2
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
@@ -959,7 +959,7 @@ system_check_default_password() {
   PASSWORD="raspberry"
   introtext="The default password was detected on your system! That's a serious security concern. Others or malicious programs in your subnet are able to gain root access!
   \nPlease set a strong password by simply typing 'passwd' in the console."
-  
+
   echo -n "[openHABian] Checking for default Raspbian user:passwd combination... "
   id -u $USERNAME &>/dev/null
   if [ $? -ne 0 ]
