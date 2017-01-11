@@ -26,7 +26,7 @@ if [ -f /opt/FireMotD/FireMotD ]; then
   bash /opt/FireMotD/FireMotD --theme gray
 fi
 
-OHVERSION=`dpkg-query --showformat='${Version}' --show openhab2-offline`
+OHVERSION=`dpkg-query --showformat='${Version}' --show openhab2`
 OHBUILD=`awk '/Build/ {print $4}' /var/lib/openhab2/etc/branding.properties`
 cat << 'EOF'
 
