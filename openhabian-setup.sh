@@ -92,6 +92,10 @@ is_pithree() {
   grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]08[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
+is_pi() {
+  if is_pizero || is_pione || is_pitwo || is_pithree; then return 1; fi
+  return 0
+}
 
 calc_wt_size() {
   # NOTE: it's tempting to redirect stderr to /dev/null, so supress error
@@ -153,14 +157,20 @@ basic_packages() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-needed_packages() {
-  # install raspi-config - configuration tool for the Raspberry Pi + Raspbian
+needed_packages_generic() {
   # install apt-transport-https - update packages through https repository (https://openhab.ci.cloudbees.com/...)
   # install samba - network sharing
   # install bc + sysstat - needed for FireMotD
   # install avahi-daemon - hostname based discovery on local networks
   echo -n "[openHABian] Installing additional needed packages... "
-  cond_redirect apt -y install raspi-config oracle-java8-jdk apt-transport-https samba bc sysstat avahi-daemon
+  cond_redirect apt -y install oracle-java8-jdk apt-transport-https samba bc sysstat avahi-daemon
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+}
+
+needed_packages_raspberry() {
+  # install raspi-config - configuration tool for the Raspberry Pi + Raspbian
+  echo -n "[openHABian] Installing additional raspberry specific packages... "
+  cond_redirect apt -y install raspi-config
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -1023,7 +1033,10 @@ Do NOT continue, if you are not on a openHABianPi system!"
   fi
 
   basic_packages
-  needed_packages
+  needed_packages_generic
+  if is_pi; then
+    needed_packages_raspberry
+  fi
   bashrc_copy
   vimrc_copy
   firemotd
@@ -1096,7 +1109,8 @@ then
   first_boot_script
   memory_split
   basic_packages
-  needed_packages
+  needed_packages_generic
+  needed_packages_raspberry
   bashrc_copy
   vimrc_copy
   firemotd
