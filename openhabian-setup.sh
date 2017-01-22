@@ -242,8 +242,10 @@ java_webupd8_install() {
 # }
 
 openhab2_addrepo() {
-  echo -n "[openHABian] Adding openHAB 2 Snapshot repositories to sources.list.d... "
-  echo "deb http://dl.bintray.com/openhab/apt-repo2 unstable main" > /etc/apt/sources.list.d/openhab2.list
+  echo -n "[openHABian] Adding openHAB 2 repository to sources.list.d... "
+  echo "deb http://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
+  #echo "deb http://dl.bintray.com/openhab/apt-repo2 testing main" > /etc/apt/sources.list.d/openhab2.list
+  #echo "deb http://dl.bintray.com/openhab/apt-repo2 unstable main" > /etc/apt/sources.list.d/openhab2.list
   cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
   cond_redirect apt-key add openhab-key.asc
   rm -f openhab-key.asc
@@ -1058,7 +1060,7 @@ show_main_menu() {
   "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
   "02 | Basic Setup"            "Perform all basic setup steps recommended for openHAB 2 on a new Raspbian system" \
   "03 | Java 8"                 "Install the latest revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
-  "04 | openHAB 2"              "Download and install the latest openHAB 2 snapshot" \
+  "04 | openHAB 2"              "Install openHAB 2.0 (stable)" \
   "05 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
   "06 | Karaf Console"          "Bind the Karaf console to all interfaces" \
   "07 | NGINX Setup"            "Setup a reverse proxy with password authentication or HTTPS access" \
