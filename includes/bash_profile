@@ -27,7 +27,13 @@ if [ -f /opt/FireMotD/FireMotD ]; then
 fi
 
 OHVERSION=`dpkg-query --showformat='${Version}' --show openhab2`
-OHBUILD=`awk '/Build/ {print $4}' /var/lib/openhab2/etc/branding.properties`
+
+if grep -q "Release Build" /var/lib/openhab2/etc/branding.properties; then
+  OHBUILD="Release Build"
+else
+  OHBUILD="Build $(awk '/Build/ {print $4}' /var/lib/openhab2/etc/branding.properties)"
+fi
+
 cat << 'EOF'
 
               Welcome to            __  _____    ____  _
@@ -37,7 +43,7 @@ cat << 'EOF'
           \____/ .___/\___/_/ /_/_/ /_/_/  |_/_____/_/\__,_/_/ /_/
               /_/
 EOF
-echo "                       openHAB $OHVERSION (Build $OHBUILD)"
+echo "                  openHAB $OHVERSION ($OHBUILD)"
 echo ""
 echo ""
 echo "Looking for a place to get started? Check out 'sudo openhabian-config' and the"
