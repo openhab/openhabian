@@ -681,6 +681,47 @@ Integration into openHAB 2 is described here: https://github.com/openhab/openhab
   fi
 }
 
+telldus_setup() {
+  FAILED=0
+  introtext="Telldus Core will be installed through the official repository, as desribed here: http://developer.telldus.com/wiki/TellStickInstallationUbuntu"
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Setup was successful.
+Telldus-core is now up and running in the background. A Samba share for the configuration file, tellstick.conf is now available, add your devices there. (If the file for some reason don't show up try rebooting the device.)
+Don't forget to setup the Tellstick binding within openhab2 as well.
+"
+
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+  fi
+
+  echo -n "[openHABian] Setting up Telldus-core software... "
+  cond_redirect wget -O - http://download.telldus.se/debian/telldus-public.key | apt-key add -
+  echo "deb http://download.telldus.com/debian/ stable main" > /etc/apt/sources.list.d/telldus-stable.list
+  cond_redirect apt update
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  cond_redirect apt -y install libjna-java telldus-core
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  cond_redirect git clone https://bitbucket.org/davka003/pytelldus.git /var/lib/tellstick
+  echo "alias tdtool='python /var/lib/tellstick/tdtool.py'" >> /home/pi/.bash_profile
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  cond_redirect mkdir -p /opt/tellstick
+  cond_redirect ln -s /etc/tellstick.conf /opt/tellstick/tellstick.conf
+  cat $SCRIPTDIR/includes/smb-tellstick.conf >> /etc/samba/smb.conf
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  cond_redirect sed -i '/############ Misc ############/a allow insecure wide links = yes' /etc/samba/smb.conf
+  cond_redirect chown -R openhab:pi /opt /var/lib/tellstick
+  cond_redirect chmod -R g+w /opt
+  echo "OK"
+
+  if [ -n "$INTERACTIVE" ]; then
+    if [ $FAILED -eq 0 ]; then
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    else
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+    fi
+  fi
+}
+
 1wire_setup() {
   FAILED=0
   introtext="This will install owserver to support 1wire functionality in general, ow-shell and usbutils are helpfull tools to check USB (lsusb) and 1wire function (owdir, owread). For more details, have a look at http://owfs.com"
@@ -1069,6 +1110,7 @@ show_main_menu() {
   "12 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
   "13 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
   "14 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
+  "15 | Optional: Telldus-core" "Set up Telldus-core for usage with tellstick usb devices" \
   "20 | Serial Port"            "Enable the RPi serial port for peripherals like Razberry, SCC, ..." \
   "21 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
   "22 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
@@ -1092,6 +1134,7 @@ show_main_menu() {
       12\ *) mqtt_setup ;;
       13\ *) 1wire_setup ;;
       14\ *) influxdb_grafana_setup ;;
+      15\ *) telldus_setup ;;
       20\ *) prepare_serial_port ;;
       21\ *) wifi_setup_rpi3 ;;
       22\ *) move_root2usb ;;
