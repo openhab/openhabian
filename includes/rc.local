@@ -8,6 +8,7 @@ FLAG="/root/afterfirstboot.lock"
 LOG="/var/log/raspbian-ua-netinst.log"
 FAILED=0
 
+# Only executed after first boot
 if [ ! -f $FLAG ]; then
   echo "" >> $LOG
   echo "[openHABian] Booting for the first time!" >> $LOG
@@ -25,16 +26,20 @@ if [ ! -f $FLAG ]; then
   systemctl enable openhab2.service
   systemctl start openhab2.service
 
-  if [ -f "/home/`ls /home`/openHABian-install-failed" ]; then
-    echo "[openHABian] Indicating failure through green LED fast blinking." >> $LOG
-    modprobe ledtrig_timer
-    echo "timer" >/sys/class/leds/led0/trigger
-    echo 100 >/sys/class/leds/led0/delay_on
-    echo 100 >/sys/class/leds/led0/delay_off
-  else
-    echo "[openHABian] Indicating success through green LED heartbeat." >> $LOG
-    modprobe ledtrig_heartbeat
-    echo "heartbeat" >/sys/class/leds/led0/trigger
+  if grep -q "Raspbian" /etc/os-release; then RASPBERRY=1; fi
+
+  if [ -n "$RASPBERRY" ]; then
+    if [ -f "/home/pi/openHABian-install-failed" ] || [ -f "/opt/openHABian-install-failed" ]; then #TODO: Remove after 2017-05
+      echo "[openHABian] Indicating failure through green LED fast blinking." >> $LOG
+      modprobe ledtrig_timer
+      echo "timer" >/sys/class/leds/led0/trigger
+      echo 100 >/sys/class/leds/led0/delay_on
+      echo 100 >/sys/class/leds/led0/delay_off
+    else
+      echo "[openHABian] Indicating success through green LED heartbeat." >> $LOG
+      modprobe ledtrig_heartbeat
+      echo "heartbeat" >/sys/class/leds/led0/trigger
+    fi
   fi
   echo "[openHABian] This file was created after the first boot script was executed (see /etc/rc.local). Do not delete." >> $FLAG
 fi # FLAG

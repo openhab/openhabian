@@ -3,21 +3,23 @@
 # openHABian - hassle-free openHAB 2 installation and configuration tool
 # for the Raspberry Pi and other Linux systems
 #
-# https://community.openhab.org/t/openhabian-hassle-free-rpi-image/13379
-# https://github.com/openhab/openhabian
+# Documentation: http://docs.openhab.org/installation/openhabian.html
+# Development: http://github.com/openhab/openhabian
+# Discussion: https://community.openhab.org/t/13379
 #
 # 2016 Thomas Dietrich
 #
 
 #
 REPOSITORYURL="https://github.com/openhab/openhabian"
+CONFIGFILE="/opt/openhabian.conf"
 
-# Find the absolute script location dir
+# Find the absolute script location dir (e.g. SCRIPTDIR=/opt/openhabian)
 SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+while [ -h "$SOURCE" ]; do
   SCRIPTDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
   SOURCE="$(readlink "$SOURCE")"
-  [[ $SOURCE != /* ]] && SOURCE="$SCRIPTDIR/$SOURCE" # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+  [[ $SOURCE != /* ]] && SOURCE="$SCRIPTDIR/$SOURCE"
 done
 SCRIPTDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 
@@ -45,33 +47,38 @@ else
   echo "OK"
 fi
 
-# Load installer configuration
-if [ -a $SCRIPTDIR/installer-config.txt.netinstalled ]; then # When installed from raspbian-ua-netinst
-  source $SCRIPTDIR/installer-config.txt.netinstalled
-  NETINST=1
-elif [ -a $SCRIPTDIR/installer-config.txt.installed ]; then # Non raspbian installation and fallback
-  source $SCRIPTDIR/installer-config.txt.installed
-else # Make a copy for non raspbian-ua-netinst
-  cp $SCRIPTDIR/installer-config.txt $SCRIPTDIR/installer-config.txt.installed
-  if (whiptail --title "Administrative user" --yesno "This installer script is designed to bind to an administrative system user. Shall the script use current user: $SUDO_USER ?" 8 78) then
-    sed -i "/username=.*/c\username=$SUDO_USER" installer-config.txt.installed
-  else
-      whiptail --title "Correct user required" --msgbox "Please rerun this script while logged on with the correct user" 12 60
-      rm -f $SCRIPTDIR/installer-config.txt.installed
-      echo "[openHABian] Script canceled by user" 1>&2
-      exit 1
-  fi
-  source $SCRIPTDIR/installer-config.txt.installed
-fi
-
 # script will be called with 'unattended' argument by post-install.txt
-if [[ "$1" = "unattended" ]]
-then
+if [[ "$1" = "unattended" ]]; then
   UNATTENDED=1
   SILENT=1
+elif [[ "$1" = "unattended_debug" ]]; then
+  UNATTENDED=1
 else
   INTERACTIVE=1
 fi
+
+# Load configuration
+if [ -f "$CONFIGFILE" ]; then
+  echo "[openHABian] Loading configuration file '$CONFIGFILE'"
+elif [ ! -f "$CONFIGFILE" ] && [ -f /boot/installer-config.txt ]; then
+  echo "[openHABian] Copying and loading configuration file '$CONFIGFILE'"
+  cp /boot/installer-config.txt $CONFIGFILE
+elif [ ! -f "$CONFIGFILE" ] && [ -n "$UNATTENDED" ]; then
+  echo "[openHABian] Error in unattended mode: Configuration file '$CONFIGFILE' not found... FAILED" 1>&2
+  exit 1
+else
+  echo "[openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup"
+  question="Welcome to openHABian!\n\nPlease provide the name of your Linux user i.e. the account you normally log in with.\nTypical user names are 'pi' or 'ubuntu'."
+  input=$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
+  if ! id -u "$input" &>/dev/null ; then
+    echo "[openHABian] Error: The provided user name is not a valid system user. Please try again. Exiting ..." 1>&2
+    exit 1
+  fi
+  cp $SCRIPTDIR/installer-config.txt $CONFIGFILE
+  sed -i "/username=.*/username=$input/g" $CONFIGFILE
+fi
+# shellcheck source=/opt/openhabian.conf
+source "$CONFIGFILE"
 
 cond_redirect() {
   if [ -n "$SILENT" ]; then
@@ -149,7 +156,6 @@ locale_timezone_settings() {
 
 first_boot_script() {
   echo -n "[openHABian] Activating first boot script... "
-  # make green LED blink as heartbeat on finished first boot
   cp $SCRIPTDIR/includes/rc.local /etc/rc.local
   echo "OK"
 }
@@ -169,30 +175,25 @@ memory_split() {
 
 basic_packages() {
   echo -n "[openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
+  if is_pi ; then
+    cond_redirect wget -O /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update
+    cond_redirect chmod +x /usr/bin/rpi-update
+  fi
   cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common
-  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
-  cond_redirect wget -O /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update
-  cond_redirect chmod +x /usr/bin/rpi-update
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-# Packages relevant to platforms
-needed_packages_generic() {
-  # install raspi-config - configuration tool for the Raspberry Pi + Raspbian
-  # install apt-transport-https - update packages through https repository (https://openhab.ci.cloudbees.com/...)
-  # install samba - network sharing
-  # install bc + sysstat - needed for FireMotD
-  # install avahi-daemon - hostname based discovery on local networks
+needed_packages() {
+  # Conditional: Install raspi-config - configuration tool for the Raspberry Pi + Raspbian
+  # Install oracle-java8-jdk - will be replaced by webupd8team revision, here only for openHAB to start up on first boot. TODO: Remove with zulu
+  # Install apt-transport-https - update packages through https repository
+  # Install samba - network sharing
+  # Install bc + sysstat - needed for FireMotD
+  # Install avahi-daemon - hostname based discovery on local networks
   echo -n "[openHABian] Installing additional needed packages... "
-  cond_redirect apt -y install oracle-java8-jdk apt-transport-https samba bc sysstat avahi-daemon
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-}
-
-# Pi specific packages
-needed_packages_raspberry() {
-  # install raspi-config - configuration tool for the Raspberry Pi + Raspbian
-  echo -n "[openHABian] Installing additional raspberry specific packages... "
-  cond_redirect apt -y install raspi-config
+  if is_pi ; then cond_redirect apt -y install raspi-config; fi
+  cond_redirect apt -y install oracle-java8-jdk
+  cond_redirect apt -y install apt-transport-https samba bc sysstat avahi-daemon
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -314,8 +315,8 @@ nano_openhab_syntax() {
 samba_setup() {
   echo -n "[openHABian] Setting up Samba... "
   cp $SCRIPTDIR/includes/smb.conf /etc/samba/smb.conf
-  ( (echo "$userpw"; echo "$userpw") | /usr/bin/smbpasswd -s -a $username > /dev/null )
-  #( (echo "raspberry"; echo "raspberry") | /usr/bin/smbpasswd -s -a pi > /dev/null )
+  ( (echo "habopen"; echo "habopen") | /usr/bin/smbpasswd -s -a openhab > /dev/null )
+  ( (echo "raspberry"; echo "raspberry") | /usr/bin/smbpasswd -s -a $username > /dev/null )
   cond_redirect chown -R openhab:$username /opt /etc/openhab2
   cond_redirect chmod -R g+w /opt /etc/openhab2
   cond_redirect /bin/systemctl enable smbd.service
@@ -329,7 +330,7 @@ firemotd() {
   cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
   if [ $? -eq 0 ]; then
     # the following is already in bash_profile by default
-    #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/pi/.bash_profile
+    #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/$username/.bash_profile
     # initial apt updates check
     cond_redirect bash /opt/FireMotD/FireMotD -S
     # invoke apt updates check every night
@@ -362,36 +363,33 @@ misc_system_settings() {
   cond_redirect adduser $username openhab
   cond_redirect adduser $username dialout
   cond_redirect adduser $username tty
-  cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' `realpath /usr/bin/java`
+  cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' $(realpath /usr/bin/java)
   cond_redirect chown -R openhab:$username /opt /etc/openhab2
   cond_redirect chmod -R g+w /opt /etc/openhab2
   echo "OK"
 }
 
-change_karaf_default_username(){
-  echo -n "[openHABian] Changing karaf user from \"openhab\" to \"$username\"... "
-  # Enable encryption of password within openhab2 karaf console
-  cond_redirect sed -i "s/encryption.enabled = false/encryption.enabled = true/g" /var/lib/openhab2/etc/org.apache.karaf.jaas.cfg
-  cond_redirect sed -i "s/encryption.name =/encryption.name = basic/g" /var/lib/openhab2/etc/org.apache.karaf.jaas.cfg
-  cond_redirect sed -i "s/encryption.algorithm = MD5/encryption.algorithm = SHA-256/g" /var/lib/openhab2/etc/org.apache.karaf.jaas.cfg
-
-  cond_redirect sed -i "s/openhab =.*,/$username = $userpw,/g" /var/lib/openhab2/etc/users.properties
-  echo "OK"
-}
-
-openhab_shell_interfaces() { # Password is set at default setup. This only binds the external interfaces.
+openhab_shell_interfaces() {
   introtext="The Karaf console is a powerful tool for every openHAB user. It allows you too have a deeper insight into the internals of your setup. Further details: http://docs.openhab.org/administration/console.html
-\nThis routine will bind the console to all external interfaces and thereby make it available to other devices in your network."
+\nThis routine will bind the console to all interfaces and thereby make it available to other devices in your network. Please provide a secure password for this connection (letters and numbers only! default: habopen):"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="The Karaf console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the console via:
-\n'ssh://$username:<password>@<openhabian-IP> -p 8101'\n
+\n'ssh://openhab:<password>@<openhabian-IP> -p 8101'\n
 Please be aware, that the first connection attempt may take a few minutes or may result in a timeout."
 
   echo -n "[openHABian] Binding the Karaf console on all interfaces... "
-  #cond_redirect sed -i "s/\# keySize = 4096/\# keySize = 4096\nkeySize = 1024/g" /usr/share/openhab2/runtime/karaf/etc/org.apache.karaf.shell.cfg
-  #cond_redirect rm -f /usr/share/openhab2/runtime/karaf/etc/host.key
+  if [ -n "$INTERACTIVE" ]; then
+    sshPassword=$(whiptail --title "Bind Karaf Console, Password?" --inputbox "$introtext" 20 60 3>&1 1>&2 2>&3)
+    exitstatus=$?
+    if [ $exitstatus -ne 0 ]; then
+      echo "aborted"
+      return 0
+    fi
+  fi
+  [[ -z "${sshPassword// }" ]] && sshPassword="habopen"
 
   cond_redirect sed -i "s/sshHost = 127.0.0.1/sshHost = 0.0.0.0/g" /var/lib/openhab2/etc/org.apache.karaf.shell.cfg
+  cond_redirect sed -i "s/openhab = .*,/openhab = $sshPassword,/g" /var/lib/openhab2/etc/users.properties
   cond_redirect systemctl restart openhab2.service
 
   if [ -n "$INTERACTIVE" ]; then
@@ -410,7 +408,13 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   sudo rpi-update
   sudo reboot"
 
-  echo -n "[openHABian] Disabling serial console for serial port peripherals... "
+  echo -n "[openHABian] Configuring serial console for serial port peripherals... "
+  if ! is_pi ; then
+    if [ -n "$INTERACTIVE" ]; then
+      whiptail --title "Incompatible Hardware Detected" --msgbox "Serial Port Setup: This option is for the Raspberry Pi only." 10 60
+    fi
+    echo "FAILED"; return 1
+  fi
   if [ -n "$INTERACTIVE" ]; then
     selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
     "1"  "Disable serial console                 (Razberry, SCC, Enocean)" ON \
@@ -470,8 +474,7 @@ wifi_setup_rpi3() {
     if [ -n "$INTERACTIVE" ]; then
       whiptail --title "Incompatible Hardware Detected" --msgbox "Wifi setup: This option is for a Raspberry Pi 3 system only." 10 60
     fi
-    echo "FAILED"
-    return 1
+    echo "FAILED"; return 1
   fi
   if [ -n "$INTERACTIVE" ]; then
     SSID=$(whiptail --title "Wifi Setup" --inputbox "Which Wifi (SSID) do you want to connect to?" 10 60 3>&1 1>&2 2>&3)
@@ -483,7 +486,7 @@ wifi_setup_rpi3() {
     SSID="myWifiSSID"
     PASS="myWifiPassword"
   fi
-  cond_redirect apt -y install firmware-brcm80211 wpasupplicant wireless-tools # pi-bluetooth
+  cond_redirect apt -y install firmware-brcm80211 wpasupplicant wireless-tools
   echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\nnetwork={\n  ssid=\"$SSID\"\n  psk=\"$PASS\"\n}" > /etc/wpa_supplicant/wpa_supplicant.conf
   if grep -q "wlan0" /etc/network/interfaces; then
     cond_echo ""
@@ -514,7 +517,14 @@ This will move your system root from your SD card to a USB device like an SSD or
     THIS DEVICE WILL BE FULLY DELETED\n\n
 Do you want to continue on your own risk?"
 
-  if ! (whiptail --title "Move system root to "$NEWROOTPART --yes-button "Continue" --no-button "Back" --yesno "$infotext" 18 78) then
+  if ! is_pi ; then
+    if [ -n "$INTERACTIVE" ]; then
+      whiptail --title "Incompatible Hardware Detected" --msgbox "Move root to USB: This option is for the Raspberry Pi only." 10 60
+    fi
+    echo "FAILED"; return 1
+  fi
+
+  if ! (whiptail --title "Move system root to '$NEWROOTPART'" --yes-button "Continue" --no-button "Back" --yesno "$infotext" 18 78) then
     return 0
   fi
 
@@ -555,16 +565,16 @@ When the process is finished, you will be informed via message box..."
   dd if=/dev/zero of=$NEWROOTDEV  bs=512 count=1
 
   #https://suntong.github.io/blogs/2015/12/25/use-sfdisk-to-partition-disks
-  echo "partitioning on " $NEWROOTDEV
+  echo "partitioning on '$NEWROOTDEV'"
   #create one big new partition
   echo ';' | /sbin/sfdisk $NEWROOTDEV
 
 
-  echo "creating filesys on " $NEWROOTPART
+  echo "creating filesys on '$NEWROOTPART'"
   #create new filesystem on partion 1
   mkfs.ext4 -F -L oh_usb $NEWROOTPART
 
-  echo "mounting new root " $NEWROOTPART
+  echo "mounting new root '$NEWROOTPART'"
   mount $NEWROOTPART /mnt
 
   echo
@@ -578,13 +588,13 @@ When the process is finished, you will be informed via message box..."
   echo
   echo "adjusting fstab on new root"
   #adjust system root in fstab
-  sed -i "s#/dev/mmcblk0p2 /#"$NEWROOTPART" /#" /mnt/etc/fstab
+  sed -i "s#/dev/mmcblk0p2 /#$NEWROOTPART /#" /mnt/etc/fstab
 
   echo "adjusting system root in kernel bootline"
   #make a copy of the original cmdline
   cp /boot/cmdline.txt /boot/cmdline.txt.sdcard
   #adjust system root in kernel bootline
-  sed -i "s#root=/dev/mmcblk0p2#root="$NEWROOTPART"#" /boot/cmdline.txt
+  sed -i "s#root=/dev/mmcblk0p2#root=$NEWROOTPART#" /boot/cmdline.txt
 
   echo
   echo "*************************************************************"
@@ -955,6 +965,7 @@ nginx_setup() {
 
 openhabian_update() {
   FAILED=0
+  #TODO: Remove after 2017-03
   if git -C $SCRIPTDIR remote -v | grep -q "ThomDietrich"; then
     cond_echo ""
     cond_echo "Old origin URL found. Replacing with the new URL under the openHAB organization (https://github.com/openhab/openhabian.git)..."
@@ -962,7 +973,7 @@ openhabian_update() {
     git -C $SCRIPTDIR remote set-url origin https://github.com/openhab/openhabian.git
   fi
   echo -n "[openHABian] Updating myself... "
-  local shorthash_before=`git -C $SCRIPTDIR log --pretty=format:'%h' -n 1`
+  shorthash_before=$(git -C $SCRIPTDIR log --pretty=format:'%h' -n 1)
   git -C $SCRIPTDIR fetch --quiet origin || FAILED=1
   git -C $SCRIPTDIR reset --quiet --hard origin/master || FAILED=1
   git -C $SCRIPTDIR clean --quiet --force -x -d || FAILED=1
@@ -971,7 +982,7 @@ openhabian_update() {
     echo "FAILED - There was a problem fetching the latest changes for the openHABian configuration tool. Please check your internet connection and try again later..."
     return 1
   fi
-  local shorthash_after=`git -C $SCRIPTDIR log --pretty=format:'%h' -n 1`
+  shorthash_after=$(git -C $SCRIPTDIR log --pretty=format:'%h' -n 1)
   if [ "$shorthash_before" == "$shorthash_after" ]; then
     echo "OK - No remote changes detected. You are up to date!"
     return 0
@@ -987,58 +998,43 @@ openhabian_update() {
   fi
 }
 
-# Function for checking default password for all services.
-check_default_password() {
-  introtext=" default password(s) was detected on your system! That's a serious security concern. Others or malicious programs in your subnet are able to gain access!
-  \nPlease set a strong password by choosing: \n \"30 | Change admin password\" in the setup menu."
-
-  if [ -n "$NETINST" ]; then
-    if system_check_default_password; then
-      DEFAULTPASS=1
-      introtext="Linux user, $introtext"
-    fi
-  fi
-  if karaf_check_default_password; then
-    DEFAULTPASS=1
-    introtext="Openhab(karaf), $introtext"
-  fi
-  if samba_check_default_password; then
-    DEFAULTPASS=1
-    introtext="Samba, $introtext"
-  fi
-  if [ -n "$DEFAULTPASS" ]; then
-    whiptail --title "Default Password(s) Detected!" --msgbox "$introtext" 12 80
-  fi
-}
-
-karaf_check_default_password() {
-  return 0; # TODO: Implement method to check if karaf password is default. Research: Karaf -> Security
-}
-samba_check_default_password() {
-  return 0; # TODO: Implement check for samba password
-}
-# Checking for default password for raspbian-ua-netinst installed systems
 system_check_default_password() {
-  echo -n "[openHABian] Checking for default user:passwd combination... "
-  id -u $username &>/dev/null
+  introtext="The default password was detected on your system! That's a serious security concern. Others or malicious programs in your subnet are able to gain root access!
+  \nPlease set a strong password by typing the command 'passwd' in the console."
+
+  echo -n "[openHABian] Checking for default Raspbian user:passwd combination... "
+  if is_pi ; then
+    # Check for Raspbian defaults (not openhabian.conf)
+    USERNAME="pi"
+    PASSWORD="raspberry"
+  else
+    echo "SKIPPED (methode not implemented)"
+    return 0
+  fi
+  id -u $USERNAME &>/dev/null
   if [ $? -ne 0 ]
   then
     echo "OK (unknown user)"
     return 0
   fi
   export PASSWORD
-  ORIGPASS=`grep -w "$username" /etc/shadow | cut -d: -f2`
-  export ALGO=`echo $ORIGPASS | cut -d'$' -f2`
-  export SALT=`echo $ORIGPASS | cut -d'$' -f3`
-  GENPASS=$(perl -le 'print crypt("$ENV{userpw}","\$$ENV{ALGO}\$$ENV{SALT}\$")')
+  ORIGPASS=$(grep -w "$USERNAME" /etc/shadow | cut -d: -f2)
+  export ALGO=$(echo $ORIGPASS | cut -d'$' -f2)
+  export SALT=$(echo $ORIGPASS | cut -d'$' -f3)
+  GENPASS=$(perl -le 'print crypt("$ENV{PASSWORD}","\$$ENV{ALGO}\$$ENV{SALT}\$")')
   if [ "$GENPASS" == "$ORIGPASS" ]; then
-    return 1
+    if [ -n "$INTERACTIVE" ]; then
+      whiptail --title "Default Password Detected!" --msgbox "$introtext" 12 60
+    fi
+    echo "FAILED"
   else
-    return 0
+    echo "OK"
   fi
+
 }
 
-change_admin_password() { # First argument is password when running in non-interactive mode.
+#TODO: Unused
+change_admin_password() {
   introtext="Choose which services to change password for:"
   failtext="Something went wrong in the change process. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
 
@@ -1076,17 +1072,17 @@ change_admin_password() { # First argument is password when running in non-inter
   for i in "${accounts[@]}"
   do
     echo "$i"
-    if [ "$i"=="Linux account" ]; then
+    if [ "$i" == "Linux account" ]; then
       echo -n "[openHABian] Changing password for linux account $username... "
       cond_redirect echo "$username:$passwordChange" | chpasswd
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
-    if [ "$i"=="Openhab2" ]; then
+    if [ "$i" == "Openhab2" ]; then
       echo -n "[openHABian] Changing password for samba (fileshare) account $username... "
-      (echo "$passwordChange"; echo "$passwordChange") | /usr/bin/smbpasswd -s -a $username # TODO: Get this working with cond_redirect
+      (echo "$passwordChange"; echo "$passwordChange") | /usr/bin/smbpasswd -s -a $username
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
-    if [ "$i"=="Samba" ]; then
+    if [ "$i" == "Samba" ]; then
       echo -n "[openHABian] Changing password for karaf console account $username... "
       cond_redirect sed -i "s/$username = .*,/$username = $passwordChange,/g" /var/lib/openhab2/etc/users.properties
       cond_redirect service openhab2 stop
@@ -1112,16 +1108,16 @@ system_upgrade() {
 }
 
 get_git_revision() {
-  local branch=`git -C $SCRIPTDIR rev-parse --abbrev-ref HEAD`
-  local shorthash=`git -C $SCRIPTDIR log --pretty=format:'%h' -n 1`
-  local revcount=`git -C $SCRIPTDIR log --oneline | wc -l`
-  local latesttag=`git -C $SCRIPTDIR describe --tags --abbrev=0`
+  local branch=$(git -C $SCRIPTDIR rev-parse --abbrev-ref HEAD)
+  local shorthash=$(git -C $SCRIPTDIR log --pretty=format:'%h' -n 1)
+  local revcount=$(git -C $SCRIPTDIR log --oneline | wc -l)
+  local latesttag=$(git -C $SCRIPTDIR describe --tags --abbrev=0)
   local revision="[$branch]$latesttag-$revcount($shorthash)"
   echo "$revision"
 }
 
 show_about() {
-  whiptail --title "openHABian $(get_git_revision)" --msgbox "The hassle-free openHAB 2 installation and configuration tool.\n$REPOSITORYURL \nhttps://community.openhab.org/t/openhabian-hassle-free-rpi-image/13379" 12 80
+  whiptail --title "openHABian $(get_git_revision)" --msgbox "The hassle-free openHAB 2 installation and configuration tool.\n$REPOSITORYURL \nhttps://community.openhab.org/t/13379" 12 80
 }
 
 basic_raspbian_mods() {
@@ -1135,17 +1131,14 @@ The following steps are included:
   - Make some permission changes ('adduser', 'chown', ...)
 
 This step will NOT update your installed packages (including openHAB2).
-Please execute from the console: 'sudo apt update && sudo apt upgrade'
-
-Do NOT continue, if you are not on a openHABianPi system!"
+Please execute from the console: 'sudo apt update && sudo apt upgrade'"
 
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 20 80) then return 0; fi
   fi
 
   basic_packages
-  needed_packages_generic
-  if is_pi; then needed_packages_raspberry; fi
+  needed_packages
   bashrc_copy
   vimrc_copy
   firemotd
@@ -1179,7 +1172,7 @@ show_main_menu() {
   "20 | Serial Port"            "Enable the RPi serial port for peripherals like Razberry, SCC, ..." \
   "21 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
   "22 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
-  "30 | Set admin password"     "Changes the $username account password which is used to manage the system" \
+# "30 | Set admin password"     "Changes the $username account password which is used to manage the system" \
   "99 | About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
@@ -1213,15 +1206,13 @@ show_main_menu() {
   fi
 }
 
-if [[ -n "$UNATTENDED" ]]
-then
+if [[ -n "$UNATTENDED" ]]; then
   #unattended installation (from within raspbian-ua-netinst chroot)
-  locale_timezone_settings
+  #locale_timezone_settings
   first_boot_script
-  memory_split
+  if is_pi ; then memory_split; fi
   basic_packages
-  needed_packages_generic
-  needed_packages_raspberry
+  needed_packages
   bashrc_copy
   vimrc_copy
   firemotd
@@ -1231,9 +1222,8 @@ then
   samba_setup
   etckeeper
   misc_system_settings
-  change_karaf_default_username
 else
-  check_default_password
+  system_check_default_password
   while true; do
     show_main_menu
     echo ""
