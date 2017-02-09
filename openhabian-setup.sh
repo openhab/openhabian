@@ -265,13 +265,11 @@ java_webupd8_install() {
 # }
 
 openhab2_addrepo() {
-  echo -n "[openHABian] Adding openHAB 2 Snapshot repositories to sources.list.d... "
-  rm -f /etc/apt/sources.list.d/openhab2.list
-  echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-offline/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
-  echo "deb https://openhab.ci.cloudbees.com/job/openHAB-Distribution/ws/distributions/openhab-online/target/apt-repo/ /" >> /etc/apt/sources.list.d/openhab2.list
-  # out of an unclear reason, this is not working:
-  #cond_redirect wget --retry-connrefused --tries=50 -O - http://www.openhab.org/keys/public-key-snapshots.asc | apt-key add -
-  cond_redirect wget --retry-connrefused --tries=50 -O openhab-key.asc http://www.openhab.org/keys/public-key-snapshots.asc
+  echo -n "[openHABian] Adding openHAB 2 repository to sources.list.d... "
+  echo "deb http://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
+  #echo "deb http://dl.bintray.com/openhab/apt-repo2 testing main" > /etc/apt/sources.list.d/openhab2.list
+  #echo "deb http://dl.bintray.com/openhab/apt-repo2 unstable main" > /etc/apt/sources.list.d/openhab2.list
+  cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
   cond_redirect apt-key add openhab-key.asc
   rm -f openhab-key.asc
   cond_redirect apt update
@@ -279,8 +277,8 @@ openhab2_addrepo() {
 }
 
 openhab2_install() {
-  echo -n "[openHABian] Installing openhab2-offline... "
-  cond_redirect apt -y install openhab2-offline
+  echo -n "[openHABian] Installing openhab2... "
+  cond_redirect apt -y install openhab2
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
@@ -332,11 +330,11 @@ firemotd() {
     # the following is already in bash_profile by default
     #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/$username/.bash_profile
     # initial apt updates check
-    cond_redirect bash /opt/FireMotD/FireMotD -S
+    cond_redirect /bin/bash /opt/FireMotD/FireMotD -S
     # invoke apt updates check every night
-    echo "3 3 * * * root /opt/FireMotD/FireMotD -S &>/dev/null" > /etc/cron.d/firemotd
+    echo "3 3 * * * root /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" > /etc/cron.d/firemotd
     # invoke apt updates check after every apt action ('apt upgrade', ...)
-    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /opt/FireMotD/FireMotD -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
+    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /opt/FireMotD/FireMotD -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
     echo "OK"
   else
     echo "FAILED"
@@ -1138,7 +1136,10 @@ Please execute from the console: 'sudo apt update && sudo apt upgrade'"
   fi
 
   basic_packages
-  needed_packages
+  needed_packages_generic
+  if is_pi; then
+    needed_packages_raspberry
+  fi
   bashrc_copy
   vimrc_copy
   firemotd
@@ -1160,7 +1161,7 @@ show_main_menu() {
   "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
   "02 | Basic Setup"            "Perform all basic setup steps recommended for openHAB 2 on a new system" \
   "03 | Java 8"                 "Install the latest revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
-  "04 | openHAB 2"              "Download and install the latest openHAB 2 snapshot" \
+  "04 | openHAB 2"              "Install openHAB 2.0 (stable)" \
   "05 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
   "06 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
   "07 | NGINX Setup"            "Setup a reverse proxy with password authentication or HTTPS access" \
