@@ -12,7 +12,7 @@
 
 #
 REPOSITORYURL="https://github.com/openhab/openhabian"
-CONFIGFILE="/opt/openhabian.conf"
+CONFIGFILE="/etc/openhabian.conf"
 
 # Find the absolute script location dir (e.g. SCRIPTDIR=/opt/openhabian)
 SOURCE="${BASH_SOURCE[0]}"
@@ -67,7 +67,7 @@ elif [ ! -f "$CONFIGFILE" ] && [ -n "$UNATTENDED" ]; then
   echo "[openHABian] Error in unattended mode: Configuration file '$CONFIGFILE' not found... FAILED" 1>&2
   exit 1
 else
-  echo "[openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup... "
+  echo -n "[openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup... "
   question="Welcome to openHABian!\n\nPlease provide the name of your Linux user i.e. the account you normally log in with.\nTypical user names are 'pi' or 'ubuntu'."
   input=$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
   if ! id -u "$input" &>/dev/null ; then
@@ -76,9 +76,9 @@ else
     exit 1
   fi
   cp $SCRIPTDIR/installer-config.txt $CONFIGFILE
-  sed -i "/username=.*/username=$input/g" $CONFIGFILE
+  sed -i "s/username=.*/username=$input/g" $CONFIGFILE
 fi
-# shellcheck source=/opt/openhabian.conf
+# shellcheck source=/etc/openhabian.conf
 source "$CONFIGFILE"
 echo "OK"
 
@@ -998,6 +998,8 @@ openhabian_update() {
     echo "You need to restart the tool. Exiting now... "
     exit 0
   fi
+  git -C $SCRIPTDIR config user.email 'openhabian@openHABianPi'
+  git -C $SCRIPTDIR config user.name 'openhabian'
 }
 
 system_check_default_password() {
@@ -1119,13 +1121,14 @@ get_git_revision() {
 }
 
 show_about() {
-  whiptail --title "openHABian $(get_git_revision)" --msgbox "The hassle-free openHAB 2 installation and configuration tool.\n$REPOSITORYURL \nhttps://community.openhab.org/t/13379" 12 80
+  whiptail --title "openHABian $(get_git_revision)" --msgbox "The hassle-free openHAB 2 installation and configuration tool.\n
+  - Documentation: http://docs.openhab.org/installation/openhabian.html
+  - Development: http://github.com/openhab/openhabian
+  - Discussion: https://community.openhab.org/t/13379" 12 80
 }
 
 basic_raspbian_mods() {
-  introtext="If you continue, this step will update the openHABian basic system settings.
-
-The following steps are included:
+  introtext="If you continue, this step will update the openHABian basic system settings.\n\nThe following steps are included:
   - Install recommended packages (vim, git, htop, ...)
   - Install an improved bash configuration
   - Install an improved vim configuration
@@ -1199,7 +1202,7 @@ show_main_menu() {
       30\ *) change_admin_password ;;
       99\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
-    esac || whiptail --msgbox "There was an error running option \"$choice\"" 10 60
+    esac || whiptail --msgbox "There was an error running option:\n\n    \"$choice\"" 10 60
     return 0
   else
     echo "Bye Bye! :)"

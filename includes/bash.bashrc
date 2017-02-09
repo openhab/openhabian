@@ -73,6 +73,9 @@ unset color_prompt force_color_prompt
 #    ;;
 #esac
 
+# Default editor
+export EDITOR=nano
+
 # enable color support of ls and also add handy aliases
 if [ -x /usr/bin/dircolors ]; then
   test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
@@ -126,7 +129,6 @@ if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-no
     fi
   }
 fi
-
 
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
