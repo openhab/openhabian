@@ -1,24 +1,28 @@
 #!/bin/sh
 
 # file to inform user of a problem. will be deleted at the end of this script
-touch /rootfs/home/pi/openHABian-install-failed
+touch /rootfs/opt/openHABian-install-failed
 
-echo -n "[openHABian] Installing git package..."
+echo -n "[openHABian] Installing git package... "
 chroot /rootfs /usr/bin/apt-get -y install git &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-echo -n "[openHABian] Cloning myself..."
+echo -n "[openHABian] Cloning myself... "
 chroot /rootfs /usr/bin/git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 ln -s /opt/openhabian/openhabian-setup.sh /rootfs/usr/local/bin/openhabian-config
 
-echo "[openHABian] === Start executing 'openhabian-setup.sh' ==="
+echo -n "[openHABian] Backup installation configuration... "
+cp /rootfs/boot/installer-config.txt /rootfs/etc/openhabian.conf
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+
+echo "[openHABian] === Executing 'openhabian-setup.sh' ==="
 chroot /rootfs /bin/bash /opt/openhabian/openhabian-setup.sh unattended
 if [ $? -eq 0 ]; then
-  rm /rootfs/home/pi/openHABian-install-failed
-  touch /rootfs/home/pi/openHABian-install-successful
+  rm /rootfs/opt/openHABian-install-failed
+  touch /rootfs/opt/openHABian-install-successful
 else
-  touch /rootfs/home/pi/openHABian-install-failed
+  touch /rootfs/opt/openHABian-install-failed
 fi
 echo "[openHABian] === Finished executing 'openhabian-setup.sh' ==="
 
