@@ -59,18 +59,19 @@ fi
 
 # Load configuration
 if [ -f "$CONFIGFILE" ]; then
-  echo "[openHABian] Loading configuration file '$CONFIGFILE'"
+  echo -n "[openHABian] Loading configuration file '$CONFIGFILE'... "
 elif [ ! -f "$CONFIGFILE" ] && [ -f /boot/installer-config.txt ]; then
-  echo "[openHABian] Copying and loading configuration file '$CONFIGFILE'"
+  echo -n "[openHABian] Copying and loading configuration file '$CONFIGFILE'... "
   cp /boot/installer-config.txt $CONFIGFILE
 elif [ ! -f "$CONFIGFILE" ] && [ -n "$UNATTENDED" ]; then
   echo "[openHABian] Error in unattended mode: Configuration file '$CONFIGFILE' not found... FAILED" 1>&2
   exit 1
 else
-  echo "[openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup"
+  echo "[openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup... "
   question="Welcome to openHABian!\n\nPlease provide the name of your Linux user i.e. the account you normally log in with.\nTypical user names are 'pi' or 'ubuntu'."
   input=$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
   if ! id -u "$input" &>/dev/null ; then
+    echo "FAILED"
     echo "[openHABian] Error: The provided user name is not a valid system user. Please try again. Exiting ..." 1>&2
     exit 1
   fi
@@ -79,6 +80,7 @@ else
 fi
 # shellcheck source=/opt/openhabian.conf
 source "$CONFIGFILE"
+echo "OK"
 
 cond_redirect() {
   if [ -n "$SILENT" ]; then
@@ -119,8 +121,9 @@ is_pithree() {
   return $?
 }
 is_pi() {
-  if is_pizero || is_pione || is_pitwo || is_pithree; then return 1; fi
-  return 0
+  if [ "$hostname" == "openHABianPi" ]; then return 0; fi
+  if is_pizero || is_pione || is_pitwo || is_pithree; then return 0; fi
+  return 1
 }
 
 calc_wt_size() {
@@ -1006,7 +1009,7 @@ system_check_default_password() {
     USERNAME="pi"
     PASSWORD="raspberry"
   else
-    echo "SKIPPED (methode not implemented)"
+    echo "SKIPPED (method not implemented)"
     return 0
   fi
   id -u $USERNAME &>/dev/null
@@ -1173,7 +1176,6 @@ show_main_menu() {
   "20 | Serial Port"            "Enable the RPi serial port for peripherals like Razberry, SCC, ..." \
   "21 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
   "22 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
-# "30 | Set admin password"     "Changes the $username account password which is used to manage the system" \
   "99 | About openHABian"       "Information about the openHABian project" \
   3>&1 1>&2 2>&3)
   RET=$?
@@ -1209,7 +1211,7 @@ show_main_menu() {
 
 if [[ -n "$UNATTENDED" ]]; then
   #unattended installation (from within raspbian-ua-netinst chroot)
-  #locale_timezone_settings
+  #locale_timezone_settings #TODO: Delete
   first_boot_script
   if is_pi ; then memory_split; fi
   basic_packages
