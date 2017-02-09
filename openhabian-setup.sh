@@ -182,6 +182,7 @@ basic_packages() {
     cond_redirect wget -O /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update
     cond_redirect chmod +x /usr/bin/rpi-update
   fi
+  cond_redirect apt update
   cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
@@ -194,6 +195,7 @@ needed_packages() {
   # Install bc + sysstat - needed for FireMotD
   # Install avahi-daemon - hostname based discovery on local networks
   echo -n "[openHABian] Installing additional needed packages... "
+  cond_redirect apt update
   if is_pi ; then cond_redirect apt -y install raspi-config; fi
   cond_redirect apt -y install oracle-java8-jdk
   cond_redirect apt -y install apt-transport-https samba bc sysstat avahi-daemon
@@ -1105,7 +1107,7 @@ change_admin_password() {
 }
 
 system_upgrade() {
-  echo -n "[openHABian] Upgrading system (apt update && apt upgrade)... "
+  echo -n "[openHABian] Updating repositories and upgrading installed packages... "
   cond_redirect apt update
   cond_redirect apt --yes upgrade
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -1121,10 +1123,12 @@ get_git_revision() {
 }
 
 show_about() {
-  whiptail --title "openHABian $(get_git_revision)" --msgbox "The hassle-free openHAB 2 installation and configuration tool.\n
+  whiptail --title "About openHABian and openhabian-config" --msgbox "openHABian Configuration Tool $(get_git_revision)
+  \nThis tool provides a few routines to make your openHAB experience as comfortable as possible. The menu options help with the setup and configuration of your system. Please select a menu entry to learn more.
+  \nVisit the following websites for more information:
   - Documentation: http://docs.openhab.org/installation/openhabian.html
   - Development: http://github.com/openhab/openhabian
-  - Discussion: https://community.openhab.org/t/13379" 12 80
+  - Discussion: https://community.openhab.org/t/13379" 17 80
 }
 
 basic_raspbian_mods() {
@@ -1162,47 +1166,49 @@ show_main_menu() {
   calc_wt_size
 
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
+  "00 | About openHABian"       "Get information about the openHABian project an this tool" \
   "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
-  "02 | Basic Setup"            "Perform all basic setup steps recommended for openHAB 2 on a new system" \
-  "03 | Java 8"                 "Install the latest revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
-  "04 | openHAB 2"              "Install openHAB 2.0 (stable)" \
-  "05 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
-  "06 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
-  "07 | NGINX Setup"            "Setup a reverse proxy with password authentication or HTTPS access" \
-  "10 | Optional: KNX"          "Set up the KNX daemon knxd" \
-  "11 | Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
-  "12 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
-  "13 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
-  "14 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
-  "20 | Serial Port"            "Enable the RPi serial port for peripherals like Razberry, SCC, ..." \
-  "21 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
-  "22 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
-  "99 | About openHABian"       "Information about the openHABian project" \
+  "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
+  "10 | Basic Setup"            "Perform basic setup steps (packages, bash, permissions, ...)" \
+  "11 | Java 8"                 "Install the latest revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
+  "12 | openHAB 2"              "Install openHAB 2.0 (stable)" \
+  "13 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
+  "14 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
+  "15 | NGINX Setup"            "Setup a reverse proxy with password authentication or HTTPS access" \
+  "20 | Optional: KNX"          "Set up the KNX daemon knxd" \
+  "21 | Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
+  "22 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
+  "23 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
+  "24 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
+  "30 | Serial Port"            "Enable the RPi serial port for peripherals like Razberry, SCC, ..." \
+  "31 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
+  "32 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then
     return 1
   elif [ $RET -eq 0 ]; then
     case "$choice" in
+      00\ *) show_about ;;
       01\ *) openhabian_update ;;
-      02\ *) basic_raspbian_mods ;;
-      03\ *) java_webupd8_prepare && java_webupd8_install ;;
-      04\ *) openhab2_full_setup ;;
-      05\ *) samba_setup ;;
-      06\ *) openhab_shell_interfaces ;;
-      07\ *) nginx_setup ;;
-      10\ *) knxd_setup ;;
-      11\ *) homegear_setup ;;
-      12\ *) mqtt_setup ;;
-      13\ *) 1wire_setup ;;
-      14\ *) influxdb_grafana_setup ;;
-      20\ *) prepare_serial_port ;;
-      21\ *) wifi_setup_rpi3 ;;
-      22\ *) move_root2usb ;;
-      30\ *) change_admin_password ;;
-      99\ *) show_about ;;
+      02\ *) system_upgrade ;;
+      10\ *) basic_raspbian_mods ;;
+      11\ *) java_webupd8_prepare && java_webupd8_install ;;
+      12\ *) openhab2_full_setup ;;
+      13\ *) samba_setup ;;
+      14\ *) openhab_shell_interfaces ;;
+      15\ *) nginx_setup ;;
+      20\ *) knxd_setup ;;
+      21\ *) homegear_setup ;;
+      22\ *) mqtt_setup ;;
+      23\ *) 1wire_setup ;;
+      24\ *) influxdb_grafana_setup ;;
+      30\ *) prepare_serial_port ;;
+      31\ *) wifi_setup_rpi3 ;;
+      32\ *) move_root2usb ;;
+      40\ *) change_admin_password ;;
       *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
-    esac || whiptail --msgbox "There was an error running option:\n\n    \"$choice\"" 10 60
+    esac || whiptail --msgbox "There was an error running option:\n\n  \"$choice\"" 10 60
     return 0
   else
     echo "Bye Bye! :)"
@@ -1212,7 +1218,6 @@ show_main_menu() {
 
 if [[ -n "$UNATTENDED" ]]; then
   #unattended installation (from within raspbian-ua-netinst chroot)
-  #locale_timezone_settings #TODO: Delete
   first_boot_script
   if is_pi ; then memory_split; fi
   basic_packages
@@ -1228,7 +1233,7 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
 else
   while show_main_menu; do
-    echo ""
+    true
   done
   system_check_default_password
   echo -e "\n[openHABian] We hope you got what you came for! See you again soon ;)"
