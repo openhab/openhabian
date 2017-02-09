@@ -1139,10 +1139,7 @@ Please execute from the console: 'sudo apt update && sudo apt upgrade'"
   fi
 
   basic_packages
-  needed_packages_generic
-  if is_pi; then
-    needed_packages_raspberry
-  fi
+  needed_packages
   bashrc_copy
   vimrc_copy
   firemotd
@@ -1180,8 +1177,7 @@ show_main_menu() {
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then
-    echo "We hope you got what you came for! See you again soon ;)"
-    exit 0
+    return 1
   elif [ $RET -eq 0 ]; then
     case "$choice" in
       01\ *) openhabian_update ;;
@@ -1203,6 +1199,7 @@ show_main_menu() {
       99\ *) show_about ;;
       *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
     esac || whiptail --msgbox "There was an error running option \"$choice\"" 10 60
+    return 0
   else
     echo "Bye Bye! :)"
     exit 1
@@ -1226,11 +1223,11 @@ if [[ -n "$UNATTENDED" ]]; then
   etckeeper
   misc_system_settings
 else
-  system_check_default_password
-  while true; do
-    show_main_menu
+  while show_main_menu; do
     echo ""
   done
+  system_check_default_password
+  echo -e "\n[openHABian] We hope you got what you came for! See you again soon ;)"
 fi
 
 # vim: filetype=sh
