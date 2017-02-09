@@ -746,9 +746,10 @@ and activate one of these most common options (depending on your device):
 
 influxdb_grafana_setup() {
   FAILED=0
-  introtext="This will install InfluxDB and Grafana and set up the connection between them and openHAB."
+  introtext="This will install InfluxDB and Grafana. Soon this procedure will also set up the connection between them and with openHAB. For now, please follow the instructions found here:
+  \nhttps://community.openhab.org/t/13761/1"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Setup successful."
+  successtext="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/13761/1"
 
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
