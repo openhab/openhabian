@@ -308,7 +308,6 @@ openhab2_install() {
 openhab2_service() {
   echo -n "[openHABian] Activating openHAB... "
   cond_redirect systemctl daemon-reload
-  #if [ $? -eq 0 ]; then echo -n "OK "; else echo -n "FAILED "; fi
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }

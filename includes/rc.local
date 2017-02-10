@@ -8,28 +8,12 @@ FLAG="/root/afterfirstboot.lock"
 LOG="/var/log/raspbian-ua-netinst.log"
 FAILED=0
 
-# Only executed after first boot
+# Only executed on first boot
 if [ ! -f $FLAG ]; then
-  echo "" >> $LOG
   echo "[openHABian] Booting for the first time!" >> $LOG
-
-  systemctl stop openhab2.service
-  echo -n "[openHABian] Installing Oracle Java 8 from Web Upd8 repository... " >> $LOG
-  echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections || ((FAILED++))
-  apt -y install oracle-java8-installer &>/dev/null || ((FAILED++))
-  apt -y install oracle-java8-set-default &>/dev/null || ((FAILED++))
-  if [ $FAILED -eq 0 ]; then
-    echo "OK" >> $LOG
-  else
-    echo "FAILED" >> $LOG
-  fi
-  systemctl enable openhab2.service
-  systemctl start openhab2.service
-
   if grep -q "Raspbian" /etc/os-release; then RASPBERRY=1; fi
-
   if [ -n "$RASPBERRY" ]; then
-    if [ -f "/home/pi/openHABian-install-failed" ] || [ -f "/opt/openHABian-install-failed" ]; then #TODO: Remove after 2017-05
+    if [ -f "/home/pi/openHABian-install-failed" ] || [ -f "/opt/openHABian-install-failed" ]; then #TODO: Remove 'home' after 2017-05
       echo "[openHABian] Indicating failure through green LED fast blinking." >> $LOG
       modprobe ledtrig_timer
       echo "timer" >/sys/class/leds/led0/trigger
@@ -42,7 +26,7 @@ if [ ! -f $FLAG ]; then
     fi
   fi
   echo "[openHABian] This file was created after the first boot script was executed (see /etc/rc.local). Do not delete." >> $FLAG
-fi # FLAG
+fi
 
 exit 0
 
