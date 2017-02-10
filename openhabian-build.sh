@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 
-echo "This script will build the openHABian Raspberry Pi image file."
+echo "[openHABian] This script will build the openHABian Raspberry Pi image file."
 echo "That's probably not what you wanted to do."
 echo ""
-
-# Remove the following if you know what you are doing
-echo "Exiting."; exit 1
+echo "Exiting."; exit 1 # Remove if you know what you are doing
 
 # Make sure only root can run our script
 if [[ $EUID -ne 0 ]]; then
@@ -13,20 +11,36 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
-# log everything to a file
+# Switch to the script folder
+cd $(dirname $0) || exit 1
+
+# Prerequisites
+apt update && apt --yes install git curl bzip2 zip xz-utils gnupg kpartx dosfstools binutils bc
+#command -v git &>/dev/null || { echo "The package 'git' is needed. Please install!" >&2; exit 1; }
+
+# Log everything to a file
 exec &> >(tee -a "openhabian-build-$(date +%Y-%m-%d_%H%M%S).log")
 
-/bin/bash clean.sh
-/bin/bash update.sh
-/bin/bash build.sh
-/bin/bash buildroot.sh
+echo "[openHABian] Cloning \"debian-pi/raspbian-ua-netinst\" project... "
+buildfolder=/tmp/raspbian-ua-netinst
+git clone -b "v1.1.x" https://github.com/debian-pi/raspbian-ua-netinst.git $buildfolder
 
-rm -rf raspbian-ua-netinst-*.bz2 &>/dev/null
-rm -rf raspbian-ua-netinst-*.xz &>/dev/null
+echo "[openHABian] Copying openHABian settings and post-install script to \"raspbian-ua-netinst\"... "
+cp {installer-config.txt,post-install.txt} $buildfolder/
 
-for file in raspbian-ua-netinst-*.*
-do
-  mv -v "$file" "${file//raspbian/openhabian}"
+echo "[openHABian] Firing up \"raspbian-ua-netinst\"... "
+(cd $buildfolder; /bin/bash clean.sh)
+(cd $buildfolder; /bin/bash update.sh)
+(cd $buildfolder; /bin/bash build.sh)
+(cd $buildfolder; /bin/bash buildroot.sh)
+
+echo -e "\n[openHABian] Cleaning up... "
+cp $buildfolder/raspbian-ua-netinst-*.img .
+rm -rf $buildfolder &>/dev/null
+for file in raspbian-ua-netinst-*.*; do
+  mv -v "$file" "${file//raspbian/openhabianpi}"
 done
+echo -e"\n[openHABian] Finished! The results:"
+ls -al openhabianpi-ua-netinst-*.*
 
 # vim: filetype=sh
