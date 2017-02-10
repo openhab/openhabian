@@ -1,0 +1,27 @@
+# Modify your openHABian settings
+# Handle with care, only touch if you need to!!
+
+hostname=openHABianPi
+userpw=raspberry
+
+# Do not change these lines
+boot_volume_label=openHABian
+disable_root=1
+user_is_admin=1
+username=pi
+
+# Language and time
+timeserver=0.pool.ntp.org
+timezone=Europe/Berlin
+locales="en_US.UTF-8 de_DE.UTF-8"
+system_default_locale="en_US.UTF-8"
+
+# Only use if you know what you are doing.
+# Leaving these lines commented is probably what you want.
+#ip_addr=192.168.0.42
+#ip_netmask=255.255.255.0
+#ip_broadcast=192.168.0.255
+#ip_gateway=192.168.0.1
+#ip_nameservers="5.9.49.12 31.3.135.232 8.8.8.8"
+
+# vim: filetype=sh
