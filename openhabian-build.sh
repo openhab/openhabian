@@ -40,7 +40,7 @@ rm -rf $buildfolder &>/dev/null
 for file in raspbian-ua-netinst-*.*; do
   mv -v "$file" "${file//raspbian/openhabianpi}"
 done
-echo -e"\n[openHABian] Finished! The results:"
+echo -e "\n[openHABian] Finished! The results:"
 ls -al openhabianpi-ua-netinst-*.*
 
 # vim: filetype=sh
