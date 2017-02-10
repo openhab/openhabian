@@ -21,7 +21,10 @@ Enjoy openHABian and the wondrous world of openHAB!!
 
 ## Development
 
-This project is based on the powerful [raspbian-ua-netinst](https://github.com/debian-pi/raspbian-ua-netinst) and most technical details can be taken from there.
+For image building, please see `openhabian-build.sh`.
+
+The project utilizes [raspbian-ua-netinst](https://github.com/debian-pi/raspbian-ua-netinst) for the Raspberry Pi build process.
+Most technical details can be taken from there.
 
 If you found a bug or want to propose a feature, please check open Issues and Pull Requests and read the [CONTRIBUTING](CONTRIBUTING.md) guideline.
 

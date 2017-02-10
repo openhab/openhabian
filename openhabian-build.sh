@@ -26,7 +26,7 @@ buildfolder=/tmp/raspbian-ua-netinst
 git clone -b "v1.1.x" https://github.com/debian-pi/raspbian-ua-netinst.git $buildfolder
 
 echo "[openHABian] Copying openHABian settings and post-install script to \"raspbian-ua-netinst\"... "
-cp {installer-config.txt,post-install.txt} $buildfolder/
+cp raspbian-ua-netinst/{installer-config.txt,post-install.txt} $buildfolder/
 
 echo "[openHABian] Firing up \"raspbian-ua-netinst\"... "
 (cd $buildfolder; /bin/bash clean.sh)
