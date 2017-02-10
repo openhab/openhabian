@@ -269,6 +269,22 @@ java_webupd8_install() {
 #   echo "OK"
 # }
 
+java_zulu_embedded() {
+  echo -n "[openHABian] Installing Zulu Embedded OpenJDK build (archive)... "
+  cond_redirect wget -O ezdk.tar.gz http://cdn.azul.com/zulu-embedded/bin/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf.tar.gz
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  cond_redirect mkdir /opt/zulu-embedded
+  cond_redirect tar xvfz ezdk.tar.gz -C /opt/zulu-embedded
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  cond_redirect rm -f ezdk.tar.gz
+  cond_redirect chown -R 0:0 /opt/zulu-embedded
+  cond_redirect update-alternatives --auto java
+  cond_redirect update-alternatives --auto javac
+  cond_redirect update-alternatives --install /usr/bin/java java /opt/zulu-embedded/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf/bin/java 2162
+  cond_redirect update-alternatives --install /usr/bin/javac javac /opt/zulu-embedded/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf/bin/javac 2162
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+}
+
 openhab2_addrepo() {
   echo -n "[openHABian] Adding openHAB 2 repository to sources.list.d... "
   echo "deb http://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
@@ -1225,8 +1241,9 @@ if [[ -n "$UNATTENDED" ]]; then
   bashrc_copy
   vimrc_copy
   firemotd
-  java_webupd8_prepare
+  #java_webupd8_prepare
   #java_webupd8_install
+  java_zulu_embedded
   openhab2_full_setup
   samba_setup
   etckeeper
