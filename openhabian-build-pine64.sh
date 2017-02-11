@@ -23,13 +23,31 @@ git clone -b master https://github.com/longsleep/build-pine64-image.git $buildfo
 wget -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/simpleimage-pine64-latest.img.xz
 wget -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/linux/linux-pine64-latest.tar.xz
 
+echo "[openHABian] Copying over 'rc.local' file for image integration... "
+cp build-pine64-image/rc.local $buildfolder/simpleimage/openhabianpine64.rc.local
+
+echo "[openHABian] Modifying \"build-pine64-image\" make script... "
 makescript=$buildfolder/simpleimage/make_rootfs.sh
+sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/g" $makescript
+echo -e "\n# Add openHABian modifications" >> $makescript
+echo "touch \$DEST/opt/openHABian-install-inprogress" >> $makescript
+echo "cp ./openhabianpine64.rc.local \$DEST/etc/rc.local" >> $makescript
+echo "echo \"openHABian preparations finished, /etc/rc.local in place\"" >> $makescript
 
-sed -i "s/^pine64$/openHABianPine64/" makescript
-sed -i "s/^127.0.1.1 pine64$/127.0.1.1 openHABianPine64/" makescript
-
-echo -e "\n# Add openHABian modifications" >> makescript
-cat build-pine64-image/post-image-build.txt >> makescript
+echo "[openHABian] Executing \"build-pine64-image\" make script... "
 (cd $buildfolder; /bin/bash build-pine64-image.sh simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial)
+
+echo -e "\n[openHABian] Cleaning up... "
+mv $buildfolder/xenial-pine64-*.img .
+rm -rf $buildfolder
+for file in xenial-*.img; do
+  tar -cJf $file.xz $file
+done
+for file in xenial-*.*; do
+  mv -v "$file" "${file//pine64/openhabianpine64}"
+done
+
+echo -e "\n[openHABian] Finished! The results:"
+ls -al xenial-openhabianpine64-*.*
 
 # vim: filetype=sh
