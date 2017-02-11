@@ -125,6 +125,10 @@ is_pi() {
   if is_pizero || is_pione || is_pitwo || is_pithree; then return 0; fi
   return 1
 }
+is_pine64() {
+  [[ $(uname -r) =~ "pine64-longsleep" ]]
+  return $?
+}
 
 calc_wt_size() {
   # NOTE: it's tempting to redirect stderr to /dev/null, so supress error
