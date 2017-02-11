@@ -1,4 +1,5 @@
-openhabianpi-ua-netinst-*.zip
-openhabianpi-ua-netinst-*.img
-openhabianpi-ua-netinst-*.img.xz
-openhabianpi-ua-netinst-*.img.bz2
+*.zip
+*.img
+*.img.xz
+*.img.bz2
+*.log

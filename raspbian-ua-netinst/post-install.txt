@@ -12,9 +12,9 @@ chroot /rootfs /usr/bin/git clone -b master https://github.com/openhab/openhabia
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 ln -s /opt/openhabian/openhabian-setup.sh /rootfs/usr/local/bin/openhabian-config
 
-echo -n "[openHABian] Copying first boot script and configuration... "
-cp /rootfs/opt/openhabian/raspbian-ua-netinst/rc.local /rootfs/etc/rc.local
+echo -n "[openHABian] Copying configuration and first boot script... "
 cp /rootfs/boot/installer-config.txt /rootfs/etc/openhabian.conf
+cp /rootfs/opt/openhabian/raspbian-ua-netinst/rc.local /rootfs/etc/rc.local
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 echo "[openHABian] === Executing 'openhabian-setup.sh' ==="
