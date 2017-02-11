@@ -5,13 +5,63 @@
 # value on error.
 
 FLAG="/root/afterfirstboot.lock"
-LOG="/var/log/raspbian-ua-netinst.log"
+LOG="/var/log/first-boot.log"
 FAILED=0
 
 # Only executed after first boot
-if [ ! -f $FLAG ]; then
-  echo "" >> $LOG
-  echo "[openHABian] Booting for the first time!" >> $LOG
-exit 0
+if [ -f $FLAG ]; then
+  exit 0
+fi
+
+# Log everything to file
+exec &> >(tee -a "$LOG")
+
+mark_fail() {
+  echo "[openHABian] Failing... "
+  rm /opt/openHABian-install-inprogress
+  touch /opt/openHABian-install-failed
+}
+trap mark_fail EXIT
+
+echo "[openHABian] Booting for the first time!"
+
+echo -n "[openHABian] Updating repositories and upgrading installed packages... "
+cond_redirect apt update
+cond_redirect apt --yes upgrade
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+
+echo -n "[openHABian] Installing git package... "
+/usr/bin/apt-get -y install git &>/dev/null
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+
+echo -n "[openHABian] Cloning myself... "
+/usr/bin/git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
+
+echo -n "[openHABian] Copying configuration and first boot script... "
+cp /opt/openhabian/build-pine64-image/openhabian.pine64.conf /etc/openhabian.conf
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+
+echo "[openHABian] === Executing 'openhabian-setup.sh' ==="
+/bin/bash /opt/openhabian/openhabian-setup.sh unattended
+if [ $? -eq 0 ]; then
+  rm /opt/openHABian-install-inprogress
+  touch /rootfs/opt/openHABian-install-successful
+else
+  touch /rootfs/opt/openHABian-install-failed
+fi
+echo "[openHABian] === Finished executing 'openhabian-setup.sh' ==="
+
+echo -n "[openHABian] Switching hostname... "
+source /etc/openhabian.conf
+sed -i "s/^pine64$/$hostname/g" /etc/hostname /etc/hosts
+echo "OK"
+
+echo -n "[openHABian] Finishing up and rebooting... "
+rm /opt/openHABian-install-inprogress
+touch /opt/openHABian-install-successful
+touch $FLAG
+reboot
 
 # vim: filetype=sh
