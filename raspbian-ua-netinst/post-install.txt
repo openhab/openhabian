@@ -12,7 +12,8 @@ chroot /rootfs /usr/bin/git clone -b master https://github.com/openhab/openhabia
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 ln -s /opt/openhabian/openhabian-setup.sh /rootfs/usr/local/bin/openhabian-config
 
-echo -n "[openHABian] Backup installation configuration... "
+echo -n "[openHABian] Copying first boot script and configuration... "
+cp /rootfs/opt/openhabian/includes/rc.local /rootfs/etc/rc.local
 cp /rootfs/boot/installer-config.txt /rootfs/etc/openhabian.conf
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
