@@ -163,7 +163,7 @@ locale_timezone_settings() {
 
 first_boot_script() {
   echo -n "[openHABian] Activating first boot script... "
-  cp $SCRIPTDIR/includes/rc.local /etc/rc.local
+  cp $SCRIPTDIR/raspbian-ua-netinst/rc.local /etc/rc.local
   echo "OK"
 }
 
