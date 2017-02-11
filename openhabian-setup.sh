@@ -189,7 +189,6 @@ basic_packages() {
 
 needed_packages() {
   # Conditional: Install raspi-config - configuration tool for the Raspberry Pi + Raspbian
-  # Install oracle-java8-jdk - will be replaced by webupd8team revision, here only for openHAB to start up on first boot. TODO: Remove with zulu
   # Install apt-transport-https - update packages through https repository
   # Install samba - network sharing
   # Install bc + sysstat - needed for FireMotD
@@ -197,7 +196,6 @@ needed_packages() {
   echo -n "[openHABian] Installing additional needed packages... "
   cond_redirect apt update
   if is_pi ; then cond_redirect apt -y install raspi-config; fi
-  cond_redirect apt -y install oracle-java8-jdk
   cond_redirect apt -y install apt-transport-https samba bc sysstat avahi-daemon
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
@@ -217,51 +215,37 @@ vimrc_copy() {
   echo "OK"
 }
 
-java_webupd8_prepare() {
-  # prepare (not install) Oracle Java 8 newest revision
-  echo -n "[openHABian] Preparing Oracle Java 8 Web Upd8 repository... "
+java_webupd8() {
+  echo -n "[openHABian] Preparing and Installing Oracle Java 8 Web Upd8 repository... "
   rm -f /etc/apt/sources.list.d/webupd8team-java.list
   echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
   echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
   cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
   if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
-  cond_redirect apt update
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-}
-
-java_webupd8_install() {
-  # do not execute inside raspbian-ua-netinst chroot environment!
-  # FAILS with "readelf: Error: '/proc/self/exe': No such file"
-  echo -n "[openHABian] Installing Oracle Java 8 from Web Upd8 repository... "
   echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | /usr/bin/debconf-set-selections
   if [ $? -ne 0 ]; then echo "FAILED (debconf)"; exit 1; fi
+  cond_redirect apt update
   cond_redirect apt -y install oracle-java8-installer
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect apt -y install oracle-java8-set-default
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-# java_letsencrypt() {
-#   # alternative to installing newest java revision through webupd8team repository, which is not working in chroot
-#   echo -n "[openHABian] Adding letsencrypt certs to Oracle Java 8 keytool (needed for my.openhab)... "
-#   FAILED=0
-#   CERTS="isrgrootx1.der
-#   lets-encrypt-x1-cross-signed.der
-#   lets-encrypt-x2-cross-signed.der
-#   lets-encrypt-x3-cross-signed.der
-#   lets-encrypt-x4-cross-signed.der
-#   letsencryptauthorityx1.der
-#   letsencryptauthorityx2.der"
-#   for cert in $CERTS
-#   do
-#     namewoext="${cert%%.*}"
-#     wget "https://letsencrypt.org/certs/$cert" || ((FAILED++))
-#     /usr/bin/keytool -importcert -keystore /usr/lib/jvm/jdk-8-oracle-arm32-vfp-hflt/jre/lib/security/cacerts \
-#     -storepass changeit -noprompt -trustcacerts -alias $namewoext -file $cert || ((FAILED++))
-#     rm -f $cert
-#   done
-#   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
-# }
+java_zulu_embedded() {
+  echo -n "[openHABian] Installing Zulu Embedded OpenJDK ARM build (archive)... "
+  cond_redirect wget -O ezdk.tar.gz http://cdn.azul.com/zulu-embedded/bin/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf.tar.gz
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  cond_redirect mkdir /opt/zulu-embedded
+  cond_redirect tar xvfz ezdk.tar.gz -C /opt/zulu-embedded
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  cond_redirect rm -f ezdk.tar.gz
+  cond_redirect chown -R 0:0 /opt/zulu-embedded
+  cond_redirect update-alternatives --auto java
+  cond_redirect update-alternatives --auto javac
+  cond_redirect update-alternatives --install /usr/bin/java java /opt/zulu-embedded/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf/bin/java 2162
+  cond_redirect update-alternatives --install /usr/bin/javac javac /opt/zulu-embedded/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf/bin/javac 2162
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+}
 
 # openhab2_user() {
 #   echo -n "[openHABian] Manually adding openhab user to system (for manual installation?)... "
@@ -292,7 +276,6 @@ openhab2_install() {
 openhab2_service() {
   echo -n "[openHABian] Activating openHAB... "
   cond_redirect systemctl daemon-reload
-  #if [ $? -eq 0 ]; then echo -n "OK "; else echo -n "FAILED "; fi
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
@@ -1170,7 +1153,8 @@ show_main_menu() {
   "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
   "10 | Basic Setup"            "Perform basic setup steps (packages, bash, permissions, ...)" \
-  "11 | Java 8"                 "Install the latest revision of Java 8 provided by WebUpd8Team (needed by openHAB 2)" \
+  "11a| Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8 (ARMv7 only)" \
+  "11b| Oracle Java 8"          "Install Oracle Java 8 provided by WebUpd8Team (i386+ARM)" \
   "12 | openHAB 2"              "Install openHAB 2.0 (stable)" \
   "13 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
   "14 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
@@ -1193,7 +1177,8 @@ show_main_menu() {
       01\ *) openhabian_update ;;
       02\ *) system_upgrade ;;
       10\ *) basic_raspbian_mods ;;
-      11\ *) java_webupd8_prepare && java_webupd8_install ;;
+      11a*) java_zulu_embedded ;;
+      11b*) java_webupd8 ;;
       12\ *) openhab2_full_setup ;;
       13\ *) samba_setup ;;
       14\ *) openhab_shell_interfaces ;;
@@ -1225,8 +1210,7 @@ if [[ -n "$UNATTENDED" ]]; then
   bashrc_copy
   vimrc_copy
   firemotd
-  java_webupd8_prepare
-  #java_webupd8_install
+  java_zulu_embedded
   openhab2_full_setup
   samba_setup
   etckeeper
