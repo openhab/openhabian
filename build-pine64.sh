@@ -23,17 +23,19 @@ apt update && apt --yes install git curl bzip2 zip xz-utils xz-utils build-essen
 echo "[openHABian] Cloning \"longsleep/build-pine64-image\" project... "
 buildfolder=/tmp/build-pine64-image
 git clone -b master https://github.com/longsleep/build-pine64-image.git $buildfolder
-wget -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/simpleimage-pine64-latest.img.xz
-wget -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/linux/linux-pine64-latest.tar.xz
+
+echo "[openHABian] Downloading aditional files needed by \"longsleep/build-pine64-image\" project... "
+wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/simpleimage-pine64-latest.img.xz
+wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/linux/linux-pine64-latest.tar.xz
 
 echo "[openHABian] Copying over 'rc.local' file for image integration... "
 cp build-pine64-image/rc.local $buildfolder/simpleimage/openhabianpine64.rc.local
 cp build-pine64-image/first-boot.sh $buildfolder/simpleimage/openhabianpine64.first-boot.sh
 
-
-echo "[openHABian] Modifying \"build-pine64-image\" make script... "
+echo "[openHABian] Modifying \"build-pine64-image\" build and make script... "
+sed -i "s/date +%Y%m%H/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh # Fix https://github.com/longsleep/build-pine64-image/pull/47
 makescript=$buildfolder/simpleimage/make_rootfs.sh
-sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/g" $makescript # Fix https://github.com/longsleep/build-pine64-image/pull/46
+sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/" $makescript # Fix https://github.com/longsleep/build-pine64-image/pull/46
 sed -i "s/^pine64$/openHABianPine64/" $makescript
 sed -i "s/127.0.1.1 pine64/127.0.1.1 openHABianPine64/" $makescript
 sed -i "s/DEBUSER=ubuntu/DEBUSER=ubuntu/" $makescript
@@ -45,8 +47,9 @@ echo "echo \"openHABian preparations finished, /etc/rc.local in place\"" >> $mak
 
 echo "[openHABian] Executing \"build-pine64-image\" make script... "
 (cd $buildfolder; /bin/bash build-pine64-image.sh simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial)
+# TODO: catch error
 
-echo -e "\n[openHABian] Cleaning up... "
+echo -e "\n[openHABian] Renaming and compressing image, cleaning up... "
 mv $buildfolder/xenial-pine64-*.img .
 rm -rf $buildfolder
 for file in xenial-pine64-*.img; do
