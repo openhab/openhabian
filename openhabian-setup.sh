@@ -363,10 +363,11 @@ pine64_platform_scripts() {
 #    cond_redirect /usr/local/sbin/pine64_update_uboot.sh || echo -n "FAILED "
 #    cond_redirect /usr/local/sbin/pine64_fix_whatever.sh || echo -n "FAILED "
 #    cond_redirect /usr/local/sbin/resize_rootfs.sh || echo -n "FAILED "
-    echo "OK"
+#    echo "OK"
 #  else
 #    echo "FAILED"
 #  fi
+  echo "SKIPPED"
 }
 
 openhab_shell_interfaces() {
