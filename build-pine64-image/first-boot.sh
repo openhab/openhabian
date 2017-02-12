@@ -38,6 +38,6 @@ fi
 echo "$(timestamp) [openHABian] === Finished executing 'openhabian-setup.sh' ==="
 
 echo -n "$(timestamp) [openHABian] Finishing up and rebooting... "
-echo "[openHABian] This file was created after the first boot script was executed (see /etc/rc.local). Do not delete." >> $FLAG
+echo "[openHABian] This file was created after the first boot script was executed (see /etc/rc.local). Do not delete." > "$FLAG"
 
 # vim: filetype=sh

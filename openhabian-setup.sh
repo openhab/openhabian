@@ -356,6 +356,19 @@ misc_system_settings() {
   echo "OK"
 }
 
+pine64_platform_scripts() {
+  echo -n "[openHABian] Executing pine64 platform scripts (longsleep)... "
+  if [ -f "/usr/local/sbin/pine64_update_kernel.sh" ]; then
+    cond_redirect (/bin/bash /usr/local/sbin/pine64_update_kernel.sh) || echo -n "FAILED "
+    cond_redirect (/bin/bash /usr/local/sbin/pine64_update_uboot.sh) || echo -n "FAILED "
+    cond_redirect (/bin/bash /usr/local/sbin/pine64_fix_whatever.sh) || echo -n "FAILED "
+    cond_redirect (/bin/bash /usr/local/sbin/resize_rootfs.sh) || echo -n "FAILED "
+    echo "OK"
+  else
+    echo "FAILED"
+  fi
+}
+
 openhab_shell_interfaces() {
   introtext="The Karaf console is a powerful tool for every openHAB user. It allows you too have a deeper insight into the internals of your setup. Further details: http://docs.openhab.org/administration/console.html
 \nThis routine will bind the console to all interfaces and thereby make it available to other devices in your network. Please provide a secure password for this connection (letters and numbers only! default: habopen):"
@@ -997,7 +1010,7 @@ system_check_default_password() {
     # Check for Raspbian defaults (not openhabian.conf)
     USERNAME="pi"
     PASSWORD="raspberry"
-  else if is_pine64; then
+  elif is_pine64; then
     # Check for Ubuntu defaults (not openhabian.conf)
     USERNAME="ubuntu"
     PASSWORD="ubuntu"
@@ -1024,7 +1037,6 @@ system_check_default_password() {
   else
     echo "OK"
   fi
-
 }
 
 #TODO: Unused
@@ -1139,6 +1151,7 @@ basic_setup() {
   vimrc_copy
   firemotd
   misc_system_settings
+  if is_pine64; then pine64_platform_scripts; fi
 }
 
 openhab2_full_setup() {
