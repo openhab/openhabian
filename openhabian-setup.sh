@@ -75,7 +75,7 @@ else
     echo "[openHABian] Error: The provided user name is not a valid system user. Please try again. Exiting ..." 1>&2
     exit 1
   fi
-  cp $SCRIPTDIR/installer-config.txt $CONFIGFILE
+  cp $SCRIPTDIR/openhabian.conf.dist $CONFIGFILE
   sed -i "s/username=.*/username=$input/g" $CONFIGFILE
 fi
 # shellcheck source=/etc/openhabian.conf
@@ -148,16 +148,12 @@ calc_wt_size() {
 
 locale_timezone_settings() {
   echo -n "[openHABian] Setting timezone (Europe/Berlin) and locale (en_US.UTF-8)... "
-  ## timezone
-  cond_redirect echo "Europe/Berlin" > /etc/timezone
-  cond_redirect rm /etc/localtime
-  cond_redirect ln -s /usr/share/zoneinfo/Europe/Berlin /etc/localtime
-  ## locale
-  sed -i 's/\# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/g' /etc/locale.gen
-  sed -i 's/\# de_DE.UTF-8 UTF-8/de_DE.UTF-8 UTF-8/g' /etc/locale.gen
-  cond_redirect /usr/sbin/locale-gen
+  # source "$CONFIGFILE"
+  cond_redirect timedatectl set-timezone $timezone
+  cond_redirect /usr/sbin/locale-gen $locales
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
-  cond_redirect /usr/sbin/update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
+  LANG=$system_default_locale
+  cond_redirect /usr/sbin/update-locale LANG=$system_default_locale
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -183,7 +179,7 @@ memory_split() {
 
 basic_packages() {
   echo -n "[openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
-  if is_pi ; then
+  if is_pi; then
     cond_redirect wget -O /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update
     cond_redirect chmod +x /usr/bin/rpi-update
   fi
@@ -200,7 +196,7 @@ needed_packages() {
   # Install avahi-daemon - hostname based discovery on local networks
   echo -n "[openHABian] Installing additional needed packages... "
   cond_redirect apt update
-  if is_pi ; then cond_redirect apt -y install raspi-config; fi
+  if is_pi; then cond_redirect apt -y install raspi-config; fi
   cond_redirect apt -y install apt-transport-https samba bc sysstat avahi-daemon
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
@@ -433,7 +429,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   fi
 
   if [[ $selection == *"2"* ]]; then
-    if is_pithree ; then
+    if is_pithree; then
       cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3)"
       systemctl disable hciuart &>/dev/null
       if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
@@ -747,7 +743,7 @@ influxdb_grafana_setup() {
 
   echo -n "[openHABian] Setting up InfluxDB and Grafana... "
 
-  if is_pione ; then
+  if is_pione; then
     GRAFANA_REPO_PI1="-rpi-1b"
   else
     GRAFANA_REPO_PI1=""
@@ -997,10 +993,14 @@ system_check_default_password() {
   \nPlease set a strong password by typing the command 'passwd' in the console."
 
   echo -n "[openHABian] Checking for default Raspbian user:passwd combination... "
-  if is_pi ; then
+  if is_pi; then
     # Check for Raspbian defaults (not openhabian.conf)
     USERNAME="pi"
     PASSWORD="raspberry"
+  else if is_pine64; then
+    # Check for Ubuntu defaults (not openhabian.conf)
+    USERNAME="ubuntu"
+    PASSWORD="ubuntu"
   else
     echo "SKIPPED (method not implemented)"
     return 0
@@ -1119,21 +1119,20 @@ show_about() {
   - Discussion: https://community.openhab.org/t/13379" 17 80
 }
 
-basic_raspbian_mods() {
+basic_setup() {
   introtext="If you continue, this step will update the openHABian basic system settings.\n\nThe following steps are included:
+  - Set your timezone and locale acording to '/etc/openhabian.conf'
   - Install recommended packages (vim, git, htop, ...)
   - Install an improved bash configuration
   - Install an improved vim configuration
   - Set up FireMotD
-  - Make some permission changes ('adduser', 'chown', ...)
-
-This step will NOT update your installed packages (including openHAB2).
-Please execute from the console: 'sudo apt update && sudo apt upgrade'"
+  - Make some permission changes ('adduser', 'chown', ...)"
 
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 20 80) then return 0; fi
   fi
 
+  locale_timezone_settings
   basic_packages
   needed_packages
   bashrc_copy
@@ -1181,7 +1180,7 @@ show_main_menu() {
       00\ *) show_about ;;
       01\ *) openhabian_update ;;
       02\ *) system_upgrade ;;
-      10\ *) basic_raspbian_mods ;;
+      10\ *) basic_setup ;;
       11a*) java_zulu_embedded ;;
       11b*) java_webupd8 ;;
       12\ *) openhab2_full_setup ;;
@@ -1208,8 +1207,9 @@ show_main_menu() {
 
 if [[ -n "$UNATTENDED" ]]; then
   #unattended installation (from within raspbian-ua-netinst chroot)
-  if is_pi ; then first_boot_script; fi # TODO: Remove after new RPi image includes this
-  if is_pi ; then memory_split; fi
+  locale_timezone_settings
+  if is_pi; then first_boot_script; fi # TODO: Remove after new RPi image includes this
+  if is_pi; then memory_split; fi
   basic_packages
   needed_packages
   bashrc_copy

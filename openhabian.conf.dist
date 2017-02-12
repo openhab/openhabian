@@ -1,11 +1,11 @@
 # Modify your openHABian settings
 # Handle with care, only touch if you need to!!
 
-hostname=openHABianPine64
-userpw=ubuntu
+hostname=openHABianDevice
+userpw=password
 
 # Do not change these lines
-username=ubuntu
+username=user
 
 # Language and time
 timeserver=0.pool.ntp.org
