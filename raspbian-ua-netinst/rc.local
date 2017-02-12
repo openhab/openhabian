@@ -4,9 +4,13 @@
 # Make sure that the script will "exit 0" on success or any other
 # value on error.
 
-FLAG="/root/afterfirstboot.lock"
+FLAG="/opt/afterfirstboot.lock"
 LOG="/var/log/raspbian-ua-netinst.log"
 FAILED=0
+
+if [ -f $FLAG ] || [ -f "/root/afterfirstboot.lock" ]; then #TODO: Remove 'root' after 2017-05
+  exit 0
+fi
 
 # Only executed on first boot
 if [ ! -f $FLAG ]; then
@@ -27,7 +31,5 @@ if [ ! -f $FLAG ]; then
   fi
   echo "[openHABian] This file was created after the first boot script was executed (see /etc/rc.local). Do not delete." >> $FLAG
 fi
-
-exit 0
 
 # vim: filetype=sh
