@@ -3,7 +3,7 @@
 echo "[openHABian] This script will build the openHABian Pine64 image file."
 echo "That's probably not what you wanted to do."
 echo ""
-echo "Exiting."; exit 1 # Remove if you know what you are doing
+#echo "Exiting."; exit 1 # Remove if you know what you are doing
 
 # Make sure only root can run our script
 if [[ $EUID -ne 0 ]]; then
@@ -16,6 +16,9 @@ cd $(dirname $0) || exit 1
 
 # Log everything to a file
 exec &> >(tee -a "openhabian-build-$(date +%Y-%m-%d_%H%M%S).log")
+
+# Prerequisites
+apt update && apt --yes install git curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user
 
 echo "[openHABian] Cloning \"longsleep/build-pine64-image\" project... "
 buildfolder=/tmp/build-pine64-image
@@ -43,10 +46,10 @@ echo "[openHABian] Executing \"build-pine64-image\" make script... "
 echo -e "\n[openHABian] Cleaning up... "
 mv $buildfolder/xenial-pine64-*.img .
 rm -rf $buildfolder
-for file in xenial-*.img; do
+for file in xenial-pine64-*.img; do
   tar -cJf $file.xz $file
 done
-for file in xenial-*.*; do
+for file in xenial-pine64-*.*; do
   mv -v "$file" "${file//pine64/openhabianpine64}"
 done
 
