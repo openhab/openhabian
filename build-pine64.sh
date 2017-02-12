@@ -28,11 +28,11 @@ echo "[openHABian] Downloading aditional files needed by \"longsleep/build-pine6
 wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/simpleimage-pine64-latest.img.xz
 wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/linux/linux-pine64-latest.tar.xz
 
-echo "[openHABian] Copying over 'rc.local' file for image integration... "
+echo "[openHABian] Copying over 'rc.local' and 'first-boot.sh' for image integration... "
 cp build-pine64-image/rc.local $buildfolder/simpleimage/openhabianpine64.rc.local
 cp build-pine64-image/first-boot.sh $buildfolder/simpleimage/openhabianpine64.first-boot.sh
 
-echo "[openHABian] Modifying \"build-pine64-image\" build and make script... "
+echo "[openHABian] Hacking \"build-pine64-image\" build and make script... "
 sed -i "s/date +%Y%m%H/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh # Fix https://github.com/longsleep/build-pine64-image/pull/47
 makescript=$buildfolder/simpleimage/make_rootfs.sh
 sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/" $makescript # Fix https://github.com/longsleep/build-pine64-image/pull/46
@@ -42,12 +42,12 @@ sed -i "s/DEBUSER=ubuntu/DEBUSER=ubuntu/" $makescript
 echo -e "\n# Add openHABian modifications" >> $makescript
 echo "touch \$DEST/opt/openHABian-install-inprogress" >> $makescript
 echo "cp ./openhabianpine64.rc.local \$DEST/etc/rc.local" >> $makescript
-echo "cp ./openhabianpine64.first-boot.sh \$DEST/boot/first-boot.sh" >> $makescript
+echo "cp ./openhabianpine64.first-boot.sh \$BOOT/first-boot.sh" >> $makescript
 echo "echo \"openHABian preparations finished, /etc/rc.local in place\"" >> $makescript
 
-echo "[openHABian] Executing \"build-pine64-image\" make script... "
+echo "[openHABian] Executing \"build-pine64-image\" build script... "
 (cd $buildfolder; /bin/bash build-pine64-image.sh simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial)
-# TODO: catch error
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
 echo -e "\n[openHABian] Renaming and compressing image, cleaning up... "
 mv $buildfolder/xenial-pine64-*.img .
