@@ -56,7 +56,11 @@ for file in xenial-pine64-*.img; do
   tar -cJf $file.xz $file
 done
 for file in xenial-pine64-*.*; do
-  mv -v "$file" "${file//pine64/openhabianpine64}"
+  mv -v "$file" "${file//pine64-bspkernel/openhabianpine64}"
+done
+shorthash=$(git log --pretty=format:'%h' -n 1)
+for file in xenial-openhabianpine64*.*; do
+  mv -v "$file" "${file//-1.img/-git$shorthash.img}"
 done
 
 echo -e "\n[openHABian] Finished! The results:"
