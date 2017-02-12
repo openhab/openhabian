@@ -8,10 +8,13 @@ FLAG="/opt/afterfirstboot.lock"
 
 # Only executed after first boot
 if [ ! -f $FLAG ] && [ ! -f "/root/afterfirstboot.lock" ]; then #TODO: Remove 'root' after 2017-05
+  echo "[openHABian] 'afterfirstboot.lock' not found, starting 'first-boot.sh' script."
   (/bin/bash /boot/first-boot.sh)
   if [ $? -eq 0 ]; then
     echo "[openHABian] Finishing up... "
     echo "[openHABian] This file was created after the first boot script was executed (see /etc/rc.local). Do not delete." > "$FLAG"
+  else
+    echo "Script 'first-boot.sh' failed."
   fi
 fi
 
