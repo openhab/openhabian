@@ -25,6 +25,8 @@ wget -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-im
 
 echo "[openHABian] Copying over 'rc.local' file for image integration... "
 cp build-pine64-image/rc.local $buildfolder/simpleimage/openhabianpine64.rc.local
+cp build-pine64-image/first-boot.sh $buildfolder/simpleimage/openhabianpine64.first-boot.sh
+
 
 echo "[openHABian] Modifying \"build-pine64-image\" make script... "
 makescript=$buildfolder/simpleimage/make_rootfs.sh
@@ -32,6 +34,7 @@ sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/g" $makescript
 echo -e "\n# Add openHABian modifications" >> $makescript
 echo "touch \$DEST/opt/openHABian-install-inprogress" >> $makescript
 echo "cp ./openhabianpine64.rc.local \$DEST/etc/rc.local" >> $makescript
+echo "cp ./openhabianpine64.first-boot.sh \$DEST/boot/first-boot.sh" >> $makescript
 echo "echo \"openHABian preparations finished, /etc/rc.local in place\"" >> $makescript
 
 echo "[openHABian] Executing \"build-pine64-image\" make script... "
