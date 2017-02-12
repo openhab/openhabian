@@ -15,18 +15,14 @@ fi
 
 # Log everything to file
 exec &> >(tee -a "$LOG")
+
 timestamp() { date +"%F_%T_%Z"; }
 
-mark_fail() {
-  echo "$(timestamp) [openHABian] Failing... "
-  rm /opt/openHABian-install-inprogress
-  touch /opt/openHABian-install-failed
-}
-trap mark_fail EXIT
-
 echo "$(timestamp) [openHABian] Booting for the first time!"
+rm -f /opt/openHABian-install-failed
+touch /opt/openHABian-install-inprogress
 
-echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages "
+echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
 apt update &>/dev/null
 apt --yes upgrade &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -47,10 +43,10 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 echo "$(timestamp) [openHABian] === Executing 'openhabian-setup.sh' ==="
 /bin/bash /opt/openhabian/openhabian-setup.sh unattended
 if [ $? -eq 0 ]; then
-  rm /opt/openHABian-install-inprogress
-  touch /rootfs/opt/openHABian-install-successful
+  rm -f /opt/openHABian-install-inprogress
+  touch /opt/openHABian-install-successful
 else
-  touch /rootfs/opt/openHABian-install-failed
+  touch /opt/openHABian-install-failed
 fi
 echo "$(timestamp) [openHABian] === Finished executing 'openhabian-setup.sh' ==="
 
@@ -60,8 +56,6 @@ sed -i "s/^pine64$/$hostname/g" /etc/hostname /etc/hosts
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Finishing up and rebooting... "
-rm /opt/openHABian-install-inprogress
-touch /opt/openHABian-install-successful
 touch $FLAG
 reboot
 

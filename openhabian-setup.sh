@@ -161,6 +161,7 @@ locale_timezone_settings() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
+#TODO: Remove, will be taken care of outside
 first_boot_script() {
   echo -n "[openHABian] Activating first boot script... "
   cp $SCRIPTDIR/raspbian-ua-netinst/rc.local /etc/rc.local
@@ -248,7 +249,7 @@ java_zulu_embedded() {
   cond_redirect update-alternatives --auto javac
   cond_redirect update-alternatives --install /usr/bin/java java /opt/zulu-embedded/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf/bin/java 2162
   cond_redirect update-alternatives --install /usr/bin/javac javac /opt/zulu-embedded/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf/bin/javac 2162
-  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 # openhab2_user() {
@@ -315,7 +316,7 @@ samba_setup() {
 }
 
 firemotd() {
-  echo -n "[openHABian] Downloading FireMotD... "
+  echo -n "[openHABian] Downloading and setting up FireMotD... "
   rm -rf /opt/FireMotD
   cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
   if [ $? -eq 0 ]; then
@@ -1207,7 +1208,7 @@ show_main_menu() {
 
 if [[ -n "$UNATTENDED" ]]; then
   #unattended installation (from within raspbian-ua-netinst chroot)
-  first_boot_script
+  if is_pi ; then first_boot_script; fi # TODO: Remove after new RPi image includes this
   if is_pi ; then memory_split; fi
   basic_packages
   needed_packages
