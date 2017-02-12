@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 echo "[openHABian] This script will build the openHABian Pine64 image file."
-echo "That's probably not what you wanted to do."
+if [ ! "$1" == "go" ]; then
+  echo "That's probably not what you wanted to do. Exiting."
+  exit 0
+fi
 echo ""
-echo "Exiting."; exit 1 # Remove if you know what you are doing
 
 # Make sure only root can run our script
 if [[ $EUID -ne 0 ]]; then
@@ -14,25 +16,27 @@ fi
 # Switch to the script folder
 cd $(dirname $0) || exit 1
 
+timestamp() { date +"%F_%T_%Z"; }
+
 # Log everything to a file
 exec &> >(tee -a "openhabian-build-$(date +%Y-%m-%d_%H%M%S).log")
 
 # Prerequisites
 apt update && apt --yes install git curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user
 
-echo "[openHABian] Cloning \"longsleep/build-pine64-image\" project... "
+echo "$(timestamp) [openHABian] Cloning \"longsleep/build-pine64-image\" project... "
 buildfolder=/tmp/build-pine64-image
 git clone -b master https://github.com/longsleep/build-pine64-image.git $buildfolder
 
-echo "[openHABian] Downloading aditional files needed by \"longsleep/build-pine64-image\" project... "
+echo "$(timestamp) [openHABian] Downloading aditional files needed by \"longsleep/build-pine64-image\" project... "
 wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/simpleimage-pine64-latest.img.xz
 wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/linux/linux-pine64-latest.tar.xz
 
-echo "[openHABian] Copying over 'rc.local' and 'first-boot.sh' for image integration... "
+echo "$(timestamp) [openHABian] Copying over 'rc.local' and 'first-boot.sh' for image integration... "
 cp build-pine64-image/rc.local $buildfolder/simpleimage/openhabianpine64.rc.local
 cp build-pine64-image/first-boot.sh $buildfolder/simpleimage/openhabianpine64.first-boot.sh
 
-echo "[openHABian] Hacking \"build-pine64-image\" build and make script... "
+echo "$(timestamp) [openHABian] Hacking \"build-pine64-image\" build and make script... "
 sed -i "s/date +%Y%m%H/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh # Fix https://github.com/longsleep/build-pine64-image/pull/47
 makescript=$buildfolder/simpleimage/make_rootfs.sh
 sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/" $makescript # Fix https://github.com/longsleep/build-pine64-image/pull/46
@@ -45,11 +49,11 @@ echo "cp ./openhabianpine64.rc.local \$DEST/etc/rc.local" >> $makescript
 echo "cp ./openhabianpine64.first-boot.sh \$BOOT/first-boot.sh" >> $makescript
 echo "echo \"openHABian preparations finished, /etc/rc.local in place\"" >> $makescript
 
-echo "[openHABian] Executing \"build-pine64-image\" build script... "
+echo "$(timestamp) [openHABian] Executing \"build-pine64-image\" build script... "
 (cd $buildfolder; /bin/bash build-pine64-image.sh simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial)
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
-echo -e "\n[openHABian] Renaming and compressing image, cleaning up... "
+echo -e "\n$(timestamp) [openHABian] Renaming and compressing image, cleaning up... "
 mv $buildfolder/xenial-pine64-*.img .
 rm -rf $buildfolder
 for file in xenial-pine64-*.img; do
@@ -63,7 +67,7 @@ for file in xenial-openhabianpine64*.*; do
   mv -v "$file" "${file//-1.img/-git$shorthash.img}"
 done
 
-echo -e "\n[openHABian] Finished! The results:"
+echo -e "\n$(timestamp) [openHABian] Finished! The results:"
 ls -al xenial-openhabianpine64-*.*
 
 # vim: filetype=sh
