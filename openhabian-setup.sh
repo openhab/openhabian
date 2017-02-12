@@ -358,15 +358,15 @@ misc_system_settings() {
 
 pine64_platform_scripts() {
   echo -n "[openHABian] Executing pine64 platform scripts (longsleep)... "
-  if [ -f "/usr/local/sbin/pine64_update_kernel.sh" ]; then
-    cond_redirect (/bin/bash /usr/local/sbin/pine64_update_kernel.sh) || echo -n "FAILED "
-    cond_redirect (/bin/bash /usr/local/sbin/pine64_update_uboot.sh) || echo -n "FAILED "
-    cond_redirect (/bin/bash /usr/local/sbin/pine64_fix_whatever.sh) || echo -n "FAILED "
-    cond_redirect (/bin/bash /usr/local/sbin/resize_rootfs.sh) || echo -n "FAILED "
+#  if [ -f "/usr/local/sbin/pine64_update_kernel.sh" ]; then
+#    cond_redirect /usr/local/sbin/pine64_update_kernel.sh || echo -n "FAILED "
+#    cond_redirect /usr/local/sbin/pine64_update_uboot.sh || echo -n "FAILED "
+#    cond_redirect /usr/local/sbin/pine64_fix_whatever.sh || echo -n "FAILED "
+#    cond_redirect /usr/local/sbin/resize_rootfs.sh || echo -n "FAILED "
     echo "OK"
-  else
-    echo "FAILED"
-  fi
+#  else
+#    echo "FAILED"
+#  fi
 }
 
 openhab_shell_interfaces() {
