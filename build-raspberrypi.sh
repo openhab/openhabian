@@ -14,12 +14,11 @@ fi
 # Switch to the script folder
 cd $(dirname $0) || exit 1
 
-# Prerequisites
-apt update && apt --yes install git curl bzip2 zip xz-utils gnupg kpartx dosfstools binutils bc
-#command -v git &>/dev/null || { echo "The package 'git' is needed. Please install!" >&2; exit 1; }
-
 # Log everything to a file
 exec &> >(tee -a "openhabian-build-$(date +%Y-%m-%d_%H%M%S).log")
+
+# Prerequisites
+apt update && apt --yes install git curl bzip2 zip xz-utils gnupg kpartx dosfstools binutils bc
 
 echo "[openHABian] Cloning \"debian-pi/raspbian-ua-netinst\" project... "
 buildfolder=/tmp/raspbian-ua-netinst
