@@ -3,7 +3,7 @@
 echo "[openHABian] This script will build the openHABian Pine64 image file."
 echo "That's probably not what you wanted to do."
 echo ""
-#echo "Exiting."; exit 1 # Remove if you know what you are doing
+echo "Exiting."; exit 1 # Remove if you know what you are doing
 
 # Make sure only root can run our script
 if [[ $EUID -ne 0 ]]; then
@@ -33,7 +33,10 @@ cp build-pine64-image/first-boot.sh $buildfolder/simpleimage/openhabianpine64.fi
 
 echo "[openHABian] Modifying \"build-pine64-image\" make script... "
 makescript=$buildfolder/simpleimage/make_rootfs.sh
-sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/g" $makescript
+sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/g" $makescript # Fix https://github.com/longsleep/build-pine64-image/pull/46
+sed -i "s/^pine64$/openHABianPine64/" $makescript
+sed -i "s/127.0.1.1 pine64/127.0.1.1 openHABianPine64/" $makescript
+sed -i "s/DEBUSER=ubuntu/DEBUSER=ubuntu/" $makescript
 echo -e "\n# Add openHABian modifications" >> $makescript
 echo "touch \$DEST/opt/openHABian-install-inprogress" >> $makescript
 echo "cp ./openhabianpine64.rc.local \$DEST/etc/rc.local" >> $makescript

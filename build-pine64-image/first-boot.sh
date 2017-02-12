@@ -37,13 +37,7 @@ else
 fi
 echo "$(timestamp) [openHABian] === Finished executing 'openhabian-setup.sh' ==="
 
-echo -n "$(timestamp) [openHABian] Switching hostname... "
-#source /etc/openhabian.conf
-#sed -i "s/^pine64$/$hostname/g" /etc/hostname /etc/hosts
-echo "OK"
-
 echo -n "$(timestamp) [openHABian] Finishing up and rebooting... "
 echo "[openHABian] This file was created after the first boot script was executed (see /etc/rc.local). Do not delete." >> $FLAG
-#reboot
 
 # vim: filetype=sh
