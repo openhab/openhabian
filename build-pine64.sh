@@ -53,21 +53,25 @@ echo "$(timestamp) [openHABian] Executing \"build-pine64-image\" build script...
 (cd $buildfolder; /bin/bash build-pine64-image.sh simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial)
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
-echo -e "\n$(timestamp) [openHABian] Renaming and compressing image, cleaning up... "
+echo -e "$(timestamp) [openHABian] Moving image and cleaning up... "
 mv $buildfolder/xenial-pine64-*.img .
 rm -rf $buildfolder
-for file in xenial-pine64-*.img; do
-  tar -cJf $file.xz $file
-done
-for file in xenial-pine64-*.*; do
+
+echo -e "$(timestamp) [openHABian] Renaming image... "
+for file in xenial-*.img; do
   mv -v "$file" "${file//pine64-bspkernel/openhabianpine64}"
 done
 shorthash=$(git log --pretty=format:'%h' -n 1)
-for file in xenial-openhabianpine64*.*; do
+for file in xenial-*.img; do
   mv -v "$file" "${file//-1.img/-git$shorthash.img}"
 done
 
-echo -e "\n$(timestamp) [openHABian] Finished! The results:"
-ls -al xenial-openhabianpine64-*.*
+echo -e "$(timestamp) [openHABian] Compressing image... "
+for file in xenial-*.img; do
+  xz --verbose --compress --keep $file
+done
+
+echo -e "$(timestamp) [openHABian] Finished! The results:"
+ls -alh xenial-*.*
 
 # vim: filetype=sh
