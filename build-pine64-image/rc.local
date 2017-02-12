@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash
 #
 # This script is executed at the end of each multiuser runlevel.
 # Make sure that the script will "exit 0" on success or any other
@@ -15,35 +15,36 @@ fi
 
 # Log everything to file
 exec &> >(tee -a "$LOG")
+timestamp() { date +"%F_%T_%Z"; }
 
 mark_fail() {
-  echo "[openHABian] Failing... "
+  echo "$(timestamp) [openHABian] Failing... "
   rm /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-failed
 }
 trap mark_fail EXIT
 
-echo "[openHABian] Booting for the first time!"
+echo "$(timestamp) [openHABian] Booting for the first time!"
 
-echo -n "[openHABian] Updating repositories and upgrading installed packages... "
-cond_redirect apt update
-cond_redirect apt --yes upgrade
+echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages "
+apt update &>/dev/null
+apt --yes upgrade &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-echo -n "[openHABian] Installing git package... "
+echo -n "$(timestamp) [openHABian] Installing git package... "
 /usr/bin/apt-get -y install git &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-echo -n "[openHABian] Cloning myself... "
+echo -n "$(timestamp) [openHABian] Cloning myself... "
 /usr/bin/git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
+ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
-echo -n "[openHABian] Copying configuration and first boot script... "
+echo -n "$(timestamp) [openHABian] Copying configuration and first boot script... "
 cp /opt/openhabian/build-pine64-image/openhabian.pine64.conf /etc/openhabian.conf
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-echo "[openHABian] === Executing 'openhabian-setup.sh' ==="
+echo "$(timestamp) [openHABian] === Executing 'openhabian-setup.sh' ==="
 /bin/bash /opt/openhabian/openhabian-setup.sh unattended
 if [ $? -eq 0 ]; then
   rm /opt/openHABian-install-inprogress
@@ -51,14 +52,14 @@ if [ $? -eq 0 ]; then
 else
   touch /rootfs/opt/openHABian-install-failed
 fi
-echo "[openHABian] === Finished executing 'openhabian-setup.sh' ==="
+echo "$(timestamp) [openHABian] === Finished executing 'openhabian-setup.sh' ==="
 
-echo -n "[openHABian] Switching hostname... "
+echo -n "$(timestamp) [openHABian] Switching hostname... "
 source /etc/openhabian.conf
 sed -i "s/^pine64$/$hostname/g" /etc/hostname /etc/hosts
 echo "OK"
 
-echo -n "[openHABian] Finishing up and rebooting... "
+echo -n "$(timestamp) [openHABian] Finishing up and rebooting... "
 rm /opt/openHABian-install-inprogress
 touch /opt/openHABian-install-successful
 touch $FLAG
