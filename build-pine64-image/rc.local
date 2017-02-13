@@ -7,8 +7,14 @@
 FLAG="/opt/afterfirstboot.lock"
 
 # Only executed after first boot
-if [ ! -f $FLAG ] && [ ! -f "/root/afterfirstboot.lock" ]; then #TODO: Remove 'root' after 2017-05
-  echo "[openHABian] 'afterfirstboot.lock' not found, starting 'first-boot.sh' script."
+if [ ! -f $FLAG ]; then
+  echo "[openHABian] Testing network connectivity ..."
+  sleep 60
+  if ! ping -c 1 8.8.8.8 > /dev/null; then
+    echo "[openHABian] Network unreachable, can't continue. Please reboot and let me try again."
+    exit 0
+  fi
+  echo "[openHABian] Network reachable, continuing with 'first-boot.sh' script."
   (/bin/bash /boot/first-boot.sh)
   if [ $? -eq 0 ]; then
     echo "[openHABian] Finishing up... "
