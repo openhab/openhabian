@@ -234,6 +234,7 @@ java_webupd8() {
 
 java_zulu_embedded() {
   echo -n "[openHABian] Installing Zulu Embedded OpenJDK ARM build (archive)... "
+  # https://www.azul.com/downloads/zulu/zdk-8-ga-linux_aarch32hf.tar.gz
   cond_redirect wget -O ezdk.tar.gz http://cdn.azul.com/zulu-embedded/bin/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf.tar.gz
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect mkdir /opt/zulu-embedded
