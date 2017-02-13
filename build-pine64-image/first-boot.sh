@@ -9,10 +9,17 @@ echo "$(timestamp) [openHABian] Booting for the first time!"
 rm -f /opt/openHABian-install-failed
 touch /opt/openHABian-install-inprogress
 
+echo "$(timestamp) [openHABian] Ensuring network connectivity... "
+sleep 60
+if ! ping -c 1 8.8.8.8 > /dev/null; then
+  echo "$(timestamp) [openHABian] Network unreachable, can't continue. Please reboot and let me try again."
+  exit 0
+fi
+
 echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
 apt update &>/dev/null
 apt --yes upgrade &>/dev/null
-if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi # exit 1; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
 /usr/bin/apt-get -y install git &>/dev/null
