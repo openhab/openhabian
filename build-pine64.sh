@@ -35,6 +35,9 @@ wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine6
 echo "$(timestamp) [openHABian] Copying over 'rc.local' and 'first-boot.sh' for image integration... "
 cp build-pine64-image/rc.local $buildfolder/simpleimage/openhabianpine64.rc.local
 cp build-pine64-image/first-boot.sh $buildfolder/simpleimage/openhabianpine64.first-boot.sh
+#cp build-pine64-image/openhabian.pine64.conf $buildfolder/simpleimage/openhabian.conf
+
+source build-pine64-image/openhabian.pine64.conf
 
 echo "$(timestamp) [openHABian] Hacking \"build-pine64-image\" build and make script... "
 sed -i "s/date +%Y%m%H/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh # Fix https://github.com/longsleep/build-pine64-image/pull/47
@@ -42,11 +45,12 @@ makescript=$buildfolder/simpleimage/make_rootfs.sh
 sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/" $makescript # Fix https://github.com/longsleep/build-pine64-image/pull/46
 sed -i "s/^pine64$/openHABianPine64/" $makescript
 sed -i "s/127.0.1.1 pine64/127.0.1.1 openHABianPine64/" $makescript
-sed -i "s/DEBUSER=ubuntu/DEBUSER=ubuntu/" $makescript
+sed -i "s/DEBUSER=ubuntu/DEBUSER=$username/" $makescript
 echo -e "\n# Add openHABian modifications" >> $makescript
 echo "touch \$DEST/opt/openHABian-install-inprogress" >> $makescript
 echo "cp ./openhabianpine64.rc.local \$DEST/etc/rc.local" >> $makescript
 echo "cp ./openhabianpine64.first-boot.sh \$BOOT/first-boot.sh" >> $makescript
+#echo "cp ./openhabian.conf \$BOOT/openhabian.conf" >> $makescript
 echo "echo \"openHABian preparations finished, /etc/rc.local in place\"" >> $makescript
 
 echo "$(timestamp) [openHABian] Executing \"build-pine64-image\" build script... "
