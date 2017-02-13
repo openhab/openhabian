@@ -8,17 +8,11 @@ FLAG="/opt/afterfirstboot.lock"
 
 # Only executed after first boot
 if [ ! -f $FLAG ]; then
-  echo "[openHABian] Testing network connectivity ..."
-  sleep 60
-  if ! ping -c 1 8.8.8.8 > /dev/null; then
-    echo "[openHABian] Network unreachable, can't continue. Please reboot and let me try again."
-    exit 0
-  fi
-  echo "[openHABian] Network reachable, continuing with 'first-boot.sh' script."
+  echo "[openHABian] Flag file 'afterfirstboot.lock' not found, continuing with 'first-boot.sh' script."
   (/bin/bash /boot/first-boot.sh)
   if [ $? -eq 0 ]; then
     echo "[openHABian] Finishing up... "
-    echo "[openHABian] This file was created after the first boot script was executed (see /etc/rc.local). Do not delete." > "$FLAG"
+    echo "[openHABian] Created after first boot script succeeded (see /etc/rc.local). Do not delete." > "$FLAG"
   else
     echo "Script 'first-boot.sh' failed."
   fi
