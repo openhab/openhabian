@@ -1014,8 +1014,8 @@ system_check_default_password() {
     PASSWORD="raspberry"
   elif is_pine64; then
     # Check for Ubuntu defaults (not openhabian.conf)
-    USERNAME="ubuntu"
-    PASSWORD="ubuntu"
+    USERNAME="openhabian"
+    PASSWORD="openhabian"
   else
     echo "SKIPPED (method not implemented)"
     return 0
