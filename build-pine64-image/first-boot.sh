@@ -43,8 +43,7 @@ cp /opt/openhabian/build-pine64-image/openhabian.pine64.conf /etc/openhabian.con
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 echo "$(timestamp) [openHABian] === Executing 'openhabian-setup.sh' ==="
-(/bin/bash /opt/openhabian/openhabian-setup.sh unattended)
-if [ $? -eq 0 ]; then
+if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
