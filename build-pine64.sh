@@ -40,9 +40,10 @@ cp build-pine64-image/first-boot.sh $buildfolder/simpleimage/openhabianpine64.fi
 source build-pine64-image/openhabian.pine64.conf
 
 echo "$(timestamp) [openHABian] Hacking \"build-pine64-image\" build and make script... "
-sed -i "s/date +%Y%m%H/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh # Fix https://github.com/longsleep/build-pine64-image/pull/47
+#sed -i "s/date +%Y%m%H/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh # Fix https://github.com/longsleep/build-pine64-image/pull/47 - Fixed!
+sed -i "s/date +%Y%m%d_%H%M%S_%Z/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh
 makescript=$buildfolder/simpleimage/make_rootfs.sh
-sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/" $makescript # Fix https://github.com/longsleep/build-pine64-image/pull/46
+#sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/" $makescript # Fix https://github.com/longsleep/build-pine64-image/pull/46 - Fixed!
 sed -i "s/^pine64$/openHABianPine64/" $makescript
 sed -i "s/127.0.1.1 pine64/127.0.1.1 openHABianPine64/" $makescript
 sed -i "s/DEBUSER=ubuntu/DEBUSER=$username/" $makescript
