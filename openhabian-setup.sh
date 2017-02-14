@@ -38,8 +38,11 @@ COL_DGRAY=$ESC"90;01m"
 # Trap CTRL+C, CTRL+Z and quit singles
 trap '' SIGINT SIGQUIT SIGTSTP
 
+# Log with timestamp
+timestamp() { date +"%F_%T_%Z"; }
+
 # Make sure only root can run our script
-echo -n "[openHABian] Checking for root privileges... "
+echo -n "$(timestamp) [openHABian] Checking for root privileges... "
 if [[ $EUID -ne 0 ]]; then
   echo "This script must be run as root" 1>&2
   exit 1
@@ -59,20 +62,20 @@ fi
 
 # Load configuration
 if [ -f "$CONFIGFILE" ]; then
-  echo -n "[openHABian] Loading configuration file '$CONFIGFILE'... "
+  echo -n "$(timestamp) [openHABian] Loading configuration file '$CONFIGFILE'... "
 elif [ ! -f "$CONFIGFILE" ] && [ -f /boot/installer-config.txt ]; then
-  echo -n "[openHABian] Copying and loading configuration file '$CONFIGFILE'... "
+  echo -n "$(timestamp) [openHABian] Copying and loading configuration file '$CONFIGFILE'... "
   cp /boot/installer-config.txt $CONFIGFILE
 elif [ ! -f "$CONFIGFILE" ] && [ -n "$UNATTENDED" ]; then
-  echo "[openHABian] Error in unattended mode: Configuration file '$CONFIGFILE' not found... FAILED" 1>&2
+  echo "$(timestamp) [openHABian] Error in unattended mode: Configuration file '$CONFIGFILE' not found... FAILED" 1>&2
   exit 1
 else
-  echo -n "[openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup... "
+  echo -n "$(timestamp) [openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup... "
   question="Welcome to openHABian!\n\nPlease provide the name of your Linux user i.e. the account you normally log in with.\nTypical user names are 'pi' or 'ubuntu'."
   input=$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
   if ! id -u "$input" &>/dev/null ; then
     echo "FAILED"
-    echo "[openHABian] Error: The provided user name is not a valid system user. Please try again. Exiting ..." 1>&2
+    echo "$(timestamp) [openHABian] Error: The provided user name is not a valid system user. Please try again. Exiting ..." 1>&2
     exit 1
   fi
   cp $SCRIPTDIR/openhabian.conf.dist $CONFIGFILE
@@ -147,7 +150,7 @@ calc_wt_size() {
 }
 
 locale_timezone_settings() {
-  echo -n "[openHABian] Setting timezone (Europe/Berlin) and locale (en_US.UTF-8)... "
+  echo -n "$(timestamp) [openHABian] Setting timezone (Europe/Berlin) and locale (en_US.UTF-8)... "
   # source "$CONFIGFILE"
   cond_redirect timedatectl set-timezone $timezone
   cond_redirect /usr/sbin/locale-gen $locales
@@ -159,13 +162,13 @@ locale_timezone_settings() {
 
 #TODO: Remove, will be taken care of outside
 first_boot_script() {
-  echo -n "[openHABian] Activating first boot script... "
+  echo -n "$(timestamp) [openHABian] Activating first boot script... "
   cp $SCRIPTDIR/raspbian-ua-netinst/rc.local /etc/rc.local
   echo "OK"
 }
 
 memory_split() {
-  echo -n "[openHABian] Setting the GPU memory split down to 16MB for headless system... "
+  echo -n "$(timestamp) [openHABian] Setting the GPU memory split down to 16MB for headless system... "
   if grep -q "gpu_mem" /boot/config.txt; then
     sed -i 's/gpu_mem=.*/gpu_mem=16/g' /boot/config.txt
   else
@@ -178,7 +181,7 @@ memory_split() {
 }
 
 basic_packages() {
-  echo -n "[openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
+  echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
   if is_pi; then
     cond_redirect wget -O /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update
     cond_redirect chmod +x /usr/bin/rpi-update
@@ -194,7 +197,7 @@ needed_packages() {
   # Install samba - network sharing
   # Install bc + sysstat - needed for FireMotD
   # Install avahi-daemon - hostname based discovery on local networks
-  echo -n "[openHABian] Installing additional needed packages... "
+  echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   cond_redirect apt update
   if is_pi; then cond_redirect apt -y install raspi-config; fi
   cond_redirect apt -y install apt-transport-https samba bc sysstat avahi-daemon
@@ -202,7 +205,7 @@ needed_packages() {
 }
 
 bashrc_copy() {
-  echo -n "[openHABian] Adding slightly tuned bash config files to system... "
+  echo -n "$(timestamp) [openHABian] Adding slightly tuned bash config files to system... "
   cp $SCRIPTDIR/includes/bash.bashrc /etc/bash.bashrc
   cp $SCRIPTDIR/includes/bashrc-root /root/.bashrc
   cp $SCRIPTDIR/includes/bash_profile /home/$username/.bash_profile
@@ -211,13 +214,13 @@ bashrc_copy() {
 }
 
 vimrc_copy() {
-  echo -n "[openHABian] Adding slightly tuned vim config file to system... "
+  echo -n "$(timestamp) [openHABian] Adding slightly tuned vim config file to system... "
   cp $SCRIPTDIR/includes/vimrc /etc/vim/vimrc
   echo "OK"
 }
 
 java_webupd8() {
-  echo -n "[openHABian] Preparing and Installing Oracle Java 8 Web Upd8 repository... "
+  echo -n "$(timestamp) [openHABian] Preparing and Installing Oracle Java 8 Web Upd8 repository... "
   rm -f /etc/apt/sources.list.d/webupd8team-java.list
   echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
   echo "deb-src http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >> /etc/apt/sources.list.d/webupd8team-java.list
@@ -233,7 +236,7 @@ java_webupd8() {
 }
 
 java_zulu_embedded() {
-  echo -n "[openHABian] Installing Zulu Embedded OpenJDK ARM build (archive)... "
+  echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK ARM build (archive)... "
   cond_redirect dpkg --add-architecture armhf
   cond_redirect apt update
   cond_redirect apt -y install libc6:armhf libfontconfig1:armhf # https://github.com/openhab/openhabian/issues/93#issuecomment-279401481
@@ -254,13 +257,13 @@ java_zulu_embedded() {
 }
 
 # openhab2_user() {
-#   echo -n "[openHABian] Manually adding openhab user to system (for manual installation?)... "
+#   echo -n "$(timestamp) [openHABian] Manually adding openhab user to system (for manual installation?)... "
 #   adduser --system --no-create-home --group --disabled-login openhab &>/dev/null
 #   echo "OK"
 # }
 
 openhab2_addrepo() {
-  echo -n "[openHABian] Adding openHAB 2 repository to sources.list.d... "
+  echo -n "$(timestamp) [openHABian] Adding openHAB 2 repository to sources.list.d... "
   echo "deb http://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
   #echo "deb http://dl.bintray.com/openhab/apt-repo2 testing main" > /etc/apt/sources.list.d/openhab2.list
   #echo "deb http://dl.bintray.com/openhab/apt-repo2 unstable main" > /etc/apt/sources.list.d/openhab2.list
@@ -272,7 +275,7 @@ openhab2_addrepo() {
 }
 
 openhab2_install() {
-  echo -n "[openHABian] Installing openhab2... "
+  echo -n "$(timestamp) [openHABian] Installing openhab2... "
   cond_redirect apt -y install openhab2
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   cond_redirect adduser openhab dialout
@@ -280,14 +283,15 @@ openhab2_install() {
 }
 
 openhab2_service() {
-  echo -n "[openHABian] Activating openHAB... "
+  echo -n "$(timestamp) [openHABian] Activating openHAB... "
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  cond_redirect /bin/systemctl restart openhab2.service || true
 }
 
 vim_openhab_syntax() {
-  echo -n "[openHABian] Adding openHAB syntax to vim editor... "
+  echo -n "$(timestamp) [openHABian] Adding openHAB syntax to vim editor... "
   # these may go to "/usr/share/vim/vimfiles" ?
   mkdir -p /home/$username/.vim/{ftdetect,syntax}
   cond_redirect wget -O /home/$username/.vim/syntax/openhab.vim https://raw.githubusercontent.com/cyberkov/openhab-vim/master/syntax/openhab.vim
@@ -298,14 +302,14 @@ vim_openhab_syntax() {
 
 nano_openhab_syntax() {
   # add nano syntax highlighting
-  echo -n "[openHABian] Adding openHAB syntax to nano editor... "
+  echo -n "$(timestamp) [openHABian] Adding openHAB syntax to nano editor... "
   cond_redirect wget -O /usr/share/nano/openhab.nanorc https://raw.githubusercontent.com/airix1/openhabnano/master/openhab.nanorc
   echo -e "\n## openHAB files\ninclude \"/usr/share/nano/openhab.nanorc\"" >> /etc/nanorc
   echo "OK"
 }
 
 samba_setup() {
-  echo -n "[openHABian] Setting up Samba... "
+  echo -n "$(timestamp) [openHABian] Setting up Samba... "
   cp $SCRIPTDIR/includes/smb.conf /etc/samba/smb.conf
   ( (echo "habopen"; echo "habopen") | /usr/bin/smbpasswd -s -a openhab > /dev/null )
   ( (echo "raspberry"; echo "raspberry") | /usr/bin/smbpasswd -s -a $username > /dev/null )
@@ -317,7 +321,7 @@ samba_setup() {
 }
 
 firemotd() {
-  echo -n "[openHABian] Downloading and setting up FireMotD... "
+  echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
   rm -rf /opt/FireMotD
   cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
   if [ $? -eq 0 ]; then
@@ -336,7 +340,7 @@ firemotd() {
 }
 
 etckeeper() {
-  echo -n "[openHABian] Installing etckeeper (git based /etc backup)... "
+  echo -n "$(timestamp) [openHABian] Installing etckeeper (git based /etc backup)... "
   apt -y install etckeeper &>/dev/null
   if [ $? -eq 0 ]; then
     cond_redirect sed -i 's/VCS="bzr"/\#VCS="bzr"/g' /etc/etckeeper/etckeeper.conf
@@ -349,7 +353,7 @@ etckeeper() {
 }
 
 misc_system_settings() {
-  echo -n "[openHABian] Applying multiple useful system settings (permissions, ...)... "
+  echo -n "$(timestamp) [openHABian] Applying multiple useful system settings (permissions, ...)... "
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
   cond_redirect adduser $username openhab
@@ -362,7 +366,7 @@ misc_system_settings() {
 }
 
 pine64_platform_scripts() {
-  echo -n "[openHABian] Executing pine64 platform scripts (longsleep)... "
+  echo -n "$(timestamp) [openHABian] Executing pine64 platform scripts (longsleep)... "
 #  if [ -f "/usr/local/sbin/pine64_update_kernel.sh" ]; then
 #    cond_redirect /usr/local/sbin/pine64_update_kernel.sh || echo -n "FAILED "
 #    cond_redirect /usr/local/sbin/pine64_update_uboot.sh || echo -n "FAILED "
@@ -383,7 +387,7 @@ openhab_shell_interfaces() {
 \n'ssh://openhab:<password>@<openhabian-IP> -p 8101'\n
 Please be aware, that the first connection attempt may take a few minutes or may result in a timeout."
 
-  echo -n "[openHABian] Binding the Karaf console on all interfaces... "
+  echo -n "$(timestamp) [openHABian] Binding the Karaf console on all interfaces... "
   if [ -n "$INTERACTIVE" ]; then
     sshPassword=$(whiptail --title "Bind Karaf Console, Password?" --inputbox "$introtext" 20 60 3>&1 1>&2 2>&3)
     exitstatus=$?
@@ -414,7 +418,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   sudo rpi-update
   sudo reboot"
 
-  echo -n "[openHABian] Configuring serial console for serial port peripherals... "
+  echo -n "$(timestamp) [openHABian] Configuring serial console for serial port peripherals... "
   if ! is_pi ; then
     if [ -n "$INTERACTIVE" ]; then
       whiptail --title "Incompatible Hardware Detected" --msgbox "Serial Port Setup: This option is for the Raspberry Pi only." 10 60
@@ -475,7 +479,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 }
 
 wifi_setup_rpi3() {
-  echo -n "[openHABian] Setting up RPi 3 Wifi... "
+  echo -n "$(timestamp) [openHABian] Setting up RPi 3 Wifi... "
   if ! is_pithree ; then
     if [ -n "$INTERACTIVE" ]; then
       whiptail --title "Incompatible Hardware Detected" --msgbox "Wifi setup: This option is for a Raspberry Pi 3 system only." 10 60
@@ -632,7 +636,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
-  echo -n "[openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
+  echo -n "$(timestamp) [openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
   cond_redirect wget -O - http://homegear.eu/packages/Release.key | apt-key add -
   echo "deb https://homegear.eu/packages/Raspbian/ jessie/" > /etc/apt/sources.list.d/homegear.list
   cond_redirect apt update
@@ -666,7 +670,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
-  echo -n "[openHABian] Setting up the MQTT broker software Mosquitto... "
+  echo -n "$(timestamp) [openHABian] Setting up the MQTT broker software Mosquitto... "
   cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
   echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
   cond_redirect apt update
@@ -700,7 +704,7 @@ Integration into openHAB 2 is described here: https://github.com/openhab/openhab
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
-  echo -n "[openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
+  echo -n "$(timestamp) [openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
   echo -n "(http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd)... "
   #TODO serve file from the repository
   cond_redirect wget -O /tmp/install_knxd_systemd.sh http://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh || FAILED=1
@@ -736,7 +740,7 @@ and activate one of these most common options (depending on your device):
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
-  echo -n "[openHABian] Installing owserver (1wire)... "
+  echo -n "$(timestamp) [openHABian] Installing owserver (1wire)... "
   cond_redirect apt -y install owserver ow-shell usbutils || FAILED=1
   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
@@ -760,7 +764,7 @@ influxdb_grafana_setup() {
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
-  echo -n "[openHABian] Setting up InfluxDB and Grafana... "
+  echo -n "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
 
   if is_pione; then
     GRAFANA_REPO_PI1="-rpi-1b"
@@ -979,7 +983,7 @@ openhabian_update() {
     cond_echo ""
     git -C $SCRIPTDIR remote set-url origin https://github.com/openhab/openhabian.git
   fi
-  echo -n "[openHABian] Updating myself... "
+  echo -n "$(timestamp) [openHABian] Updating myself... "
   shorthash_before=$(git -C $SCRIPTDIR log --pretty=format:'%h' -n 1)
   git -C $SCRIPTDIR fetch --quiet origin || FAILED=1
   git -C $SCRIPTDIR reset --quiet --hard origin/master || FAILED=1
@@ -1011,7 +1015,7 @@ system_check_default_password() {
   introtext="The default password was detected on your system! That's a serious security concern. Others or malicious programs in your subnet are able to gain root access!
   \nPlease set a strong password by typing the command 'passwd' in the console."
 
-  echo -n "[openHABian] Checking for default Raspbian user:passwd combination... "
+  echo -n "$(timestamp) [openHABian] Checking for default Raspbian user:passwd combination... "
   if is_pi; then
     # Check for Raspbian defaults (not openhabian.conf)
     USERNAME="pi"
@@ -1085,17 +1089,17 @@ change_admin_password() {
   do
     echo "$i"
     if [ "$i" == "Linux account" ]; then
-      echo -n "[openHABian] Changing password for linux account $username... "
+      echo -n "$(timestamp) [openHABian] Changing password for linux account $username... "
       cond_redirect echo "$username:$passwordChange" | chpasswd
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
     if [ "$i" == "Openhab2" ]; then
-      echo -n "[openHABian] Changing password for samba (fileshare) account $username... "
+      echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account $username... "
       (echo "$passwordChange"; echo "$passwordChange") | /usr/bin/smbpasswd -s -a $username
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
     if [ "$i" == "Samba" ]; then
-      echo -n "[openHABian] Changing password for karaf console account $username... "
+      echo -n "$(timestamp) [openHABian] Changing password for karaf console account $username... "
       cond_redirect sed -i "s/$username = .*,/$username = $passwordChange,/g" /var/lib/openhab2/etc/users.properties
       cond_redirect service openhab2 stop
       cond_redirect service openhab2 start
@@ -1113,7 +1117,7 @@ change_admin_password() {
 }
 
 system_upgrade() {
-  echo -n "[openHABian] Updating repositories and upgrading installed packages... "
+  echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
   cond_redirect apt update
   cond_redirect apt --yes upgrade
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -1244,7 +1248,7 @@ else
     true
   done
   system_check_default_password
-  echo -e "\n[openHABian] We hope you got what you came for! See you again soon ;)"
+  echo -e "\n$(timestamp) [openHABian] We hope you got what you came for! See you again soon ;)"
 fi
 
 # vim: filetype=sh
