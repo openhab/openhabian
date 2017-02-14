@@ -30,7 +30,7 @@ apt --yes upgrade &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
-/usr/bin/apt-get -y install git &>/dev/null
+/usr/bin/apt -y install git &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 echo -n "$(timestamp) [openHABian] Cloning myself... "
@@ -44,6 +44,7 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 echo "$(timestamp) [openHABian] === Executing 'openhabian-setup.sh' ==="
 if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended); then
+  systemctl start openhab2.service
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
