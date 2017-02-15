@@ -1238,7 +1238,7 @@ if [[ -n "$UNATTENDED" ]]; then
   bashrc_copy
   vimrc_copy
   firemotd
-  java_zulu_embedded
+  #java_zulu_embedded
   openhab2_full_setup
   samba_setup
   etckeeper
