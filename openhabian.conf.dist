@@ -7,7 +7,7 @@ userpw=password
 # Do not change these lines
 username=user
 
-# Language and time
+# Language and time. Be sure to set these to valid values
 timeserver=0.pool.ntp.org
 timezone=Europe/Berlin
 locales="en_US.UTF-8 de_DE.UTF-8"

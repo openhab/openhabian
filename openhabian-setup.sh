@@ -484,9 +484,9 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   echo "OK (Reboot needed)"
 }
 
-wifi_setup_rpi3() {
-  echo -n "$(timestamp) [openHABian] Setting up RPi 3 Wifi... "
-  if ! is_pithree ; then
+wifi_setup() {
+  echo -n "$(timestamp) [openHABian] Setting up Wifi (PRi3 or Pine A64)... "
+  if ! is_pithree && ! is_pine64; then
     if [ -n "$INTERACTIVE" ]; then
       whiptail --title "Incompatible Hardware Detected" --msgbox "Wifi setup: This option is for a Raspberry Pi 3 system only." 10 60
     fi
@@ -502,7 +502,8 @@ wifi_setup_rpi3() {
     SSID="myWifiSSID"
     PASS="myWifiPassword"
   fi
-  cond_redirect apt -y install firmware-brcm80211 wpasupplicant wireless-tools
+  if is_pithree; then cond_redirect apt -y install firmware-brcm80211; fi
+  cond_redirect apt -y install wpasupplicant wireless-tools
   echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\nnetwork={\n  ssid=\"$SSID\"\n  psk=\"$PASS\"\n}" > /etc/wpa_supplicant/wpa_supplicant.conf
   if grep -q "wlan0" /etc/network/interfaces; then
     cond_echo ""
@@ -1198,7 +1199,7 @@ show_main_menu() {
   "23 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
   "24 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
   "30 | Serial Port"            "Enable the RPi serial port for peripherals like Razberry, SCC, ..." \
-  "31 | RPi3 Wifi"              "Configure build-in Raspberry Pi 3 Wifi" \
+  "31 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 Wifi" \
   "32 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
   3>&1 1>&2 2>&3)
   RET=$?
@@ -1222,7 +1223,7 @@ show_main_menu() {
       23\ *) 1wire_setup ;;
       24\ *) influxdb_grafana_setup ;;
       30\ *) prepare_serial_port ;;
-      31\ *) wifi_setup_rpi3 ;;
+      31\ *) wifi_setup ;;
       32\ *) move_root2usb ;;
       40\ *) change_admin_password ;;
       *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
