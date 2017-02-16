@@ -132,6 +132,12 @@ is_pine64() {
   [[ $(uname -r) =~ "pine64-longsleep" ]]
   return $?
 }
+is_arm() {
+  case "$(uname -m)" in
+    armv6l|armv7l|armhf|arm64|aarch64) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 
 calc_wt_size() {
   # NOTE: it's tempting to redirect stderr to /dev/null, so supress error
