@@ -124,7 +124,7 @@ is_pithree() {
   return $?
 }
 is_pi() {
-  if [ "$hostname" == "openHABianPi" ]; then return 0; fi
+  if [ "$hostname" == "openHABianPi" ]; then return 0; fi # needed for raspbian-ua-netinst
   if is_pizero || is_pione || is_pitwo || is_pithree; then return 0; fi
   return 1
 }
@@ -242,6 +242,19 @@ java_webupd8() {
 }
 
 java_zulu_embedded() {
+  echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK... "
+  if is_arm; then _arch="[arch=armhf]"; fi
+  echo "deb $_arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-embedded.list
+  cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
+  if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
+  if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
+  cond_redirect apt update
+  cond_redirect apt -y install zulu-embedded-8
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+}
+
+# Unused
+java_zulu_embedded_archive() {
   echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK ARM build (archive)... "
   cond_redirect dpkg --add-architecture armhf
   cond_redirect apt update
@@ -1245,7 +1258,7 @@ if [[ -n "$UNATTENDED" ]]; then
   bashrc_copy
   vimrc_copy
   firemotd
-  #java_zulu_embedded
+  java_zulu_embedded
   openhab2_full_setup
   samba_setup
   etckeeper
