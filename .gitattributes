@@ -1,0 +1,11 @@
+# Autodetect text files
+* text=auto
+
+# Definitively text files
+*.txt text
+*.md text
+*.sh text
+*.conf text
+
+# Binary files
+*.jpg binary
