@@ -138,21 +138,17 @@ is_arm() {
     *) return 1 ;;
   esac
 }
-
-calc_wt_size() {
-  # NOTE: it's tempting to redirect stderr to /dev/null, so supress error
-  # output from tput. However in this case, tput detects neither stdout or
-  # stderr is a tty and so only gives default 80, 24 values
-  WT_HEIGHT=24
-  WT_WIDTH=$(tput cols)
-
-  if [ -z "$WT_WIDTH" ] || [ "$WT_WIDTH" -lt 60 ]; then
-    WT_WIDTH=80
-  fi
-  if [ "$WT_WIDTH" -gt 178 ]; then
-    WT_WIDTH=120
-  fi
-  WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
+is_ubuntu() {
+  [[ $(lsb_release -d) =~ "Ubuntu" ]]
+  return $?
+}
+is_debian() {
+  [[ $(lsb_release -d) =~ "Debian" ]]
+  return $?
+}
+is_jessie() {
+  [[ $(lsb_release -c) =~ "jessie" ]]
+  return $?
 }
 
 locale_timezone_settings() {
@@ -381,6 +377,7 @@ misc_system_settings() {
   cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' $(realpath /usr/bin/java)
   cond_redirect chown -R openhab:$username /opt /etc/openhab2
   cond_redirect chmod -R g+w /opt /etc/openhab2
+  if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
   echo "OK"
 }
 
@@ -652,6 +649,13 @@ Please read up on the homegear documentation for more details: https://doc.homeg
 To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/homematic/readme.html
 "
 
+  if is_pine64; then
+    if [ -n "$INTERACTIVE" ]; then
+      whiptail --title "Incompatible Hardware Detected" --msgbox "We are sorry, Homegear is not yet available for your platform." 10 60
+    fi
+    echo "FAILED (incompatible)"; return 1
+  fi
+
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
@@ -691,8 +695,10 @@ To continue your integration in openHAB 2, please follow the instructions under:
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up the MQTT broker software Mosquitto... "
-  cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
-  echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
+  if is_jessie; then
+    cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
+    echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
+  fi
   cond_redirect apt update
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect apt -y install mosquitto mosquitto-clients
@@ -784,28 +790,14 @@ influxdb_grafana_setup() {
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
-
-  if is_pione; then
-    GRAFANA_REPO_PI1="-rpi-1b"
-  else
-    GRAFANA_REPO_PI1=""
-  fi
-
   cond_redirect apt -y install apt-transport-https
-
+  echo -n "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
   cond_echo ""
   echo -n "InfluxDB... "
   cond_redirect wget -O - https://repos.influxdata.com/influxdb.key | apt-key add - || FAILED=1
   echo "deb https://repos.influxdata.com/debian jessie stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
   cond_redirect apt update || FAILED=1
   cond_redirect apt -y install influxdb || FAILED=1
-  # manual setup
-  #cond_redirect wget -O /tmp/download.tar.gz https://dl.influxdata.com/influxdb/releases/influxdb-1.0.0_linux_armhf.tar.gz || FAILED=1
-  #cond_redirect tar xvzf /tmp/download.tar.gz -C / --strip 2 || FAILED=1
-  #cond_redirect cp /usr/lib/influxdb/scripts/influxdb.service /lib/systemd/system/influxdb.service || FAILED=1
-  #cond_redirect adduser --system --no-create-home --group --disabled-login influxdb || FAILED=1
-  #cond_redirect chown -R influxdb:influxdb /var/lib/influxdb || FAILED=1
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable influxdb.service
   cond_redirect systemctl start influxdb.service
@@ -813,8 +805,11 @@ influxdb_grafana_setup() {
   cond_echo ""
 
   echo -n "Grafana (fg2it)... "
-  echo "deb https://dl.bintray.com/fg2it/deb${GRAFANA_REPO_PI1} jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
-  cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61 || FAILED=2
+  if is_jessie; then
+    if is_pione; then GRAFANA_REPO_PI1="-rpi-1b"; fi
+    echo "deb https://dl.bintray.com/fg2it/deb${GRAFANA_REPO_PI1} jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
+    cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61 || FAILED=2
+  fi
   cond_redirect apt update || FAILED=2
   cond_redirect apt -y install grafana || FAILED=2
   cond_redirect systemctl daemon-reload
@@ -1193,15 +1188,17 @@ openhab2_full_setup() {
 }
 
 show_main_menu() {
-  calc_wt_size
+  WT_HEIGHT=24
+  WT_WIDTH=120
+  WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
 
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"       "Get information about the openHABian project an this tool" \
   "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
   "10 | Basic Setup"            "Perform basic setup steps (packages, bash, permissions, ...)" \
-  "11a| Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8 (ARMv7 only)" \
-  "11b| Oracle Java 8"          "Install Oracle Java 8 provided by WebUpd8Team (i386+ARM)" \
+  "11a| Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
+  "11b| Oracle Java 8"          "Install Oracle Java 8 provided by WebUpd8Team" \
   "12 | openHAB 2"              "Install openHAB 2.0 (stable)" \
   "13 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
   "14 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
