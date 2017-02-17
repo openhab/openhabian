@@ -152,13 +152,17 @@ is_jessie() {
 }
 
 locale_timezone_settings() {
-  echo -n "$(timestamp) [openHABian] Setting timezone (Europe/Berlin) and locale (en_US.UTF-8)... "
+  echo -n "$(timestamp) [openHABian] Setting timezone (e.g. Europe/Berlin) and locale (e.g. en_US.UTF-8)... "
   # source "$CONFIGFILE"
+  # TODO: Compare variables against supported list
   cond_redirect timedatectl set-timezone $timezone
   cond_redirect /usr/sbin/locale-gen $locales
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  LC_CTYPE=$system_default_locale
+  LC_ALL=$system_default_locale
   LANG=$system_default_locale
-  cond_redirect /usr/sbin/update-locale LANG=$system_default_locale
+  LANGUAGE=$system_default_locale
+  cond_redirect /usr/sbin/update-locale LC_CTYPE=$system_default_locale LC_ALL=$system_default_locale LANG=$system_default_locale LANGUAGE=$system_default_locale
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
