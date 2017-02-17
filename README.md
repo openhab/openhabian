@@ -1,7 +1,6 @@
 # openHABian - Hassle-free openHAB Setup
 
-The Raspberry Pi and other small single-board computers are quite famous platforms for openHAB.
-However, setting up a fully working Linux system with all recommended packages and openHAB recommendations is a **boring task** taking quite some time and **Linux newcomers** shouldn't worry about these technical details.
+Setting up a fully working Linux system with all needed packages and openHAB recommendations is a **boring task** taking quite some time and **Linux newcomers** shouldn't worry about these technical details.
 
 ***A home automation enthusiast doesn't have to be a Linux enthusiast!***
 
