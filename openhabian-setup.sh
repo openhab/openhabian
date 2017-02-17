@@ -162,13 +162,6 @@ locale_timezone_settings() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-#TODO: Remove, will be taken care of outside
-first_boot_script() {
-  echo -n "$(timestamp) [openHABian] Activating first boot script... "
-  cp $SCRIPTDIR/raspbian-ua-netinst/rc.local /etc/rc.local
-  echo "OK"
-}
-
 memory_split() {
   echo -n "$(timestamp) [openHABian] Setting the GPU memory split down to 16MB for headless system... "
   if grep -q "gpu_mem" /boot/config.txt; then
@@ -1248,7 +1241,6 @@ show_main_menu() {
 if [[ -n "$UNATTENDED" ]]; then
   #unattended installation (from within raspbian-ua-netinst chroot)
   locale_timezone_settings
-  if is_pi; then first_boot_script; fi # TODO: Remove after new RPi image includes this
   if is_pi; then memory_split; fi
   basic_packages
   needed_packages
