@@ -9,7 +9,7 @@ openHABian aims to provide a **self-configuring** Linux system setup specific to
 The project provides two things:
 
 * A set of scripts to set up openHAB on any Debian/Ubuntu based system
-* Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations, namely for the Raspberry Pi.
+* Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations, for the Raspberry Pi and the Pine A64.
 
 ## Installation and Setup
 
@@ -21,11 +21,11 @@ Enjoy openHABian and the wondrous world of openHAB!!
 
 ## Development
 
-For image building, please see `openhabian-build.sh`.
+For image building, please see the `build-....sh` scripts to get an idea of the process.
 
-The project utilizes [raspbian-ua-netinst](https://github.com/debian-pi/raspbian-ua-netinst) for the Raspberry Pi build process.
-Most technical details can be taken from there.
+The RPi image is based on the [raspbian-ua-netinst](https://github.com/debian-pi/raspbian-ua-netinst) project,
+the Pine64 image is based on [build-pine64-image](https://github.com/longsleep/build-pine64-image).
 
-If you found a bug or want to propose a feature, please check open Issues and Pull Requests and read the [CONTRIBUTING](CONTRIBUTING.md) guideline.
+If you find a bug or want to propose a feature, please check open Issues and Pull Requests and read the [CONTRIBUTING](CONTRIBUTING.md) guideline.
 
 Happy Hacking!

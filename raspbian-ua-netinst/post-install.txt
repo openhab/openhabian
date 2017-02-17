@@ -1,30 +1,36 @@
 #!/bin/sh
 
-# file to inform user of a problem. will be deleted at the end of this script
-touch /rootfs/opt/openHABian-install-failed
+# Log everything to file
+exec &> >(tee -a "/var/log/first-boot.log")
 
-echo -n "[openHABian] Installing git package... "
+timestamp() { date +"%F_%T_%Z"; }
+
+echo "$(timestamp) [openHABian] Booting for the first time!"
+rm -f /rootfs/opt/openHABian-install-failed
+touch /rootfs/opt/openHABian-install-inprogress
+
+echo -n "$(timestamp) [openHABian] Installing git package... "
 chroot /rootfs /usr/bin/apt-get -y install git &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-echo -n "[openHABian] Cloning myself... "
+echo -n "$(timestamp) [openHABian] Cloning myself... "
 chroot /rootfs /usr/bin/git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 ln -s /opt/openhabian/openhabian-setup.sh /rootfs/usr/local/bin/openhabian-config
 
-echo -n "[openHABian] Copying configuration and first boot script... "
+echo -n "$(timestamp) [openHABian] Copying configuration and first boot script... "
 cp /rootfs/boot/installer-config.txt /rootfs/etc/openhabian.conf
 cp /rootfs/opt/openhabian/raspbian-ua-netinst/rc.local /rootfs/etc/rc.local
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-echo "[openHABian] === Executing 'openhabian-setup.sh' ==="
+echo "$(timestamp) [openHABian] === Executing 'openhabian-setup.sh' ==="
 chroot /rootfs /bin/bash /opt/openhabian/openhabian-setup.sh unattended
 if [ $? -eq 0 ]; then
-  rm /rootfs/opt/openHABian-install-failed
+  rm -f /rootfs/opt/openHABian-install-inprogress
   touch /rootfs/opt/openHABian-install-successful
 else
   touch /rootfs/opt/openHABian-install-failed
 fi
-echo "[openHABian] === Finished executing 'openhabian-setup.sh' ==="
+echo "$(timestamp) [openHABian] === Finished executing 'openhabian-setup.sh' ==="
 
 # vim: filetype=sh
