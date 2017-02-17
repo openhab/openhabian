@@ -103,6 +103,14 @@ Signed-off-by: Joe Smith <joe.smith@email.com> (github: github_handle)
 
 using your real name (sorry, no pseudonyms or anonymous contributions.)
 
+If your commit contains code from others as well, please ensure that they certify the DCO as well and add them with an "Also-By" line to your commit message:
+
+```text
+Also-by: Ted Nerd <ted.nerd@email.com> (github: github_handle_ted)
+Also-by: Sue Walker <sue.walker@email.com> (github: github_handle_sue)
+Signed-off-by: Joe Smith <joe.smith@email.com> (github: github_handle_joe)
+```
+
 #### Small Patch Exception
 
 There are several exceptions to the sign-off requirement.
