@@ -34,7 +34,7 @@ echo -n "$(timestamp) [openHABian] Installing git package... "
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 echo -n "$(timestamp) [openHABian] Cloning myself... "
-/usr/bin/git clone -b pine64-build https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
+/usr/bin/git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
