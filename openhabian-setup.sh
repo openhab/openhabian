@@ -324,7 +324,6 @@ samba_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Samba... "
   cp $SCRIPTDIR/includes/smb.conf /etc/samba/smb.conf
   ( (echo "habopen"; echo "habopen") | /usr/bin/smbpasswd -s -a openhab > /dev/null )
-  ( (echo "raspberry"; echo "raspberry") | /usr/bin/smbpasswd -s -a $username > /dev/null )
   cond_redirect chown -R openhab:$username /opt /etc/openhab2
   cond_redirect chmod -R g+w /opt /etc/openhab2
   cond_redirect /bin/systemctl enable smbd.service
@@ -1019,21 +1018,16 @@ openhabian_update() {
     echo "You need to restart the tool. Exiting now... "
     exit 0
   fi
-  git -C $SCRIPTDIR config user.email 'openhabian@openHABianPi'
+  git -C $SCRIPTDIR config user.email 'openhabian@openHABian'
   git -C $SCRIPTDIR config user.name 'openhabian'
 }
 
 system_check_default_password() {
   introtext="The default password was detected on your system! That's a serious security concern. Others or malicious programs in your subnet are able to gain root access!
-  \nPlease set a strong password by typing the command 'passwd' in the console."
+  \nPlease set a strong password by typing the command 'passwd'."
 
-  echo -n "$(timestamp) [openHABian] Checking for default Raspbian user:passwd combination... "
-  if is_pi; then
-    # Check for Raspbian defaults (not openhabian.conf)
-    USERNAME="pi"
-    PASSWORD="raspberry"
-  elif is_pine64; then
-    # Check for Ubuntu defaults (not openhabian.conf)
+  echo -n "$(timestamp) [openHABian] Checking for default openHABian username:password combination... "
+  if is_pi || is_pine64; then
     USERNAME="openhabian"
     PASSWORD="openhabian"
   else
