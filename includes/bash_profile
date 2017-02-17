@@ -1,6 +1,6 @@
 # ~/.bash_profile: executed by bash(1) for interactive shells.
 
-if [ -f "/home/pi/openHABian-install-failed" ]; then
+if [ -f "/home/pi/openHABian-install-failed" ] || [ -f "/opt/openHABian-install-failed" ]; then  #TODO: Remove 'pi' after 2017-05
   echo ""
   echo -e -n "\e[31;01mAttention!\e[39;49;00m "
   echo "The openHABian setup process seems to have failed on your system."
