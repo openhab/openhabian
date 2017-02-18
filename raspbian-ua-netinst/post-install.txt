@@ -1,8 +1,5 @@
 #!/bin/sh
 
-# Log everything to file
-exec &> >(tee -a "/var/log/first-boot.log")
-
 timestamp() { date +"%F_%T_%Z"; }
 
 echo "$(timestamp) [openHABian] Booting for the first time!"
