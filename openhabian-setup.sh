@@ -44,7 +44,8 @@ timestamp() { date +"%F_%T_%Z"; }
 # Make sure only root can run our script
 echo -n "$(timestamp) [openHABian] Checking for root privileges... "
 if [[ $EUID -ne 0 ]]; then
-  echo "This script must be run as root" 1>&2
+  echo "This script must be run as root. Did you mean 'sudo openhabian-config'?" 1>&2
+  echo "More info: http://docs.openhab.org/installation/openhabian.html"
   exit 1
 else
   echo "OK"
@@ -1011,7 +1012,7 @@ openhabian_update() {
   else
     echo "OK - Commit history (oldest to newest):"
     echo -e "\n"
-    git -C $SCRIPTDIR log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --reverse --abbrev-commit --stat $shorthash_before..$shorthash_after
+    git -C $SCRIPTDIR log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --stat $shorthash_before..$shorthash_after
     echo -e "\n"
     echo "openHABian configuration tool successfully updated."
     echo "Visit the development repository for more details: $REPOSITORYURL"
@@ -1027,7 +1028,10 @@ system_check_default_password() {
   \nPlease set a strong password by typing the command 'passwd'."
 
   echo -n "$(timestamp) [openHABian] Checking for default openHABian username:password combination... "
-  if is_pi || is_pine64; then
+  if is_pi && id -u pi &>/dev/null; then
+    USERNAME="pi"
+    PASSWORD="raspberry"
+  elif is_pi || is_pine64; then
     USERNAME="openhabian"
     PASSWORD="openhabian"
   else
@@ -1179,7 +1183,7 @@ openhab2_full_setup() {
 }
 
 show_main_menu() {
-  WT_HEIGHT=24
+  WT_HEIGHT=25
   WT_WIDTH=120
   WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
 
@@ -1231,8 +1235,8 @@ show_main_menu() {
     esac || whiptail --msgbox "There was an error running option:\n\n  \"$choice\"" 10 60
     return 0
   else
-    echo "Bye Bye! :)"
-    exit 1
+    echo "If you wish so. Bye Bye! :)"
+    return 1
   fi
 }
 
