@@ -194,13 +194,12 @@ basic_packages() {
 needed_packages() {
   # Conditional: Install raspi-config - configuration tool for the Raspberry Pi + Raspbian
   # Install apt-transport-https - update packages through https repository
-  # Install samba - network sharing
   # Install bc + sysstat - needed for FireMotD
   # Install avahi-daemon - hostname based discovery on local networks
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   cond_redirect apt update
   if is_pi; then cond_redirect apt -y install raspi-config; fi
-  cond_redirect apt -y install apt-transport-https samba bc sysstat avahi-daemon
+  cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -322,10 +321,13 @@ nano_openhab_syntax() {
 }
 
 samba_setup() {
-  echo -n "$(timestamp) [openHABian] Setting up Samba... "
+  echo -n "$(timestamp) [openHABian] Setting up Samba for the default user... "
+  cond_redirect apt update
+  cond_redirect apt -y install samba
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   cp $SCRIPTDIR/includes/smb.conf /etc/samba/smb.conf
-  ( (echo "habopen"; echo "habopen") | /usr/bin/smbpasswd -s -a openhab > /dev/null )
-  cond_redirect chown -R openhab:$username /opt /etc/openhab2
+  ( (echo "$userpw"; echo "$userpw") | /usr/bin/smbpasswd -s -a $username > /dev/null )
+  cond_redirect chown -R $username:openhab /opt /etc/openhab2
   cond_redirect chmod -R g+w /opt /etc/openhab2
   cond_redirect /bin/systemctl enable smbd.service
   cond_redirect /bin/systemctl restart smbd.service
