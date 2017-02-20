@@ -1182,11 +1182,11 @@ openhab2_full_setup() {
 
 show_main_menu() {
   WT_HEIGHT=25
-  WT_WIDTH=120
+  WT_WIDTH=116
   WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
 
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
-  "00 | About openHABian"       "Get information about the openHABian project an this tool" \
+  "00 | About openHABian"       "Get information about the openHABian project and this tool" \
   "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
   "10 | Basic Setup"            "Perform basic setup steps (packages, bash, permissions, ...)" \
@@ -1201,8 +1201,8 @@ show_main_menu() {
   "22 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
   "23 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
   "24 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
-  "30 | Serial Port"            "Enable the RPi serial port for peripherals like Razberry, SCC, ..." \
-  "31 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 Wifi" \
+  "30 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
+  "31 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
   "32 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
   3>&1 1>&2 2>&3)
   RET=$?
