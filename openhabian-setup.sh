@@ -434,24 +434,18 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   sudo reboot"
 
   echo -n "$(timestamp) [openHABian] Configuring serial console for serial port peripherals... "
-  if ! is_pi ; then
-    if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Incompatible Hardware Detected" --msgbox "Serial Port Setup: This option is for the Raspberry Pi only." 10 60
-    fi
-    echo "FAILED"; return 1
-  fi
   if [ -n "$INTERACTIVE" ]; then
     selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
-    "1"  "Disable serial console                 (Razberry, SCC, Enocean)" ON \
-    "2"  "Disable the RPi3 Bluetooth module      (Razberry)" OFF \
+    "1"  "(RPi) Disable serial console           (Razberry, SCC, Enocean)" ON \
+    "2"  "(RPi3) Disable Bluetooth module        (Razberry)" OFF \
     "3"  "Add common serial ports to openHAB JVM (Razberry, Enocean)" ON \
     3>&1 1>&2 2>&3)
     if [ $? -ne 0 ]; then return 0; fi
   else
-    selection="1 3"
+    if is_pi; then selection="1 3"; else selection="3"; fi
   fi
 
-  if [[ $selection == *"1"* ]]; then
+  if [[ $selection == *"1"* ]] && is pi; then
     cond_echo ""
     cond_echo "Adding 'enable_uart=1' to /boot/config.txt"
     if grep -q "enable_uart" /boot/config.txt; then
@@ -475,13 +469,15 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
       fi
     fi
   else
-    cond_echo "Removing 'dtoverlay=pi3-miniuart-bt' from /boot/config.txt"
-    sed -i '/dtoverlay=pi3-miniuart-bt/d' /boot/config.txt
+    if is_pithree; then
+      cond_echo "Removing 'dtoverlay=pi3-miniuart-bt' from /boot/config.txt"
+      sed -i '/dtoverlay=pi3-miniuart-bt/d' /boot/config.txt
+    fi
   fi
 
   if [[ $selection == *"3"* ]]; then
     cond_echo "Adding serial ports to openHAB java virtual machine in /etc/default/openhab2"
-    sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyAMA0"#g' /etc/default/openhab2
+    sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyAMA0"#g' /etc/default/openhab2
   else
     cond_echo "Removing serial ports from openHAB java virtual machine in /etc/default/openhab2"
     sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS=""#g' /etc/default/openhab2
