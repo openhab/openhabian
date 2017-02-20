@@ -436,7 +436,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   echo -n "$(timestamp) [openHABian] Configuring serial console for serial port peripherals... "
   if [ -n "$INTERACTIVE" ]; then
     selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
-    "1"  "(RPi) Disable serial console           (Razberry, SCC, Enocean)" ON \
+    "1"  "(RPi) Disable serial console           (Razberry, SCC, Enocean)" OFF \
     "2"  "(RPi3) Disable Bluetooth module        (Razberry)" OFF \
     "3"  "Add common serial ports to openHAB JVM (Razberry, Enocean)" ON \
     3>&1 1>&2 2>&3)
@@ -477,7 +477,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 
   if [[ $selection == *"3"* ]]; then
     cond_echo "Adding serial ports to openHAB java virtual machine in /etc/default/openhab2"
-    sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyAMA0"#g' /etc/default/openhab2
+    sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"#g' /etc/default/openhab2
   else
     cond_echo "Removing serial ports from openHAB java virtual machine in /etc/default/openhab2"
     sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS=""#g' /etc/default/openhab2
