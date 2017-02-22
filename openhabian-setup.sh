@@ -152,6 +152,15 @@ is_jessie() {
   return $?
 }
 
+whiptail_check() {
+  if ! command -v whiptail &>/dev/null; then
+    echo -n "$(timestamp) [openHABian] Command 'whiptail' not found, installing... "
+    cond_redirect apt update
+    cond_redirect apt -y install whiptail
+    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  fi
+}
+
 locale_timezone_settings() {
   echo -n "$(timestamp) [openHABian] Setting timezone (e.g. Europe/Berlin) and locale (e.g. en_US.UTF-8)... "
   # source "$CONFIGFILE"
@@ -187,7 +196,7 @@ basic_packages() {
     cond_redirect chmod +x /usr/bin/rpi-update
   fi
   cond_redirect apt update
-  cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common man-db
+  cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common man-db whiptail
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -1253,6 +1262,7 @@ if [[ -n "$UNATTENDED" ]]; then
   etckeeper
   misc_system_settings
 else
+  whiptail_check
   while show_main_menu; do
     true
   done
