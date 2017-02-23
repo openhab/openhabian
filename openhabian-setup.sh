@@ -125,7 +125,9 @@ is_pithree() {
   return $?
 }
 is_pi() {
-  if [ "$hostname" == "openHABianPi" ]; then return 0; fi # needed for raspbian-ua-netinst
+  # needed for raspbian-ua-netinst chroot env
+  if [ "$hostname" == "openHABianPi" ] || [ "$boot_volume_label" == "openHABian" ]; then return 0; fi
+  # normal conditions
   if is_pizero || is_pione || is_pitwo || is_pithree; then return 0; fi
   return 1
 }
