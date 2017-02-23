@@ -125,7 +125,9 @@ is_pithree() {
   return $?
 }
 is_pi() {
-  if [ "$hostname" == "openHABianPi" ]; then return 0; fi # needed for raspbian-ua-netinst
+  # needed for raspbian-ua-netinst chroot env
+  if [ "$hostname" == "openHABianPi" ] || [ "$boot_volume_label" == "openHABian" ]; then return 0; fi
+  # normal conditions
   if is_pizero || is_pione || is_pitwo || is_pithree; then return 0; fi
   return 1
 }
@@ -150,6 +152,15 @@ is_debian() {
 is_jessie() {
   [[ $(lsb_release -c) =~ "jessie" ]]
   return $?
+}
+
+whiptail_check() {
+  if ! command -v whiptail &>/dev/null; then
+    echo -n "$(timestamp) [openHABian] Command 'whiptail' not found, installing... "
+    cond_redirect apt update
+    cond_redirect apt -y install whiptail
+    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  fi
 }
 
 locale_timezone_settings() {
@@ -187,7 +198,7 @@ basic_packages() {
     cond_redirect chmod +x /usr/bin/rpi-update
   fi
   cond_redirect apt update
-  cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common man-db
+  cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common man-db whiptail
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -1253,6 +1264,7 @@ if [[ -n "$UNATTENDED" ]]; then
   etckeeper
   misc_system_settings
 else
+  whiptail_check
   while show_main_menu; do
     true
   done
