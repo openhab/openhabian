@@ -440,20 +440,28 @@ On a Raspberry Pi 3 the Bluetooth module can additionally be disabled, ensuring 
 Finally, all common serial ports can be made accessible to the openHAB java virtual machine.
 \nPlease make your choice:"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="All done. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0. For stability reasons please update your Raspberry Pi firmware now and reboot afterwards.\n
+  successtext="All done. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0 (depends on your device).
+  \nThis might be a good point in time to update your Raspberry Pi firmware (if this is a RPi) and reboot:\n
   sudo rpi-update
   sudo reboot"
 
   echo -n "$(timestamp) [openHABian] Configuring serial console for serial port peripherals... "
+
+  # Find current settings
+  if is_pi && grep -q "enable_uart=1" /boot/config.txt; then sel_1="ON"; else sel_1="OFF"; fi
+  if is_pithree && grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then sel_2="ON"; else sel_2="OFF"; fi
+  if grep -q "/dev/ttyS0:/dev/ttyS2" /etc/default/openhab2; then sel_3="ON"; else sel_3="OFF"; fi
+
   if [ -n "$INTERACTIVE" ]; then
     selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
-    "1"  "(RPi) Disable serial console           (Razberry, SCC, Enocean)" OFF \
-    "2"  "(RPi3) Disable Bluetooth module        (Razberry)" OFF \
-    "3"  "Add common serial ports to openHAB JVM (Razberry, Enocean)" ON \
+    "1"  "(RPi) Disable serial console           (Razberry, SCC, Enocean)" $sel_1 \
+    "2"  "(RPi3) Disable Bluetooth module        (Razberry)" $sel_2 \
+    "3"  "Add common serial ports to openHAB JVM (Razberry, Enocean)" $sel_3 \
     3>&1 1>&2 2>&3)
-    if [ $? -ne 0 ]; then return 0; fi
+    if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
   else
-    if is_pi; then selection="1 3"; else selection="3"; fi
+    echo "SKIPPED"
+    return 0
   fi
 
   if [[ $selection == *"1"* ]] && is_pi; then
@@ -495,7 +503,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   fi
 
   if [ -n "$INTERACTIVE" ]; then
-    whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 16 80
   fi
   echo "OK (Reboot needed)"
 }
