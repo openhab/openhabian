@@ -473,10 +473,14 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
       echo "enable_uart=1" >> /boot/config.txt
     fi
     cond_echo "Removing serial console and login shell from /boot/cmdline.txt and /etc/inittab"
+    cp /boot/cmdline.txt /boot/cmdline.txt.bak
+    cp /etc/inittab /etc/inittab.bak
     sed -i 's/console=tty.*console=tty1/console=tty1/g' /boot/cmdline.txt
     sed -i 's/^T0/\#T0/g' /etc/inittab
   #else
-  #TODO this needs to be implemented when someone actually cares...
+    #TODO this needs to be tested when/if someone actually cares...
+    #cp /boot/cmdline.txt.bak /boot/cmdline.txt
+    #cp /etc/inittab.bak /etc/inittab
   fi
 
   if [[ $selection == *"2"* ]]; then
