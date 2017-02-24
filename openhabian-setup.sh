@@ -456,7 +456,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
     if is_pi; then selection="1 3"; else selection="3"; fi
   fi
 
-  if [[ $selection == *"1"* ]] && is pi; then
+  if [[ $selection == *"1"* ]] && is_pi; then
     cond_echo ""
     cond_echo "Adding 'enable_uart=1' to /boot/config.txt"
     if grep -q "enable_uart" /boot/config.txt; then
