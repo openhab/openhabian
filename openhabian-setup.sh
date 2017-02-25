@@ -689,10 +689,10 @@ To continue your integration in openHAB 2, please follow the instructions under:
 
 mqtt_setup() {
   FAILED=0
-  introtext="The MQTT broker software Mosquitto will be installed through the official repository, as desribed here: https://mosquitto.org/2013/01/mosquitto-debian-repository"
+  introtext="The MQTT broker software Mosquitto will be installed through the official repository, as desribed here: https://mosquitto.org/2013/01/mosquitto-debian-repository \nAdditionally you can activate username:password authentication."
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
-Mosquitto is now up and running in the background. You should now be able to make a first connection.
+Mosquitto is now up and running in the background. You should be able to make a first connection.
 To continue your integration in openHAB 2, please follow the instructions under: https://github.com/openhab/openhab/wiki/MQTT-Binding
 "
 
@@ -701,6 +701,9 @@ To continue your integration in openHAB 2, please follow the instructions under:
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up the MQTT broker software Mosquitto... "
+  mqttuser="openhabian"
+  question="Do you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\nUsername will be '$mqttuser', please provide a password. Leave blank for no authentication, run method again to change:"
+  mqttpasswd=$(whiptail --title "MQTT Authentication" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
   if is_jessie; then
     cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
     echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
@@ -709,9 +712,21 @@ To continue your integration in openHAB 2, please follow the instructions under:
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect apt -y install mosquitto mosquitto-clients
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  if [ "$mqttpasswd" != "" ]; then
+    if ! grep -q "password_file /etc/mosquitto/passwd" /etc/mosquitto/mosquitto.conf; then
+      cond_redirect echo -e "\npassword_file /etc/mosquitto/passwd\nallow_anonymous false\n" >> /etc/mosquitto/mosquitto.conf
+    fi
+    echo -n "" > /etc/mosquitto/passwd
+    cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd $mqttuser $mqttpasswd
+    if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  else
+    cond_redirect sed -i "/password_file/d" /etc/mosquitto/mosquitto.conf
+    cond_redirect sed -i "/allow_anonymous/d" /etc/mosquitto/mosquitto.conf
+    cond_redirect rm -f /etc/mosquitto/passwd
+  fi
   cond_redirect systemctl enable mosquitto.service
-  cond_redirect systemctl start mosquitto.service
-  echo "OK"
+  cond_redirect systemctl restart mosquitto.service
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
