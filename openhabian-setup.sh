@@ -335,7 +335,7 @@ samba_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Samba for the default user... "
   cond_redirect apt update
   cond_redirect apt -y install samba
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cp $SCRIPTDIR/includes/smb.conf /etc/samba/smb.conf
   ( (echo "$userpw"; echo "$userpw") | /usr/bin/smbpasswd -s -a $username > /dev/null )
   cond_redirect chown -R $username:openhab /opt /etc/openhab2
