@@ -194,8 +194,9 @@ memory_split() {
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
   if is_pi; then
-    cond_redirect wget -O /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update
-    cond_redirect chmod +x /usr/bin/rpi-update
+    #cond_redirect wget -O /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update
+    #cond_redirect chmod +x /usr/bin/rpi-update
+    cond_redirect rm -f /usr/bin/rpi-update
   fi
   cond_redirect apt update
   cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common man-db whiptail
@@ -440,10 +441,10 @@ On a Raspberry Pi 3 the Bluetooth module can additionally be disabled, ensuring 
 Finally, all common serial ports can be made accessible to the openHAB java virtual machine.
 \nPlease make your choice:"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="All done. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0 (depends on your device).
-  \nThis might be a good point in time to update your Raspberry Pi firmware (if this is a RPi) and reboot:\n
-  sudo rpi-update
-  sudo reboot"
+  successtext="All done. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0 (depends on your device)."
+  # \nThis might be a good point in time to update your Raspberry Pi firmware (if this is a RPi) and reboot:\n
+  # sudo rpi-update
+  # sudo reboot"
 
   echo -n "$(timestamp) [openHABian] Configuring serial console for serial port peripherals... "
 
