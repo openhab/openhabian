@@ -163,19 +163,50 @@ whiptail_check() {
   fi
 }
 
-locale_timezone_settings() {
-  echo -n "$(timestamp) [openHABian] Setting timezone (e.g. Europe/Berlin) and locale (e.g. en_US.UTF-8)... "
-  # source "$CONFIGFILE"
-  # TODO: Compare variables against supported list
-  cond_redirect timedatectl set-timezone $timezone
-  cond_redirect /usr/sbin/locale-gen $locales
-  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
-  LC_CTYPE=$system_default_locale
-  LC_ALL=$system_default_locale
-  LANG=$system_default_locale
-  LANGUAGE=$system_default_locale
-  cond_redirect /usr/sbin/update-locale LC_CTYPE=$system_default_locale LC_ALL=$system_default_locale LANG=$system_default_locale LANGUAGE=$system_default_locale
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+timezone_setting() {
+  source "$CONFIGFILE"
+  if [ -n "$INTERACTIVE" ]; then
+    echo -n "$(timestamp) [openHABian] Setting timezone based on user choice... "
+    dpkg-reconfigure tzdata
+  elif [ ! -z "${timezone+x}" ]; then
+    echo -n "$(timestamp) [openHABian] Setting timezone based on openhabian.conf... "
+    cond_redirect timedatectl set-timezone $timezone
+  else
+    echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
+    if ! command -v tzupdate &>/dev/null; then
+      cond_redirect apt update
+      cond_redirect apt -y install python-pip
+      cond_redirect pip install --upgrade tzupdate
+      if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+    fi
+    cond_redirect tzupdate
+  fi
+  if [ $? -eq 0 ]; then echo -e "OK ($(cat /etc/timezone))"; else echo "FAILED"; exit 1; fi
+}
+
+locale_setting() {
+  echo -n "$(timestamp) [openHABian] Setting locale (e.g. en_US.UTF-8)... "
+  source "$CONFIGFILE"
+
+  if is_debian || is_jessie; then
+    for loc in $locales; do sed -i "/$loc/s/^# //g" /etc/locale.gen; done
+    cond_redirect /usr/sbin/locale-gen
+    export LC_CTYPE=$system_default_locale &>/dev/null
+    export LC_ALL=$system_default_locale &>/dev/null
+    export LANG=$system_default_locale &>/dev/null
+    export LANGUAGE=$system_default_locale &>/dev/null
+    cond_redirect dpkg-reconfigure --frontend=noninteractive locales
+    cond_redirect /usr/sbin/update-locale LC_CTYPE=$system_default_locale LC_ALL=$system_default_locale LANG=$system_default_locale LANGUAGE=$system_default_locale
+    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  elif is_ubuntu; then
+    cond_redirect /usr/sbin/locale-gen $locales
+    LC_CTYPE=$system_default_locale
+    LC_ALL=$system_default_locale
+    LANG=$system_default_locale
+    LANGUAGE=$system_default_locale
+    cond_redirect /usr/sbin/update-locale LC_CTYPE=$system_default_locale LC_ALL=$system_default_locale LANG=$system_default_locale LANGUAGE=$system_default_locale
+    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  fi
 }
 
 memory_split() {
@@ -199,19 +230,19 @@ basic_packages() {
     cond_redirect rm -f /usr/bin/rpi-update
   fi
   cond_redirect apt update
+  apt remove raspi-config &>/dev/null || true
   cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common man-db whiptail
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 needed_packages() {
-  # Conditional: Install raspi-config - configuration tool for the Raspberry Pi + Raspbian
   # Install apt-transport-https - update packages through https repository
   # Install bc + sysstat - needed for FireMotD
   # Install avahi-daemon - hostname based discovery on local networks
+  # Install python-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   cond_redirect apt update
-  if is_pi; then cond_redirect apt -y install raspi-config; fi
-  cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon
+  cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon python-pip
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -1190,7 +1221,6 @@ show_about() {
 
 basic_setup() {
   introtext="If you continue, this step will update the openHABian basic system settings.\n\nThe following steps are included:
-  - Set your timezone and locale acording to '/etc/openhabian.conf'
   - Install recommended packages (vim, git, htop, ...)
   - Install an improved bash configuration
   - Install an improved vim configuration
@@ -1201,7 +1231,6 @@ basic_setup() {
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 20 80) then return 0; fi
   fi
 
-  locale_timezone_settings
   basic_packages
   needed_packages
   bashrc_copy
@@ -1279,7 +1308,8 @@ show_main_menu() {
 
 if [[ -n "$UNATTENDED" ]]; then
   #unattended installation (from within raspbian-ua-netinst chroot)
-  locale_timezone_settings
+  timezone_setting
+  locale_setting
   if is_pi; then memory_split; fi
   basic_packages
   needed_packages

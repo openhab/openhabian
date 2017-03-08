@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Log everything to file
-exec &> >(tee -a "/var/log/first-boot.log")
+exec &> >(tee -a "/boot/first-boot.log")
 
 timestamp() { date +"%F_%T_%Z"; }
 
