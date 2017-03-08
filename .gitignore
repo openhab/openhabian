@@ -1,3 +1,4 @@
+.vagrant/
 *.zip
 *.img
 *.img.xz

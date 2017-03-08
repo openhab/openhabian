@@ -17,7 +17,7 @@ ln -s /opt/openhabian/openhabian-setup.sh /rootfs/usr/local/bin/openhabian-confi
 
 echo -n "$(timestamp) [openHABian] Copying configuration and first boot script... "
 cp /rootfs/boot/installer-config.txt /rootfs/etc/openhabian.conf
-cp /rootfs/opt/openhabian/raspbian-ua-netinst/rc.local /rootfs/etc/rc.local
+cp /rootfs/opt/openhabian/build-rpi-ua-netinst/rc.local /rootfs/etc/rc.local
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 echo "$(timestamp) [openHABian] === Executing 'openhabian-setup.sh' ==="
