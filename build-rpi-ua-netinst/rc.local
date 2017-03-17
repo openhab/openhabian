@@ -10,7 +10,7 @@ FAILED=0
 
 # Only executed on first boot
 if [ ! -f $FLAG ] && [ ! -f "/root/afterfirstboot.lock" ]; then #TODO: Remove 'root' after 2017-05
-  echo "[openHABian] Booting for the first time!" >> $LOG
+  echo "[openHABian] Booting for the second time!" >> $LOG
   if grep -q "Raspbian" /etc/os-release; then RASPBERRY=1; fi
   if [ -n "$RASPBERRY" ]; then
     if [ -f "/home/pi/openHABian-install-failed" ] || [ -f "/opt/openHABian-install-failed" ]; then #TODO: Remove 'home' after 2017-05

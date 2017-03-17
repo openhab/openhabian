@@ -178,11 +178,12 @@ timezone_setting() {
   else
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
-      cond_redirect apt update
-      cond_redirect apt -y install python-pip
-      cond_redirect pip install --upgrade tzupdate
-      if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+      cond_redirect wget https://bootstrap.pypa.io/get-pip.py
+      cond_redirect python get-pip.py
+      if [ $? -ne 0 ]; then echo "FAILED (pip)"; exit 1; fi
+      rm -f get-pip.py
     fi
+    cond_redirect pip install --upgrade tzupdate
     cond_redirect tzupdate
   fi
   if [ $? -eq 0 ]; then echo -e "OK ($(cat /etc/timezone))"; else echo "FAILED"; exit 1; fi
@@ -273,10 +274,9 @@ needed_packages() {
   # Install apt-transport-https - update packages through https repository
   # Install bc + sysstat - needed for FireMotD
   # Install avahi-daemon - hostname based discovery on local networks
-  # Install python-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   cond_redirect apt update
-  cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon python-pip
+  cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
