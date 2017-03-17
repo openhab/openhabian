@@ -26,6 +26,7 @@ exec &> >(tee -a "openhabian-build-$(date +%Y-%m-%d_%H%M%S).log")
 sourcefolder=build-rpi-raspbian
 source $sourcefolder/openhabian.raspbian.conf
 buildfolder=/tmp/build-raspbian-image
+imagefile=$buildfolder/raspbian.img
 umount $buildfolder/boot &>/dev/null || true
 umount $buildfolder/root &>/dev/null || true
 rm -rf $buildfolder
@@ -33,7 +34,7 @@ rm -rf $buildfolder
 # Prerequisites
 echo_process "Downloading prerequisites... "
 apt update
-apt --yes install git wget curl unzip kpartx
+apt --yes install git wget curl unzip kpartx libarchive-zip-perl
 
 echo_process "Downloading latest Raspbian Lite image... "
 mkdir $buildfolder
@@ -50,7 +51,7 @@ mv $buildfolder/*raspbian*.img $buildfolder/raspbian.img
 
 echo_process "Mounting the image for modifications... "
 mkdir -p $buildfolder/boot $buildfolder/root
-kpartx -asv $buildfolder/raspbian.img
+kpartx -asv $imagefile
 #dosfslabel /dev/mapper/loop0p1 "OPENHABIAN"
 mount -o rw -t vfat /dev/mapper/loop0p1 $buildfolder/boot
 mount -o rw -t ext4 /dev/mapper/loop0p2 $buildfolder/root
@@ -70,12 +71,13 @@ echo_process "Closing up image file... "
 sync
 umount $buildfolder/boot
 umount $buildfolder/root
-kpartx -dv $buildfolder/raspbian.img
+kpartx -dv $imagefile
 
 echo_process "Moving image and cleaning up... "
 shorthash=$(git log --pretty=format:'%h' -n 1)
-destination="openhabianpi-raspbian-$(date +%Y%m%d%H%M)-git$shorthash.img"
-mv -v "$buildfolder/raspbian.img" $destination
+crc32checksum=$(crc32 $imagefile)
+destination="openhabianpi-raspbian-$(date +%Y%m%d%H%M)-git$shorthash-$crc32checksum.img"
+mv -v $imagefile $destination
 rm -rf $buildfolder
 
 echo_process "Compressing image... "

@@ -26,10 +26,11 @@ exec &> >(tee -a "openhabian-build-$(date +%Y-%m-%d_%H%M%S).log")
 sourcefolder=build-rpi-raspbian
 source $sourcefolder/openhabian.raspbian.conf
 buildfolder=/tmp/build-pine64-image
+imagefile=$buildfolder/pine64-xenial.img
 rm -rf $buildfolder
 
 # Prerequisites
-apt update && apt --yes install git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user
+apt update && apt --yes install git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl
 
 echo_process "Cloning \"longsleep/build-pine64-image\" project... "
 git clone -b master https://github.com/longsleep/build-pine64-image.git $buildfolder
@@ -64,26 +65,20 @@ echo "echo \"openHABian preparations finished, /etc/rc.local in place\"" >> $mak
 echo_process "Executing \"build-pine64-image\" build script... "
 (cd $buildfolder; /bin/bash build-pine64-image.sh simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial)
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+mv $buildfolder/xenial-pine64-*.img $imagefile
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 echo_process "Moving image and cleaning up... "
-mv $buildfolder/xenial-pine64-*.img .
+shorthash=$(git log --pretty=format:'%h' -n 1)
+crc32checksum=$(crc32 $imagefile)
+destination="openhabianpine64-xenial-$(date +%Y%m%d%H%M)-git$shorthash-$crc32checksum.img"
+mv -v $imagefile $destination
 rm -rf $buildfolder
 
-echo_process "Renaming image... "
-for file in xenial-*.img; do
-  mv -v "$file" "${file//pine64-bspkernel/openhabianpine64}"
-done
-shorthash=$(git log --pretty=format:'%h' -n 1)
-for file in xenial-*.img; do
-  mv -v "$file" "${file//-1.img/-git$shorthash.img}"
-done
-
 echo_process "Compressing image... "
-for file in xenial-*.img; do
-  xz --verbose --compress --keep $file
-done
+xz --verbose --compress --keep $destination
 
 echo_process "Finished! The results:"
-ls -alh xenial-*.*
+ls -alh $destination*
 
 # vim: filetype=sh
