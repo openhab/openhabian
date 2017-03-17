@@ -154,7 +154,6 @@ load_create_config() {
     cp $SCRIPTDIR/openhabian.conf.dist $CONFIGFILE
     sed -i "s/username=.*/username=$input/g" $CONFIGFILE
   fi
-  # shellcheck source=/etc/openhabian.conf
   source "$CONFIGFILE"
   echo "OK"
 }
@@ -190,28 +189,55 @@ timezone_setting() {
 }
 
 locale_setting() {
-  echo -n "$(timestamp) [openHABian] Setting locale (e.g. en_US.UTF-8)... "
-  source "$CONFIGFILE"
+  if [ -n "$INTERACTIVE" ]; then
+    echo -n "$(timestamp) [openHABian] Setting locale based on user choice... "
+    dpkg-reconfigure locales
+    return 0
+  fi
 
-  if is_debian || is_jessie; then
+  echo -n "$(timestamp) [openHABian] Setting locale based on openhabian.conf... "
+  source "$CONFIGFILE"
+  if is_ubuntu; then
+    cond_redirect /usr/sbin/locale-gen $locales
+  else
     for loc in $locales; do sed -i "/$loc/s/^# //g" /etc/locale.gen; done
     cond_redirect /usr/sbin/locale-gen
-    export LC_CTYPE=$system_default_locale &>/dev/null
-    export LC_ALL=$system_default_locale &>/dev/null
-    export LANG=$system_default_locale &>/dev/null
-    export LANGUAGE=$system_default_locale &>/dev/null
-    cond_redirect dpkg-reconfigure --frontend=noninteractive locales
-    cond_redirect /usr/sbin/update-locale LC_CTYPE=$system_default_locale LC_ALL=$system_default_locale LANG=$system_default_locale LANGUAGE=$system_default_locale
-    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
-  elif is_ubuntu; then
-    cond_redirect /usr/sbin/locale-gen $locales
-    LC_CTYPE=$system_default_locale
-    LC_ALL=$system_default_locale
-    LANG=$system_default_locale
-    LANGUAGE=$system_default_locale
-    cond_redirect /usr/sbin/update-locale LC_CTYPE=$system_default_locale LC_ALL=$system_default_locale LANG=$system_default_locale LANGUAGE=$system_default_locale
-    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   fi
+  cond_redirect dpkg-reconfigure --frontend=noninteractive locales
+  LC_CTYPE=$system_default_locale; export LC_CTYPE
+  LC_ALL=$system_default_locale; export LC_ALL
+  LANG=$system_default_locale; export LANG
+  LANGUAGE=$system_default_locale; export LANGUAGE
+  cond_redirect /usr/sbin/update-locale LC_CTYPE=$system_default_locale LC_ALL=$system_default_locale LANG=$system_default_locale LANGUAGE=$system_default_locale
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+}
+
+hostname_change() {
+  echo -n "$(timestamp) [openHABian] Setting hostname of the base system... "
+  if [ -n "$INTERACTIVE" ]; then
+    new_hostname=$(whiptail --title "Change Hostname" --inputbox "Please enter the new system hostname (no special characters, no spaces):" 10 60 3>&1 1>&2 2>&3)
+    if [ $? -ne 0 ]; then return 1; fi
+    if ( echo "$new_hostname" | grep -q ' ' ) || [ -z "$new_hostname" ]; then
+      whiptail --title "Change Hostname" --msgbox "The hostname you've entered is not a valid hostname. Please try again." 10 60
+      echo "FAILED"
+      return 1
+    fi
+  else
+    source "$CONFIGFILE"
+    new_hostname="$hostname"
+  fi
+
+  if command -v hostnamectl &>/dev/null; then
+    # will set lowercase hostname (debian recommended)
+    cond_redirect hostnamectl set-hostname "$new_hostname"
+  fi
+  echo "$new_hostname" > /etc/hostname
+  sed -i "s/127.0.1.1.*/127.0.1.1 $new_hostname/" /etc/hosts
+
+  if [ -n "$INTERACTIVE" ]; then
+    whiptail --title "Change Hostname" --msgbox "For the hostname change to take effect, please reboot your system now." 10 60
+  fi
+  echo "OK (please reboot)"
 }
 
 memory_split() {
@@ -1254,7 +1280,7 @@ openhab2_full_setup() {
 }
 
 show_main_menu() {
-  WT_HEIGHT=25
+  WT_HEIGHT=28
   WT_WIDTH=116
   WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
 
@@ -1277,7 +1303,9 @@ show_main_menu() {
   "30 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
   "31 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
   "32 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
-  "33 | Set System Timezone"    "Change the your timezone, execute if it's not $(date +%H:%M) now" \
+  "40 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
+  "41 | Set System Timezone"    "Change the your timezone, execute if it's not $(date +%H:%M) now" \
+  "42 | Set System Locale"      "Change system language, default is 'en_US.UTF-8'" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then
@@ -1302,7 +1330,10 @@ show_main_menu() {
       30\ *) prepare_serial_port ;;
       31\ *) wifi_setup ;;
       32\ *) move_root2usb ;;
-      40\ *) change_admin_password ;;
+      40\ *) hostname_change ;;
+      41\ *) timezone_setting ;;
+      42\ *) locale_setting ;;
+      50\ *) change_admin_password ;;
       *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
     esac || whiptail --msgbox "There was an error running option:\n\n  \"$choice\"" 10 60
     return 0

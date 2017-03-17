@@ -56,7 +56,7 @@ mount -o rw -t vfat /dev/mapper/loop0p1 $buildfolder/boot
 mount -o rw -t ext4 /dev/mapper/loop0p2 $buildfolder/root
 
 echo_process "Setting hostname, reactivating SSH... "
-sed -i "s/127.0.1.1 .*/127.0.1.1 $hostname/" $buildfolder/root/etc/hosts
+sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" $buildfolder/root/etc/hosts
 echo "$hostname" > $buildfolder/root/etc/hostname
 touch $buildfolder/boot/ssh
 
