@@ -190,7 +190,7 @@ timezone_setting() {
 
 locale_setting() {
   if [ -n "$INTERACTIVE" ]; then
-    echo -n "$(timestamp) [openHABian] Setting locale based on user choice... "
+    echo "$(timestamp) [openHABian] Setting locale based on user choice... "
     dpkg-reconfigure locales
     return 0
   fi
@@ -198,17 +198,17 @@ locale_setting() {
   echo -n "$(timestamp) [openHABian] Setting locale based on openhabian.conf... "
   source "$CONFIGFILE"
   if is_ubuntu; then
-    cond_redirect /usr/sbin/locale-gen $locales
+    cond_redirect locale-gen $locales
   else
     for loc in $locales; do sed -i "/$loc/s/^# //g" /etc/locale.gen; done
-    cond_redirect /usr/sbin/locale-gen
+    cond_redirect locale-gen
   fi
   cond_redirect dpkg-reconfigure --frontend=noninteractive locales
-  LC_CTYPE=$system_default_locale; export LC_CTYPE
-  LC_ALL=$system_default_locale; export LC_ALL
-  LANG=$system_default_locale; export LANG
-  LANGUAGE=$system_default_locale; export LANGUAGE
-  cond_redirect /usr/sbin/update-locale LC_CTYPE=$system_default_locale LC_ALL=$system_default_locale LANG=$system_default_locale LANGUAGE=$system_default_locale
+  LANG=$system_default_locale; export LANG &>/dev/null
+  LC_ALL=$system_default_locale; export LC_ALL &>/dev/null
+  LC_CTYPE=$system_default_locale; export LC_CTYPE &>/dev/null
+  LANGUAGE=$system_default_locale; export LANGUAGE &>/dev/null
+  cond_redirect update-locale LANG=$system_default_locale LC_ALL=$system_default_locale LC_CTYPE=$system_default_locale LANGUAGE=$system_default_locale
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 
