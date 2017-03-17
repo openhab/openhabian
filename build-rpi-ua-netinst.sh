@@ -29,7 +29,7 @@ buildfolder=/tmp/build-rpi-ua-netinst
 rm -rf $buildfolder
 
 # Prerequisites
-apt update && apt --yes install git wget curl bzip2 zip xz-utils gnupg kpartx dosfstools binutils bc
+apt update && apt --yes install git wget curl bzip2 zip xz-utils gnupg kpartx dosfstools binutils bc libarchive-zip-perl
 
 echo_process "Cloning \"debian-pi/raspbian-ua-netinst\" project... "
 git clone -b "v1.1.x" https://github.com/debian-pi/raspbian-ua-netinst.git $buildfolder
