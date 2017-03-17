@@ -459,16 +459,15 @@ misc_system_settings() {
 
 pine64_platform_scripts() {
   echo -n "$(timestamp) [openHABian] Executing pine64 platform scripts (longsleep)... "
-#  if [ -f "/usr/local/sbin/pine64_update_kernel.sh" ]; then
-#    cond_redirect /usr/local/sbin/pine64_update_kernel.sh || echo -n "FAILED "
-#    cond_redirect /usr/local/sbin/pine64_update_uboot.sh || echo -n "FAILED "
-#    cond_redirect /usr/local/sbin/pine64_fix_whatever.sh || echo -n "FAILED "
-#    cond_redirect /usr/local/sbin/resize_rootfs.sh || echo -n "FAILED "
-#    echo "OK"
-#  else
-#    echo "FAILED"
-#  fi
-  echo "SKIPPED"
+  if [ -f "/usr/local/sbin/pine64_update_kernel.sh" ]; then
+    cond_redirect /usr/local/sbin/pine64_update_kernel.sh || echo -n "FAILED (kernel) "
+    cond_redirect /usr/local/sbin/pine64_update_uboot.sh || echo -n "FAILED (uboot) "
+    cond_redirect /usr/local/sbin/pine64_fix_whatever.sh || echo -n "FAILED (whatever) "
+    cond_redirect /usr/local/sbin/resize_rootfs.sh || echo -n "FAILED (resize) "
+    echo "OK"
+  else
+    echo "FAILED"
+  fi
 }
 
 openhab_shell_interfaces() {
@@ -1352,6 +1351,7 @@ if [[ -n "$UNATTENDED" ]]; then
   timezone_setting
   locale_setting
   if is_pi; then memory_split; fi
+  if is_pine64; then pine64_platform_scripts; fi
   basic_packages
   needed_packages
   bashrc_copy
