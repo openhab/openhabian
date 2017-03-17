@@ -61,31 +61,6 @@ else
   INTERACTIVE=1
 fi
 
-# Load configuration
-if [ -f "$CONFIGFILE" ]; then
-  echo -n "$(timestamp) [openHABian] Loading configuration file '$CONFIGFILE'... "
-elif [ ! -f "$CONFIGFILE" ] && [ -f /boot/installer-config.txt ]; then
-  echo -n "$(timestamp) [openHABian] Copying and loading configuration file '$CONFIGFILE'... "
-  cp /boot/installer-config.txt $CONFIGFILE
-elif [ ! -f "$CONFIGFILE" ] && [ -n "$UNATTENDED" ]; then
-  echo "$(timestamp) [openHABian] Error in unattended mode: Configuration file '$CONFIGFILE' not found... FAILED" 1>&2
-  exit 1
-else
-  echo -n "$(timestamp) [openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup... "
-  question="Welcome to openHABian!\n\nPlease provide the name of your Linux user i.e. the account you normally log in with.\nTypical user names are 'pi' or 'ubuntu'."
-  input=$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
-  if ! id -u "$input" &>/dev/null ; then
-    echo "FAILED"
-    echo "$(timestamp) [openHABian] Error: The provided user name is not a valid system user. Please try again. Exiting ..." 1>&2
-    exit 1
-  fi
-  cp $SCRIPTDIR/openhabian.conf.dist $CONFIGFILE
-  sed -i "s/username=.*/username=$input/g" $CONFIGFILE
-fi
-# shellcheck source=/etc/openhabian.conf
-source "$CONFIGFILE"
-echo "OK"
-
 cond_redirect() {
   if [ -n "$SILENT" ]; then
     "$@" &>/dev/null
@@ -105,6 +80,10 @@ cond_echo() {
 
 is_pizero() {
   grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]09[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
+is_pizerow() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[cC][0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pione() {
@@ -128,7 +107,7 @@ is_pi() {
   # needed for raspbian-ua-netinst chroot env
   if [ "$hostname" == "openHABianPi" ] || [ "$boot_volume_label" == "openHABian" ]; then return 0; fi
   # normal conditions
-  if is_pizero || is_pione || is_pitwo || is_pithree; then return 0; fi
+  if is_pizero || is_pizerow || is_pione || is_pitwo || is_pithree; then return 0; fi
   return 1
 }
 is_pine64() {
@@ -152,6 +131,32 @@ is_debian() {
 is_jessie() {
   [[ $(lsb_release -c) =~ "jessie" ]]
   return $?
+}
+
+load_create_config() {
+  if [ -f "$CONFIGFILE" ]; then
+    echo -n "$(timestamp) [openHABian] Loading configuration file '$CONFIGFILE'... "
+  elif [ ! -f "$CONFIGFILE" ] && [ -f /boot/installer-config.txt ]; then
+    echo -n "$(timestamp) [openHABian] Copying and loading configuration file '$CONFIGFILE'... "
+    cp /boot/installer-config.txt $CONFIGFILE
+  elif [ ! -f "$CONFIGFILE" ] && [ -n "$UNATTENDED" ]; then
+    echo "$(timestamp) [openHABian] Error in unattended mode: Configuration file '$CONFIGFILE' not found... FAILED" 1>&2
+    exit 1
+  else
+    echo -n "$(timestamp) [openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup... "
+    question="Welcome to openHABian!\n\nPlease provide the name of your Linux user i.e. the account you normally log in with.\nTypical user names are 'pi' or 'ubuntu'."
+    input=$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
+    if ! id -u "$input" &>/dev/null ; then
+      echo "FAILED"
+      echo "$(timestamp) [openHABian] Error: The provided user name is not a valid system user. Please try again. Exiting ..." 1>&2
+      exit 1
+    fi
+    cp $SCRIPTDIR/openhabian.conf.dist $CONFIGFILE
+    sed -i "s/username=.*/username=$input/g" $CONFIGFILE
+  fi
+  # shellcheck source=/etc/openhabian.conf
+  source "$CONFIGFILE"
+  echo "OK"
 }
 
 whiptail_check() {
@@ -871,7 +876,7 @@ influxdb_grafana_setup() {
 
   echo -n "Grafana (fg2it)... "
   if is_jessie; then
-    if is_pione; then GRAFANA_REPO_PI1="-rpi-1b"; fi
+    if is_pione || is_pizero || is_pizerow; then GRAFANA_REPO_PI1="-rpi-1b"; fi
     echo "deb https://dl.bintray.com/fg2it/deb${GRAFANA_REPO_PI1} jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
     cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61 || FAILED=2
   fi
@@ -1307,7 +1312,8 @@ show_main_menu() {
 }
 
 if [[ -n "$UNATTENDED" ]]; then
-  #unattended installation (from within raspbian-ua-netinst chroot)
+  #unattended installation (from within openHABian images)
+  load_create_config
   timezone_setting
   locale_setting
   if is_pi; then memory_split; fi
@@ -1323,6 +1329,7 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
 else
   whiptail_check
+  load_create_config
   while show_main_menu; do
     true
   done
