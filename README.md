@@ -23,7 +23,10 @@ Enjoy openHABian and the wondrous world of openHAB!!
 For image building, please see the `build-....sh` scripts to get an idea of the process.
 
 The RPi image is based on the [raspbian-ua-netinst](https://github.com/debian-pi/raspbian-ua-netinst) project,
+the new RPi image is based on the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian) standard image,
 the Pine64 image is based on [build-pine64-image](https://github.com/longsleep/build-pine64-image).
+
+To improve the openHABian configuration tool, please have a look at `openhabian-setup.sh`.
 
 If you find a bug or want to propose a feature, please check open Issues and Pull Requests and read the [CONTRIBUTING](CONTRIBUTING.md) guideline.
 
