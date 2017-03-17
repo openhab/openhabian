@@ -178,6 +178,8 @@ timezone_setting() {
   else
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
+      cond_redirect apt update
+      cond_redirect apt -y install python
       cond_redirect wget https://bootstrap.pypa.io/get-pip.py
       cond_redirect python get-pip.py
       if [ $? -ne 0 ]; then echo "FAILED (pip)"; exit 1; fi
@@ -276,7 +278,7 @@ needed_packages() {
   # Install avahi-daemon - hostname based discovery on local networks
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   cond_redirect apt update
-  cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon
+  cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon python python-setuptools
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
