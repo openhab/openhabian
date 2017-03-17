@@ -161,7 +161,7 @@ load_create_config() {
 
 whiptail_check() {
   if ! command -v whiptail &>/dev/null; then
-    echo -n "$(timestamp) [openHABian] Command 'whiptail' not found, installing... "
+    echo -n "$(timestamp) [openHABian] Installing whiptail... "
     cond_redirect apt update
     cond_redirect apt -y install whiptail
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -1277,6 +1277,7 @@ show_main_menu() {
   "30 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
   "31 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
   "32 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
+  "33 | Set System Timezone"    "Change the your timezone, execute if it's not $(date +%H:%M) now" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then
