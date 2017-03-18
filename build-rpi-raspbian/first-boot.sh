@@ -28,7 +28,7 @@ if id pi &>/dev/null; then
 fi
 
 # While setup: show log to logged in user, will be overwritten by openhabian-setup.sh
-echo "watch -n 1 cat /boot/first-boot.log" > "/home/$username/.bash_profile"
+echo "watch cat /boot/first-boot.log" > "/home/$username/.bash_profile"
 
 echo -n "$(timestamp) [openHABian] Setting up Wifi connection... "
 if [ -z ${wifi_ssid+x} ]; then

@@ -19,7 +19,7 @@ elif [ -f "/opt/openHABian-install-inprogress" ]; then
   echo ""
   echo -e -n "\e[36;01mAttention! \e[39;49;00m"
   echo "The openHABian setup process is not finished yet."
-  if [ -f /boot/first-boot.log ]; then echo -e "\nProgress log:\n"; cat /boot/first-boot.log; echo -e "\n"; fi
+  if [ -f /boot/first-boot.log ]; then watch cat /boot/first-boot.log; echo -e "\nProgress log:\n"; cat /boot/first-boot.log; echo -e "\n"; fi
   echo -e "\nPlease wait for a few more minutes, all preparation steps will be finished shortly."
   return 0
 fi
@@ -57,6 +57,7 @@ echo ""
 echo ""
 echo "Looking for a place to get started? Check out 'sudo openhabian-config' and the"
 echo "documentation at http://docs.openhab.org/installation/openhabian.html"
+echo "The openHAB dashboard can be reached at http://$(hostname):8080"
 echo ""
 
 # vim: filetype=sh
