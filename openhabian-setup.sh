@@ -208,10 +208,10 @@ locale_setting() {
     cond_redirect locale-gen
   fi
   cond_redirect dpkg-reconfigure --frontend=noninteractive locales
-  LANG=$system_default_locale; export LANG &>/dev/null
-  LC_ALL=$system_default_locale; export LC_ALL &>/dev/null
-  LC_CTYPE=$system_default_locale; export LC_CTYPE &>/dev/null
-  LANGUAGE=$system_default_locale; export LANGUAGE &>/dev/null
+  cond_redirect LANG=$system_default_locale; export LANG &>/dev/null
+  cond_redirect LC_ALL=$system_default_locale; export LC_ALL &>/dev/null
+  cond_redirect LC_CTYPE=$system_default_locale; export LC_CTYPE &>/dev/null
+  cond_redirect LANGUAGE=$system_default_locale; export LANGUAGE &>/dev/null
   cond_redirect update-locale LANG=$system_default_locale LC_ALL=$system_default_locale LC_CTYPE=$system_default_locale LANGUAGE=$system_default_locale
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
