@@ -233,7 +233,7 @@ hostname_change() {
 
   if command -v hostnamectl &>/dev/null; then
     # will set lowercase hostname (debian recommended)
-    cond_redirect hostnamectl set-hostname "$new_hostname"
+    hostnamectl set-hostname "$new_hostname"
   fi
   echo "$new_hostname" > /etc/hostname
   sed -i "s/127.0.1.1.*/127.0.1.1 $new_hostname/" /etc/hosts
@@ -442,6 +442,29 @@ etckeeper() {
   else
     echo "FAILED";
   fi
+}
+
+frontail() {
+  if ! command -v npm &>/dev/null; then
+    cond_redirect wget -O - https://deb.nodesource.com/setup_7.x | bash -
+    if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
+    #cond_redirect apt update # part of the script above
+    cond_redirect apt -y install nodejs
+    if [ $? -ne 0 ]; then echo "FAILED (nodejs)"; exit 1; fi
+  fi
+  cond_redirect npm install -g frontail
+  if [ $? -ne 0 ]; then echo "FAILED (frontail)"; exit 1; fi
+  cond_redirect npm update -g frontail
+  #
+  frontail_base="/usr/lib/node_modules/frontail"
+  cp $SCRIPTDIR/includes/frontail-preset.json $frontail_base/preset/openhab.json
+  cp $SCRIPTDIR/includes/frontail-theme.css $frontail_base/lib/web/assets/styles/openhab.css
+  cp $SCRIPTDIR/includes/frontail.service /etc/systemd/system/frontail.service
+  chmod 664 /etc/systemd/system/frontail.service
+  cond_redirect systemctl daemon-reload
+  cond_redirect /bin/systemctl enable frontail.service
+  cond_redirect /bin/systemctl restart frontail.service
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
 }
 
 misc_system_settings() {
@@ -1259,6 +1282,7 @@ basic_setup() {
   - Install an improved bash configuration
   - Install an improved vim configuration
   - Set up FireMotD
+  - Set up frontail
   - Make some permission changes ('adduser', 'chown', ...)"
 
   if [ -n "$INTERACTIVE" ]; then
@@ -1270,6 +1294,7 @@ basic_setup() {
   bashrc_copy
   vimrc_copy
   firemotd
+  frontail
   misc_system_settings
   if is_pine64; then pine64_platform_scripts; fi
 }
@@ -1362,6 +1387,7 @@ if [[ -n "$UNATTENDED" ]]; then
   openhab2_full_setup
   samba_setup
   etckeeper
+  frontail
   misc_system_settings
 else
   whiptail_check
