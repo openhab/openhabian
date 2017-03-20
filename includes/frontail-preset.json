@@ -1,0 +1,21 @@
+{
+  "words": {
+    "[ERROR]": "color: red;",
+    "[WARN ]": "color: orange;",
+    "[INFO ]": "color: green;",
+    "Node is DEAD": "color: red;",
+    "[GroupItemStateChangedEvent]": "color: #0026FF; font-weight: bold;",
+    "[ItemStateChangedEvent     ]": "color: #0026FF;",
+    "[ItemCommandEvent          ]": "color: #00137F;",
+    "[hingStatusInfoChangedEvent]": "color: #007F46;",
+    "received command ON": "color: black;",
+    "received command OFF": "color: black;",
+    "received command": "color: black;"
+  },
+  "lines": {
+    "/var/log/openhab2/openhab.log": "font-size: 1.3em; border-top: 2px solid #f8f8f8;",
+    "/var/log/openhab2/events.log": "font-size: 1.3em; border-top: 2px solid #f8f8f8;",
+    "ERROR": "background-color: bisque;",
+    "model.script": "font-weight: bold; background-color: #FFFACD;"
+  }
+}
