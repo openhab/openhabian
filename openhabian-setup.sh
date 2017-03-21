@@ -241,7 +241,7 @@ hostname_change() {
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Change Hostname" --msgbox "For the hostname change to take effect, please reboot your system now." 10 60
   fi
-  echo "OK (please reboot)"
+  echo "OK"
 }
 
 memory_split() {
@@ -470,7 +470,6 @@ frontail() {
 
 srv_bind_mounts() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
-  cond_echo "Cleaning and writing /etc/fstab bind mount entries"
   sed -i "/openhab2/d" /etc/fstab
   sed -i "/^$/d" /etc/fstab
   (
@@ -481,6 +480,7 @@ srv_bind_mounts() {
     echo "/var/log/openhab2            /srv/openhab2-logs          none bind 0 0"
     echo "/usr/share/openhab2/addons   /srv/openhab2-addons        none bind 0 0"
   ) >> /etc/fstab
+  cond_redirect cat /etc/fstab
   cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}
   cond_redirect cp $SCRIPTDIR/includes/srv_readme.txt /srv/README.txt
   cond_redirect chmod ugo+w /srv /srv/README.txt
@@ -511,6 +511,11 @@ misc_system_settings() {
   echo -n "$(timestamp) [openHABian] Applying multiple useful system settings (permissions, java cap, ...)... "
   cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' $(realpath /usr/bin/java)
   if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
+  # prepare SSH key file for the end user
+  mkdir /home/$username/.ssh
+  chmod 700 /home/$username/.ssh
+  touch /home/$username/.ssh/authorized_keys
+  chmod 600 /home/$username/.ssh/authorized_keys
   echo "OK"
 }
 
@@ -1412,6 +1417,7 @@ if [[ -n "$UNATTENDED" ]]; then
   load_create_config
   timezone_setting
   locale_setting
+  hostname_change
   if is_pi; then memory_split; fi
   if is_pine64; then pine64_platform_scripts; fi
   basic_packages
