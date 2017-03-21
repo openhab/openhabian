@@ -445,6 +445,7 @@ etckeeper() {
 }
 
 frontail() {
+  echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail)... "
   if ! command -v npm &>/dev/null; then
     cond_redirect wget -O - https://deb.nodesource.com/setup_7.x | bash -
     if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
@@ -465,6 +466,25 @@ frontail() {
   cond_redirect /bin/systemctl enable frontail.service
   cond_redirect /bin/systemctl restart frontail.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
+}
+
+srv_bind_mounts() {
+  echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
+  cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}
+  cond_echo "Cleaning and writing /etc/fstab bind mount entries"
+  sed -i "/openhab2/d" /etc/fstab
+  sed -i "/^$/d" /etc/fstab
+  (
+    echo ""
+    echo "/usr/share/openhab2          /srv/openhab2-sys           none bind 0 0"
+    echo "/etc/openhab2                /srv/openhab2-conf          none bind 0 0"
+    echo "/var/lib/openhab2            /srv/openhab2-userdata      none bind 0 0"
+    echo "/var/log/openhab2            /srv/openhab2-logs          none bind 0 0"
+    echo "/usr/share/openhab2/addons   /srv/openhab2-addons        none bind 0 0"
+  ) >> /etc/fstab
+  cond_redirect cat /etc/fstab
+  cond_redirect mount --all --verbose
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 misc_system_settings() {
