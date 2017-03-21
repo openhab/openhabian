@@ -1165,11 +1165,24 @@ openhabian_update() {
     git -C $SCRIPTDIR remote set-url origin https://github.com/openhab/openhabian.git
   fi
   echo -n "$(timestamp) [openHABian] Updating myself... "
+  read -t 1 -n 1 key
+  if [ "$key" != "" ]; then
+    echo -e "\nRemote git branches available:"
+    git -C $SCRIPTDIR branch -r
+    read -e -p "Please enter the branch to checkout: " branch
+    branch="${branch#origin/}"
+    if ! git -C $SCRIPTDIR branch -r | grep -q "origin/$branch"; then
+      echo "FAILED - The custom branch does not exist."
+      return 1
+    fi
+  else
+    branch="master"
+  fi
   shorthash_before=$(git -C $SCRIPTDIR log --pretty=format:'%h' -n 1)
   git -C $SCRIPTDIR fetch --quiet origin || FAILED=1
-  git -C $SCRIPTDIR reset --quiet --hard origin/master || FAILED=1
+  git -C $SCRIPTDIR reset --quiet --hard "origin/$branch" || FAILED=1
   git -C $SCRIPTDIR clean --quiet --force -x -d || FAILED=1
-  git -C $SCRIPTDIR checkout --quiet master || FAILED=1
+  git -C $SCRIPTDIR checkout --quiet "$branch" || FAILED=1
   if [ $FAILED -eq 1 ]; then
     echo "FAILED - There was a problem fetching the latest changes for the openHABian configuration tool. Please check your internet connection and try again later..."
     return 1
