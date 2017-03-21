@@ -1387,7 +1387,7 @@ if [[ -n "$UNATTENDED" ]]; then
   openhab2_full_setup
   samba_setup
   etckeeper
-  frontail
+# frontail
   misc_system_settings
 else
   whiptail_check
