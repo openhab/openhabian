@@ -89,7 +89,7 @@ is_pizerow() {
 is_pione() {
   if grep -q "^Revision\s*:\s*00[0-9a-fA-F][0-9a-fA-F]$" /proc/cpuinfo; then
     return 0
-  elif  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[0-36][0-9a-fA-F]$" /proc/cpuinfo ; then
+  elif  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[0-36][0-9a-fA-F]$" /proc/cpuinfo; then
     return 0
   else
     return 1
@@ -146,7 +146,7 @@ load_create_config() {
     echo -n "$(timestamp) [openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup... "
     question="Welcome to openHABian!\n\nPlease provide the name of your Linux user i.e. the account you normally log in with.\nTypical user names are 'pi' or 'ubuntu'."
     input=$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
-    if ! id -u "$input" &>/dev/null ; then
+    if ! id -u "$input" &>/dev/null; then
       echo "FAILED"
       echo "$(timestamp) [openHABian] Error: The provided user name is not a valid system user. Please try again. Exiting ..." 1>&2
       exit 1
@@ -400,13 +400,13 @@ nano_openhab_syntax() {
 
 samba_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Samba for the default user... "
-  cond_redirect apt update
-  cond_redirect apt -y install samba
-  if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  if ! command -v samba &>/dev/null; then
+    cond_redirect apt update
+    cond_redirect apt -y install samba
+    if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  fi
   cp $SCRIPTDIR/includes/smb.conf /etc/samba/smb.conf
   ( (echo "$userpw"; echo "$userpw") | /usr/bin/smbpasswd -s -a $username > /dev/null )
-  cond_redirect chown -R $username:openhab /opt /etc/openhab2
-  cond_redirect chmod -R g+w /opt /etc/openhab2
   cond_redirect /bin/systemctl enable smbd.service
   cond_redirect /bin/systemctl restart smbd.service
   echo "OK"
@@ -470,7 +470,6 @@ frontail() {
 
 srv_bind_mounts() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
-  cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}
   cond_echo "Cleaning and writing /etc/fstab bind mount entries"
   sed -i "/openhab2/d" /etc/fstab
   sed -i "/^$/d" /etc/fstab
@@ -482,21 +481,35 @@ srv_bind_mounts() {
     echo "/var/log/openhab2            /srv/openhab2-logs          none bind 0 0"
     echo "/usr/share/openhab2/addons   /srv/openhab2-addons        none bind 0 0"
   ) >> /etc/fstab
-  cond_redirect cat /etc/fstab
+  cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}
+  cond_redirect cp $SCRIPTDIR/includes/srv_readme.txt /srv/README.txt
+  cond_redirect chmod ugo+w /srv /srv/README.txt
   cond_redirect mount --all --verbose
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 
-misc_system_settings() {
-  echo -n "$(timestamp) [openHABian] Applying multiple useful system settings (permissions, ...)... "
+permissions_corrections() {
+  echo -n "$(timestamp) [openHABian] Applying file permissions recommendations... "
+  if ! id -u openhab &>/dev/null; then
+    echo "FAILED (please execute after openHAB was installed)"
+    exit 1
+  fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
   cond_redirect adduser $username openhab
   cond_redirect adduser $username dialout
   cond_redirect adduser $username tty
+  #
+  openhab_folders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2/addons)
+  cond_redirect chown -R openhab:$username /opt ${openhab_folders[@]}
+  cond_redirect chmod -R g+w /opt ${openhab_folders[@]}
+  cond_redirect chmod ugo+w /srv /srv/README.txt
+  echo "OK"
+}
+
+misc_system_settings() {
+  echo -n "$(timestamp) [openHABian] Applying multiple useful system settings (permissions, java cap, ...)... "
   cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' $(realpath /usr/bin/java)
-  cond_redirect chown -R openhab:$username /opt /etc/openhab2
-  cond_redirect chmod -R g+w /opt /etc/openhab2
   if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
   echo "OK"
 }
@@ -671,7 +684,7 @@ This will move your system root from your SD card to a USB device like an SSD or
     THIS DEVICE WILL BE FULLY DELETED\n\n
 Do you want to continue on your own risk?"
 
-  if ! is_pi ; then
+  if ! is_pi; then
     if [ -n "$INTERACTIVE" ]; then
       whiptail --title "Incompatible Hardware Detected" --msgbox "Move root to USB: This option is for the Raspberry Pi only." 10 60
     fi
@@ -1302,6 +1315,7 @@ basic_setup() {
   - Install an improved bash configuration
   - Install an improved vim configuration
   - Set up FireMotD
+  - Set up the /srv/openhab2-... link structure
   - Make some permission changes ('adduser', 'chown', ...)"
 
   if [ -n "$INTERACTIVE" ]; then
@@ -1313,6 +1327,8 @@ basic_setup() {
   bashrc_copy
   vimrc_copy
   firemotd
+  srv_bind_mounts
+  permissions_corrections
   misc_system_settings
   if is_pine64; then pine64_platform_scripts; fi
 }
@@ -1403,11 +1419,13 @@ if [[ -n "$UNATTENDED" ]]; then
   bashrc_copy
   vimrc_copy
   firemotd
+  etckeeper
   java_zulu_embedded
   openhab2_full_setup
-  samba_setup
-  etckeeper
+  srv_bind_mounts
+  permissions_corrections
   misc_system_settings
+  samba_setup
 else
   whiptail_check
   load_create_config
