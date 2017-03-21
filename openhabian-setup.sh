@@ -158,6 +158,10 @@ load_create_config() {
   echo "OK"
 }
 
+clean_config_userpw() {
+  cond_redirect sed -i "s/^userpw=.*/\#userpw=xxxxxxxx/g" $CONFIGFILE
+}
+
 whiptail_check() {
   if ! command -v whiptail &>/dev/null; then
     echo -n "$(timestamp) [openHABian] Installing whiptail... "
@@ -406,7 +410,9 @@ samba_setup() {
     if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   fi
   cp $SCRIPTDIR/includes/smb.conf /etc/samba/smb.conf
-  ( (echo "$userpw"; echo "$userpw") | /usr/bin/smbpasswd -s -a $username > /dev/null )
+  if ! /usr/bin/smbpasswd -e $username &>/dev/null; then
+    ( (echo "$userpw"; echo "$userpw") | /usr/bin/smbpasswd -s -a $username > /dev/null )
+  fi
   cond_redirect /bin/systemctl enable smbd.service
   cond_redirect /bin/systemctl restart smbd.service
   echo "OK"
@@ -1432,6 +1438,7 @@ if [[ -n "$UNATTENDED" ]]; then
   permissions_corrections
   misc_system_settings
   samba_setup
+  clean_config_userpw
 else
   whiptail_check
   load_create_config
