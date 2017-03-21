@@ -276,7 +276,7 @@ needed_packages() {
   # Install avahi-daemon - hostname based discovery on local networks
   # Install python/python-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
-  cond_redirect apt update
+  #cond_redirect apt update
   cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon python python-pip
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
