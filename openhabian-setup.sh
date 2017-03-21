@@ -1282,7 +1282,6 @@ basic_setup() {
   - Install an improved bash configuration
   - Install an improved vim configuration
   - Set up FireMotD
-  - Set up frontail
   - Make some permission changes ('adduser', 'chown', ...)"
 
   if [ -n "$INTERACTIVE" ]; then
@@ -1294,7 +1293,6 @@ basic_setup() {
   bashrc_copy
   vimrc_copy
   firemotd
-  frontail
   misc_system_settings
   if is_pine64; then pine64_platform_scripts; fi
 }
@@ -1308,7 +1306,7 @@ openhab2_full_setup() {
 }
 
 show_main_menu() {
-  WT_HEIGHT=28
+  WT_HEIGHT=29
   WT_WIDTH=116
   WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
 
@@ -1328,6 +1326,7 @@ show_main_menu() {
   "22 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
   "23 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
   "24 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
+  "25 | Optional: frontail"     "Set up the openHAB Log Viewer webapp" \
   "30 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
   "31 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
   "32 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
@@ -1355,6 +1354,7 @@ show_main_menu() {
       22\ *) mqtt_setup ;;
       23\ *) 1wire_setup ;;
       24\ *) influxdb_grafana_setup ;;
+      25\ *) frontail ;;
       30\ *) prepare_serial_port ;;
       31\ *) wifi_setup ;;
       32\ *) move_root2usb ;;
@@ -1387,7 +1387,6 @@ if [[ -n "$UNATTENDED" ]]; then
   openhab2_full_setup
   samba_setup
   etckeeper
-# frontail
   misc_system_settings
 else
   whiptail_check
