@@ -1,12 +1,12 @@
 openHAB Shortcut Folders
 
-Please be aware, that this folder only contains links (bind mounts) to all
-relevant openHAB folders, which are located elsewhere on the file system,
-compare http://docs.openhab.org/installation/linux.html#file-locations
+This folder contains links (bind mounts) to all relevant openHAB folders, which
+are located elsewhere on the file system. Compare the folder structure:
+http://docs.openhab.org/installation/linux.html#file-locations
 
-You can access the folder via Samba network share and should have write access
+You can access this folder via Samba network share and should have write access
 to all subdirectories. The only exception is the 'openhab2-sys' folder, which
-you should not need to write to.
+you should not need to write to and was left out for security reasons.
 
 A few hints:
 

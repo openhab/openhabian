@@ -517,11 +517,14 @@ misc_system_settings() {
   echo -n "$(timestamp) [openHABian] Applying multiple useful system settings (permissions, java cap, ...)... "
   cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' $(realpath /usr/bin/java)
   if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
+  # user home note
+  echo -e "This is your linux user's \"home\" folder.\nPlace personal files, programs or scripts here." > /home/$username/README.txt
   # prepare SSH key file for the end user
   mkdir /home/$username/.ssh
   chmod 700 /home/$username/.ssh
   touch /home/$username/.ssh/authorized_keys
   chmod 600 /home/$username/.ssh/authorized_keys
+  chown -R $username:$username /home/$username/.ssh
   echo "OK"
 }
 
