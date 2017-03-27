@@ -270,7 +270,7 @@ basic_packages() {
   fi
   cond_redirect apt update
   apt remove raspi-config &>/dev/null || true
-  cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common man-db whiptail
+  cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common man-db whiptail acl
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -513,11 +513,15 @@ permissions_corrections() {
   cond_redirect chown -R openhab:$username /opt ${openhab_folders[@]}
   cond_redirect chmod -R ug+wX /opt ${openhab_folders[@]}
   cond_redirect chown -R $username:$username /home/$username
-  echo "OK"
+  #
+  cond_redirect setfacl -R --remove-all ${openhab_folders[@]}
+  cond_redirect setfacl -R -m g::rwX ${openhab_folders[@]}
+  cond_redirect setfacl -R -m d:g::rwX ${openhab_folders[@]}
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 
 misc_system_settings() {
-  echo -n "$(timestamp) [openHABian] Applying multiple useful system settings (permissions, java cap, ...)... "
+  echo -n "$(timestamp) [openHABian] Applying miscellaneous system settings... "
   cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' $(realpath /usr/bin/java)
   if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
   # user home note
