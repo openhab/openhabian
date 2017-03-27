@@ -350,38 +350,24 @@ java_zulu_embedded_archive() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (setup)"; exit 1; fi
 }
 
-# openhab2_user() {
-#   echo -n "$(timestamp) [openHABian] Manually adding openhab user to system (for manual installation?)... "
-#   adduser --system --no-create-home --group --disabled-login openhab &>/dev/null
-#   echo "OK"
-# }
-
-openhab2_addrepo() {
-  echo -n "$(timestamp) [openHABian] Adding openHAB 2 repository to sources.list.d... "
+openhab2() {
+  echo -n "$(timestamp) [openHABian] Installing openHAB 2.0 (stable)... "
   echo "deb http://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
   #echo "deb http://dl.bintray.com/openhab/apt-repo2 testing main" > /etc/apt/sources.list.d/openhab2.list
-  #echo "deb http://dl.bintray.com/openhab/apt-repo2 unstable main" > /etc/apt/sources.list.d/openhab2.list
+  #echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
   cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
   cond_redirect apt-key add openhab-key.asc
+  if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
   rm -f openhab-key.asc
   cond_redirect apt update
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-}
-
-openhab2_install() {
-  echo -n "$(timestamp) [openHABian] Installing openhab2... "
   cond_redirect apt -y install openhab2
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
-}
-
-openhab2_service() {
-  echo -n "$(timestamp) [openHABian] Activating openHAB... "
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
-  cond_redirect /bin/systemctl restart openhab2.service || true
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  cond_redirect systemctl restart openhab2.service || true
 }
 
 vim_openhab_syntax() {
@@ -413,8 +399,8 @@ samba_setup() {
   if ! /usr/bin/smbpasswd -e $username &>/dev/null; then
     ( (echo "$userpw"; echo "$userpw") | /usr/bin/smbpasswd -s -a $username > /dev/null )
   fi
-  cond_redirect /bin/systemctl enable smbd.service
-  cond_redirect /bin/systemctl restart smbd.service
+  cond_redirect systemctl enable smbd.service
+  cond_redirect systemctl restart smbd.service
   echo "OK"
 }
 
@@ -1360,19 +1346,13 @@ basic_setup() {
   needed_packages
   bashrc_copy
   vimrc_copy
+  vim_openhab_syntax
+  nano_openhab_syntax
   firemotd
   srv_bind_mounts
   permissions_corrections
   misc_system_settings
   if is_pine64; then pine64_platform_scripts; fi
-}
-
-openhab2_full_setup() {
-  openhab2_addrepo
-  openhab2_install
-  openhab2_service
-  vim_openhab_syntax
-  nano_openhab_syntax
 }
 
 show_main_menu() {
@@ -1415,7 +1395,7 @@ show_main_menu() {
       10\ *) basic_setup ;;
       11a*) java_zulu_embedded ;;
       11b*) java_webupd8 ;;
-      12\ *) openhab2_full_setup ;;
+      12\ *) openhab2 ;;
       13\ *) samba_setup ;;
       14\ *) openhab_shell_interfaces ;;
       15\ *) nginx_setup ;;
@@ -1456,7 +1436,9 @@ if [[ -n "$UNATTENDED" ]]; then
   firemotd
   etckeeper
   java_zulu_embedded
-  openhab2_full_setup
+  openhab2
+  vim_openhab_syntax
+  nano_openhab_syntax
   srv_bind_mounts
   permissions_corrections
   misc_system_settings
