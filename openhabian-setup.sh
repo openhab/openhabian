@@ -1202,7 +1202,7 @@ echo          mkdir -p ${storage}/slots/slot${counter}
       adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the EMail address to send backup reports to." 10 60 3>&1 1>&2 2>&3)
   fi
 
-  touch /etc/cron.d/amanda
+  rm -f /etc/cron.d/amanda; touch /etc/cron.d/amanda
   echo "0 1 * * * ${backupuser} /bin/bash /usr/bin/ambackup ${config} &>/dev/null" >> /etc/cron.d/amanda
   echo "0 18 * * * ${backupuser} /bin/bash /usr/bin/amcheck ${config} &>/dev/null" >> /etc/cron.d/amanda
 
