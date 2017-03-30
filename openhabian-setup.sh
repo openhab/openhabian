@@ -1150,7 +1150,6 @@ nginx_setup() {
     whiptail --title "Operation Canceled!" --msgbox "Setup was canceled, no changes were made." 15 80
   fi
 }
-#!/bin/bash  -x
 
 
 create_backup_config() {
@@ -1367,15 +1366,15 @@ amanda_setup() {
   echo ${backupuser}:${password} | /usr/bin/passwd ${backupuser}
   /usr/bin/chsh -s /bin/bash ${backupuser}
 
-  if [ -n "$INTERACTIVE" ]; then
-    if (whiptail --title "Create SD card set based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on a locally attached SD card writer and a set of SD cards. You can also use USB sticks, BUT you must ensure that the device name to access ALWAYS is the same. This is not guaranteed if you use different USB ports." 15 80) then
-        config=openhab-local-SD
-        sddev=$(whiptail --title "Card writer device" --inputbox "What's the device name of your SD card writer?" 10 60 3>&1 1>&2 2>&3)
-        tapes=$(whiptail --title "Number of SD cards in rotation" --inputbox "How many SD cards will you have available in rotation for backup purposes ?" 10 60 3>&1 1>&2 2>&3)
-        size=$(whiptail --title "SD card capacity" --inputbox "What's your backup SD card capacity in megabytes? If you use different sizes, specify the smallest one. The remaining capacity will remain unused." 10 60 3>&1 1>&2 2>&3)
-        create_backup_config ${config} ${backupuser} ${tapes} ${size} ${sddev}
-    fi
-  fi
+#  if [ -n "$INTERACTIVE" ]; then
+#    if (whiptail --title "Create SD card set based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on a locally attached SD card writer and a set of SD cards. You can also use USB sticks, BUT you must ensure that the device name to access ALWAYS is the same. This is not guaranteed if you use different USB ports." 15 80) then
+#        config=openhab-local-SD
+#        sddev=$(whiptail --title "Card writer device" --inputbox "What's the device name of your SD card writer?" 10 60 3>&1 1>&2 2>&3)
+#        tapes=$(whiptail --title "Number of SD cards in rotation" --inputbox "How many SD cards will you have available in rotation for backup purposes ?" 10 60 3>&1 1>&2 2>&3)
+#        size=$(whiptail --title "SD card capacity" --inputbox "What's your backup SD card capacity in megabytes? If you use different sizes, specify the smallest one. The remaining capacity will remain unused." 10 60 3>&1 1>&2 2>&3)
+#        create_backup_config ${config} ${backupuser} ${tapes} ${size} ${sddev}
+#    fi
+#  fi
 
   if [ -n "$INTERACTIVE" ]; then
     if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based for locally attached or NAS mounted storage." 15 80) then
@@ -1399,6 +1398,7 @@ amanda_setup() {
     fi
   fi
 }
+
 
 openhabian_update() {
   FAILED=0
