@@ -1175,7 +1175,7 @@ create_backup_config() {
   counter=1
   while [ ${counter} -le ${tapes} ]; do
       if [ "${config}" = "openhab-dir" ]; then
-echo          mkdir -p ${storage}/slots/slot${counter}
+          mkdir -p ${storage}/slots/slot${counter}
 
           tpchanger="\"chg-disk:${storage}/slots\"    # The tape-changer glue script"
           tapetype="DIRECTORY"
