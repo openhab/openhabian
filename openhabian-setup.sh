@@ -1204,6 +1204,7 @@ echo          mkdir -p ${storage}/slots/slot${counter}
 
   touch /etc/cron.d/amanda
   echo "0 1 * * * ${backupuser} /bin/bash /usr/bin/ambackup ${config} &>/dev/null" >> /etc/cron.d/amanda
+  echo "0 18 * * * ${backupuser} /bin/bash /usr/bin/amcheck ${config} &>/dev/null" >> /etc/cron.d/amanda
 
   mkdir -p ${confdir}
   touch ${confdir}/tapelist
