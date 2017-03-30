@@ -1223,7 +1223,7 @@ EOF
 
 
   /bin/cat<<EOF | /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%BKPDIR|${bkpdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" >${confdir}/amanda.conf
-org "openHABion %CONFIG"                 # Organization name for reports
+org "openHABian %CONFIG"                 # Organization name for reports
 mailto "%ADMIN"        		      # Email address to receive reports
 netusage 10000 Kbps                   # Bandwidth limit, 10M
 
