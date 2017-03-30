@@ -1232,7 +1232,7 @@ create_backup_config() {
 
     hostname=`/bin/hostname`
     if [ "${config}" = "openhab-local-SD" -o "${config}" = "openhab-dir" ]; then
-	echo "${hostname}	/dev/mmcblk0    	        amraw" >${confdir}/disklist
+        echo "${hostname}	/dev/mmcblk0    	        amraw" >${confdir}/disklist
         echo "${hostname}	/etc/openhab2			user-tar" >>${confdir}/disklist
         echo "${hostname}	/var/lib/openhab2		user-tar" >>${confdir}/disklist
     else
@@ -1275,9 +1275,10 @@ amanda_setup() {
             fi
       done
   fi
-  echo ${backupuser}:${password} | /usr/bin/passwd ${backupuser}
+  /usr/sbin/chpasswd <<< "${backupuser}:${password}"
   /usr/bin/chsh -s /bin/bash ${backupuser}
 
+# no SD set based config for now, requires latest Amanda which is not available as a package yet
 #  if [ -n "$INTERACTIVE" ]; then
 #    if (whiptail --title "Create SD card set based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on a locally attached SD card writer and a set of SD cards. You can also use USB sticks, BUT you must ensure that the device name to access ALWAYS is the same. This is not guaranteed if you use different USB ports." 15 80) then
 #        config=openhab-local-SD
