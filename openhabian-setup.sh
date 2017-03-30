@@ -1209,12 +1209,11 @@ echo          mkdir -p ${storage}/slots/slot${counter}
   mkdir -p ${confdir}
   touch ${confdir}/tapelist
   hostname=`/bin/hostname`
-  cat<<EOF | sed -e "%HOST|${hostname}" -e "%USER|${backupuser}" > /var/backup/.amandahosts
-%HOST %USER
-%HOST root amindexd amidxtaped
-localhost %USER
-localhost root amindexd amidxtaped
-EOF
+  echo "${hostname} ${backupuser}" > /var/backup/.amandahosts
+  echo "${hostname} root amindexd amidxtaped" >> /var/backup/.amandahosts
+  echo "localhost ${backupuser}" >> /var/backup/.amandahosts
+  echo "localhost root amindexd amidxtaped" >> /var/backup/.amandahosts
+  
 
   infofile="/var/lib/amanda/${config}/curinfo"	      # Database directory
   logdir="/var/log/amanda/${config}" 		      # Log directory
@@ -1223,98 +1222,12 @@ EOF
   chown -R ${backupuser}:${backupuser} /var/backup/.amandahosts ${confdir}  $infofile $logdir $indexdir
 
 
-  /bin/cat<<EOF | /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%BKPDIR|${bkpdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" >${confdir}/amanda.conf
-org "openHABian %CONFIG"                 # Organization name for reports
-mailto "%ADMIN"        		      # Email address to receive reports
-netusage 10000 Kbps                   # Bandwidth limit, 10M
-
-dumpcycle 1 week                      # Backup cycle is 7 days
-runspercycle 7                        # Run 7 times every 7 days
-tapecycle %TAPES tapes                # Dump to this number of different tapes during the cycle
-runtapes 1
-
-tpchanger %TPCHANGER
-
-
-autolabel "openhab-%CONFIG-%%%" empty
-
-changerfile "%CONFDIR/storagestate"   # The tape-changer or SD- or disk slot or S3 state file
-tapelist "%CONFDIR/tapelist" 	      # The tapelist file
-
-tapetype %TAPETYPE
-
-infofile "/var/lib/amanda/%CONFIG/curinfo"	      # Database directory
-logdir "/var/log/amanda/%CONFIG" 		      # Log directory
-indexdir "/var/lib/amanda/%CONFIG/index" 	      # Index directory
-
-define tapetype SD {
-    comment "SD card size"
-    length %SIZE mbytes 	      # actual Bucket size 5GB (Amazon default for free S3)
-}
-
-define tapetype DIRECTORY { 	      # Define our tape behaviour
-	length %SIZE mbytes           # Every tape is 100GB in size
-}
-
-define tapetype AWS {
-    comment "S3 Bucket"
-    length %SIZE mbytes 	      # actual Bucket size 5GB (Amazon default for free S3)
-}
-
-amrecover_changer "changer"           # Changer for amrecover
-
-#holdingdisk hd {
-#    directory "/holdingdisk/%CONFIG"
-#    use 1000 Mb
-#}
-
-define dumptype global {              # The global dump definition
-	maxdumps 2                    # maximum number of backups run in parallel
-	holdingdisk no                # Dump to temp disk (holdingdisk) before backup to tape
-	index yes                     # Generate index. For restoration usage
-}
-
-define dumptype root-tar {	      # How to dump root's directory
-	global                        # Include global (as above)
-	program "GNUTAR"              # Program name for compress
-	estimate server               # Estimate the backup size before dump
-	comment "root partitions dumped with tar"
-	compress none                 # No compress
-	index                         # Index this dump
-	priority low                  # Priority level
-}
-
-define dumptype user-tar {            # How to dump user's directory
-	root-tar                      # Include root-tar (as above)
-	comment "user partitions dumped with tar"
-	priority medium               # Priority level
-}
-
-define dumptype comp-user-tar {       # How to dump & compress user's directory
-	user-tar                      # Include user-tar (as above)
-	compress client fast          # Compress in client side with less CPU (fast)
-}
-
-
-define application-tool app_amraw {   # how to dump the SD card's raw device /dev/mmcblk0
-        plugin "amraw"                # uses 'dd'
-}
-
-define dumptype amraw {
-        global
-        program "APPLICATION"
-        application "app_amraw"
-}
-EOF
-
+  /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%BKPDIR|${bkpdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" ${SCRIPTDIR}/includes/amanda.conf_template >${confdir}/amanda.conf
 
   if [ "${config}" = "openhab-AWS" ]; then
-      /bin/cat<<EOF | /bin/sed -e "s|%S3ACCESSKEY|${S3accesskey}" -e "s|%S3SECRETKEY|${S3secretkey}" >>${confdir}/amanda.conf
-device_property "S3_ACCESS_KEY" "%S3ACCESSKEY"                       # Your S3 Access Key
-device_property "S3_SECRET_KEY" "%S3SECRETKEY"		             # Your S3 Secret Key
-device_property "S3_SSL" "YES"                                       # Curl needs to have S3 Certification Authority (Verisign today)
-                                                                     # in its CA list. If connection fails, try setting this no NO
-EOF
+      echo "device_property \"S3_ACCESS_KEY\" \"${S3accesskey}\"                       # Your S3 Access Key" >>${confdir}/amanda.conf
+      echo "device_property \"S3_SECRET_KEY\" \"${S3secretkey}\"                       # Your S3 Secret Key" >>${confdir}/amanda.conf
+      echo "device_property \"S3_SSL\" \"YES\"                                       # Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
   fi
 
     hostname=`/bin/hostname`
@@ -1327,11 +1240,9 @@ EOF
         echo "${hostname}	/var/lib/openhab2		comp-user-tar" >>${confdir}/disklist
     fi
 
-    cat >${confdir}/amanda-client.conf<<EOF
-index_server "localhost"
-tapedev "changer"
-auth "local"
-EOF
+    echo "index_server \"localhost\"" >${confdir}/amanda-client.conf
+    echo "tapedev \"changer\"" >${confdir}/amanda-client.conf
+    echo "auth \"local\"" >${confdir}/amanda-client.conf
 }
 
 
