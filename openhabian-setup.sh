@@ -830,18 +830,18 @@ To continue your integration in openHAB 2, please follow the instructions under:
 
 mqtt_setup() {
   FAILED=0
-  introtext="The MQTT broker software Mosquitto will be installed through the official repository, as desribed here: https://mosquitto.org/2013/01/mosquitto-debian-repository \nAdditionally you can activate username:password authentication."
+  introtext="The MQTT broker Eclipse Mosquitto will be installed through the official repository, as desribed at: https://mosquitto.org/2013/01/mosquitto-debian-repository \nAdditionally you can activate username:password authentication."
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
-Mosquitto is now up and running in the background. You should be able to make a first connection.
-To continue your integration in openHAB 2, please follow the instructions under: https://github.com/openhab/openhab/wiki/MQTT-Binding
+Eclipse Mosquitto is now up and running in the background. You should be able to make a first connection.
+To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/mqtt1/readme.html
 "
+  echo -n "$(timestamp) [openHABian] Setting up the MQTT broker Eclipse Mosquitto... "
 
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Setting up the MQTT broker software Mosquitto... "
   mqttuser="openhabian"
   question="Do you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\nUsername will be '$mqttuser', please provide a password. Leave blank for no authentication, run method again to change:"
   mqttpasswd=$(whiptail --title "MQTT Authentication" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
@@ -855,7 +855,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   if [ "$mqttpasswd" != "" ]; then
     if ! grep -q "password_file /etc/mosquitto/passwd" /etc/mosquitto/mosquitto.conf; then
-      cond_redirect echo -e "\npassword_file /etc/mosquitto/passwd\nallow_anonymous false\n" >> /etc/mosquitto/mosquitto.conf
+      echo -e "\npassword_file /etc/mosquitto/passwd\nallow_anonymous false\n" >> /etc/mosquitto/mosquitto.conf
     fi
     echo -n "" > /etc/mosquitto/passwd
     cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd $mqttuser $mqttpasswd
@@ -1278,7 +1278,7 @@ change_admin_password() {
     echo "$i"
     if [ "$i" == "Linux account" ]; then
       echo -n "$(timestamp) [openHABian] Changing password for linux account $username... "
-      cond_redirect echo "$username:$passwordChange" | chpasswd
+      echo "$username:$passwordChange" | chpasswd
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
     if [ "$i" == "Openhab2" ]; then
@@ -1373,7 +1373,7 @@ show_main_menu() {
   "15 | NGINX Setup"            "Setup a reverse proxy with password authentication or HTTPS access" \
   "20 | Optional: KNX"          "Set up the KNX daemon knxd" \
   "21 | Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
-  "22 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
+  "22 | Optional: Mosquitto"    "Set up the MQTT broker Eclipse Mosquitto" \
   "23 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
   "24 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
   "25 | Optional: frontail"     "Set up the openHAB Log Viewer webapp" \
