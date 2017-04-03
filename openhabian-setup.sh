@@ -1190,7 +1190,7 @@ openhabian_update() {
   else
     echo "OK - Commit history (oldest to newest):"
     echo -e "\n"
-    git -C $SCRIPTDIR log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --no-pager --stat $shorthash_before..$shorthash_after
+    git -C $SCRIPTDIR --no-pager log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --stat $shorthash_before..$shorthash_after
     echo -e "\n"
     echo "openHABian configuration tool successfully updated."
     echo "Visit the development repository for more details: $REPOSITORYURL"
