@@ -1464,26 +1464,88 @@ show_main_menu() {
   RET=$?
   if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then
     # "Exit" button selected or <Esc> key pressed two times
-    return 1
+    return 255
   fi
 
-  if [[ "$choice" == *"00"* ]]; then show_about
+  if [[ "$choice" == "00"* ]]; then
+    show_about
 
-  elif [[ "$choice" == *"01"* ]]; then openhabian_update
+  elif [[ "$choice" == "01"* ]]; then
+    openhabian_update
 
-  elif [[ "$choice" == *"02"* ]]; then system_upgrade
+  elif [[ "$choice" == "02"* ]]; then
+    system_upgrade
 
-  elif [[ "$choice" == *"10"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Back --ok-button Execute \
-    "00 | Basic Setup"       "Perform basic setup steps (packages, bash, permissions, ...)" \
-    "01 | Basic Setup2"       "Perform basic setup steps (packages, bash, permissions, ...)" \
+  elif [[ "$choice" == "10"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    "00 | ..."       "No options defined yet" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
 
     case "$choice2" in
-      00\ *) basic_setup ;;
-      "") return 0 ;; # <Esc>
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 10 60 ;;
+      00\ *) show_about ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "20"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    "00 | ..."       "No options defined yet" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+
+    case "$choice2" in
+      00\ *) show_about ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "30"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    "00 | ..."       "No options defined yet" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+
+    case "$choice2" in
+      00\ *) show_about ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "40"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    "00 | ..."       "No options defined yet" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+
+    case "$choice2" in
+      00\ *) show_about ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "50"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    "00 | ..."       "No options defined yet" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+
+    case "$choice2" in
+      00\ *) show_about ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "60"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    "00 | ..."       "No options defined yet" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+
+    case "$choice2" in
+      00\ *) show_about ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
 
   else whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
