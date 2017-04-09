@@ -1466,20 +1466,18 @@ show_main_menu() {
   "60 | Manual/Fresh Setup"     "Upgrade all installed software packages to their newest version" \
   3>&1 1>&2 2>&3)
   RET=$?
-  if [ $RET -eq 1 ]; then
-    return 1
-  elif [ $RET -ne 0 ]; then
-    echo "If you wish so. Bye Bye! :)"
+  if [ $RET -eq 1 || $RET -eq 255 ]; then
+    # "Exit" button selected or <Esc> key pressed two times
     return 1
   fi
 
   if [[ "$choice" == *"00"* ]]; then show_about
   elif [[ "$choice" == *"01"* ]]; then openhabian_update
   elif [[ "$choice" == *"02"* ]]; then system_upgrade
-  else whiptail --msgbox "Error: unrecognized option" 10 60
+  else whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
   fi
 
-  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error running:\n\n  \"$choice\"" 10 60; return 0; fi
+  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\n  \"$choice\"\n\nPlease try again. Open a Ticket if the error persists: $REPOSITORYURL/issues" 12 60; return 0; fi
 }
 
 if [[ -n "$UNATTENDED" ]]; then
