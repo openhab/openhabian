@@ -370,6 +370,32 @@ openhab2() {
   cond_redirect systemctl restart openhab2.service || true
 }
 
+openhab2_unstable() {
+  introtext="You are about to switch over to the latest openHAB 2 unstable build. The daily snapshot builds contain the latest features and improvements but may also suffer from bugs or incompatibilities.
+If prompted if files should be replaced by newer ones, select Yes. Please be sure to take a full openHAB configuration backup first!"
+  successtext="The latest unstable/snapshot build of openHAB 2 is now running on your system. If already available, check the function of your configuration now. If you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages regularly."
+  echo -n "$(timestamp) [openHABian] Installing or switching to openHAB 2.0 (unstable)... "
+
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+  fi
+
+  echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
+  cond_redirect apt update
+  cond_redirect apt -y install openhab2
+  if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
+  cond_redirect adduser openhab dialout
+  cond_redirect adduser openhab tty
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl enable openhab2.service
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  cond_redirect systemctl restart openhab2.service || true
+
+  if [ -n "$INTERACTIVE" ]; then
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+  fi
+}
+
 vim_openhab_syntax() {
   echo -n "$(timestamp) [openHABian] Adding openHAB syntax to vim editor... "
   # these may go to "/usr/share/vim/vimfiles" ?
@@ -389,7 +415,7 @@ nano_openhab_syntax() {
 }
 
 samba_setup() {
-  echo -n "$(timestamp) [openHABian] Setting up Samba for the default user... "
+  echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
   if ! command -v samba &>/dev/null; then
     cond_redirect apt update
     cond_redirect apt -y install samba
@@ -1367,7 +1393,8 @@ show_main_menu() {
   "10 | Basic Setup"            "Perform basic setup steps (packages, bash, permissions, ...)" \
   "11a| Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
   "11b| Oracle Java 8"          "Install Oracle Java 8 provided by WebUpd8Team" \
-  "12 | openHAB 2"              "Install openHAB 2.0 (stable)" \
+  "12a| openHAB 2"              "Install openHAB 2.0 (stable)" \
+  "12b| openHAB 2 unstable"     "Install or switch to the latest openHAB 2 snapshot (unstable)" \
   "13 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
   "14 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
   "15 | NGINX Setup"            "Setup a reverse proxy with password authentication or HTTPS access" \
@@ -1395,7 +1422,8 @@ show_main_menu() {
       10\ *) basic_setup ;;
       11a*) java_zulu_embedded ;;
       11b*) java_webupd8 ;;
-      12\ *) openhab2 ;;
+      12a*) openhab2 ;;
+      12b*) openhab2_unstable ;;
       13\ *) samba_setup ;;
       14\ *) openhab_shell_interfaces ;;
       15\ *) nginx_setup ;;
