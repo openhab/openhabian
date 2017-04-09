@@ -1452,14 +1452,14 @@ show_main_menu_old() {
 show_main_menu() {
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"       "Information about the openHABian project and this tool" \
-  "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
+  "01 | Update"                 "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
   "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup" \
   "20 | Optional Components"    "Choose from a set of optional software components" \
-  "30 | System Settings"        "A range of system- and hardware-related configuration steps" \
+  "30 | System Settings"        "A range of system and hardware related configuration steps" \
   "40 | openHAB related"        "Switch the installed openHAB version or apply tweaks" \
-  "50 | Backup/Restore"         "Manage backups and restore your system (WIP)" \
-  "60 | Manual/Fresh Setup"     "Upgrade all installed software packages to their newest version" \
+  "50 | Backup/Restore"         "Manage backups and restore your system" \
+  "60 | Manual/Fresh Setup"     "Go through all openHABian setup steps manually" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then
@@ -1478,72 +1478,116 @@ show_main_menu() {
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
-    "00 | ..."       "No options defined yet" \
+    "11 | Packages"               "Install needed and recommended system packages" \
+    "12 | Bash, Vim Settings"     "Update customized openHABian settings for bash, vim and nano" \
+    "13 | System Tweaks"          "Update system permissions and settings typical for openHAB" \
+    "14 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-
     case "$choice2" in
-      00\ *) show_about ;;
+      11\ *) basic_packages && needed_packages ;;
+      12\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax ;;
+      13\ *) srv_bind_mounts && permissions_corrections && misc_system_settings ;;
+      14\ *) firemotd ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "20"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
-    "00 | ..."       "No options defined yet" \
+    "21 | frontail"     "Set up the openHAB Log Viewer webapp" \
+    "22 | Mosquitto"    "Set up the MQTT broker Eclipse Mosquitto" \
+    "23 | Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
+    "25 | Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
+    "26 | KNX"          "Set up the KNX daemon knxd" \
+    "27 | 1wire"        "Set up owserver and related packages for working with 1wire" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-
     case "$choice2" in
-      00\ *) show_about ;;
+      21\ *) frontail ;;
+      22\ *) mqtt_setup ;;
+      23\ *) influxdb_grafana_setup ;;
+      25\ *) homegear_setup ;;
+      26\ *) knxd_setup ;;
+      27\ *) 1wire_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "30"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
-    "00 | ..."       "No options defined yet" \
+    "31 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
+    "32 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
+    "33 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
+    "34 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
+    "35 | Set System Timezone"    "Change the your timezone, execute if it's not $(date +%H:%M) now" \
+    "36 | Set System Locale"      "Change system language, default is 'en_US.UTF-8'" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-
     case "$choice2" in
-      00\ *) show_about ;;
+      31\ *) prepare_serial_port ;;
+      32\ *) wifi_setup ;;
+      33\ *) move_root2usb ;;
+      34\ *) hostname_change ;;
+      35\ *) timezone_setting ;;
+      36\ *) locale_setting ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
-    "00 | ..."       "No options defined yet" \
+    "41 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
+    "42 | openHAB 2 unstable"     "Switch to the latest openHAB 2 snapshot (unstable)" \
+    "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-
     case "$choice2" in
-      00\ *) show_about ;;
+      41\ *) openhab_shell_interfaces ;;
+      42\ *) openhab2_unstable ;;
+      43\ *) nginx_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
-    "00 | ..."       "No options defined yet" \
+    "00 | ........"       "No options available yet. This part is work in progress and" \
+    ""                    "a solution is almost ready." \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-
     case "$choice2" in
-      00\ *) show_about ;;
-      "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+      #00\ *) show_about ;;
+      #"") return 0 ;;
+      #*) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+      *) return 0 ;;
     esac
 
   elif [[ "$choice" == "60"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
-    "00 | ..."       "No options defined yet" \
+    "61 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
+    "62 | Packages"               "Install needed and recommended system packages" \
+    "63 | Bash, Vim Settings"     "Apply openHABian settings for bash, vim and nano (optional)" \
+    "64 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
+    "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team" \
+    "65 | openHAB 2"              "Install openHAB 2.0 (stable)" \
+    "   | openHAB 2 unstable"     "(Alternative) Install the latest openHAB 2 snapshot (unstable)" \
+    "66 | System Tweaks"          "Configure system permissions and settings typical for openHAB" \
+    "67 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
+    "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-
     case "$choice2" in
-      00\ *) show_about ;;
+      61\ *) system_upgrade ;;
+      62\ *) basic_packages && needed_packages ;;
+      63\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax ;;
+      64\ *) java_zulu_embedded ;;
+      *Oracle\ Java*) java_webupd8 ;;
+      65\ *) openhab2 ;;
+      *openHAB\ 2\ unstable) openhab2_unstable ;;
+      66\ *) srv_bind_mounts && permissions_corrections && misc_system_settings ;;
+      67\ *) samba_setup ;;
+      68\ *) firemotd ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
