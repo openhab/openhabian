@@ -1229,7 +1229,7 @@ openhabian_update() {
 
 system_check_default_password() {
   introtext="The default password was detected on your system! That's a serious security concern. Others or malicious programs in your subnet are able to gain root access!
-  \nPlease set a strong password by typing the command 'passwd'."
+  \nPlease set a strong password by typing the command 'passwd'!"
 
   echo -n "$(timestamp) [openHABian] Checking for default openHABian username:password combination... "
   if is_pi && id -u pi &>/dev/null; then
@@ -1495,12 +1495,12 @@ show_main_menu() {
 
   elif [[ "$choice" == "20"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
-    "21 | frontail"     "Set up the openHAB Log Viewer webapp" \
-    "22 | Mosquitto"    "Set up the MQTT broker Eclipse Mosquitto" \
-    "23 | Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
-    "25 | Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
-    "26 | KNX"          "Set up the KNX daemon knxd" \
-    "27 | 1wire"        "Set up owserver and related packages for working with 1wire" \
+    "21 | frontail"     "The openHAB Log Viewer webapp" \
+    "22 | Mosquitto"    "The MQTT broker Eclipse Mosquitto" \
+    "23 | Grafana"      "InfluxDB+Grafana as a powerful persistence and graphing solution" \
+    "25 | Homegear"     "Homematic specific, the CCU2 emulation software Homegear" \
+    "26 | knxd"         "KNX specific, the KNX router/gateway daemon knxd" \
+    "27 | 1wire"        "1wire specific, owserver and related packages" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -1516,21 +1516,21 @@ show_main_menu() {
 
   elif [[ "$choice" == "30"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 13 116 6 --cancel-button Back --ok-button Execute \
-    "31 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
-    "32 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
-    "33 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
-    "34 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
-    "35 | Set System Timezone"    "Change the your timezone, execute if it's not $(date +%H:%M) now" \
-    "36 | Set System Locale"      "Change system language, default is 'en_US.UTF-8'" \
+    "31 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
+    "32 | Set System Locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
+    "33 | Set System Timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
+    "34 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
+    "35 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
+    "36 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
-      31\ *) prepare_serial_port ;;
-      32\ *) wifi_setup ;;
-      33\ *) move_root2usb ;;
-      34\ *) hostname_change ;;
-      35\ *) timezone_setting ;;
-      36\ *) locale_setting ;;
+      31\ *) hostname_change ;;
+      32\ *) locale_setting ;;
+      33\ *) timezone_setting ;;
+      34\ *) prepare_serial_port ;;
+      35\ *) wifi_setup ;;
+      36\ *) move_root2usb ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
@@ -1552,8 +1552,9 @@ show_main_menu() {
 
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
-    "00 | ........"       "No options available yet. This part is work in progress and" \
-    ""                    "a solution is almost ready." \
+    "" "No options available yet." \
+    "" "This part is work in progress." \
+    "" "A solution is almost ready." \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
