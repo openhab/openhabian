@@ -1393,7 +1393,7 @@ basic_setup() {
   if is_pine64; then pine64_platform_scripts; fi
 }
 
-show_main_menu() {
+show_main_menu_old() {
   WT_HEIGHT=29
   WT_WIDTH=116
   WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
@@ -1459,6 +1459,39 @@ show_main_menu() {
     echo "If you wish so. Bye Bye! :)"
     return 1
   fi
+}
+
+show_main_menu() {
+  WT_HEIGHT=20
+  WT_WIDTH=116
+  WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
+
+  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
+  "00 | About openHABian"       "Information about the openHABian project and this tool" \
+  "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
+  "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
+  "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup" \
+  "20 | Optional Components"    "Choose from a set of optional software components" \
+  "30 | System Settings"        "A range of system- and hardware-related configuration steps" \
+  "40 | openHAB related"        "Switch the installed openHAB version or apply tweaks" \
+  "50 | Backup/Restore"         "Manage backups and restore your system (WIP)" \
+  "60 | Manual/Fresh Setup"     "Upgrade all installed software packages to their newest version" \
+  3>&1 1>&2 2>&3)
+  RET=$?
+  if [ $RET -eq 1 ]; then
+    return 1
+  elif [ $RET -ne 0 ]; then
+    echo "If you wish so. Bye Bye! :)"
+    return 1
+  fi
+
+  if [[ "$choice" == *"00"* ]]; then show_about
+  elif [[ "$choice" == *"01"* ]]; then openhabian_update
+  elif [[ "$choice" == *"02"* ]]; then system_upgrade
+  else whiptail --msgbox "Error: unrecognized option" 10 60
+  fi
+
+  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error running:\n\n  \"$choice\"" 10 60; return 0; fi
 }
 
 if [[ -n "$UNATTENDED" ]]; then
