@@ -1255,7 +1255,7 @@ system_check_default_password() {
   GENPASS=$(perl -le 'print crypt("$ENV{PASSWORD}","\$$ENV{ALGO}\$$ENV{SALT}\$")')
   if [ "$GENPASS" == "$ORIGPASS" ]; then
     if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Default Password Detected!" --msgbox "$introtext" 12 60
+      whiptail --title "Default Password Detected!" --msgbox "$introtext" 12 70
     fi
     echo "FAILED"
   else
@@ -1450,11 +1450,7 @@ show_main_menu_old() {
 }
 
 show_main_menu() {
-  WT_HEIGHT=20
-  WT_WIDTH=116
-  WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
-
-  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
+  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"       "Information about the openHABian project and this tool" \
   "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
@@ -1466,14 +1462,30 @@ show_main_menu() {
   "60 | Manual/Fresh Setup"     "Upgrade all installed software packages to their newest version" \
   3>&1 1>&2 2>&3)
   RET=$?
-  if [ $RET -eq 1 || $RET -eq 255 ]; then
+  if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then
     # "Exit" button selected or <Esc> key pressed two times
     return 1
   fi
 
   if [[ "$choice" == *"00"* ]]; then show_about
+
   elif [[ "$choice" == *"01"* ]]; then openhabian_update
+
   elif [[ "$choice" == *"02"* ]]; then system_upgrade
+
+  elif [[ "$choice" == *"10"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Back --ok-button Execute \
+    "00 | Basic Setup"       "Perform basic setup steps (packages, bash, permissions, ...)" \
+    "01 | Basic Setup2"       "Perform basic setup steps (packages, bash, permissions, ...)" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+
+    case "$choice2" in
+      00\ *) basic_setup ;;
+      "") return 0 ;; # <Esc>
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 10 60 ;;
+    esac
+
   else whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
   fi
 
