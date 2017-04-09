@@ -1450,7 +1450,7 @@ show_main_menu_old() {
 }
 
 show_main_menu() {
-  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Exit --ok-button Execute \
+  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 17 116 10 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"       "Information about the openHABian project and this tool" \
   "01 | Update"                 "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
@@ -1477,9 +1477,9 @@ show_main_menu() {
     system_upgrade
 
   elif [[ "$choice" == "10"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
-    "12 | Bash, Vim Settings"     "Update customized openHABian settings for bash, vim and nano" \
+    "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
     "13 | System Tweaks"          "Update system permissions and settings typical for openHAB" \
     "14 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
     3>&1 1>&2 2>&3)
@@ -1494,7 +1494,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
     "21 | frontail"     "Set up the openHAB Log Viewer webapp" \
     "22 | Mosquitto"    "Set up the MQTT broker Eclipse Mosquitto" \
     "23 | Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
@@ -1515,7 +1515,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 13 116 6 --cancel-button Back --ok-button Execute \
     "31 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
     "32 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
     "33 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
@@ -1536,7 +1536,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
     "41 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
     "42 | openHAB 2 unstable"     "Switch to the latest openHAB 2 snapshot (unstable)" \
     "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
@@ -1551,7 +1551,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "50"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
     "00 | ........"       "No options available yet. This part is work in progress and" \
     ""                    "a solution is almost ready." \
     3>&1 1>&2 2>&3)
@@ -1564,10 +1564,10 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "60"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 17 116 10 --cancel-button Back --ok-button Execute \
     "61 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
     "62 | Packages"               "Install needed and recommended system packages" \
-    "63 | Bash, Vim Settings"     "Apply openHABian settings for bash, vim and nano (optional)" \
+    "63 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional)" \
     "64 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
     "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team" \
     "65 | openHAB 2"              "Install openHAB 2.0 (stable)" \
