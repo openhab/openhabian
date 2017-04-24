@@ -1203,8 +1203,8 @@ create_backup_config() {
   fi
 
   rm -f /etc/cron.d/amanda; touch /etc/cron.d/amanda
-  echo "0 1 * * * ${backupuser} /bin/bash /usr/bin/ambackup ${config} &>/dev/null" >> /etc/cron.d/amanda
-  echo "0 18 * * * ${backupuser} /bin/bash /usr/bin/amcheck ${config} &>/dev/null" >> /etc/cron.d/amanda
+  echo "0 1 * * * ${backupuser} /bin/bash /usr/sbin/amdump ${config} &>/dev/null" >> /etc/cron.d/amanda
+  echo "0 18 * * * ${backupuser} /bin/bash /usr/sbin/amcheck -m ${config} &>/dev/null" >> /etc/cron.d/amanda
 
   mkdir -p ${confdir}
   touch ${confdir}/tapelist
