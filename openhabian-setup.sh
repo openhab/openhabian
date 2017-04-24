@@ -1190,7 +1190,7 @@ create_backup_config() {
               tapetype="SD"
           else	
               /usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}
-              tpchanger="\"chg-multi:s3:${s3accesskey}-backup/openhab-AWS/slot-{`seq -s, 1,${tapes}`}\" # Number of virtual containers in your tapecycle"
+              tpchanger="\"chg-multi:s3:${s3accesskey}-backup/openhab-AWS/slot-{`seq -s, 1 ${tapes}`}\" # Number of virtual containers in your tapecycle"
               tapetype="AWS"
           fi
       fi
