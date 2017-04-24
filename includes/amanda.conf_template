@@ -6,7 +6,7 @@ runspercycle 7						# Run 7 times every 14 days
 tapecycle %TAPES tapes					# Dump to this number of different tapes during the cycle
 runtapes 1
 tpchanger %TPCHANGER
-autolabel "%CONFIG-%%%" empty
+autolabel "openHABian-%CONFIG-%%%" empty
 changerfile "%CONFDIR/storagestate"			# The tape-changer or SD- or disk slot or S3 state file
 tapelist "%CONFDIR/tapelist"				# The tapelist file
 tapetype %TAPETYPE
