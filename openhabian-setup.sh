@@ -566,7 +566,7 @@ openhab_shell_interfaces() {
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="The Karaf console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the console via:
 \n'ssh://openhab:<password>@<openhabian-IP> -p 8101'\n
-Please be aware, that the first connection attempt may take a few minutes or may result in a timeout."
+Please be aware, that the first connection attempt may take a few minutes or may result in a timeout due to key generation."
 
   echo -n "$(timestamp) [openHABian] Binding the Karaf console on all interfaces... "
   if [ -n "$INTERACTIVE" ]; then
@@ -1263,8 +1263,7 @@ system_check_default_password() {
   fi
 }
 
-#TODO: Unused
-change_admin_password() {
+change_password() {
   introtext="Choose which services to change password for:"
   failtext="Something went wrong in the change process. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
 
@@ -1275,13 +1274,13 @@ change_admin_password() {
   if [ -n "$INTERACTIVE" ]; then
     accounts=$(whiptail --title "Choose accounts" --yes-button "Continue" --no-button "Back" --checklist "$introtext" 20 90 10 \
           "Linux account" "The account to login to this computer" on \
-          "Openhab2" "The karaf console which is used to manage openhab" on \
+          "Openhab-Karaf" "The karaf console which is used to manage openhab" on \
           "Samba" "The fileshare for configuration files" on \
           3>&1 1>&2 2>&3)
     exitstatus=$?
     if [ $exitstatus = 0 ]; then
       while [ "$matched" = false ] && [ "$canceled" = false ]; do
-        passwordChange=$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password for $username:" 15 80 3>&1 1>&2 2>&3)
+        passwordChange=$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password:" 15 80 3>&1 1>&2 2>&3)
         if [[ "$?" == 1 ]]; then return 0; fi
         secondpasswordChange=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the new password:" 15 80 3>&1 1>&2 2>&3)
         if [[ "$?" == 1 ]]; then return 0; fi
@@ -1296,27 +1295,26 @@ change_admin_password() {
     fi
   else
     passwordChange=$1
-    accounts=("Linux account" "Openhab2" "Samba")
+    accounts=("Linux account" "Openhab-Karaf" "Samba")
   fi
 
   for i in "${accounts[@]}"
   do
-    echo "$i"
-    if [ "$i" == "Linux account" ]; then
-      echo -n "$(timestamp) [openHABian] Changing password for linux account $username... "
+    if [[ $i == *"Linux account"* ]]; then
+      echo -n "$(timestamp) [openHABian] Changing password for linux account, $username... "
       echo "$username:$passwordChange" | chpasswd
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
-    if [ "$i" == "Openhab2" ]; then
-      echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account $username... "
+    if [[ $i == *"Samba"* ]]; then
+      echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account, $username... "
       (echo "$passwordChange"; echo "$passwordChange") | /usr/bin/smbpasswd -s -a $username
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
-    if [ "$i" == "Samba" ]; then
-      echo -n "$(timestamp) [openHABian] Changing password for karaf console account $username... "
-      cond_redirect sed -i "s/$username = .*,/$username = $passwordChange,/g" /var/lib/openhab2/etc/users.properties
-      cond_redirect service openhab2 stop
-      cond_redirect service openhab2 start
+    if [[ $i == *"Openhab-Karaf"* ]]; then
+      echo -n "$(timestamp) [openHABian] Changing password for karaf console account (takes a while), openhab... "
+      sed -i "s/openhab = .*,/openhab = $passwordChange,/g" /var/lib/openhab2/etc/users.properties &>/dev/null
+      service openhab2 stop &>/dev/null
+      service openhab2 start &>/dev/null
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
   done
@@ -1410,6 +1408,7 @@ show_main_menu() {
   "40 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
   "41 | Set System Timezone"    "Change the your timezone, execute if it's not $(date +%H:%M) now" \
   "42 | Set System Locale"      "Change system language, default is 'en_US.UTF-8'" \
+  "43 | Change password"        "Change passwords for Samba, Openhab-Karaf or the system user" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ]; then
@@ -1439,7 +1438,7 @@ show_main_menu() {
       40\ *) hostname_change ;;
       41\ *) timezone_setting ;;
       42\ *) locale_setting ;;
-      50\ *) change_admin_password ;;
+      43\ *) change_password ;;
       *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
     esac || whiptail --msgbox "There was an error running option:\n\n  \"$choice\"" 10 60
     return 0
