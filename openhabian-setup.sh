@@ -171,6 +171,14 @@ whiptail_check() {
   fi
 }
 
+openhabian_hotfix() {
+  if ! grep -q "sleep" /etc/cron.d/firemotd; then
+    introtext="It was brought to our attention that openHABian systems cause requests spikes on remote package update servers. This unwanted behavior is related to a simple cronjob configuration mistake and the fact that the openHABian user base has grown quite big over the last couple of months. Please continue to apply the appropriate modification to your system. Thank you."
+    if ! (whiptail --title "openHABian Hotfix Needed" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 15 80) then return 0; fi
+    firemotd
+  fi
+}
+
 timezone_setting() {
   source "$CONFIGFILE"
   if [ -n "$INTERACTIVE" ]; then
@@ -440,9 +448,12 @@ firemotd() {
     # initial apt updates check
     cond_redirect /bin/bash /opt/FireMotD/FireMotD -S
     # invoke apt updates check every night
-    echo "3 3 * * * root /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" > /etc/cron.d/firemotd
+    echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
+    echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
     # invoke apt updates check after every apt action ('apt upgrade', ...)
     echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /opt/FireMotD/FireMotD -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
+    #TODO move to a better position
+    echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent
     echo "OK"
   else
     echo "FAILED"
@@ -1475,6 +1486,7 @@ if [[ -n "$UNATTENDED" ]]; then
 else
   whiptail_check
   load_create_config
+  openhabian_hotfix
   while show_main_menu; do
     true
   done
