@@ -441,7 +441,8 @@ samba_setup() {
 firemotd() {
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
   rm -rf /opt/FireMotD
-  cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
+  #cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
+  cond_redirect git clone https://github.com/ThomDietrich/FireMotD.git /opt/FireMotD
   if [ $? -eq 0 ]; then
     # the following is already in bash_profile by default
     #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/$username/.bash_profile
