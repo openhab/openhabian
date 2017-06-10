@@ -1394,16 +1394,20 @@ basic_setup() {
 }
 
 show_main_menu() {
-  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 17 116 10 --cancel-button Exit --ok-button Execute \
+  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"       "Information about the openHABian project and this tool" \
+  "" "" \
   "01 | Update"                 "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
-  "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup" \
-  "20 | Optional Components"    "Choose from a set of optional software components" \
-  "30 | System Settings"        "A range of system and hardware related configuration steps" \
-  "40 | openHAB related"        "Switch the installed openHAB version or apply tweaks" \
-  "50 | Backup/Restore"         "Manage backups and restore your system" \
-  "60 | Manual/Fresh Setup"     "Go through all openHABian setup steps manually" \
+  "" "" \
+  "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup..." \
+  "20 | Optional Components"    "Choose from a set of optional software components..." \
+  "30 | System Settings"        "A range of system and hardware related configuration steps..." \
+  "40 | openHAB related"        "Switch the installed openHAB version or apply tweaks..." \
+  "50 | Backup/Restore"         "Manage backups and restore your system..." \
+  "60 | Manual/Fresh Setup"     "Go through all openHABian setup steps manually..." \
+  "" "" \
+  "99 | Help"                   "Further options and guidance with Linux and openHAB" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then
@@ -1411,7 +1415,10 @@ show_main_menu() {
     return 255
   fi
 
-  if [[ "$choice" == "00"* ]]; then
+  if [[ "$choice" == "" ]]; then
+      true
+
+  elif [[ "$choice" == "00"* ]]; then
     show_about
 
   elif [[ "$choice" == "01"* ]]; then
@@ -1424,15 +1431,17 @@ show_main_menu() {
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
     "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
-    "13 | System Tweaks"          "Update system permissions and settings typical for openHAB" \
-    "14 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
+    "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
+    "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
+    "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       11\ *) basic_packages && needed_packages ;;
       12\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax ;;
-      13\ *) srv_bind_mounts && permissions_corrections && misc_system_settings ;;
-      14\ *) firemotd ;;
+      13\ *) srv_bind_mounts && misc_system_settings ;;
+      14\ *) permissions_corrections ;;
+      15\ *) firemotd ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
@@ -1536,6 +1545,9 @@ show_main_menu() {
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
+
+  elif [[ "$choice" == "99"* ]]; then
+    show_about
 
   else whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
   fi
