@@ -1219,14 +1219,14 @@ create_backup_config() {
           tapetype="DIRECTORY"
       else
           if [ "${config}" = "openhab-local-SD" ]; then
-              introtext="Please insert your removable storage medium number ${counter}." 
+              introtext="Please insert your removable storage medium number ${counter}."
               if [ -n "$INTERACTIVE" ]; then
 	          if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
                   /usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}
               fi
               tpchanger="\"chg-single:${sddev}\""
               tapetype="SD"
-          else	
+          else
               /usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}
               tpchanger="\"chg-multi:s3:${s3accesskey}-backup/openhab-AWS/slot-{`seq -s, 1 ${tapes}`}\" # Number of virtual containers in your tapecycle"
               tapetype="AWS"
@@ -1251,7 +1251,7 @@ create_backup_config() {
   echo "${hostname} root amindexd amidxtaped" >> /var/backup/.amandahosts
   echo "localhost ${backupuser}" >> /var/backup/.amandahosts
   echo "localhost root amindexd amidxtaped" >> /var/backup/.amandahosts
-  
+
 
   infofile="/var/lib/amanda/${config}/curinfo"	      # Database directory
   logdir="/var/log/amanda/${config}" 		      # Log directory
@@ -1588,7 +1588,7 @@ show_main_menu() {
     system_upgrade
 
   elif [[ "$choice" == "10"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 12 116 5 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
     "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
@@ -1628,7 +1628,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 13 116 6 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
     "31 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set System Locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
     "33 | Set System Timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
@@ -1666,9 +1666,8 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "50"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
     "51 | Amada Backup"           "Set up a backup solution on top of Amanda" \
-    ""                            "Attention: This part is work in progress." \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
