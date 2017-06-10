@@ -171,6 +171,14 @@ whiptail_check() {
   fi
 }
 
+openhabian_hotfix() {
+  if ! grep -q "sleep" /etc/cron.d/firemotd; then
+    introtext="It was brought to our attention that openHABian systems cause requests spikes on remote package update servers. This unwanted behavior is related to a simple cronjob configuration mistake and the fact that the openHABian user base has grown quite big over the last couple of months. Please continue to apply the appropriate modification to your system. Thank you."
+    if ! (whiptail --title "openHABian Hotfix Needed" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 15 80) then return 0; fi
+    firemotd
+  fi
+}
+
 timezone_setting() {
   source "$CONFIGFILE"
   if [ -n "$INTERACTIVE" ]; then
@@ -370,6 +378,32 @@ openhab2() {
   cond_redirect systemctl restart openhab2.service || true
 }
 
+openhab2_unstable() {
+  introtext="You are about to switch over to the latest openHAB 2 unstable build. The daily snapshot builds contain the latest features and improvements but may also suffer from bugs or incompatibilities.
+If prompted if files should be replaced by newer ones, select Yes. Please be sure to take a full openHAB configuration backup first!"
+  successtext="The latest unstable/snapshot build of openHAB 2 is now running on your system. If already available, check the function of your configuration now. If you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages regularly."
+  echo -n "$(timestamp) [openHABian] Installing or switching to openHAB 2.0 (unstable)... "
+
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+  fi
+
+  echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
+  cond_redirect apt update
+  cond_redirect apt -y install openhab2
+  if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
+  cond_redirect adduser openhab dialout
+  cond_redirect adduser openhab tty
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl enable openhab2.service
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  cond_redirect systemctl restart openhab2.service || true
+
+  if [ -n "$INTERACTIVE" ]; then
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+  fi
+}
+
 vim_openhab_syntax() {
   echo -n "$(timestamp) [openHABian] Adding openHAB syntax to vim editor... "
   # these may go to "/usr/share/vim/vimfiles" ?
@@ -389,7 +423,7 @@ nano_openhab_syntax() {
 }
 
 samba_setup() {
-  echo -n "$(timestamp) [openHABian] Setting up Samba for the default user... "
+  echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
   if ! command -v samba &>/dev/null; then
     cond_redirect apt update
     cond_redirect apt -y install samba
@@ -407,16 +441,20 @@ samba_setup() {
 firemotd() {
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
   rm -rf /opt/FireMotD
-  cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
+  #cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
+  cond_redirect git clone https://github.com/ThomDietrich/FireMotD.git /opt/FireMotD
   if [ $? -eq 0 ]; then
     # the following is already in bash_profile by default
     #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/$username/.bash_profile
     # initial apt updates check
     cond_redirect /bin/bash /opt/FireMotD/FireMotD -S
     # invoke apt updates check every night
-    echo "3 3 * * * root /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" > /etc/cron.d/firemotd
+    echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
+    echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
     # invoke apt updates check after every apt action ('apt upgrade', ...)
     echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /opt/FireMotD/FireMotD -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
+    #TODO move to a better position
+    echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent
     echo "OK"
   else
     echo "FAILED"
@@ -643,9 +681,9 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 
 wifi_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Wifi (PRi3 or Pine A64)... "
-  if ! is_pithree && ! is_pine64; then
+  if ! is_pithree && ! is_pizerow && ! is_pine64; then
     if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Incompatible Hardware Detected" --msgbox "Wifi setup: This option is for a Raspberry Pi 3 system only." 10 60
+      whiptail --title "Incompatible Hardware Detected" --msgbox "Wifi setup: This option is for the Pi3, Pi0W or the Pine A64 system only." 10 60
     fi
     echo "FAILED"; return 1
   fi
@@ -655,13 +693,14 @@ wifi_setup() {
     PASS=$(whiptail --title "Wifi Setup" --inputbox "What's the password for that Wifi?" 10 60 3>&1 1>&2 2>&3)
     if [ $? -ne 0 ]; then return 1; fi
   else
-    echo -n "setting default SSID and password in 'wpa_supplicant.conf' "
+    echo -n "Setting default SSID and password in 'wpa_supplicant.conf' "
     SSID="myWifiSSID"
     PASS="myWifiPassword"
   fi
   if is_pithree; then cond_redirect apt -y install firmware-brcm80211; fi
   cond_redirect apt -y install wpasupplicant wireless-tools
-  echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\nnetwork={\n  ssid=\"$SSID\"\n  psk=\"$PASS\"\n}" > /etc/wpa_supplicant/wpa_supplicant.conf
+  echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1" > /etc/wpa_supplicant/wpa_supplicant.conf
+  echo -e "network={\n\tssid=\"$SSID\"\n\tpsk=\"$PASS\"\n}" >> /etc/wpa_supplicant/wpa_supplicant.conf
   if grep -q "wlan0" /etc/network/interfaces; then
     cond_echo ""
     cond_echo "Not writing to '/etc/network/interfaces', wlan0 entry already available. You might need to check, adopt or remove these lines."
@@ -669,13 +708,12 @@ wifi_setup() {
   else
     echo -e "\nallow-hotplug wlan0\niface wlan0 inet manual\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\niface default inet dhcp" >> /etc/network/interfaces
   fi
+  cond_redirect wpa_cli reconfigure
   cond_redirect ifdown wlan0
   cond_redirect ifup wlan0
-
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "Setup was successful. Your Wifi credentials were NOT tested. Please reboot now." 15 80
   fi
-
   echo "OK (Reboot needed)"
 }
 
@@ -830,18 +868,18 @@ To continue your integration in openHAB 2, please follow the instructions under:
 
 mqtt_setup() {
   FAILED=0
-  introtext="The MQTT broker software Mosquitto will be installed through the official repository, as desribed here: https://mosquitto.org/2013/01/mosquitto-debian-repository \nAdditionally you can activate username:password authentication."
+  introtext="The MQTT broker Eclipse Mosquitto will be installed through the official repository, as desribed at: https://mosquitto.org/2013/01/mosquitto-debian-repository \nAdditionally you can activate username:password authentication."
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
-Mosquitto is now up and running in the background. You should be able to make a first connection.
-To continue your integration in openHAB 2, please follow the instructions under: https://github.com/openhab/openhab/wiki/MQTT-Binding
+Eclipse Mosquitto is now up and running in the background. You should be able to make a first connection.
+To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/mqtt1/readme.html
 "
+  echo -n "$(timestamp) [openHABian] Setting up the MQTT broker Eclipse Mosquitto... "
 
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Setting up the MQTT broker software Mosquitto... "
   mqttuser="openhabian"
   question="Do you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\nUsername will be '$mqttuser', please provide a password. Leave blank for no authentication, run method again to change:"
   mqttpasswd=$(whiptail --title "MQTT Authentication" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
@@ -855,7 +893,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   if [ "$mqttpasswd" != "" ]; then
     if ! grep -q "password_file /etc/mosquitto/passwd" /etc/mosquitto/mosquitto.conf; then
-      cond_redirect echo -e "\npassword_file /etc/mosquitto/passwd\nallow_anonymous false\n" >> /etc/mosquitto/mosquitto.conf
+      echo -e "\npassword_file /etc/mosquitto/passwd\nallow_anonymous false\n" >> /etc/mosquitto/mosquitto.conf
     fi
     echo -n "" > /etc/mosquitto/passwd
     cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd $mqttuser $mqttpasswd
@@ -1352,7 +1390,7 @@ openhabian_update() {
   else
     echo "OK - Commit history (oldest to newest):"
     echo -e "\n"
-    git -C $SCRIPTDIR log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --no-pager --stat $shorthash_before..$shorthash_after
+    git -C $SCRIPTDIR --no-pager log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --stat $shorthash_before..$shorthash_after
     echo -e "\n"
     echo "openHABian configuration tool successfully updated."
     echo "Visit the development repository for more details: $REPOSITORYURL"
@@ -1365,7 +1403,7 @@ openhabian_update() {
 
 system_check_default_password() {
   introtext="The default password was detected on your system! That's a serious security concern. Others or malicious programs in your subnet are able to gain root access!
-  \nPlease set a strong password by typing the command 'passwd'."
+  \nPlease set a strong password by typing the command 'passwd'!"
 
   echo -n "$(timestamp) [openHABian] Checking for default openHABian username:password combination... "
   if is_pi && id -u pi &>/dev/null; then
@@ -1391,7 +1429,7 @@ system_check_default_password() {
   GENPASS=$(perl -le 'print crypt("$ENV{PASSWORD}","\$$ENV{ALGO}\$$ENV{SALT}\$")')
   if [ "$GENPASS" == "$ORIGPASS" ]; then
     if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Default Password Detected!" --msgbox "$introtext" 12 60
+      whiptail --title "Default Password Detected!" --msgbox "$introtext" 12 70
     fi
     echo "FAILED"
   else
@@ -1440,7 +1478,7 @@ change_admin_password() {
     echo "$i"
     if [ "$i" == "Linux account" ]; then
       echo -n "$(timestamp) [openHABian] Changing password for linux account $username... "
-      cond_redirect echo "$username:$passwordChange" | chpasswd
+      echo "$username:$passwordChange" | chpasswd
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
     if [ "$i" == "Openhab2" ]; then
@@ -1518,71 +1556,163 @@ basic_setup() {
 }
 
 show_main_menu() {
-  WT_HEIGHT=29
-  WT_WIDTH=116
-  WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
-
-  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
-  "00 | About openHABian"       "Get information about the openHABian project and this tool" \
-  "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
+  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
+  "00 | About openHABian"       "Information about the openHABian project and this tool" \
+  "" "" \
+  "01 | Update"                 "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
-  "10 | Basic Setup"            "Perform basic setup steps (packages, bash, permissions, ...)" \
-  "11a| Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
-  "11b| Oracle Java 8"          "Install Oracle Java 8 provided by WebUpd8Team" \
-  "12 | openHAB 2"              "Install openHAB 2.0 (stable)" \
-  "13 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
-  "14 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
-  "15 | NGINX Setup"            "Setup a reverse proxy with password authentication or HTTPS access" \
-  "20 | Optional: KNX"          "Set up the KNX daemon knxd" \
-  "21 | Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
-  "22 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
-  "23 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
-  "24 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
-  "25 | Optional: frontail"     "Set up the openHAB Log Viewer webapp" \
-  "30 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
-  "31 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
-  "32 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
-  "33 | Setup backup"           "Set up the Amanda backup system" \
-  "40 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
-  "41 | Set System Timezone"    "Change the your timezone, execute if it's not $(date +%H:%M) now" \
-  "42 | Set System Locale"      "Change system language, default is 'en_US.UTF-8'" \
+  "" "" \
+  "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup..." \
+  "20 | Optional Components"    "Choose from a set of optional software components..." \
+  "30 | System Settings"        "A range of system and hardware related configuration steps..." \
+  "40 | openHAB related"        "Switch the installed openHAB version or apply tweaks..." \
+  "50 | Backup/Restore"         "Manage backups and restore your system..." \
+  "60 | Manual/Fresh Setup"     "Go through all openHABian setup steps manually..." \
+  "" "" \
+  "99 | Help"                   "Further options and guidance with Linux and openHAB" \
   3>&1 1>&2 2>&3)
   RET=$?
-  if [ $RET -eq 1 ]; then
-    return 1
-  elif [ $RET -eq 0 ]; then
-    case "$choice" in
-      00\ *) show_about ;;
-      01\ *) openhabian_update ;;
-      02\ *) system_upgrade ;;
-      10\ *) basic_setup ;;
-      11a*) java_zulu_embedded ;;
-      11b*) java_webupd8 ;;
-      12\ *) openhab2 ;;
-      13\ *) samba_setup ;;
-      14\ *) openhab_shell_interfaces ;;
-      15\ *) nginx_setup ;;
-      20\ *) knxd_setup ;;
-      21\ *) homegear_setup ;;
-      22\ *) mqtt_setup ;;
-      23\ *) 1wire_setup ;;
-      24\ *) influxdb_grafana_setup ;;
-      25\ *) frontail ;;
-      30\ *) prepare_serial_port ;;
-      31\ *) wifi_setup ;;
-      32\ *) move_root2usb ;;
-      33\ *) amanda_setup ;;
-      40\ *) hostname_change ;;
-      41\ *) timezone_setting ;;
-      42\ *) locale_setting ;;
-      50\ *) change_admin_password ;;
-      *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
-    esac || whiptail --msgbox "There was an error running option:\n\n  \"$choice\"" 10 60
-    return 0
-  else
-    echo "If you wish so. Bye Bye! :)"
-    return 1
+  if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then
+    # "Exit" button selected or <Esc> key pressed two times
+    return 255
   fi
+
+  if [[ "$choice" == "" ]]; then
+      true
+
+  elif [[ "$choice" == "00"* ]]; then
+    show_about
+
+  elif [[ "$choice" == "01"* ]]; then
+    openhabian_update
+
+  elif [[ "$choice" == "02"* ]]; then
+    system_upgrade
+
+  elif [[ "$choice" == "10"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
+    "11 | Packages"               "Install needed and recommended system packages" \
+    "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
+    "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
+    "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
+    "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      11\ *) basic_packages && needed_packages ;;
+      12\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax ;;
+      13\ *) srv_bind_mounts && misc_system_settings ;;
+      14\ *) permissions_corrections ;;
+      15\ *) firemotd ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "20"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
+    "21 | frontail"     "The openHAB Log Viewer webapp" \
+    "22 | Mosquitto"    "The MQTT broker Eclipse Mosquitto" \
+    "23 | Grafana"      "InfluxDB+Grafana as a powerful persistence and graphing solution" \
+    "25 | Homegear"     "Homematic specific, the CCU2 emulation software Homegear" \
+    "26 | knxd"         "KNX specific, the KNX router/gateway daemon knxd" \
+    "27 | 1wire"        "1wire specific, owserver and related packages" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      21\ *) frontail ;;
+      22\ *) mqtt_setup ;;
+      23\ *) influxdb_grafana_setup ;;
+      25\ *) homegear_setup ;;
+      26\ *) knxd_setup ;;
+      27\ *) 1wire_setup ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "30"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 13 116 6 --cancel-button Back --ok-button Execute \
+    "31 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
+    "32 | Set System Locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
+    "33 | Set System Timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
+    "34 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
+    "35 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
+    "36 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      31\ *) hostname_change ;;
+      32\ *) locale_setting ;;
+      33\ *) timezone_setting ;;
+      34\ *) prepare_serial_port ;;
+      35\ *) wifi_setup ;;
+      36\ *) move_root2usb ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "40"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
+    "41 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
+    "42 | openHAB 2 unstable"     "Switch to the latest openHAB 2 snapshot (unstable)" \
+    "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      41\ *) openhab_shell_interfaces ;;
+      42\ *) openhab2_unstable ;;
+      43\ *) nginx_setup ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "50"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
+    "51 | Amada backup"           "Set up a backup solution on top of Amanda" \
+    ""                            "Attention: This part is work in progress." \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      51\ *) amanda_setup ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "60"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 17 116 10 --cancel-button Back --ok-button Execute \
+    "61 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
+    "62 | Packages"               "Install needed and recommended system packages" \
+    "63 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional)" \
+    "64 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
+    "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team" \
+    "65 | openHAB 2"              "Install openHAB 2.0 (stable)" \
+    "   | openHAB 2 unstable"     "(Alternative) Install the latest openHAB 2 snapshot (unstable)" \
+    "66 | System Tweaks"          "Configure system permissions and settings typical for openHAB" \
+    "67 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
+    "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional)" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      61\ *) system_upgrade ;;
+      62\ *) basic_packages && needed_packages ;;
+      63\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax ;;
+      64\ *) java_zulu_embedded ;;
+      *Oracle\ Java*) java_webupd8 ;;
+      65\ *) openhab2 ;;
+      *openHAB\ 2\ unstable) openhab2_unstable ;;
+      66\ *) srv_bind_mounts && permissions_corrections && misc_system_settings ;;
+      67\ *) samba_setup ;;
+      68\ *) firemotd ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "99"* ]]; then
+    show_about
+
+  else whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
+  fi
+
+  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\n  \"$choice\"\n\nPlease try again. Open a Ticket if the error persists: $REPOSITORYURL/issues" 12 60; return 0; fi
 }
 
 if [[ -n "$UNATTENDED" ]]; then
@@ -1611,6 +1741,7 @@ if [[ -n "$UNATTENDED" ]]; then
 else
   whiptail_check
   load_create_config
+  openhabian_hotfix
   while show_main_menu; do
     true
   done

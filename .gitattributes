@@ -9,3 +9,8 @@
 
 # Binary files
 *.jpg binary
+
+#Linguist
+openhabian/includes/smb.conf linguist-language=ini
+includes/smb.conf linguist-language=ini
+smb.conf linguist-language=ini
