@@ -578,7 +578,7 @@ openhab_shell_interfaces() {
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="The Karaf console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the console via:
 \n'ssh://openhab:<password>@<openhabian-IP> -p 8101'\n
-Please be aware, that the first connection attempt may take a few minutes or may result in a timeout."
+Please be aware, that the first connection attempt may take a few minutes or may result in a timeout due to key generation."
 
   echo -n "$(timestamp) [openHABian] Binding the Karaf console on all interfaces... "
   if [ -n "$INTERACTIVE" ]; then
@@ -1437,8 +1437,7 @@ system_check_default_password() {
   fi
 }
 
-#TODO: Unused
-change_admin_password() {
+change_password() {
   introtext="Choose which services to change password for:"
   failtext="Something went wrong in the change process. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
 
@@ -1449,13 +1448,13 @@ change_admin_password() {
   if [ -n "$INTERACTIVE" ]; then
     accounts=$(whiptail --title "Choose accounts" --yes-button "Continue" --no-button "Back" --checklist "$introtext" 20 90 10 \
           "Linux account" "The account to login to this computer" on \
-          "Openhab2" "The karaf console which is used to manage openhab" on \
+          "Openhab-Karaf" "The karaf console which is used to manage openhab" on \
           "Samba" "The fileshare for configuration files" on \
           3>&1 1>&2 2>&3)
     exitstatus=$?
     if [ $exitstatus = 0 ]; then
       while [ "$matched" = false ] && [ "$canceled" = false ]; do
-        passwordChange=$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password for $username:" 15 80 3>&1 1>&2 2>&3)
+        passwordChange=$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password:" 15 80 3>&1 1>&2 2>&3)
         if [[ "$?" == 1 ]]; then return 0; fi
         secondpasswordChange=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the new password:" 15 80 3>&1 1>&2 2>&3)
         if [[ "$?" == 1 ]]; then return 0; fi
@@ -1470,27 +1469,26 @@ change_admin_password() {
     fi
   else
     passwordChange=$1
-    accounts=("Linux account" "Openhab2" "Samba")
+    accounts=("Linux account" "Openhab-Karaf" "Samba")
   fi
 
   for i in "${accounts[@]}"
   do
-    echo "$i"
-    if [ "$i" == "Linux account" ]; then
-      echo -n "$(timestamp) [openHABian] Changing password for linux account $username... "
+    if [[ $i == *"Linux account"* ]]; then
+      echo -n "$(timestamp) [openHABian] Changing password for linux account, $username... "
       echo "$username:$passwordChange" | chpasswd
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
-    if [ "$i" == "Openhab2" ]; then
-      echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account $username... "
+    if [[ $i == *"Samba"* ]]; then
+      echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account, $username... "
       (echo "$passwordChange"; echo "$passwordChange") | /usr/bin/smbpasswd -s -a $username
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
-    if [ "$i" == "Samba" ]; then
-      echo -n "$(timestamp) [openHABian] Changing password for karaf console account $username... "
-      cond_redirect sed -i "s/$username = .*,/$username = $passwordChange,/g" /var/lib/openhab2/etc/users.properties
-      cond_redirect service openhab2 stop
-      cond_redirect service openhab2 start
+    if [[ $i == *"Openhab-Karaf"* ]]; then
+      echo -n "$(timestamp) [openHABian] Changing password for karaf console account (takes a while), openhab... "
+      sed -i "s/openhab = .*,/openhab = $passwordChange,/g" /var/lib/openhab2/etc/users.properties &>/dev/null
+      service openhab2 stop &>/dev/null
+      service openhab2 start &>/dev/null
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
   done
@@ -1634,18 +1632,20 @@ show_main_menu() {
     "31 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set System Locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
     "33 | Set System Timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
-    "34 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
-    "35 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
-    "36 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
+    "34 | Change Passwords"       "Change passwords for Samba, Openhab-Karaf or the system user" \
+    "35 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
+    "36 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
+    "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       31\ *) hostname_change ;;
       32\ *) locale_setting ;;
       33\ *) timezone_setting ;;
-      34\ *) prepare_serial_port ;;
-      35\ *) wifi_setup ;;
-      36\ *) move_root2usb ;;
+      34\ *) change_password ;;
+      35\ *) prepare_serial_port ;;
+      36\ *) wifi_setup ;;
+      37\ *) move_root2usb ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
@@ -1667,7 +1667,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
-    "51 | Amada backup"           "Set up a backup solution on top of Amanda" \
+    "51 | Amada Backup"           "Set up a backup solution on top of Amanda" \
     ""                            "Attention: This part is work in progress." \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
