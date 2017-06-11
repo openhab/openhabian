@@ -55,11 +55,7 @@ openHABian provides the Configuration Tool [`openhabian-config`](#first-steps) w
 * Install and Setup a [reverse proxy](security.html#nginx-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
 * Set up a Wi-Fi connection
 * Bind the [Karaf remote console]({{base}}/administration/console.html) to all interfaces
-* [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon
-* [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
-* [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
-* [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
-* [InfluxDB+Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing
+* Easily install and preconfigure [Optional components](#optional-components) of your choice
 * ... and many more
 * Raspberry Pi specific:
   * Prepare the serial port for the use with extension boards like Razberry, SCC, Enocean Pi, ...
@@ -238,6 +234,18 @@ Here are the passwords in question, their default value and the way to change th
 * Samba share password (e.g. "openhabian:openhabian"): `sudo smbpasswd openhabian`
 * Karaf remote console (e.g. "openhab:habopen"): Change via the openHABian menu
 * Nginx reverse proxy login (no default): Change via the openHABian menu, please see [here](http://docs.openhab.org/installation/security.html#adding-or-removing-users) for more
+
+## Optional Components
+
+openHABian comes with a number of additional configs that allow you to quickly install home automation related software.
+
+* [frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openHABianPi:9001/](http://openHABianPi:9001/)
+* [Node-RED](https://nodered.org/) - Flow-based programming for the Internet of Things with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) addons. Accessible from [http://openHABianPi:1880/](http://openHABianPi:1880/)
+* [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
+* [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
+* [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
+* [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
+* [Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openHABianPi:3000/](http://openHABianPi:3000/)
 
 ## FAQ and Troubleshooting
 
