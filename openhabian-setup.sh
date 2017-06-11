@@ -44,6 +44,7 @@ timestamp() { date +"%F_%T_%Z"; }
 # Make sure only root can run our script
 echo -n "$(timestamp) [openHABian] Checking for root privileges... "
 if [[ $EUID -ne 0 ]]; then
+  echo ""
   echo "This script must be run as root. Did you mean 'sudo openhabian-config'?" 1>&2
   echo "More info: http://docs.openhab.org/installation/openhabian.html"
   exit 1
@@ -676,7 +677,11 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
     cp /boot/cmdline.txt /boot/cmdline.txt.bak
     cp /etc/inittab /etc/inittab.bak
     sed -i 's/console=tty.*console=tty1/console=tty1/g' /boot/cmdline.txt
+    sed -i 's/console=serial*console=tty1/console=tty1/g' /boot/cmdline.txt
     sed -i 's/^T0/\#T0/g' /etc/inittab
+    cond_redirect systemctl disable serial-getty@ttyAMA0.service
+    cond_redirect systemctl disable serial-getty@serial0.service
+    cond_redirect systemctl disable serial-getty@ttyS0.service
   #else
     #TODO this needs to be tested when/if someone actually cares...
     #cp /boot/cmdline.txt.bak /boot/cmdline.txt
