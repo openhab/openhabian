@@ -485,8 +485,7 @@ etckeeper() {
   fi
 }
 
-frontail() {
-  echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail)... "
+nodejs() {
   if ! command -v npm &>/dev/null; then
     cond_redirect wget -O - https://deb.nodesource.com/setup_7.x | bash -
     if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
@@ -494,6 +493,11 @@ frontail() {
     cond_redirect apt -y install nodejs
     if [ $? -ne 0 ]; then echo "FAILED (nodejs)"; exit 1; fi
   fi
+}
+
+frontail() {
+  echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail)... "
+  nodejs
   cond_redirect npm install -g frontail
   if [ $? -ne 0 ]; then echo "FAILED (frontail)"; exit 1; fi
   cond_redirect npm update -g frontail
@@ -504,9 +508,27 @@ frontail() {
   cp $SCRIPTDIR/includes/frontail.service /etc/systemd/system/frontail.service
   chmod 664 /etc/systemd/system/frontail.service
   cond_redirect systemctl daemon-reload
-  cond_redirect /bin/systemctl enable frontail.service
-  cond_redirect /bin/systemctl restart frontail.service
+  cond_redirect systemctl enable frontail.service
+  cond_redirect systemctl restart frontail.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
+}
+
+nodered() {
+  echo -n "$(timestamp) [openHABian] Installing Node-RED... "
+  nodejs
+  cond_redirect wget -O /tmp/update-nodejs-and-nodered.sh https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered || FAILED=1
+  cond_redirect bash /tmp/update-nodejs-and-nodered.sh || FAILED=1
+  if [ $FAILED -eq 1 ]; then echo "FAILED (nodered)"; exit 1; fi
+  cond_redirect npm install -g node-red-contrib-bigtimer
+  if [ $? -ne 0 ]; then echo "FAILED (nodered bigtimer addon)"; exit 1; fi
+  cond_redirect npm update -g node-red-contrib-bigtimer
+  cond_redirect npm install -g node-red-contrib-openhab2
+  if [ $? -ne 0 ]; then echo "FAILED (nodered openhab2 addon)"; exit 1; fi
+  cond_redirect npm update -g node-red-contrib-openhab2
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl enable nodered.service
+  cond_redirect systemctl restart nodered.service
+  if [ $? -eq 0 ]; then echo "OK - Node-RED is now available at http://$hostname:1880"; else echo "FAILED (service)"; exit 1; fi
 }
 
 srv_bind_mounts() {
@@ -1622,6 +1644,7 @@ show_main_menu() {
     "21 | frontail"     "The openHAB Log Viewer webapp" \
     "22 | Mosquitto"    "The MQTT broker Eclipse Mosquitto" \
     "23 | Grafana"      "InfluxDB+Grafana as a powerful persistence and graphing solution" \
+    "24 | NodeRED"      "Flow-based programming for the Internet of Things" \
     "25 | Homegear"     "Homematic specific, the CCU2 emulation software Homegear" \
     "26 | knxd"         "KNX specific, the KNX router/gateway daemon knxd" \
     "27 | 1wire"        "1wire specific, owserver and related packages" \
@@ -1631,6 +1654,7 @@ show_main_menu() {
       21\ *) frontail ;;
       22\ *) mqtt_setup ;;
       23\ *) influxdb_grafana_setup ;;
+      24\ *) nodered ;;
       25\ *) homegear_setup ;;
       26\ *) knxd_setup ;;
       27\ *) 1wire_setup ;;
