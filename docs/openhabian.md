@@ -110,6 +110,10 @@ All packages are downloaded in their newest version and configured to work witho
 
 Learn more about the Pine A64 as your platform for openHAB and about the requirements in our [Pine A64 article](pine.html).
 
+*Attention:* Unstable behavior has been reported when using the Pine64 with and without a display connected to HDMI.
+Read about the details in [this discussion](https://github.com/longsleep/build-pine64-image/issues/51).
+As a workaround, please be sure to not have am HDMI display connected during the installation of openHABian.
+
 **Setup:**
 
 * [Download the latest "openHABianPine64" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
@@ -147,7 +151,7 @@ sudo apt-get install git
 
 # download and link
 sudo git clone https://github.com/openhab/openhabian.git /opt/openhabian
-ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
+sudo ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 # execute
 sudo openhabian-config
