@@ -167,14 +167,14 @@ The "Manual/Fresh Setup" submenu entry is the right place for you. Execute all e
 {: #wifi-setup}
 ### Wi-Fi based Setup Notes
 
-If you own a RPi3, RPi0W or a Pine A64, you can setup and use openHABian purely via Wi-Fi.
+If you own a RPi3, a RPi0W, a Pine A64, or a compatible Wi-Fi dongle you can set up and use openHABian purely via Wi-Fi.
 For the setup on Wi-Fi, you'll need to make your SSID and password known to the system before the first boot.
 Additionally to the setup instructions given above, the following steps are needed:
 
-* Flash the system image to your micro SD card as described
-* Access the first SD card partition from your file explorer
+* Flash the system image to your micro SD card as described, do not remove the SD card yet
+* Access the first SD card partition from the file explorer of your choice (e.g. Windows file explorer)
 * Open the file `openhabian.conf` in a text editor
-* Uncomment and fill in `wifi_ssid=` and `wifi_psk=`
+* Uncomment and fill in `wifi_ssid="My Wi-Fi SSID"` and `wifi_psk="password123"`
 * Save, Unmount, Insert, Boot
 * Continue with the instructions for the Raspberry Pi or Pine A64
 
