@@ -171,6 +171,17 @@ whiptail_check() {
   fi
 }
 
+ua-netinst_check() {
+  if grep -q "^preset=" /boot/installer-config.txt; then
+    introtext="Attention: It was brought to our attention that the old openHABian ua-netinst based image has a problem with a lately updated Linux package.
+If you upgrade(d) the package 'raspberrypi-bootloader-nokernel' your Raspberry Pi will run into a Kernel Panic upon reboot!
+\nDo not Upgrade, do not Reboot!
+\nA preliminary solution is to not upgrade the system (via the Upgrade menu entry or 'apt upgrade') or to modify a configuration file. In the long run we would recommend to switch over to the new openHABian Raspbian based system image! This error message will keep reapearing even after you fixed the issue at hand.
+Please find all details regarding the issue and the resolution of it at: https://github.com/openhab/openhabian/issues/147"
+    if ! (whiptail --title "openHABian Raspberry Pi ua-netinst image detected" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 20 80) then return 0; fi
+  fi
+}
+
 openhabian_hotfix() {
   if ! grep -q "sleep" /etc/cron.d/firemotd; then
     introtext="It was brought to our attention that openHABian systems cause requests spikes on remote package update servers. This unwanted behavior is related to a simple cronjob configuration mistake and the fact that the openHABian user base has grown quite big over the last couple of months. Please continue to apply the appropriate modification to your system. Thank you."
@@ -1741,6 +1752,7 @@ else
   whiptail_check
   load_create_config
   openhabian_hotfix
+  ua-netinst_check
   while show_main_menu; do
     true
   done
