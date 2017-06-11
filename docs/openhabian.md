@@ -142,7 +142,7 @@ You will see the following welcome screen:
 ### Manual Setup
 
 openHABian also supports general Debian/Ubuntu based systems on different platforms.
-Starting with a fresh installation of your operating system, install git, then clone the openHABian poject and finally execute the openHABian configuration tool:
+Starting with a fresh installation of your operating system, install git, then clone the openHABian project and finally execute the openHABian configuration tool:
 
 ```shell
 # install git
@@ -222,7 +222,7 @@ It's not complicated and something that doesn't hurt on ones résumé.
 
 openHABian is supposed to provide a ready-to-use openHAB base system. There are however a few things we can not decide for you.
 
-* **Timezone:** The default timezone openHABian is shipped with is "Europe/Berlin". You should change it to your location.
+* **Time Zone:** The default time zone openHABian is shipped with is "Europe/Berlin". You should change it to your location.
 * **Language:** The `locale` setting of the openHABian base system is set to "en_US.UTF-8". While this setting will not do any harm, you might prefer e.g. console errors in German or Spanish. Change the locale settings accordingly. Be aware, that error solving might be easier when using the English error messages as search phrases.
 * **Passwords:** Relying on default passwords is a security concern you should care about!
 
