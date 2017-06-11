@@ -488,17 +488,20 @@ etckeeper() {
 
 nodejs() {
   if ! command -v npm &>/dev/null; then
+    echo -n "$(timestamp) [openHABian] Installing Node.js (prerequisite for other packages)... "
     cond_redirect wget -O - https://deb.nodesource.com/setup_7.x | bash -
-    if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
-    #cond_redirect apt update # part of the script above
+    if [ $? -ne 0 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
+    #cond_redirect apt update # part of the node script above
     cond_redirect apt -y install nodejs
-    if [ $? -ne 0 ]; then echo "FAILED (nodejs)"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (nodejs installation)"; exit 1; fi
+    if ! command -v npm &>/dev/null; then return 1; fi
   fi
 }
 
 frontail() {
   echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail)... "
   nodejs
+  if [ $? -ne 0 ]; then echo "FAILED (nodejs)"; exit 1; fi
   cond_redirect npm install -g frontail
   if [ $? -ne 0 ]; then echo "FAILED (frontail)"; exit 1; fi
   cond_redirect npm update -g frontail
@@ -517,6 +520,7 @@ frontail() {
 nodered() {
   echo -n "$(timestamp) [openHABian] Installing Node-RED... "
   nodejs
+  if [ $? -ne 0 ]; then echo "FAILED (nodejs)"; exit 1; fi
   cond_redirect wget -O /tmp/update-nodejs-and-nodered.sh https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered || FAILED=1
   cond_redirect bash /tmp/update-nodejs-and-nodered.sh || FAILED=1
   if [ $FAILED -eq 1 ]; then echo "FAILED (nodered)"; exit 1; fi
