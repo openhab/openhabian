@@ -87,7 +87,7 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 * The device will be available under its IP or via the local DNS name `openhabianpi`
 * [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html) (available after a few more minutes): [http://openhabianpi:8080](http://openhabianpi:8080)
 * [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username and password `openhabian`
-* If you encounter any setup problem, [please continue here](#faq-successful)
+* If you encounter any setup problem, [please continue here](#successful)
 
 You can stop reading now.
 openHABian has installed and configured your openHAB system and you can start to use it right away.
@@ -121,7 +121,7 @@ Learn more about the Pine A64 as your platform for openHAB and about the require
 * The device will be available under its IP or via the local DNS name `openhabianpine64`
 * [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html) (available after a few more minutes): [http://openhabianpine64:8080](http://openhabianpine64:8080)
 * [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username and password `openhabian`
-* If you encounter any setup problem, [please continue here](#faq-successful)
+* If you encounter any setup problem, [please continue here](#successful)
 
 You can stop reading now.
 openHABian has installed and configured your openHAB system and you can start to use it right away.
@@ -264,7 +264,7 @@ The official changelog announcements are posted [here](https://community.openhab
 If you want to stay in touch with all the latest code changes under the hood, see the [commit history](https://github.com/openhab/openhabian/commits/master) for openHABian.
 You'll also see added commits when executing the "Update" function within the openHABian Configuration Tool.
 
-{: #faq-successful}
+{: #successful}
 #### Did my Installation succeed? What to do in case of a problem?
 
 During and after the first boot of your Raspberry Pi, the green on-board LED will indicate the setup progress (no display needed):
@@ -273,9 +273,9 @@ During and after the first boot of your Raspberry Pi, the green on-board LED wil
 * ` ❇️️         ❇️️❇️️❇️️ ` - Irregular blinking: setup in progress...
 * `❇️️ ❇️️ ❇️️ ❇️️ ❇️️ ❇️️ ❇️️` - Fast blinking: error while setup
 
-Besides, you should always be able to connect to the SSH console of your device.
+More importantly, you should always be able to connect to the SSH console of your device (after a few minutes of boot up time).
 During the setup process you'll be redirected to the live progress report of the setup.
-The report can also be checked for errors after the installation, execute: `cat /boot/first-boot.log`
+The report can also be checked for errors after the installation finished by executing: `cat /boot/first-boot.log`
 
 The progress of a successful installation will look similar to the following:
 
@@ -289,9 +289,8 @@ If the installation was *not* successful you will see a warning and further inst
   <div class="col s12 m5"><img src="images/openHABian-install-failed.png" alt="openHABian installation failed warning and instructions" title="openHABian installation failed warning and instructions"></div>
 </div>
 
-If you are not able to SSH access your system after more than one hours, chances are high that your hardware setup is the problem.
-Try using a steady power source and a reliable SD card.
-Check the network connection.
+If you are not able to access your system via SSH after more than one hours, chances are high that your hardware setup is the problem.
+Try using a steady power source and a reliable SD card, double check the network connection.
 Restart the Setup process to rule out most other possible causes.
 
 Contact the [Community Forum thread](https://community.openhab.org/t/13379) if the problem persists.
