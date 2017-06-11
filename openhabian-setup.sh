@@ -303,6 +303,12 @@ needed_packages() {
   #cond_redirect apt update
   cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon python python-pip
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+
+  if is_pithree || is_pizerow; then
+    echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
+    cond_redirect apt -y install bluez python-bluez python-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth
+    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  fi
 }
 
 bashrc_copy() {
