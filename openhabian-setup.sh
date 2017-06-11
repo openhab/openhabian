@@ -1787,6 +1787,8 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   samba_setup
   clean_config_userpw
+  nodejs
+  frontail
 else
   whiptail_check
   load_create_config
