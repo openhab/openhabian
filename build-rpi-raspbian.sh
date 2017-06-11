@@ -76,7 +76,7 @@ kpartx -dv $imagefile
 echo_process "Moving image and cleaning up... "
 shorthash=$(git log --pretty=format:'%h' -n 1)
 crc32checksum=$(crc32 $imagefile)
-destination="openhabianpi-raspbian-$(date +%Y%m%d%H%M)-git$shorthash-$crc32checksum.img"
+destination="openhabianpi-raspbian-$(date +%Y%m%d%H%M)-git$shorthash-crc$crc32checksum.img"
 mv -v $imagefile $destination
 rm -rf $buildfolder
 
