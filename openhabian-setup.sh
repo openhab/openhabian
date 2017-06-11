@@ -172,7 +172,7 @@ whiptail_check() {
 }
 
 ua-netinst_check() {
-  if grep -q "^preset=" /boot/installer-config.txt; then
+  if [ -f "/boot/config-reinstall.txt" ]; then
     introtext="Attention: It was brought to our attention that the old openHABian ua-netinst based image has a problem with a lately updated Linux package.
 If you upgrade(d) the package 'raspberrypi-bootloader-nokernel' your Raspberry Pi will run into a Kernel Panic upon reboot!
 \nDo not Upgrade, do not Reboot!
