@@ -12,15 +12,10 @@ if [ ! -f "$FLAG" ]; then
   echo "[openHABian] Flag file 'afterfirstboot.lock' not found, continuing with '$FIRSTBOOT' script."
   if [ ! -f "$FIRSTBOOT" ]; then "[openHABian] 'first-boot.sh' not found, Exiting."; exit 0; fi
   if (/bin/bash "$FIRSTBOOT"); then
+    echo "[openHABian] Finishing up... "
     echo "[openHABian] Created after first boot script succeeded (see /etc/rc.local). Do not delete." > "$FLAG"
-    modprobe ledtrig_heartbeat
-    echo "heartbeat" >/sys/class/leds/led0/trigger
   else
     echo "[openHABian] Script '$FIRSTBOOT' failed."
-    modprobe ledtrig_timer
-    echo "timer" >/sys/class/leds/led0/trigger
-    echo 100 >/sys/class/leds/led0/delay_on
-    echo 100 >/sys/class/leds/led0/delay_off
   fi
 fi
 
