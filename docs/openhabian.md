@@ -275,13 +275,36 @@ You'll also see added commits when executing the "Update" function within the op
 {: #successful}
 #### Did my Installation succeed? What to do in case of a problem?
 
+**A note on patience:**
+Remember to stay calm.
+The openHABian setup will take 15 up to 45 minutes to complete all steps.
+This time highly depends on your device's performance, your internet connection and sometimes even on the load of external servers.
+
+<!--
+##### LED Indication (RPi only)
+
 During and after the first boot of your Raspberry Pi, the green on-board LED will indicate the setup progress (no display needed):
 
 * `❇️️ ❇️️    ❇️️ ❇️️     ` - Steady "heartbeat": setup **successful**
 * ` ❇️️         ❇️️❇️️❇️️ ` - Irregular blinking: setup in progress...
 * `❇️️ ❇️️ ❇️️ ❇️️ ❇️️ ❇️️ ❇️️` - Fast blinking: error while setup
+-->
 
-More importantly, you should always be able to connect to the SSH console of your device (after a few minutes of boot up time).
+**RPi note:**
+The progress indication via the **green Raspberry Pi LED** is currently not possible and hence not part of the openHABian v1.3 image.
+We will re-add the functionality as soon as the underlying issue is resolved.
+
+##### openHAB Dashboard
+
+After the installation of openHABian was successful, you should be able to access the openHAB dashboard:
+
+* Raspberry Pi image setup: [http://openhabianpi:8080](http://openhabianpi:8080)
+* Pine A64 image setup: [http://openhabianpine64:8080](http://openhabianpine64:8080)
+* In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP)
+
+##### SSH Progress Report
+
+You should always be able to [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device (after a few minutes of boot up time).
 During the setup process you'll be redirected to the live progress report of the setup.
 The report can also be checked for errors after the installation finished by executing: `cat /boot/first-boot.log`
 
@@ -289,19 +312,21 @@ The progress of a successful installation will look similar to the following:
 
 ![openHABian installation log](images/openHABian-install-log.png)
 
-If the installation was successful, you will see the normal login screen afterwards.
-If the installation was *not* successful you will see a warning and further instructions:
+If the installation was **successful**, you will see the normal login screen afterwards.
+If the installation was **not successful** you will see a warning and further instructions:
 
 <div class="row">
   <div class="col s12 m5"><img src="images/openHABian-SSH-MotD.png" alt="openHABian installation successful" title="openHABian installation successful"></div>
   <div class="col s12 m5"><img src="images/openHABian-install-failed.png" alt="openHABian installation failed warning and instructions" title="openHABian installation failed warning and instructions"></div>
 </div>
 
-If you are not able to access your system via SSH after more than one hours, chances are high that your hardware setup is the problem.
+##### What Next?
+
+If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem.
 Try using a steady power source and a reliable SD card, double check the network connection.
 Restart the Setup process to rule out most other possible causes.
 
-Contact the [Community Forum thread](https://community.openhab.org/t/13379) if the problem persists.
+Contact the [openHABian community forum thread](https://community.openhab.org/t/13379) if the problem persists.
 
 {: #switch-openhab-branch}
 #### Can I switch from openHAB 2 stable to the testing or unstable branch?
@@ -319,5 +344,5 @@ openHABian is restricted to Debian/Ubuntu based systems.
 If your operating system is based on these or if your Hardware supports one, your chances are high openHABian can be used.
 Check out the [Manual Setup](#manual-setup) instructions for guidance.
 
-Differences between systems can still be a problem, so please check the [Community Forum thread](https://community.openhab.org/t/13379) or the [Issue Tracker](https://github.com/openhab/openhabian/issues) for more information.
+Differences between systems can still be a problem, so please check the [openHABian community forum thread](https://community.openhab.org/t/13379) or the [Issue Tracker](https://github.com/openhab/openhabian/issues) for more information.
 Do not hesitate to ask!
