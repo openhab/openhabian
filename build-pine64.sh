@@ -23,8 +23,8 @@ echo_process() { echo -e "\e[1;94m$(timestamp) [openHABian] $*\e[0m"; }
 exec &> >(tee -a "openhabian-build-$(date +%Y-%m-%d_%H%M%S).log")
 
 # Load config, create temporary build folder
-sourcefolder=build-rpi-raspbian
-source $sourcefolder/openhabian.raspbian.conf
+sourcefolder=build-pine64-image
+source $sourcefolder/openhabian.pine64.conf
 buildfolder=/tmp/build-pine64-image
 imagefile=$buildfolder/pine64-xenial.img
 rm -rf $buildfolder

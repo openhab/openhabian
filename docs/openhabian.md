@@ -33,25 +33,25 @@ To that end, the project provides two things:
 
 The following features are provided by the openHABian images out of the box:
 
-* Hassle-free setup without the need for a display or an [ethernet connection]()
+* Hassle-free setup without a display or keyboard, connected via [Ethernet or Wi-Fi](#wifi-setup)
 * openHAB 2 in the latest recommended version (2.0.0 stable)
 * Zulu Embedded OpenJDK Java 8 ([*version 8.20.0.42* or newer](http://zulu.org/zulu-community/zulurelnotes))
-* Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
+* [openHABian Configuration Tool](#first-steps) including updater functionality
+* openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
 * Samba file sharing with [pre-configured to use shares](http://docs.openhab.org/installation/linux.html#mounting-locally)
+* Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
+* Login information screen, powered by [FireMotD](https://github.com/willemdh/FireMotD)
 * Customized Bash shell experience
 * Customized vim settings, including [openHAB syntax highlighting](https://github.com/cyberkov/openhab-vim)
 * Customized nano settings, including [openHAB syntax highlighting](https://github.com/airix1/openhabnano)
 * Version control for `/etc` by the help of [etckeeper](http://etckeeper.branchable.com) (git)
-* Login information screen, powered by [FireMotD](https://github.com/willemdh/FireMotD)
-* openHABian Configuration Tool including updater functionality
 * [Raspberry Pi specific](rasppi.html): Extend to the whole SD card, 16MB GPU memory split
 
-openHABian provides the Configuration Tool [`openhabian-config`](#first-steps) with the following optional settings and components:
+Additionally the **openHABian Configuration Tool** [`openhabian-config`](#first-steps) is included and provides the following optional settings and components:
 
 ![openHABian-config menu](images/openHABian-config.png)
 
 * Switch over to the *unstable* openHAB 2.1 [build branch](http://docs.openhab.org/installation/linux.html#changing-versions)
-* Switch to Oracle Java 8 ([*build 1.8.0_101* or newer](https://launchpad.net/~webupd8team/+archive/ubuntu/java?field.series_filter=xenial))
 * Install and Setup a [reverse proxy](security.html#nginx-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
 * Set up a Wi-Fi connection
 * Bind the [Karaf remote console]({{base}}/administration/console.html) to all interfaces
@@ -85,8 +85,9 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 * Enjoy! 🎉
 
 * The device will be available under its IP or via the local DNS name `openhabianpi`
-* [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html) (available after a few more minutes): [http://openhabianpi:8080](http://openhabianpi:8080)
+* [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html): [http://openhabianpi:8080](http://openhabianpi:8080)
 * [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
+* Connect to the openHAB Log Viewer (frontail): [http://openhabianpi:9001](http://openhabianpi:9001)
 * If you encounter any setup problem, [please continue here](#successful)
 
 You can stop reading now.
@@ -125,8 +126,9 @@ As a workaround, please be sure to not have am HDMI display connected during the
 * Enjoy! 🎉
 
 * The device will be available under its IP or via the local DNS name `openhabianpine64`
-* [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html) (available after a few more minutes): [http://openhabianpine64:8080](http://openhabianpine64:8080)
+* [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html): [http://openhabianpine64:8080](http://openhabianpine64:8080)
 * [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
+* Connect to the openHAB Log Viewer (frontail): [http://openhabianpine64:9001](http://openhabianpine64:9001)
 * If you encounter any setup problem, [please continue here](#successful)
 
 You can stop reading now.
