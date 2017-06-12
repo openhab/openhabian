@@ -68,7 +68,7 @@ Here you'll find supported and tested installation platforms and instructions.
 ### Raspberry Pi
 
 **Flash, plug, wait, enjoy:**
-The provided *image* is based on the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian) system.
+The provided image is based on the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian) standard system.
 On first boot the system will set up openHAB and the mentioned settings and tools.
 All packages will be downloaded in their newest version and configured to work without further modifications.
 The whole process will take a few minutes, then openHAB and all other needed tools to get started will be ready to use without further configuration steps.
@@ -81,12 +81,12 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 * [Download the latest "openHABianPi" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
 * Write the image to your SD card (e.g. with [Etcher](https://etcher.io), able to directly work with *xz* files)
 * Insert the SD card into the Raspberry Pi, connect Ethernet ([Wi-Fi supported](#wifi-setup)) and power
-* Wait approximately **15-30 minutes** for openHABian to do its magic
+* Wait approximately **15-45 minutes** for openHABian to do its magic
 * Enjoy! 🎉
 
 * The device will be available under its IP or via the local DNS name `openhabianpi`
 * [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html) (available after a few more minutes): [http://openhabianpi:8080](http://openhabianpi:8080)
-* [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username and password `openhabian`
+* [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
 * If you encounter any setup problem, [please continue here](#successful)
 
 You can stop reading now.
@@ -94,7 +94,7 @@ openHABian has installed and configured your openHAB system and you can start to
 If you want to get in touch with the system or want to install one of the previously mentioned optional features, you can come back here later.
 
 Ready for more?
-[Connect to your Raspberry Pi SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) using the username and password `openhabian`.
+[Connect to your Raspberry Pi SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) using the username `openhabian` and password `openhabian`.
 You will see the following welcome screen:
 
 ![openHABian login screen](images/openHABian-SSH-MotD.png)
@@ -104,9 +104,11 @@ You will see the following welcome screen:
 ### Pine A64
 
 We provide a ready to use system image for the Pine A64.
-The image is based on the official [Ubuntu Base Image by longsleep](http://wiki.pine64.org/index.php/Pine_A64_Software_Release), which comes as a compressed 4GB file.
-After boot-up the latest version of openHAB 2 and the featured settings and tools are installed.
+The image is based on the official [Ubuntu Base Image by longsleep](http://wiki.pine64.org/index.php/Pine_A64_Software_Release).
+On first boot the system will set up openHAB and the mentioned settings and tools.
 All packages are downloaded in their newest version and configured to work without further modifications.
+The whole process will take a few minutes, then openHAB and all other needed tools to get started will be ready to use without further configuration steps.
+openHABian is designed as a headless system, you will not need a display or a keyboard.
 
 Learn more about the Pine A64 as your platform for openHAB and about the requirements in our [Pine A64 article](pine.html).
 
@@ -119,12 +121,12 @@ As a workaround, please be sure to not have am HDMI display connected during the
 * [Download the latest "openHABianPine64" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
 * Write the image file to your SD card (e.g. with [Etcher](https://etcher.io), able to directly work with *xz* files)
 * Insert the SD card into the Pine A64, connect Ethernet ([Wi-Fi supported](#wifi-setup)) and power ([See here for more details](http://wiki.pine64.org/index.php/Main_Page#Step_by_Step_Instructions))
-* Wait approximately **15-30 minutes** for openHABian to do its magic
+* Wait approximately **15-45 minutes** for openHABian to do its magic
 * Enjoy! 🎉
 
 * The device will be available under its IP or via the local DNS name `openhabianpine64`
 * [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html) (available after a few more minutes): [http://openhabianpine64:8080](http://openhabianpine64:8080)
-* [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username and password `openhabian`
+* [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
 * If you encounter any setup problem, [please continue here](#successful)
 
 You can stop reading now.
@@ -132,7 +134,7 @@ openHABian has installed and configured your openHAB system and you can start to
 If you want to get in touch with the system or want to install one of the previously mentioned optional features, you can come back here later.
 
 Ready for more?
-Connect to your Pine A64 [SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) using the username and password `openhabian`.
+Connect to your Pine A64 [SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) using the username `openhabian` and password `openhabian`.
 You will see the following welcome screen:
 
 ![openHABian login screen](images/openHABian-SSH-MotD.png)
@@ -186,7 +188,12 @@ Additionally to the setup instructions given above, the following steps are need
 
 The following instructions are oriented at the Raspberry Pi openHABian setup but are transferable to all openHABian environments.
 
-Once connected to the command line console of your system, please execute the openHABian configuration tool by typing the command `sudo openhabian-config`:
+Once connected to the command line console of your system, please execute the openHABian configuration tool by typing the following command.
+(Hint: sudo executes a command with elevated rights and will hence ask for your password: `openhabian`).
+
+```shell
+sudo openhabian-config
+```
 
 ![openHABian-config menu](images/openHABian-config.png)
 
@@ -194,10 +201,7 @@ The configuration tool is the heart of openHABian.
 It is not only a menu with a set of options, it's also used in a special unattended mode inside the ready to use images.
 
 Execute the "Update" function before anything else. The menu and the menu options will evolve over time and you should ensure to be up to date.
-
-All other menu entries should be self-explaining and more details are shown after selecting an option.
-
-ℹ - The actions behind menu entry 1-5 are already taken care of on a Raspberry Pi openHABian image installation.
+All other menu entries should be self-explaining and more details are shown after selecting them.
 
 ⌨ - A quick note on menu navigation.
 Use the cursor keys to navigate, &lt;Enter&gt; to execute, &lt;Space&gt; to select and &lt;Tab&gt; to jump to the actions on the bottom of the screen. Press &lt;Esc&gt; twice to exit the configuration tool.
@@ -243,13 +247,13 @@ Here are the passwords in question, their default value and the way to change th
 
 openHABian comes with a number of additional configs that allow you to quickly install home automation related software.
 
-* [frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openHABianPi:9001/](http://openHABianPi:9001/)
-* [Node-RED](https://nodered.org/) - Flow-based programming for the Internet of Things with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) addons. Accessible from [http://openHABianPi:1880/](http://openHABianPi:1880/)
+* [frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openHABianPi:9001](http://openHABianPi:9001)
+* [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openHABianPi:1880](http://openHABianPi:1880)
 * [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
 * [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
 * [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
 * [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
-* [Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openHABianPi:3000/](http://openHABianPi:3000/)
+* [Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openHABianPi:3000](http://openHABianPi:3000)
 
 ## FAQ and Troubleshooting
 
