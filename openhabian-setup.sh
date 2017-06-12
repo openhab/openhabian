@@ -1613,12 +1613,12 @@ show_main_menu() {
   "01 | Update"                 "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
   "" "" \
-  "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup..." \
-  "20 | Optional Components"    "Choose from a set of optional software components..." \
-  "30 | System Settings"        "A range of system and hardware related configuration steps..." \
-  "40 | openHAB related"        "Switch the installed openHAB version or apply tweaks..." \
-  "50 | Backup/Restore"         "Manage backups and restore your system..." \
-  "60 | Manual/Fresh Setup"     "Go through all openHABian setup steps manually..." \
+  "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup ►" \
+  "20 | Optional Components"    "Choose from a set of optional software components ►" \
+  "30 | System Settings"        "A range of system and hardware related configuration steps ►" \
+  "40 | openHAB related"        "Switch the installed openHAB version or apply tweaks ►" \
+  "50 | Backup/Restore"         "Manage backups and restore your system ►" \
+  "60 | Manual/Fresh Setup"     "Go through all openHABian setup steps manually ►" \
   "" "" \
   "99 | Help"                   "Further options and guidance with Linux and openHAB" \
   3>&1 1>&2 2>&3)
