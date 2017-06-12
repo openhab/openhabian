@@ -337,6 +337,42 @@ Switching from stable to newer development releases might introduce changes and 
 
 Check the Linux installation article for all needed details: [Linux: Changing Versions](http://docs.openhab.org/installation/linux.html#changing-versions)
 
+{: #headache}
+#### Where is the graphical user interface?
+
+You've just installed openHABian and are confused.
+No fancy login screen, no windows, no mouse support. What did I get into?
+
+You are not the first one to get confused about the **intended use case of openHABian** or most other solutions based on a Raspberry Pi.
+Maybe it helps to not think of the RPi as a PC as we know it.
+It is not (necessarily) build to be used with a keyboard and display.
+You already own a **powerful PC or Mac** which you should benefit from.
+It would be a shame to have a powerful computer at your fingertips and then have to **restrict yourself** to a very limited graphical frontend on another device, wouldn't you agree?
+
+The intended use case of a lot of these small SBCs is to sit in a corner and provide a service reliably 24/7.
+You'll find that most solutions for the RPi are characterized by this.
+
+Moving on.
+What *we* actually want and what openHABian is aimed for is a **dedicated headless system** to **reliably execute openHAB** and to **expose all interfaces** needed to interact and configure it (PaperUI, BasicUI, HABPanel, openHAB LogViewer, Samba Network Shares, openHABian Configuration Tool, SSH).
+If you know how to work with these interfaces, you are set for a way better experience than the alternatives.
+The main challenge is to **get used to the Linux command line**, not even a GUI (like Pixel, see below) will relieve you from that in the long run.
+If you are not willing to teach yourself a few fundamental Linux skills you will not become happy with any Linux system and should resort to a e.g. Windows machine.
+However as you are willing to tinker with smart home technology, I'm sure you are ready to **teach yourself new stuff** and expand your experience.
+
+**If** the above didn't convince you, execute the following commands to get the graphical user interface [Pixel](https://www.raspberrypi.org/blog/introducing-pixel) installed.
+You have been warned, if there came any warranty with openHABian to begin with, it would end here.
+
+```shell
+sudo apt install raspberrypi-ui-mods
+sudo reboot
+```
+
+After the reboot, connect via SSH and type the following command to start a VNC server to connect to:
+
+```shell
+vncserver -randr 1280x800
+```
+
 {: #faq-other-platforms}
 #### Can I use openHABian on ...?
 
