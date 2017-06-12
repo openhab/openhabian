@@ -254,11 +254,8 @@ hostname_change() {
     source "$CONFIGFILE"
     new_hostname="$hostname"
   fi
-
-  if command -v hostnamectl &>/dev/null; then
-    # will set lowercase hostname (debian recommended)
-    hostnamectl set-hostname "$new_hostname"
-  fi
+  hostnamectl set-hostname "$new_hostname" &>/dev/null
+  hostname "$new_hostname" &>/dev/null
   echo "$new_hostname" > /etc/hostname
   sed -i "s/127.0.1.1.*/127.0.1.1 $new_hostname/" /etc/hosts
 
