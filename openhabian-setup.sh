@@ -393,7 +393,11 @@ openhab2() {
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-  cond_redirect systemctl restart openhab2.service || true
+  if [ -n "$UNATTENDED" ]; then
+    cond_redirect systemctl stop openhab2.service || true
+  else
+    cond_redirect systemctl start openhab2.service || true
+  fi
 }
 
 openhab2_unstable() {
