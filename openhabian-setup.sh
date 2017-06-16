@@ -572,9 +572,11 @@ permissions_corrections() {
   fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
+  cond_redirect adduser openhab gpio
   cond_redirect adduser $username openhab
   cond_redirect adduser $username dialout
   cond_redirect adduser $username tty
+  cond_redirect adduser $username gpio
   #
   openhab_folders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2/addons)
   cond_redirect chown openhab:$username /srv /srv/README.txt
