@@ -620,6 +620,17 @@ pine64_platform_scripts() {
   fi
 }
 
+pine64_fixed_mac() {
+  echo -n "$(timestamp) [openHABian] Assigning fixed MAC address to eth0 (longsleep)... "
+  if ! grep -q "mac_addr=" /boot/uEnv.txt; then
+    MAC=$(cat /sys/class/net/eth0/address)
+    sed -i "/^console=/ s/$/ mac_addr=$MAC/" /boot/uEnv.txt
+    echo "OK"
+  else
+    echo "SKIPPED"
+  fi
+}
+
 openhab_shell_interfaces() {
   introtext="The Karaf console is a powerful tool for every openHAB user. It allows you too have a deeper insight into the internals of your setup. Further details: http://docs.openhab.org/administration/console.html
 \nThis routine will bind the console to all interfaces and thereby make it available to other devices in your network. Please provide a secure password for this connection (letters and numbers only! default: habopen):"
@@ -1775,6 +1786,7 @@ if [[ -n "$UNATTENDED" ]]; then
   hostname_change
   if is_pi; then memory_split; fi
   if is_pine64; then pine64_platform_scripts; fi
+  if is_pine64; then pine64_fixed_mac; fi
   basic_packages
   needed_packages
   bashrc_copy
