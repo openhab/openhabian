@@ -84,6 +84,7 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 * Wait approximately **15-45 minutes** for openHABian to do its magic
 * Enjoy! 🎉
 
+
 * The device will be available under its IP or via the local DNS name `openhabianpi`
 * [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html): [http://openhabianpi:8080](http://openhabianpi:8080)
 * [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
@@ -124,6 +125,7 @@ As a workaround, please be sure to not have am HDMI display connected during the
 * Insert the SD card into the Pine A64, connect Ethernet ([Wi-Fi supported](#wifi-setup)) and power ([See here for more details](http://wiki.pine64.org/index.php/Main_Page#Step_by_Step_Instructions))
 * Wait approximately **15-45 minutes** for openHABian to do its magic
 * Enjoy! 🎉
+
 
 * The device will be available under its IP or via the local DNS name `openhabianpine64`
 * [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html): [http://openhabianpine64:8080](http://openhabianpine64:8080)

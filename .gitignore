@@ -1,4 +1,5 @@
 .vagrant/
+node_modules/
 *.zip
 *.img
 *.img.xz
