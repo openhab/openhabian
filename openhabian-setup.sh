@@ -1490,8 +1490,8 @@ system_check_default_password() {
 }
 
 change_password() {
-  introtext="Choose which services to change password for:"
-  failtext="Something went wrong in the change process. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  introtext="Choose which services to change the password for:"
+  failtext="Something went wrong in the password change process. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
 
   matched=false
   canceled=false
@@ -1499,9 +1499,9 @@ change_password() {
 
   if [ -n "$INTERACTIVE" ]; then
     accounts=$(whiptail --title "Choose accounts" --yes-button "Continue" --no-button "Back" --checklist "$introtext" 20 90 10 \
-          "Linux account" "The account to login to this computer" on \
-          "Openhab-Karaf" "The karaf console which is used to manage openhab" on \
-          "Samba" "The fileshare for configuration files" on \
+          "Linux account" "The account to login to this computer" off \
+          "openHAB Console" "The Karaf console which is used to manage openHAB" off \
+          "Samba" "The fileshare for configuration files" off \
           3>&1 1>&2 2>&3)
     exitstatus=$?
     if [ $exitstatus = 0 ]; then
@@ -1521,33 +1521,32 @@ change_password() {
     fi
   else
     passwordChange=$1
-    accounts=("Linux account" "Openhab-Karaf" "Samba")
+    accounts=("Linux account" "openHAB Console" "Samba")
   fi
 
   for i in "${accounts[@]}"
   do
     if [[ $i == *"Linux account"* ]]; then
-      echo -n "$(timestamp) [openHABian] Changing password for linux account, $username... "
+      echo -n "$(timestamp) [openHABian] Changing password for linux account \"$username\"... "
       echo "$username:$passwordChange" | chpasswd
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
     if [[ $i == *"Samba"* ]]; then
-      echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account, $username... "
+      echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account \"$username\"... "
       (echo "$passwordChange"; echo "$passwordChange") | /usr/bin/smbpasswd -s -a $username
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
-    if [[ $i == *"Openhab-Karaf"* ]]; then
-      echo -n "$(timestamp) [openHABian] Changing password for karaf console account (takes a while), openhab... "
-      sed -i "s/openhab = .*,/openhab = $passwordChange,/g" /var/lib/openhab2/etc/users.properties &>/dev/null
-      service openhab2 stop &>/dev/null
-      service openhab2 start &>/dev/null
+    if [[ $i == *"openHAB Console"* ]]; then
+      echo -n "$(timestamp) [openHABian] Changing password for openHAB console account \"openhab\"... "
+      sed -i "s/openhab = .*,/openhab = $passwordChange,/g" /var/lib/openhab2/etc/users.properties
+      cond_redirect systemctl restart openhab2.service
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
   done
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "Password set successfully set for accounts: $accounts" 15 80
+      whiptail --title "Operation Successful!" --msgbox "Password successfully set for: $accounts" 15 80
     else
       whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
     fi
@@ -1686,7 +1685,7 @@ show_main_menu() {
     "31 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set System Locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
     "33 | Set System Timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
-    "34 | Change Passwords"       "Change passwords for Samba, Openhab-Karaf or the system user" \
+    "34 | Change Passwords"       "Change passwords for Samba, openHAB Console or the system user" \
     "35 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
     "36 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
     "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
@@ -1801,7 +1800,7 @@ else
     true
   done
   system_check_default_password
-  echo -e "\n$(timestamp) [openHABian] We hope you got what you came for! See you again soon ;)"
+  echo -e "$(timestamp) [openHABian] We hope you got what you came for! See you again soon ;)"
 fi
 
 # vim: filetype=sh
