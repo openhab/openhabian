@@ -700,10 +700,10 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
     fi
     cond_echo "Removing serial console and login shell from /boot/cmdline.txt and /etc/inittab"
     cp /boot/cmdline.txt /boot/cmdline.txt.bak
-    cp /etc/inittab /etc/inittab.bak
+    cp /etc/inittab /etc/inittab.bak &>/dev/null
     sed -i 's/console=tty.*console=tty1/console=tty1/g' /boot/cmdline.txt
-    sed -i 's/console=serial*console=tty1/console=tty1/g' /boot/cmdline.txt
-    sed -i 's/^T0/\#T0/g' /etc/inittab
+    sed -i 's/console=serial.*console=tty1/console=tty1/g' /boot/cmdline.txt
+    sed -i 's/^T0/\#T0/g' /etc/inittab &>/dev/null
     cond_redirect systemctl disable serial-getty@ttyAMA0.service
     cond_redirect systemctl disable serial-getty@serial0.service
     cond_redirect systemctl disable serial-getty@ttyS0.service
