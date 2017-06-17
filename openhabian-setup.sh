@@ -1670,7 +1670,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "20"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
-    "21 | frontail"     "The openHAB Log Viewer webapp" \
+    "21 | Log Viewer"   "The openHAB Log Viewer webapp (frontail)" \
     "22 | Mosquitto"    "The MQTT broker Eclipse Mosquitto" \
     "23 | Grafana"      "InfluxDB+Grafana as a powerful persistence and graphing solution" \
     "24 | NodeRED"      "Flow-based programming for the Internet of Things" \
@@ -1744,27 +1744,29 @@ show_main_menu() {
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 17 116 10 --cancel-button Back --ok-button Execute \
     "61 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
     "62 | Packages"               "Install needed and recommended system packages" \
-    "63 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional)" \
-    "64 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
+    "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
     "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team" \
-    "65 | openHAB 2"              "Install openHAB 2.0 (stable)" \
+    "64 | openHAB 2"              "Install openHAB 2.0 (stable)" \
     "   | openHAB 2 unstable"     "(Alternative) Install the latest openHAB 2 snapshot (unstable)" \
-    "66 | System Tweaks"          "Configure system permissions and settings typical for openHAB" \
-    "67 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
+    "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB" \
+    "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
+    "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail)" \
     "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional)" \
+    "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       61\ *) system_upgrade ;;
       62\ *) basic_packages && needed_packages ;;
-      63\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax ;;
-      64\ *) java_zulu_embedded ;;
+      63\ *) java_zulu_embedded ;;
       *Oracle\ Java*) java_webupd8 ;;
-      65\ *) openhab2 ;;
+      64\ *) openhab2 ;;
       *openHAB\ 2\ unstable) openhab2_unstable ;;
-      66\ *) srv_bind_mounts && permissions_corrections && misc_system_settings ;;
-      67\ *) samba_setup ;;
+      65\ *) srv_bind_mounts && permissions_corrections && misc_system_settings ;;
+      66\ *) samba_setup ;;
+      67\ *) frontail ;;
       68\ *) firemotd ;;
+      69\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
