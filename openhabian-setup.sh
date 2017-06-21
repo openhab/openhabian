@@ -1331,19 +1331,19 @@ create_backup_config() {
       echo "device_property \"S3_SSL\" \"YES\"                                       # Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
   fi
 
-    hostname=`/bin/hostname`
-    if [ "${config}" = "openhab-local-SD" -o "${config}" = "openhab-dir" ]; then
-        echo "${hostname}	/dev/mmcblk0    	        amraw" >${confdir}/disklist
-        echo "${hostname}	/etc/openhab2			user-tar" >>${confdir}/disklist
-        echo "${hostname}	/var/lib/openhab2		user-tar" >>${confdir}/disklist
-    else
-        echo "${hostname}	/etc/openhab2			comp-user-tar" >${confdir}/disklist
-        echo "${hostname}	/var/lib/openhab2		comp-user-tar" >>${confdir}/disklist
-    fi
+  hostname=`/bin/hostname`
+  if [ "${config}" = "openhab-local-SD" -o "${config}" = "openhab-dir" ]; then
+      echo "${hostname}	/dev/mmcblk0    	        amraw" >${confdir}/disklist
+      echo "${hostname}	/etc/openhab2			user-tar" >>${confdir}/disklist
+      echo "${hostname}	/var/lib/openhab2		user-tar" >>${confdir}/disklist
+  else
+      echo "${hostname}	/etc/openhab2			comp-user-tar" >${confdir}/disklist
+      echo "${hostname}	/var/lib/openhab2		comp-user-tar" >>${confdir}/disklist
+  fi
 
-    echo "index_server \"localhost\"" >${confdir}/amanda-client.conf
-    echo "tapedev \"changer\"" >${confdir}/amanda-client.conf
-    echo "auth \"local\"" >${confdir}/amanda-client.conf
+  echo "index_server \"localhost\"" >${confdir}/amanda-client.conf
+  echo "tapedev \"changer\"" >${confdir}/amanda-client.conf
+  echo "auth \"local\"" >${confdir}/amanda-client.conf
 }
 
 
