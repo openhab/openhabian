@@ -1310,17 +1310,17 @@ create_backup_config() {
   mkdir -p ${confdir}
   touch ${confdir}/tapelist
   hostname=`/bin/hostname`
-  echo "${hostname} ${backupuser}" > /var/backup/.amandahosts
-  echo "${hostname} root amindexd amidxtaped" >> /var/backup/.amandahosts
-  echo "localhost ${backupuser}" >> /var/backup/.amandahosts
-  echo "localhost root amindexd amidxtaped" >> /var/backup/.amandahosts
+  echo "${hostname} ${backupuser}" > /var/backups/.amandahosts
+  echo "${hostname} root amindexd amidxtaped" >> /var/backups/.amandahosts
+  echo "localhost ${backupuser}" >> /var/backups/.amandahosts
+  echo "localhost root amindexd amidxtaped" >> /var/backups/.amandahosts
 
 
   infofile="/var/lib/amanda/${config}/curinfo"	      # Database directory
   logdir="/var/log/amanda/${config}" 		      # Log directory
   indexdir="/var/lib/amanda/${config}/index" 	      # Index directory
   mkdir -p $infofile $logdir $indexdir
-  chown -R ${backupuser}:${backupuser} /var/backup/.amandahosts ${confdir}  $infofile $logdir $indexdir
+  chown -R ${backupuser}:${backupuser} /var/backups/.amandahosts ${confdir}  $infofile $logdir $indexdir
 
 
   /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%BKPDIR|${bkpdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" ${SCRIPTDIR}/includes/amanda.conf_template >${confdir}/amanda.conf
