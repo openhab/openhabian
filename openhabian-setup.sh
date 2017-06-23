@@ -1303,7 +1303,8 @@ create_backup_config() {
       adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the EMail address to send backup reports to." 10 60 3>&1 1>&2 2>&3)
   fi
 
-  rm -f /etc/cron.d/amanda; touch /etc/cron.d/amanda
+  /bin/grep -v ${config} /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
+  
   echo "0 1 * * * ${backupuser} /bin/bash /usr/sbin/amdump ${config} &>/dev/null" >> /etc/cron.d/amanda
   echo "0 18 * * * ${backupuser} /bin/bash /usr/sbin/amcheck -m ${config} &>/dev/null" >> /etc/cron.d/amanda
 
@@ -1378,6 +1379,8 @@ amanda_setup() {
   fi
   /usr/sbin/chpasswd <<< "${backupuser}:${password}"
   /usr/bin/chsh -s /bin/bash ${backupuser}
+
+  /bin/rm -f /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
 
 # no SD set based config for now, requires latest Amanda which is not available as a package yet
 #  if [ -n "$INTERACTIVE" ]; then
