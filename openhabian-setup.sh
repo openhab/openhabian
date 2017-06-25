@@ -1285,12 +1285,12 @@ create_backup_config() {
               introtext="Please insert your removable storage medium number ${counter}."
               if [ -n "$INTERACTIVE" ]; then
 	          if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
-                  /usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}
+                  /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
               fi
               tpchanger="\"chg-single:${sddev}\""
               tapetype="SD"
           else
-              /usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}
+              /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
               tpchanger="\"chg-multi:s3:${s3accesskey}-backup/openhab-AWS/slot-{`seq -s, 1 ${tapes}`}\" # Number of virtual containers in your tapecycle"
               tapetype="AWS"
           fi
@@ -1305,8 +1305,8 @@ create_backup_config() {
 
   /bin/grep -v ${config} /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
   
-  echo "0 1 * * * ${backupuser} /bin/bash /usr/sbin/amdump ${config} &>/dev/null" >> /etc/cron.d/amanda
-  echo "0 18 * * * ${backupuser} /bin/bash /usr/sbin/amcheck -m ${config} &>/dev/null" >> /etc/cron.d/amanda
+  echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} &>/dev/null" >> /etc/cron.d/amanda
+  echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} &>/dev/null" >> /etc/cron.d/amanda
 
   mkdir -p ${confdir}
   touch ${confdir}/tapelist
