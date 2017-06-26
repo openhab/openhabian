@@ -374,7 +374,7 @@ java_zulu_embedded_archive() {
 }
 
 openhab2() {
-  echo -n "$(timestamp) [openHABian] Installing openHAB 2.0 (stable)... "
+  echo -n "$(timestamp) [openHABian] Installing openHAB 2.1 (stable)... "
   echo "deb http://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
   #echo "deb http://dl.bintray.com/openhab/apt-repo2 testing main" > /etc/apt/sources.list.d/openhab2.list
   #echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
@@ -401,7 +401,7 @@ openhab2_unstable() {
   introtext="You are about to switch over to the latest openHAB 2 unstable build. The daily snapshot builds contain the latest features and improvements but may also suffer from bugs or incompatibilities.
 If prompted if files should be replaced by newer ones, select Yes. Please be sure to take a full openHAB configuration backup first!"
   successtext="The latest unstable/snapshot build of openHAB 2 is now running on your system. If already available, check the function of your configuration now. If you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages regularly."
-  echo -n "$(timestamp) [openHABian] Installing or switching to openHAB 2.0 (unstable)... "
+  echo -n "$(timestamp) [openHABian] Installing or switching to openHAB 2.2 SNAPSHOT (unstable)... "
 
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
