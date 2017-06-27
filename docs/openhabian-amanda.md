@@ -2,87 +2,107 @@ openHAB server backup
 =====================
 
 First, make yourself aware how important a comprehensive backup and recovery concept is.
-Yes, this text is the README on the backup software part for OpenHABian that you're reading, but take a couple of minutes to read and think about recovery in a generic sense first.
-This might avoid a LOT of frustration!
+Yes, this text is the README on the backup software part for OpenHABian that you're reading, but take a couple of minutes to
+read and think about recovery in a generic sense first. This might avoid a LOT of frustration.
 
 So you have your smart home working thanks to openHAB(ian).... but what if a component of your system fails ?
 First thing is: you need spare hardware of EVERY component that needs to work for your smart home to work.
-Think of EVERY relevant component and not just the obvious ones. Think of your Internet router, switch, server, NAS and required addons such as a ZWave or 433MHz radio USB stick,
-WLAN dongle, proper power supplies and the SD card writer (!).
+Think of EVERY relevant component and not just the obvious ones. Think of your Internet router, switch, server, NAS and required
+addons such as a ZWave or 433MHz radio USB stick, WLAN dongle, proper power supplies and the SD card writer (!).
 Now think of a recovery concept for each of these components: what do you have to do if it fails ?
 
 Examples:
-If the SD card in your Pi fails because of SD corruption (a very common problem !), you need to have a PREinstalled, at least somewhat current clone SD card to contain all your current
-OS packages, including all helper programs you might be using (such as say mosquitto or any scripts you might have installed yourself), and your mathing CURRENT openHAB config, and more.
-If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first! How long will that take you? Are you even capable of doing that ?
+If the SD card in your Pi fails because of SD corruption (a very common problem !), you need to have a PREinstalled, at least
+somewhat current clone SD card to contain all your current OS packages, including all helper programs you might be using (such
+as say mosquitto or any scripts you might have installed yourself), and your mathing CURRENT openHAB config, and more.
+If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first! How long will that
+take you? Are you even capable of doing that ?
 Will the latest version of openHABian/Linux packages be guaranteed to work with each other and with your hardware ?
-Do you REALLY remember all the parts and places of your system where you configured something related to your server/home network and smart home ?
-If you're honest to yourself, the answer will often be "NO".
-Yes, you can get your smart home back up working somehow, but it will take several hours, and it will not be a complete restoration of all features and setups you used to have in
-operation before the crash.
+Do you REALLY remember all the parts and places of your system where you configured something related to your server/home
+network and smart home ? If you're honest to yourself, the answer will often be "NO".
+Yes, you can get your smart home back up working somehow, but it will take several hours, and it will not be a complete
+restoration of all features and setups you used to have in operation before the crash.
 
 One specific word of WARNING:
-If you run a ZWave network like many openHAB users do, think what you need to do if the controller breaks and you need to replace it.
-A new controller has a different Home ID, so your device will not talk to it unless you re-include all of them (and to physically access devices in quite a number of cases means
-you need to open your walls !!) And even if you have easy access, it can take many hours, even more so if it's dark and your ... no I'm NOT joking, and I'm not overdoing things.
-This is what happened to several people, and it can happen to you, too. We have seen people be so frustrated that they gave up on openHAB or smart home altogether because of this !
-For RaZberry/zwave.me USB stick, you can run the Z-Way software to backup and restore the ZWave network data including the controller.
-For the Aeon Gen5 stick, there's a Windows tool available for download.
+If you run a ZWave network like many openHAB users do, think what you need to do if the controller breaks and you need to
+replace it. A new controller has a different Home ID, so your device will not talk to it unless you re-include all of them (and
+to physically access devices in quite a number of cases means you need to open your walls !!) And even if you have easy access,
+it can take many hours, even more so if it's dark and your ... no I'm NOT joking, and I'm not overdoing things.
+This is what happened to several people, and it can happen to you, too. We have seen people be so frustrated that they gave up
+on openHAB or smart home altogether because of this.
+For RaZberry/zwave.me USB stick, you can run the Z-Way software to backup and restore the ZWave network data including the
+controller. For the Aeon Gen5 stick, there's a Windows tool available for download.
 NOTE: Similar problems may arise if you run commercial systems such as a HomeMatic CCU or Insteon controller.
 
-Dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and repeat every now and then.
+Dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and repeat every now
+and then.
 Remember Murphy's law: When your system fails and you activate your backup system for the first time, you'll notice it's broken.
 
 
 
 Now all that being said, let's turn to what what you're here for: how to accomplish the software side of backup and restoration.
 As there's many many ways of operating a server, we can obviously only support a specific subset of all possible modes.
-The most common setup for a openHAB smart home server is to run a Raspberry Pi off its internal SD card, so we provide a backup concept for that one.
-But it will also work on most other SBCs (single board computers) and modified configurations (such as if you moved your OS or parts thereof).
+The most common setup for a openHAB smart home server is to run a Raspberry Pi off its internal SD card, so we provide a backup
+concept for that one. But it will also work on most other SBCs (single board computers) and modified configurations (such as if
+you moved your OS or parts thereof).
 
-Another word of WARNING here: To move your system off the internal SD card does NOT solve SD corruption problems or increase reliability in any other way !
-SD cards and USB sticks use the same technology ! And even HDDs can still get corrupted, and they can crash, too !
-
-You may or may not have or want to use Internet / cloud services for various reasons (privacy, bandwidth, cost), so we provide you with one solution that is designed to run on local
-hardware only. We provide a config to use a directory as the backup destination. This can be a partition mounted from your NAS (if you have one), a USB-attached storage stick,
-hard drive, or other device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
-
+Another word of WARNING here: To move your system off the internal SD card does NOT solve SD corruption problems or increase
+reliability in any other way. SD cards and USB sticks use the same technology. And even HDDs still can get corrupted, and they
+can crash, too.
+You may or may not have or want to use Internet / cloud services for various reasons (privacy, bandwidth, cost), so we provide
+you with one solution that is designed to run on local hardware only. We provide a config to use a directory as the backup
+destination. This can be a partition mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
+device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
 We believe this will cover most openHAB backup use cases.
-There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers do not match your needs.
-
-It's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to have a clone SD card with your CURRENT config.
-
-
-
-ATTENTION:
-The first thing you should do after your first backup run ended successfully is to create a clone of your active server SD card by restoring the backup to a blank SD card as shown below
-as a amfetchdump example for recovery of a raw device's contents. /dev/mmcblk0 is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw device to be backed up
-to have that same name.
-
-You will have two Amanda config directories (located in /etc/amanda) called "openhab-dir" and "openhab-AWS" if you choose to setup both of them.
-If any of your Amanda backup or recovery runs fails (which might well be the case particularly if you try to use the S3 backup), you should try getting it to work following the
-guides and knowledge base available on the Web at http://www.amanda.org/.
-In case you find systematic problems or improvements, please let us (openHABian authors) know through a GitHub issue, but please don't expect us to guide you through Amanda,
-which is a rather complex system, and we're basically just users only, too.
+There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
+do not match your needs. It's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
+have a clone SD card with your CURRENT config.
 
 
-a quick guide:
---------------
+HEADS UP: The first thing you should do after your first backup run ended successfully is to create a clone of your active
+server SD card by restoring the backup to a blank SD card as shown below as a amfetchdump example for recovery of a raw device's
+contents. /dev/mmcblk0 is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw device to be backed
+up to have that same name.
+You will have two Amanda config directories (located in /etc/amanda) called "openhab-dir" and "openhab-AWS" if you choose to
+setup both of them.
+If any of your Amanda backup or recovery runs fails (which might well be the case particularly if you try to use the S3 backup),
+you should try getting it to work following the guides and knowledge base available on the Web at http://www.amanda.org/.
+There's online documentation including tutorials and FAQs at http://wiki.zmanda.com/index.php/User_documentation.
+In case you find systematic problems or improvements, please let us (openHABian authors) know through a GitHub issue, but please
+don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
 
-Overall config is in /etc/amanda/openhab-<config>/amanda.conf.
-You are free to change anything, but doing so is at your own risk.
+
+A quick'n dirty usage guide:
+============================
+
+The overall config is to be found in /etc/amanda/openhab-<config>/amanda.conf.
+You are free to change this file, but doing so is at your own risk.
+You can specify files, directories and raw devices (such as HDD partitions or SD cards) that you want to be backed up in
+/etc/amanda/openhab-<config>/disklist. You are free to add more lines here to have Amanda also take backup of other directories
+of yours.
+
+Note the full SD card backup was left out for the AWS S3 config, as that would require a lot of bandwidth and runtime.
+
+openHABian setup routine will create cron entries in /etc/cron.d/amanda to start all backups every night at 01:00AM, and to run
+a check at 06:00PM. 
 
 
-Specify files, directories and raw devices (such as HDD partitions or SD cards) that you want to be backed up in /etc/amanda/openhab-<config>/disklist
-Note the SD card backup was left out for the S3 config, as that would require a lot of bandwidth and runtime.
+Backing up
+==========
 
+Find below a terminal session log of a manually started backup run.
+It's showing the three most important commands to use. They all can be started as user "backup" only, interactively or via cron, 
+and you always need to specify the config to use. You can have multiple backup configs in parallel use.
 
-openHABian setup routine will create a cron entry to start all backups every night at 01:00AM, and a check at 06:00PM.
+The amcheck command is meant to remind you to put in the right removeable storage medium such as a tape or SD card,
+but for the AWS and local/NAS-mounted directory based backup configs, we don't have removable media. So don't get confused,
+amcheck is not needed.
 
+The amdump command will start the backup run itself. 
+The result will be mailed to you (if your mail system wass properly configured which is currently not the case with openHABian).
 
-A backup run can be started as user "backup" only, manually or via cron, specifying the backup config: amdump <config>
-The result will be mailed to you (assuming your mail system is properly configured).
-Or run "amreport <config>" at any time to see the last backup for that config run.
+You can run "amreport <config>" at any time to see a report on the last backup run for that config.
+
 
 
 backup@pi:~$ amcheck openhab-dir
@@ -166,13 +186,16 @@ pi           /var/lib/openhab/persistence 0    48720   48720     --    0:11 4501
 pi           /var/lib/openhab/zwave       0     1370    1370     --    0:01 1156.1   0:01 1370.0
 
 (brought to you by Amanda version 3.3.6)
-backup@pi:~$ amreport openhab-dir
 
 
+Recovering a file
+=================
 
+To restore a file, you need to use the "amrecover" command as root.
+Note since this Amanda designed to backup/restore ANY file of the system, you are required to run amrecover as the root user.
 
-To restore a file, you need to use "amrecover" as root.
-Note since this Amanda designed to backup/restore ANY file of the system, you are required to run amrecover as the root user:
+amrecover sort of provides a 'shell' to allow for navigating through the stored files.
+Here's another terminal session log to show how a cpuple of files are restored into a target directory /server/temp.
 
 root@pi:/etc/amanda/openhab-dir# amrecover openhab-dir
 AMRECOVER Version 3.3.6. Contacting server on localhost ...
@@ -234,10 +257,14 @@ insgesamt 12
 root@pi:/server/temp#
 
 
+Recovering a partition
+======================
 
-Note: To restore a raw disk, you need to use "amfetchdump" command as user "backup".
-In this example, we have an external SD card writer with a (blank) SD card attached to /dev/sdd to show how to flash SD card from Linux.
-You could also move that temporary recovered file to your Windows PC that has a card writer, and use Etcher or whatever to write it to the card
+To restore a raw disk partition, you need to use "amfetchdump" command. Unlike amdump, you have to run amfetchdump as user
+"backup", though. Here's another terminal session log to use amfetchdump to first retrieve the backup image from storage.
+The last line also shows how to restore this image file to a SD card from Linux. In this example, we have an external SD card
+writer with a (blank) SD card attached to /dev/sdd. You could also move that temporary recovered image file to your Windows PC
+that has a card writer, and use Etcher or whatever tool in order to write the image to the card.
 
 backup@pi:/server/temp$ amfetchdump -p  openhab pi /dev/mmcblk0  > /server/temp/openhabianpi-image
 1 volume(s) needed for restoration
@@ -249,4 +276,3 @@ amfetchdump: 4: restoring split dumpfile: date 20170322084708 host pi disk /dev/
 
 927712 kb
 backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
-.....
