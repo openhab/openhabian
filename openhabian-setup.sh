@@ -205,12 +205,12 @@ timezone_setting() {
       cond_redirect apt update
       cond_redirect apt -y install python-pip
       cond_redirect pip install --upgrade tzupdate
-      if [ $? -ne 0 ]; then echo "FAILED (pip)"; exit 1; fi
+      if [ $? -ne 0 ]; then echo "FAILED (pip)"; return 1; fi
     fi
     cond_redirect pip install --upgrade tzupdate
     cond_redirect tzupdate
   fi
-  if [ $? -eq 0 ]; then echo -e "OK ($(cat /etc/timezone))"; else echo "FAILED"; fi
+  if [ $? -eq 0 ]; then echo -e "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
 }
 
 locale_setting() {
