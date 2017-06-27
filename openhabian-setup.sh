@@ -1285,12 +1285,12 @@ create_backup_config() {
               introtext="Please insert your removable storage medium number ${counter}."
               if [ -n "$INTERACTIVE" ]; then
 	          if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
-                  /usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}
+                  /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
               fi
               tpchanger="\"chg-single:${sddev}\""
               tapetype="SD"
           else
-              /usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}
+              /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
               tpchanger="\"chg-multi:s3:${s3accesskey}-backup/openhab-AWS/slot-{`seq -s, 1 ${tapes}`}\" # Number of virtual containers in your tapecycle"
               tapetype="AWS"
           fi
@@ -1303,24 +1303,25 @@ create_backup_config() {
       adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the EMail address to send backup reports to." 10 60 3>&1 1>&2 2>&3)
   fi
 
-  rm -f /etc/cron.d/amanda; touch /etc/cron.d/amanda
-  echo "0 1 * * * ${backupuser} /bin/bash /usr/sbin/amdump ${config} &>/dev/null" >> /etc/cron.d/amanda
-  echo "0 18 * * * ${backupuser} /bin/bash /usr/sbin/amcheck -m ${config} &>/dev/null" >> /etc/cron.d/amanda
+  /bin/grep -v ${config} /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
+  
+  echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} &>/dev/null" >> /etc/cron.d/amanda
+  echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} &>/dev/null" >> /etc/cron.d/amanda
 
   mkdir -p ${confdir}
   touch ${confdir}/tapelist
   hostname=`/bin/hostname`
-  echo "${hostname} ${backupuser}" > /var/backup/.amandahosts
-  echo "${hostname} root amindexd amidxtaped" >> /var/backup/.amandahosts
-  echo "localhost ${backupuser}" >> /var/backup/.amandahosts
-  echo "localhost root amindexd amidxtaped" >> /var/backup/.amandahosts
+  echo "${hostname} ${backupuser}" > /var/backups/.amandahosts
+  echo "${hostname} root amindexd amidxtaped" >> /var/backups/.amandahosts
+  echo "localhost ${backupuser}" >> /var/backups/.amandahosts
+  echo "localhost root amindexd amidxtaped" >> /var/backups/.amandahosts
 
 
   infofile="/var/lib/amanda/${config}/curinfo"	      # Database directory
   logdir="/var/log/amanda/${config}" 		      # Log directory
   indexdir="/var/lib/amanda/${config}/index" 	      # Index directory
   mkdir -p $infofile $logdir $indexdir
-  chown -R ${backupuser}:${backupuser} /var/backup/.amandahosts ${confdir}  $infofile $logdir $indexdir
+  chown -R ${backupuser}:${backupuser} /var/backups/.amandahosts ${confdir}  $infofile $logdir $indexdir
 
 
   /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%BKPDIR|${bkpdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" ${SCRIPTDIR}/includes/amanda.conf_template >${confdir}/amanda.conf
@@ -1331,19 +1332,19 @@ create_backup_config() {
       echo "device_property \"S3_SSL\" \"YES\"                                       # Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
   fi
 
-    hostname=`/bin/hostname`
-    if [ "${config}" = "openhab-local-SD" -o "${config}" = "openhab-dir" ]; then
-        echo "${hostname}	/dev/mmcblk0    	        amraw" >${confdir}/disklist
-        echo "${hostname}	/etc/openhab2			user-tar" >>${confdir}/disklist
-        echo "${hostname}	/var/lib/openhab2		user-tar" >>${confdir}/disklist
-    else
-        echo "${hostname}	/etc/openhab2			comp-user-tar" >${confdir}/disklist
-        echo "${hostname}	/var/lib/openhab2		comp-user-tar" >>${confdir}/disklist
-    fi
+  hostname=`/bin/hostname`
+  if [ "${config}" = "openhab-local-SD" -o "${config}" = "openhab-dir" ]; then
+      echo "${hostname}	/dev/mmcblk0    	        amraw" >${confdir}/disklist
+      echo "${hostname}	/etc/openhab2			user-tar" >>${confdir}/disklist
+      echo "${hostname}	/var/lib/openhab2		user-tar" >>${confdir}/disklist
+  else
+      echo "${hostname}	/etc/openhab2			comp-user-tar" >${confdir}/disklist
+      echo "${hostname}	/var/lib/openhab2		comp-user-tar" >>${confdir}/disklist
+  fi
 
-    echo "index_server \"localhost\"" >${confdir}/amanda-client.conf
-    echo "tapedev \"changer\"" >${confdir}/amanda-client.conf
-    echo "auth \"local\"" >${confdir}/amanda-client.conf
+  echo "index_server \"localhost\"" >${confdir}/amanda-client.conf
+  echo "tapedev \"changer\"" >${confdir}/amanda-client.conf
+  echo "auth \"local\"" >${confdir}/amanda-client.conf
 }
 
 
@@ -1378,6 +1379,8 @@ amanda_setup() {
   fi
   /usr/sbin/chpasswd <<< "${backupuser}:${password}"
   /usr/bin/chsh -s /bin/bash ${backupuser}
+
+  /bin/rm -f /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
 
 # no SD set based config for now, requires latest Amanda which is not available as a package yet
 #  if [ -n "$INTERACTIVE" ]; then
