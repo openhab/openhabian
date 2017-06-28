@@ -97,17 +97,13 @@ and you always need to specify the config to use. You can have multiple backup c
 The amcheck command is meant to remind you to put in the right removeable storage medium such as a tape or SD card,
 but for the AWS and local/NAS-mounted directory based backup configs, we don't have removable media. So don't get confused,
 amcheck is not needed.
-
 The amdump command will start the backup run itself. 
 The result will be mailed to you (if your mail system wass properly configured which is currently not the case with openHABian).
-
 You can run "amreport <config>" at any time to see a report on the last backup run for that config.
-
-
 
 backup@pi:~$ amcheck openhab-dir
 Amanda Tape Server Host Check
------------------------------
+ -----------------------------
 slot 3: contains an empty volume
 Will write label 'openhab-openhab-dir-001' to new volume in slot 3.
 NOTE: skipping tape-writable test
@@ -118,7 +114,7 @@ NOTE: it will be created on the next run.
 Server check took 2.218 seconds
 
 Amanda Backup Client Hosts Check
---------------------------------
+ --------------------------------
 Client check: 1 host checked in 5.705 seconds.  0 problems found.
 
 (brought to you by Amanda 3.3.6)
