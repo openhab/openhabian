@@ -101,7 +101,8 @@ The amdump command will start the backup run itself.
 The result will be mailed to you (if your mail system wass properly configured which is currently not the case with openHABian).
 You can run "amreport <config>" at any time to see a report on the last backup run for that config.
 
- backup@pi:~$ amcheck openhab-dir
+backup@pi:~$ amcheck openhab-dir
+
 Amanda Tape Server Host Check
 -----------------------------
 slot 3: contains an empty volume
