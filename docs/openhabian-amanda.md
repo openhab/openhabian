@@ -101,88 +101,88 @@ The amdump command will start the backup run itself.
 The result will be mailed to you (if your mail system wass properly configured which is currently not the case with openHABian).
 You can run "amreport <config>" at any time to see a report on the last backup run for that config.
 
-backup@pi:~$ amcheck openhab-dir
+  backup@pi:~$ amcheck openhab-dir
 
-Amanda Tape Server Host Check
------------------------------
-slot 3: contains an empty volume
-Will write label 'openhab-openhab-dir-001' to new volume in slot 3.
-NOTE: skipping tape-writable test
-NOTE: host info dir /var/lib/amanda/openhab-dir/curinfo/pi does not exist
-NOTE: it will be created on the next run.
-NOTE: index dir /var/lib/amanda/openhab-dir/index/pi does not exist
-NOTE: it will be created on the next run.
-Server check took 2.218 seconds
+  Amanda Tape Server Host Check
+  -----------------------------
+  slot 3: contains an empty volume
+  Will write label 'openhab-openhab-dir-001' to new volume in slot 3.
+  NOTE: skipping tape-writable test
+  NOTE: host info dir /var/lib/amanda/openhab-dir/curinfo/pi does not exist
+  NOTE: it will be created on the next run.
+  NOTE: index dir /var/lib/amanda/openhab-dir/index/pi does not exist
+  NOTE: it will be created on the next run.
+  Server check took 2.218 seconds
 
-Amanda Backup Client Hosts Check
---------------------------------
-Client check: 1 host checked in 5.705 seconds.  0 problems found.
+  Amanda Backup Client Hosts Check
+  --------------------------------
+  Client check: 1 host checked in 5.705 seconds.  0 problems found.
 
-(brought to you by Amanda 3.3.6)
-backup@pi:~$ amreport openhab-dir
-nothing to report on!
-backup@pi:~$ amdump openhab-dir
-backup@pi:~$ amreport openhab-dir
-Hostname: pi
-Org     : openHABion openhab-dir
-Config  : openhab-dir
-Date    : März 30, 2017
+  (brought to you by Amanda 3.3.6)
 
-These dumps were to tape openhab-openhab-dir-001.
-The next tape Amanda expects to use is: 1 new tape.
+  backup@pi:~$ amreport openhab-dir
+  nothing to report on!
+  backup@pi:~$ amdump openhab-dir
+  backup@pi:~$ amreport openhab-dir
+  Hostname: pi
+  Org     : openHABion openhab-dir
+  Config  : openhab-dir
+  Date    : März 30, 2017
+  
+  These dumps were to tape openhab-openhab-dir-001.
+  The next tape Amanda expects to use is: 1 new tape.
+  
+  STATISTICS:
+                            Total       Full      Incr.   Level:#
+                          --------   --------   --------  --------
+  Estimate Time (hrs:min)     0:12
+  Run Time (hrs:min)          1:31
+  Dump Time (hrs:min)         1:19       1:19       0:00
+  Output Size (meg)         7951.1     7951.1        0.0
+  Original Size (meg)      15581.6    15581.6        0.0 
+  Avg Compressed Size (%)     51.0       51.0        --
+  DLEs Dumped                    4          4          0
+  Avg Dump Rate (k/s)       1723.1     1723.1        --
+  
+  Tape Time (hrs:min)         1:19       1:19       0:00
+  Tape Size (meg)           7951.1     7951.1        0.0
+  Tape Used (%)                8.0        8.0        0.0
+  DLEs Taped                     4          4          0
+  Parts Taped                    4          4          0
+  Avg Tp Write Rate (k/s)   1722.4     1722.4        --
+
+  USAGE BY TAPE:
+    Label                     Time         Size      %  DLEs Parts
+    openhab-openhab-dir-001   1:19     8141884k    8.0     4     4
+  
+  NOTES:
+    planner: Adding new disk pi:/dev/mmcblk0.
+    planner: Adding new disk pi:/etc/openhab.
+    planner: Adding new disk pi:/var/lib/openhab/persistence.
+    planner: Adding new disk pi:/var/lib/openhab/zwave.
+    planner: WARNING: no history available for pi:/var/lib/openhab/zwave; guessing that size will be 1000000 KB
+    planner: WARNING: no history available for pi:/var/lib/openhab/persistence; guessing that size will be 1000000 KB
+    planner: WARNING: no history available for pi:/etc/openhab; guessing that size will be 1000000 KB
+    taper: Slot 3 without label can be labeled
+    taper: tape openhab-openhab-dir-001 kb 8141884 fm 4 [OK]
+    big estimate: pi /etc/openhab 0
+                    est: 1000032k    out 259820k
+    big estimate: pi /var/lib/openhab/persistence 0
+                    est: 1000032k    out 48720k
+    big estimate: pi /var/lib/openhab/zwave 0
+                    est: 1000032k    out 1370k
 
 
-STATISTICS:
-                          Total       Full      Incr.   Level:#
-                        --------   --------   --------  --------
-Estimate Time (hrs:min)     0:12
-Run Time (hrs:min)          1:31
-Dump Time (hrs:min)         1:19       1:19       0:00
-Output Size (meg)         7951.1     7951.1        0.0
-Original Size (meg)      15581.6    15581.6        0.0
-Avg Compressed Size (%)     51.0       51.0        --
-DLEs Dumped                    4          4          0
-Avg Dump Rate (k/s)       1723.1     1723.1        --
+  DUMP SUMMARY:
+                                                                       DUMPER STATS   TAPER STATS
+  HOSTNAME     DISK                         L  ORIG-kB  OUT-kB  COMP%  MMM:SS   KB/s MMM:SS   KB/s
+  ------------------------------------------- ----------------------- -------------- -------------
+  pi           /dev/mmcblk0                 0 15645696 7831974   50.1   78:01 1673.2  77:59 1673.9  
+  pi           /etc/openhab                 0   259820  259820     --    0:32 8077.0   0:34 7641.8
+  pi           /var/lib/openhab/persistence 0    48720   48720     --    0:11 4501.6   0:13 3747.7
+  pi           /var/lib/openhab/zwave       0     1370    1370     --    0:01 1156.1   0:01 1370.0
 
-Tape Time (hrs:min)         1:19       1:19       0:00
-Tape Size (meg)           7951.1     7951.1        0.0
-Tape Used (%)                8.0        8.0        0.0
-DLEs Taped                     4          4          0
-Parts Taped                    4          4          0
-Avg Tp Write Rate (k/s)   1722.4     1722.4        --
-
-USAGE BY TAPE:
-  Label                     Time         Size      %  DLEs Parts
-  openhab-openhab-dir-001   1:19     8141884k    8.0     4     4
-
-NOTES:
-  planner: Adding new disk pi:/dev/mmcblk0.
-  planner: Adding new disk pi:/etc/openhab.
-  planner: Adding new disk pi:/var/lib/openhab/persistence.
-  planner: Adding new disk pi:/var/lib/openhab/zwave.
-  planner: WARNING: no history available for pi:/var/lib/openhab/zwave; guessing that size will be 1000000 KB
-  planner: WARNING: no history available for pi:/var/lib/openhab/persistence; guessing that size will be 1000000 KB
-  planner: WARNING: no history available for pi:/etc/openhab; guessing that size will be 1000000 KB
-  taper: Slot 3 without label can be labeled
-  taper: tape openhab-openhab-dir-001 kb 8141884 fm 4 [OK]
-  big estimate: pi /etc/openhab 0
-                  est: 1000032k    out 259820k
-  big estimate: pi /var/lib/openhab/persistence 0
-                  est: 1000032k    out 48720k
-  big estimate: pi /var/lib/openhab/zwave 0
-                  est: 1000032k    out 1370k
-
-
-DUMP SUMMARY:
-                                                                     DUMPER STATS   TAPER STATS
-HOSTNAME     DISK                         L  ORIG-kB  OUT-kB  COMP%  MMM:SS   KB/s MMM:SS   KB/s
-------------------------------------------- ----------------------- -------------- -------------
-pi           /dev/mmcblk0                 0 15645696 7831974   50.1   78:01 1673.2  77:59 1673.9
-pi           /etc/openhab                 0   259820  259820     --    0:32 8077.0   0:34 7641.8
-pi           /var/lib/openhab/persistence 0    48720   48720     --    0:11 4501.6   0:13 3747.7
-pi           /var/lib/openhab/zwave       0     1370    1370     --    0:01 1156.1   0:01 1370.0
-
-(brought to you by Amanda version 3.3.6)
+  (brought to you by Amanda version 3.3.6)
 
 
 Recovering a file
@@ -194,64 +194,64 @@ Note since this Amanda designed to backup/restore ANY file of the system, you ar
 amrecover sort of provides a 'shell' to allow for navigating through the stored files.
 Here's another terminal session log to show how a cpuple of files are restored into a target directory /server/temp.
 
-root@pi:/etc/amanda/openhab-dir# amrecover openhab-dir
-AMRECOVER Version 3.3.6. Contacting server on localhost ...
-220 pi AMANDA index server (3.3.6) ready.
-Setting restore date to today (2017-03-30)
-200 Working date set to 2017-03-30.
-200 Config set to openhab-dir.
-200 Dump host set to pi.
-Use the setdisk command to choose dump disk to recover
-amrecover> listdisk
-200- List of disk for host pi
-201- /dev/mmcblk0
-201- /etc/openhab
-201- /var/lib/openhab/persistence
-201- /var/lib/openhab/zwave
-200 List of disk for host pi
-amrecover> setdisk /etc/openhab
-200 Disk set to /etc/openhab.
-amrecover> ls
-2017-03-30-13-25-29 quartz.properties
-2017-03-30-13-25-29 login.conf
-2017-03-30-13-25-29 logback_debug.xml
-2017-03-30-13-25-29 logback.xml
-2017-03-30-13-25-29 jetty/
-2017-03-30-13-25-29 configurations/
-2017-03-30-13-25-29 .
-aamrecover> add quartz.properties
-Added file /quartz.properties
-amrecover> add logb*
-Added file /logback_debug.xml
-Added file /logback.xml
-amrecover> lcd /server/temp
-amrecover> pwd
-/etc/openhab
-amrecover> lpwd
-/server/temp
-amrecover> extract
-
-Extracting files using tape drive changer on host localhost.
-The following tapes are needed: openhab-openhab-dir-001
-
-Extracting files using tape drive changer on host localhost.
-Load tape openhab-openhab-dir-001 now
-Continue [?/Y/n/s/d]?
-Restoring files into directory /server/temp
-All existing files in /server/temp can be deleted
-Continue [?/Y/n]?
-
-./logback.xml
-./logback_debug.xml
-./quartz.properties
-amrecover>quit
-root@pi:/etc/amanda/openhab-dir# cd /server/temp
-root@pi:/server/temp# ls -l
-insgesamt 12
--rw-rw-r-- 1 openhab openhab 2515 Feb 19  2016 logback_debug.xml
--rw-rw-r-- 1 openhab openhab 3573 Mär 30 06:45 logback.xml
--rw-r--r-- 1 openhab openhab  302 Feb  3  2016 quartz.properties
-root@pi:/server/temp#
+  root@pi:/etc/amanda/openhab-dir# amrecover openhab-dir
+  AMRECOVER Version 3.3.6. Contacting server on localhost ...
+  220 pi AMANDA index server (3.3.6) ready.
+  Setting restore date to today (2017-03-30)
+  200 Working date set to 2017-03-30.
+  200 Config set to openhab-dir.
+  200 Dump host set to pi.
+  Use the setdisk command to choose dump disk to recover
+  amrecover> listdisk
+  200- List of disk for host pi
+  201- /dev/mmcblk0
+  201- /etc/openhab
+  201- /var/lib/openhab/persistence
+  201- /var/lib/openhab/zwave
+  200 List of disk for host pi
+  amrecover> setdisk /etc/openhab
+  200 Disk set to /etc/openhab.
+  amrecover> ls
+  2017-03-30-13-25-29 quartz.properties
+  2017-03-30-13-25-29 login.conf
+  2017-03-30-13-25-29 logback_debug.xml
+  2017-03-30-13-25-29 logback.xml
+  2017-03-30-13-25-29 jetty/
+  2017-03-30-13-25-29 configurations/
+  2017-03-30-13-25-29 .
+  amrecover> add quartz.properties
+  Added file /quartz.properties
+  amrecover> add logb*
+  Added file /logback_debug.xml
+  Added file /logback.xml
+  amrecover> lcd /server/temp
+  amrecover> pwd
+  /etc/openhab
+  amrecover> lpwd
+  /server/temp
+  amrecover> extract
+  
+  Extracting files using tape drive changer on host localhost.
+  The following tapes are needed: openhab-openhab-dir-001
+  
+  Extracting files using tape drive changer on host localhost.
+  Load tape openhab-openhab-dir-001 now
+  Continue [?/Y/n/s/d]?
+  Restoring files into directory /server/temp
+  All existing files in /server/temp can be deleted
+  Continue [?/Y/n]?
+  
+  ./logback.xml
+  ./logback_debug.xml
+  ./quartz.properties
+  amrecover>quit
+  root@pi:/etc/amanda/openhab-dir# cd /server/temp
+  root@pi:/server/temp# ls -l
+  insgesamt 12
+  -rw-rw-r-- 1 openhab openhab 2515 Feb 19  2016 logback_debug.xml
+  -rw-rw-r-- 1 openhab openhab 3573 Mär 30 06:45 logback.xml
+  -rw-r--r-- 1 openhab openhab  302 Feb  3  2016 quartz.properties
+  root@pi:/server/temp#
 
 
 Recovering a partition
@@ -263,13 +263,11 @@ The last line also shows how to restore this image file to a SD card from Linux.
 writer with a (blank) SD card attached to /dev/sdd. You could also move that temporary recovered image file to your Windows PC
 that has a card writer, and use Etcher or whatever tool in order to write the image to the card.
 
-backup@pi:/server/temp$ amfetchdump -p  openhab pi /dev/mmcblk0  > /server/temp/openhabianpi-image
-1 volume(s) needed for restoration
-The following volumes are needed: openhab-openhab-dir-001
-Press enter when ready
+  backup@pi:/server/temp$ amfetchdump -p  openhab pi /dev/mmcblk0  > /server/temp/openhabianpi-image
+  1 volume(s) needed for restoration
+  The following volumes are needed: openhab-openhab-dir-001
+  Press enter when ready
 
-
-amfetchdump: 4: restoring split dumpfile: date 20170322084708 host pi disk /dev/mmcblk0 part 1/UNKNOWN lev 0 comp N program APPLICATION
-
-927712 kb
-backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
+  amfetchdump: 4: restoring split dumpfile: date 20170322084708 host pi disk /dev/mmcblk0 part 1/UNKNOWN lev 0 comp N program APPLICATION
+  927712 kb
+  backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
