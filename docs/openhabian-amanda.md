@@ -61,9 +61,9 @@ have a clone SD card with your CURRENT config.
 
 HEADS UP: The first thing you should do after your first backup run ended successfully is to create a clone of your active
 server SD card by restoring the backup to a blank SD card as shown below as a amfetchdump example for recovery of a raw device's
-contents. /dev/mmcblk0 is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw device to be backed
+contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw device to be backed
 up to have that same name.
-You will have two Amanda config directories (located in /etc/amanda) called "openhab-dir" and "openhab-AWS" if you choose to
+You will have two Amanda config directories (located in `/etc/amanda`) called `openhab-dir` and `openhab-AWS` if you choose to
 setup both of them.
 If any of your Amanda backup or recovery runs fails (which might well be the case particularly if you try to use the S3 backup),
 you should try getting it to work following the guides and knowledge base available on the Web at http://www.amanda.org/.
@@ -75,15 +75,15 @@ don't expect us to guide you through Amanda, which is a rather complex system, a
 A (very brief) usage guide
 ==========================
 
-The overall config is to be found in /etc/amanda/openhab-<config>/amanda.conf.
+The overall config is to be found in `/etc/amanda/openhab-<config>/amanda.conf`.
 You are free to change this file, but doing so is at your own risk.
 You can specify files, directories and raw devices (such as HDD partitions or SD cards) that you want to be backed up in
-/etc/amanda/openhab-<config>/disklist. You are free to add more lines here to have Amanda also take backup of other directories
+`/etc/amanda/openhab-<config>/disklist`. You are free to add more lines here to have Amanda also take backup of other directories
 of yours.
 
 Note the full SD card backup was left out for the AWS S3 config, as that would require a lot of bandwidth and runtime.
 
-openHABian setup routine will create cron entries in /etc/cron.d/amanda to start all backups every night at 01:00AM, and to run
+openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups every night at 01:00AM, and to run
 a check at 06:00PM. 
 
 
@@ -91,15 +91,15 @@ Backing up
 ==========
 
 Find below a terminal session log of a manually started backup run.
-It's showing the three most important commands to use. They all can be started as user "backup" only, interactively or via cron, 
+It's showing the three most important commands to use. They all can be started as user _backup_ only, interactively or via cron, 
 and you always need to specify the config to use. You can have multiple backup configs in parallel use.
 
-The amcheck command is meant to remind you to put in the right removeable storage medium such as a tape or SD card,
+The `amcheck` command is meant to remind you to put in the right removeable storage medium such as a tape or SD card,
 but for the AWS and local/NAS-mounted directory based backup configs, we don't have removable media. So don't get confused,
-amcheck is not needed.
-The amdump command will start the backup run itself. 
-The result will be mailed to you (if your mail system wass properly configured which is currently not the case with openHABian).
-You can run "amreport <config>" at any time to see a report on the last backup run for that config.
+`amcheck` is not a required step.
+The `amdump` command will start the backup run itself. 
+The result will be mailed to you (if your mail system was properly configured which is currently not the case with openHABian).
+You can run `amreport <config>` at any time to see a report on the last backup run for that config.
 
 ```
 backup@pi:~$ amcheck openhab-dir
@@ -189,11 +189,11 @@ backup@pi:~$ amcheck openhab-dir
 Recovering a file
 =================
 
-To restore a file, you need to use the "amrecover" command as root.
-Note since this Amanda designed to backup/restore ANY file of the system, you are required to run amrecover as the root user.
+To restore a file, you need to use the `amrecover` command as root.
+Note since this Amanda designed to backup/restore ANY file of the system, you are required to run `amrecover` as the root user.
 
-amrecover sort of provides a 'shell' to allow for navigating through the stored files.
-Here's another terminal session log to show how a cpuple of files are restored into a target directory /server/temp.
+`amrecover` sort of provides a shell-like interface to allow for navigating through the stored files.
+Here's another terminal session log to show how a couple of files are restored into a target directory `/server/temp`.
 
 ```
   root@pi:/etc/amanda/openhab-dir# amrecover openhab-dir
@@ -259,10 +259,10 @@ Here's another terminal session log to show how a cpuple of files are restored i
 Recovering a partition
 ======================
 
-To restore a raw disk partition, you need to use "amfetchdump" command. Unlike amdump, you have to run amfetchdump as user
-"backup", though. Here's another terminal session log to use amfetchdump to first retrieve the backup image from storage.
+To restore a raw disk partition, you need to use `amfetchdump` command. Unlike amdump, you have to run `amfetchdump` as user
+_backup_, though. Here's another terminal session log to use `amfetchdump` to first retrieve the backup image from storage.
 The last line also shows how to restore this image file to a SD card from Linux. In this example, we have an external SD card
-writer with a (blank) SD card attached to /dev/sdd. You could also move that temporary recovered image file to your Windows PC
+writer with a (blank) SD card attached to `/dev/sdd`. You could also move that temporary recovered image file to your Windows PC
 that has a card writer, and use Etcher or whatever tool in order to write the image to the card.
 
 ```
