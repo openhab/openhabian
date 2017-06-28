@@ -425,8 +425,9 @@ If prompted if files should be replaced by newer ones, select Yes. Please be sur
 
 openhab2_stable() {
   introtext="You are about to switch over to the stable openHAB 2.1.0 build. When prompted if files should be replaced by newer ones, select Yes. Please be sure to take a full openHAB configuration backup first!"
-  successtext="The stable release of openHAB 2.1.0 is now installed on your system. Please test the correct behavior of your system. Check the \"openHAB 2.1 Release Notes\" to learn about additons, fixes and changes:
-  \nhttps://github.com/openhab/openhab-distro/wiki/openHAB-2.1-Release-Notes"
+  successtext="The stable release of openHAB 2.1.0 is now installed on your system. Please test the correct behavior of your setup. Check the \"openHAB 2.1 Release Notes\" and the official announcements to learn about additons, fixes and changes:\n
+  ➡ http://www.kaikreuzer.de/2017/06/28/openhab21
+  ➡ https://github.com/openhab/openhab-distro/releases/tag/2.1.0"
   echo -n "$(timestamp) [openHABian] Installing or switching to openHAB 2.1.0 (stable)... "
 
   if [ -n "$INTERACTIVE" ]; then
@@ -1654,7 +1655,7 @@ show_main_menu() {
   "" "" \
   "01 | Update"                 "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
-  "03 | openHAB 2.1.0 stable"   "Switch from openHAB 2.1 snapshots to the 2.1 stable release" \
+  "03 | openHAB 2.1.0 stable"   "Switch from openHAB 2.0 or 2.1-snapshot to the 2.1 stable release" \
   "" "" \
   "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"    "Choose from a set of optional software components ►" \
