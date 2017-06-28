@@ -2,7 +2,7 @@ openHAB server backup
 =====================
 
 First, make yourself aware how important a comprehensive backup and recovery concept is.
-Yes, this text is the README on the backup software part for OpenHABian that you're reading, but take a couple of minutes to
+Yes, this text is the README on the backup software part for openHABian that you're reading, but take a couple of minutes to
 read and think about recovery in a generic sense first. This might avoid a LOT of frustration.
 
 So you have your smart home working thanks to openHAB(ian).... but what if a component of your system fails ?
@@ -72,8 +72,8 @@ In case you find systematic problems or improvements, please let us (openHABian 
 don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
 
 
-A quick'n dirty usage guide:
-============================
+A (very brief) usage guide
+==========================
 
 The overall config is to be found in /etc/amanda/openhab-<config>/amanda.conf.
 You are free to change this file, but doing so is at your own risk.
