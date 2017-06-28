@@ -1,6 +1,12 @@
-openHAB server backup
-=====================
+How to backup your openHABian server using Amanda
+=================================================
 
+* [A generic intro on backup and recovery](#Intro)
+* [How to backup](#Backup)
+* [How to restore a file](#Restore)
+* [How to restore a partition](#Restore)
+
+## Intro
 First, make yourself aware how important a comprehensive backup and recovery concept is.
 Yes, this text is the README on the backup software part for openHABian that you're reading, but take a couple of minutes to
 read and think about recovery in a generic sense first. This might avoid a LOT of frustration.
@@ -87,9 +93,7 @@ openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to sta
 a check at 06:00PM. 
 
 
-Backing up
-==========
-
+## Backup
 Find below a terminal session log of a manually started backup run.
 It's showing the three most important commands to use. They all can be started as user _backup_ only, interactively or via cron, 
 and you always need to specify the config to use. You can have multiple backup configs in parallel use.
@@ -128,7 +132,7 @@ backup@pi:~$ amcheck openhab-dir
   backup@pi:~$ amdump openhab-dir
   backup@pi:~$ amreport openhab-dir
   Hostname: pi
-  Org     : openHABion openhab-dir
+  Org     : openHABian openhab-dir
   Config  : openhab-dir
   Date    : März 30, 2017
   
@@ -188,8 +192,8 @@ backup@pi:~$ amcheck openhab-dir
   (brought to you by Amanda version 3.3.6)
 ```
 
-Recovering a file
-=================
+## Restore
+### Restoring a file
 
 To restore a file, you need to use the `amrecover` command as root.
 Notethat  since Amanda is designed to restore ANY file of the system, you are required to run `amrecover` as the root user to have the appropriate file access rights.
@@ -258,8 +262,7 @@ Here's another terminal session log to show how a couple of files are restored i
   root@pi:/server/temp#
 ```
 
-Recovering a partition
-======================
+### Restoring a partition
 
 To restore a raw disk partition, you need to use `amfetchdump` command. Unlike amdump, you have to run `amfetchdump` as user
 _backup_, though. Here's another terminal session log to use `amfetchdump` to first retrieve the backup image from storage.
