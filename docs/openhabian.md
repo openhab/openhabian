@@ -34,7 +34,7 @@ To that end, the project provides two things:
 The following features are provided by the openHABian images out of the box:
 
 * Hassle-free setup without a display or keyboard, connected via [Ethernet or Wi-Fi](#wifi-setup)
-* openHAB 2 in the latest recommended version (2.0.0 stable)
+* openHAB 2 in the latest recommended version (2.1.0 stable)
 * Zulu Embedded OpenJDK Java 8 ([*version 8.20.0.42* or newer](http://zulu.org/zulu-community/zulurelnotes))
 * [openHABian Configuration Tool](#first-steps) including updater functionality
 * openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
