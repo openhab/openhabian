@@ -101,7 +101,8 @@ The amdump command will start the backup run itself.
 The result will be mailed to you (if your mail system wass properly configured which is currently not the case with openHABian).
 You can run "amreport <config>" at any time to see a report on the last backup run for that config.
 
-  backup@pi:~$ amcheck openhab-dir
+`
+backup@pi:~$ amcheck openhab-dir
 
   Amanda Tape Server Host Check
   -----------------------------
@@ -183,7 +184,7 @@ You can run "amreport <config>" at any time to see a report on the last backup r
   pi           /var/lib/openhab/zwave       0     1370    1370     --    0:01 1156.1   0:01 1370.0
 
   (brought to you by Amanda version 3.3.6)
-
+`
 
 Recovering a file
 =================
@@ -194,6 +195,7 @@ Note since this Amanda designed to backup/restore ANY file of the system, you ar
 amrecover sort of provides a 'shell' to allow for navigating through the stored files.
 Here's another terminal session log to show how a cpuple of files are restored into a target directory /server/temp.
 
+`
   root@pi:/etc/amanda/openhab-dir# amrecover openhab-dir
   AMRECOVER Version 3.3.6. Contacting server on localhost ...
   220 pi AMANDA index server (3.3.6) ready.
@@ -252,7 +254,7 @@ Here's another terminal session log to show how a cpuple of files are restored i
   -rw-rw-r-- 1 openhab openhab 3573 Mär 30 06:45 logback.xml
   -rw-r--r-- 1 openhab openhab  302 Feb  3  2016 quartz.properties
   root@pi:/server/temp#
-
+`
 
 Recovering a partition
 ======================
@@ -263,6 +265,7 @@ The last line also shows how to restore this image file to a SD card from Linux.
 writer with a (blank) SD card attached to /dev/sdd. You could also move that temporary recovered image file to your Windows PC
 that has a card writer, and use Etcher or whatever tool in order to write the image to the card.
 
+`
   backup@pi:/server/temp$ amfetchdump -p  openhab pi /dev/mmcblk0  > /server/temp/openhabianpi-image
   1 volume(s) needed for restoration
   The following volumes are needed: openhab-openhab-dir-001
@@ -271,3 +274,4 @@ that has a card writer, and use Etcher or whatever tool in order to write the im
   amfetchdump: 4: restoring split dumpfile: date 20170322084708 host pi disk /dev/mmcblk0 part 1/UNKNOWN lev 0 comp N program APPLICATION
   927712 kb
   backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
+`
