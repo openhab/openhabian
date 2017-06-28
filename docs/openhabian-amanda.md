@@ -34,9 +34,9 @@ For RaZberry/zwave.me USB stick, you can run the Z-Way software to backup and re
 controller. For the Aeon Gen5 stick, there's a Windows tool available for download.
 NOTE: Similar problems may arise if you run commercial systems such as a HomeMatic CCU or Insteon controller.
 
-Dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and repeat every now
-and then.
 Remember Murphy's law: When your system fails and you activate your backup system for the first time, you'll notice it's broken.
+So dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and repeat every now
+and then.
 
 
 
@@ -97,8 +97,10 @@ and you always need to specify the config to use. You can have multiple backup c
 The `amcheck` command is meant to remind you to put in the right removeable storage medium such as a tape or SD card,
 but for the AWS and local/NAS-mounted directory based backup configs, we don't have removable media. So don't get confused,
 `amcheck` is not a required step.
+
 The `amdump` command will start the backup run itself. 
 The result will be mailed to you (if your mail system was properly configured which is currently not the case with openHABian).
+
 You can run `amreport <config>` at any time to see a report on the last backup run for that config.
 
 ```
@@ -190,7 +192,7 @@ Recovering a file
 =================
 
 To restore a file, you need to use the `amrecover` command as root.
-Note since this Amanda designed to backup/restore ANY file of the system, you are required to run `amrecover` as the root user.
+Notethat  since Amanda is designed to restore ANY file of the system, you are required to run `amrecover` as the root user to have the appropriate file access rights.
 
 `amrecover` sort of provides a shell-like interface to allow for navigating through the stored files.
 Here's another terminal session log to show how a couple of files are restored into a target directory `/server/temp`.
