@@ -374,7 +374,7 @@ java_zulu_embedded_archive() {
 }
 
 openhab2() {
-  echo -n "$(timestamp) [openHABian] Installing openHAB 2.0 (stable)... "
+  echo -n "$(timestamp) [openHABian] Installing openHAB 2.1 (stable)... "
   echo "deb http://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
   #echo "deb http://dl.bintray.com/openhab/apt-repo2 testing main" > /etc/apt/sources.list.d/openhab2.list
   #echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
@@ -401,7 +401,7 @@ openhab2_unstable() {
   introtext="You are about to switch over to the latest openHAB 2 unstable build. The daily snapshot builds contain the latest features and improvements but may also suffer from bugs or incompatibilities.
 If prompted if files should be replaced by newer ones, select Yes. Please be sure to take a full openHAB configuration backup first!"
   successtext="The latest unstable/snapshot build of openHAB 2 is now running on your system. If already available, check the function of your configuration now. If you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages regularly."
-  echo -n "$(timestamp) [openHABian] Installing or switching to openHAB 2.0 (unstable)... "
+  echo -n "$(timestamp) [openHABian] Installing or switching to openHAB 2.2 SNAPSHOT (unstable)... "
 
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
@@ -410,6 +410,36 @@ If prompted if files should be replaced by newer ones, select Yes. Please be sur
   echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
   cond_redirect apt update
   cond_redirect apt -y install openhab2
+  if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
+  cond_redirect adduser openhab dialout
+  cond_redirect adduser openhab tty
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl enable openhab2.service
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  cond_redirect systemctl restart openhab2.service || true
+
+  if [ -n "$INTERACTIVE" ]; then
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+  fi
+}
+
+openhab2_stable() {
+  introtext="You are about to switch over to the stable openHAB 2.1.0 build. When prompted if files should be replaced by newer ones, select Yes. Please be sure to take a full openHAB configuration backup first!"
+  successtext="The stable release of openHAB 2.1.0 is now installed on your system. Please test the correct behavior of your system. Check the \"openHAB 2.1 Release Notes\" to learn about additons, fixes and changes:
+  \nhttps://github.com/openhab/openhab-distro/wiki/openHAB-2.1-Release-Notes"
+  echo -n "$(timestamp) [openHABian] Installing or switching to openHAB 2.1.0 (stable)... "
+
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+  fi
+
+  echo "deb https://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
+  cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
+  cond_redirect apt-key add openhab-key.asc
+  if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
+  rm -f openhab-key.asc
+  cond_redirect apt update
+  cond_redirect apt -y install openhab2=2.1.0-1
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
@@ -1624,6 +1654,7 @@ show_main_menu() {
   "" "" \
   "01 | Update"                 "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
+  "03 | openHAB 2.1.0 stable"   "Switch from openHAB 2.1 snapshots to the 2.1 stable release" \
   "" "" \
   "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"    "Choose from a set of optional software components ►" \
@@ -1641,17 +1672,20 @@ show_main_menu() {
   fi
 
   if [[ "$choice" == "" ]]; then
-      true
-
+    true
+  
   elif [[ "$choice" == "00"* ]]; then
     show_about
-
+  
   elif [[ "$choice" == "01"* ]]; then
     openhabian_update
-
+  
   elif [[ "$choice" == "02"* ]]; then
     system_upgrade
-
+  
+  elif [[ "$choice" == "03"* ]]; then
+    openhab2_stable
+  
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 12 116 5 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
@@ -1719,14 +1753,16 @@ show_main_menu() {
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
-    "41 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
-    "42 | openHAB 2 unstable"     "Switch to the latest openHAB 2 snapshot (unstable)" \
+    "41 | openHAB 2.1 stable"     "Switch to the openHAB 2.1 release" \
+    "   | openHAB 2.2 unstable"   "Switch to the latest openHAB 2.2 snapshot" \
+    "42 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
     "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
-      41\ *) openhab_shell_interfaces ;;
-      42\ *) openhab2_unstable ;;
+      41\ *) openhab2_stable ;;
+      *openHAB\ 2\ unstable) openhab2_unstable ;;
+      42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
@@ -1749,8 +1785,8 @@ show_main_menu() {
     "62 | Packages"               "Install needed and recommended system packages" \
     "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
     "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team" \
-    "64 | openHAB 2"              "Install openHAB 2.0 (stable)" \
-    "   | openHAB 2 unstable"     "(Alternative) Install the latest openHAB 2 snapshot (unstable)" \
+    "64 | openHAB 2"              "Install openHAB 2.1 (stable)" \
+    "   | openHAB 2 unstable"     "(Alternative) Install the latest openHAB 2.2 snapshot (unstable)" \
     "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB" \
     "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
     "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail)" \
