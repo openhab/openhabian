@@ -1753,7 +1753,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
     "41 | openHAB 2.1 stable"     "Switch to the openHAB 2.1 release" \
     "   | openHAB 2.2 unstable"   "Switch to the latest openHAB 2.2 snapshot" \
     "42 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
@@ -1762,7 +1762,7 @@ show_main_menu() {
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       41\ *) openhab2_stable ;;
-      *openHAB\ 2\ unstable) openhab2_unstable ;;
+      *openHAB\ 2.2\ unstable) openhab2_unstable ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
       "") return 0 ;;
