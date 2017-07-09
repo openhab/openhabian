@@ -835,11 +835,26 @@ Do you want to continue on your own risk?"
   fi
 
   #check if system root is on partion 2 of the SD card
-  if ! grep -q "root=/dev/mmcblk0p2" /boot/cmdline.txt; then
+  #since 2017-06, rasbian uses PARTUUID=.... in cmdline.txt and fstab instead of /dev/mmcblk0p2...
+  rootonsdcard=false 
+
+  #extract rootpart
+  rootpart=$(cat /boot/cmdline.txt | sed "s/.*root=\([a-zA-Z0-9\/=-]*\)\(.*\)/\1/") 
+
+  if [[ $rootpart == *"PARTUUID="* ]]; then
+    if blkid -l -t $rootpart | grep -q "/dev/mmcblk0p2"; then
+      rootonsdcard=true
+    fi
+  elif [[ $rootpart == "/dev/mmcblk0p2" ]]; then
+    rootonsdcard=true
+  fi
+
+  #exit if root is not on SDCARD
+  if ! [ $rootonsdcard = true ]; then
     infotext="It seems as if your system root is not on the SD card.
        ***Aborting, process cant be started***"
     whiptail --title "System root not on SD card?" --msgbox "$infotext" 8 78
-    return
+    return 0
   fi
 
   #check if USB power is already set to 1A, otherwise set it there
@@ -894,13 +909,13 @@ When the process is finished, you will be informed via message box..."
   echo
   echo "adjusting fstab on new root"
   #adjust system root in fstab
-  sed -i "s#/dev/mmcblk0p2 /#$NEWROOTPART /#" /mnt/etc/fstab
+  sed -i "s#$rootpart#$NEWROOTPART#" /mnt/etc/fstab
 
   echo "adjusting system root in kernel bootline"
   #make a copy of the original cmdline
   cp /boot/cmdline.txt /boot/cmdline.txt.sdcard
   #adjust system root in kernel bootline
-  sed -i "s#root=/dev/mmcblk0p2#root=$NEWROOTPART#" /boot/cmdline.txt
+  sed -i "s#root=$rootpart#root=$NEWROOTPART#" /boot/cmdline.txt
 
   echo
   echo "*************************************************************"
