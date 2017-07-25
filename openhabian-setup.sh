@@ -1319,12 +1319,11 @@ create_backup_config() {
       if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
   # create virtual 'tapes'
-  ln -s ${storage}/slots ${storage}/slots/drive0
+  ln -s ${storage}/slots ${storage}/slots/drive0;ln -s ${storage}/slots ${storage}/slots/drive1		# taper-parallel-write 2 so we need 2 virtual drives
   counter=1
   while [ ${counter} -le ${tapes} ]; do
       if [ "${config}" = "openhab-dir" ]; then
           mkdir -p ${storage}/slots/slot${counter}
-	  ln -s ${storage}/slots ${storage}/slots/drive${counter}	# not sure how many virtual drives we need beyond drive0
 
           tpchanger="\"chg-disk:${storage}/slots\"    # The tape-changer glue script"
           tapetype="DIRECTORY"
@@ -1347,9 +1346,10 @@ create_backup_config() {
       let counter+=1
   done
 
-  if [ -n "$INTERACTIVE" ]; then
-      adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the EMail address to send backup reports to. Note: Mail relaying is not enabled in openHABian yet." 10 60 3>&1 1>&2 2>&3)
-  fi
+# no mailer configured for now
+#  if [ -n "$INTERACTIVE" ]; then
+#     adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the EMail address to send backup reports to. Note: Mail relaying is not enabled in openHABian yet." 10 60 3>&1 1>&2 2>&3)
+#  fi
 
   /bin/grep -v ${config} /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
   
