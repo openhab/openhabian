@@ -1318,12 +1318,13 @@ create_backup_config() {
   if [ -n "$INTERACTIVE" ]; then
       if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
-  # create 'tapes'
+  # create virtual 'tapes'
+  ln -s ${storage}/slots ${storage}/slots/drive0
   counter=1
   while [ ${counter} -le ${tapes} ]; do
       if [ "${config}" = "openhab-dir" ]; then
           mkdir -p ${storage}/slots/slot${counter}
-	  ln -s ${storage}/slots ${storage}/slots/drive0
+	  ln -s ${storage}/slots ${storage}/slots/drive${counter}	# not sure how many virtual drives we need beyond drive0
 
           tpchanger="\"chg-disk:${storage}/slots\"    # The tape-changer glue script"
           tapetype="DIRECTORY"
