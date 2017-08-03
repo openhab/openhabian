@@ -575,6 +575,14 @@ nodered() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
 }
 
+yo_generator() {
+  nodejs
+  echo -n "$(timestamp) [openHABian] Installing the Yeoman openHAB generator... "
+  cond_redirect npm install -g yo generator-openhab
+  if [ $? -ne 0 ]; then echo "FAILED (yo_generator)"; exit 1; fi
+  cond_redirect npm update -g generator-openhab
+}
+
 srv_bind_mounts() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
   sed -i "/openhab2/d" /etc/fstab
@@ -1723,23 +1731,25 @@ show_main_menu() {
 
   elif [[ "$choice" == "20"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
-    "21 | Log Viewer"   "The openHAB Log Viewer webapp (frontail)" \
-    "22 | Mosquitto"    "The MQTT broker Eclipse Mosquitto" \
-    "23 | Grafana"      "InfluxDB+Grafana as a powerful persistence and graphing solution" \
-    "24 | NodeRED"      "Flow-based programming for the Internet of Things" \
-    "25 | Homegear"     "Homematic specific, the CCU2 emulation software Homegear" \
-    "26 | knxd"         "KNX specific, the KNX router/gateway daemon knxd" \
-    "27 | 1wire"        "1wire specific, owserver and related packages" \
+    "21 | Log Viewer"          "The openHAB Log Viewer webapp (frontail)" \
+    "22 | openHAB Generator"   "The openHAB items, sitemap and HABPanel dashboard generator" \
+    "23 | Mosquitto"           "The MQTT broker Eclipse Mosquitto" \
+    "24 | Grafana"             "InfluxDB+Grafana as a powerful persistence and graphing solution" \
+    "25 | NodeRED"             "Flow-based programming for the Internet of Things" \
+    "26 | Homegear"            "Homematic specific, the CCU2 emulation software Homegear" \
+    "27 | knxd"                "KNX specific, the KNX router/gateway daemon knxd" \
+    "28 | 1wire"               "1wire specific, owserver and related packages" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       21\ *) frontail ;;
-      22\ *) mqtt_setup ;;
-      23\ *) influxdb_grafana_setup ;;
-      24\ *) nodered ;;
-      25\ *) homegear_setup ;;
-      26\ *) knxd_setup ;;
-      27\ *) 1wire_setup ;;
+      22\ *) yo_generator ;;
+      23\ *) mqtt_setup ;;
+      24\ *) influxdb_grafana_setup ;;
+      25\ *) nodered ;;
+      26\ *) homegear_setup ;;
+      27\ *) knxd_setup ;;
+      28\ *) 1wire_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
@@ -1859,7 +1869,7 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   samba_setup
   clean_config_userpw
-  if is_pione || is_pizero || is_pizerow; then true; else nodejs && frontail; fi
+  if is_pione || is_pizero || is_pizerow; then true; else nodejs && frontail && yo_generator; fi
 else
   whiptail_check
   load_create_config
