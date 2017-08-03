@@ -566,6 +566,9 @@ nodered() {
   cond_redirect npm install -g node-red-contrib-bigtimer
   if [ $? -ne 0 ]; then echo "FAILED (nodered bigtimer addon)"; exit 1; fi
   cond_redirect npm update -g node-red-contrib-bigtimer
+  cond_redirect npm install -g norelite
+  if [ $? -ne 0 ]; then echo "FAILED (nodered norelite addon)"; exit 1; fi
+  cond_redirect npm update -g norelite  
   cond_redirect npm install -g node-red-contrib-openhab2
   if [ $? -ne 0 ]; then echo "FAILED (nodered openhab2 addon)"; exit 1; fi
   cond_redirect npm update -g node-red-contrib-openhab2
