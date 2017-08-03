@@ -38,6 +38,7 @@ The following features are provided by the openHABian images out of the box:
 * Zulu Embedded OpenJDK Java 8 ([*version 8.20.0.42* or newer](http://zulu.org/zulu-community/zulurelnotes))
 * [openHABian Configuration Tool](#first-steps) including updater functionality
 * openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
+* [openHAB Generator](https://github.com/kubawolanin/generator-openhab)
 * Samba file sharing with [pre-configured to use shares](http://docs.openhab.org/installation/linux.html#mounting-locally)
 * Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
 * Login information screen, powered by [FireMotD](https://github.com/willemdh/FireMotD)
@@ -252,6 +253,7 @@ Here are the passwords in question, their default value and the way to change th
 openHABian comes with a number of additional configs that allow you to quickly install home automation related software.
 
 * [frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openHABianPi:9001](http://openHABianPi:9001)
+* [openHAB Generator](https://github.com/kubawolanin/generator-openhab) - Allows you to create [Items](http://docs.openhab.org/configuration/items.html), [Sitemap](http://docs.openhab.org/configuration/sitemaps.html) and [HABPanel](http://docs.openhab.org/addons/uis/habpanel/readme.html) dashboard for your home in no time
 * [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openHABianPi:1880](http://openHABianPi:1880)
 * [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
 * [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
@@ -325,6 +327,9 @@ If the installation was **not successful** you will see a warning and further in
 </div>
 
 ##### What Next?
+
+After your first setup is done, you might want to generate [Items](http://docs.openhab.org/configuration/items.html), [Sitemap](http://docs.openhab.org/configuration/sitemaps.html) and [HABPanel](http://docs.openhab.org/addons/uis/habpanel/readme.html) dashboard for your home.
+Simply log in to your Raspberry PI with SSH and type `openhab-generator`. It will run a Yeoman-based [openHAB Generator](https://github.com/kubawolanin/generator-openhab) tool asking for your house structure (e.g. number of floors, rooms and devices).
 
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem.
 Try using a steady power source and a reliable SD card, double check the network connection.
