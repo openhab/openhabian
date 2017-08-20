@@ -1326,7 +1326,8 @@ create_backup_config() {
   if [ -n "$INTERACTIVE" ]; then
       if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
-  # create 'tapes'
+  # create virtual 'tapes'
+  ln -s ${storage}/slots ${storage}/slots/drive0;ln -s ${storage}/slots ${storage}/slots/drive1		# taper-parallel-write 2 so we need 2 virtual drives
   counter=1
   while [ ${counter} -le ${tapes} ]; do
       if [ "${config}" = "openhab-dir" ]; then
@@ -1353,9 +1354,10 @@ create_backup_config() {
       let counter+=1
   done
 
-  if [ -n "$INTERACTIVE" ]; then
-      adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the EMail address to send backup reports to." 10 60 3>&1 1>&2 2>&3)
-  fi
+# no mailer configured for now
+#  if [ -n "$INTERACTIVE" ]; then
+#     adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the EMail address to send backup reports to. Note: Mail relaying is not enabled in openHABian yet." 10 60 3>&1 1>&2 2>&3)
+#  fi
 
   /bin/grep -v ${config} /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
   
@@ -1388,7 +1390,13 @@ create_backup_config() {
 
   hostname=`/bin/hostname`
   if [ "${config}" = "openhab-local-SD" -o "${config}" = "openhab-dir" ]; then
-      echo "${hostname}	/dev/mmcblk0    	        amraw" >${confdir}/disklist
+      # don't backup SD by default as this can cause problems for large cards
+      if [ -n "$INTERACTIVE" ]; then
+          if (whiptail --title "Backup raw SD card ?" --yes-button "Backup SD" --no-button "Do not backup SD" --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 8GB or less, otherwise this can take too long. You can always add/remove this by editing ${confdir}/disklist." 15 80) then 
+	      echo "${hostname}	/dev/mmcblk0    	        amraw" >${confdir}/disklist
+	  fi   
+      fi
+      
       echo "${hostname}	/etc/openhab2			user-tar" >>${confdir}/disklist
       echo "${hostname}	/var/lib/openhab2		user-tar" >>${confdir}/disklist
   else
@@ -1458,7 +1466,7 @@ amanda_setup() {
   fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if (whiptail --title "Create Amazon AWS based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on Amazon Web Services. You can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. See also http://wiki.zmanda.com/index.php/How_To:Backup_to_Amazon_S3" 15 80) then
+    if (whiptail --title "Create Amazon S3 based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on Amazon Web Services. You can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. See also http://wiki.zmanda.com/index.php/How_To:Backup_to_Amazon_S3" 15 80) then
         config=openhab-AWS
         S3accesskey=$(whiptail --title "S3 access key" --inputbox "Enter the S3 access key you obtained at S3 setup time:" 10 60 3>&1 1>&2 2>&3)
         S3secretkey=$(whiptail --title "S3 secret key" --inputbox "Enter the S3 secret key you obtained at S3 setup time:" 10 60 3>&1 1>&2 2>&3)
