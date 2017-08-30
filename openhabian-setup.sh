@@ -1686,7 +1686,6 @@ show_main_menu() {
   "" "" \
   "01 | Update"                 "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
-  "03 | openHAB 2.1.0 stable"   "Switch from openHAB 2.0 or 2.1-snapshot to the 2.1 stable release" \
   "" "" \
   "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"    "Choose from a set of optional software components ►" \
@@ -1714,9 +1713,6 @@ show_main_menu() {
   
   elif [[ "$choice" == "02"* ]]; then
     system_upgrade
-  
-  elif [[ "$choice" == "03"* ]]; then
-    openhab2_stable
   
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 12 116 5 --cancel-button Back --ok-button Execute \
