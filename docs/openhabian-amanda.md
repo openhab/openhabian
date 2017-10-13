@@ -60,8 +60,11 @@ you with one solution that is designed to run on local hardware only. We provide
 destination. This can be a partition mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
 device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
 We believe this will cover most openHAB backup use cases.
+NOTE: don't use CIFS (Windows sharing). If you have a NAS, se NFS instead. There's issues with CIFS and symlinks, and it doesn't make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian).
+If you don't have a NAS, DON'T use your Windows box as the storage server. Attach a USB stick to your Pi instead for storage.
 There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
-do not match your needs. It's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
+do not match your needs. You could even usde it to backup all of your servers (if any) and desktop PCs, including window machines.
+Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
 have a clone SD card with your CURRENT config.
 
 
@@ -74,12 +77,12 @@ setup both of them.
 If any of your Amanda backup or recovery runs fails (which might well be the case particularly if you try to use the S3 backup),
 you should try getting it to work following the guides and knowledge base available on the Web at http://www.amanda.org/.
 There's online documentation including tutorials and FAQs at http://wiki.zmanda.com/index.php/User_documentation.
-In case you find systematic problems or improvements, please let us (openHABian authors) know through a GitHub issue, but please
+In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but please
 don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
 
 
-A (very brief) usage guide
-==========================
+A (yes, very brief) usage guide
+===============================
 
 The overall config is to be found in `/etc/amanda/openhab-<config>/amanda.conf`.
 You are free to change this file, but doing so is at your own risk.
@@ -106,6 +109,8 @@ The `amdump` command will start the backup run itself.
 The result will be mailed to you (if your mail system was properly configured which is currently not the case with openHABian).
 
 You can run `amreport <config>` at any time to see a report on the last backup run for that config.
+
+Reminder: you have to be logged in as the `backup` user
 
 ```
 backup@pi:~$ amcheck openhab-dir
@@ -164,30 +169,30 @@ backup@pi:~$ amcheck openhab-dir
   
   NOTES:
     planner: Adding new disk pi:/dev/mmcblk0.
-    planner: Adding new disk pi:/etc/openhab.
-    planner: Adding new disk pi:/var/lib/openhab/persistence.
-    planner: Adding new disk pi:/var/lib/openhab/zwave.
-    planner: WARNING: no history available for pi:/var/lib/openhab/zwave; guessing that size will be 1000000 KB
-    planner: WARNING: no history available for pi:/var/lib/openhab/persistence; guessing that size will be 1000000 KB
-    planner: WARNING: no history available for pi:/etc/openhab; guessing that size will be 1000000 KB
+    planner: Adding new disk pi:/etc/openhab2.
+    planner: Adding new disk pi:/var/lib/openhab2/persistence.
+    planner: Adding new disk pi:/var/lib/openhab2/zwave.
+    planner: WARNING: no history available for pi:/var/lib/openhab2/zwave; guessing that size will be 1000000 KB
+    planner: WARNING: no history available for pi:/var/lib/openhab2/persistence; guessing that size will be 1000000 KB
+    planner: WARNING: no history available for pi:/etc/openhab2; guessing that size will be 1000000 KB
     taper: Slot 3 without label can be labeled
     taper: tape openhab-openhab-dir-001 kb 8141884 fm 4 [OK]
-    big estimate: pi /etc/openhab 0
+    big estimate: pi /etc/openhab2 0
                     est: 1000032k    out 259820k
-    big estimate: pi /var/lib/openhab/persistence 0
+    big estimate: pi /var/lib/openhab2/persistence 0
                     est: 1000032k    out 48720k
-    big estimate: pi /var/lib/openhab/zwave 0
+    big estimate: pi /var/lib/openhab2/zwave 0
                     est: 1000032k    out 1370k
 
 
   DUMP SUMMARY:
                                                                        DUMPER STATS   TAPER STATS
-  HOSTNAME     DISK                         L  ORIG-kB  OUT-kB  COMP%  MMM:SS   KB/s MMM:SS   KB/s
-  ------------------------------------------- ----------------------- -------------- -------------
-  pi           /dev/mmcblk0                 0 15645696 7831974   50.1   78:01 1673.2  77:59 1673.9  
-  pi           /etc/openhab                 0   259820  259820     --    0:32 8077.0   0:34 7641.8
-  pi           /var/lib/openhab/persistence 0    48720   48720     --    0:11 4501.6   0:13 3747.7
-  pi           /var/lib/openhab/zwave       0     1370    1370     --    0:01 1156.1   0:01 1370.0
+  HOSTNAME     DISK                          L  ORIG-kB  OUT-kB  COMP%  MMM:SS   KB/s MMM:SS   KB/s
+  -------------------------------------------- ----------------------- -------------- -------------
+  pi           /dev/mmcblk0                  0 15645696 7831974   50.1   78:01 1673.2  77:59 1673.9  
+  pi           /etc/openhab2                 0   259820  259820     --    0:32 8077.0   0:34 7641.8
+  pi           /var/lib/openhab2/persistence 0    48720   48720     --    0:11 4501.6   0:13 3747.7
+  pi           /var/lib/openhab2/zwave       0     1370    1370     --    0:01 1156.1   0:01 1370.0
 
   (brought to you by Amanda version 3.3.6)
 ```
@@ -196,7 +201,7 @@ backup@pi:~$ amcheck openhab-dir
 ### Restoring a file
 
 To restore a file, you need to use the `amrecover` command as root.
-Notethat  since Amanda is designed to restore ANY file of the system, you are required to run `amrecover` as the root user to have the appropriate file access rights.
+Note that since Amanda is designed to restore ANY file of the system, you are required to run `amrecover` as the root user to have the appropriate file access rights.
 
 `amrecover` sort of provides a shell-like interface to allow for navigating through the stored files.
 Here's another terminal session log to show how a couple of files are restored into a target directory `/server/temp`.
@@ -244,10 +249,10 @@ Here's another terminal session log to show how a couple of files are restored i
   
   Extracting files using tape drive changer on host localhost.
   Load tape openhab-openhab-dir-001 now
-  Continue [?/Y/n/s/d]?
+  Continue [?/Y/n/s/d]? Y
   Restoring files into directory /server/temp
   All existing files in /server/temp can be deleted
-  Continue [?/Y/n]?
+  Continue [?/Y/n]? Y
   
   ./logback.xml
   ./logback_debug.xml
@@ -264,14 +269,14 @@ Here's another terminal session log to show how a couple of files are restored i
 
 ### Restoring a partition
 
-To restore a raw disk partition, you need to use `amfetchdump` command. Unlike amdump, you have to run `amfetchdump` as user
+To restore a raw disk partition, you need to use `amfetchdump` command. Unlike `amdump`, you have to run `amfetchdump` as user
 _backup_, though. Here's another terminal session log to use `amfetchdump` to first retrieve the backup image from storage.
 The last line also shows how to restore this image file to a SD card from Linux. In this example, we have an external SD card
 writer with a (blank) SD card attached to `/dev/sdd`. You could also move that temporary recovered image file to your Windows PC
-that has a card writer, and use Etcher or whatever tool in order to write the image to the card.
+that has a card writer, and use Etcher or other tool in order to write the image to the card.
 
 ```
-  backup@pi:/server/temp$ amfetchdump -p  openhab pi /dev/mmcblk0  > /server/temp/openhabianpi-image
+  backup@pi:/server/temp$ amfetchdump -p openhab  pi /dev/mmcblk0  > /server/temp/openhabianpi-image
   1 volume(s) needed for restoration
   The following volumes are needed: openhab-openhab-dir-001
   Press enter when ready
