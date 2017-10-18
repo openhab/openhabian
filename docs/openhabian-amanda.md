@@ -14,13 +14,13 @@ read and think about recovery in a generic sense first. This might avoid a LOT o
 So you have your smart home working thanks to openHAB(ian).... but what if a component of your system fails ?
 First thing is: you need spare hardware of EVERY component that needs to work for your smart home to work.
 Think of EVERY relevant component and not just the obvious ones. Think of your Internet router, switch, server, NAS and required
-addons such as a ZWave or 433MHz radio USB stick, WLAN dongle, proper power supplies and the SD card writer (!).
+addon HW such as a ZWave or 433MHz radio USB stick, WiFi or BT stick, proper power supplies and the SD card writer.
 Now think of a recovery concept for each of these components: what do you have to do if it fails ?
 
 Examples:
 If the SD card in your Pi fails because of SD corruption (a very common problem !), you need to have a PREinstalled, at least
 somewhat current clone SD card to contain all your current OS packages, including all helper programs you might be using (such
-as say mosquitto or any scripts you might have installed yourself), and your mathing CURRENT openHAB config, and more.
+as say mosquitto or any scripts you might have installed yourself), and your matching CURRENT openHAB config, and more.
 If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first! How long will that
 take you? Are you even capable of doing that ?
 Will the latest version of openHABian/Linux packages be guaranteed to work with each other and with your hardware ?
