@@ -14,13 +14,13 @@ read and think about recovery in a generic sense first. This might avoid a LOT o
 So you have your smart home working thanks to openHAB(ian).... but what if a component of your system fails ?
 First thing is: you need spare hardware of EVERY component that needs to work for your smart home to work.
 Think of EVERY relevant component and not just the obvious ones. Think of your Internet router, switch, server, NAS and required
-addons such as a ZWave or 433MHz radio USB stick, WLAN dongle, proper power supplies and the SD card writer (!).
+addon HW such as a ZWave or 433MHz radio USB stick, WiFi or BT stick, proper power supplies and the SD card writer.
 Now think of a recovery concept for each of these components: what do you have to do if it fails ?
 
 Examples:
 If the SD card in your Pi fails because of SD corruption (a very common problem !), you need to have a PREinstalled, at least
 somewhat current clone SD card to contain all your current OS packages, including all helper programs you might be using (such
-as say mosquitto or any scripts you might have installed yourself), and your mathing CURRENT openHAB config, and more.
+as say mosquitto or any scripts you might have installed yourself), and your matching CURRENT openHAB config, and more.
 If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first! How long will that
 take you? Are you even capable of doing that ?
 Will the latest version of openHABian/Linux packages be guaranteed to work with each other and with your hardware ?
@@ -60,25 +60,26 @@ you with one solution that is designed to run on local hardware only. We provide
 destination. This can be a partition mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
 device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
 We believe this will cover most openHAB backup use cases.
-NOTE: don't use CIFS (Windows sharing). If you have a NAS, se NFS instead. There's issues with CIFS and symlinks, and it doesn't make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian).
+NOTE: don't use CIFS (Windows sharing). If you have a NAS, use NFS instead. There's issues with CIFS and symlinks, and it
+doesn't make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian).
 If you don't have a NAS, DON'T use your Windows box as the storage server. Attach a USB stick to your Pi instead for storage.
 There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
-do not match your needs. You could even usde it to backup all of your servers (if any) and desktop PCs, including window machines.
-Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
+do not match your needs. You could even use it to backup all of your servers (if any) and desktop PCs, including Windows
+machines. Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
 have a clone SD card with your CURRENT config.
 
 
 HEADS UP: The first thing you should do after your first backup run ended successfully is to create a clone of your active
 server SD card by restoring the backup to a blank SD card as shown below as a amfetchdump example for recovery of a raw device's
-contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw device to be backed
-up to have that same name.
+contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw device to be
+backed up to have that same name.
 You will have two Amanda config directories (located in `/etc/amanda`) called `openhab-dir` and `openhab-AWS` if you choose to
 setup both of them.
 If any of your Amanda backup or recovery runs fails (which might well be the case particularly if you try to use the S3 backup),
 you should try getting it to work following the guides and knowledge base available on the Web at http://www.amanda.org/.
 There's online documentation including tutorials and FAQs at http://wiki.zmanda.com/index.php/User_documentation.
-In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but please
-don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
+In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but
+please don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
 
 
 A (yes, very brief) usage guide
@@ -87,13 +88,13 @@ A (yes, very brief) usage guide
 The overall config is to be found in `/etc/amanda/openhab-<config>/amanda.conf`.
 You are free to change this file, but doing so is at your own risk.
 You can specify files, directories and raw devices (such as HDD partitions or SD cards) that you want to be backed up in
-`/etc/amanda/openhab-<config>/disklist`. You are free to add more lines here to have Amanda also take backup of other directories
-of yours.
+`/etc/amanda/openhab-<config>/disklist`. You are free to add more lines here to have Amanda also take backup of other
+directories of yours.
 
 Note the full SD card backup was left out for the AWS S3 config, as that would require a lot of bandwidth and runtime.
 
-openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups every night at 01:00AM, and to run
-a check at 06:00PM. 
+openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups every night at 01:00AM, and to
+run a check at 06:00PM. 
 
 
 ## Backup
