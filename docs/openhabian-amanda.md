@@ -185,7 +185,7 @@ that for you, but it only CAN do it for you if you created/mounted it before you
 
 Installation will ask you a couple of questions.
 * "What's the directory to store backups into?"
-Here you need to enter the _local_ directory on the openHABian box, also known as _the mountpoint_. This is where you have
+Here you need to enter the _local_ directory on the openHABian box, also known as _the mount point_. This is where you have
 mounted your USB storage or NAS disk share (see above).
 * "How many virtual containers will you setup inside the storage dir ?"
 You usually enter the typecycle here.
