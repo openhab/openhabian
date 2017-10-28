@@ -19,11 +19,12 @@ addons such as a ZWave or 433MHz radio or WiFi USB stick, proper power supplies 
 Now think of a recovery concept for each of these components: what do you have to do if it fails ?
 
 Examples:
-If the SD card in your Pi fails because of SD corruption (a very common problem !), you need to have a PREinstalled, at least
+If the SD card in your Pi fails because of SD corruption (a very common problem), you need to have a PREinstalled, at least
 somewhat current clone SD card to contain all your current OS packages, including all helper programs you might be using (such
 as say mosquitto or any scripts you might have installed yourself), and your mathing CURRENT openHAB config, and more.
 If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first!
-How long will that take you? Are you even capable of doing that ? Will the latest version of openHABian/Linux packages be guaranteed to work with each other and with your hardware ?
+How long will that take you? Are you even capable of doing that ? Will the latest version of openHABian/Linux packages be 
+guaranteed to work with each other and with your hardware ?
 Do you REALLY remember all the parts and places of your system where you configured something related to your server/home
 network and smart home ? If you're honest to yourself, the answer will often be "NO".
 Yes, you can get your smart home back up working somehow, but it will take several hours, and it will not be a complete
@@ -40,9 +41,9 @@ For RaZberry/zwave.me USB stick, you can run the Z-Way software to backup and re
 controller. For the Aeon Gen5 stick, there's a Windows tool available for download.
 NOTE: Similar problems may arise if you run commercial systems such as a HomeMatic CCU or Insteon controller.
 
-Remember Murphy's law: When your system fails and you activate your backup system for the first time, you'll notice it's broken.
-So dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and repeat every now
-and then.
+Remember Murphy's law: When your system fails and you need to restore your system for the first time, you'll notice your backup
+is broken. So dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and
+repeat every now and then.
 
 
 
@@ -57,14 +58,15 @@ reliability in any other way. SD cards and USB sticks use the same technology. A
 can crash, too.
 You may or may not have or want to use Internet / cloud services for various reasons (privacy, bandwidth, cost), so we provide
 you with one solution that is designed to run on local hardware only. We provide a config to use a directory as the backup
-destination. This can be a partition mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
+destination. This can be a directory mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
 device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
 We believe this will cover most openHAB backup use cases.
-NOTE: don't use CIFS (Windows sharing). If you have a NAS, se NFS instead. There's issues with CIFS and symlinks, and it doesn't make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian).
+NOTE: don't use CIFS (Windows sharing). If you have a NAS, se NFS instead. There's issues with CIFS and symlinks, and it doesn't
+make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian).
 If you don't have a NAS, DON'T use your Windows box as the storage server. Attach a USB stick to your Pi instead for storage.
 There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
-do not match your needs. You could even usde it to backup all of your servers (if any) and desktop PCs, including window machines.
-Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
+do not match your needs. You could even usde it to backup all of your servers (if any) and desktop PCs, including Windows
+machines. Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
 have a clone SD card with your CURRENT config.
 
 
