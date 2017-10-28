@@ -115,6 +115,7 @@ Do NOT (I repeat: NOT) deploy these commands unless you are fully aware what the
 To use a command with a wrong device name CAN DESTROY YOUR SYSTEM.
 YOU HAVE BEEN WARNED.
 
+```
 ------- EXAMPLE ONLY ------- Don't use unless you understand what these commands do ! ------- EXAMPLE ONLY ------- 
 pi@pi:~ $ sudo bash
 root@pi:/home/pi# host nas
@@ -154,8 +155,8 @@ Dateisystem    1K-Blöcke Benutzt Verfügbar Verw% Eingehängt auf
 /dev/sda7       13403236 8204144   4495196   65% /storage/usbstick-linux 
 /dev/sda1       13403236 9018464   3680876   72% /storage/usbstick-msdos
 root@pi:/home/pi#
-------- EXAMPLE ONLY ------- Don't use unless you understand what these commands do ! ------- EXAMPLE ONLY ------- 
-
+------- EXAMPLE ONLY ------- Don't use unless you understand what these commands do ! ------- EXAMPLE ONLY -------
+```
 
 Next (but only AFTER you successfully mounted/prepared your storage !), install Amanda using the openHABian menu.
 When you start the Amanda installation from the openHABian menu, the install routine will create a directory/link structure in
