@@ -153,13 +153,13 @@ A (yes, very brief) usage guide
 The overall config is to be found in `/etc/amanda/openhab-<config>/amanda.conf`.
 You are free to change this file, but doing so is at your own risk.
 You can specify files, directories and raw devices (such as HDD partitions or SD cards) that you want to be backed up in
-`/etc/amanda/openhab-<config>/disklist`. You are free to add more lines here to have Amanda also take backup of other directories
-of yours.
+`/etc/amanda/openhab-<config>/disklist`. You are free to add more lines here to have Amanda also take backup of other
+directories of yours.
 
 Note the full SD card backup was left out for the AWS S3 config, as that would require a lot of bandwidth and runtime.
 
-openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups every night at 01:00AM, and to run
-a check at 06:00PM. 
+openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups every night at 01:00AM, and to
+run a check at 06:00PM. 
 
 
 ## Backup
@@ -176,9 +176,11 @@ The result will be mailed to you (if your mail system was properly configured wh
 
 You can run `amreport <config>` at any time to see a report on the last backup run for that config.
 
-Reminder: you have to be logged in as the `backup` user
+Reminder: you have to be logged in as the `backup` user. To accomplish that, you can also login as your ordinary user and use the `sudo` (execute commands with superuser privileges) and `su` (switch user) commands as shown below.
 
 ```
+pi@pi:/etc/amanda/openhab-dir $ sudo su - backup
+backup@pi:~$
 backup@pi:~$ amcheck openhab-dir
 
   Amanda Tape Server Host Check
@@ -266,13 +268,15 @@ backup@pi:~$ amcheck openhab-dir
 ## Restore
 ### Restoring a file
 
-To restore a file, you need to use the `amrecover` command as root.
-Note that since Amanda is designed to restore ANY file of the system, you are required to run `amrecover` as the root user to have the appropriate file access rights.
+To restore a file, you need to use the `amrecover` command as the `root` user.
+Note that since Amanda is designed to restore ANY file of the system, you are required to run `amrecover` as the root user to
+have the appropriate file access rights.
 
 `amrecover` sort of provides a shell-like interface to allow for navigating through the stored files.
 Here's another terminal session log to show how a couple of files are restored into a target directory `/server/temp`.
 
 ```
+  pi@pi:/etc/amanda/openhab-dir $ sudo bash
   root@pi:/etc/amanda/openhab-dir# amrecover openhab-dir
   AMRECOVER Version 3.3.6. Contacting server on localhost ...
   220 pi AMANDA index server (3.3.6) ready.
