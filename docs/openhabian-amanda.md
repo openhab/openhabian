@@ -15,7 +15,7 @@ read and think about recovery in a generic sense first. This might avoid a LOT o
 So you have your smart home working thanks to openHAB(ian).... but what if a component of your system fails ?
 First thing is: you need spare hardware of EVERY component that needs to work for your smart home to work.
 Think of EVERY relevant component and not just the obvious ones. Think of your Internet router, switch, server, NAS and required
-addons such as a ZWave or 433MHz radio USB stick, WLAN dongle, proper power supplies and the SD card writer (!).
+addons such as a ZWave or 433MHz radio or WiFi USB stick,, proper power supplies and the SD card writer.
 Now think of a recovery concept for each of these components: what do you have to do if it fails ?
 
 Examples:
