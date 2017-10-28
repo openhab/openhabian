@@ -26,9 +26,7 @@ If you believe "in case of SD card crash, I'll simply reinstall my server from s
 How long will that take you? Are you even capable of doing that ? Will the latest version of openHABian/Linux packages be 
 guaranteed to work with each other and with your hardware ?
 Do you REALLY remember all the parts and places of your system where you configured something related to your server/home
-network and smart home ? If you're honest to yourself, the answer will often be "NO".
-Yes, you can get your smart home back up working somehow, but it will take several hours, and it will not be a complete
-restoration of all features and setups you used to have in operation before the crash.
+network and smart home ? If you're honest to yourself, the answer will often be "NO". Yes, you can get your smart home back up working somehow, but it will take several hours, and it will not be a complete restoration of all features and setups you used to have in operation before the crash.
 
 One specific word of WARNING:
 If you run a ZWave network like many openHAB users do, think what you need to do if the controller breaks and you need to
