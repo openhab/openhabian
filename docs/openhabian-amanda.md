@@ -116,7 +116,7 @@ To use a command with a wrong device name CAN DESTROY YOUR SYSTEM.
 YOU HAVE BEEN WARNED.
 
 ```
-------- EXAMPLE ONLY ------- Don't use unless you understand what these commands do ! ------- EXAMPLE ONLY ------- 
+----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
 pi@pi:~ $ sudo bash
 root@pi:/home/pi# host nas
 nas.fritz.box has address 192.168.1.100
@@ -125,10 +125,10 @@ root@pi:/home/pi# mkdir -p /storage/server
 root@pi:/home/pi# echo "192.168.1.100://share/freespace     /storage/server    nfs     nolock,noatime  0       0" >> /etc/fstab
 root@pi:/home/pi# mount /storage/server
 root@pi:/home/pi# df -k /server
-Dateisystem                                       1K-Blöcke    Benutzt Verfügbar Verw% Eingehängt auf
+Filesystem                       1K-blocks       Used Available  Use% Mounted on
 192.168.1.100://share/freespace 2882740768 2502091488 380649280   87% /storage/server
 root@pi:/home/pi#
-------- EXAMPLE ONLY ------- Don't use unless you understand what these commands do ! ------- EXAMPLE ONLY ------- 
+----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
 root@pi:/home/pi# fdisk -l /dev/sda
 
 Disk /dev/sda: 14,8 GiB, 15836643328 bytes, 30930944 sectors
@@ -145,17 +145,37 @@ Device     Boot    Start      End  Sectors  Size Id Type
 /dev/sda6        2424832  2553855   129024   63M  c W95 FAT32 (LBA)
 /dev/sda7        2555904 30056445 27500542 13,1G 83 Linux
 /dev/sda8       30056448 31105023  1048576  512M 83 Linux
+root@pi:/# mke2fs -t ext4  /dev/sda8
+mke2fs 1.43.3 (04-Sep-2016)
+/dev/sda8 contains a ext4 file system
+        created on Sun Oct 29 00:17:48 2017
+Proceed anyway? (y,n) y
+Creating filesystem with 437248 1k blocks and 109728 inodes
+Filesystem UUID: edb36b80-f363-434c-a50e-ca4a81a6bb7d
+Superblock backups stored on blocks:
+        8193, 24577, 40961, 57345, 73729, 204801, 221185, 401409
+
+Allocating group tables: done
+Writing inode tables: done
+Creating journal (8192 blocks): done
+Writing superblocks and filesystem accounting information: done
+root@pi:/# mkexfatfs /dev/sda1
+mkexfatfs 1.1.0
+Creating... done.
+Flushing... done.
+File system created successfully.
+root@pi:/#
 root@pi:/home/pi# mkdir -p /storage/usbstick-linux /storage/usbstick-msdos
-root@pi:/home/pi# echo "/dev/sda7     /storage/usbstick-linux    ext4     defaults,noatime  0       1" >> /etc/fstab
+root@pi:/home/pi# echo "/dev/sda8     /storage/usbstick-linux    ext4     defaults,noatime  0       1" >> /etc/fstab
 root@pi:/home/pi# echo "/dev/sda1     /storage/usbstick-msdos    vfat     defaults,noatime  0       1" >> /etc/fstab
 root@pi:/home/pi# mount /storage/usbstick-linux
 root@pi:/home/pi# mount /storage/usbstick-msdos
 root@pi:/home/pi# df -k /storage/usbstick-linux /storage/usbstick-msdos
-Dateisystem    1K-Blöcke Benutzt Verfügbar Verw% Eingehängt auf
-/dev/sda7       13403236 8204144   4495196   65% /storage/usbstick-linux 
+Filesystem     1K-blocks    Used Available  Use% Mounted on
+/dev/sda8       13403236 8204144   4495196   65% /storage/usbstick-linux 
 /dev/sda1       13403236 9018464   3680876   72% /storage/usbstick-msdos
 root@pi:/home/pi#
-------- EXAMPLE ONLY ------- Don't use unless you understand what these commands do ! ------- EXAMPLE ONLY -------
+----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
 ```
 
 Next (but only AFTER you successfully mounted/prepared your storage !), install Amanda using the openHABian menu.
