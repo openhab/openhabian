@@ -113,7 +113,9 @@ and two partitions from an attached USB stick identified as /dev/sda (Linux ext4
 HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
 Do NOT (I repeat: NOT) deploy these commands unless you are fully aware what they will do to your system.
 To use a command with a wrong device name CAN DESTROY YOUR SYSTEM.
+
 YOU HAVE BEEN WARNED.
+---------------------
 
 ```
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
