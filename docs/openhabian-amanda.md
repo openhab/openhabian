@@ -137,7 +137,9 @@ remember these changes and store them elsewhere, too.
 Once you're done installing openHABian and Amanda, proceed to the usage guide chapter below.
 
 Finally, another HEADS UP: The first thing you should do after your first backup run ended successfully is to create a clone of
-your active server SD card by restoring the backup to a blank SD card as shown below as a amfetchdump example for recovery of a raw device's contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw device to be backed up to have that same name.
+your active server SD card by restoring the backup to a blank SD card as shown below as a amfetchdump example for recovery of a
+raw device's contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw
+device to be backed up to have that same name.
 You will have two Amanda config directories (located in `/etc/amanda`) called `openhab-dir` and `openhab-AWS` if you choose to
 setup both of them.
 If any of your Amanda backup or recovery runs fails (which might well be the case particularly if you try to use the S3 backup),
