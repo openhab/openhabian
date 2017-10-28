@@ -70,15 +70,16 @@ have a clone SD card with your CURRENT config.
 
 
 Some explanatory comments on Amanda
-First: read up on and understand some of the basic Amanda concepts over at http://www.amanda.org.
+-----------------------------------
+First and foremost: read up on and understand some of the basic Amanda concepts over at http://www.amanda.org.
 That's not a mandatory step but it will probably help you understand a couple of things better.
 The world of UNIX and backup IS complex and in the end, there's no way to hide that from a user.
 Here's a couple of those concepts, but don't blame me if they're not comprehensive. I cannot understand the system for you,
 that's something you have to accomplish on your own. Read and understand the Amanda docs.
 
-Amanda was originally built to use magnetic tapes as backup storage, and it can operate multiple tape drives in parallel 
-which are called 'slots' because that's what they are in a tapedrive changer unit (as those that are used in professional data
-center installations).
+Amanda was originally built to use magnetic tape changer libraries as backup storage in professional data center installations.
+It can operate multiple tape drives in parallel, and the tapes used to be commonly stored in a 'shelf number' inside the tape
+library cabinet which are called 'slots' because that's what they are.
 The tapecycle is how long your storage capacity will last until Amanda starts to overwrite old backups. It depends on the number 
 of tapes you use and the frequency you run backups at. If you have got 14 tapes in rotation and backup once a day, your
 tapecycle is 14 days. If you just run backups every second day, your tapecycle is 28 days.
