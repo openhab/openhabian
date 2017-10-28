@@ -44,6 +44,7 @@ timestamp() { date +"%F_%T_%Z"; }
 # Make sure only root can run our script
 echo -n "$(timestamp) [openHABian] Checking for root privileges... "
 if [[ $EUID -ne 0 ]]; then
+  echo ""
   echo "This script must be run as root. Did you mean 'sudo openhabian-config'?" 1>&2
   echo "More info: http://docs.openhab.org/installation/openhabian.html"
   exit 1
@@ -171,6 +172,25 @@ whiptail_check() {
   fi
 }
 
+ua-netinst_check() {
+  if [ -f "/boot/config-reinstall.txt" ]; then
+    introtext="Attention: It was brought to our attention that the old openHABian ua-netinst based image has a problem with a lately updated Linux package.
+If you upgrade(d) the package 'raspberrypi-bootloader-nokernel' your Raspberry Pi will run into a Kernel Panic upon reboot!
+\nDo not Upgrade, do not Reboot!
+\nA preliminary solution is to not upgrade the system (via the Upgrade menu entry or 'apt upgrade') or to modify a configuration file. In the long run we would recommend to switch over to the new openHABian Raspbian based system image! This error message will keep reapearing even after you fixed the issue at hand.
+Please find all details regarding the issue and the resolution of it at: https://github.com/openhab/openhabian/issues/147"
+    if ! (whiptail --title "openHABian Raspberry Pi ua-netinst image detected" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 20 80) then return 0; fi
+  fi
+}
+
+openhabian_hotfix() {
+  if ! grep -q "sleep" /etc/cron.d/firemotd; then
+    introtext="It was brought to our attention that openHABian systems cause requests spikes on remote package update servers. This unwanted behavior is related to a simple cronjob configuration mistake and the fact that the openHABian user base has grown quite big over the last couple of months. Please continue to apply the appropriate modification to your system. Thank you."
+    if ! (whiptail --title "openHABian Hotfix Needed" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 15 80) then return 0; fi
+    firemotd
+  fi
+}
+
 timezone_setting() {
   source "$CONFIGFILE"
   if [ -n "$INTERACTIVE" ]; then
@@ -185,12 +205,12 @@ timezone_setting() {
       cond_redirect apt update
       cond_redirect apt -y install python-pip
       cond_redirect pip install --upgrade tzupdate
-      if [ $? -ne 0 ]; then echo "FAILED (pip)"; exit 1; fi
+      if [ $? -ne 0 ]; then echo "FAILED (pip)"; return 1; fi
     fi
     cond_redirect pip install --upgrade tzupdate
     cond_redirect tzupdate
   fi
-  if [ $? -eq 0 ]; then echo -e "OK ($(cat /etc/timezone))"; else echo "FAILED"; fi
+  if [ $? -eq 0 ]; then echo -e "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
 }
 
 locale_setting() {
@@ -234,11 +254,8 @@ hostname_change() {
     source "$CONFIGFILE"
     new_hostname="$hostname"
   fi
-
-  if command -v hostnamectl &>/dev/null; then
-    # will set lowercase hostname (debian recommended)
-    hostnamectl set-hostname "$new_hostname"
-  fi
+  hostnamectl set-hostname "$new_hostname" &>/dev/null
+  hostname "$new_hostname" &>/dev/null
   echo "$new_hostname" > /etc/hostname
   sed -i "s/127.0.1.1.*/127.0.1.1 $new_hostname/" /etc/hosts
 
@@ -270,7 +287,7 @@ basic_packages() {
   fi
   cond_redirect apt update
   apt remove raspi-config &>/dev/null || true
-  cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common man-db whiptail acl
+  cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip xz-utils software-properties-common man-db whiptail acl usbutils
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -283,6 +300,12 @@ needed_packages() {
   #cond_redirect apt update
   cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon python python-pip
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+
+  if is_pithree || is_pizerow; then
+    echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
+    cond_redirect apt -y install bluez python-bluez python-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth
+    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  fi
 }
 
 bashrc_copy() {
@@ -351,7 +374,7 @@ java_zulu_embedded_archive() {
 }
 
 openhab2() {
-  echo -n "$(timestamp) [openHABian] Installing openHAB 2.0 (stable)... "
+  echo -n "$(timestamp) [openHABian] Installing openHAB 2.1 (stable)... "
   echo "deb http://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
   #echo "deb http://dl.bintray.com/openhab/apt-repo2 testing main" > /etc/apt/sources.list.d/openhab2.list
   #echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
@@ -367,7 +390,68 @@ openhab2() {
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ -n "$UNATTENDED" ]; then
+    cond_redirect systemctl stop openhab2.service || true
+  else
+    cond_redirect systemctl start openhab2.service || true
+  fi
+}
+
+openhab2_unstable() {
+  introtext="You are about to switch over to the latest openHAB 2 unstable build. The daily snapshot builds contain the latest features and improvements but may also suffer from bugs or incompatibilities.
+If prompted if files should be replaced by newer ones, select Yes. Please be sure to take a full openHAB configuration backup first!"
+  successtext="The latest unstable/snapshot build of openHAB 2 is now running on your system. If already available, check the function of your configuration now. If you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages regularly."
+  echo -n "$(timestamp) [openHABian] Installing or switching to openHAB 2.2 SNAPSHOT (unstable)... "
+
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+  fi
+
+  echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
+  cond_redirect apt update
+  cond_redirect apt -y install openhab2
+  if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
+  cond_redirect adduser openhab dialout
+  cond_redirect adduser openhab tty
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl enable openhab2.service
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   cond_redirect systemctl restart openhab2.service || true
+
+  if [ -n "$INTERACTIVE" ]; then
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+  fi
+}
+
+openhab2_stable() {
+  introtext="You are about to switch over to the stable openHAB 2.1.0 build. When prompted if files should be replaced by newer ones, select Yes. Please be sure to take a full openHAB configuration backup first!"
+  successtext="The stable release of openHAB 2.1.0 is now installed on your system. Please test the correct behavior of your setup. Check the \"openHAB 2.1 Release Notes\" and the official announcements to learn about additons, fixes and changes:\n
+  ➡ http://www.kaikreuzer.de/2017/06/28/openhab21
+  ➡ https://github.com/openhab/openhab-distro/releases/tag/2.1.0"
+  echo -n "$(timestamp) [openHABian] Installing or switching to openHAB 2.1.0 (stable)... "
+
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+  fi
+
+  echo "deb https://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
+  cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
+  cond_redirect apt-key add openhab-key.asc
+  if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
+  rm -f openhab-key.asc
+  cond_redirect apt update
+  cond_redirect apt -y install openhab2=2.1.0-1
+  if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
+  cond_redirect adduser openhab dialout
+  cond_redirect adduser openhab tty
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl enable openhab2.service
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  cond_redirect systemctl restart openhab2.service || true
+
+  if [ -n "$INTERACTIVE" ]; then
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+  fi
 }
 
 vim_openhab_syntax() {
@@ -389,7 +473,7 @@ nano_openhab_syntax() {
 }
 
 samba_setup() {
-  echo -n "$(timestamp) [openHABian] Setting up Samba for the default user... "
+  echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
   if ! command -v samba &>/dev/null; then
     cond_redirect apt update
     cond_redirect apt -y install samba
@@ -407,16 +491,20 @@ samba_setup() {
 firemotd() {
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
   rm -rf /opt/FireMotD
-  cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
+  #cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
+  cond_redirect git clone https://github.com/ThomDietrich/FireMotD.git /opt/FireMotD
   if [ $? -eq 0 ]; then
     # the following is already in bash_profile by default
     #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/$username/.bash_profile
     # initial apt updates check
     cond_redirect /bin/bash /opt/FireMotD/FireMotD -S
     # invoke apt updates check every night
-    echo "3 3 * * * root /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" > /etc/cron.d/firemotd
+    echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
+    echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
     # invoke apt updates check after every apt action ('apt upgrade', ...)
     echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /opt/FireMotD/FireMotD -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
+    #TODO move to a better position
+    echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent
     echo "OK"
   else
     echo "FAILED"
@@ -436,15 +524,23 @@ etckeeper() {
   fi
 }
 
-frontail() {
-  echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail)... "
+nodejs() {
   if ! command -v npm &>/dev/null; then
-    cond_redirect wget -O - https://deb.nodesource.com/setup_7.x | bash -
-    if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
-    #cond_redirect apt update # part of the script above
+    echo -n "$(timestamp) [openHABian] Installing Node.js (prerequisite for other packages)... "
+    FAILED=0
+    cond_redirect wget -O /tmp/nodejs-v7.x.sh https://deb.nodesource.com/setup_7.x || FAILED=1
+    cond_redirect bash /tmp/nodejs-v7.x.sh || FAILED=1
+    if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
+    #cond_redirect apt update # part of the node script above
     cond_redirect apt -y install nodejs
-    if [ $? -ne 0 ]; then echo "FAILED (nodejs)"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (nodejs installation)"; exit 1; fi
+    if command -v npm &>/dev/null; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
   fi
+}
+
+frontail() {
+  nodejs
+  echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail)... "
   cond_redirect npm install -g frontail
   if [ $? -ne 0 ]; then echo "FAILED (frontail)"; exit 1; fi
   cond_redirect npm update -g frontail
@@ -455,9 +551,36 @@ frontail() {
   cp $SCRIPTDIR/includes/frontail.service /etc/systemd/system/frontail.service
   chmod 664 /etc/systemd/system/frontail.service
   cond_redirect systemctl daemon-reload
-  cond_redirect /bin/systemctl enable frontail.service
-  cond_redirect /bin/systemctl restart frontail.service
+  cond_redirect systemctl enable frontail.service
+  cond_redirect systemctl restart frontail.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
+}
+
+nodered() {
+  nodejs
+  echo -n "$(timestamp) [openHABian] Installing Node-RED... "
+  FAILED=0
+  cond_redirect wget -O /tmp/update-nodejs-and-nodered.sh https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered || FAILED=1
+  cond_redirect bash /tmp/update-nodejs-and-nodered.sh || FAILED=1
+  if [ $FAILED -eq 1 ]; then echo "FAILED (nodered)"; exit 1; fi
+  cond_redirect npm install -g node-red-contrib-bigtimer
+  if [ $? -ne 0 ]; then echo "FAILED (nodered bigtimer addon)"; exit 1; fi
+  cond_redirect npm update -g node-red-contrib-bigtimer
+  cond_redirect npm install -g node-red-contrib-openhab2
+  if [ $? -ne 0 ]; then echo "FAILED (nodered openhab2 addon)"; exit 1; fi
+  cond_redirect npm update -g node-red-contrib-openhab2
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl enable nodered.service
+  cond_redirect systemctl restart nodered.service
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
+}
+
+yo_generator() {
+  nodejs
+  echo -n "$(timestamp) [openHABian] Installing the Yeoman openHAB generator... "
+  cond_redirect npm install -g yo generator-openhab
+  if [ $? -ne 0 ]; then echo "FAILED (yo_generator)"; exit 1; fi
+  cond_redirect npm update -g generator-openhab
 }
 
 srv_bind_mounts() {
@@ -488,9 +611,11 @@ permissions_corrections() {
   fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
+  cond_redirect adduser openhab gpio
   cond_redirect adduser $username openhab
   cond_redirect adduser $username dialout
   cond_redirect adduser $username tty
+  cond_redirect adduser $username gpio
   #
   openhab_folders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2/addons)
   cond_redirect chown openhab:$username /srv /srv/README.txt
@@ -534,13 +659,24 @@ pine64_platform_scripts() {
   fi
 }
 
+pine64_fixed_mac() {
+  echo -n "$(timestamp) [openHABian] Assigning fixed MAC address to eth0 (longsleep)... "
+  if ! grep -q "mac_addr=" /boot/uEnv.txt; then
+    MAC=$(cat /sys/class/net/eth0/address)
+    sed -i "/^console=/ s/$/ mac_addr=$MAC/" /boot/uEnv.txt
+    echo "OK"
+  else
+    echo "SKIPPED"
+  fi
+}
+
 openhab_shell_interfaces() {
   introtext="The Karaf console is a powerful tool for every openHAB user. It allows you too have a deeper insight into the internals of your setup. Further details: http://docs.openhab.org/administration/console.html
 \nThis routine will bind the console to all interfaces and thereby make it available to other devices in your network. Please provide a secure password for this connection (letters and numbers only! default: habopen):"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="The Karaf console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the console via:
 \n'ssh://openhab:<password>@<openhabian-IP> -p 8101'\n
-Please be aware, that the first connection attempt may take a few minutes or may result in a timeout."
+Please be aware, that the first connection attempt may take a few minutes or may result in a timeout due to key generation."
 
   echo -n "$(timestamp) [openHABian] Binding the Karaf console on all interfaces... "
   if [ -n "$INTERACTIVE" ]; then
@@ -603,9 +739,13 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
     fi
     cond_echo "Removing serial console and login shell from /boot/cmdline.txt and /etc/inittab"
     cp /boot/cmdline.txt /boot/cmdline.txt.bak
-    cp /etc/inittab /etc/inittab.bak
+    cp /etc/inittab /etc/inittab.bak &>/dev/null
     sed -i 's/console=tty.*console=tty1/console=tty1/g' /boot/cmdline.txt
-    sed -i 's/^T0/\#T0/g' /etc/inittab
+    sed -i 's/console=serial.*console=tty1/console=tty1/g' /boot/cmdline.txt
+    sed -i 's/^T0/\#T0/g' /etc/inittab &>/dev/null
+    cond_redirect systemctl disable serial-getty@ttyAMA0.service
+    cond_redirect systemctl disable serial-getty@serial0.service
+    cond_redirect systemctl disable serial-getty@ttyS0.service
   #else
     #TODO this needs to be tested when/if someone actually cares...
     #cp /boot/cmdline.txt.bak /boot/cmdline.txt
@@ -643,9 +783,9 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 
 wifi_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Wifi (PRi3 or Pine A64)... "
-  if ! is_pithree && ! is_pine64; then
+  if ! is_pithree && ! is_pizerow && ! is_pine64; then
     if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Incompatible Hardware Detected" --msgbox "Wifi setup: This option is for a Raspberry Pi 3 system only." 10 60
+      whiptail --title "Incompatible Hardware Detected" --msgbox "Wifi setup: This option is for the Pi3, Pi0W or the Pine A64 system only." 10 60
     fi
     echo "FAILED"; return 1
   fi
@@ -655,13 +795,14 @@ wifi_setup() {
     PASS=$(whiptail --title "Wifi Setup" --inputbox "What's the password for that Wifi?" 10 60 3>&1 1>&2 2>&3)
     if [ $? -ne 0 ]; then return 1; fi
   else
-    echo -n "setting default SSID and password in 'wpa_supplicant.conf' "
+    echo -n "Setting default SSID and password in 'wpa_supplicant.conf' "
     SSID="myWifiSSID"
     PASS="myWifiPassword"
   fi
   if is_pithree; then cond_redirect apt -y install firmware-brcm80211; fi
   cond_redirect apt -y install wpasupplicant wireless-tools
-  echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1\nnetwork={\n  ssid=\"$SSID\"\n  psk=\"$PASS\"\n}" > /etc/wpa_supplicant/wpa_supplicant.conf
+  echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1" > /etc/wpa_supplicant/wpa_supplicant.conf
+  echo -e "network={\n\tssid=\"$SSID\"\n\tpsk=\"$PASS\"\n}" >> /etc/wpa_supplicant/wpa_supplicant.conf
   if grep -q "wlan0" /etc/network/interfaces; then
     cond_echo ""
     cond_echo "Not writing to '/etc/network/interfaces', wlan0 entry already available. You might need to check, adopt or remove these lines."
@@ -669,13 +810,12 @@ wifi_setup() {
   else
     echo -e "\nallow-hotplug wlan0\niface wlan0 inet manual\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\niface default inet dhcp" >> /etc/network/interfaces
   fi
+  cond_redirect wpa_cli reconfigure
   cond_redirect ifdown wlan0
   cond_redirect ifup wlan0
-
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "Setup was successful. Your Wifi credentials were NOT tested. Please reboot now." 15 80
   fi
-
   echo "OK (Reboot needed)"
 }
 
@@ -703,11 +843,26 @@ Do you want to continue on your own risk?"
   fi
 
   #check if system root is on partion 2 of the SD card
-  if ! grep -q "root=/dev/mmcblk0p2" /boot/cmdline.txt; then
+  #since 2017-06, rasbian uses PARTUUID=.... in cmdline.txt and fstab instead of /dev/mmcblk0p2...
+  rootonsdcard=false 
+
+  #extract rootpart
+  rootpart=$(cat /boot/cmdline.txt | sed "s/.*root=\([a-zA-Z0-9\/=-]*\)\(.*\)/\1/") 
+
+  if [[ $rootpart == *"PARTUUID="* ]]; then
+    if blkid -l -t $rootpart | grep -q "/dev/mmcblk0p2"; then
+      rootonsdcard=true
+    fi
+  elif [[ $rootpart == "/dev/mmcblk0p2" ]]; then
+    rootonsdcard=true
+  fi
+
+  #exit if root is not on SDCARD
+  if ! [ $rootonsdcard = true ]; then
     infotext="It seems as if your system root is not on the SD card.
        ***Aborting, process cant be started***"
     whiptail --title "System root not on SD card?" --msgbox "$infotext" 8 78
-    return
+    return 0
   fi
 
   #check if USB power is already set to 1A, otherwise set it there
@@ -762,13 +917,13 @@ When the process is finished, you will be informed via message box..."
   echo
   echo "adjusting fstab on new root"
   #adjust system root in fstab
-  sed -i "s#/dev/mmcblk0p2 /#$NEWROOTPART /#" /mnt/etc/fstab
+  sed -i "s#$rootpart#$NEWROOTPART#" /mnt/etc/fstab
 
   echo "adjusting system root in kernel bootline"
   #make a copy of the original cmdline
   cp /boot/cmdline.txt /boot/cmdline.txt.sdcard
   #adjust system root in kernel bootline
-  sed -i "s#root=/dev/mmcblk0p2#root=$NEWROOTPART#" /boot/cmdline.txt
+  sed -i "s#root=$rootpart#root=$NEWROOTPART#" /boot/cmdline.txt
 
   echo
   echo "*************************************************************"
@@ -830,20 +985,20 @@ To continue your integration in openHAB 2, please follow the instructions under:
 
 mqtt_setup() {
   FAILED=0
-  introtext="The MQTT broker software Mosquitto will be installed through the official repository, as desribed here: https://mosquitto.org/2013/01/mosquitto-debian-repository \nAdditionally you can activate username:password authentication."
+  introtext="The MQTT broker Eclipse Mosquitto will be installed through the official repository, as desribed at: https://mosquitto.org/2013/01/mosquitto-debian-repository \nAdditionally you can activate username:password authentication."
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
-Mosquitto is now up and running in the background. You should be able to make a first connection.
-To continue your integration in openHAB 2, please follow the instructions under: https://github.com/openhab/openhab/wiki/MQTT-Binding
+Eclipse Mosquitto is now up and running in the background. You should be able to make a first connection.
+To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/mqtt1/readme.html
 "
+  echo -n "$(timestamp) [openHABian] Setting up the MQTT broker Eclipse Mosquitto... "
 
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Setting up the MQTT broker software Mosquitto... "
   mqttuser="openhabian"
-  question="Do you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\nUsername will be '$mqttuser', please provide a password. Leave blank for no authentication, run method again to change:"
+  question="Do you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\nUsername will be '$mqttuser', please provide a password (consisting of ASCII printable characters except space). Leave blank for no authentication, run method again to change."
   mqttpasswd=$(whiptail --title "MQTT Authentication" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
   if is_jessie; then
     cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
@@ -855,7 +1010,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   if [ "$mqttpasswd" != "" ]; then
     if ! grep -q "password_file /etc/mosquitto/passwd" /etc/mosquitto/mosquitto.conf; then
-      cond_redirect echo -e "\npassword_file /etc/mosquitto/passwd\nallow_anonymous false\n" >> /etc/mosquitto/mosquitto.conf
+      echo -e "\npassword_file /etc/mosquitto/passwd\nallow_anonymous false\n" >> /etc/mosquitto/mosquitto.conf
     fi
     echo -n "" > /etc/mosquitto/passwd
     cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd $mqttuser $mqttpasswd
@@ -1151,6 +1306,179 @@ nginx_setup() {
   fi
 }
 
+
+create_backup_config() {
+  config=$1
+  confdir=/etc/amanda/${config}
+  backupuser=$2
+  tapes=$3
+  size=$4
+  storage=$5
+  s3accesskey=$6
+  s3secretkey=$7
+
+  introtext="We need to prepare (to \"label\") your removable storage media."
+  if [ "${config}" = "openhab-local-SD" ]; then
+     introtext="${introtext}\nWe will ask you to insert a specific SD card number (or USB stick) into the device ${storage} and prompt you to confirm it's plugged in. This procedure will be repeated ${tapes} times as that is the number of media you specified to be in rotational use for backup purposes."
+  else
+     introtext="${introtext}\nFor permanent storage such as USB or NAS mounted storage, as well as for cloud based storage, we will create ${tapes} virtual containers."
+  fi
+  if [ -n "$INTERACTIVE" ]; then
+      if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+  fi
+  # create virtual 'tapes'
+  ln -s ${storage}/slots ${storage}/slots/drive0;ln -s ${storage}/slots ${storage}/slots/drive1		# taper-parallel-write 2 so we need 2 virtual drives
+  counter=1
+  while [ ${counter} -le ${tapes} ]; do
+      if [ "${config}" = "openhab-dir" ]; then
+          mkdir -p ${storage}/slots/slot${counter}
+
+          tpchanger="\"chg-disk:${storage}/slots\"    # The tape-changer glue script"
+          tapetype="DIRECTORY"
+      else
+          if [ "${config}" = "openhab-local-SD" ]; then
+              introtext="Please insert your removable storage medium number ${counter}."
+              if [ -n "$INTERACTIVE" ]; then
+	          if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+                  /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
+              fi
+              tpchanger="\"chg-single:${sddev}\""
+              tapetype="SD"
+          else
+              /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
+              tpchanger="\"chg-multi:s3:${s3accesskey}-backup/openhab-AWS/slot-{`seq -s, 1 ${tapes}`}\" # Number of virtual containers in your tapecycle"
+              tapetype="AWS"
+          fi
+      fi
+
+      let counter+=1
+  done
+
+# no mailer configured for now
+#  if [ -n "$INTERACTIVE" ]; then
+#     adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the EMail address to send backup reports to. Note: Mail relaying is not enabled in openHABian yet." 10 60 3>&1 1>&2 2>&3)
+#  fi
+
+  /bin/grep -v ${config} /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
+  
+  echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} &>/dev/null" >> /etc/cron.d/amanda
+  echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} &>/dev/null" >> /etc/cron.d/amanda
+
+  mkdir -p ${confdir}
+  touch ${confdir}/tapelist
+  hostname=`/bin/hostname`
+  echo "${hostname} ${backupuser}" > /var/backups/.amandahosts
+  echo "${hostname} root amindexd amidxtaped" >> /var/backups/.amandahosts
+  echo "localhost ${backupuser}" >> /var/backups/.amandahosts
+  echo "localhost root amindexd amidxtaped" >> /var/backups/.amandahosts
+
+
+  infofile="/var/lib/amanda/${config}/curinfo"	      # Database directory
+  logdir="/var/log/amanda/${config}" 		      # Log directory
+  indexdir="/var/lib/amanda/${config}/index" 	      # Index directory
+  mkdir -p $infofile $logdir $indexdir
+  chown -R ${backupuser}:${backupuser} /var/backups/.amandahosts ${confdir}  $infofile $logdir $indexdir
+
+
+  /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%BKPDIR|${bkpdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" ${SCRIPTDIR}/includes/amanda.conf_template >${confdir}/amanda.conf
+
+  if [ "${config}" = "openhab-AWS" ]; then
+      echo "device_property \"S3_ACCESS_KEY\" \"${S3accesskey}\"                       # Your S3 Access Key" >>${confdir}/amanda.conf
+      echo "device_property \"S3_SECRET_KEY\" \"${S3secretkey}\"                       # Your S3 Secret Key" >>${confdir}/amanda.conf
+      echo "device_property \"S3_SSL\" \"YES\"                                       # Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
+  fi
+
+  hostname=`/bin/hostname`
+  if [ "${config}" = "openhab-local-SD" -o "${config}" = "openhab-dir" ]; then
+      # don't backup SD by default as this can cause problems for large cards
+      if [ -n "$INTERACTIVE" ]; then
+          if (whiptail --title "Backup raw SD card ?" --yes-button "Backup SD" --no-button "Do not backup SD" --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 8GB or less, otherwise this can take too long. You can always add/remove this by editing ${confdir}/disklist." 15 80) then 
+	      echo "${hostname}	/dev/mmcblk0    	        amraw" >${confdir}/disklist
+	  fi   
+      fi
+      
+      echo "${hostname}	/etc/openhab2			user-tar" >>${confdir}/disklist
+      echo "${hostname}	/var/lib/openhab2		user-tar" >>${confdir}/disklist
+  else
+      echo "${hostname}	/etc/openhab2			comp-user-tar" >${confdir}/disklist
+      echo "${hostname}	/var/lib/openhab2		comp-user-tar" >>${confdir}/disklist
+  fi
+
+  echo "index_server \"localhost\"" >${confdir}/amanda-client.conf
+  echo "tapedev \"changer\"" >${confdir}/amanda-client.conf
+  echo "auth \"local\"" >${confdir}/amanda-client.conf
+}
+
+
+amanda_setup() {
+
+  introtext="This will setup a backup mechanism to allow for saving your openHAB setup and modifications to either a set of SD cards, USB attached or Amazon cloud storage.\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an all-ready replacement in case of card failures."
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Setup was successful. Amanda backup tool is now taking backups at 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
+
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Amanda backup setup, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+  fi
+
+  echo -n "$(timestamp) [openHABian] Setting up the Amanda backup system ... "
+  backupuser="backup"
+
+
+  cond_redirect apt install amanda-common amanda-server amanda-client
+
+  matched=false
+  canceled=false
+  if [ -n "$INTERACTIVE" ]; then
+      while [ "$matched" = false ] && [ "$canceled" = false ]; do
+            password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for $backupuser:" 15 80 3>&1 1>&2 2>&3)
+            secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
+            if [ "$password" = "$secondpassword" ] && [ ! -z "$password" ]; then
+                matched=true
+            else
+                password=$(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
+            fi
+      done
+  fi
+  /usr/sbin/chpasswd <<< "${backupuser}:${password}"
+  /usr/bin/chsh -s /bin/bash ${backupuser}
+
+  /bin/rm -f /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
+
+# no SD set based config for now, requires latest Amanda which is not available as a package yet
+#  if [ -n "$INTERACTIVE" ]; then
+#    if (whiptail --title "Create SD card set based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on a locally attached SD card writer and a set of SD cards. You can also use USB sticks, BUT you must ensure that the device name to access ALWAYS is the same. This is not guaranteed if you use different USB ports." 15 80) then
+#        config=openhab-local-SD
+#        sddev=$(whiptail --title "Card writer device" --inputbox "What's the device name of your SD card writer?" 10 60 3>&1 1>&2 2>&3)
+#        tapes=$(whiptail --title "Number of SD cards in rotation" --inputbox "How many SD cards will you have available in rotation for backup purposes ?" 10 60 3>&1 1>&2 2>&3)
+#        size=$(whiptail --title "SD card capacity" --inputbox "What's your backup SD card capacity in megabytes? If you use different sizes, specify the smallest one. The remaining capacity will remain unused." 10 60 3>&1 1>&2 2>&3)
+#        create_backup_config ${config} ${backupuser} ${tapes} ${size} ${sddev}
+#    fi
+#  fi
+
+  if [ -n "$INTERACTIVE" ]; then
+    if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based for locally attached or NAS mounted storage." 15 80) then
+        config=openhab-dir
+        dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
+        tapes=$(whiptail --title "Number of virtual storage containers in rotation" --inputbox "How many virtual containers will you setup inside the storage dir ?" 10 60 3>&1 1>&2 2>&3)
+        size=$(whiptail --title "Storage capacity" --inputbox "What's your backup storage area capacity in megabytes ?" 10 60 3>&1 1>&2 2>&3)
+        create_backup_config ${config} ${backupuser} ${tapes} ${size} ${dir}
+    fi
+  fi
+
+  if [ -n "$INTERACTIVE" ]; then
+    if (whiptail --title "Create Amazon S3 based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on Amazon Web Services. You can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. See also http://wiki.zmanda.com/index.php/How_To:Backup_to_Amazon_S3" 15 80) then
+        config=openhab-AWS
+        S3accesskey=$(whiptail --title "S3 access key" --inputbox "Enter the S3 access key you obtained at S3 setup time:" 10 60 3>&1 1>&2 2>&3)
+        S3secretkey=$(whiptail --title "S3 secret key" --inputbox "Enter the S3 secret key you obtained at S3 setup time:" 10 60 3>&1 1>&2 2>&3)
+        tapes=$(whiptail --title "Number of virtual storage containers in rotation" --inputbox "How many virtual containers will you setup inside the S3 bucket ?  Note that #container x container size will need to fit into your S3 bucket." 10 60 3>&1 1>&2 2>&3)
+        size=$(whiptail --title "Container size" --inputbox "How large do you want one virtual container to be ? Specify the size in megabytes." 10 60 3>&1 1>&2 2>&3)
+
+        create_backup_config ${config} ${backupuser} ${tapes} ${size} AWS ${S3accesskey} ${S3secretkey}
+    fi
+  fi
+}
+
+
 openhabian_update() {
   FAILED=0
   #TODO: Remove after 2017-03
@@ -1190,7 +1518,7 @@ openhabian_update() {
   else
     echo "OK - Commit history (oldest to newest):"
     echo -e "\n"
-    git -C $SCRIPTDIR log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --no-pager --stat $shorthash_before..$shorthash_after
+    git -C $SCRIPTDIR --no-pager log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --stat $shorthash_before..$shorthash_after
     echo -e "\n"
     echo "openHABian configuration tool successfully updated."
     echo "Visit the development repository for more details: $REPOSITORYURL"
@@ -1203,7 +1531,7 @@ openhabian_update() {
 
 system_check_default_password() {
   introtext="The default password was detected on your system! That's a serious security concern. Others or malicious programs in your subnet are able to gain root access!
-  \nPlease set a strong password by typing the command 'passwd'."
+  \nPlease set a strong password by typing the command 'passwd'!"
 
   echo -n "$(timestamp) [openHABian] Checking for default openHABian username:password combination... "
   if is_pi && id -u pi &>/dev/null; then
@@ -1229,7 +1557,7 @@ system_check_default_password() {
   GENPASS=$(perl -le 'print crypt("$ENV{PASSWORD}","\$$ENV{ALGO}\$$ENV{SALT}\$")')
   if [ "$GENPASS" == "$ORIGPASS" ]; then
     if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Default Password Detected!" --msgbox "$introtext" 12 60
+      whiptail --title "Default Password Detected!" --msgbox "$introtext" 12 70
     fi
     echo "FAILED"
   else
@@ -1237,10 +1565,9 @@ system_check_default_password() {
   fi
 }
 
-#TODO: Unused
-change_admin_password() {
-  introtext="Choose which services to change password for:"
-  failtext="Something went wrong in the change process. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+change_password() {
+  introtext="Choose which services to change the password for:"
+  failtext="Something went wrong in the password change process. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
 
   matched=false
   canceled=false
@@ -1248,14 +1575,14 @@ change_admin_password() {
 
   if [ -n "$INTERACTIVE" ]; then
     accounts=$(whiptail --title "Choose accounts" --yes-button "Continue" --no-button "Back" --checklist "$introtext" 20 90 10 \
-          "Linux account" "The account to login to this computer" on \
-          "Openhab2" "The karaf console which is used to manage openhab" on \
-          "Samba" "The fileshare for configuration files" on \
+          "Linux account" "The account to login to this computer" off \
+          "openHAB Console" "The Karaf console which is used to manage openHAB" off \
+          "Samba" "The fileshare for configuration files" off \
           3>&1 1>&2 2>&3)
     exitstatus=$?
     if [ $exitstatus = 0 ]; then
       while [ "$matched" = false ] && [ "$canceled" = false ]; do
-        passwordChange=$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password for $username:" 15 80 3>&1 1>&2 2>&3)
+        passwordChange=$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password:" 15 80 3>&1 1>&2 2>&3)
         if [[ "$?" == 1 ]]; then return 0; fi
         secondpasswordChange=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the new password:" 15 80 3>&1 1>&2 2>&3)
         if [[ "$?" == 1 ]]; then return 0; fi
@@ -1270,34 +1597,32 @@ change_admin_password() {
     fi
   else
     passwordChange=$1
-    accounts=("Linux account" "Openhab2" "Samba")
+    accounts=("Linux account" "openHAB Console" "Samba")
   fi
 
   for i in "${accounts[@]}"
   do
-    echo "$i"
-    if [ "$i" == "Linux account" ]; then
-      echo -n "$(timestamp) [openHABian] Changing password for linux account $username... "
-      cond_redirect echo "$username:$passwordChange" | chpasswd
+    if [[ $i == *"Linux account"* ]]; then
+      echo -n "$(timestamp) [openHABian] Changing password for linux account \"$username\"... "
+      echo "$username:$passwordChange" | chpasswd
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
-    if [ "$i" == "Openhab2" ]; then
-      echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account $username... "
+    if [[ $i == *"Samba"* ]]; then
+      echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account \"$username\"... "
       (echo "$passwordChange"; echo "$passwordChange") | /usr/bin/smbpasswd -s -a $username
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
-    if [ "$i" == "Samba" ]; then
-      echo -n "$(timestamp) [openHABian] Changing password for karaf console account $username... "
-      cond_redirect sed -i "s/$username = .*,/$username = $passwordChange,/g" /var/lib/openhab2/etc/users.properties
-      cond_redirect service openhab2 stop
-      cond_redirect service openhab2 start
+    if [[ $i == *"openHAB Console"* ]]; then
+      echo -n "$(timestamp) [openHABian] Changing password for openHAB console account \"openhab\"... "
+      sed -i "s/openhab = .*,/openhab = $passwordChange,/g" /var/lib/openhab2/etc/users.properties
+      cond_redirect systemctl restart openhab2.service
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
   done
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "Password set successfully set for accounts: $accounts" 15 80
+      whiptail --title "Operation Successful!" --msgbox "Password successfully set for: $accounts" 15 80
     else
       whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
     fi
@@ -1356,69 +1681,172 @@ basic_setup() {
 }
 
 show_main_menu() {
-  WT_HEIGHT=29
-  WT_WIDTH=116
-  WT_MENU_HEIGHT=$(($WT_HEIGHT-7))
-
-  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" $WT_HEIGHT $WT_WIDTH $WT_MENU_HEIGHT --cancel-button Exit --ok-button Execute \
-  "00 | About openHABian"       "Get information about the openHABian project and this tool" \
-  "01 | Update"                 "Pull the latest version of the openHABian Configuration Tool" \
+  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
+  "00 | About openHABian"       "Information about the openHABian project and this tool" \
+  "" "" \
+  "01 | Update"                 "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
-  "10 | Basic Setup"            "Perform basic setup steps (packages, bash, permissions, ...)" \
-  "11a| Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
-  "11b| Oracle Java 8"          "Install Oracle Java 8 provided by WebUpd8Team" \
-  "12 | openHAB 2"              "Install openHAB 2.0 (stable)" \
-  "13 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
-  "14 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
-  "15 | NGINX Setup"            "Setup a reverse proxy with password authentication or HTTPS access" \
-  "20 | Optional: KNX"          "Set up the KNX daemon knxd" \
-  "21 | Optional: Homegear"     "Set up the Homematic CCU2 emulation software Homegear" \
-  "22 | Optional: Mosquitto"    "Set up the MQTT broker Mosquitto" \
-  "23 | Optional: 1wire"        "Set up owserver and related packages for working with 1wire" \
-  "24 | Optional: Grafana"      "Set up InfluxDB+Grafana as a powerful graphing solution" \
-  "25 | Optional: frontail"     "Set up the openHAB Log Viewer webapp" \
-  "30 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
-  "31 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
-  "32 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
-  "40 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
-  "41 | Set System Timezone"    "Change the your timezone, execute if it's not $(date +%H:%M) now" \
-  "42 | Set System Locale"      "Change system language, default is 'en_US.UTF-8'" \
+  "" "" \
+  "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup ►" \
+  "20 | Optional Components"    "Choose from a set of optional software components ►" \
+  "30 | System Settings"        "A range of system and hardware related configuration steps ►" \
+  "40 | openHAB related"        "Switch the installed openHAB version or apply tweaks ►" \
+  "50 | Backup/Restore"         "Manage backups and restore your system ►" \
+  "60 | Manual/Fresh Setup"     "Go through all openHABian setup steps manually ►" \
+  "" "" \
+  "99 | Help"                   "Further options and guidance with Linux and openHAB" \
   3>&1 1>&2 2>&3)
   RET=$?
-  if [ $RET -eq 1 ]; then
-    return 1
-  elif [ $RET -eq 0 ]; then
-    case "$choice" in
-      00\ *) show_about ;;
-      01\ *) openhabian_update ;;
-      02\ *) system_upgrade ;;
-      10\ *) basic_setup ;;
-      11a*) java_zulu_embedded ;;
-      11b*) java_webupd8 ;;
-      12\ *) openhab2 ;;
-      13\ *) samba_setup ;;
-      14\ *) openhab_shell_interfaces ;;
-      15\ *) nginx_setup ;;
-      20\ *) knxd_setup ;;
-      21\ *) homegear_setup ;;
-      22\ *) mqtt_setup ;;
-      23\ *) 1wire_setup ;;
-      24\ *) influxdb_grafana_setup ;;
-      25\ *) frontail ;;
-      30\ *) prepare_serial_port ;;
-      31\ *) wifi_setup ;;
-      32\ *) move_root2usb ;;
-      40\ *) hostname_change ;;
-      41\ *) timezone_setting ;;
-      42\ *) locale_setting ;;
-      50\ *) change_admin_password ;;
-      *) whiptail --msgbox "Error: unrecognized option" 10 60 ;;
-    esac || whiptail --msgbox "There was an error running option:\n\n  \"$choice\"" 10 60
-    return 0
-  else
-    echo "If you wish so. Bye Bye! :)"
-    return 1
+  if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then
+    # "Exit" button selected or <Esc> key pressed two times
+    return 255
   fi
+
+  if [[ "$choice" == "" ]]; then
+    true
+  
+  elif [[ "$choice" == "00"* ]]; then
+    show_about
+  
+  elif [[ "$choice" == "01"* ]]; then
+    openhabian_update
+  
+  elif [[ "$choice" == "02"* ]]; then
+    system_upgrade
+  
+  elif [[ "$choice" == "10"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 12 116 5 --cancel-button Back --ok-button Execute \
+    "11 | Packages"               "Install needed and recommended system packages" \
+    "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
+    "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
+    "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
+    "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      11\ *) basic_packages && needed_packages ;;
+      12\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax ;;
+      13\ *) srv_bind_mounts && misc_system_settings ;;
+      14\ *) permissions_corrections ;;
+      15\ *) firemotd ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "20"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
+    "21 | Log Viewer"          "The openHAB Log Viewer webapp (frontail)" \
+    "22 | openHAB Generator"   "The openHAB items, sitemap and HABPanel dashboard generator" \
+    "23 | Mosquitto"           "The MQTT broker Eclipse Mosquitto" \
+    "24 | Grafana"             "InfluxDB+Grafana as a powerful persistence and graphing solution" \
+    "25 | NodeRED"             "Flow-based programming for the Internet of Things" \
+    "26 | Homegear"            "Homematic specific, the CCU2 emulation software Homegear" \
+    "27 | knxd"                "KNX specific, the KNX router/gateway daemon knxd" \
+    "28 | 1wire"               "1wire specific, owserver and related packages" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      21\ *) frontail ;;
+      22\ *) yo_generator ;;
+      23\ *) mqtt_setup ;;
+      24\ *) influxdb_grafana_setup ;;
+      25\ *) nodered ;;
+      26\ *) homegear_setup ;;
+      27\ *) knxd_setup ;;
+      28\ *) 1wire_setup ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "30"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
+    "31 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
+    "32 | Set System Locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
+    "33 | Set System Timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
+    "34 | Change Passwords"       "Change passwords for Samba, openHAB Console or the system user" \
+    "35 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
+    "36 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
+    "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      31\ *) hostname_change ;;
+      32\ *) locale_setting ;;
+      33\ *) timezone_setting ;;
+      34\ *) change_password ;;
+      35\ *) prepare_serial_port ;;
+      36\ *) wifi_setup ;;
+      37\ *) move_root2usb ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "40"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
+    "41 | openHAB 2.1 stable"     "Switch to the openHAB 2.1 release" \
+    "   | openHAB 2.2 unstable"   "Switch to the latest openHAB 2.2 snapshot" \
+    "42 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
+    "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      41\ *) openhab2_stable ;;
+      *openHAB\ 2.2\ unstable) openhab2_unstable ;;
+      42\ *) openhab_shell_interfaces ;;
+      43\ *) nginx_setup ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "50"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
+    "51 | Amada Backup"           "Set up a backup solution on top of Amanda" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      51\ *) amanda_setup ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "60"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 17 116 10 --cancel-button Back --ok-button Execute \
+    "61 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
+    "62 | Packages"               "Install needed and recommended system packages" \
+    "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
+    "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team" \
+    "64 | openHAB 2"              "Install openHAB 2.1 (stable)" \
+    "   | openHAB 2 unstable"     "(Alternative) Install the latest openHAB 2.2 snapshot (unstable)" \
+    "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB" \
+    "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
+    "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail)" \
+    "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional)" \
+    "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional)" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      61\ *) system_upgrade ;;
+      62\ *) basic_packages && needed_packages ;;
+      63\ *) java_zulu_embedded ;;
+      *Oracle\ Java*) java_webupd8 ;;
+      64\ *) openhab2 ;;
+      *openHAB\ 2\ unstable) openhab2_unstable ;;
+      65\ *) srv_bind_mounts && permissions_corrections && misc_system_settings ;;
+      66\ *) samba_setup ;;
+      67\ *) frontail ;;
+      68\ *) firemotd ;;
+      69\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "99"* ]]; then
+    show_about
+
+  else whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
+  fi
+
+  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\n  \"$choice\"\n\nPlease try again. Open a Ticket if the error persists: $REPOSITORYURL/issues" 12 60; return 0; fi
 }
 
 if [[ -n "$UNATTENDED" ]]; then
@@ -1429,6 +1857,7 @@ if [[ -n "$UNATTENDED" ]]; then
   hostname_change
   if is_pi; then memory_split; fi
   if is_pine64; then pine64_platform_scripts; fi
+  if is_pine64; then pine64_fixed_mac; fi
   basic_packages
   needed_packages
   bashrc_copy
@@ -1444,14 +1873,17 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   samba_setup
   clean_config_userpw
+  if is_pione || is_pizero || is_pizerow; then true; else nodejs && frontail && yo_generator; fi
 else
   whiptail_check
   load_create_config
+  openhabian_hotfix
+  ua-netinst_check
   while show_main_menu; do
     true
   done
   system_check_default_password
-  echo -e "\n$(timestamp) [openHABian] We hope you got what you came for! See you again soon ;)"
+  echo -e "$(timestamp) [openHABian] We hope you got what you came for! See you again soon ;)"
 fi
 
 # vim: filetype=sh

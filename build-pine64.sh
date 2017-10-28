@@ -23,8 +23,8 @@ echo_process() { echo -e "\e[1;94m$(timestamp) [openHABian] $*\e[0m"; }
 exec &> >(tee -a "openhabian-build-$(date +%Y-%m-%d_%H%M%S).log")
 
 # Load config, create temporary build folder
-sourcefolder=build-rpi-raspbian
-source $sourcefolder/openhabian.raspbian.conf
+sourcefolder=build-pine64-image
+source $sourcefolder/openhabian.pine64.conf
 buildfolder=/tmp/build-pine64-image
 imagefile=$buildfolder/pine64-xenial.img
 rm -rf $buildfolder
@@ -71,7 +71,7 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 echo_process "Moving image and cleaning up... "
 shorthash=$(git log --pretty=format:'%h' -n 1)
 crc32checksum=$(crc32 $imagefile)
-destination="openhabianpine64-xenial-$(date +%Y%m%d%H%M)-git$shorthash-$crc32checksum.img"
+destination="openhabianpine64-xenial-$(date +%Y%m%d%H%M)-git$shorthash-crc$crc32checksum.img"
 mv -v $imagefile $destination
 rm -rf $buildfolder
 

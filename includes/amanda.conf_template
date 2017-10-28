@@ -1,0 +1,68 @@
+org "openHABian %CONFIG"				# Organization name for reports
+mailto "%ADMIN"						# Email address to receive reports
+netusage 10000 Kbps					# Bandwidth limit, 10M
+dumpcycle 2 weeks					# Backup cycle is 14 days
+runspercycle 7						# Run 7 times every 14 days
+tapecycle %TAPES tapes					# Dump to this number of different tapes during the cycle
+runtapes 1
+tpchanger %TPCHANGER
+taper-parallel-write 2
+autolabel "openHABian-%CONFIG-%%%" empty
+changerfile "%CONFDIR/storagestate"			# The tape-changer or SD- or disk slot or S3 state file
+tapelist "%CONFDIR/tapelist"				# The tapelist file
+tapetype %TAPETYPE
+infofile "/var/lib/amanda/%CONFIG/curinfo"		# Database directory
+logdir "/var/log/amanda/%CONFIG"			# Log directory
+indexdir "/var/lib/amanda/%CONFIG/index"		# Index directory
+define tapetype SD {
+    comment "SD card size"
+    length %SIZE mbytes					# actual Bucket size 5GB (Amazon default for free S3)
+}
+define tapetype DIRECTORY {				# Define our tape behaviour
+	length %SIZE mbytes				# Every tape is 100GB in size
+}
+define tapetype AWS {
+    comment "S3 Bucket"
+    length %SIZE mbytes					# actual Bucket size 5GB (Amazon default for free S3)
+}
+
+amrecover_changer "changer"				# Changer for amrecover
+
+# don't use any holding disk for the time being
+#holdingdisk hd {
+#    directory "/holdingdisk/%CONFIG"
+#    use 1000 Mb
+#}
+
+define dumptype global {				# The global dump definition
+	maxdumps 2					# maximum number of backups run in parallel
+	holdingdisk no					# Dump to temp disk (holdingdisk) before backup to tape
+	index yes					# Generate index. For restoration usage
+}
+define dumptype root-tar {				# How to dump root's directory
+	global						# Include global (as above)
+	program "GNUTAR"				# Program name for compress
+	estimate server					# Estimate the backup size before dump
+	comment "root partitions dumped with tar"
+	compress none					# No compression
+	index						# Index this dump
+	priority low					# Priority level
+}
+define dumptype user-tar {				# How to dump user's directory
+	root-tar					# Include root-tar (as above)
+	comment "user partitions dumped with tar"
+	priority medium					# Priority level
+}
+define dumptype comp-user-tar {				# How to dump & compress user's directory
+	user-tar					# Include user-tar (as above)
+	compress client fast				# Compress in client side with less CPU (fast)
+}
+define application-tool app_amraw {			# how to dump the SD card's raw device /dev/mmcblk0
+        plugin "amraw"					# uses 'dd'
+}
+define dumptype amraw {
+        global
+        program "APPLICATION"
+        application "app_amraw"
+}
+# vim: filetype=conf

@@ -36,12 +36,8 @@ if [ -f /opt/FireMotD/FireMotD ]; then
 fi
 
 OHVERSION=$(dpkg-query --showformat='${Version}' --show openhab2)
-
-if grep -q "Release Build" /var/lib/openhab2/etc/branding.properties; then
-  OHBUILD="Release Build"
-else
-  OHBUILD="Build $(awk '/Build/ {print $4}' /var/lib/openhab2/etc/branding.properties)"
-fi
+OHBUILD=$(sed -n 's/build-no\s*: //p' /var/lib/openhab2/etc/version.properties)
+if [ "$OHBUILD" == "- release build -" ]; then OHBUILD="Release Build"; fi
 
 cat << 'EOF'
 

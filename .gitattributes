@@ -9,3 +9,7 @@
 
 # Binary files
 *.jpg binary
+
+#Linguist
+includes/smb.conf linguist-language=ini
+includes/*.service linguist-language=ini
