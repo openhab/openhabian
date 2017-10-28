@@ -107,7 +107,57 @@ read up on it NOW. Google is your friend, a German intro can be found at http://
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
 exported (= shared, i.e. made available for mounting) on that directory. This is your mountpoint.
 
-Next (but only AFTER you successfully mounted/prepared your storage !!), install Amanda using the openHABian menu.
+Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 192.168.1.100)
+and two partitions from an attached USB stick identified as /dev/sda (Linux ext4 and Windows VFAT filesystems).
+
+HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
+Do NOT (I repeat: NOT) deploy these commands unless you are fully aware what they will do to your system.
+To use a command with a wrong device name CAN DESTROY YOUR SYSTEM.
+YOU HAVE BEEN WARNED.
+
+------- EXAMPLE ONLY ------- Don't use unless you understand what these commands do ! ------- EXAMPLE ONLY ------- 
+pi@pi:~ $ sudo bash
+root@pi:/home/pi# host nas
+nas.fritz.box has address 192.168.1.100
+root@pi:/home/pi#
+root@pi:/home/pi# mkdir -p /storage/server
+root@pi:/home/pi# echo "192.168.1.100://share/freespace     /storage/server    nfs     nolock,noatime  0       0" >> /etc/fstab
+root@pi:/home/pi# mount /storage/server
+root@pi:/home/pi# df -k /server
+Dateisystem                                       1K-Blöcke    Benutzt Verfügbar Verw% Eingehängt auf
+192.168.1.100://share/freespace 2882740768 2502091488 380649280   87% /storage/server
+root@pi:/home/pi#
+------- EXAMPLE ONLY ------- Don't use unless you understand what these commands do ! ------- EXAMPLE ONLY ------- 
+root@pi:/home/pi# fdisk -l /dev/sda
+
+Disk /dev/sda: 14,8 GiB, 15836643328 bytes, 30930944 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0x000210ce
+
+Device     Boot    Start      End  Sectors  Size Id Type
+/dev/sda1           8192  2357421  2349230  1,1G  e W95 FAT16 (LBA)
+/dev/sda2        2357422 31116287 28758866 13,7G 85 Linux extended
+/dev/sda5        2359296  2424829    65534   32M 83 Linux
+/dev/sda6        2424832  2553855   129024   63M  c W95 FAT32 (LBA)
+/dev/sda7        2555904 30056445 27500542 13,1G 83 Linux
+/dev/sda8       30056448 31105023  1048576  512M 83 Linux
+root@pi:/home/pi# mkdir -p /storage/usbstick-linux /storage/usbstick-msdos
+root@pi:/home/pi# echo "/dev/sda7     /storage/usbstick-linux    ext4     defaults,noatime  0       1" >> /etc/fstab
+root@pi:/home/pi# echo "/dev/sda1     /storage/usbstick-msdos    vfat     defaults,noatime  0       1" >> /etc/fstab
+root@pi:/home/pi# mount /storage/usbstick-linux
+root@pi:/home/pi# mount /storage/usbstick-msdos
+root@pi:/home/pi# df -k /storage/usbstick-linux /storage/usbstick-msdos
+Dateisystem    1K-Blöcke Benutzt Verfügbar Verw% Eingehängt auf
+/dev/sda7       13403236 8204144   4495196   65% /storage/usbstick-linux 
+/dev/sda1       13403236 9018464   3680876   72% /storage/usbstick-msdos
+root@pi:/home/pi#
+------- EXAMPLE ONLY ------- Don't use unless you understand what these commands do ! ------- EXAMPLE ONLY ------- 
+
+
+Next (but only AFTER you successfully mounted/prepared your storage !), install Amanda using the openHABian menu.
 When you start the Amanda installation from the openHABian menu, the install routine will create a directory/link structure in
 the directory you tell it. Your local user named "backup" will need to have write access there. Amanda install routine should do
 that for you, but it only CAN do it for you if you created/mounted it before you ran the installation.
