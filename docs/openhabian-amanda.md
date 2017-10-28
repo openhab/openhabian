@@ -2,6 +2,7 @@ How to backup your openHABian server using Amanda
 =================================================
 
 * [A generic intro on backup and recovery](#Intro)
+* [Installation](#Installation)
 * [How to backup](#Backup)
 * [How to restore a file](#Restore)
 * [How to restore a partition](#Restore)
@@ -68,17 +69,80 @@ Either way, it's not one-or-the-other, you can run multiple configs in parallel.
 have a clone SD card with your CURRENT config.
 
 
-HEADS UP: The first thing you should do after your first backup run ended successfully is to create a clone of your active
-server SD card by restoring the backup to a blank SD card as shown below as a amfetchdump example for recovery of a raw device's
-contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw device to be backed
-up to have that same name.
+Some explanatory comments on Amanda
+First: read up on and understand some of the basic Amanda concepts over at http://www.amanda.org.
+That's not a mandatory step but it will probably help you understand a couple of things better.
+The world of UNIX and backup IS complex and in the end, there's no way to hide that from a user.
+Here's a couple of those concepts, but don't blame me if they're not comprehensive. I cannot understand the system for you,
+that's something you have to accomplish on your own. Read and understand the Amanda docs.
+
+Amanda was originally built to use magnetic tapes as backup storage, and it can operate multiple tape drives in parallel 
+which are called 'slots' because that's what they are in a tapedrive changer unit (as those that are used in professional data
+center installations).
+The tapecycle is how long your storage capacity will last until Amanda starts to overwrite old backups. It depends on the number 
+of tapes you use and the frequency you run backups at. If you have got 14 tapes in rotation and backup once a day, your
+tapecycle is 14 days. If you just run backups every second day, your tapecycle is 28 days.
+The tapecycle effectively is the backward looking timeframe that is available for you to restore your system state to.
+Amanda will run a 'level 0' dump (that means to backup EVERYTHING) once in a tapecycle and will run 'level 1' dumps for the rest
+of the time (that means to only backup files that have CHANGED since the last level 0 dump was done, also called a
+'incremental' backup).
+Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount of
+data to be backed up. A tape also has a maximum capacity. By entering the total size of the storage area when queried during
+installation, installation routine will compute the maximum amount of data that Amanda will store into each tape subdirectory as
+(storage size) / tapecycle.
+The ability to backup to a directory was added later, but the 'slot' and 'tape' concepts were kept. That's why here, as a
+deployment inside openHABian, we will have 'virtual' tapes and slots which are implemented as subdirectories (one for each
+'tape') and filesystem links (two by default config, drive0 and drive1) to point to a virtual tape. If you have the drive1 link
+point to the slot3 directory, it effectively means that tape 3 is currently inserted in drive 1).
+
+
+Installation
+============
+Now once you read up on all of this and feel you have understood this stuff, the next step will NOT be hit that 'Amanda install' 
+menu option in openHABian (no, we're not there yet) but to prepare your storage.
+HEADS UP: You need to "create" (or "provide", actually) your storage BEFORE you install Amanda.
+That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
+(Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
+read up on it NOW. Google is your friend, a German intro can be found at http://www.pc-erfahrung.de/linux/linux-mounten.html.)
+So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
+exported (= shared, i.e. made available for mounting) on that directory. This is your mountpoint.
+
+Next (but only AFTER you successfully mounted/prepared your storage !!), install Amanda using the openHABian menu.
+When you start the Amanda installation from the openHABian menu, the install routine will create a directory/link structure in
+the directory you tell it. Your local user named "backup" will need to have write access there. Amanda install routine should do
+that for you, but it only CAN do it for you if you created/mounted it before you ran the installation.
+
+Installation will ask you a couple of questions.
+* "What's the directory to store backups into?"
+Here you need to enter the _local_ directory on the openHABian box (which is where you have mounted your USB storage or NAS disk
+share, see above).
+* "How many virtual containers will you setup inside the storage dir ?"
+You usually enter the typecycle here.
+* "What's your backup storage area capacity in megabytes ?"
+Amanda will use at most this number of megabytes in total as its storage for backup.
+If you choose to include the raw device in the backup cycle (next question), that means you should enter 3 times the size of
+your SD disk NOW. If you choose not to include it (or selected the AWS S3 variant which omits raw SD backups per default), it's
+a lot less data and you need to estimate it by adding up the size of the config directories that are listed in the `disklist` 
+file. If you don't have any idea, enter 1024 (= 1 GByte). You can change it in the Amanda config file at any later time.
+* "Backup raw SD card ?" (not asked if you selected AWS S3 storage)
+Answer "yes" if you want to create raw disk backups of your SD card. This is only recommended if your SD card is 8GB or less in
+size, otherwise the backup can take too long. You can always add/remove this by editing ${confdir}/disklist at a later time.
+
+All of your input will be used to create the initial Amanda config files, but you are free to change them later on.
+HEADS UP: if you re-run the install routine, it will OVERWRITE the config files at any time so if you make changes there,
+remember these changes and store them elsewhere, too.
+
+Once you're done installing openHABian and Amanda, proceed to the usage guide chapter below.
+
+Finally, another HEADS UP: The first thing you should do after your first backup run ended successfully is to create a clone of
+your active server SD card by restoring the backup to a blank SD card as shown below as a amfetchdump example for recovery of a raw device's contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw device to be backed up to have that same name.
 You will have two Amanda config directories (located in `/etc/amanda`) called `openhab-dir` and `openhab-AWS` if you choose to
 setup both of them.
 If any of your Amanda backup or recovery runs fails (which might well be the case particularly if you try to use the S3 backup),
 you should try getting it to work following the guides and knowledge base available on the Web at http://www.amanda.org/.
 There's online documentation including tutorials and FAQs at http://wiki.zmanda.com/index.php/User_documentation.
-In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but please
-don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
+In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but
+please don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
 
 
 A (yes, very brief) usage guide
