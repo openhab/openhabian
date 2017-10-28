@@ -74,24 +74,22 @@ Some explanatory comments on Amanda
 -----------------------------------
 First and foremost: read up on and understand some of the basic Amanda concepts over at http://www.amanda.org.
 That's not a mandatory step but it will probably help you understand a couple of things better.
-The world of UNIX and backup IS complex and in the end, there's no way to hide that from a user.
-Here's a couple of those concepts, but don't blame me if they're not comprehensive. I cannot understand the system for you,
+The world of UNIX and backup IS complex and in the end, there's no way to fully hide that from a user.
+Here's a couple of those concepts, but this cannot be a comprehensive list. I cannot understand the system for you,
 that's something you have to accomplish on your own. Read and understand the Amanda docs.
 
-Amanda was originally built to use magnetic tape changer libraries as backup storage in professional data center installations.
-It can operate multiple tape drives in parallel, and the tapes used to be commonly stored in a 'shelf number' inside the tape
-library cabinet which are called 'slots' because that's what they are.
-The tapecycle is how long your storage capacity will last until Amanda starts to overwrite old backups. It depends on the number 
-of tapes you use and the frequency you run backups at. If you have got 14 tapes in rotation and backup once a day, your
-tapecycle is 14 days. If you just run backups every second day, your tapecycle is 28 days.
-The tapecycle effectively is the backward looking timeframe that is available for you to restore your system state to.
-Amanda will run a 'level 0' dump (that means to backup EVERYTHING) once in a tapecycle and will run 'level 1' dumps for the rest
-of the time (that means to only backup files that have CHANGED since the last level 0 dump was done, also called a
-'incremental' backup).
+It's helpful to know that Amanda was originally built to use magnetic tape changer libraries as backup storage in professional
+data center installations. It can operate multiple tape drives in parallel, and the tapes used to be commonly stored in what's
+called a 'slot' inside the tape library cabinet.
+The default dumpcycle for a openHABian install is 2 weeks. Amanda will run a 'level 0' dump (that means to backup EVERYTHING)
+once in a dumpcycle and will run 'level 1' dumps for the rest of the time (that means to only backup files that have CHANGED
+since the last level 0 dump was done, also called an 'incremental' backup).
+The number of tapes and their capacity (both of which are sort of artificially set when you store to a filesystem) determines
+how long your storage capacity will last until Amanda starts to overwrite old backups. 
 Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount of
-data to be backed up. A tape also has a maximum capacity. By entering the total size of the storage area when queried during
-installation, installation routine will compute the maximum amount of data that Amanda will store into each tape subdirectory as
-(storage size) / tapecycle.
+data to be backed up. By asking you to enter the total size of the storage area and tapecycle (= the number of slots/'tapes' in
+rotation during installation, the Amanda installation routine will compute the maximum amount of data that Amanda will store
+into each tape subdirectory as (storage size) / (number of tapes).
 The ability to backup to a directory was added later, but the 'slot' and 'tape' concepts were kept. That's why here, as a
 deployment inside openHABian, we will have 'virtual' tapes and slots which are implemented as subdirectories (one for each
 'tape') and filesystem links (two by default config, drive0 and drive1) to point to a virtual tape. If you have the drive1 link
@@ -116,8 +114,8 @@ that for you, but it only CAN do it for you if you created/mounted it before you
 
 Installation will ask you a couple of questions.
 * "What's the directory to store backups into?"
-Here you need to enter the _local_ directory on the openHABian box (which is where you have mounted your USB storage or NAS disk
-share, see above).
+Here you need to enter the _local_ directory on the openHABian box, also known as _the mountpoint_. This is where you have
+mounted your USB storage or NAS disk share (see above).
 * "How many virtual containers will you setup inside the storage dir ?"
 You usually enter the typecycle here.
 * "What's your backup storage area capacity in megabytes ?"
