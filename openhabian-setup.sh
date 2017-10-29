@@ -1391,10 +1391,11 @@ create_backup_config() {
 
   hostname=`/bin/hostname`
   if [ "${config}" = "openhab-local-SD" -o "${config}" = "openhab-dir" ]; then
+      /bin/rm -f ${confdir}/disklist
       # don't backup SD by default as this can cause problems for large cards
       if [ -n "$INTERACTIVE" ]; then
-          if (whiptail --title "Backup raw SD card ?" --yes-button "Backup SD" --no-button "Do not backup SD" --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 8GB or less, otherwise this can take too long. You can always add/remove this by editing ${confdir}/disklist." 15 80) then 
-	      echo "${hostname}	/dev/mmcblk0    	        amraw" >${confdir}/disklist
+          if (whiptail --title "Backup raw SD card, too ?" --yes-button "Backup SD" --no-button "Do not backup SD." --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 8GB or less, otherwise this can take too long. You can change this at any time by editing ${confdir}/disklist." 15 80) then 
+	      echo "${hostname}	/dev/mmcblk0    	        amraw" >>${confdir}/disklist
 	  fi   
       fi
       
