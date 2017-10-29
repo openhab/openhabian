@@ -1459,8 +1459,10 @@ amanda_setup() {
     if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based for locally attached or NAS mounted storage." 15 80) then
         config=openhab-dir
         dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
-        tapes=$(whiptail --title "Number of virtual storage containers in rotation" --inputbox "How many virtual containers will you setup inside the storage dir ?" 10 60 3>&1 1>&2 2>&3)
-        size=$(whiptail --title "Storage capacity" --inputbox "What's your backup storage area capacity in megabytes ?" 10 60 3>&1 1>&2 2>&3)
+        tapes=15
+        capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
+	let size=${capacity}/${tapes}
+	
         create_backup_config ${config} ${backupuser} ${tapes} ${size} ${dir}
     fi
   fi
@@ -1470,8 +1472,9 @@ amanda_setup() {
         config=openhab-AWS
         S3accesskey=$(whiptail --title "S3 access key" --inputbox "Enter the S3 access key you obtained at S3 setup time:" 10 60 3>&1 1>&2 2>&3)
         S3secretkey=$(whiptail --title "S3 secret key" --inputbox "Enter the S3 secret key you obtained at S3 setup time:" 10 60 3>&1 1>&2 2>&3)
-        tapes=$(whiptail --title "Number of virtual storage containers in rotation" --inputbox "How many virtual containers will you setup inside the S3 bucket ?  Note that #container x container size will need to fit into your S3 bucket." 10 60 3>&1 1>&2 2>&3)
-        size=$(whiptail --title "Container size" --inputbox "How large do you want one virtual container to be ? Specify the size in megabytes." 10 60 3>&1 1>&2 2>&3)
+	tapes=15
+	capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
+	let size=${capacity}/${tapes}
 
         create_backup_config ${config} ${backupuser} ${tapes} ${size} AWS ${S3accesskey} ${S3secretkey}
     fi
