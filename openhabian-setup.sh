@@ -1376,16 +1376,17 @@ create_backup_config() {
   infofile="/var/lib/amanda/${config}/curinfo"	      # Database directory
   logdir="/var/log/amanda/${config}" 		      # Log directory
   indexdir="/var/lib/amanda/${config}/index" 	      # Index directory
-  mkdir -p $infofile $logdir $indexdir
-  chown -R ${backupuser}:${backupuser} /var/backups/.amandahosts ${confdir}  $infofile $logdir $indexdir
+  /bin/mkdir -p $infofile $logdir $indexdir
+  /bin/chown -R ${backupuser}:${backupuser} /var/backups/.amandahosts ${confdir} ${storage} $infofile $logdir $indexdir
+  /bin/chmod -R g+rwx ${storage} 
 
 
   /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%BKPDIR|${bkpdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" ${SCRIPTDIR}/includes/amanda.conf_template >${confdir}/amanda.conf
 
   if [ "${config}" = "openhab-AWS" ]; then
-      echo "device_property \"S3_ACCESS_KEY\" \"${S3accesskey}\"                       # Your S3 Access Key" >>${confdir}/amanda.conf
-      echo "device_property \"S3_SECRET_KEY\" \"${S3secretkey}\"                       # Your S3 Secret Key" >>${confdir}/amanda.conf
-      echo "device_property \"S3_SSL\" \"YES\"                                       # Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
+      echo "device_property \"S3_ACCESS_KEY\" \"${S3accesskey}\"	# Your S3 Access Key" >>${confdir}/amanda.conf
+      echo "device_property \"S3_SECRET_KEY\" \"${S3secretkey}\"	# Your S3 Secret Key" >>${confdir}/amanda.conf
+      echo "device_property \"S3_SSL\" \"YES\"				# Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
   fi
 
   hostname=`/bin/hostname`
@@ -1456,7 +1457,7 @@ amanda_setup() {
 #  fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based for locally attached or NAS mounted storage." 15 80) then
+    if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on locally attached or NAS mounted storage." 15 80) then
         config=openhab-dir
         dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
         tapes=15
