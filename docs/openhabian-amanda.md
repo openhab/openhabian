@@ -68,7 +68,6 @@ do not match your needs. You could even usde it to backup all of your servers (i
 machines. Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
 have a clone SD card with your CURRENT config.
 
-
 ## Some Amanda background
 First and foremost: Best is to read up on and understand some of the basic Amanda concepts over at http://www.amanda.org.
 That's not a mandatory step but it will probably help you understand a couple of things better.
@@ -88,12 +87,18 @@ filesystem) determines how long your storage capacity will last until Amanda sta
 By asking you to enter the total size of the storage area and tapecycle (= the number of slots/'tapes' in
 rotation during installation, the Amanda installation routine will compute the maximum amount of data that Amanda will store
 into each tape subdirectory as (storage size) divided by (number of tapes).
-
 The ability to backup to a directory was added later, but the 'slot' and 'tape' concepts were kept. That's why here, as a
 deployment inside openHABian, we will have 'virtual' tapes and slots which are implemented as subdirectories (one for each
 'tape') and filesystem links (two by default config, drive0 and drive1) to point to a virtual tape. If you have the drive1 link
 point to the slot3 directory, it effectively means that tape 3 is currently inserted in drive 1).
-
+Amanda was built on top of UNIX and makes use of its user and rights system, so it is very useful and you are requested to
+familiarize yourself with that. As a general good UNIX practice, you shouldn’t use functional users such as “backup” (the OS
+uses functional users to execute tasks with specific access rights) for administration tasks. Use your personal user instead
+(you have created that at the beginning of your openHABian installation).
+Installation tasks including post-package-installation changes (edits) of the Amanda config files, require to use the `root`
+user. Any ordinary user (such as your personal one) can execute commands on behalf of root (and with root permission) by
+prepending "sudo " to the command. Note: commands executed as `root` will often NOT ask for confirmation, and bad commands can
+easily DESTROY YOUR SYSTEM. **Take special care !**
 
 # Installation
 ## Storage preparation
@@ -113,6 +118,7 @@ HEADS UP: These are just EXAMPLES. Device and directory names will be different 
 Do NOT (I repeat: NOT) deploy these commands unless you are fully aware what they will do to your system.
 To use a command with a wrong device name CAN DESTROY YOUR SYSTEM.
 
+---------------------
 YOU HAVE BEEN WARNED.
 ---------------------
 
@@ -133,7 +139,7 @@ root@pi:/home/pi#
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
 ```
 ### USB storage mount example
-Note that this is showing two alternative versions,  for FAT16/FAT32 filesystems (i.e. the original MS-DOS and the improved
+Note that this is showing two alternative versions, for FAT16/FAT32 filesystems (i.e. the original MS-DOS and the improved
 Windows filesystems that you usually use for USB sticks) and another version to use the ext4 native Linux filesystem. You can 
 use ext4 on a stick or USB-attached hard drive.
 Either way, you just need one or the other.
