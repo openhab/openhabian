@@ -187,6 +187,7 @@ root@pi:/home/pi#
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
 ```
 
+## Software installation
 Next (but only AFTER you successfully mounted/prepared your storage !), install Amanda using the openHABian menu.
 When you start the Amanda installation from the openHABian menu, the install routine will create a directory/link structure in
 the directory you tell it. Your local user named "backup" will need to have write access there. Amanda install routine should do
