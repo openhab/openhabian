@@ -1,12 +1,6 @@
 How to backup your openHABian server using Amanda
 =================================================
 
-* [A generic intro on backup and recovery](# Intro)
-* [Installation](# Installation)
-* [How to backup](# Backup)
-* [How to restore a file](# Restore)
-* [How to restore a partition](# Restore)
-
 # Intro
 First, make yourself aware how important a comprehensive backup and recovery concept is.
 Yes, this text is the README on the backup software part for openHABian that you're reading, but take a couple of minutes to
