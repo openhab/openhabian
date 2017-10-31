@@ -87,7 +87,7 @@ If you have the drive1 link point to the slot3 directory, it effectively means t
 Amanda was built on top of UNIX and makes use of its user and rights system, so it is very useful and you are requested to
 familiarize yourself with that. As a general good UNIX practice, you shouldn’t use functional users such as “backup” (the OS
 uses functional users to execute tasks with specific access rights) for administration tasks. Use your personal user instead
-(you have created that at the beginning of your openHABian installation).
+(that you have created that at the beginning of your openHABian installation or "openhabian" by default).
 Installation tasks including post-package-installation changes (edits) of the Amanda config files, require to use the `root`
 user. Any ordinary user (such as your personal one) can execute commands on behalf of root (and with root permission) by
 prepending "sudo " to the command. Note: commands executed as `root` will often NOT ask for confirmation, and bad commands can
@@ -99,13 +99,15 @@ Now once you read up on all of this and feel you have understood this stuff, the
 menu option in openHABian (no, we're not there yet) but to prepare your storage.
 HEADS UP: You need to "create" (or "provide", actually) your storage BEFORE you install Amanda.
 That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
-(Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
-read up on it NOW. Google is your friend, a German intro can be found at http://www.pc-erfahrung.de/linux/linux-mounten.html.)
+Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
+read up on it NOW. A generic (German language) intro can be found at http://www.pc-erfahrung.de/linux/linux-mounten.html.)
+Google is your friend, but it'll give a lot of answers, each to vary slightly depending on the Linux variant or use case.
+Make sure you ask specific questions such as “how to mount a NAS disk on a raspbian raspberry pi”.
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
 exported (= shared, i.e. made available for mounting) on that directory. This is your mountpoint.
 
-Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 192.168.1.100)
-and two partitions from an attached USB stick identified as /dev/sda (Linux ext4 and Windows VFAT filesystems).
+Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 192.168.1.100) and two partitions from an attached
+USB stick identified as /dev/sda (Linux ext4 and Windows VFAT filesystems).
 
 HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
 Do NOT (I repeat: NOT) deploy these commands unless you are fully aware what they will do to your system.
