@@ -70,14 +70,14 @@ The world of UNIX and backup IS complex and in the end, there's no way to fully 
 Here's a couple of those concepts, but this is not a comprehensive list. I cannot understand the system for you,
 that's something you have to accomplish on your own. Read and understand the Amanda docs.
 
-It's helpful to know that Amanda was originally built to use magnetic tape changer libraries as backup storage in professional
+* It's helpful to know that Amanda was originally built to use magnetic tape changer libraries as backup storage in professional
 data center installations. It can operate multiple tape drives in parallel, and the tapes used to be commonly stored in what's
 called a 'slot' inside the tape library cabinet.
-The default dumpcycle for a openHABian install is 2 weeks. Amanda will run a 'level 0' dump (that means to backup EVERYTHING)
+* The default dumpcycle for a openHABian install is 2 weeks. Amanda will run a 'level 0' dump (that means to backup EVERYTHING)
 once in a dumpcycle and will run 'level 1' dumps for the rest of the time (that means to only backup files that have CHANGED
 since the last level 0 dump was done, also called an 'incremental' backup).
-Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount of
-data to be backed up. The number of tapes and their capacity (both of which are sort of artificially set when you store to a
+* Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount
+of data to be backed up. The number of tapes and their capacity (both of which are sort of artificially set when you store to a
 filesystem) determines how long your storage capacity will last until Amanda starts to overwrite old backups. 
 By asking you to enter the total size of the storage area, the Amanda installation routine will compute the maximum amount of 
 data that Amanda will store into each tape subdirectory as (storage size) divided by (number of tapes, 15 by default).
@@ -85,7 +85,7 @@ The ability to backup to a directory was added later, but the 'slot', 'drive' an
 as a deployment inside openHABian, we will have 'virtual' tapes and slots which are implemented as subdirectories (one for each
 'tape') and filesystem links (two by default config, drive0 and drive1) to point to a virtual tape.
 If you have the drive1 link point to the slot3 directory, it effectively means that tape 3 is currently inserted in drive 1).
-Amanda was built on top of UNIX and makes use of its user and rights system, so it is very useful and you are requested to
+* Amanda was built on top of UNIX and makes use of its user and rights system, so it is very useful and you are requested to
 familiarize yourself with that. As a general good UNIX practice, you shouldn’t use functional users such as “backup” (the OS
 uses functional users to execute tasks with specific access rights) for administration tasks. Use your personal user instead
 (that you have created that at the beginning of your openHABian installation or "openhabian" by default).
