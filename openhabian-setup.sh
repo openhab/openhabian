@@ -1112,11 +1112,14 @@ ver:" 15 80 3>&1 1>&2 2>&3)
  15 80 3>&1 1>&2 2>&3)
     echo "ADMIN=${FIND_ADMIN}" >>${FIND_DEFAULT}
     echo "ADMIN_PASS=${FIND_ADMIN_PASS}" >>${FIND_DEFAULT}
-    /usr/bin/mosquitto_passwd -b ${MOSQUITTO_PASSWD} ${FIND_ADMIN} ${FIND_ADMIN_PASS}
+    cond_redirect /usr/bin/mosquitto_passwd -b ${MOSQUITTO_PASSWD} ${FIND_ADMIN} ${FIND_ADMIN_PASS}
+    if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   fi
 
-  /bin/systemctl enable findserver.service
+  cond_redirect /bin/systemctl enable findserver.service
+  cond_redirect /bin/systemctl restart findserver.service
   /bin/rm -f ${FIND_TMP} ${CLIENT_TMP}
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
