@@ -1834,7 +1834,7 @@ show_main_menu() {
     "26 | Homegear"            "Homematic specific, the CCU2 emulation software Homegear" \
     "27 | knxd"                "KNX specific, the KNX router/gateway daemon knxd" \
     "28 | 1wire"               "1wire specific, owserver and related packages" \
-    "29 | FIND"               "Framework for Internal Navigation and Discovery" \
+    "29 | FIND"                "Framework for Internal Navigation and Discovery" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
