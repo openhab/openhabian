@@ -1041,6 +1041,11 @@ find_setup() {
 HABian GitHub issue."
   successtext="Setup was successful. Please edit '/etc/default/findserver' to meet your interface and server requirements."
 
+  echo -n "$(timestamp) [openHABian] Setting up the Framework for Internal Navigation and Discovery ... "
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+  fi
+
   FIND_RELEASE=2.4.1
   CLIENT_RELEASE=0.6
   if is_arm; then
