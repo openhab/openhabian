@@ -1432,8 +1432,8 @@ amanda_setup() {
   canceled=false
   if [ -n "$INTERACTIVE" ]; then
       while [ "$matched" = false ] && [ "$canceled" = false ]; do
-            password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for $backupuser:" 15 80 3>&1 1>&2 2>&3)
-            secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
+            password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for user ${backupuser}.\nRemember to select a safe password as you (and others) can use this to login to your openHABian box." 15 80 3>&1 1>&2 2>&3)
+            secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password" 15 80 3>&1 1>&2 2>&3)
             if [ "$password" = "$secondpassword" ] && [ ! -z "$password" ]; then
                 matched=true
             else
