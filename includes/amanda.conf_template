@@ -16,14 +16,14 @@ logdir "/var/log/amanda/%CONFIG"			# Log directory
 indexdir "/var/lib/amanda/%CONFIG/index"		# Index directory
 define tapetype SD {
     comment "SD card size"
-    length %SIZE mbytes					# actual Bucket size 5GB (Amazon default for free S3)
+    length %SIZE mbytes					# SD card size 
 }
 define tapetype DIRECTORY {				# Define our tape behaviour
-	length %SIZE mbytes				# Every tape is 100GB in size
+	length %SIZE mbytes				# Every tape is %SIZE MB in size
 }
 define tapetype AWS {
     comment "S3 Bucket"
-    length %SIZE mbytes					# actual Bucket size 5GB (Amazon default for free S3)
+    length %SIZE mbytes					# bucket size %SIZE MB (Amazon default for free S3 is 5GB)
 }
 
 amrecover_changer "changer"				# Changer for amrecover

@@ -2,6 +2,7 @@ How to backup your openHABian server using Amanda
 =================================================
 
 * [A generic intro on backup and recovery](#Intro)
+* [Installation](#Installation)
 * [How to backup](#Backup)
 * [How to restore a file](#Restore)
 * [How to restore a partition](#Restore)
@@ -14,20 +15,18 @@ read and think about recovery in a generic sense first. This might avoid a LOT o
 So you have your smart home working thanks to openHAB(ian).... but what if a component of your system fails ?
 First thing is: you need spare hardware of EVERY component that needs to work for your smart home to work.
 Think of EVERY relevant component and not just the obvious ones. Think of your Internet router, switch, server, NAS and required
-addons such as a ZWave or 433MHz radio USB stick, WLAN dongle, proper power supplies and the SD card writer (!).
+addons such as a ZWave or 433MHz radio or WiFi USB stick, proper power supplies and the SD card writer.
 Now think of a recovery concept for each of these components: what do you have to do if it fails ?
 
 Examples:
-If the SD card in your Pi fails because of SD corruption (a very common problem !), you need to have a PREinstalled, at least
+If the SD card in your Pi fails because of SD corruption (a very common problem), you need to have a PREinstalled, at least
 somewhat current clone SD card to contain all your current OS packages, including all helper programs you might be using (such
 as say mosquitto or any scripts you might have installed yourself), and your mathing CURRENT openHAB config, and more.
-If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first! How long will that
-take you? Are you even capable of doing that ?
-Will the latest version of openHABian/Linux packages be guaranteed to work with each other and with your hardware ?
+If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first!
+How long will that take you? Are you even capable of doing that ? Will the latest version of openHABian/Linux packages be 
+guaranteed to work with each other and with your hardware ?
 Do you REALLY remember all the parts and places of your system where you configured something related to your server/home
-network and smart home ? If you're honest to yourself, the answer will often be "NO".
-Yes, you can get your smart home back up working somehow, but it will take several hours, and it will not be a complete
-restoration of all features and setups you used to have in operation before the crash.
+network and smart home ? If you're honest to yourself, the answer will often be "NO". Yes, you can get your smart home back up working somehow, but it will take several hours, and it will not be a complete restoration of all features and setups you used to have in operation before the crash.
 
 One specific word of WARNING:
 If you run a ZWave network like many openHAB users do, think what you need to do if the controller breaks and you need to
@@ -40,9 +39,9 @@ For RaZberry/zwave.me USB stick, you can run the Z-Way software to backup and re
 controller. For the Aeon Gen5 stick, there's a Windows tool available for download.
 NOTE: Similar problems may arise if you run commercial systems such as a HomeMatic CCU or Insteon controller.
 
-Remember Murphy's law: When your system fails and you activate your backup system for the first time, you'll notice it's broken.
-So dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and repeat every now
-and then.
+Remember Murphy's law: When your system fails and you need to restore your system for the first time, you'll notice your backup
+is broken. So dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and
+repeat every now and then.
 
 
 
@@ -57,28 +56,95 @@ reliability in any other way. SD cards and USB sticks use the same technology. A
 can crash, too.
 You may or may not have or want to use Internet / cloud services for various reasons (privacy, bandwidth, cost), so we provide
 you with one solution that is designed to run on local hardware only. We provide a config to use a directory as the backup
-destination. This can be a partition mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
+destination. This can be a directory mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
 device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
 We believe this will cover most openHAB backup use cases.
-NOTE: don't use CIFS (Windows sharing). If you have a NAS, se NFS instead. There's issues with CIFS and symlinks, and it doesn't make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian).
+NOTE: don't use CIFS (Windows sharing). If you have a NAS, se NFS instead. There's issues with CIFS and symlinks, and it doesn't
+make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian).
 If you don't have a NAS, DON'T use your Windows box as the storage server. Attach a USB stick to your Pi instead for storage.
 There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
-do not match your needs. You could even usde it to backup all of your servers (if any) and desktop PCs, including window machines.
-Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
+do not match your needs. You could even usde it to backup all of your servers (if any) and desktop PCs, including Windows
+machines. Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
 have a clone SD card with your CURRENT config.
 
 
-HEADS UP: The first thing you should do after your first backup run ended successfully is to create a clone of your active
-server SD card by restoring the backup to a blank SD card as shown below as a amfetchdump example for recovery of a raw device's
-contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw device to be backed
-up to have that same name.
+Some explanatory comments on Amanda
+-----------------------------------
+First and foremost: read up on and understand some of the basic Amanda concepts over at http://www.amanda.org.
+That's not a mandatory step but it will probably help you understand a couple of things better.
+The world of UNIX and backup IS complex and in the end, there's no way to hide that from a user.
+Here's a couple of those concepts, but don't blame me if they're not comprehensive. I cannot understand the system for you,
+that's something you have to accomplish on your own. Read and understand the Amanda docs.
+
+Amanda was originally built to use magnetic tape changer libraries as backup storage in professional data center installations.
+It can operate multiple tape drives in parallel, and the tapes used to be commonly stored in a 'shelf number' inside the tape
+library cabinet which are called 'slots' because that's what they are.
+The tapecycle is how long your storage capacity will last until Amanda starts to overwrite old backups. It depends on the number 
+of tapes you use and the frequency you run backups at. If you have got 14 tapes in rotation and backup once a day, your
+tapecycle is 14 days. If you just run backups every second day, your tapecycle is 28 days.
+The tapecycle effectively is the backward looking timeframe that is available for you to restore your system state to.
+Amanda will run a 'level 0' dump (that means to backup EVERYTHING) once in a tapecycle and will run 'level 1' dumps for the rest
+of the time (that means to only backup files that have CHANGED since the last level 0 dump was done, also called a
+'incremental' backup).
+Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount of
+data to be backed up. A tape also has a maximum capacity. By entering the total size of the storage area when queried during
+installation, installation routine will compute the maximum amount of data that Amanda will store into each tape subdirectory as
+(storage size) / tapecycle.
+The ability to backup to a directory was added later, but the 'slot' and 'tape' concepts were kept. That's why here, as a
+deployment inside openHABian, we will have 'virtual' tapes and slots which are implemented as subdirectories (one for each
+'tape') and filesystem links (two by default config, drive0 and drive1) to point to a virtual tape. If you have the drive1 link
+point to the slot3 directory, it effectively means that tape 3 is currently inserted in drive 1).
+
+
+Installation
+============
+Now once you read up on all of this and feel you have understood this stuff, the next step will NOT be hit that 'Amanda install' 
+menu option in openHABian (no, we're not there yet) but to prepare your storage.
+HEADS UP: You need to "create" (or "provide", actually) your storage BEFORE you install Amanda.
+That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
+(Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
+read up on it NOW. Google is your friend, a German intro can be found at http://www.pc-erfahrung.de/linux/linux-mounten.html.)
+So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
+exported (= shared, i.e. made available for mounting) on that directory. This is your mountpoint.
+
+Next (but only AFTER you successfully mounted/prepared your storage !!), install Amanda using the openHABian menu.
+When you start the Amanda installation from the openHABian menu, the install routine will create a directory/link structure in
+the directory you tell it. Your local user named "backup" will need to have write access there. Amanda install routine should do
+that for you, but it only CAN do it for you if you created/mounted it before you ran the installation.
+
+Installation will ask you a couple of questions.
+* "What's the directory to store backups into?"
+Here you need to enter the _local_ directory on the openHABian box (which is where you have mounted your USB storage or NAS disk
+share, see above).
+* "How many virtual containers will you setup inside the storage dir ?"
+You usually enter the typecycle here.
+* "What's your backup storage area capacity in megabytes ?"
+Amanda will use at most this number of megabytes in total as its storage for backup.
+If you choose to include the raw device in the backup cycle (next question), that means you should enter 3 times the size of
+your SD disk NOW. If you choose not to include it (or selected the AWS S3 variant which omits raw SD backups per default), it's
+a lot less data and you need to estimate it by adding up the size of the config directories that are listed in the `disklist` 
+file. If you don't have any idea, enter 1024 (= 1 GByte). You can change it in the Amanda config file at any later time.
+* "Backup raw SD card ?" (not asked if you selected AWS S3 storage)
+Answer "yes" if you want to create raw disk backups of your SD card. This is only recommended if your SD card is 8GB or less in
+size, otherwise the backup can take too long. You can always add/remove this by editing ${confdir}/disklist at a later time.
+
+All of your input will be used to create the initial Amanda config files, but you are free to change them later on.
+HEADS UP: if you re-run the install routine, it will OVERWRITE the config files at any time so if you make changes there,
+remember these changes and store them elsewhere, too.
+
+Once you're done installing openHABian and Amanda, proceed to the usage guide chapter below.
+
+Finally, another HEADS UP: The first thing you should do after your first backup run ended successfully is to create a clone of
+your active server SD card by restoring the backup to a blank SD card as shown below as a amfetchdump example for recovery of a
+raw device's contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw
+device to be backed up to have that same name.
 You will have two Amanda config directories (located in `/etc/amanda`) called `openhab-dir` and `openhab-AWS` if you choose to
 setup both of them.
 If any of your Amanda backup or recovery runs fails (which might well be the case particularly if you try to use the S3 backup),
 you should try getting it to work following the guides and knowledge base available on the Web at http://www.amanda.org/.
 There's online documentation including tutorials and FAQs at http://wiki.zmanda.com/index.php/User_documentation.
-In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but please
-don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
+In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but
+please don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
 
 
 A (yes, very brief) usage guide
