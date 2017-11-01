@@ -2,6 +2,7 @@ How to backup your openHABian server using Amanda
 =================================================
 
 # Intro
+## The need for recovery
 First, make yourself aware how important a comprehensive backup and recovery concept is.
 Yes, this text is the README on the backup software part for openHABian that you're reading, but take a couple of minutes to
 read and think about recovery in a generic sense first. This might avoid a LOT of frustration.
@@ -38,9 +39,7 @@ Remember Murphy's law: When your system fails and you need to restore your syste
 is broken. So dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and
 repeat every now and then.
 
-
-
-Now all that being said, let's turn to what what you're here for: how to accomplish the software side of backup and restoration.
+### SD card issues
 As there's many many ways of operating a server, we can obviously only support a specific subset of all possible modes.
 The most common setup for a openHAB smart home server is to run a Raspberry Pi off its internal SD card, so we provide a backup
 concept for that one. But it will also work on most other SBCs (single board computers) and modified configurations (such as if
@@ -62,8 +61,10 @@ do not match your needs. You could even usde it to backup all of your servers (i
 machines. Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
 have a clone SD card with your CURRENT config.
 
+Now all that being said, let's turn to what what you're here for: how to accomplish the software side of backup and restoration.
+
 ## Some Amanda background
-First and foremost: Best is to read up on and understand some of the basic Amanda concepts over at http://www.amanda.org.
+Best is to read up on and understand some of the basic Amanda concepts over at http://www.amanda.org.
 That's not a mandatory step but it will probably help you understand a couple of things better.
 The world of UNIX and backup IS complex and in the end, there's no way to fully hide that from a user.
 Here's a couple of those concepts, but this is not a comprehensive list. I cannot understand the system for you,
