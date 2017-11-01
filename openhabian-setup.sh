@@ -1376,25 +1376,27 @@ create_backup_config() {
   infofile="/var/lib/amanda/${config}/curinfo"	      # Database directory
   logdir="/var/log/amanda/${config}" 		      # Log directory
   indexdir="/var/lib/amanda/${config}/index" 	      # Index directory
-  mkdir -p $infofile $logdir $indexdir
-  chown -R ${backupuser}:${backupuser} /var/backups/.amandahosts ${confdir}  $infofile $logdir $indexdir
+  /bin/mkdir -p $infofile $logdir $indexdir
+  /bin/chown -R ${backupuser}:${backupuser} /var/backups/.amandahosts ${confdir} ${storage} $infofile $logdir $indexdir
+  /bin/chmod -R g+rwx ${storage} 
 
 
   /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%BKPDIR|${bkpdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" ${SCRIPTDIR}/includes/amanda.conf_template >${confdir}/amanda.conf
 
   if [ "${config}" = "openhab-AWS" ]; then
-      echo "device_property \"S3_ACCESS_KEY\" \"${S3accesskey}\"                       # Your S3 Access Key" >>${confdir}/amanda.conf
-      echo "device_property \"S3_SECRET_KEY\" \"${S3secretkey}\"                       # Your S3 Secret Key" >>${confdir}/amanda.conf
-      echo "device_property \"S3_SSL\" \"YES\"                                       # Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
+      echo "device_property \"S3_ACCESS_KEY\" \"${S3accesskey}\"	# Your S3 Access Key" >>${confdir}/amanda.conf
+      echo "device_property \"S3_SECRET_KEY\" \"${S3secretkey}\"	# Your S3 Secret Key" >>${confdir}/amanda.conf
+      echo "device_property \"S3_SSL\" \"YES\"				# Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
   fi
 
   hostname=`/bin/hostname`
   if [ "${config}" = "openhab-local-SD" -o "${config}" = "openhab-dir" ]; then
+      /bin/rm -f ${confdir}/disklist
       # don't backup SD by default as this can cause problems for large cards
       if [ -n "$INTERACTIVE" ]; then
-          if (whiptail --title "Backup raw SD card ?" --yes-button "Backup SD" --no-button "Do not backup SD" --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 8GB or less, otherwise this can take too long. You can always add/remove this by editing ${confdir}/disklist." 15 80) then 
-	      echo "${hostname}	/dev/mmcblk0    	        amraw" >${confdir}/disklist
-	  fi   
+          if (whiptail --title "Backup raw SD card, too ?" --yes-button "Backup SD" --no-button "Do not backup SD." --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 8GB or less, otherwise this can take too long. You can change this at any time by editing ${confdir}/disklist." 15 80) then 
+            echo "${hostname}	/dev/mmcblk0    	        amraw" >>${confdir}/disklist
+        fi   
       fi
       
       echo "${hostname}	/etc/openhab2			user-tar" >>${confdir}/disklist
@@ -1430,8 +1432,8 @@ amanda_setup() {
   canceled=false
   if [ -n "$INTERACTIVE" ]; then
       while [ "$matched" = false ] && [ "$canceled" = false ]; do
-            password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for $backupuser:" 15 80 3>&1 1>&2 2>&3)
-            secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
+            password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for user ${backupuser}.\nRemember to select a safe password as you (and others) can use this to login to your openHABian box." 15 80 3>&1 1>&2 2>&3)
+            secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password" 15 80 3>&1 1>&2 2>&3)
             if [ "$password" = "$secondpassword" ] && [ ! -z "$password" ]; then
                 matched=true
             else
@@ -1439,6 +1441,8 @@ amanda_setup() {
             fi
       done
   fi
+  
+  /usr/sbin/usermod -a -G backup openhabian
   /usr/sbin/chpasswd <<< "${backupuser}:${password}"
   /usr/bin/chsh -s /bin/bash ${backupuser}
 
@@ -1456,24 +1460,27 @@ amanda_setup() {
 #  fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based for locally attached or NAS mounted storage." 15 80) then
+    if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on locally attached or NAS mounted storage." 15 80) then
         config=openhab-dir
         dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
-        tapes=$(whiptail --title "Number of virtual storage containers in rotation" --inputbox "How many virtual containers will you setup inside the storage dir ?" 10 60 3>&1 1>&2 2>&3)
-        size=$(whiptail --title "Storage capacity" --inputbox "What's your backup storage area capacity in megabytes ?" 10 60 3>&1 1>&2 2>&3)
+        tapes=15
+        capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
+	let size=${capacity}/${tapes}
+	
         create_backup_config ${config} ${backupuser} ${tapes} ${size} ${dir}
     fi
   fi
 
   if [ -n "$INTERACTIVE" ]; then
     if (whiptail --title "Create Amazon S3 based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on Amazon Web Services. You can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. See also http://wiki.zmanda.com/index.php/How_To:Backup_to_Amazon_S3" 15 80) then
-        config=openhab-AWS
-        S3accesskey=$(whiptail --title "S3 access key" --inputbox "Enter the S3 access key you obtained at S3 setup time:" 10 60 3>&1 1>&2 2>&3)
-        S3secretkey=$(whiptail --title "S3 secret key" --inputbox "Enter the S3 secret key you obtained at S3 setup time:" 10 60 3>&1 1>&2 2>&3)
-        tapes=$(whiptail --title "Number of virtual storage containers in rotation" --inputbox "How many virtual containers will you setup inside the S3 bucket ?  Note that #container x container size will need to fit into your S3 bucket." 10 60 3>&1 1>&2 2>&3)
-        size=$(whiptail --title "Container size" --inputbox "How large do you want one virtual container to be ? Specify the size in megabytes." 10 60 3>&1 1>&2 2>&3)
+      config=openhab-AWS
+      S3accesskey=$(whiptail --title "S3 access key" --inputbox "Enter the S3 access key you obtained at S3 setup time:" 10 60 3>&1 1>&2 2>&3)
+      S3secretkey=$(whiptail --title "S3 secret key" --inputbox "Enter the S3 secret key you obtained at S3 setup time:" 10 60 3>&1 1>&2 2>&3)
+      tapes=15
+      capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
+      let size=${capacity}/${tapes}
 
-        create_backup_config ${config} ${backupuser} ${tapes} ${size} AWS ${S3accesskey} ${S3secretkey}
+      create_backup_config ${config} ${backupuser} ${tapes} ${size} AWS ${S3accesskey} ${S3secretkey}
     fi
   fi
 }
