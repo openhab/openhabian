@@ -1809,8 +1809,8 @@ show_main_menu() {
 
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
-    "50 | Amanda Backup documentation"           "Read this before installing the Amanda backup software" \
-    "51 | Amanda Backup"           "Set up a backup solution on top of Amanda" \
+    "50 | Amanda Backup documentation"    "Read this before installing the Amanda backup software" \
+    "51 | Amanda Backup"                  "Set up Amanda to backup your openHAB config and openHABian box" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
