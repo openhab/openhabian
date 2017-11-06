@@ -1428,7 +1428,7 @@ amanda_setup() {
   backupuser="backup"
 
 
-  cond_redirect apt install amanda-common amanda-server amanda-client
+  cond_redirect apt -y install amanda-common amanda-server amanda-client || FAILED=1
 
   matched=false
   canceled=false
