@@ -1035,9 +1035,9 @@ To continue your integration in openHAB 2, please follow the instructions under:
 
 find_setup() {
   FAILED=0
-  introtext="This will install and setup the FIND server system to allow for indoor localization of WiFi devices. See further information at
+  introtext="This will install and setup the FIND server system to allow for indoor localization of WiFi devices.\nSee further information at
  http://www.internalpositioning.com/"
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a open
+  failtext="Sadly there was a problem setting up the selected option.\nPlease report this problem in the openHAB community forum or as a open
 HABian GitHub issue."
   successtext="Setup was successful. Please edit '/etc/default/findserver' to meet your interface and server requirements."
 
@@ -1065,60 +1065,36 @@ HABian GitHub issue."
 
   if [ ! -f ${MOSQUITTO_PASSWD} ]; then
     whiptail --title "Cannot install FIND" --msgbox "FIND requires mosquitto to be installed first !" 10 60
-    return
+    return 1
   fi
 
   /bin/mkdir -p ${FIND_DSTDIR}
-
   /usr/bin/wget -O ${FIND_TMP} ${FIND_SRC}
   /usr/bin/wget -O ${CLIENT_TMP} ${CLIENT_SRC}
-
   /usr/bin/unzip ${FIND_TMP} findserver -d /usr/sbin
   /usr/bin/unzip ${FIND_TMP} fingerprint -d /usr/sbin
   /usr/bin/unzip ${FIND_TMP} static\* -d ${FIND_DSTDIR}
 
-
-  cat >${FIND_SYSTEMCTL} <<EOF
-[Unit]
-Description=FIND internal positioning server
-Documentation=https://www.internalpositioning.com/server/
-[Service]
-EnvironmentFile=-/etc/default/findserver
-WorkingDirectory=/var/lib/findserver
-EOF
-echo "ExecStart=/usr/sbin/findserver -mqtt ${MQTTSERVER}:${MQTTPORT} -mqttadmin ${ADMIN} -mqttadminpass ${ADMIN_PASS} -mosquitto \`pgrep mos
-quitto\`" >>${FIND_SYSTEMCTL}
-        cat >>${FIND_SYSTEMCTL} <<EOF
-Restart=always
-[Install]
-WantedBy=multi-user.target
-EOF
-
-  cat>$FIND_DEFAULT <<EOF
-#
-# FIND server service configuration
-# see https://www.internalpositioning.com/server/
-#
-ADDRESS=localhost
-PORT=8003
-MQTTSERVER=localhost
-MQTTPORT=1883
-EOF
+  FINDSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your FIND server will be listening to:" 15 80 localhost 3>&1 1>&2 2>&3)
+  FINDPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port no. that you want to run FIND server on:" 15 80 8003 3>&1 1>&2 2>&3)
+  MQTTSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your MQTT server is running on:" 15 80 localhost 3>&1 1>&2 2>&3)
+  MQTTPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port no. that your MQTT server is running on:" 15 80 1883 3>&1 1>&2 2>&3)
 
   if [ -f ${MOSQUITTO_PASSWD} ]; then
-    FIND_ADMIN=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a username for FIND to use as the admin user on your MQTT ser
+    FINDADMIN=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a username for FIND to use as the admin user on your MQTT ser
 ver:" 15 80 3>&1 1>&2 2>&3)
-    FIND_ADMIN_PASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a password for the FIND admin user on your MQTT server:"
+    FINDADMINPASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a password for the FIND admin user on your MQTT server:"
  15 80 3>&1 1>&2 2>&3)
-    echo "ADMIN=${FIND_ADMIN}" >>${FIND_DEFAULT}
-    echo "ADMIN_PASS=${FIND_ADMIN_PASS}" >>${FIND_DEFAULT}
-    cond_redirect /usr/bin/mosquitto_passwd -b ${MOSQUITTO_PASSWD} ${FIND_ADMIN} ${FIND_ADMIN_PASS}
+    cond_redirect /usr/bin/mosquitto_passwd -b ${MOSQUITTO_PASSWD} ${FINDADMIN} ${FINDADMINPASS} || FAILED=1
     if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   fi
+  /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDADMIN|${FINDADMIN}|g" -e "s|%FINDADMINPASS|${FINDADMIN_PASS}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${SCRIPTDIR}/includes/findserver.service >${FIND_SYSTEMCTL}
+  /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${SCRIPTDIR}/includes/findserver >${FIND_DEFAULT}
 
-  cond_redirect /bin/systemctl enable findserver.service
-  cond_redirect /bin/systemctl restart findserver.service
+
   /bin/rm -f ${FIND_TMP} ${CLIENT_TMP}
+  cond_redirect /bin/systemctl enable findserver.service || FAILED=1
+  cond_redirect /bin/systemctl restart findserver.service || FAILED=1
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   
   if [ -n "$INTERACTIVE" ]; then
@@ -1523,7 +1499,7 @@ amanda_setup() {
   backupuser="backup"
 
 
-  cond_redirect apt install amanda-common amanda-server amanda-client
+  cond_redirect apt -y install amanda-common amanda-server amanda-client
 
   matched=false
   canceled=false
