@@ -4,7 +4,7 @@ netusage 10000 Kbps					# Bandwidth limit, 10M
 dumpcycle 2 weeks					# Backup cycle is 14 days
 runspercycle 7						# Run 7 times every 14 days
 tapecycle %TAPES tapes					# Dump to this number of different tapes during the cycle
-runtapes 1
+runtapes 10						# number of virtual containers to use at most per backup run
 tpchanger %TPCHANGER
 taper-parallel-write 2
 autolabel "openHABian-%CONFIG-%%%" empty
@@ -19,7 +19,7 @@ define tapetype SD {
     length %SIZE mbytes					# actual Bucket size 5GB (Amazon default for free S3)
 }
 define tapetype DIRECTORY {				# Define our tape behaviour
-	length %SIZE mbytes				# Every tape is 100GB in size
+	length %SIZE mbytes				# size of every virtual container (= max. usage per directory)
 }
 define tapetype AWS {
     comment "S3 Bucket"
