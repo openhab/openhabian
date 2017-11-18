@@ -1487,19 +1487,20 @@ create_backup_config() {
 
 amanda_setup() {
 
-  introtext="This will setup a backup mechanism to allow for saving your openHAB setup and modifications to either a set of SD cards, USB attached or Amazon cloud storage.\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an all-ready replacement in case of card failures."
+  querytext="So you are about to install the Amanda backup solution.\nDocumentation is available at the previous openHABian menu point,\nat /opt/openhabian/docs/openhabian-amanda.md or at https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md\nHave you read this document ?"
+  introtext="This will setup a backup mechanism to allow for saving your openHAB setup and modifications to either USB attached or Amazon cloud storage.\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an all-ready replacement in case of card failures."
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful. Amanda backup tool is now taking backups at 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Amanda backup setup, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+    if ! (whiptail --title "Amanda backup installation" --yes-button "Yes" --no-button "No, I'll go read it" --defaultno --yesno "$querytext" 10 80) then return 0; fi
+    whiptail --msgbox "$introtext" 25 132
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up the Amanda backup system ... "
   backupuser="backup"
 
-
-  cond_redirect apt -y install amanda-common amanda-server amanda-client
+  cond_redirect apt -y install amanda-common amanda-server amanda-client || FAILED=1
 
   matched=false
   canceled=false
@@ -1882,10 +1883,12 @@ show_main_menu() {
 
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
-    "51 | Amada Backup"           "Set up a backup solution on top of Amanda" \
+    "50 | Amanda Backup documentation"    "Read this before installing the Amanda backup software" \
+    "51 | Amanda Backup"                  "Set up Amanda to backup your openHAB config and openHABian box" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
+      50\ *) whiptail --textbox /opt/openhabian/docs/openhabian-amanda.md --scrolltext 25 132 ;;
       51\ *) amanda_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;

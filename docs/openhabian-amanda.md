@@ -209,7 +209,7 @@ a lot less data and you need to estimate it by adding up the size of the config 
 file. If you don't have any idea, enter 1024 (= 1 GByte). You can change it in the Amanda config file at any later time.
 * "Backup raw SD card ?" (not asked if you selected AWS S3 storage)
 Answer "yes" if you want to create raw disk backups of your SD card. This is only recommended if your SD card is 8GB or less in
-size, otherwise the backup can take too long. You can always add/remove this by editing ${confdir}/disklist at a later time.
+size, otherwise the backup can take too long. You can always add/remove this by editing `${confdir}/disklist` at a later time.
 
 All of your input will be used to create the initial Amanda config files, but you are free to change them later on.
 HEADS UP: if you re-run the install routine, it will OVERWRITE the config files at any time so if you make changes there,
@@ -217,7 +217,7 @@ remember these changes and store them elsewhere, too.
 Once you're done installing openHABian and Amanda, proceed to the usage guide chapter below.
 
 Finally, another HEADS UP: The first thing you should do after your first backup run ended successfully is to create a clone of
-your active server SD card by restoring the backup to a blank SD card as shown below as a amfetchdump example for recovery of a
+your active server SD card by restoring the backup to a blank SD card as shown below as an `amfetchdump` example for recovery of a
 raw device's contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and from an Amanda perspective, this is a raw
 device to be backed up to have that same name.
 You will have two Amanda config directories (located in `/etc/amanda`) called `openhab-dir` and `openhab-AWS` if you choose to
