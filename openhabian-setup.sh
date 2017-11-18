@@ -1033,6 +1033,79 @@ To continue your integration in openHAB 2, please follow the instructions under:
   fi
 }
 
+find_setup() {
+  FAILED=0
+  introtext="This will install and setup the FIND server system to allow for indoor localization of WiFi devices.\nSee further information at
+ http://www.internalpositioning.com/"
+  failtext="Sadly there was a problem setting up the selected option.\nPlease report this problem in the openHAB community forum or as a open
+HABian GitHub issue."
+  successtext="Setup was successful. Please edit '/etc/default/findserver' to meet your interface and server requirements."
+
+  echo -n "$(timestamp) [openHABian] Setting up the Framework for Internal Navigation and Discovery ... "
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+  fi
+
+  FIND_RELEASE=2.4.1
+  CLIENT_RELEASE=0.6
+  if is_arm; then
+    ARCH=arm
+  else
+    ARCH=amd64
+  fi
+  FIND_SRC=https://github.com/schollz/find/releases/download/v${FIND_RELEASE}/find_${FIND_RELEASE}_linux_${ARCH}.zip
+  CLIENT_SRC=https://github.com/schollz/find/releases/download/v${CLIENT_RELEASE}client/fingerprint_${CLIENT_RELEASE}_linux_${ARCH}.zip
+  
+  FIND_SYSTEMCTL=/etc/systemd/system/findserver.service
+  FIND_DEFAULT=/etc/default/findserver
+  FIND_DSTDIR=/var/lib/findserver
+  MOSQUITTO_PASSWD=/etc/mosquitto/passwd
+  FIND_TMP=/tmp/find-latest.$$
+  CLIENT_TMP=/tmp/fingerprint-latest.$$
+
+  if [ ! -f ${MOSQUITTO_PASSWD} ]; then
+    whiptail --title "Cannot install FIND" --msgbox "FIND requires mosquitto to be installed first !" 10 60
+    return 1
+  fi
+
+  /bin/mkdir -p ${FIND_DSTDIR}
+  /usr/bin/wget -O ${FIND_TMP} ${FIND_SRC}
+  /usr/bin/wget -O ${CLIENT_TMP} ${CLIENT_SRC}
+  /usr/bin/unzip ${FIND_TMP} findserver -d /usr/sbin
+  /usr/bin/unzip ${FIND_TMP} fingerprint -d /usr/sbin
+  /usr/bin/unzip ${FIND_TMP} static\* -d ${FIND_DSTDIR}
+
+  FINDSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your FIND server will be listening to:" 15 80 localhost 3>&1 1>&2 2>&3)
+  FINDPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port no. that you want to run FIND server on:" 15 80 8003 3>&1 1>&2 2>&3)
+  MQTTSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your MQTT server is running on:" 15 80 localhost 3>&1 1>&2 2>&3)
+  MQTTPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port no. that your MQTT server is running on:" 15 80 1883 3>&1 1>&2 2>&3)
+
+  if [ -f ${MOSQUITTO_PASSWD} ]; then
+    FINDADMIN=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a username for FIND to use as the admin user on your MQTT ser
+ver:" 15 80 3>&1 1>&2 2>&3)
+    FINDADMINPASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a password for the FIND admin user on your MQTT server:"
+ 15 80 3>&1 1>&2 2>&3)
+    cond_redirect /usr/bin/mosquitto_passwd -b ${MOSQUITTO_PASSWD} ${FINDADMIN} ${FINDADMINPASS} || FAILED=1
+    if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+  fi
+  /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDADMIN|${FINDADMIN}|g" -e "s|%FINDADMINPASS|${FINDADMIN_PASS}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${SCRIPTDIR}/includes/findserver.service >${FIND_SYSTEMCTL}
+  /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${SCRIPTDIR}/includes/findserver >${FIND_DEFAULT}
+
+
+  /bin/rm -f ${FIND_TMP} ${CLIENT_TMP}
+  cond_redirect /bin/systemctl enable findserver.service || FAILED=1
+  cond_redirect /bin/systemctl restart findserver.service || FAILED=1
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  
+  if [ -n "$INTERACTIVE" ]; then
+    if [ $FAILED -eq 0 ]; then
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    else
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+    fi
+  fi
+}
+
 knxd_setup() {
   FAILED=0
   introtext="This will install and setup kndx (successor to eibd) as your EIB/KNX IP gateway and router to support your KNX bus system. This routine was provided by 'Michels Tech Blog': https://goo.gl/qN2t0H"
@@ -1427,7 +1500,6 @@ amanda_setup() {
   echo -n "$(timestamp) [openHABian] Setting up the Amanda backup system ... "
   backupuser="backup"
 
-
   cond_redirect apt -y install amanda-common amanda-server amanda-client || FAILED=1
 
   matched=false
@@ -1752,6 +1824,7 @@ show_main_menu() {
     "26 | Homegear"            "Homematic specific, the CCU2 emulation software Homegear" \
     "27 | knxd"                "KNX specific, the KNX router/gateway daemon knxd" \
     "28 | 1wire"               "1wire specific, owserver and related packages" \
+    "29 | FIND"                "Framework for Internal Navigation and Discovery" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -1763,6 +1836,7 @@ show_main_menu() {
       26\ *) homegear_setup ;;
       27\ *) knxd_setup ;;
       28\ *) 1wire_setup ;;
+      29\ *) find_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
