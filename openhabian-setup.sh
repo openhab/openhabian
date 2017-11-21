@@ -1060,12 +1060,13 @@ HABian GitHub issue."
   FIND_DEFAULT=/etc/default/findserver
   FIND_DSTDIR=/var/lib/findserver
   MOSQUITTO_PASSWD=/etc/mosquitto/passwd
+  DEFAULTFINDUSER=find
+  DEFAULTFINDPASS=cantfind
   FIND_TMP=/tmp/find-latest.$$
   CLIENT_TMP=/tmp/fingerprint-latest.$$
 
   if [ ! -f ${MOSQUITTO_PASSWD} ]; then
-    whiptail --title "Cannot install FIND" --msgbox "FIND requires mosquitto to be installed first !" 10 60
-    return 1
+    if ! (whiptail --title "Mosquitto not installed, continue?" --yes-button "Continue" --no-button "Back" --yesno "FIND requires a MQTT broker to run, but Mosquitto is not installed on this box.\nYou can configure FIND to use any existing MQTT broker or you can go back and install Mosquitto from the openHABian menu.\nDo you want to continue with the FIND installation ?" 15 80) then return 0; fi
   fi
 
   /bin/mkdir -p ${FIND_DSTDIR}
@@ -1077,14 +1078,12 @@ HABian GitHub issue."
 
   FINDSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your FIND server will be listening to:" 15 80 localhost 3>&1 1>&2 2>&3)
   FINDPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port no. that you want to run FIND server on:" 15 80 8003 3>&1 1>&2 2>&3)
-  MQTTSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your MQTT server is running on:" 15 80 localhost 3>&1 1>&2 2>&3)
-  MQTTPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port no. that your MQTT server is running on:" 15 80 1883 3>&1 1>&2 2>&3)
+  MQTTSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your MQTT broker is running on:" 15 80 localhost 3>&1 1>&2 2>&3)
+  MQTTPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port no. that your MQTT broker is running on:" 15 80 1883 3>&1 1>&2 2>&3)
 
   if [ -f ${MOSQUITTO_PASSWD} ]; then
-    FINDADMIN=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a username for FIND to use as the admin user on your MQTT ser
-ver:" 15 80 3>&1 1>&2 2>&3)
-    FINDADMINPASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a password for the FIND admin user on your MQTT server:"
- 15 80 3>&1 1>&2 2>&3)
+    FINDADMIN=$(whiptail --title "findserver MQTT Setup" --inputbox "Enter a username for FIND to use as the admin user on your MQTT broker:" 15 80 $DEFAULTFINDUSER 3>&1 1>&2 2>&3)
+    FINDADMINPASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a password for the FIND admin user on your MQTT broker:" 15 80 $DEFAULTFINDPASS 3>&1 1>&2 2>&3)
     cond_redirect /usr/bin/mosquitto_passwd -b ${MOSQUITTO_PASSWD} ${FINDADMIN} ${FINDADMINPASS} || FAILED=1
     if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   fi
