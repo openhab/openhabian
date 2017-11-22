@@ -1092,7 +1092,7 @@ HABian GitHub issue."
   /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${SCRIPTDIR}/includes/findserver >${FIND_DEFAULT}
 
 
-  /bin/rm -f ${FIND_TMP} ${CLIENT_TMP} ${FIND_DSTDIR}/findserver
+  /bin/rm -f ${FIND_TMP} ${CLIENT_TMP}
   cond_redirect /bin/systemctl enable findserver.service || FAILED=1
   cond_redirect /bin/systemctl restart findserver.service || FAILED=1
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
