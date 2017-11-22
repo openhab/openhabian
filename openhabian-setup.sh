@@ -1074,7 +1074,7 @@ HABian GitHub issue."
   /usr/bin/wget -O ${CLIENT_TMP} ${CLIENT_SRC}
   /usr/bin/unzip ${FIND_TMP} findserver -d /usr/sbin
   /usr/bin/unzip ${FIND_TMP} fingerprint -d /usr/sbin
-  /usr/bin/unzip ${FIND_TMP} static\* -d ${FIND_DSTDIR}
+  /usr/bin/unzip ${FIND_TMP} -d ${FIND_DSTDIR}
 
   FINDSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your FIND server will be listening to:" 15 80 localhost 3>&1 1>&2 2>&3)
   FINDPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port no. that you want to run FIND server on:" 15 80 8003 3>&1 1>&2 2>&3)
@@ -1091,7 +1091,7 @@ HABian GitHub issue."
   /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${SCRIPTDIR}/includes/findserver >${FIND_DEFAULT}
 
 
-  /bin/rm -f ${FIND_TMP} ${CLIENT_TMP}
+  /bin/rm -f ${FIND_TMP} ${CLIENT_TMP} ${FIND_DSTDIR}/findserver
   cond_redirect /bin/systemctl enable findserver.service || FAILED=1
   cond_redirect /bin/systemctl restart findserver.service || FAILED=1
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
