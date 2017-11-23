@@ -844,10 +844,10 @@ Do you want to continue on your own risk?"
 
   #check if system root is on partion 2 of the SD card
   #since 2017-06, rasbian uses PARTUUID=.... in cmdline.txt and fstab instead of /dev/mmcblk0p2...
-  rootonsdcard=false 
+  rootonsdcard=false
 
   #extract rootpart
-  rootpart=$(cat /boot/cmdline.txt | sed "s/.*root=\([a-zA-Z0-9\/=-]*\)\(.*\)/\1/") 
+  rootpart=$(cat /boot/cmdline.txt | sed "s/.*root=\([a-zA-Z0-9\/=-]*\)\(.*\)/\1/")
 
   if [[ $rootpart == *"PARTUUID="* ]]; then
     if blkid -l -t $rootpart | grep -q "/dev/mmcblk0p2"; then
@@ -1055,7 +1055,7 @@ HABian GitHub issue."
   fi
   FIND_SRC=https://github.com/schollz/find/releases/download/v${FIND_RELEASE}/find_${FIND_RELEASE}_linux_${ARCH}.zip
   CLIENT_SRC=https://github.com/schollz/find/releases/download/v${CLIENT_RELEASE}client/fingerprint_${CLIENT_RELEASE}_linux_${ARCH}.zip
-  
+
   FIND_SYSTEMCTL=/etc/systemd/system/findserver.service
   FIND_DEFAULT=/etc/default/findserver
   FIND_DSTDIR=/var/lib/findserver
@@ -1096,7 +1096,7 @@ HABian GitHub issue."
   cond_redirect /bin/systemctl enable findserver.service || FAILED=1
   cond_redirect /bin/systemctl restart findserver.service || FAILED=1
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-  
+
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
@@ -1160,6 +1160,56 @@ and activate one of these most common options (depending on your device):
   cond_redirect apt -y install owserver ow-shell usbutils || FAILED=1
   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
+  if [ -n "$INTERACTIVE" ]; then
+    if [ $FAILED -eq 0 ]; then
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    else
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+    fi
+  fi
+}
+
+miflora_setup() {
+  FAILED=0
+  DIRECTORY="/opt/miflora-mqtt-daemon"
+  introtext="This will install or update miflora-mqtt-daemon - The Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon. See for further details:\n\n   https://github.com/ThomDietrich/miflora-mqtt-daemon"
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Setup was successful.
+The Daemon was installed and the systemd service was set up just as described in it's README. Please add your MQTT broker settings in '$DIRECTORY/config.ini' and add your Mi Flora sensors. After that be sure to restart the daemon to reload it's configuration.
+\nAll details can be found under: https://github.com/ThomDietrich/miflora-mqtt-daemon
+The article also contains instructions regarding openHAB integration.
+"
+
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+  fi
+
+  echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon... "
+  cond_redirect apt -y install git python3 python3-pip bluetooth bluez
+  if [ $FAILED -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
+  if [ ! -d "$DIRECTORY" ]; then
+    cond_echo "Fresh Installation... "
+    cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git $DIRECTORY
+    cond_redirect cp $DIRECTORY/config.{ini.dist,ini}
+    if [ $FAILED -ne 0 ]; then echo "FAILED (git clone)"; exit 1; fi
+  else
+    cond_echo "Update... "
+    cond_redirect git -C $DIRECTORY pull --quiet origin
+    if [ $FAILED -ne 0 ]; then echo "FAILED (git pull)"; exit 1; fi
+  fi
+  cond_redirect chown -R openhab:$username $DIRECTORY
+  cond_redirect chmod -R ug+wX $DIRECTORY
+  cond_redirect pip3 install -r $DIRECTORY/requirements.txt
+  if [ $FAILED -ne 0 ]; then echo "FAILED (requirements)"; exit 1; fi
+  cond_redirect cp $DIRECTORY/template.service /etc/systemd/system/miflora.service
+  cond_redirect systemctl daemon-reload
+  systemctl start miflora.service || true
+  cond_redirect systemctl status miflora.service
+  cond_redirect systemctl enable miflora.service
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
+    cond_echo "Warning! The internal RPi3 Bluetooth module is disabled on your system. You need to enable it before the daemon may use it."
+  fi
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
@@ -1400,7 +1450,7 @@ create_backup_config() {
       if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
   fi
   # create virtual 'tapes'
-  ln -s ${storage}/slots ${storage}/slots/drive0;ln -s ${storage}/slots ${storage}/slots/drive1		# taper-parallel-write 2 so we need 2 virtual drives
+  ln -s ${storage}/slots ${storage}/slots/drive0;ln -s ${storage}/slots ${storage}/slots/drive1    # taper-parallel-write 2 so we need 2 virtual drives
   counter=1
   while [ ${counter} -le ${tapes} ]; do
       if [ "${config}" = "openhab-dir" ]; then
@@ -1412,7 +1462,7 @@ create_backup_config() {
           if [ "${config}" = "openhab-local-SD" ]; then
               introtext="Please insert your removable storage medium number ${counter}."
               if [ -n "$INTERACTIVE" ]; then
-	          if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+            if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
                   /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
               fi
               tpchanger="\"chg-single:${sddev}\""
@@ -1433,7 +1483,7 @@ create_backup_config() {
 #  fi
 
   /bin/grep -v ${config} /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
-  
+
   echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} &>/dev/null" >> /etc/cron.d/amanda
   echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} &>/dev/null" >> /etc/cron.d/amanda
 
@@ -1446,20 +1496,20 @@ create_backup_config() {
   echo "localhost root amindexd amidxtaped" >> /var/backups/.amandahosts
 
 
-  infofile="/var/lib/amanda/${config}/curinfo"	      # Database directory
-  logdir="/var/log/amanda/${config}" 		      # Log directory
-  indexdir="/var/lib/amanda/${config}/index" 	      # Index directory
+  infofile="/var/lib/amanda/${config}/curinfo"       # Database directory
+  logdir="/var/log/amanda/${config}"                 # Log directory
+  indexdir="/var/lib/amanda/${config}/index"         # Index directory
   /bin/mkdir -p $infofile $logdir $indexdir
   /bin/chown -R ${backupuser}:${backupuser} /var/backups/.amandahosts ${confdir} ${storage} $infofile $logdir $indexdir
-  /bin/chmod -R g+rwx ${storage} 
+  /bin/chmod -R g+rwx ${storage}
 
 
   /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%BKPDIR|${bkpdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" ${SCRIPTDIR}/includes/amanda.conf_template >${confdir}/amanda.conf
 
   if [ "${config}" = "openhab-AWS" ]; then
-      echo "device_property \"S3_ACCESS_KEY\" \"${S3accesskey}\"	# Your S3 Access Key" >>${confdir}/amanda.conf
-      echo "device_property \"S3_SECRET_KEY\" \"${S3secretkey}\"	# Your S3 Secret Key" >>${confdir}/amanda.conf
-      echo "device_property \"S3_SSL\" \"YES\"				# Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
+      echo "device_property \"S3_ACCESS_KEY\" \"${S3accesskey}\"  # Your S3 Access Key" >>${confdir}/amanda.conf
+      echo "device_property \"S3_SECRET_KEY\" \"${S3secretkey}\"  # Your S3 Secret Key" >>${confdir}/amanda.conf
+      echo "device_property \"S3_SSL\" \"YES\"  # Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
   fi
 
   hostname=`/bin/hostname`
@@ -1467,16 +1517,16 @@ create_backup_config() {
       /bin/rm -f ${confdir}/disklist
       # don't backup SD by default as this can cause problems for large cards
       if [ -n "$INTERACTIVE" ]; then
-          if (whiptail --title "Backup raw SD card, too ?" --yes-button "Backup SD" --no-button "Do not backup SD." --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 8GB or less, otherwise this can take too long. You can change this at any time by editing ${confdir}/disklist." 15 80) then 
-            echo "${hostname}	/dev/mmcblk0    	        amraw" >>${confdir}/disklist
-        fi   
+          if (whiptail --title "Backup raw SD card, too ?" --yes-button "Backup SD" --no-button "Do not backup SD." --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 8GB or less, otherwise this can take too long. You can change this at any time by editing ${confdir}/disklist." 15 80) then
+            echo "${hostname}  /dev/mmcblk0              amraw" >>${confdir}/disklist
+        fi
       fi
-      
-      echo "${hostname}	/etc/openhab2			user-tar" >>${confdir}/disklist
-      echo "${hostname}	/var/lib/openhab2		user-tar" >>${confdir}/disklist
+
+      echo "${hostname}  /etc/openhab2             user-tar" >>${confdir}/disklist
+      echo "${hostname}  /var/lib/openhab2         user-tar" >>${confdir}/disklist
   else
-      echo "${hostname}	/etc/openhab2			comp-user-tar" >${confdir}/disklist
-      echo "${hostname}	/var/lib/openhab2		comp-user-tar" >>${confdir}/disklist
+      echo "${hostname}  /etc/openhab2             comp-user-tar" >${confdir}/disklist
+      echo "${hostname}  /var/lib/openhab2         comp-user-tar" >>${confdir}/disklist
   fi
 
   echo "index_server \"localhost\"" >${confdir}/amanda-client.conf
@@ -1515,7 +1565,7 @@ amanda_setup() {
             fi
       done
   fi
-  
+
   /usr/sbin/usermod -a -G backup openhabian
   /usr/sbin/chpasswd <<< "${backupuser}:${password}"
   /usr/bin/chsh -s /bin/bash ${backupuser}
@@ -1539,8 +1589,8 @@ amanda_setup() {
         dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
         tapes=15
         capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
-	let size=${capacity}/${tapes}
-	
+        let size=${capacity}/${tapes}
+
         create_backup_config ${config} ${backupuser} ${tapes} ${size} ${dir}
     fi
   fi
@@ -1763,19 +1813,19 @@ basic_setup() {
 
 show_main_menu() {
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
-  "00 | About openHABian"       "Information about the openHABian project and this tool" \
+  "00 | About openHABian    "    "Information about the openHABian project and this tool" \
   "" "" \
-  "01 | Update"                 "Pull the latest revision of the openHABian Configuration Tool" \
-  "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
+  "01 | Update"                  "Pull the latest revision of the openHABian Configuration Tool" \
+  "02 | Upgrade System"          "Upgrade all installed software packages to their newest version" \
   "" "" \
-  "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup ►" \
-  "20 | Optional Components"    "Choose from a set of optional software components ►" \
-  "30 | System Settings"        "A range of system and hardware related configuration steps ►" \
-  "40 | openHAB related"        "Switch the installed openHAB version or apply tweaks ►" \
-  "50 | Backup/Restore"         "Manage backups and restore your system ►" \
-  "60 | Manual/Fresh Setup"     "Go through all openHABian setup steps manually ►" \
+  "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
+  "20 | Optional Components"     "Choose from a set of optional software components ►" \
+  "30 | System Settings"         "A range of system and hardware related configuration steps ►" \
+  "40 | openHAB related"         "Switch the installed openHAB version or apply tweaks ►" \
+  "50 | Backup/Restore"          "Manage backups and restore your system ►" \
+  "60 | Manual/Fresh Setup"      "Go through all openHABian setup steps manually ►" \
   "" "" \
-  "99 | Help"                   "Further options and guidance with Linux and openHAB" \
+  "99 | Help"                    "Further options and guidance with Linux and openHAB" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then
@@ -1785,19 +1835,19 @@ show_main_menu() {
 
   if [[ "$choice" == "" ]]; then
     true
-  
+
   elif [[ "$choice" == "00"* ]]; then
     show_about
-  
+
   elif [[ "$choice" == "01"* ]]; then
     openhabian_update
-  
+
   elif [[ "$choice" == "02"* ]]; then
     system_upgrade
-  
+
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 12 116 5 --cancel-button Back --ok-button Execute \
-    "11 | Packages"               "Install needed and recommended system packages" \
+    "11 | Packages          "     "Install needed and recommended system packages" \
     "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
     "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
@@ -1815,16 +1865,17 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
-    "21 | Log Viewer"          "The openHAB Log Viewer webapp (frontail)" \
-    "22 | openHAB Generator"   "The openHAB items, sitemap and HABPanel dashboard generator" \
-    "23 | Mosquitto"           "The MQTT broker Eclipse Mosquitto" \
-    "24 | Grafana"             "InfluxDB+Grafana as a powerful persistence and graphing solution" \
-    "25 | NodeRED"             "Flow-based programming for the Internet of Things" \
-    "26 | Homegear"            "Homematic specific, the CCU2 emulation software Homegear" \
-    "27 | knxd"                "KNX specific, the KNX router/gateway daemon knxd" \
-    "28 | 1wire"               "1wire specific, owserver and related packages" \
-    "29 | FIND"                "Framework for Internal Navigation and Discovery" \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Back --ok-button Execute \
+    "21 | Log Viewer          "  "openHAB Log Viewer webapp (frontail)" \
+    "22 | openHAB Generator"     "openHAB items, sitemap and HABPanel dashboard generator" \
+    "23 | Mosquitto"             "MQTT broker Eclipse Mosquitto" \
+    "24 | Grafana"               "InfluxDB+Grafana as a powerful persistence and graphing solution" \
+    "25 | NodeRED"               "Flow-based programming for the Internet of Things" \
+    "26 | Homegear"              "Homematic specific, the CCU2 emulation software Homegear" \
+    "27 | knxd"                  "KNX specific, the KNX router/gateway daemon knxd" \
+    "28 | 1wire"                 "1wire specific, owserver and related packages" \
+    "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
+    "2A | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -1837,13 +1888,14 @@ show_main_menu() {
       27\ *) knxd_setup ;;
       28\ *) 1wire_setup ;;
       29\ *) find_setup ;;
+      2A\ *) miflora_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "30"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
-    "31 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
+    "31 | Change Hostname     "   "Change the name of this system, currently '$(hostname)'" \
     "32 | Set System Locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
     "33 | Set System Timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
     "34 | Change Passwords"       "Change passwords for Samba, openHAB Console or the system user" \
@@ -1866,7 +1918,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
-    "41 | openHAB 2.1 stable"     "Switch to the openHAB 2.1 release" \
+    "41 | openHAB 2.1 stable   "  "Switch to the openHAB 2.1 release" \
     "   | openHAB 2.2 unstable"   "Switch to the latest openHAB 2.2 snapshot" \
     "42 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
     "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
@@ -1883,12 +1935,12 @@ show_main_menu() {
 
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
-    "50 | Amanda Backup documentation"    "Read this before installing the Amanda backup software" \
+    "50 | Amanda Backup documentation "   "Read this before installing the Amanda backup software" \
     "51 | Amanda Backup"                  "Set up Amanda to backup your openHAB config and openHABian box" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
-      50\ *) whiptail --textbox /opt/openhabian/docs/openhabian-amanda.md --scrolltext 25 132 ;;
+      50\ *) whiptail --textbox /opt/openhabian/docs/openhabian-amanda.md --scrolltext 25 116 ;;
       51\ *) amanda_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
@@ -1896,7 +1948,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "60"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 17 116 10 --cancel-button Back --ok-button Execute \
-    "61 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
+    "61 | Upgrade System     "    "Upgrade all installed software packages to their newest version" \
     "62 | Packages"               "Install needed and recommended system packages" \
     "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
     "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team" \
