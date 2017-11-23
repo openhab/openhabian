@@ -1171,7 +1171,7 @@ and activate one of these most common options (depending on your device):
 miflora_setup() {
   FAILED=0
   DIRECTORY="/opt/miflora-mqtt-daemon"
-  introtext="This will install and setup miflora-mqtt-daemon - The Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon. See for further details:\n\n   https://github.com/ThomDietrich/miflora-mqtt-daemon"
+  introtext="This will install or update miflora-mqtt-daemon - The Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon. See for further details:\n\n   https://github.com/ThomDietrich/miflora-mqtt-daemon"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
 The Daemon was installed and the systemd service was set up just as described in it's README. Please add your MQTT broker settings in '$DIRECTORY/config.ini' and add your Mi Flora sensors. After that be sure to restart the daemon to reload it's configuration.
