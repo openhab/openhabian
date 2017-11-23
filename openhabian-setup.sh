@@ -1185,11 +1185,18 @@ The article also contains further instructions regarding openHAB integration.
   echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon... "
   cond_redirect apt -y install git python3 python3-pip bluetooth bluez
   if [ $FAILED -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
-  cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git /opt/miflora-mqtt-daemon
-  if [ $FAILED -ne 0 ]; then echo "FAILED (clone)"; exit 1; fi
+  if [ ! -d "$DIRECTORY" ]; then
+    echo -n "Fresh Installation... "
+    cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git /opt/miflora-mqtt-daemon
+    cond_redirect cp /opt/miflora-mqtt-daemon/config.{ini.dist,ini}
+    if [ $FAILED -ne 0 ]; then echo "FAILED (git clone)"; exit 1; fi
+  else
+    echo -n "Update... "
+    cond_redirect git -C /opt/miflora-mqtt-daemon pull --quiet origin
+    if [ $FAILED -ne 0 ]; then echo "FAILED (git pull)"; exit 1; fi
+  fi
   cond_redirect pip3 install -r /opt/miflora-mqtt-daemon/requirements.txt
   if [ $FAILED -ne 0 ]; then echo "FAILED (requirements)"; exit 1; fi
-  cond_redirect cp /opt/miflora-mqtt-daemon/config.{ini.dist,ini}
   cond_redirect cp /opt/miflora-mqtt-daemon/template.service /etc/systemd/system/miflora.service
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable miflora.service
