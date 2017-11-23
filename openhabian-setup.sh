@@ -1187,12 +1187,12 @@ The article also contains instructions regarding openHAB integration.
   cond_redirect apt -y install git python3 python3-pip bluetooth bluez
   if [ $FAILED -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
   if [ ! -d "$DIRECTORY" ]; then
-    echo -n "Fresh Installation... "
+    cond_echo "Fresh Installation... "
     cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git $DIRECTORY
     cond_redirect cp $DIRECTORY/config.{ini.dist,ini}
     if [ $FAILED -ne 0 ]; then echo "FAILED (git clone)"; exit 1; fi
   else
-    echo -n "Update... "
+    cond_echo "Update... "
     cond_redirect git -C $DIRECTORY pull --quiet origin
     if [ $FAILED -ne 0 ]; then echo "FAILED (git pull)"; exit 1; fi
   fi
@@ -1206,7 +1206,9 @@ The article also contains instructions regarding openHAB integration.
   cond_redirect systemctl status miflora.service
   cond_redirect systemctl enable miflora.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-
+  if grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
+    cond_echo "Warning! The internal RPi3 Bluetooth module is disabled on your system. You need to enable it before the daemon may use it."
+  fi
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
