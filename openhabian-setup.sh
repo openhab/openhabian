@@ -1812,19 +1812,19 @@ basic_setup() {
 
 show_main_menu() {
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
-  "00 | About openHABian"       "Information about the openHABian project and this tool" \
+  "00 | About openHABian    "    "Information about the openHABian project and this tool" \
   "" "" \
-  "01 | Update"                 "Pull the latest revision of the openHABian Configuration Tool" \
-  "02 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
+  "01 | Update"                  "Pull the latest revision of the openHABian Configuration Tool" \
+  "02 | Upgrade System"          "Upgrade all installed software packages to their newest version" \
   "" "" \
-  "10 | Apply Improvements"     "Apply the latest improvements to the basic openHABian setup ►" \
-  "20 | Optional Components"    "Choose from a set of optional software components ►" \
-  "30 | System Settings"        "A range of system and hardware related configuration steps ►" \
-  "40 | openHAB related"        "Switch the installed openHAB version or apply tweaks ►" \
-  "50 | Backup/Restore"         "Manage backups and restore your system ►" \
-  "60 | Manual/Fresh Setup"     "Go through all openHABian setup steps manually ►" \
+  "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
+  "20 | Optional Components"     "Choose from a set of optional software components ►" \
+  "30 | System Settings"         "A range of system and hardware related configuration steps ►" \
+  "40 | openHAB related"         "Switch the installed openHAB version or apply tweaks ►" \
+  "50 | Backup/Restore"          "Manage backups and restore your system ►" \
+  "60 | Manual/Fresh Setup"      "Go through all openHABian setup steps manually ►" \
   "" "" \
-  "99 | Help"                   "Further options and guidance with Linux and openHAB" \
+  "99 | Help"                    "Further options and guidance with Linux and openHAB" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then
@@ -1846,7 +1846,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 12 116 5 --cancel-button Back --ok-button Execute \
-    "11 | Packages"               "Install needed and recommended system packages" \
+    "11 | Packages          "     "Install needed and recommended system packages" \
     "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
     "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
@@ -1865,16 +1865,16 @@ show_main_menu() {
 
   elif [[ "$choice" == "20"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Back --ok-button Execute \
-    "21 | Log Viewer"          "openHAB Log Viewer webapp (frontail)" \
-    "22 | openHAB Generator"   "openHAB items, sitemap and HABPanel dashboard generator" \
-    "23 | Mosquitto"           "MQTT broker Eclipse Mosquitto" \
-    "24 | Grafana"             "InfluxDB+Grafana as a powerful persistence and graphing solution" \
-    "25 | NodeRED"             "Flow-based programming for the Internet of Things" \
-    "26 | Homegear"            "Homematic specific, the CCU2 emulation software Homegear" \
-    "27 | knxd"                "KNX specific, the KNX router/gateway daemon knxd" \
-    "28 | 1wire"               "1wire specific, owserver and related packages" \
-    "29 | FIND"                "Framework for Internal Navigation and Discovery" \
-    "2A | miflora-mqttdaemon"  "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
+    "21 | Log Viewer          "  "openHAB Log Viewer webapp (frontail)" \
+    "22 | openHAB Generator"     "openHAB items, sitemap and HABPanel dashboard generator" \
+    "23 | Mosquitto"             "MQTT broker Eclipse Mosquitto" \
+    "24 | Grafana"               "InfluxDB+Grafana as a powerful persistence and graphing solution" \
+    "25 | NodeRED"               "Flow-based programming for the Internet of Things" \
+    "26 | Homegear"              "Homematic specific, the CCU2 emulation software Homegear" \
+    "27 | knxd"                  "KNX specific, the KNX router/gateway daemon knxd" \
+    "28 | 1wire"                 "1wire specific, owserver and related packages" \
+    "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
+    "2A | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -1894,7 +1894,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "30"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
-    "31 | Change Hostname"        "Change the name of this system, currently '$(hostname)'" \
+    "31 | Change Hostname     "   "Change the name of this system, currently '$(hostname)'" \
     "32 | Set System Locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
     "33 | Set System Timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
     "34 | Change Passwords"       "Change passwords for Samba, openHAB Console or the system user" \
@@ -1917,7 +1917,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
-    "41 | openHAB 2.1 stable"     "Switch to the openHAB 2.1 release" \
+    "41 | openHAB 2.1 stable   "  "Switch to the openHAB 2.1 release" \
     "   | openHAB 2.2 unstable"   "Switch to the latest openHAB 2.2 snapshot" \
     "42 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
     "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
@@ -1934,7 +1934,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
-    "50 | Amanda Backup documentation"    "Read this before installing the Amanda backup software" \
+    "50 | Amanda Backup documentation "   "Read this before installing the Amanda backup software" \
     "51 | Amanda Backup"                  "Set up Amanda to backup your openHAB config and openHABian box" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
@@ -1947,7 +1947,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "60"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 17 116 10 --cancel-button Back --ok-button Execute \
-    "61 | Upgrade System"         "Upgrade all installed software packages to their newest version" \
+    "61 | Upgrade System     "    "Upgrade all installed software packages to their newest version" \
     "62 | Packages"               "Install needed and recommended system packages" \
     "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
     "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team" \
