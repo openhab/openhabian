@@ -1170,12 +1170,13 @@ and activate one of these most common options (depending on your device):
 
 miflora_setup() {
   FAILED=0
-  introtext="This will install and setup miflora-mqtt-daemon - The Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon. See for further details: \n\n https://github.com/ThomDietrich/miflora-mqtt-daemon"
+  DIRECTORY="/opt/miflora-mqtt-daemon"
+  introtext="This will install and setup miflora-mqtt-daemon - The Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon. See for further details:\n\n   https://github.com/ThomDietrich/miflora-mqtt-daemon"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
-The Daemon was installed and the systemd service was set up just as described in it's README. Please add your MQTT broker settings in '/opt/miflora-mqtt-daemon/config.ini' and add your Mi Flora sensors. After that be sure to restart the daemon to reload it's configuration.
-All details can be found unter: https://github.com/ThomDietrich/miflora-mqtt-daemon
-The article also contains further instructions regarding openHAB integration.
+The Daemon was installed and the systemd service was set up just as described in it's README. Please add your MQTT broker settings in '$DIRECTORY/config.ini' and add your Mi Flora sensors. After that be sure to restart the daemon to reload it's configuration.
+\nAll details can be found unter: https://github.com/ThomDietrich/miflora-mqtt-daemon
+The article also contains instructions regarding openHAB integration.
 "
 
   if [ -n "$INTERACTIVE" ]; then
@@ -1187,20 +1188,21 @@ The article also contains further instructions regarding openHAB integration.
   if [ $FAILED -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
   if [ ! -d "$DIRECTORY" ]; then
     echo -n "Fresh Installation... "
-    cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git /opt/miflora-mqtt-daemon
-    cond_redirect cp /opt/miflora-mqtt-daemon/config.{ini.dist,ini}
+    cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git $DIRECTORY
+    cond_redirect cp $DIRECTORY/config.{ini.dist,ini}
     if [ $FAILED -ne 0 ]; then echo "FAILED (git clone)"; exit 1; fi
   else
     echo -n "Update... "
-    cond_redirect git -C /opt/miflora-mqtt-daemon pull --quiet origin
+    cond_redirect git -C $DIRECTORY pull --quiet origin
     if [ $FAILED -ne 0 ]; then echo "FAILED (git pull)"; exit 1; fi
   fi
-  cond_redirect chown -R openhab:$username /opt/miflora-mqtt-daemon
-  cond_redirect pip3 install -r /opt/miflora-mqtt-daemon/requirements.txt
+  cond_redirect chown -R openhab:$username $DIRECTORY
+  cond_redirect pip3 install -r $DIRECTORY/requirements.txt
   if [ $FAILED -ne 0 ]; then echo "FAILED (requirements)"; exit 1; fi
-  cond_redirect cp /opt/miflora-mqtt-daemon/template.service /etc/systemd/system/miflora.service
+  cond_redirect cp $DIRECTORY/template.service /etc/systemd/system/miflora.service
   cond_redirect systemctl daemon-reload
-  cond_redirect systemctl start miflora.service || true
+  systemctl start miflora.service || true
+  cond_redirect systemctl status miflora.service
   cond_redirect systemctl enable miflora.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
