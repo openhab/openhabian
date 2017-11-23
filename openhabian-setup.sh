@@ -1197,6 +1197,7 @@ The article also contains instructions regarding openHAB integration.
     if [ $FAILED -ne 0 ]; then echo "FAILED (git pull)"; exit 1; fi
   fi
   cond_redirect chown -R openhab:$username $DIRECTORY
+  cond_redirect chmod -R ug+wX $DIRECTORY
   cond_redirect pip3 install -r $DIRECTORY/requirements.txt
   if [ $FAILED -ne 0 ]; then echo "FAILED (requirements)"; exit 1; fi
   cond_redirect cp $DIRECTORY/template.service /etc/systemd/system/miflora.service
