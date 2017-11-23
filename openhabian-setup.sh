@@ -1939,7 +1939,7 @@ show_main_menu() {
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
-      50\ *) whiptail --textbox /opt/openhabian/docs/openhabian-amanda.md --scrolltext 25 132 ;;
+      50\ *) whiptail --textbox /opt/openhabian/docs/openhabian-amanda.md --scrolltext 25 116 ;;
       51\ *) amanda_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
