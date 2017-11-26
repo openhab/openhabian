@@ -57,7 +57,7 @@ if [[ -n "$UNATTENDED" ]]; then
   timezone_setting
   locale_setting
   hostname_change
-  if is_pi; then memory_split; fi
+  if is_pi; then memory_split; enable_rpi_audio; fi
   if is_pine64; then pine64_platform_scripts; fi
   if is_pine64; then pine64_fixed_mac; fi
   basic_packages
@@ -75,7 +75,7 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   samba_setup
   clean_config_userpw
-  if is_pione || is_pizero || is_pizerow; then true; else nodejs_setup && frontail_setup && yo_generator_setup; fi
+  if is_pione || is_pizero || is_pizerow; then true; else nodejs_setup && frontail_setup; fi
 else
   whiptail_check
   load_create_config
