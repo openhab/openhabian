@@ -11,7 +11,7 @@ change_password() {
   if [ -n "$INTERACTIVE" ]; then
     accounts=$(whiptail --title "Choose accounts" --yes-button "Continue" --no-button "Back" --checklist "$introtext" 20 90 10 \
           "Linux account" "The account to login to this computer" off \
-          "openHAB Console" "The Karaf console which is used to manage openHAB" off \
+          "openHAB Console" "The remote console which is used to manage openHAB" off \
           "Samba" "The fileshare for configuration files" off \
           3>&1 1>&2 2>&3)
     exitstatus=$?

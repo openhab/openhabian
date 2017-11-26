@@ -118,7 +118,7 @@ show_main_menu() {
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
     "41 | openHAB 2.1 stable   "  "Switch to the openHAB 2.1 release" \
     "   | openHAB 2.2 unstable"   "Switch to the latest openHAB 2.2 snapshot" \
-    "42 | Karaf SSH Console"      "Bind the Karaf SSH console to all external interfaces" \
+    "42 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
     "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
