@@ -198,6 +198,9 @@ misc_system_settings() {
   touch /home/$username/.ssh/authorized_keys
   chmod 600 /home/$username/.ssh/authorized_keys
   chown -R $username:$username /home/$username/.ssh
+  # A distinguishable apt User-Agent
+  echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent
+  #
   echo "OK"
 }
 
@@ -291,10 +294,15 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
     sed -i 's/console=tty.*console=tty1/console=tty1/g' /boot/cmdline.txt
     sed -i 's/console=serial.*console=tty1/console=tty1/g' /boot/cmdline.txt
     sed -i 's/^T0/\#T0/g' /etc/inittab &>/dev/null
+    cond_echo "Disabling serial-getty service"
+    cond_redirect systemctl stop serial-getty@ttyAMA0.service
     cond_redirect systemctl disable serial-getty@ttyAMA0.service
+    cond_redirect systemctl stop serial-getty@serial0.service
     cond_redirect systemctl disable serial-getty@serial0.service
+    cond_redirect systemctl stop serial-getty@ttyS0.service
     cond_redirect systemctl disable serial-getty@ttyS0.service
-  #else
+  else
+    cond_echo "ATTENTION: This function is not yet implemented."
     #TODO this needs to be tested when/if someone actually cares...
     #cp /boot/cmdline.txt.bak /boot/cmdline.txt
     #cp /etc/inittab.bak /etc/inittab
@@ -302,8 +310,9 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 
   if [[ $selection == *"2"* ]]; then
     if is_pithree; then
+      cond_redirect systemctl stop hciuart &>/dev/null
+      cond_redirect systemctl disable hciuart &>/dev/null
       cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3)"
-      systemctl disable hciuart &>/dev/null
       if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
         echo "dtoverlay=pi3-miniuart-bt" >> /boot/config.txt
       fi
