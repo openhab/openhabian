@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-openhab2() {
+openhab2_stable_setup() {
   echo -n "$(timestamp) [openHABian] Installing openHAB 2.1 (stable)... "
   echo "deb http://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
   #echo "deb http://dl.bintray.com/openhab/apt-repo2 testing main" > /etc/apt/sources.list.d/openhab2.list
@@ -24,7 +24,7 @@ openhab2() {
   fi
 }
 
-openhab2_unstable() {
+openhab2_unstable_setup() {
   introtext="You are about to switch over to the latest openHAB 2 unstable build. The daily snapshot builds contain the latest features and improvements but may also suffer from bugs or incompatibilities.
 If prompted if files should be replaced by newer ones, select Yes. Please be sure to take a full openHAB configuration backup first!"
   successtext="The latest unstable/snapshot build of openHAB 2 is now running on your system. If already available, check the function of your configuration now. If you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages regularly."
@@ -50,7 +50,8 @@ If prompted if files should be replaced by newer ones, select Yes. Please be sur
   fi
 }
 
-openhab2_stable() {
+# TODO: Unite with function above
+openhab2_stable_updowngrade() {
   introtext="You are about to switch over to the stable openHAB 2.1.0 build. When prompted if files should be replaced by newer ones, select Yes. Please be sure to take a full openHAB configuration backup first!"
   successtext="The stable release of openHAB 2.1.0 is now installed on your system. Please test the correct behavior of your setup. Check the \"openHAB 2.1 Release Notes\" and the official announcements to learn about additons, fixes and changes:\n
   ➡ http://www.kaikreuzer.de/2017/06/28/openhab21

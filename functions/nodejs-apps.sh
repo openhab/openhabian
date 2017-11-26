@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-nodejs() {
+nodejs_setup() {
   if ! command -v npm &>/dev/null; then
     echo -n "$(timestamp) [openHABian] Installing Node.js (prerequisite for other packages)... "
     FAILED=0
@@ -14,8 +14,8 @@ nodejs() {
   fi
 }
 
-frontail() {
-  nodejs
+frontail_setup() {
+  nodejs_setup
   echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail)... "
   cond_redirect npm install -g frontail
   if [ $? -ne 0 ]; then echo "FAILED (frontail)"; exit 1; fi
@@ -32,8 +32,8 @@ frontail() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
 }
 
-nodered() {
-  nodejs
+nodered_setup() {
+  nodejs_setup
   echo -n "$(timestamp) [openHABian] Installing Node-RED... "
   FAILED=0
   cond_redirect wget -O /tmp/update-nodejs-and-nodered.sh https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered || FAILED=1
@@ -51,8 +51,8 @@ nodered() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
 }
 
-yo_generator() {
-  nodejs
+yo_generator_setup() {
+  nodejs_setup
   echo -n "$(timestamp) [openHABian] Installing the Yeoman openHAB generator... "
   cond_redirect npm install -g yo generator-openhab
   if [ $? -ne 0 ]; then echo "FAILED (yo_generator)"; exit 1; fi

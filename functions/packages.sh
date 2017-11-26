@@ -16,7 +16,7 @@ samba_setup() {
   echo "OK"
 }
 
-firemotd() {
+firemotd_setup() {
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
   rm -rf /opt/FireMotD
   #cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
@@ -39,7 +39,7 @@ firemotd() {
   fi
 }
 
-etckeeper() {
+etckeeper_setup() {
   echo -n "$(timestamp) [openHABian] Installing etckeeper (git based /etc backup)... "
   apt -y install etckeeper &>/dev/null
   if [ $? -eq 0 ]; then
