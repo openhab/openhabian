@@ -13,6 +13,6 @@ if [[ $EUID -ne 0 ]]; then
   exit 1
 fi
 
-bash build-rpi-ua-netinst.sh go
+#bash build-rpi-ua-netinst.sh go
 bash build-pine64.sh go
 bash build-rpi-raspbian.sh go
