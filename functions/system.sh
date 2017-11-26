@@ -164,10 +164,12 @@ permissions_corrections() {
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
   cond_redirect adduser openhab gpio
+  cond_redirect adduser openhab audio
   cond_redirect adduser $username openhab
   cond_redirect adduser $username dialout
   cond_redirect adduser $username tty
   cond_redirect adduser $username gpio
+  cond_redirect adduser $username audio
   #
   openhab_folders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2/addons)
   cond_redirect chown openhab:$username /srv /srv/README.txt
@@ -230,9 +232,17 @@ memory_split() {
   else
     echo "gpu_mem=16" >> /boot/config.txt
   fi
+  echo "OK"
+}
+
+# RPi specific function
+enable_rpi_audio() {
+  echo -n "$(timestamp) [openHABian] Enabling Audio output... "
   if ! grep -q "dtparam=audio" /boot/config.txt; then
     echo "dtparam=audio=on" >> /boot/config.txt
   fi
+  cond_redirect adduser openhab audio
+  cond_redirect adduser $username audio
   echo "OK"
 }
 
