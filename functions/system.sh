@@ -46,32 +46,6 @@ needed_packages() {
   fi
 }
 
-basic_setup() {
-  introtext="If you continue, this step will update the openHABian basic system settings.\n\nThe following steps are included:
-  - Install recommended packages (vim, git, htop, ...)
-  - Install an improved bash configuration
-  - Install an improved vim configuration
-  - Set up FireMotD
-  - Set up the /srv/openhab2-... link structure
-  - Make some permission changes ('adduser', 'chown', ...)"
-
-  if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 20 80) then return 0; fi
-  fi
-
-  basic_packages
-  needed_packages
-  bashrc_copy
-  vimrc_copy
-  vim_openhab_syntax
-  nano_openhab_syntax
-  firemotd
-  srv_bind_mounts
-  permissions_corrections
-  misc_system_settings
-  if is_pine64; then pine64_platform_scripts; fi
-}
-
 timezone_setting() {
   source "$CONFIGFILE"
   if [ -n "$INTERACTIVE" ]; then
@@ -190,10 +164,12 @@ permissions_corrections() {
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
   cond_redirect adduser openhab gpio
+  cond_redirect adduser openhab audio
   cond_redirect adduser $username openhab
   cond_redirect adduser $username dialout
   cond_redirect adduser $username tty
   cond_redirect adduser $username gpio
+  cond_redirect adduser $username audio
   #
   openhab_folders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2/addons)
   cond_redirect chown openhab:$username /srv /srv/README.txt
@@ -256,9 +232,17 @@ memory_split() {
   else
     echo "gpu_mem=16" >> /boot/config.txt
   fi
+  echo "OK"
+}
+
+# RPi specific function
+enable_rpi_audio() {
+  echo -n "$(timestamp) [openHABian] Enabling Audio output... "
   if ! grep -q "dtparam=audio" /boot/config.txt; then
     echo "dtparam=audio=on" >> /boot/config.txt
   fi
+  cond_redirect adduser openhab audio
+  cond_redirect adduser $username audio
   echo "OK"
 }
 
