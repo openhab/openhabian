@@ -7,8 +7,7 @@
 # Development: http://github.com/openhab/openhabian
 # Discussion: https://community.openhab.org/t/13379
 #
-REPOSITORYURL="https://github.com/openhab/openhabian"
-CONFIGFILE="/etc/openhabian.conf"
+
 
 # Find the absolute script location dir (e.g. BASEDIR=/opt/openhabian)
 SOURCE="${BASH_SOURCE[0]}"
@@ -18,6 +17,9 @@ while [ -h "$SOURCE" ]; do
   [[ $SOURCE != /* ]] && SOURCE="$BASEDIR/$SOURCE"
 done
 BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+
+REPOSITORYURL="https://github.com/openhab/openhabian"
+CONFIGFILE="/etc/openhabian.conf"
 
 # Trap CTRL+C, CTRL+Z and quit singles
 trap '' SIGINT SIGQUIT SIGTSTP
@@ -47,7 +49,8 @@ else
 fi
 
 # Include all subscripts
-for shfile in $BASEDIR/functions/*.sh; do source $shfile; done
+# shellcheck source=/dev/null
+for shfile in $BASEDIR/functions/*.sh; do source "$shfile"; done
 
 if [[ -n "$UNATTENDED" ]]; then
   load_create_config
