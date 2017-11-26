@@ -46,32 +46,6 @@ needed_packages() {
   fi
 }
 
-basic_setup() {
-  introtext="If you continue, this step will update the openHABian basic system settings.\n\nThe following steps are included:
-  - Install recommended packages (vim, git, htop, ...)
-  - Install an improved bash configuration
-  - Install an improved vim configuration
-  - Set up FireMotD
-  - Set up the /srv/openhab2-... link structure
-  - Make some permission changes ('adduser', 'chown', ...)"
-
-  if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 20 80) then return 0; fi
-  fi
-
-  basic_packages
-  needed_packages
-  bashrc_copy
-  vimrc_copy
-  vim_openhab_syntax
-  nano_openhab_syntax
-  firemotd
-  srv_bind_mounts
-  permissions_corrections
-  misc_system_settings
-  if is_pine64; then pine64_platform_scripts; fi
-}
-
 timezone_setting() {
   source "$CONFIGFILE"
   if [ -n "$INTERACTIVE" ]; then
