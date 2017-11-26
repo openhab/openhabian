@@ -29,7 +29,7 @@ fi
 
 if [ -f /opt/FireMotD/FireMotD ]; then
   echo
-  bash /opt/FireMotD/FireMotD --theme gray
+  bash /opt/FireMotD/FireMotD -HV --theme gray
 fi
 
 OHVERSION=$(dpkg-query --showformat='${Version}' --show openhab2)

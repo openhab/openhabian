@@ -14,6 +14,8 @@ openhab2_stable_setup() {
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
+  cond_redirect adduser openhab gpio
+  cond_redirect adduser openhab audio
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -40,6 +42,8 @@ If prompted if files should be replaced by newer ones, select Yes. Please be sur
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
+  cond_redirect adduser openhab gpio
+  cond_redirect adduser openhab audio
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -72,6 +76,8 @@ openhab2_stable_updowngrade() {
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
+  cond_redirect adduser openhab gpio
+  cond_redirect adduser openhab audio
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi

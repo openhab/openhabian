@@ -145,7 +145,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "60"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 17 116 10 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 19 116 12 --cancel-button Back --ok-button Execute \
     "61 | Upgrade System     "    "Upgrade all installed software packages to their newest version" \
     "62 | Packages"               "Install needed and recommended system packages" \
     "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \

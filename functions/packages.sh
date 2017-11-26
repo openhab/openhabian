@@ -7,7 +7,9 @@ samba_setup() {
     cond_redirect apt -y install samba
     if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   fi
+  cond_echo "Copying over custom 'smb.conf'... "
   cp $BASEDIR/includes/smb.conf /etc/samba/smb.conf
+  cond_echo "Writing authentication data to openHABian default... "
   if ! /usr/bin/smbpasswd -e $username &>/dev/null; then
     ( (echo "$userpw"; echo "$userpw") | /usr/bin/smbpasswd -s -a $username > /dev/null )
   fi
@@ -18,21 +20,20 @@ samba_setup() {
 
 firemotd_setup() {
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
+  cond_redirect apt update
+  cond_redirect apt -y install bc sysstat jq moreutils
   rm -rf /opt/FireMotD
-  #cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
-  cond_redirect git clone https://github.com/ThomDietrich/FireMotD.git /opt/FireMotD
+  cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
   if [ $? -eq 0 ]; then
     # the following is already in bash_profile by default
-    #echo -e "\necho\n/opt/FireMotD/FireMotD --theme gray \necho" >> /home/$username/.bash_profile
+    #echo -e "\necho\n/opt/FireMotD/FireMotD -HV --theme gray \necho" >> /home/$username/.bash_profile
     # initial apt updates check
     cond_redirect /bin/bash /opt/FireMotD/FireMotD -S
     # invoke apt updates check every night
     echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
     echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
     # invoke apt updates check after every apt action ('apt upgrade', ...)
-    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /opt/FireMotD/FireMotD -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
-    #TODO move to a better position
-    echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent
+    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /opt/FireMotD/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
     echo "OK"
   else
     echo "FAILED"

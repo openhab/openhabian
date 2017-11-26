@@ -253,7 +253,7 @@ Here are the passwords in question, their default "username:password" value and 
 openHABian comes with a number of additional routines to quickly install and set up home automation related software.
 You'll find all of these in the [openHABian Configuration Tool](#openhabian-config)
 
-- [Amanda Network Backup](http://www.amanda.org/) - A build-in backup solution for your valuables. Please continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md)
+- [Amanda Network Backup](http://www.amanda.org/) - A built-in backup solution for your valuables. Please continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md)
 - [frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openHABianPi:9001](http://openHABianPi:9001)
 - [openHAB Generator](https://github.com/kubawolanin/generator-openhab) - Allows you to create [Items](http://docs.openhab.org/configuration/items.html), [Sitemap](http://docs.openhab.org/configuration/sitemaps.html) and [HABPanel](http://docs.openhab.org/addons/uis/habpanel/readme.html) dashboard for your home in no time
 - [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openHABianPi:1880](http://openHABianPi:1880)
