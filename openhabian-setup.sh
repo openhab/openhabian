@@ -75,7 +75,7 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   samba_setup
   clean_config_userpw
-  if is_pione || is_pizero || is_pizerow; then true; else nodejs_setup && frontail_setup && yo_generator_setup; fi
+  if is_pione || is_pizero || is_pizerow; then true; else nodejs_setup && frontail_setup; fi
 else
   whiptail_check
   load_create_config
