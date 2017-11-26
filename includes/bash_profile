@@ -1,6 +1,6 @@
 # ~/.bash_profile: executed by bash(1) for interactive shells.
 
-if [ -f "/home/pi/openHABian-install-failed" ] || [ -f "/opt/openHABian-install-failed" ]; then  #TODO: Remove 'pi' after 2017-05
+if [ -f "/opt/openHABian-install-failed" ]; then
   echo ""
   echo -e -n "\e[31;01mAttention! \e[39;49;00m"
   echo "The openHABian setup process seems to have failed on your system."
@@ -8,8 +8,7 @@ if [ -f "/home/pi/openHABian-install-failed" ] || [ -f "/opt/openHABian-install-
   echo "are high setup will succeed on the second try."
   echo ""
   echo "In order to find the cause of the problem, have a look at the installation log:"
-  echo -e "   \e[90;01msudo cat /boot/first-boot.log\e[39;49;00m                 or"
-  echo -e "   \e[90;01msudo tail -n 20 /var/log/raspbian-ua-netinst.log\e[39;49;00m"
+  echo -e "   \e[90;01msudo cat /boot/first-boot.log\e[39;49;00m"
   echo ""
   echo "Contact the openHAB community forum for help if the problem persists:"
   echo -e "\e[94;04mhttps://community.openhab.org/tags/openhabian\e[39;49;00m"
