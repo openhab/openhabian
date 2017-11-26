@@ -49,8 +49,7 @@ fi
 
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
 cnt=0
-until ping -c1 8.8.8.8 &>/dev/null; do
-  sleep 1
+until ping -c1 8.8.8.8 &>/dev/null || [ "$(wget -qO- http://www.msftncsi.com/ncsi.txt)" == "Microsoft NCSI" ]; do
   cnt=$((cnt + 1))
   if [ $cnt -eq 100 ]; then
     echo ""
@@ -89,6 +88,7 @@ else
   fail_inprogress
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed"
-echo "$(timestamp) [openHABian] First time boot setup successfully finished."
+echo "$(timestamp) [openHABian] First time setup successfully finished."
+echo "$(timestamp) [openHABian] To gain access to a console now, please reconnect."
 
 # vim: filetype=sh
