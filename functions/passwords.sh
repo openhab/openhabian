@@ -10,9 +10,10 @@ change_password() {
 
   if [ -n "$INTERACTIVE" ]; then
     accounts=$(whiptail --title "Choose accounts" --yes-button "Continue" --no-button "Back" --checklist "$introtext" 20 90 10 \
-          "Linux account" "The account to login to this computer" off \
-          "openHAB Console" "The remote console which is used to manage openHAB" off \
-          "Samba" "The fileshare for configuration files" off \
+          "Linux system" "Account; \"$username\" used to login to this computer" off \
+          "openHAB Console" "Remote console account; \"openhab\" for manage openHAB" off \
+          "Samba" "Fileshare account; \"$username\" for configuration files" off \
+          "Amanda backup" "User account; \"backup\" which could handle openhab backups " off \
           3>&1 1>&2 2>&3)
     exitstatus=$?
     if [ $exitstatus = 0 ]; then
@@ -32,25 +33,30 @@ change_password() {
     fi
   else
     passwordChange=$1
-    accounts=("Linux account" "openHAB Console" "Samba")
+    accounts=("Linux system" "openHAB Console" "Samba" "Amanda backup")
   fi
 
   for i in "${accounts[@]}"
   do
-    if [[ $i == *"Linux account"* ]]; then
+    if [[ $i == *"Linux system"* ]]; then
       echo -n "$(timestamp) [openHABian] Changing password for linux account \"$username\"... "
       echo "$username:$passwordChange" | chpasswd
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
     if [[ $i == *"Samba"* ]]; then
       echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account \"$username\"... "
-      (echo "$passwordChange"; echo "$passwordChange") | /usr/bin/smbpasswd -s -a $username
+      (echo "$passwordChange"; echo "$passwordChange") | /usr/bin/smbpasswd -s -a \"$username\"
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
     if [[ $i == *"openHAB Console"* ]]; then
       echo -n "$(timestamp) [openHABian] Changing password for openHAB console account \"openhab\"... "
       sed -i "s/openhab = .*,/openhab = $passwordChange,/g" /var/lib/openhab2/etc/users.properties
       cond_redirect systemctl restart openhab2.service
+      if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+    fi
+	if [[ $i == *"Amanda backup account"* ]]; then
+      echo -n "$(timestamp) [openHABian] Changing password for linux account \"backup\"... "
+      echo "backup:$passwordChange" | chpasswd
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
   done
