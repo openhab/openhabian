@@ -41,8 +41,8 @@ echo -n "$(timestamp) [openHABian] Setting up Wifi connection... "
 if [ -z ${wifi_ssid+x} ]; then
   echo "SKIPPED"
 else
-  echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1" > /etc/wpa_supplicant/wpa_supplicant.conf
-  echo -e "network={\n\tssid=\"$wifi_ssid\"\n\tpsk=\"$wifi_psk\"\n}" >> /etc/wpa_supplicant/wpa_supplicant.conf
+  echo -e "country=US\nctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1" > /etc/wpa_supplicant/wpa_supplicant.conf
+  echo -e "network={\n\tssid=\"$wifi_ssid\"\n\tpsk=\"$wifi_psk\"\n\tkey_mgmt=WPA-PSK\n}" >> /etc/wpa_supplicant/wpa_supplicant.conf
   wpa_cli reconfigure &>/dev/null
   echo "OK"
 fi
