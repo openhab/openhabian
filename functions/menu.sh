@@ -81,7 +81,7 @@ show_main_menu() {
       22\ *) yo_generator_setup ;;
       23\ *) mqtt_setup ;;
       24\ *) influxdb_grafana_setup ;;
-      25\ *) nodered ;;
+      25\ *) nodered_setup ;;
       26\ *) homegear_setup ;;
       27\ *) knxd_setup ;;
       28\ *) 1wire_setup ;;
