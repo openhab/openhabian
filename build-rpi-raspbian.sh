@@ -86,6 +86,6 @@ echo_process "Compressing image... "
 xz --verbose --compress --keep "$destination"
 
 echo_process "Finished! The results:"
-ls -alh "$destination*"
+ls -alh "$destination"*
 
 # vim: filetype=sh

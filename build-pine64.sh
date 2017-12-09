@@ -14,16 +14,17 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 # Switch to the script folder
-cd $(dirname $0) || exit 1
+cd "$(dirname $0)" || exit 1
 
 timestamp() { date +"%F_%T_%Z"; }
-echo_process() { echo -e "\e[1;94m$(timestamp) [openHABian] $*\e[0m"; }
+echo_process() { echo -e "\\e[1;94m$(timestamp) [openHABian] $*\\e[0m"; }
 
 # Log everything to a file
 exec &> >(tee -a "openhabian-build-$(date +%Y-%m-%d_%H%M%S).log")
 
 # Load config, create temporary build folder
 sourcefolder=build-pine64-image
+# shellcheck source=build-pine64-image/openhabian.pine64.conf
 source $sourcefolder/openhabian.pine64.conf
 buildfolder=/tmp/build-pine64-image
 imagefile=$buildfolder/pine64-xenial.img
@@ -47,10 +48,8 @@ cp build-pine64-image/openhabian.pine64.conf $buildfolder/simpleimage/openhabian
 source build-pine64-image/openhabian.pine64.conf
 
 echo_process "Hacking \"build-pine64-image\" build and make script... "
-#sed -i "s/date +%Y%m%H/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh # Fix https://github.com/longsleep/build-pine64-image/pull/47 - Fixed!
 sed -i "s/date +%Y%m%d_%H%M%S_%Z/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh
 makescript=$buildfolder/simpleimage/make_rootfs.sh
-#sed -i "s/TARBALL=\"\$BUILD/mkdir -p \$BUILD\nTARBALL=\"\$BUILD/" $makescript # Fix https://github.com/longsleep/build-pine64-image/pull/46 - Fixed!
 sed -i "s/^pine64$/openHABianPine64/" $makescript
 sed -i "s/127.0.1.1 pine64/127.0.1.1 openHABianPine64/" $makescript
 sed -i "s/DEBUSER=ubuntu/DEBUSER=$username/" $makescript
@@ -72,13 +71,13 @@ echo_process "Moving image and cleaning up... "
 shorthash=$(git log --pretty=format:'%h' -n 1)
 crc32checksum=$(crc32 $imagefile)
 destination="openhabianpine64-xenial-$(date +%Y%m%d%H%M)-git$shorthash-crc$crc32checksum.img"
-mv -v $imagefile $destination
+mv -v $imagefile "$destination"
 rm -rf $buildfolder
 
 echo_process "Compressing image... "
-xz --verbose --compress --keep $destination
+xz --verbose --compress --keep "$destination"
 
 echo_process "Finished! The results:"
-ls -alh $destination*
+ls -alh "$destination"*
 
 # vim: filetype=sh
