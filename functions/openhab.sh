@@ -134,3 +134,42 @@ nano_openhab_syntax() {
   echo -e "\n## openHAB files\ninclude \"/usr/share/nano/openhab.nanorc\"" >> /etc/nanorc
   echo "OK"
 }
+
+# The function has one non-optinal parameter for the application to create a tile for
+dashboard_add_tile() {
+  openhab_config_folder="/etc/openhab2"
+  dashboard_file="$openhab_config_folder/services/dashboard.cfg"
+  tile_name="$1"
+  case $tile_name in
+    grafana|frontail|nodered|find|openhabian-docs)
+      echo -n "$(timestamp) [openHABian] Adding a openHAB dashboard tile for '$tile_name'... " ;;
+    *)
+      echo "'$tile_name' is not a valid parameter for this function. Exiting."; exit 1 ;;
+  esac
+  if [ ! -d "$openhab_config_folder/services" ]; then
+    echo "openHAB configuration directory doesn't exist. Exiting."
+    exit 1
+  fi
+  touch $dashboard_file
+  if grep -q "$tile_name.link" $dashboard_file; then
+    echo "Tile for '$tile_name' already exists."
+    return 1
+  fi
+  # shellcheck source=../includes/dashboard-imagedata.sh
+  source "includes/dashboard-imagedata.sh"
+  tile_desc=$(eval echo "\$tile_desc_$tile_name")
+  tile_url=$(eval echo "\$tile_url_$tile_name")
+  tile_imagedata=$(eval echo "\$tile_imagedata_$tile_name")
+
+  if [ -z "$tile_desc" ] || [ -z "$tile_url" ] || [ -z "$tile_imagedata" ]; then
+    echo "Script was not able to fetch all needed data for '$tile_name', please contact the developer. Exiting."
+    exit 1
+  fi
+
+  {
+    echo "$tile_name.link-name=$tile_desc"
+    echo "$tile_name.link-url=$tile_url"
+    echo "$tile_name.link-imageurl=$tile_imagedata"
+    echo ""
+  } >> $dashboard_file
+}
