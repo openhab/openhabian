@@ -161,10 +161,10 @@ openhab_is_running() {
 
 # The function has one non-optinal parameter for the application to create a tile for
 dashboard_add_tile() {
+  tile_name="$1"
   echo -n "$(timestamp) [openHABian] Adding an openHAB dashboard tile for '$tile_name'... "
   openhab_config_folder="/etc/openhab2"
   dashboard_file="$openhab_config_folder/services/dashboard.cfg"
-  tile_name="$1"
   case $tile_name in
     grafana|frontail|nodered|find|openhabiandocs)
       true ;;
