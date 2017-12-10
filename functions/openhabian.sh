@@ -11,12 +11,13 @@ get_git_revision() {
 
 openhabian_update_check() {
   FAILED=0
+  echo "$(timestamp) [openHABian] openHABian configuration tool version: $(get_git_revision)"
   echo -n "$(timestamp) [openHABian] Checking for changes in origin... "
   git -C $BASEDIR config user.email 'openhabian@openHABian'
   git -C $BASEDIR config user.name 'openhabian'
   git -C $BASEDIR fetch --quiet origin || FAILED=1
   if [ "$(git -C $BASEDIR rev-parse HEAD)" == "$(git -C $BASEDIR rev-parse @\{u\})" ]; then
-    echo "OK - $(get_git_revision)"
+    echo "OK"
   else
     echo -n "Updates available... "
     introtext="Additions, improvements or fixes were added to the openHABian Configuration Tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\nUpdating is recommended."
