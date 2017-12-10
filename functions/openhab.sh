@@ -134,3 +134,11 @@ nano_openhab_syntax() {
   echo -e "\n## openHAB files\ninclude \"/usr/share/nano/openhab.nanorc\"" >> /etc/nanorc
   echo "OK"
 }
+
+multitail_openhab_scheme() {
+  echo -n "$(timestamp) [openHABian] Adding openHAB scheme to mulitail... "
+  cond_redirect wget -O /etc/multitail.openhab.conf https://raw.githubusercontent.com/CWempe/multitail-scheme-openhab/master/multitail-scheme-openhab.conf
+  sed -i "/^.*multitail.*openhab.*$/d" /etc/multitail.conf
+  echo -e "\n## openHAB file from https://github.com/CWempe/multitail-scheme-openhab\n#include:/etc/multitail.openhab.conf" >> /etc/multitail.conf
+  echo "OK"
+}

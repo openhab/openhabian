@@ -70,6 +70,7 @@ if [[ -n "$UNATTENDED" ]]; then
   openhab2_stable_setup
   vim_openhab_syntax
   nano_openhab_syntax
+  multitail_openhab_scheme
   srv_bind_mounts
   permissions_corrections
   misc_system_settings
