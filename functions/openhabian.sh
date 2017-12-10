@@ -9,6 +9,17 @@ get_git_revision() {
   echo "$revision"
 }
 
+openhabian_update_check() {
+  FAILED=0
+  echo -n "$(timestamp) [openHABian] Checking if updates are available at origin... "
+  git -C $BASEDIR fetch --quiet origin || FAILED=1
+  if [ "$(git -C $BASEDIR rev-parse HEAD)" == "$(git -C $BASEDIR rev-parse @\{u\})" ]; then
+    echo "I am up to date."
+  else
+    echo "Changes available!"
+  fi
+}
+
 openhabian_update() {
   FAILED=0
   echo -n "$(timestamp) [openHABian] Updating myself... "
