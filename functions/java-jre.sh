@@ -20,13 +20,17 @@ java_webupd8() {
 java_zulu_embedded() {
   echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK... "
   cond_redirect apt -y install dirmngr
-  if is_arm; then _arch="[arch=armhf]"; fi
+  if is_arm; then arch="[arch=armhf]"; fi
   cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
   if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
-  echo "deb $_arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-embedded.list
+  echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-embedded.list
   if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
   cond_redirect apt update
-  cond_redirect apt -y install zulu-embedded-8
+  if is_arm; then
+    cond_redirect apt -y install zulu-embedded-8
+  else
+    cond_redirect apt -y install zulu-8
+  fi
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
