@@ -153,22 +153,23 @@ openhab_is_running() {
 
 # The function has one non-optinal parameter for the application to create a tile for
 dashboard_add_tile() {
+  echo -n "$(timestamp) [openHABian] Adding an openHAB dashboard tile for '$tile_name'... "
   openhab_config_folder="/etc/openhab2"
   dashboard_file="$openhab_config_folder/services/dashboard.cfg"
   tile_name="$1"
   case $tile_name in
     grafana|frontail|nodered|find|openhabiandocs)
-      echo -n "$(timestamp) [openHABian] Adding an openHAB dashboard tile for '$tile_name'... " ;;
+      true ;;
     *)
-      echo "'$tile_name' is not a valid parameter for this function. Exiting."; exit 1 ;;
+      echo "FAILED (tile name not valid)"; return 1 ;;
   esac
   if ! openhab_is_installed || [ ! -d "$openhab_config_folder/services" ]; then
-    echo "openHAB is not installed or the configuration directory doesn't exist. Exiting."
-    exit 1
+    echo "FAILED (openHAB or config folder missing)"
+    return 1
   fi
   touch $dashboard_file
   if grep -q "$tile_name.link" $dashboard_file; then
-    echo "Tile for '$tile_name' already exists. Replacing..."
+    echo -n "Replacing... "
     sed -i "/^$tile_name.link.*$/d" $dashboard_file
   fi
   # shellcheck source=../includes/dashboard-imagedata.sh
@@ -178,8 +179,8 @@ dashboard_add_tile() {
   tile_imagedata=$(eval echo "\$tile_imagedata_$tile_name")
 
   if [ -z "$tile_desc" ] || [ -z "$tile_url" ] || [ -z "$tile_imagedata" ]; then
-    echo "Script was not able to fetch all needed data for '$tile_name', please contact the developer. Exiting."
-    exit 1
+    echo "FAILED (data missing)"
+    return 1
   fi
 
   {
