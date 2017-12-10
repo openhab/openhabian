@@ -16,6 +16,8 @@ openhab2_stable_setup() {
   cond_redirect adduser openhab tty
   cond_redirect adduser openhab gpio
   cond_redirect adduser openhab audio
+  cond_redirect dashboard_add_tile openhabiandocs
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; fi
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -44,6 +46,8 @@ If prompted if files should be replaced by newer ones, select Yes. Please be sur
   cond_redirect adduser openhab tty
   cond_redirect adduser openhab gpio
   cond_redirect adduser openhab audio
+  cond_redirect dashboard_add_tile openhabiandocs
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; fi
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -78,6 +82,8 @@ openhab2_stable_updowngrade() {
   cond_redirect adduser openhab tty
   cond_redirect adduser openhab gpio
   cond_redirect adduser openhab audio
+  cond_redirect dashboard_add_tile openhabiandocs
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; fi
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -141,4 +147,56 @@ multitail_openhab_scheme() {
   sed -i "/^.*multitail.*openhab.*$/d" /etc/multitail.conf
   echo -e "\n## openHAB file from https://github.com/CWempe/multitail-scheme-openhab\n#include:/etc/multitail.openhab.conf" >> /etc/multitail.conf
   echo "OK"
+}
+
+openhab_is_installed() {
+  dpkg-query -l "openhab2" &>/dev/null
+  return $?
+}
+
+openhab_is_running() {
+  #TODO
+  exit 1
+}
+
+# The function has one non-optinal parameter for the application to create a tile for
+dashboard_add_tile() {
+  echo -n "$(timestamp) [openHABian] Adding an openHAB dashboard tile for '$tile_name'... "
+  openhab_config_folder="/etc/openhab2"
+  dashboard_file="$openhab_config_folder/services/dashboard.cfg"
+  tile_name="$1"
+  case $tile_name in
+    grafana|frontail|nodered|find|openhabiandocs)
+      true ;;
+    *)
+      echo "FAILED (tile name not valid)"; return 1 ;;
+  esac
+  if ! openhab_is_installed || [ ! -d "$openhab_config_folder/services" ]; then
+    echo "FAILED (openHAB or config folder missing)"
+    return 1
+  fi
+  touch $dashboard_file
+  if grep -q "$tile_name.link" $dashboard_file; then
+    echo -n "Replacing... "
+    sed -i "/^$tile_name.link.*$/d" $dashboard_file
+  fi
+  # shellcheck source=../includes/dashboard-imagedata.sh
+  source "$BASEDIR/includes/dashboard-imagedata.sh"
+  tile_desc=$(eval echo "\$tile_desc_$tile_name")
+  tile_url=$(eval echo "\$tile_url_$tile_name")
+  tile_imagedata=$(eval echo "\$tile_imagedata_$tile_name")
+
+  if [ -z "$tile_desc" ] || [ -z "$tile_url" ] || [ -z "$tile_imagedata" ]; then
+    echo "FAILED (data missing)"
+    return 1
+  fi
+
+  {
+    echo "$tile_name.link-name=$tile_desc"
+    echo "$tile_name.link-url=$tile_url"
+    echo "$tile_name.link-imageurl=$tile_imagedata"
+  } >> $dashboard_file
+
+  echo "OK"
+  return 0
 }
