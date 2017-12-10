@@ -84,6 +84,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   cond_redirect systemctl enable homegear.service
   cond_redirect systemctl start homegear.service
   cond_redirect adduser $username homegear
+  cond_redirect adduser openhab homegear
   echo "OK"
 
   if [ -n "$INTERACTIVE" ]; then
