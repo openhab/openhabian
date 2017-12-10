@@ -208,9 +208,6 @@ sudo openhabian-config
 The configuration tool is the heart of openHABian.
 It is not only a menu with a set of options, it's also used in a special unattended mode inside the ready to use images.
 
-Execute the "Update" function before anything else. The menu and the menu options will evolve over time and you should ensure to be up to date.
-All other menu entries should be self-explaining and more details are shown after selecting them.
-
 ⌨ - A quick note on menu navigation.
 Use the cursor keys to navigate, &lt;Enter&gt; to execute, &lt;Space&gt; to select and &lt;Tab&gt; to jump to the actions on the bottom of the screen. Press &lt;Esc&gt; twice to exit the configuration tool.
 
