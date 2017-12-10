@@ -40,7 +40,7 @@ The following features are provided by the openHABian images out of the box:
 - openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
 - Samba file sharing with [pre-configured to use shares](http://docs.openhab.org/installation/linux.html#mounting-locally)
 - Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
-- Login information screen, powered by [FireMotD](https://github.com/willemdh/FireMotD)
+- Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
 - Customized Bash shell experience
 - Customized vim settings, including [openHAB syntax highlighting](https://github.com/cyberkov/openhab-vim)
 - Customized nano settings, including [openHAB syntax highlighting](https://github.com/airix1/openhabnano)

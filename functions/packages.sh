@@ -23,7 +23,7 @@ firemotd_setup() {
   cond_redirect apt update
   cond_redirect apt -y install bc sysstat jq moreutils
   rm -rf /opt/FireMotD
-  cond_redirect git clone https://github.com/willemdh/FireMotD.git /opt/FireMotD
+  cond_redirect git clone https://github.com/OutsideIT/FireMotD /opt/FireMotD
   if [ $? -eq 0 ]; then
     # the following is already in bash_profile by default
     #echo -e "\necho\n/opt/FireMotD/FireMotD -HV --theme gray \necho" >> /home/$username/.bash_profile
