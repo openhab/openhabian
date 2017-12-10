@@ -71,7 +71,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
@@ -107,7 +107,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   echo -n "$(timestamp) [openHABian] Setting up the MQTT broker Eclipse Mosquitto... "
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   mqttuser="openhabian"
@@ -156,7 +156,7 @@ HABian GitHub issue."
 
   echo -n "$(timestamp) [openHABian] Setting up the Framework for Internal Navigation and Discovery ... "
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   FIND_RELEASE=2.4.1
@@ -179,7 +179,7 @@ HABian GitHub issue."
   CLIENT_TMP=/tmp/fingerprint-latest.$$
 
   if [ ! -f ${MOSQUITTO_PASSWD} ]; then
-    if ! (whiptail --title "Mosquitto not installed, continue?" --yes-button "Continue" --no-button "Back" --yesno "FIND requires a MQTT broker to run, but Mosquitto is not installed on this box.\nYou can configure FIND to use any existing MQTT broker or you can go back and install Mosquitto from the openHABian menu.\nDo you want to continue with the FIND installation ?" 15 80) then return 0; fi
+    if ! (whiptail --title "Mosquitto not installed, continue?" --yes-button "Continue" --no-button "Back" --yesno "FIND requires a MQTT broker to run, but Mosquitto is not installed on this box.\nYou can configure FIND to use any existing MQTT broker or you can go back and install Mosquitto from the openHABian menu.\nDo you want to continue with the FIND installation ?" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   /bin/mkdir -p ${FIND_DSTDIR}
@@ -230,7 +230,7 @@ Integration into openHAB 2 is described here: https://github.com/openhab/openhab
 "
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
@@ -266,7 +266,7 @@ and activate one of these most common options (depending on your device):
 "
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Installing owserver (1wire)... "
@@ -294,7 +294,7 @@ The article also contains instructions regarding openHAB integration.
 "
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon... "
@@ -340,7 +340,7 @@ influxdb_grafana_setup() {
   successtext="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/13761/1"
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   cond_redirect apt -y install apt-transport-https
@@ -391,7 +391,7 @@ nginx_setup() {
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   function comment {

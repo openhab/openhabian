@@ -28,7 +28,7 @@ change_password() {
         fi
       done
     else
-        return 0
+      return 0
     fi
   else
     passwordChange=$1
