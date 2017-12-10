@@ -54,7 +54,7 @@ show_main_menu() {
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       11\ *) basic_packages && needed_packages ;;
-      12\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax ;;
+      12\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme ;;
       13\ *) srv_bind_mounts && misc_system_settings ;;
       14\ *) permissions_corrections ;;
       15\ *) firemotd_setup ;;
@@ -170,7 +170,7 @@ show_main_menu() {
       66\ *) samba_setup ;;
       67\ *) frontail_setup ;;
       68\ *) firemotd_setup ;;
-      69\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax ;;
+      69\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
     esac
