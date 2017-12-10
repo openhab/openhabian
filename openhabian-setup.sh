@@ -17,6 +17,7 @@ while [ -h "$SOURCE" ]; do
   [[ $SOURCE != /* ]] && SOURCE="$BASEDIR/$SOURCE"
 done
 BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+SCRIPTNAME="$(basename $SOURCE)"
 
 REPOSITORYURL="https://github.com/openhab/openhabian"
 CONFIGFILE="/etc/openhabian.conf"

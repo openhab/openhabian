@@ -11,12 +11,18 @@ get_git_revision() {
 
 openhabian_update_check() {
   FAILED=0
-  echo -n "$(timestamp) [openHABian] Checking if updates are available at origin... "
+  echo -n "$(timestamp) [openHABian] Checking for changes in origin... "
+  git -C $BASEDIR config user.email 'openhabian@openHABian'
+  git -C $BASEDIR config user.name 'openhabian'
   git -C $BASEDIR fetch --quiet origin || FAILED=1
   if [ "$(git -C $BASEDIR rev-parse HEAD)" == "$(git -C $BASEDIR rev-parse @\{u\})" ]; then
-    echo "I am up to date."
+    echo "OK"
   else
-    echo "Changes available!"
+    echo -n "Updates available... "
+    introtext="Additions, improvements or fixes were added to the openHABian Configuration Tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\nUpdating is recommended."
+    if ! (whiptail --title "openHABian Update Available" --yes-button "Continue" --no-button "Skip" --yesno "$introtext" 15 80) then echo "SKIP"; return 0; fi
+    echo ""
+    openhabian_update
   fi
 }
 
@@ -56,11 +62,10 @@ openhabian_update() {
     echo -e "\n"
     echo "openHABian configuration tool successfully updated."
     echo "Visit the development repository for more details: $REPOSITORYURL"
-    echo "You need to restart the tool. Exiting now... "
-    exit 0
+    echo "I will now restart to load my updates... "
+    exec "$BASEDIR/$SCRIPTNAME"
+    exit 1
   fi
-  git -C $BASEDIR config user.email 'openhabian@openHABian'
-  git -C $BASEDIR config user.name 'openhabian'
 }
 
 system_check_default_password() {
