@@ -203,7 +203,6 @@ HABian GitHub issue."
   /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDADMIN|${FINDADMIN}|g" -e "s|%FINDADMINPASS|${FINDADMIN_PASS}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${BASEDIR}/includes/findserver.service >${FIND_SYSTEMCTL}
   /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${BASEDIR}/includes/findserver >${FIND_DEFAULT}
 
-
   /bin/rm -f ${FIND_TMP} ${CLIENT_TMP}
   cond_redirect /bin/systemctl enable findserver.service || FAILED=1
   cond_redirect /bin/systemctl restart findserver.service || FAILED=1

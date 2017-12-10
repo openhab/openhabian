@@ -67,7 +67,7 @@ show_main_menu() {
     "21 | Log Viewer          "  "openHAB Log Viewer webapp (frontail)" \
     "22 | openHAB Generator"     "openHAB items, sitemap and HABPanel dashboard generator" \
     "23 | Mosquitto"             "MQTT broker Eclipse Mosquitto" \
-    "24 | Grafana"               "InfluxDB+Grafana as a powerful persistence and graphing solution" \
+    "24 | InfluxDB+Grafana"      "A powerful persistence and graphing solution" \
     "25 | NodeRED"               "Flow-based programming for the Internet of Things" \
     "26 | Homegear"              "Homematic specific, the CCU2 emulation software Homegear" \
     "27 | knxd"                  "KNX specific, the KNX router/gateway daemon knxd" \

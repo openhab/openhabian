@@ -158,17 +158,17 @@ dashboard_add_tile() {
   tile_name="$1"
   case $tile_name in
     grafana|frontail|nodered|find|openhabiandocs)
-      echo -n "$(timestamp) [openHABian] Adding a openHAB dashboard tile for '$tile_name'... " ;;
+      echo -n "$(timestamp) [openHABian] Adding an openHAB dashboard tile for '$tile_name'... " ;;
     *)
       echo "'$tile_name' is not a valid parameter for this function. Exiting."; exit 1 ;;
   esac
   if ! openhab_is_installed || [ ! -d "$openhab_config_folder/services" ]; then
-    echo "openHAB is not installed or configuration directory doesn't exist. Exiting."
+    echo "openHAB is not installed or the configuration directory doesn't exist. Exiting."
     exit 1
   fi
   touch $dashboard_file
   if grep -q "$tile_name.link" $dashboard_file; then
-    echo "Tile for '$tile_name' already exists. Replacing"
+    echo "Tile for '$tile_name' already exists. Replacing..."
     sed -i "/^$tile_name.link.*$/d" $dashboard_file
   fi
   # shellcheck source=../includes/dashboard-imagedata.sh
@@ -188,5 +188,6 @@ dashboard_add_tile() {
     echo "$tile_name.link-imageurl=$tile_imagedata"
   } >> $dashboard_file
 
+  echo "OK"
   return 0
 }
