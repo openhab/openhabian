@@ -20,7 +20,7 @@ openhabian_update_check() {
     echo "OK"
   else
     echo -n "Updates available... "
-    introtext="Additions, improvements or fixes were added to the openHABian Configuration Tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\nUpdating is recommended."
+    introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
     if ! (whiptail --title "openHABian Update Available" --yes-button "Continue" --no-button "Skip" --yesno "$introtext" 15 80) then echo "SKIP"; return 0; fi
     echo ""
     openhabian_update
