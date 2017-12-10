@@ -16,7 +16,8 @@ openhabian_update_check() {
   git -C "$BASEDIR" config user.email 'openhabian@openHABian'
   git -C "$BASEDIR" config user.name 'openhabian'
   git -C "$BASEDIR" fetch --quiet origin || FAILED=1
-  if [ "$(git -C \"$BASEDIR\" rev-parse HEAD)" == "$(git -C \"$BASEDIR\" rev-parse @\{u\})" ]; then
+  # shellcheck disable=SC2046
+  if [ $(git -C "$BASEDIR" rev-parse HEAD) == $(git -C "$BASEDIR" rev-parse @\{u\}) ]; then
     echo "OK"
   else
     echo -n "Updates available... "
