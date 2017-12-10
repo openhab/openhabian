@@ -207,7 +207,9 @@ HABian GitHub issue."
   /bin/rm -f ${FIND_TMP} ${CLIENT_TMP}
   cond_redirect /bin/systemctl enable findserver.service || FAILED=1
   cond_redirect /bin/systemctl restart findserver.service || FAILED=1
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED (service)"; exit 1; fi
+  dashboard_add_tile find
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; exit 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
@@ -375,6 +377,9 @@ influxdb_grafana_setup() {
 
   echo -n "Connecting (TODO)... "
   #TODO
+
+  echo -n "Adding openHAB dashboard tile... "
+  dashboard_add_tile grafana || FAILED=4
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
