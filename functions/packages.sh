@@ -204,11 +204,12 @@ HABian GitHub issue."
   /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDADMIN|${FINDADMIN}|g" -e "s|%FINDADMINPASS|${FINDADMIN_PASS}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${BASEDIR}/includes/findserver.service >${FIND_SYSTEMCTL}
   /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${BASEDIR}/includes/findserver >${FIND_DEFAULT}
 
-
   /bin/rm -f ${FIND_TMP} ${CLIENT_TMP}
   cond_redirect /bin/systemctl enable findserver.service || FAILED=1
   cond_redirect /bin/systemctl restart findserver.service || FAILED=1
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED (service)"; exit 1; fi
+  dashboard_add_tile find
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; exit 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
@@ -344,9 +345,9 @@ influxdb_grafana_setup() {
   fi
 
   cond_redirect apt -y install apt-transport-https
-  echo -n "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
+  echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
   cond_echo ""
-  echo -n "InfluxDB... "
+  echo "InfluxDB... "
   cond_redirect wget -O - https://repos.influxdata.com/influxdb.key | apt-key add - || FAILED=1
   echo "deb https://repos.influxdata.com/debian jessie stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
   cond_redirect apt update || FAILED=1
@@ -357,7 +358,7 @@ influxdb_grafana_setup() {
   if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
   cond_echo ""
 
-  echo -n "Grafana... "
+  echo "Grafana... "
   if is_pi; then
     if is_pione || is_pizero || is_pizerow; then GRAFANA_REPO_PI1="-rpi-1b"; fi
     echo "deb https://dl.bintray.com/fg2it/deb${GRAFANA_REPO_PI1} jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
@@ -374,8 +375,11 @@ influxdb_grafana_setup() {
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; else echo -n "OK "; fi
   cond_echo ""
 
-  echo -n "Connecting (TODO)... "
+  echo "Connecting (TODO)... "
   #TODO
+
+  echo "Adding openHAB dashboard tile... "
+  dashboard_add_tile grafana || FAILED=4
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
