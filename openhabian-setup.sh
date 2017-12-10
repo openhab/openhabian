@@ -17,6 +17,7 @@ while [ -h "$SOURCE" ]; do
   [[ $SOURCE != /* ]] && SOURCE="$BASEDIR/$SOURCE"
 done
 BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+SCRIPTNAME="$(basename $SOURCE)"
 
 REPOSITORYURL="https://github.com/openhab/openhabian"
 CONFIGFILE="/etc/openhabian.conf"
@@ -81,6 +82,7 @@ else
   load_create_config
   openhabian_hotfix
   ua-netinst_check
+  openhabian_update_check
   while show_main_menu; do
     true
   done
