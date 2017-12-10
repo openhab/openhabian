@@ -19,9 +19,7 @@ Do you want to continue on your own risk?"
     echo "FAILED"; return 1
   fi
 
-  if ! (whiptail --title "Move system root to '$NEWROOTPART'" --yes-button "Continue" --no-button "Back" --yesno "$infotext" 18 78) then
-    return 0
-  fi
+  if ! (whiptail --title "Move system root to '$NEWROOTPART'" --yes-button "Continue" --no-button "Back" --yesno "$infotext" 18 78) then echo "CANCELED"; return 0; fi
 
   #check if system root is on partion 2 of the SD card
   #since 2017-06, rasbian uses PARTUUID=.... in cmdline.txt and fstab instead of /dev/mmcblk0p2...
