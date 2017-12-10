@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 get_git_revision() {
-  local branch=$(git -C $BASEDIR rev-parse --abbrev-ref HEAD)
-  local shorthash=$(git -C $BASEDIR log --pretty=format:'%h' -n 1)
-  local revcount=$(git -C $BASEDIR log --oneline | wc -l)
-  local latesttag=$(git -C $BASEDIR describe --tags --abbrev=0)
+  local branch=$(git -C "$BASEDIR" rev-parse --abbrev-ref HEAD)
+  local shorthash=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
+  local revcount=$(git -C "$BASEDIR" log --oneline | wc -l)
+  local latesttag=$(git -C "$BASEDIR" describe --tags --abbrev=0)
   local revision="[$branch]$latesttag-$revcount($shorthash)"
   echo "$revision"
 }
@@ -13,10 +13,10 @@ openhabian_update_check() {
   FAILED=0
   echo "$(timestamp) [openHABian] openHABian configuration tool version: $(get_git_revision)"
   echo -n "$(timestamp) [openHABian] Checking for changes in origin... "
-  git -C $BASEDIR config user.email 'openhabian@openHABian'
-  git -C $BASEDIR config user.name 'openhabian'
-  git -C $BASEDIR fetch --quiet origin || FAILED=1
-  if [ "$(git -C $BASEDIR rev-parse HEAD)" == "$(git -C $BASEDIR rev-parse @\{u\})" ]; then
+  git -C "$BASEDIR" config user.email 'openhabian@openHABian'
+  git -C "$BASEDIR" config user.name 'openhabian'
+  git -C "$BASEDIR" fetch --quiet origin || FAILED=1
+  if [ "$(git -C \"$BASEDIR\" rev-parse HEAD)" == "$(git -C \"$BASEDIR\" rev-parse @\{u\})" ]; then
     echo "OK"
   else
     echo -n "Updates available... "
@@ -32,22 +32,22 @@ openhabian_update() {
   echo -n "$(timestamp) [openHABian] Updating myself... "
   read -t 1 -n 1 key
   if [ "$key" != "" ]; then
-    echo -e "\nRemote git branches available:"
-    git -C $BASEDIR branch -r
+    echo -e "\\nRemote git branches available:"
+    git -C "$BASEDIR" branch -r
     read -e -p "Please enter the branch to checkout: " branch
     branch="${branch#origin/}"
-    if ! git -C $BASEDIR branch -r | grep -q "origin/$branch"; then
+    if ! git -C "$BASEDIR" branch -r | grep -q "origin/$branch"; then
       echo "FAILED - The custom branch does not exist."
       return 1
     fi
   else
     branch="master"
   fi
-  shorthash_before=$(git -C $BASEDIR log --pretty=format:'%h' -n 1)
-  git -C $BASEDIR fetch --quiet origin || FAILED=1
-  git -C $BASEDIR reset --quiet --hard "origin/$branch" || FAILED=1
-  git -C $BASEDIR clean --quiet --force -x -d || FAILED=1
-  git -C $BASEDIR checkout --quiet "$branch" || FAILED=1
+  shorthash_before=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
+  git -C "$BASEDIR" fetch --quiet origin || FAILED=1
+  git -C "$BASEDIR" reset --quiet --hard "origin/$branch" || FAILED=1
+  git -C "$BASEDIR" clean --quiet --force -x -d || FAILED=1
+  git -C "$BASEDIR" checkout --quiet "$branch" || FAILED=1
   if [ $FAILED -eq 1 ]; then
     echo "FAILED - There was a problem fetching the latest changes for the openHABian configuration tool. Please check your internet connection and try again later..."
     return 1
@@ -58,12 +58,13 @@ openhabian_update() {
     return 0
   else
     echo "OK - Commit history (oldest to newest):"
-    echo -e "\n"
-    git -C $BASEDIR --no-pager log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --stat $shorthash_before..$shorthash_after
-    echo -e "\n"
+    echo -e "\\n"
+    git -C "$BASEDIR" --no-pager log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --stat $shorthash_before..$shorthash_after
+    echo -e "\\n"
     echo "openHABian configuration tool successfully updated."
     echo "Visit the development repository for more details: $REPOSITORYURL"
-    echo "I will now restart to load my updates... "
+    echo "The tool will now restart to load the updates... "
+    echo -e "\\n"
     exec "$BASEDIR/$SCRIPTNAME"
     exit 1
   fi
