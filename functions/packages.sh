@@ -63,6 +63,7 @@ Please read up on the homegear documentation for more details: https://doc.homeg
 To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/homematic/readme.html
 "
 
+  echo -n "$(timestamp) [openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
   if is_pine64; then
     if [ -n "$INTERACTIVE" ]; then
       whiptail --title "Incompatible Hardware Detected" --msgbox "We are sorry, Homegear is not yet available for your platform." 10 60
@@ -74,7 +75,6 @@ To continue your integration in openHAB 2, please follow the instructions under:
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
   cond_redirect wget -O - http://homegear.eu/packages/Release.key | apt-key add -
   echo "deb https://homegear.eu/packages/Raspbian/ jessie/" > /etc/apt/sources.list.d/homegear.list
   cond_redirect apt update
@@ -105,7 +105,6 @@ Eclipse Mosquitto is now up and running in the background. You should be able to
 To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/mqtt1/readme.html
 "
   echo -n "$(timestamp) [openHABian] Setting up the MQTT broker Eclipse Mosquitto... "
-
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
@@ -154,7 +153,7 @@ find_setup() {
 HABian GitHub issue."
   successtext="Setup was successful. Please edit '/etc/default/findserver' to meet your interface and server requirements."
 
-  echo -n "$(timestamp) [openHABian] Setting up the Framework for Internal Navigation and Discovery ... "
+  echo -n "$(timestamp) [openHABian] Setting up FIND, the Framework for Internal Navigation and Discovery... "
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
@@ -230,12 +229,12 @@ Further details can be found unter: https://goo.gl/qN2t0H
 Integration into openHAB 2 is described here: https://github.com/openhab/openhab/wiki/KNX-Binding
 "
 
+  echo -n "$(timestamp) [openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
+  echo -n "(http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd)... "
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
-  echo -n "(http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd)... "
   #TODO serve file from the repository
   cond_redirect wget -O /tmp/install_knxd_systemd.sh http://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh || FAILED=1
   cond_redirect bash /tmp/install_knxd_systemd.sh || FAILED=1
@@ -266,11 +265,11 @@ and activate one of these most common options (depending on your device):
   #server: device = /dev/ttyUSB0
 "
 
+  echo -n "$(timestamp) [openHABian] Installing owserver (1wire)... "
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Installing owserver (1wire)... "
   cond_redirect apt -y install owserver ow-shell usbutils || FAILED=1
   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
@@ -294,11 +293,11 @@ The Daemon was installed and the systemd service was set up just as described in
 The article also contains instructions regarding openHAB integration.
 "
 
+  echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon... "
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon... "
   cond_redirect apt -y install git python3 python3-pip bluetooth bluez
   if [ $FAILED -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
   if [ ! -d "$DIRECTORY" ]; then
@@ -340,12 +339,12 @@ influxdb_grafana_setup() {
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/13761/1"
 
+  echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   cond_redirect apt -y install apt-transport-https
-  echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
   cond_echo ""
   echo "InfluxDB... "
   cond_redirect wget -O - https://repos.influxdata.com/influxdb.key | apt-key add - || FAILED=1
@@ -394,6 +393,7 @@ nginx_setup() {
   introtext="This will enable you to access the openHAB interface through the normal HTTP/HTTPS ports and optionally secure it with username/password and/or an SSL certificate."
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
 
+  echo "$(timestamp) [openHABian] Setting up Nginx as reverse proxy with authentication... "
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
