@@ -29,7 +29,9 @@ frontail_setup() {
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable frontail.service
   cond_redirect systemctl restart frontail.service
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED (service)"; exit 1; fi
+  dashboard_add_tile frontail
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; exit 1; fi
 }
 
 nodered_setup() {
@@ -48,7 +50,9 @@ nodered_setup() {
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable nodered.service
   cond_redirect systemctl restart nodered.service
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED (service)"; exit 1; fi
+  dashboard_add_tile nodered
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; exit 1; fi
 }
 
 yo_generator_setup() {

@@ -58,6 +58,7 @@ echo -e "\n# Add openHABian modifications" >> $makescript
 echo "touch \$DEST/opt/openHABian-install-inprogress" >> $makescript
 echo "cp ./openhabianpine64.rc.local \$DEST/etc/rc.local" >> $makescript
 echo "cp ./openhabianpine64.first-boot.sh \$BOOT/first-boot.sh" >> $makescript
+echo "touch \$BOOT/first-boot.log" >> $makescript
 echo "cp ./openhabian.conf \$BOOT/openhabian.conf" >> $makescript
 echo "echo \"openHABian preparations finished, /etc/rc.local in place\"" >> $makescript
 
