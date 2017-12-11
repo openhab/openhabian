@@ -18,6 +18,7 @@ touch /opt/openHABian-install-inprogress
 
 echo -n "$(timestamp) [openHABian] Storing configuration... "
 cp /boot/openhabian.conf /etc/openhabian.conf
+sed -i 's/\r$//' /etc/openhabian.conf
 # shellcheck source=openhabian.raspbian.conf
 source /etc/openhabian.conf
 declare wifi_ssid wifi_psk

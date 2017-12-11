@@ -35,7 +35,7 @@ rm -rf $buildfolder
 # Prerequisites
 echo_process "Downloading prerequisites... "
 apt update
-apt --yes install git wget curl unzip kpartx libarchive-zip-perl
+apt --yes install git wget curl unzip kpartx libarchive-zip-perl dos2unix
 
 echo_process "Downloading latest Raspbian Lite image... "
 mkdir $buildfolder
@@ -67,6 +67,7 @@ cp $sourcefolder/rc.local $buildfolder/root/etc/rc.local
 cp $sourcefolder/first-boot.sh $buildfolder/boot/first-boot.sh
 touch $buildfolder/boot/first-boot.log
 cp $sourcefolder/openhabian.raspbian.conf $buildfolder/boot/openhabian.conf
+unix2dos $buildfolder/boot/openhabian.conf
 touch $buildfolder/root/opt/openHABian-install-inprogress
 
 echo_process "Closing up image file... "
