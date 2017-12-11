@@ -31,7 +31,7 @@ imagefile=$buildfolder/pine64-xenial.img
 rm -rf $buildfolder
 
 # Prerequisites
-apt update && apt --yes install git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl
+apt update && apt --yes install git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl dos2unix
 
 echo_process "Cloning \"longsleep/build-pine64-image\" project... "
 git clone -b master https://github.com/longsleep/build-pine64-image.git $buildfolder
@@ -44,6 +44,7 @@ echo_process "Copying over 'rc.local' and 'first-boot.sh' for image integration.
 cp build-pine64-image/rc.local $buildfolder/simpleimage/openhabianpine64.rc.local
 cp build-pine64-image/first-boot.sh $buildfolder/simpleimage/openhabianpine64.first-boot.sh
 cp build-pine64-image/openhabian.pine64.conf $buildfolder/simpleimage/openhabian.conf
+unix2dos $buildfolder/simpleimage/openhabian.conf
 
 source build-pine64-image/openhabian.pine64.conf
 
