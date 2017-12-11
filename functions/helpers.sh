@@ -57,7 +57,7 @@ is_pithree() {
   return $?
 }
 is_pi() {
-  # needed for raspbian-ua-netinst chroot env
+  # needed for raspbian-ua-netinst chroot env #TODO can be removed?
   if [ "$hostname" == "openHABianPi" ] || [ "$boot_volume_label" == "openHABian" ]; then return 0; fi
   # normal conditions
   if is_pizero || is_pizerow || is_pione || is_pitwo || is_pithree; then return 0; fi
