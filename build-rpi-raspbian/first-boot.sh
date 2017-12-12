@@ -21,7 +21,6 @@ cp /boot/openhabian.conf /etc/openhabian.conf
 sed -i 's/\r$//' /etc/openhabian.conf
 # shellcheck source=openhabian.raspbian.conf
 source /etc/openhabian.conf
-declare wifi_ssid wifi_psk
 echo "OK"
 
 userdef="pi"
@@ -40,7 +39,7 @@ fi
 echo "watch cat /boot/first-boot.log" > "/home/$username/.bash_profile"
 
 echo -n "$(timestamp) [openHABian] Setting up Wifi connection... "
-if [ -z ${wifi_ssid+x} ]; then
+if [ -z "${wifi_ssid}" ]; then
   echo "SKIPPED"
 elif grep -q "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf; then
   echo "OK"
@@ -54,7 +53,7 @@ fi
 
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity..."
 cnt=0
-until ping -c1 8.8.8.8 &>/dev/null || [ "$(wget -qO- http://www.msftncsi.com/ncsi.txt)" == "Microsoft NCSI" ]; do
+until ping -c1 9.9.9.9 &>/dev/null || [ "$(wget -qO- http://www.msftncsi.com/ncsi.txt)" == "Microsoft NCSI" ]; do
   sleep 1
   cnt=$((cnt + 1))
   echo -n "."
