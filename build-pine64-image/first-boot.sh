@@ -49,26 +49,28 @@ else
   echo "OK"
 fi
 
-echo -n "$(timestamp) [openHABian] Ensuring network connectivity..."
+echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
 cnt=0
 until ping -c1 9.9.9.9 &>/dev/null || [ "$(wget -qO- http://www.msftncsi.com/ncsi.txt)" == "Microsoft NCSI" ]; do
   sleep 1
   cnt=$((cnt + 1))
-  echo -n "."
+  #echo -n ". "
   if [ $cnt -eq 100 ]; then
-    echo " FAILED"
-    iwconfig
+    echo "FAILED"
     if grep -q "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig | grep -q "ESSID:off"; then
-      echo "$(timestamp) [openHABian] The device was not able to connect to the configured Wi-Fi."
-      echo "$(timestamp) [openHABian] Please check SSID and password as well as reception. Available networks:"
+      echo ""
+      echo "The device was not able to connect to the configured Wi-Fi."
+      echo "Please try again with your correct SSID and password."
+      echo "Also check your signal quality. Available Wi-Fi networks:"
       iwlist wlan0 scanning | grep "ESSID" | sed 's/^\s*ESSID:/\t- /g'
+      echo ""
     else
       echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your network."
     fi
     fail_inprogress
   fi
 done
-echo " OK"
+echo "OK"
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
 until apt update &>/dev/null; do sleep 1; done
