@@ -18,9 +18,10 @@ cd "$(dirname $0)" || exit 1
 
 timestamp() { date +"%F_%T_%Z"; }
 echo_process() { echo -e "\\e[1;94m$(timestamp) [openHABian] $*\\e[0m"; }
+timestamp=$(date +%Y%m%d%H%M)
 
 # Log everything to a file
-exec &> >(tee -a "openhabian-build-$(date +%Y-%m-%d_%H%M%S).log")
+exec &> >(tee -a "openhabian-build-$timestamp.log")
 
 # Load config, create temporary build folder
 sourcefolder=build-pine64-image
@@ -72,14 +73,16 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 echo_process "Moving image and cleaning up... "
 shorthash=$(git log --pretty=format:'%h' -n 1)
 crc32checksum=$(crc32 $imagefile)
-destination="openhabianpine64-xenial-$(date +%Y%m%d%H%M)-git$shorthash-crc$crc32checksum.img"
+destination="openhabianpine64-xenial-$timestamp-git$shorthash-crc$crc32checksum.img"
 mv -v $imagefile "$destination"
 rm -rf $buildfolder
 
 echo_process "Compressing image... "
 xz --verbose --compress --keep "$destination"
+crc32checksum=$(crc32 "$destination.xz")
+mv "$destination.xz" "openhabianpine64-xenial-$timestamp-git$shorthash-crc$crc32checksum.img.xz"
 
 echo_process "Finished! The results:"
-ls -alh "$destination"*
+ls -alh "openhabianpine64-xenial-$timestamp"*
 
 # vim: filetype=sh

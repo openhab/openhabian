@@ -18,9 +18,10 @@ cd "$(dirname $0)" || exit 1
 
 timestamp() { date +"%F_%T_%Z"; }
 echo_process() { echo -e "\\e[1;94m$(timestamp) [openHABian] $*\\e[0m"; }
+timestamp=$(date +%Y%m%d%H%M)
 
 # Log everything to a file
-exec &> >(tee -a "openhabian-build-$(date +%Y-%m-%d_%H%M%S).log")
+exec &> >(tee -a "openhabian-build-$timestamp.log")
 
 # Load config, create temporary build folder, cleanup
 sourcefolder=build-rpi-raspbian
@@ -79,14 +80,16 @@ kpartx -dv $imagefile
 echo_process "Moving image and cleaning up... "
 shorthash=$(git log --pretty=format:'%h' -n 1)
 crc32checksum=$(crc32 $imagefile)
-destination="openhabianpi-raspbian-$(date +%Y%m%d%H%M)-git$shorthash-crc$crc32checksum.img"
+destination="openhabianpi-raspbian-$timestamp-git$shorthash-crc$crc32checksum.img"
 mv -v $imagefile "$destination"
 rm -rf $buildfolder
 
 echo_process "Compressing image... "
 xz --verbose --compress --keep "$destination"
+crc32checksum=$(crc32 "$destination.xz")
+mv "$destination.xz" "openhabianpi-raspbian-$timestamp-git$shorthash-crc$crc32checksum.img.xz"
 
 echo_process "Finished! The results:"
-ls -alh "$destination"*
+ls -alh "openhabianpi-raspbian-$timestamp"*
 
 # vim: filetype=sh
