@@ -145,7 +145,7 @@ multitail_openhab_scheme() {
   echo -n "$(timestamp) [openHABian] Adding openHAB scheme to mulitail... "
   cond_redirect wget -O /etc/multitail.openhab.conf https://raw.githubusercontent.com/CWempe/multitail-scheme-openhab/master/multitail-scheme-openhab.conf
   sed -i "/^.*multitail.*openhab.*$/d" /etc/multitail.conf
-  sed -i "s|# Zarafa|# openHAB file from https://github.com/CWempe/multitail-scheme-openhab\\ninclude:/etc/multitail.openhab.conf\\n#\\n# Zarafa|g" /etc/multitail.conf
+  sed -i "s|# misc|# openHAB file from https://github.com/CWempe/multitail-scheme-openhab\\ninclude:/etc/multitail.openhab.conf\\n#\\n# misc|g" /etc/multitail.conf
   echo "OK"
 }
 
