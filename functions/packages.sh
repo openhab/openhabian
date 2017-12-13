@@ -147,11 +147,11 @@ To continue your integration in openHAB 2, please follow the instructions under:
 
 find_setup() {
   FAILED=0
-  introtext="This will install and setup the FIND server system to allow for indoor localization of WiFi devices.\nSee further information at
- http://www.internalpositioning.com/"
-  failtext="Sadly there was a problem setting up the selected option.\nPlease report this problem in the openHAB community forum or as a open
-HABian GitHub issue."
-  successtext="Setup was successful. Please edit '/etc/default/findserver' to meet your interface and server requirements."
+  introtext="This will install and setup the FIND server system to allow for indoor localization of WiFi devices.\nNote it will only run together with an app that's available on Android only (no iPhones, sorry). See further information at http://www.internalpositioning.com/"
+  failtext="Sadly there was a problem setting up the selected option.\nPlease report this problem in the openHAB community forum or as a open HABian GitHub issue."
+  successtext="FIND setup was successful. Edit '/etc/default/findserver' if you need to change a setting.\nObtain the FIND app for Android through Play store. Check out your FIND server's dashboard at http://"`/bin/hostname`":8003/.\nSee further information at http://www.internalpositioning.com/."
+
+  matched=false
 
   echo -n "$(timestamp) [openHABian] Setting up FIND, the Framework for Internal Navigation and Discovery... "
   if [ -n "$INTERACTIVE" ]; then
@@ -174,6 +174,8 @@ HABian GitHub issue."
   MOSQUITTO_PASSWD=/etc/mosquitto/passwd
   DEFAULTFINDUSER=find
   DEFAULTFINDPASS=cantfind
+  FINDSERVER=localhost		# IP/hostname of interface to listen on
+  FINDPORT=8003
   FIND_TMP=/tmp/find-latest.$$
   CLIENT_TMP=/tmp/fingerprint-latest.$$
 
@@ -184,24 +186,28 @@ HABian GitHub issue."
   /bin/mkdir -p ${FIND_DSTDIR}
   /usr/bin/wget -O ${FIND_TMP} ${FIND_SRC}
   /usr/bin/wget -O ${CLIENT_TMP} ${CLIENT_SRC}
-  /usr/bin/unzip ${CLIENT_TMP} fingerprint -d ${FIND_DSTDIR}
-  /usr/bin/unzip ${FIND_TMP} -d ${FIND_DSTDIR}
+  /usr/bin/unzip -q ${CLIENT_TMP} fingerprint -d ${FIND_DSTDIR}
+  /usr/bin/unzip -q ${FIND_TMP} -d ${FIND_DSTDIR}
   /bin/ln -s ${FIND_DSTDIR}/findserver /usr/sbin/findserver
   /bin/ln -s ${FIND_DSTDIR}/fingerprint /usr/sbin/fingerprint
 
-  FINDSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your FIND server will be listening to:" 15 80 localhost 3>&1 1>&2 2>&3)
-  FINDPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port no. that you want to run FIND server on:" 15 80 8003 3>&1 1>&2 2>&3)
   MQTTSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your MQTT broker is running on:" 15 80 localhost 3>&1 1>&2 2>&3)
   MQTTPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port no. that your MQTT broker is running on:" 15 80 1883 3>&1 1>&2 2>&3)
 
   if [ -f ${MOSQUITTO_PASSWD} ]; then
     FINDADMIN=$(whiptail --title "findserver MQTT Setup" --inputbox "Enter a username for FIND to use as the admin user on your MQTT broker:" 15 80 $DEFAULTFINDUSER 3>&1 1>&2 2>&3)
     FINDADMINPASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a password for the FIND admin user on your MQTT broker:" 15 80 $DEFAULTFINDPASS 3>&1 1>&2 2>&3)
+    secondpassword=$(whiptail --title "findserver MQTT Setup" --passwordbox "Please confirm the password for the FIND admin user on your MQTT broker:" 15 80 $DEFAULTFINDPASS 3>&1 1>&2 2>&3)
+    if [ "$FINDADMINPASS" = "$secondpassword" ] && [ ! -z "$FINDADMINPASS" ]; then
+        matched=true
+    else
+        FINDADMINPASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter once more a password for the FIND admin user on your MQTT broker:" 15 80 $DEFAULTFINDPASS 3>&1 1>&2 2>&3)
+    fi
     cond_redirect /usr/bin/mosquitto_passwd -b ${MOSQUITTO_PASSWD} ${FINDADMIN} ${FINDADMINPASS} || FAILED=1
     if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   fi
-  /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDADMIN|${FINDADMIN}|g" -e "s|%FINDADMINPASS|${FINDADMIN_PASS}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${BASEDIR}/includes/findserver.service >${FIND_SYSTEMCTL}
-  /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${BASEDIR}/includes/findserver >${FIND_DEFAULT}
+  /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDADMIN|${FINDADMIN}|g" -e "s|%FINDADMINPASS|${FINDADMINPASS}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${BASEDIR}/includes/findserver.service >${FIND_SYSTEMCTL}
+  /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" -e "s|%FINDADMIN|${FINDADMIN}|g" -e "s|%FINDADMINPASS|${FINDADMINPASS}|g" ${BASEDIR}/includes/findserver >${FIND_DEFAULT}
 
   /bin/rm -f ${FIND_TMP} ${CLIENT_TMP}
   cond_redirect /bin/systemctl enable findserver.service || FAILED=1
@@ -212,9 +218,9 @@ HABian GitHub issue."
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+      whiptail --title "FIND successfully installed!" --msgbox "$successtext" 15 80
     else
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+      whiptail --title "Operation failed!" --msgbox "$failtext" 10 60
     fi
   fi
 }
