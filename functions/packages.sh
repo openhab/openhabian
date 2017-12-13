@@ -179,24 +179,16 @@ find_setup() {
   FIND_TMP=/tmp/find-latest.$$
   CLIENT_TMP=/tmp/fingerprint-latest.$$
 
-  if [ ! -f ${MOSQUITTO_PASSWD} ]; then
-    mqttservermessage="FIND requires a MQTT broker to run, but Mosquitto is not installed on this system.\nYou can configure FIND to use any existing MQTT broker or you can go back and install Mosquitto from the openHABian menu.\nDo you want to continue with the FIND installation?"
-    if ! (whiptail --title "Mosquitto not installed, continue?" --yes-button "Continue" --no-button "Back" --yesno "$mqttservermessage" 15 80) then echo "CANCELED"; return 0; fi
-  fi
-
-  cond_redirect mkdir -p ${FIND_DSTDIR}
-  cond_redirect wget -O ${FIND_TMP} ${FIND_SRC}
-  cond_redirect wget -O ${CLIENT_TMP} ${CLIENT_SRC}
-  cond_redirect unzip -qo ${CLIENT_TMP} fingerprint -d ${FIND_DSTDIR}
-  cond_redirect unzip -qo ${FIND_TMP} -d ${FIND_DSTDIR}
-  cond_redirect ln -sf ${FIND_DSTDIR}/findserver /usr/sbin/findserver
-  cond_redirect ln -sf ${FIND_DSTDIR}/fingerprint /usr/sbin/fingerprint
-
   MQTTSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your MQTT broker is running on:" 15 80 localhost 3>&1 1>&2 2>&3)
   if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
   #MQTTPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port number that your MQTT broker is running on:" 15 80 1883 3>&1 1>&2 2>&3)
   MQTTPORT=1883
   
+  if [ ! -f ${MOSQUITTO_PASSWD} ]; then
+    mqttservermessage="FIND requires a MQTT broker to run, but Mosquitto is not installed on this system.\nYou can configure FIND to use any existing MQTT broker or you can go back and install Mosquitto from the openHABian menu.\nDo you want to continue with the FIND installation?"
+    if ! (whiptail --title "Mosquitto not installed, continue?" --yes-button "Continue" --no-button "Back" --yesno "$mqttservermessage" 15 80) then echo "CANCELED"; return 0; fi
+  fi
+
   if [ -f ${MOSQUITTO_PASSWD} ]; then
     FINDADMIN=$(whiptail --title "findserver MQTT Setup" --inputbox "Enter a username for FIND to use as the admin user on your MQTT broker:" 15 80 $DEFAULTFINDUSER 3>&1 1>&2 2>&3)
     if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
@@ -213,6 +205,15 @@ find_setup() {
     cond_redirect /usr/bin/mosquitto_passwd -b ${MOSQUITTO_PASSWD} ${FINDADMIN} ${FINDADMINPASS} || FAILED=1
     if [ $? -ne 0 ]; then echo "FAILED (mosquitto)"; return 1; fi
   fi
+  
+  cond_redirect mkdir -p ${FIND_DSTDIR}
+  cond_redirect wget -O ${FIND_TMP} ${FIND_SRC}
+  cond_redirect wget -O ${CLIENT_TMP} ${CLIENT_SRC}
+  cond_redirect unzip -qo ${CLIENT_TMP} fingerprint -d ${FIND_DSTDIR}
+  cond_redirect unzip -qo ${FIND_TMP} -d ${FIND_DSTDIR}
+  cond_redirect ln -sf ${FIND_DSTDIR}/findserver /usr/sbin/findserver
+  cond_redirect ln -sf ${FIND_DSTDIR}/fingerprint /usr/sbin/fingerprint
+  
   cond_redirect sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" \
     ${BASEDIR}/includes/findserver.service > ${FIND_SYSTEMCTL}
   cond_redirect sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" \
