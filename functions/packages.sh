@@ -209,6 +209,7 @@ find_setup() {
     fi
     cond_redirect /usr/bin/mosquitto_passwd -b $MOSQUITTO_PASSWD $FINDADMIN $FINDADMINPASS || FAILED=1
     if [ $? -ne 0 ]; then echo "FAILED (mosquitto)"; return 1; fi
+    cond_redirect systemctl restart mosquitto.service || true
   fi
   
   cond_redirect mkdir -p ${FIND_DSTDIR}
