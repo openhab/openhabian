@@ -207,7 +207,7 @@ find_setup() {
       echo "FAILED (password)"
       return 1
     fi
-    cond_redirect /usr/bin/mosquitto_passwd -b ${MOSQUITTO_PASSWD} ${FINDADMIN} ${FINDADMINPASS} || FAILED=1
+    cond_redirect /usr/bin/mosquitto_passwd -b $MOSQUITTO_PASSWD $FINDADMIN $FINDADMINPASS || FAILED=1
     if [ $? -ne 0 ]; then echo "FAILED (mosquitto)"; return 1; fi
   fi
   
@@ -219,10 +219,10 @@ find_setup() {
   cond_redirect ln -sf ${FIND_DSTDIR}/findserver /usr/sbin/findserver
   cond_redirect ln -sf ${FIND_DSTDIR}/fingerprint /usr/sbin/fingerprint
   
-  cond_echo "Writing service file '${FIND_SYSTEMCTL}'"
-  sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" ${BASEDIR}/includes/findserver.service > ${FIND_SYSTEMCTL}
-  cond_echo "Writing service config file '${FIND_DEFAULT}'"
-  sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" ${BASEDIR}/includes/findserver > ${FIND_DEFAULT}
+  cond_echo "Writing service file '$FIND_SYSTEMCTL'"
+  sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" ${BASEDIR}/includes/findserver.service > $FIND_SYSTEMCTL
+  cond_echo "Writing service config file '$FIND_DEFAULT'"
+  sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" ${BASEDIR}/includes/findserver > $FIND_DEFAULT
 
   cond_redirect rm -f ${FIND_TMP} ${CLIENT_TMP}
   cond_redirect systemctl daemon-reload || FAILED=1
