@@ -147,9 +147,9 @@ To continue your integration in openHAB 2, please follow the instructions under:
 
 find_setup() {
   FAILED=0
-  introtext="This will install and setup the FIND server system to allow for indoor localization of WiFi devices.\nNote it will only run together with an app that's available on Android only (no iPhones, sorry). See further information at http://www.internalpositioning.com/"
-  failtext="Sadly there was a problem setting up the selected option.\nPlease report this problem in the openHAB community forum or as a open HABian GitHub issue."
-  successtext="FIND setup was successful. Edit '/etc/default/findserver' if you need to change a setting.\nObtain the FIND app for Android through Play store. Check out your FIND server's dashboard at http://"`/bin/hostname`":8003/.\nSee further information at http://www.internalpositioning.com/."
+  introtext="Install and setup the FIND server system to allow for indoor localization of WiFi devices.\nNote it will only run together with an app that's available on Android only. See further information at http://www.internalpositioning.com"
+  failtext="Sadly there was a problem setting up the selected option.\nPlease report this problem in the openHAB community forum or as an openHABian GitHub issue."
+  successtext="FIND setup was successful. Settings can be configured in '/etc/default/findserver'. Be sure to restart the service after.\nObtain the FIND app for Android through the Play Store. Check out your FIND server's dashboard at http://$hostname:8003/.\nFor further information: http://www.internalpositioning.com"
 
   matched=false
 
@@ -158,6 +158,7 @@ find_setup() {
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
+  # Check for updated versions: https://github.com/schollz/find/releases
   FIND_RELEASE=2.4.1
   CLIENT_RELEASE=0.6
   if is_arm; then
@@ -180,20 +181,22 @@ find_setup() {
   CLIENT_TMP=/tmp/fingerprint-latest.$$
 
   if [ ! -f ${MOSQUITTO_PASSWD} ]; then
-    if ! (whiptail --title "Mosquitto not installed, continue?" --yes-button "Continue" --no-button "Back" --yesno "FIND requires a MQTT broker to run, but Mosquitto is not installed on this box.\nYou can configure FIND to use any existing MQTT broker or you can go back and install Mosquitto from the openHABian menu.\nDo you want to continue with the FIND installation ?" 15 80) then echo "CANCELED"; return 0; fi
+    mqttservermessage="FIND requires a MQTT broker to run, but Mosquitto is not installed on this system.\nYou can configure FIND to use any existing MQTT broker or you can go back and install Mosquitto from the openHABian menu.\nDo you want to continue with the FIND installation?"
+    if ! (whiptail --title "Mosquitto not installed, continue?" --yes-button "Continue" --no-button "Back" --yesno "$mqttservermessage" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  /bin/mkdir -p ${FIND_DSTDIR}
-  /usr/bin/wget -O ${FIND_TMP} ${FIND_SRC}
-  /usr/bin/wget -O ${CLIENT_TMP} ${CLIENT_SRC}
-  /usr/bin/unzip -q ${CLIENT_TMP} fingerprint -d ${FIND_DSTDIR}
-  /usr/bin/unzip -q ${FIND_TMP} -d ${FIND_DSTDIR}
-  /bin/ln -s ${FIND_DSTDIR}/findserver /usr/sbin/findserver
-  /bin/ln -s ${FIND_DSTDIR}/fingerprint /usr/sbin/fingerprint
+  cond_redirect mkdir -p ${FIND_DSTDIR}
+  cond_redirect wget -O ${FIND_TMP} ${FIND_SRC}
+  cond_redirect wget -O ${CLIENT_TMP} ${CLIENT_SRC}
+  cond_redirect unzip -q ${CLIENT_TMP} fingerprint -d ${FIND_DSTDIR}
+  cond_redirect unzip -q ${FIND_TMP} -d ${FIND_DSTDIR}
+  cond_redirect ln -s ${FIND_DSTDIR}/findserver /usr/sbin/findserver
+  cond_redirect ln -s ${FIND_DSTDIR}/fingerprint /usr/sbin/fingerprint
 
   MQTTSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your MQTT broker is running on:" 15 80 localhost 3>&1 1>&2 2>&3)
-  MQTTPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port no. that your MQTT broker is running on:" 15 80 1883 3>&1 1>&2 2>&3)
-
+  #MQTTPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port number that your MQTT broker is running on:" 15 80 1883 3>&1 1>&2 2>&3)
+  MQTTPORT=1883
+  
   if [ -f ${MOSQUITTO_PASSWD} ]; then
     FINDADMIN=$(whiptail --title "findserver MQTT Setup" --inputbox "Enter a username for FIND to use as the admin user on your MQTT broker:" 15 80 $DEFAULTFINDUSER 3>&1 1>&2 2>&3)
     FINDADMINPASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a password for the FIND admin user on your MQTT broker:" 15 80 $DEFAULTFINDPASS 3>&1 1>&2 2>&3)
@@ -206,21 +209,24 @@ find_setup() {
     cond_redirect /usr/bin/mosquitto_passwd -b ${MOSQUITTO_PASSWD} ${FINDADMIN} ${FINDADMINPASS} || FAILED=1
     if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   fi
-  /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDADMIN|${FINDADMIN}|g" -e "s|%FINDADMINPASS|${FINDADMINPASS}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" ${BASEDIR}/includes/findserver.service >${FIND_SYSTEMCTL}
-  /bin/sed -e "s|%MQTTSERVER|${MQTTSERVER}|g" -e "s|%MQTTPORT|${MQTTPORT}|g" -e "s|%FINDPORT|${FINDPORT}|g" -e "s|%FINDSERVER|${FINDSERVER}|g" -e "s|%FINDADMIN|${FINDADMIN}|g" -e "s|%FINDADMINPASS|${FINDADMINPASS}|g" ${BASEDIR}/includes/findserver >${FIND_DEFAULT}
+  cond_redirect sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" \
+    ${BASEDIR}/includes/findserver.service > ${FIND_SYSTEMCTL}
+  cond_redirect sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" \
+    ${BASEDIR}/includes/findserver > ${FIND_DEFAULT}
 
-  /bin/rm -f ${FIND_TMP} ${CLIENT_TMP}
+  cond_redirect rm -f ${FIND_TMP} ${CLIENT_TMP}
   cond_redirect /bin/systemctl enable findserver.service || FAILED=1
   cond_redirect /bin/systemctl restart findserver.service || FAILED=1
   if [ $? -ne 0 ]; then echo "FAILED (service)"; exit 1; fi
+
   dashboard_add_tile find
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; exit 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
-      whiptail --title "FIND successfully installed!" --msgbox "$successtext" 15 80
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
     else
-      whiptail --title "Operation failed!" --msgbox "$failtext" 10 60
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
     fi
   fi
 }
