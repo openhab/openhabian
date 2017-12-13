@@ -40,7 +40,7 @@ If prompted if files should be replaced by newer ones, select Yes. Please be sur
 
   echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
   cond_redirect apt update
-  cond_redirect apt -y install openhab2
+  cond_redirect apt --yes --force-yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew" install openhab2
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
