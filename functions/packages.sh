@@ -28,7 +28,7 @@ firemotd_setup() {
     # the following is already in bash_profile by default
     #echo -e "\necho\n/opt/FireMotD/FireMotD -HV --theme gray \necho" >> /home/$username/.bash_profile
     # initial apt updates check
-    cond_redirect /bin/bash /opt/FireMotD/FireMotD -S
+    cond_redirect bash /opt/FireMotD/FireMotD -S
     # invoke apt updates check every night
     echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
     echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
@@ -174,7 +174,6 @@ find_setup() {
   FIND_DSTDIR=/var/lib/findserver
   MOSQUITTO_PASSWD=/etc/mosquitto/passwd
   DEFAULTFINDUSER=find
-  DEFAULTFINDPASS=cantfind
   FINDSERVER=localhost		# IP/hostname of interface to listen on
   FINDPORT=8003
   FIND_TMP=/tmp/find-latest.$$
@@ -188,26 +187,31 @@ find_setup() {
   cond_redirect mkdir -p ${FIND_DSTDIR}
   cond_redirect wget -O ${FIND_TMP} ${FIND_SRC}
   cond_redirect wget -O ${CLIENT_TMP} ${CLIENT_SRC}
-  cond_redirect unzip -q ${CLIENT_TMP} fingerprint -d ${FIND_DSTDIR}
-  cond_redirect unzip -q ${FIND_TMP} -d ${FIND_DSTDIR}
-  cond_redirect ln -s ${FIND_DSTDIR}/findserver /usr/sbin/findserver
-  cond_redirect ln -s ${FIND_DSTDIR}/fingerprint /usr/sbin/fingerprint
+  cond_redirect unzip -qo ${CLIENT_TMP} fingerprint -d ${FIND_DSTDIR}
+  cond_redirect unzip -qo ${FIND_TMP} -d ${FIND_DSTDIR}
+  cond_redirect ln -sf ${FIND_DSTDIR}/findserver /usr/sbin/findserver
+  cond_redirect ln -sf ${FIND_DSTDIR}/fingerprint /usr/sbin/fingerprint
 
   MQTTSERVER=$(whiptail --title "FIND Setup" --inputbox "Enter hostname that your MQTT broker is running on:" 15 80 localhost 3>&1 1>&2 2>&3)
+  if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
   #MQTTPORT=$(whiptail --title "FIND Setup" --inputbox "Enter port number that your MQTT broker is running on:" 15 80 1883 3>&1 1>&2 2>&3)
   MQTTPORT=1883
   
   if [ -f ${MOSQUITTO_PASSWD} ]; then
     FINDADMIN=$(whiptail --title "findserver MQTT Setup" --inputbox "Enter a username for FIND to use as the admin user on your MQTT broker:" 15 80 $DEFAULTFINDUSER 3>&1 1>&2 2>&3)
-    FINDADMINPASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a password for the FIND admin user on your MQTT broker:" 15 80 $DEFAULTFINDPASS 3>&1 1>&2 2>&3)
-    secondpassword=$(whiptail --title "findserver MQTT Setup" --passwordbox "Please confirm the password for the FIND admin user on your MQTT broker:" 15 80 $DEFAULTFINDPASS 3>&1 1>&2 2>&3)
+    if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
+    FINDADMINPASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a password for the FIND admin user on your MQTT broker:" 15 80 3>&1 1>&2 2>&3)
+    if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
+    secondpassword=$(whiptail --title "findserver MQTT Setup" --passwordbox "Please confirm the password for the FIND admin user on your MQTT broker:" 15 80 3>&1 1>&2 2>&3)
+    if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
     if [ "$FINDADMINPASS" = "$secondpassword" ] && [ ! -z "$FINDADMINPASS" ]; then
-        matched=true
+      matched=true
     else
-        FINDADMINPASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter once more a password for the FIND admin user on your MQTT broker:" 15 80 $DEFAULTFINDPASS 3>&1 1>&2 2>&3)
+      echo "FAILED (password)"
+      return 1
     fi
     cond_redirect /usr/bin/mosquitto_passwd -b ${MOSQUITTO_PASSWD} ${FINDADMIN} ${FINDADMINPASS} || FAILED=1
-    if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (mosquitto)"; return 1; fi
   fi
   cond_redirect sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" \
     ${BASEDIR}/includes/findserver.service > ${FIND_SYSTEMCTL}
@@ -215,12 +219,14 @@ find_setup() {
     ${BASEDIR}/includes/findserver > ${FIND_DEFAULT}
 
   cond_redirect rm -f ${FIND_TMP} ${CLIENT_TMP}
-  cond_redirect /bin/systemctl enable findserver.service || FAILED=1
-  cond_redirect /bin/systemctl restart findserver.service || FAILED=1
-  if [ $? -ne 0 ]; then echo "FAILED (service)"; exit 1; fi
+  cond_redirect systemctl daemon-reload || FAILED=1
+  cond_redirect systemctl restart findserver.service || FAILED=1
+  cond_redirect systemctl status findserver.service
+  cond_redirect systemctl enable findserver.service || FAILED=1
+  if [ $? -ne 0 ]; then echo "FAILED (service)"; return 1; fi
 
   dashboard_add_tile find
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; exit 1; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; return 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
