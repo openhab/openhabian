@@ -35,7 +35,6 @@ frontail_setup() {
 }
 
 nodered_setup() {
-  nodejs_setup
   echo -n "$(timestamp) [openHABian] Installing Node-RED... "
   FAILED=0
   cond_redirect wget -O /tmp/update-nodejs-and-nodered.sh https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered || FAILED=1
