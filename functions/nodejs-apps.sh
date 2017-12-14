@@ -2,14 +2,24 @@
 
 nodejs_setup() {
   if ! command -v npm &>/dev/null; then
-    echo -n "$(timestamp) [openHABian] Installing Node.js (prerequisite for other packages)... "
     FAILED=0
-    cond_redirect wget -O /tmp/nodejs-v7.x.sh https://deb.nodesource.com/setup_7.x || FAILED=1
-    cond_redirect bash /tmp/nodejs-v7.x.sh || FAILED=1
-    if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
-    #cond_redirect apt update # part of the node script above
-    cond_redirect apt -y install nodejs
-    if [ $? -ne 0 ]; then echo "FAILED (nodejs installation)"; exit 1; fi
+    if is_pione || is_pizero || is_pizerow; then
+      echo -n "$(timestamp) [openHABian] Install Node.js for Armv6 (prerequisite for other packages)... "
+      f=$(curl -sL https://nodejs.org/download/release/latest-boron/ | grep "armv6l.tar.gz" | cut -d '"' -f 2)
+      cond_redirect curl -sL -o node.tgz https://nodejs.org/download/release/latest-boron/$f 2>&1 || FAILED=1
+      if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
+      # unpack it into the correct places
+      cond_redirect sudo tar -zxf node.tgz --strip-components=1 -C /usr 2>&1
+      cond_redirect rm node.tgz 2>&1
+    else
+      echo -n "$(timestamp) [openHABian] Installing Node.js (prerequisite for other packages)... "
+      cond_redirect wget -O /tmp/nodejs-v7.x.sh https://deb.nodesource.com/setup_7.x || FAILED=1
+      cond_redirect bash /tmp/nodejs-v7.x.sh || FAILED=1
+      if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
+      #cond_redirect apt update # part of the node script above
+      cond_redirect apt -y install nodejs
+      if [ $? -ne 0 ]; then echo "FAILED (nodejs installation)"; exit 1; fi
+    fi
     if command -v npm &>/dev/null; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
   fi
 }
