@@ -7,8 +7,8 @@ nodejs_setup() {
     FAILED=0
     if is_armv6l; then
       echo -n "$(timestamp) [openHABian] Install Node.js for Armv6 (prerequisite for other packages)... "
-      f=$(curl -sL https://nodejs.org/download/release/latest-boron/ | grep "armv6l.tar.gz" | cut -d '"' -f 2)
-      cond_redirect curl -sL -o /tmp/nodejs-armv6.tgz https://nodejs.org/download/release/latest-boron/$f 2>&1 || FAILED=1
+      f=$(wget -qO- https://nodejs.org/download/release/latest-boron/ | grep "armv6l.tar.gz" | cut -d '"' -f 2)
+      cond_redirect wget -q -O /tmp/nodejs-armv6.tgz https://nodejs.org/download/release/latest-boron/$f 2>&1 || FAILED=1
       if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
       # unpack it into the correct places
       cond_redirect tar -zxf /tmp/nodejs-armv6.tgz --strip-components=1 -C /usr 2>&1
