@@ -8,7 +8,7 @@ Please be aware, that downgrading from a newer unstable snapshot build is not of
   # ➡ http://www.kaikreuzer.de/2017/06/28/openhab21
   # ➡ https://github.com/openhab/openhab-distro/releases/tag/2.1.0"
 
-  introtext_unstable="You are about to switch over to the latest openHAB 2 unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
+  introtext_unstable="Proceed with caution!\\nYou are about to switch over to the latest openHAB 2 unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
   successtext_unstable="The latest unstable snapshot build of openHAB 2 is now running on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available.\\nIf you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (the openhab2 package) regularly."
 
   if [ "$1" == "unstable" ]; then
