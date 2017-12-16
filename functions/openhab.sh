@@ -57,7 +57,7 @@ Please be aware, that downgrading from a newer unstable snapshot build is not of
   fi
 
   if [ -n "$INTERACTIVE" ]; then
-    whiptail --title "Operation Successful!" --msgbox "$successtext_stable" 15 80
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
 }
 
