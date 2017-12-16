@@ -123,8 +123,8 @@ show_main_menu() {
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
-      41\ *) openhab2_stable_updowngrade ;;
-      *openHAB\ 2.2\ unstable) openhab2_unstable_setup ;;
+      41\ *) openhab2_setup ;;
+      *openHAB\ 2.2\ unstable) openhab2_setup unstable ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
       "") return 0 ;;
@@ -164,8 +164,8 @@ show_main_menu() {
       62\ *) basic_packages && needed_packages ;;
       63\ *) java_zulu_embedded ;;
       *Oracle\ Java*) java_webupd8 ;;
-      64\ *) openhab2_stable_setup ;;
-      *openHAB\ 2\ unstable) openhab2_unstable_setup ;;
+      64\ *) openhab2_setup ;;
+      *openHAB\ 2\ unstable) openhab2_setup unstable ;;
       65\ *) srv_bind_mounts && permissions_corrections && misc_system_settings ;;
       66\ *) samba_setup ;;
       67\ *) frontail_setup ;;
