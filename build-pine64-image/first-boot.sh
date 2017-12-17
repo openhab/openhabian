@@ -108,7 +108,7 @@ until wget -S --spider http://localhost:8080 2>&1 | grep -q 'HTTP/1.1 200 OK'; d
 done
 echo "OK"
 
-echo "$(timestamp) [openHABian] Please visit the openHAB dashboard now."
+echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://$hostname:8080"
 echo "$(timestamp) [openHABian] To gain access to a console, simply reconnect."
 echo "$(timestamp) [openHABian] First time setup successfully finished."
 
