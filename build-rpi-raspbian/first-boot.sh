@@ -103,7 +103,15 @@ else
   fail_inprogress
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed."
-echo "$(timestamp) [openHABian] To gain access to a console now, please reconnect."
+
+echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready... "
+until wget -S --spider http://localhost:8080 2>&1 | grep -q 'HTTP/1.1 200 OK'; do
+  sleep 1
+done
+echo "OK"
+
+echo "$(timestamp) [openHABian] Please visit the openHAB dashboard now."
+echo "$(timestamp) [openHABian] To gain access to a console, simply reconnect."
 echo "$(timestamp) [openHABian] First time setup successfully finished."
 
 # vim: filetype=sh
