@@ -146,10 +146,9 @@ To continue your integration in openHAB 2, please follow the instructions under:
 }
 
 find_setup() {
-  FAILED=0
   introtext="Install and setup the FIND server system to allow for indoor localization of WiFi devices. Please note that FIND will run together with an app that's available on Android ONLY. See further information at http://www.internalpositioning.com"
-  failtext="Sadly there was a problem setting up the selected option.\nPlease report this problem in the openHAB community forum or as an openHABian GitHub issue."
-  successtext="FIND setup was successful. Settings can be configured in '/etc/default/findserver'. Be sure to restart the service after.\nObtain the FIND app for Android through the Play Store. Check out your FIND server's dashboard at: http://$hostname:8003\nFor further information: http://www.internalpositioning.com"
+  failtext="Sadly there was a problem setting up the selected option.\\nPlease report this problem in the openHAB community forum or as an openHABian GitHub issue."
+  successtext="FIND setup was successful. Settings can be configured in '/etc/default/findserver'. Be sure to restart the service after.\\nObtain the FIND app for Android through the Play Store. Check out your FIND server's dashboard at: http://$hostname:8003\nFor further information: http://www.internalpositioning.com"
 
   matched=false
 
@@ -159,28 +158,28 @@ find_setup() {
   fi
 
   # Check for updated versions: https://github.com/schollz/find/releases
-  FIND_RELEASE=2.4.1
-  CLIENT_RELEASE=0.6
+  FIND_RELEASE="2.4.1"
+  CLIENT_RELEASE="0.6"
   if is_arm; then
-    ARCH=arm
+    ARCH="arm"
   else
-    ARCH=amd64
+    ARCH="amd64"
   fi
-  FIND_SRC=https://github.com/schollz/find/releases/download/v${FIND_RELEASE}/find_${FIND_RELEASE}_linux_${ARCH}.zip
-  CLIENT_SRC=https://github.com/schollz/find/releases/download/v${CLIENT_RELEASE}client/fingerprint_${CLIENT_RELEASE}_linux_${ARCH}.zip
+  FIND_SRC="https://github.com/schollz/find/releases/download/v${FIND_RELEASE}/find_${FIND_RELEASE}_linux_${ARCH}.zip"
+  CLIENT_SRC="https://github.com/schollz/find/releases/download/v${CLIENT_RELEASE}client/fingerprint_${CLIENT_RELEASE}_linux_${ARCH}.zip"
 
-  FIND_SYSTEMCTL=/etc/systemd/system/findserver.service
-  FIND_DEFAULT=/etc/default/findserver
-  FIND_DSTDIR=/var/lib/findserver
-  MOSQUITTO_PASSWD=/etc/mosquitto/passwd
-  DEFAULTFINDUSER=find
-  FINDSERVER=localhost		# IP/hostname of interface to listen on
+  FIND_SYSTEMCTL="/etc/systemd/system/findserver.service"
+  FIND_DEFAULT="/etc/default/findserver"
+  FIND_DSTDIR="/var/lib/findserver"
+  MOSQUITTO_PASSWD="/etc/mosquitto/passwd"
+  DEFAULTFINDUSER="find"
+  FINDSERVER="localhost"
   FINDPORT=8003
-  FIND_TMP=/tmp/find-latest.$$
-  CLIENT_TMP=/tmp/fingerprint-latest.$$
+  FIND_TMP="/tmp/find-latest.$$"
+  CLIENT_TMP="/tmp/fingerprint-latest.$$"
 
   if [ ! -f ${MOSQUITTO_PASSWD} ]; then
-    mqttservermessage="FIND requires an MQTT broker to run, but Mosquitto is not installed on this system.\nYou can configure FIND to use any existing MQTT broker (in the next step) or you can go back and install Mosquitto from the openHABian menu.\nDo you want to continue with the FIND installation?"
+    mqttservermessage="FIND requires an MQTT broker to run, but Mosquitto is not installed on this system.\\nYou can configure FIND to use any existing MQTT broker (in the next step) or you can go back and install Mosquitto from the openHABian menu.\\nDo you want to continue with the FIND installation?"
     if ! (whiptail --title "Mosquitto not installed, continue?" --yes-button "Continue" --no-button "Back" --yesno "$mqttservermessage" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
@@ -207,11 +206,15 @@ find_setup() {
       echo "FAILED (password)"
       return 1
     fi
-    cond_redirect /usr/bin/mosquitto_passwd -b $MOSQUITTO_PASSWD $FINDADMIN $FINDADMINPASS || FAILED=1
+    cond_redirect /usr/bin/mosquitto_passwd -b $MOSQUITTO_PASSWD "$FINDADMIN" "$FINDADMINPASS"
     if [ $? -ne 0 ]; then echo "FAILED (mosquitto)"; return 1; fi
     cond_redirect systemctl restart mosquitto.service || true
   fi
-  
+
+  cond_redirect apt update
+  cond_redirect apt -y install libsvm-tools
+  if [ $? -ne 0 ]; then echo "FAILED (SVM)"; return 1; fi
+
   cond_redirect mkdir -p ${FIND_DSTDIR}
   cond_redirect wget -O ${FIND_TMP} ${FIND_SRC}
   cond_redirect wget -O ${CLIENT_TMP} ${CLIENT_SRC}
@@ -219,29 +222,26 @@ find_setup() {
   cond_redirect unzip -qo ${FIND_TMP} -d ${FIND_DSTDIR}
   cond_redirect ln -sf ${FIND_DSTDIR}/findserver /usr/sbin/findserver
   cond_redirect ln -sf ${FIND_DSTDIR}/fingerprint /usr/sbin/fingerprint
-  
+
   cond_echo "Writing service file '$FIND_SYSTEMCTL'"
-  sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" ${BASEDIR}/includes/findserver.service > $FIND_SYSTEMCTL
+  sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" "${BASEDIR}/includes/findserver.service" > $FIND_SYSTEMCTL
   cond_echo "Writing service config file '$FIND_DEFAULT'"
-  sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" ${BASEDIR}/includes/findserver > $FIND_DEFAULT
+  sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" "${BASEDIR}/includes/findserver" > $FIND_DEFAULT
 
   cond_redirect rm -f ${FIND_TMP} ${CLIENT_TMP}
-  cond_redirect systemctl daemon-reload || FAILED=1
-  cond_redirect systemctl restart findserver.service || FAILED=1
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl restart findserver.service
   cond_redirect systemctl status findserver.service
-  cond_redirect systemctl enable findserver.service || FAILED=1
+  cond_redirect systemctl enable findserver.service
   if [ $? -ne 0 ]; then echo "FAILED (service)"; return 1; fi
 
   dashboard_add_tile find
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; return 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED (dashboard tile)"; return 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if [ $FAILED -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
-    else
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
-    fi
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
+  echo "OK"
 }
 
 knxd_setup() {
