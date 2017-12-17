@@ -3,13 +3,14 @@
 openhab2_setup() {
   introtext_stable="You are about to install or upgrade to the latest stable openHAB release.\\n
 Please be aware, that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
-  successtext_stable="The stable release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. Check the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
+  successtext_stable="The stable release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.
+Check the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
   # TODO: Add back in when links are known
   # ➡ http://www.kaikreuzer.de/2017/06/28/openhab21
   # ➡ https://github.com/openhab/openhab-distro/releases/tag/2.1.0"
 
   introtext_unstable="Proceed with caution!\\nYou are about to switch over to the latest openHAB 2 unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
-  successtext_unstable="The latest unstable snapshot build of openHAB 2 is now running on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available.\\nIf you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (the openhab2 package) regularly."
+  successtext_unstable="The latest unstable snapshot build of openHAB 2 is now running on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.\\nIf you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (the openhab2 package) regularly."
 
   if [ "$1" == "unstable" ]; then
     UNSTABLE=1

@@ -2,20 +2,20 @@
 
 show_about() {
   whiptail --title "About openHABian and openhabian-config" --msgbox "openHABian Configuration Tool $(get_git_revision)
-  \nThis tool provides a few routines to make your openHAB experience as comfortable as possible. The menu options help with the setup and configuration of your system. Please select a menu entry to learn more.
-  \nVisit the following websites for more information:
+  \\nThis tool provides a few routines to make your openHAB experience as comfortable as possible. The menu options help with the setup and configuration of your system. Please select a menu entry to learn more.
+  \\nVisit the following websites for more information:
   - Documentation: http://docs.openhab.org/installation/openhabian.html
   - Development: http://github.com/openhab/openhabian
   - Discussion: https://community.openhab.org/t/13379" 17 80
 }
 
+# "03 | openHAB 2.2.0 stable"    "Switch from openHAB 2.1 or 2.2-snapshot to the 2.2 stable release" \
 show_main_menu() {
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian    "    "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Update"                  "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"          "Upgrade all installed software packages to their newest version" \
-  "03 | openHAB 2.2.0 stable"    "Switch from openHAB 2.1 or 2.2-snapshot to the 2.2 stable release" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
@@ -63,7 +63,7 @@ show_main_menu() {
       14\ *) permissions_corrections ;;
       15\ *) firemotd_setup ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "20"* ]]; then
@@ -92,7 +92,7 @@ show_main_menu() {
       29\ *) find_setup ;;
       2A\ *) miflora_setup ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "30"* ]]; then
@@ -115,15 +115,15 @@ show_main_menu() {
       36\ *) wifi_setup ;;
       37\ *) move_root2usb ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
-    "41 | openHAB 2.1 stable   "  "Switch to the openHAB 2.1 release" \
-    "   | openHAB 2.2 unstable"   "Switch to the latest openHAB 2.2 snapshot" \
-    "42 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
-    "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
+    "41 | openHAB stable   " "Install or switch to the latest openHAB release" \
+    "   | openHAB unstable"  "Install or switch to the latest openHAB SNAPSHOT build" \
+    "42 | Remote Console"    "Bind the openHAB SSH console to all external interfaces" \
+    "43 | Reverse Proxy"     "Setup Nginx with password authentication and/or HTTPS access" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -132,7 +132,7 @@ show_main_menu() {
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "50"* ]]; then
@@ -145,7 +145,7 @@ show_main_menu() {
       50\ *) whiptail --textbox /opt/openhabian/docs/openhabian-amanda.md --scrolltext 25 116 ;;
       51\ *) amanda_setup ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "60"* ]]; then
@@ -176,7 +176,7 @@ show_main_menu() {
       68\ *) firemotd_setup ;;
       69\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "99"* ]]; then
@@ -185,5 +185,5 @@ show_main_menu() {
   else whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
   fi
 
-  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\n  \"$choice\"\n\nPlease try again. Open a Ticket if the error persists: $REPOSITORYURL/issues" 12 60; return 0; fi
+  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. Open a Ticket if the error persists: $REPOSITORYURL/issues" 12 60; return 0; fi
 }
