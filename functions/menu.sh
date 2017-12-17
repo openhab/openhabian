@@ -128,7 +128,7 @@ show_main_menu() {
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       41\ *) openhab2_setup ;;
-      *openHAB\ 2.2\ unstable) openhab2_setup unstable ;;
+      *openHAB\ unstable) openhab2_setup unstable ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
       "") return 0 ;;
