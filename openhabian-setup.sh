@@ -17,6 +17,7 @@ while [ -h "$SOURCE" ]; do
   [[ $SOURCE != /* ]] && SOURCE="$BASEDIR/$SOURCE"
 done
 BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+SCRIPTNAME="$(basename $SOURCE)"
 
 REPOSITORYURL="https://github.com/openhab/openhabian"
 CONFIGFILE="/etc/openhabian.conf"
@@ -65,11 +66,11 @@ if [[ -n "$UNATTENDED" ]]; then
   bashrc_copy
   vimrc_copy
   firemotd_setup
-  etckeeper_setup
   java_zulu_embedded
-  openhab2_stable_setup
+  openhab2_setup
   vim_openhab_syntax
   nano_openhab_syntax
+  multitail_openhab_scheme
   srv_bind_mounts
   permissions_corrections
   misc_system_settings
@@ -81,6 +82,7 @@ else
   load_create_config
   openhabian_hotfix
   ua-netinst_check
+  openhabian_update_check
   while show_main_menu; do
     true
   done

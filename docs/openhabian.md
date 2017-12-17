@@ -40,7 +40,7 @@ The following features are provided by the openHABian images out of the box:
 - openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
 - Samba file sharing with [pre-configured to use shares](http://docs.openhab.org/installation/linux.html#mounting-locally)
 - Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
-- Login information screen, powered by [FireMotD](https://github.com/willemdh/FireMotD)
+- Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
 - Customized Bash shell experience
 - Customized vim settings, including [openHAB syntax highlighting](https://github.com/cyberkov/openhab-vim)
 - Customized nano settings, including [openHAB syntax highlighting](https://github.com/airix1/openhabnano)
@@ -208,9 +208,6 @@ sudo openhabian-config
 The configuration tool is the heart of openHABian.
 It is not only a menu with a set of options, it's also used in a special unattended mode inside the ready to use images.
 
-Execute the "Update" function before anything else. The menu and the menu options will evolve over time and you should ensure to be up to date.
-All other menu entries should be self-explaining and more details are shown after selecting them.
-
 ⌨ - A quick note on menu navigation.
 Use the cursor keys to navigate, &lt;Enter&gt; to execute, &lt;Space&gt; to select and &lt;Tab&gt; to jump to the actions on the bottom of the screen. Press &lt;Esc&gt; twice to exit the configuration tool.
 
@@ -329,7 +326,7 @@ If the installation was **not successful** you will see a warning and further in
 
 <div class="row">
   <div class="col s12 m5"><img src="images/openHABian-SSH-MotD.png" alt="openHABian installation successful" title="openHABian installation successful"></div>
-  <div class="col s12 m5 offset-s2"><img src="images/openHABian-install-failed.png" alt="openHABian installation failed warning and instructions" title="openHABian installation failed warning and instructions"></div>
+  <div class="col s12 m5 offset-m2"><img src="images/openHABian-install-failed.png" alt="openHABian installation failed warning and instructions" title="openHABian installation failed warning and instructions"></div>
 </div>
 
 ##### What Next?

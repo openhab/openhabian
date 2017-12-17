@@ -29,7 +29,7 @@ change_password() {
         fi
       done
     else
-        return 0
+      return 0
     fi
   else
     passwordChange=$1
@@ -54,7 +54,7 @@ change_password() {
       cond_redirect systemctl restart openhab2.service
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
     fi
-	if [[ $i == *"Amanda backup"* ]]; then
+	  if [[ $i == *"Amanda backup"* ]]; then
       echo -n "$(timestamp) [openHABian] Changing password for linux account \"backup\"... "
       echo "backup:$passwordChange" | chpasswd
       if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi

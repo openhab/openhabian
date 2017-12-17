@@ -17,7 +17,7 @@ create_backup_config() {
      introtext="${introtext}\nFor permanent storage such as USB or NAS mounted storage, as well as for cloud based storage, we will create ${tapes} virtual containers."
   fi
   if [ -n "$INTERACTIVE" ]; then
-      if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+      if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
   # create virtual 'tapes'
   ln -s ${storage}/slots ${storage}/slots/drive0;ln -s ${storage}/slots ${storage}/slots/drive1    # taper-parallel-write 2 so we need 2 virtual drives
@@ -32,7 +32,7 @@ create_backup_config() {
           if [ "${config}" = "openhab-local-SD" ]; then
               introtext="Please insert your removable storage medium number ${counter}."
               if [ -n "$INTERACTIVE" ]; then
-            if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then return 0; fi
+            if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
                   /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
               fi
               tpchanger="\"chg-single:${sddev}\""
