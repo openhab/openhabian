@@ -1,6 +1,6 @@
 # FIND server service configuration
 # see https://www.internalpositioning.com/server/
-# 
+#
 FINDSERVER=%FINDSERVER
 FINDPORT=%FINDPORT
 MQTTSERVER=%MQTTSERVER
