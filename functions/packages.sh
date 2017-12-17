@@ -235,13 +235,11 @@ find_setup() {
   cond_redirect systemctl enable findserver.service
   if [ $? -ne 0 ]; then echo "FAILED (service)"; return 1; fi
 
-  dashboard_add_tile find
-  if [ $? -ne 0 ]; then echo "FAILED (dashboard tile)"; return 1; fi
-
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
   echo "OK"
+  dashboard_add_tile find
 }
 
 knxd_setup() {

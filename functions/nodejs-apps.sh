@@ -5,7 +5,7 @@ nodejs_setup() {
     return 0
   fi
   FAILED=0
-  
+
   if is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Node.js for armv6l (prerequisite for other packages)... "
     f=$(wget -qO- https://nodejs.org/download/release/latest-boron/ | grep "armv6l.tar.gz" | cut -d '"' -f 2)
@@ -39,9 +39,8 @@ frontail_setup() {
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable frontail.service
   cond_redirect systemctl restart frontail.service
-  if [ $? -ne 0 ]; then echo "FAILED (service)"; exit 1; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
   dashboard_add_tile frontail
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; exit 1; fi
 }
 
 nodered_setup() {
@@ -59,9 +58,8 @@ nodered_setup() {
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable nodered.service
   cond_redirect systemctl restart nodered.service
-  if [ $? -ne 0 ]; then echo "FAILED (service)"; exit 1; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
   dashboard_add_tile nodered
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (dashboard tile)"; exit 1; fi
 }
 
 yo_generator_setup() {
