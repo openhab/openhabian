@@ -51,6 +51,7 @@ echo ""
 echo "Looking for a place to get started? Check out 'sudo openhabian-config' and the"
 echo "documentation at http://docs.openhab.org/installation/openhabian.html"
 echo "The openHAB dashboard can be reached at http://$(hostname):8080"
+echo "The openHAB console could be reached by running: openhab-cli console"
 echo ""
 
 # vim: filetype=sh
