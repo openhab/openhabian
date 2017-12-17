@@ -1,17 +1,27 @@
 #!/usr/bin/env bash
 
 nodejs_setup() {
-  if ! command -v npm &>/dev/null; then
+  if command -v npm &>/dev/null; then
+    return 0
+  fi
+  FAILED=0
+  
+  if is_armv6l; then
+    echo -n "$(timestamp) [openHABian] Installing Node.js for armv6l (prerequisite for other packages)... "
+    f=$(wget -qO- https://nodejs.org/download/release/latest-boron/ | grep "armv6l.tar.gz" | cut -d '"' -f 2)
+    cond_redirect wget -O /tmp/nodejs-armv6l.tar.gz https://nodejs.org/download/release/latest-boron/$f 2>&1 || FAILED=1
+    if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
+    cond_redirect tar -zxf /tmp/nodejs-armv6l.tar.gz --strip-components=1 -C /usr 2>&1
+    cond_redirect rm /tmp/nodejs-armv6l.tar.gz 2>&1
+  else
     echo -n "$(timestamp) [openHABian] Installing Node.js (prerequisite for other packages)... "
-    FAILED=0
     cond_redirect wget -O /tmp/nodejs-v7.x.sh https://deb.nodesource.com/setup_7.x || FAILED=1
     cond_redirect bash /tmp/nodejs-v7.x.sh || FAILED=1
     if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
-    #cond_redirect apt update # part of the node script above
     cond_redirect apt -y install nodejs
     if [ $? -ne 0 ]; then echo "FAILED (nodejs installation)"; exit 1; fi
-    if command -v npm &>/dev/null; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
   fi
+  if command -v npm &>/dev/null; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
 }
 
 frontail_setup() {

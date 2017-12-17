@@ -73,6 +73,12 @@ is_arm() {
     *) return 1 ;;
   esac
 }
+is_armv6l() {
+  case "$(uname -m)" in
+    armv6l) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 is_ubuntu() {
   [[ $(lsb_release -d) =~ "Ubuntu" ]]
   return $?
