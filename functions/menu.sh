@@ -154,8 +154,8 @@ show_main_menu() {
     "62 | Packages"               "Install needed and recommended system packages" \
     "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
     "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team" \
-    "64 | openHAB 2"              "Install openHAB 2.1 (stable)" \
-    "   | openHAB 2 unstable"     "(Alternative) Install the latest openHAB 2.2 snapshot (unstable)" \
+    "64 | openHAB stable"         "Install the latest openHAB release" \
+    "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" \
     "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB" \
     "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
     "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail)" \
@@ -169,7 +169,7 @@ show_main_menu() {
       63\ *) java_zulu_embedded ;;
       *Oracle\ Java*) java_webupd8 ;;
       64\ *) openhab2_setup ;;
-      *openHAB\ 2\ unstable) openhab2_setup unstable ;;
+      *openHAB\ unstable) openhab2_setup unstable ;;
       65\ *) srv_bind_mounts && permissions_corrections && misc_system_settings ;;
       66\ *) samba_setup ;;
       67\ *) frontail_setup ;;
