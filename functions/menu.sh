@@ -9,13 +9,13 @@ show_about() {
   - Discussion: https://community.openhab.org/t/13379" 17 80
 }
 
-# "03 | openHAB 2.2.0 stable"    "Switch from openHAB 2.1 or 2.2-snapshot to the 2.2 stable release" \
 show_main_menu() {
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian    "    "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Update"                  "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"          "Upgrade all installed software packages to their newest version" \
+  "03 | openHAB 2.2.0 stable"    "Switch from openHAB 2.1 or 2.2-snapshot to the 2.2 stable release" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
