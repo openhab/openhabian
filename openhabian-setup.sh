@@ -67,7 +67,7 @@ if [[ -n "$UNATTENDED" ]]; then
   vimrc_copy
   firemotd_setup
   java_zulu_embedded
-  openhab2_stable_setup
+  openhab2_setup
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme
