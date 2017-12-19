@@ -67,7 +67,7 @@ if [[ -n "$UNATTENDED" ]]; then
   vimrc_copy
   firemotd_setup
   java_zulu_embedded
-  openhab2_stable_setup
+  openhab2_setup
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme
@@ -76,7 +76,8 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   samba_setup
   clean_config_userpw
-  if is_pione || is_pizero || is_pizerow; then true; else nodejs_setup && frontail_setup; fi
+  nodejs_setup
+  frontail_setup
 else
   whiptail_check
   load_create_config
