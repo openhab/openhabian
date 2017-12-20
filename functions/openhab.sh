@@ -159,6 +159,7 @@ dashboard_add_tile() {
   fi
 
   {
+    echo ""
     echo "$tile_name.link-name=$tile_desc"
     echo "$tile_name.link-url=$tile_url"
     echo "$tile_name.link-imageurl=$tile_imagedata"
