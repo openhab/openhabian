@@ -76,7 +76,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   fi
 
   cond_redirect wget -O - http://homegear.eu/packages/Release.key | apt-key add -
-  echo "deb https://homegear.eu/packages/Raspbian/ jessie/" > /etc/apt/sources.list.d/homegear.list
+  echo "deb https://homegear.eu/packages/Raspbian/ stretch/" > /etc/apt/sources.list.d/homegear.list
   cond_redirect apt update
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect apt -y install homegear homegear-homematicbidcos homegear-homematicwired
