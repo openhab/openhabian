@@ -87,7 +87,23 @@ is_debian() {
   [[ $(lsb_release -d) =~ "Debian" ]]
   return $?
 }
+is_raspbian() {
+  [[ "$(lsb_release -si)" = "Raspbian" ]]
+  return $?
+}
 is_jessie() {
   [[ $(lsb_release -c) =~ "jessie" ]]
+  return $?
+}
+is_stretch() {
+  [[ $(lsb_release -sc) =~ "stretch" ]]
+  return $?
+}
+is_trusty() {
+  [[ $(lsb_release -sc) =~ "trusty" ]]
+  return $?
+}
+is_xenial() {
+  [[ $(lsb_release -sc) =~ "xenial" ]]
   return $?
 }
