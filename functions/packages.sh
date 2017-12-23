@@ -80,22 +80,22 @@ To continue your integration in openHAB 2, please follow the instructions under:
   distro="$(lsb_release -si)-$(lsb_release -sc)"
   case "$distro" in
     Debian-jessie)
-      echo 'deb https://apt.homegear.eu/Debian/ jessie/' >> /etc/apt/sources.list.d/homegear.list
+      echo 'deb https://apt.homegear.eu/Debian/ jessie/' > /etc/apt/sources.list.d/homegear.list
       ;;
     Debian-stretch)
-      echo 'deb https://apt.homegear.eu/Debian/ stretch/' >> /etc/apt/sources.list.d/homegear.list
+      echo 'deb https://apt.homegear.eu/Debian/ stretch/' > /etc/apt/sources.list.d/homegear.list
       ;;
     Raspbian-jessie)
-      echo 'deb https://apt.homegear.eu/Raspbian/ jessie/' >> /etc/apt/sources.list.d/homegear.list
+      echo 'deb https://apt.homegear.eu/Raspbian/ jessie/' > /etc/apt/sources.list.d/homegear.list
       ;;
     Raspbian-stretch)
-      echo 'deb https://apt.homegear.eu/Raspbian/ stretch/' >> /etc/apt/sources.list.d/homegear.list
+      echo 'deb https://apt.homegear.eu/Raspbian/ stretch/' > /etc/apt/sources.list.d/homegear.list
       ;;
     Ubuntu-trusty)
-      echo 'deb https://apt.homegear.eu/Ubuntu/ trusty/' >> /etc/apt/sources.list.d/homegear.list
+      echo 'deb https://apt.homegear.eu/Ubuntu/ trusty/' > /etc/apt/sources.list.d/homegear.list
       ;;
     Ubuntu-xenial)
-      echo 'deb https://apt.homegear.eu/Ubuntu/ xenial/' >> /etc/apt/sources.list.d/homegear.list
+      echo 'deb https://apt.homegear.eu/Ubuntu/ xenial/' > /etc/apt/sources.list.d/homegear.list
       ;;
     *)
       echo "Your OS is not supported"
