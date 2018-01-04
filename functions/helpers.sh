@@ -80,14 +80,30 @@ is_armv6l() {
   esac
 }
 is_ubuntu() {
-  [[ $(lsb_release -d) =~ "Ubuntu" ]]
+  [[ $(lsb_release -sd) =~ "Ubuntu" ]]
   return $?
 }
 is_debian() {
-  [[ $(lsb_release -d) =~ "Debian" ]]
+  [[ $(lsb_release -sd) =~ "Debian" ]]
+  return $?
+}
+is_raspbian() {
+  [[ "$(lsb_release -si)" =~ "Raspbian" ]]
   return $?
 }
 is_jessie() {
-  [[ $(lsb_release -c) =~ "jessie" ]]
+  [[ $(lsb_release -sc) =~ "jessie" ]]
+  return $?
+}
+is_stretch() {
+  [[ $(lsb_release -sc) =~ "stretch" ]]
+  return $?
+}
+is_trusty() {
+  [[ $(lsb_release -sc) =~ "trusty" ]]
+  return $?
+}
+is_xenial() {
+  [[ $(lsb_release -sc) =~ "xenial" ]]
   return $?
 }
