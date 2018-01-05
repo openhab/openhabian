@@ -33,7 +33,7 @@ frontail_setup() {
   #
   frontail_base="/usr/lib/node_modules/frontail"
   cp $BASEDIR/includes/frontail-preset.json $frontail_base/preset/openhab.json
-  cp $BASEDIR/includes/frontail-theme.css $frontail_base/lib/web/assets/styles/openhab.css
+  cp $BASEDIR/includes/frontail-theme.css $frontail_base/web/assets/styles/openhab.css
   cp $BASEDIR/includes/frontail.service /etc/systemd/system/frontail.service
   chmod 664 /etc/systemd/system/frontail.service
   cond_redirect systemctl daemon-reload
