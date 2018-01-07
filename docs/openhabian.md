@@ -1,13 +1,12 @@
 ---
 layout: documentation
 title: openHABian
+source: https://github.com/openhab/openhabian/blob/master/docs/openhabian.md
 ---
 
 {% include base.html %}
 
-<!-- Attention authors: If you want to improve or enhance this article, please go to: -->
-<!--   * https://github.com/openhab/openhabian/issues -->
-<!--   * https://github.com/openhab/openhabian/blob/master/docs/openhabian.md -->
+<!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source repository -->
 
 # openHABian - Hassle-free openHAB Setup
 
