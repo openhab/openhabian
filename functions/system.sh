@@ -26,7 +26,7 @@ basic_packages() {
   cond_redirect apt update
   apt remove raspi-config &>/dev/null || true
   cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
-                               xz-utils software-properties-common man-db whiptail acl usbutils dirmngr
+                               xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
