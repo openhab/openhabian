@@ -64,8 +64,10 @@ is_pi() {
   return 1
 }
 is_pine64() {
-  [[ $(uname -r) =~ "pine64-longsleep" ]]
-  return $?
+  case "$(cat /proc/device-tree/model)" in
+  sun50iw1p1) return 0 ;;
+    *) return 1 ;;
+  esac  
 }
 is_arm() {
   case "$(uname -m)" in
