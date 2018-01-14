@@ -60,6 +60,7 @@ if [[ -n "$UNATTENDED" ]]; then
   if is_pi; then memory_split; enable_rpi_audio; fi
   if is_pine64; then pine64_platform_scripts; fi
   if is_pine64; then pine64_fixed_mac; fi
+  if is_pine64; then pine64_fix_systeminfo_binding; fi
   basic_packages
   needed_packages
   bashrc_copy
