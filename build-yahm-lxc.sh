@@ -25,9 +25,9 @@ then
     echo "$(timestamp) [openHABian] ERROR: Please install YAHM first: https://github.com/leonsio/YAHM"
     exit
 fi
-if [ -d /var/lib/lxc/openhab ]
+if [ -d /var/lib/lxc/openhabian ]
 then
-    echo "$(timestamp) [openHABian] ERROR: Openhab LXC Instance found, please delete it first /var/lib/lxc/openhab"
+    echo "$(timestamp) [openHABian] ERROR: Openhab LXC Instance found, please delete it first /var/lib/lxc/openhabian"
     exit
 fi
 
@@ -46,54 +46,54 @@ echo -n "$(timestamp) [HOST] [openHABian] Installing dependencies..."
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [HOST] [openHABian] Creating new LXC debian container: openhab..."
-lxc-create -n openhab -t debian &>> /var/log/yahm/openhabian_install.log
+lxc-create -n openhabian -t debian &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [HOST] [openHABian] Creating LXC network configuration..."
-yahm-network -n openhab -f attach_bridge &>> /var/log/yahm/openhabian_install.log
+yahm-network -n openhabian -f attach_bridge &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 echo lxc.include=/var/lib/lxc/openhab/config.network >> /var/lib/lxc/openhab/config
 
 echo -n "$(timestamp) [HOST] [openHABian] Starting openhab LXC container..."
-lxc-start -n openhab -d 
+lxc-start -n openhabian -d 
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo "\n$(timestamp) [GLOBAL] [openHABian] Host Installation done, beginning with LXC preparation.\n"
 
 echo -n "$(timestamp) [LXC] [openHABian] Installing dependencies..."
-lxc-attach -n openhab -- apt install -y wget gnupg git lsb-release &>> /var/log/yahm/openhabian_install.log
+lxc-attach -n openhabian -- apt install -y wget gnupg git lsb-release &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 if is_pithree || is_pizerow; then
     echo "$(timestamp) [INFO] [openHABian] Raspberry Pi Hardware found, setup addition repositories."
 
     echo -n "$(timestamp) [LXC] [openHABian] Installing repository key..."
-    wget -qO - http://archive.raspberrypi.org/debian/raspberrypi.gpg.key  | lxc-attach -n openhab -- apt-key add - &>> /var/log/yahm/openhabian_install.log
+    wget -qO - http://archive.raspberrypi.org/debian/raspberrypi.gpg.key  | lxc-attach -n openhabian -- apt-key add - &>> /var/log/yahm/openhabian_install.log
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
     echo -n "$(timestamp) [LXC] [openHABian] Installing repository files..."
-    echo 'deb http://archive.raspberrypi.org/debian/ stretch main ui' | lxc-attach -n openhab  -- tee /etc/apt/sources.list.d/rpi.list &>> /var/log/yahm/openhabian_install.log
+    echo 'deb http://archive.raspberrypi.org/debian/ stretch main ui' | lxc-attach -n openhabian  -- tee /etc/apt/sources.list.d/rpi.list &>> /var/log/yahm/openhabian_install.log
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 fi
 
 echo -n "$(timestamp) [LXC] [openHABian] Creating gpio user..."
-lxc-attach -n openhab -- useradd gpio &>> /var/log/yahm/openhabian_install.log
+lxc-attach -n openhabian -- useradd gpio &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [LXC] [openHABian] Creating openhabian user..."
-lxc-attach -n openhab -- useradd -m openhabian &>> /var/log/yahm/openhabian_install.log
+lxc-attach -n openhabian -- useradd -m openhabian &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [LXC] [openHABian] Setting default password for openhabian user..."
-echo openhabian:openhabian | lxc-attach -n openhab -- chpasswd &>> /var/log/yahm/openhabian_install.log
+echo openhabian:openhabian | lxc-attach -n openhabian -- chpasswd &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [LXC] [openHABian] Cloning openhabian repository..."
-lxc-attach -n openhab -- git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>> /var/log/yahm/openhabian_install.log
+lxc-attach -n openhabian -- git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [LXC] [openHABian] Linking openhabian configuration utility to /usr/bin..."
-lxc-attach -n openhab -- ln -sfn /opt/openhabian/openhabian-setup.sh /usr/bin/openhabian-config &>> /var/log/yahm/openhabian_install.log
+lxc-attach -n openhabian -- ln -sfn /opt/openhabian/openhabian-setup.sh /usr/bin/openhabian-config &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [LXC] [openHABian] Creating openhabian default configuration..."
@@ -101,10 +101,10 @@ echo -e "hostname=openHABian\nusername=openhabian\nuserpw=openhabian\ntimeserver
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo  "$(timestamp) [LXC] [openHABian] Starting openhabian installation, this can take a lot of time....."
-lxc-attach -n openhab -- /opt/openhabian/openhabian-setup.sh unattended 
+lxc-attach -n openhabian -- /opt/openhabian/openhabian-setup.sh unattended 
 
 echo  "$(timestamp) [LXC] [openHABian] Starting openHAB2 Service."
-lxc-attach -n openhab -- systemctl start openhab2.service
+lxc-attach -n openhabian -- systemctl start openhab2.service
 
 echo  "\n$(timestamp) [GLOBAL] [openHABian] Done.\n"
 lxc-info -n openhab
