@@ -176,7 +176,21 @@ The "Manual/Fresh Setup" submenu entry is the right place for you. Execute all e
 > Please be cautious and have a close look at the console output for errors.
 > Report problems you encounter to the [openHABian Issue Tracker](https://github.com/openhab/openhabian/issues).
 
+
+### YAHM Addon
+
+openHABian can be installed inside a LXC container on Debian/Armbian/Raspbian system supported by [YAHM](https://github.com/leonsio/YAHM). It is irrelevant which SBC is used. During the installation a new minimal [LXC](https://en.wikipedia.org/wiki/LXC) Debian container will be created with openHABian installed there.
+
+Only one requirement: YAHM must be installed first, the installation of CCU2-FW is not necessary.
+
+```shell
+wget -nv -O- https://raw.githubusercontent.com/openhab/openhabian/master/build-yahm-lxc.sh  | sudo -E  bash
+```
+
+
+
 {: #wifi-setup}
+
 ### Wi-Fi based Setup Notes
 
 If you own a RPi3, a RPi0W, a Pine A64, or a compatible Wi-Fi dongle you can set up and use openHABian purely via Wi-Fi.
