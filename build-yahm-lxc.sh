@@ -3,7 +3,7 @@
 timestamp() { date +"%F_%T_%Z"; }
 
 fail_inprogress() {
-  echo -e "$(timestamp) [HOST] [openHABian] Initial setup exiting with an error!\\n\\n"
+  echo -e "$(timestamp) [HOST] [openHABian] Initial setup exiting with an error!\n\n"
   cat /var/log/yahm/openhabian_install.log
   exit 1
 }
@@ -18,13 +18,21 @@ is_pithree() {
   return $?
 }
 
-
 # @todo need better checks: bridge installed? bridge name? this script works only with default values (yahmbr0)
-if [ ! -f /opt/YAHM/bin/yahm-ctl ]
+if [ ! -f /etc/default/yahm ]
 then
-    echo "$(timestamp) [openHABian] ERROR: Please install YAHM first: https://github.com/leonsio/YAHM"
+    echo "$(timestamp) [openHABian] ERROR: Please install YAHM version 1.9 or newer first: https://github.com/leonsio/YAHM"
+    exit
+else
+    source /etc/default/yahm
+fi
+
+if [ $(lxc-info -n ${LXCNAME}|grep STOPPED|wc -l) -eq 1 ]
+then
+    echo "$(timestamp) [openHABian] ERROR: ${LXCNAME} container is stopped, please start it first (yahm-ctl start)"
     exit
 fi
+
 if [ -d /var/lib/lxc/openhabian ]
 then
     echo "$(timestamp) [openHABian] ERROR: Openhab LXC Instance found, please delete it first /var/lib/lxc/openhabian"
@@ -34,7 +42,7 @@ fi
 mkdir -p /var/log/yahm
 rm -rf /var/log/yahm/openhabian_install.log
 
-echo "\n$(timestamp) [GLOBAL] [openHABian] Starting the openHABian Host LXC installation.\n"
+echo -e "\n$(timestamp) [GLOBAL] [openHABian] Starting the openHABian Host LXC installation.\n"
 
 echo -n "$(timestamp) [HOST] [openHABian] Updating repositories and upgrading installed packages..."
 until apt update &>> /var/log/yahm/openhabian_install.log; do sleep 1; done
@@ -45,20 +53,20 @@ echo -n "$(timestamp) [HOST] [openHABian] Installing dependencies..."
 /usr/bin/apt -y install debootstrap &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-echo -n "$(timestamp) [HOST] [openHABian] Creating new LXC debian container: openhab..."
+echo -n "$(timestamp) [HOST] [openHABian] Creating new LXC debian container: openhabian..."
 lxc-create -n openhabian -t debian &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [HOST] [openHABian] Creating LXC network configuration..."
 yahm-network -n openhabian -f attach_bridge &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
-echo lxc.include=/var/lib/lxc/openhab/config.network >> /var/lib/lxc/openhab/config
+echo lxc.include=/var/lib/lxc/openhabian/config.network >> /var/lib/lxc/openhabian/config
 
-echo -n "$(timestamp) [HOST] [openHABian] Starting openhab LXC container..."
+echo -n "$(timestamp) [HOST] [openHABian] Starting openhabian LXC container..."
 lxc-start -n openhabian -d 
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-echo "\n$(timestamp) [GLOBAL] [openHABian] Host Installation done, beginning with LXC preparation.\n"
+echo -e "\n$(timestamp) [GLOBAL] [openHABian] Host Installation done, beginning with LXC preparation.\n"
 
 echo -n "$(timestamp) [LXC] [openHABian] Installing dependencies..."
 lxc-attach -n openhabian -- apt install -y wget gnupg git lsb-release &>> /var/log/yahm/openhabian_install.log
@@ -97,15 +105,29 @@ lxc-attach -n openhabian -- ln -sfn /opt/openhabian/openhabian-setup.sh /usr/bin
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [LXC] [openHABian] Creating openhabian default configuration..."
-echo -e "hostname=openHABian\nusername=openhabian\nuserpw=openhabian\ntimeserver=0.pool.ntp.org\nlocales='en_US.UTF-8 de_DE.UTF-8'\nsystem_default_locale=en_US.UTF-8\ntimezone=Europe/Berlin" > /var/lib/lxc/openhab/rootfs/etc/openhabian.conf &>> /var/log/yahm/openhabian_install.log
+echo -e "hostname=openHABian\nusername=openhabian\nuserpw=openhabian\ntimeserver=0.pool.ntp.org\nlocales='en_US.UTF-8 de_DE.UTF-8'\nsystem_default_locale=en_US.UTF-8\ntimezone=Europe/Berlin" > /var/lib/lxc/openhabian/rootfs/etc/openhabian.conf &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo  "$(timestamp) [LXC] [openHABian] Starting openhabian installation, this can take a lot of time....."
 lxc-attach -n openhabian -- /opt/openhabian/openhabian-setup.sh unattended 
 
+echo  -e "\n$(timestamp) [GLOBAL] [openHABian] Installation Done.\n"
+
+# Geting some IP informations
+YAHM_LXC_IP=$(lxc-info -i -n ${LXCNAME} | awk '{print $2}')
+OH_LXC_IP=$(lxc-info -i -n openhabian | awk '{print $2}')
+
+echo "$(timestamp) [INFO] CCU2 IP: ${YAHM_LXC_IP}"
+echo "$(timestamp) [INFO] OpenHABian IP: ${OH_LXC_IP}"
+
+echo  "$(timestamp) [LXC] [openHABian] Setup CCU2 Binding inside openHABian"
+OH_CONF_DIR=/var/lib/lxc/openhabian/rootfs/etc/openhab2
+sed -i $OH_CONF_DIR/services/addons.cfg -e 's/^#binding.*$/binding=homematic/'
+echo "Bridge homematic:bridge:yahm [ gatewayAddress='${YAHM_LXC_IP}' ]" > $OH_CONF_DIR/things/yahm-homematic.things
+lxc-attach -n openhabian  -- chown openhab:openhab /etc/openhab2/things/yahm-homematic.things
+
 echo  "$(timestamp) [LXC] [openHABian] Starting openHAB2 Service."
 lxc-attach -n openhabian -- systemctl start openhab2.service
 
-echo  "\n$(timestamp) [GLOBAL] [openHABian] Done.\n"
-lxc-info -n openhab
-
+echo "$(timestamp) [INFO] OpenHABian Login URL: http://${OH_LXC_IP}:8080"
+echo "$(timestamp) [INFO] OpenHABian Console Login: lxc-attach -n openhabian"
