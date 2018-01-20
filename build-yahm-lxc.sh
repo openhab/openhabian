@@ -60,7 +60,10 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 echo -n "$(timestamp) [HOST] [openHABian] Creating LXC network configuration..."
 yahm-network -n openhabian -f attach_bridge &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+# attach network configuration
 echo lxc.include=/var/lib/lxc/openhabian/config.network >> /var/lib/lxc/openhabian/config
+# setup autostart
+echo 'lxc.start.auto = 1' >> /var/lib/lxc/openhabian/config
 
 echo -n "$(timestamp) [HOST] [openHABian] Starting openhabian LXC container..."
 lxc-start -n openhabian -d 
