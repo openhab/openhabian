@@ -1,5 +1,14 @@
 #!/bin/bash
 
+if [ `dpkg --print-architecture` = "arm64" ]
+then
+	ARCH_ADD="--arch arm64"
+	ARCH="arm64"
+else
+	ARCH_ADD=""
+	ARCH="armhf"	
+fi
+
 timestamp() { date +"%F_%T_%Z"; }
 
 fail_inprogress() {
@@ -50,11 +59,11 @@ apt --yes upgrade &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [HOST] [openHABian] Installing dependencies..."
-/usr/bin/apt -y install debootstrap &>> /var/log/yahm/openhabian_install.log
+/usr/bin/apt -y install debootstrap rsync &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [HOST] [openHABian] Creating new LXC debian container: openhabian..."
-lxc-create -n openhabian -t debian &>> /var/log/yahm/openhabian_install.log
+lxc-create -n openhabian -t debian -- ${ARCH_ADD} --packages="wget gnupg git lsb-release ca-certificates iputils-ping" &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [HOST] [openHABian] Creating LXC network configuration..."
@@ -70,10 +79,6 @@ lxc-start -n openhabian -d
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -e "\n$(timestamp) [GLOBAL] [openHABian] Host Installation done, beginning with LXC preparation.\n"
-
-echo -n "$(timestamp) [LXC] [openHABian] Installing dependencies..."
-lxc-attach -n openhabian -- apt install -y wget gnupg git lsb-release &>> /var/log/yahm/openhabian_install.log
-if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 if is_pithree || is_pizerow; then
     echo "$(timestamp) [INFO] [openHABian] Raspberry Pi Hardware found, setup addition repositories."
@@ -99,6 +104,9 @@ echo -n "$(timestamp) [LXC] [openHABian] Setting default password for openhabian
 echo openhabian:openhabian | lxc-attach -n openhabian -- chpasswd &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
+# wait to get ethernet connection up 
+sleep 5
+
 echo -n "$(timestamp) [LXC] [openHABian] Cloning openhabian repository..."
 lxc-attach -n openhabian -- git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
@@ -110,18 +118,30 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 echo -n "$(timestamp) [LXC] [openHABian] Creating openhabian default configuration..."
 echo -e "hostname=openHABian\nusername=openhabian\nuserpw=openhabian\ntimeserver=0.pool.ntp.org\nlocales='en_US.UTF-8 de_DE.UTF-8'\nsystem_default_locale=en_US.UTF-8\ntimezone=Europe/Berlin" > /var/lib/lxc/openhabian/rootfs/etc/openhabian.conf &>> /var/log/yahm/openhabian_install.log
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+	
+if [ $ARCH = "arm64" ]
+then
+	lxc-attach -n openhabian -- dpkg --add-architecture armhf
+fi	
 
 echo  "$(timestamp) [LXC] [openHABian] Starting openhabian installation, this can take a lot of time....."
 lxc-attach -n openhabian -- /opt/openhabian/openhabian-setup.sh unattended 
 
-echo  -e "\n$(timestamp) [GLOBAL] [openHABian] Installation Done.\n"
+if [ $? -eq 0 ]
+then 
+	echo  -e "\n$(timestamp) [GLOBAL] [openHABian] Installation Done.\n"
+else 
+	echo "FAILED"; fail_inprogress; 
+fi
+
 
 # Geting some IP informations
 YAHM_LXC_IP=$(lxc-info -i -n ${LXCNAME} | awk '{print $2}')
 OH_LXC_IP=$(lxc-info -i -n openhabian | awk '{print $2}')
 
-echo "$(timestamp) [INFO] CCU2 IP: ${YAHM_LXC_IP}"
+echo "$(timestamp) [INFO] Homematic  IP: ${YAHM_LXC_IP}"
 echo "$(timestamp) [INFO] OpenHABian IP: ${OH_LXC_IP}"
+echo -e "\n"
 
 echo  "$(timestamp) [LXC] [openHABian] Setup CCU2 Binding inside openHABian"
 OH_CONF_DIR=/var/lib/lxc/openhabian/rootfs/etc/openhab2
@@ -131,6 +151,8 @@ lxc-attach -n openhabian  -- chown openhab:openhab /etc/openhab2/things/yahm-hom
 
 echo  "$(timestamp) [LXC] [openHABian] Starting openHAB2 Service."
 lxc-attach -n openhabian -- systemctl start openhab2.service
+
+echo -e "\n"
 
 echo "$(timestamp) [INFO] OpenHABian Login URL: http://${OH_LXC_IP}:8080"
 echo "$(timestamp) [INFO] OpenHABian Console Login: lxc-attach -n openhabian"
