@@ -494,7 +494,7 @@ nginx_setup() {
 
   while [ "$VALIDDOMAIN" = false ] && [ ! -z "$domain" ] && [ "$domain" != "IP" ]; do
     echo -n "Obtaining domain IP address... "
-    domainip=$(dig +short $domain |tail -1)
+    domainip=$(dig +short $domain @resolver1.opendns.com |tail -1)
     echo "$domainip"
     if [ "$wanip" = "$domainip" ]; then
       VALIDDOMAIN=true
