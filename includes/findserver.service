@@ -1,6 +1,7 @@
 [Unit]
 Description=FIND internal positioning server
 Documentation=https://www.internalpositioning.com/server/
+After=mosquitto.service
 
 [Service]
 EnvironmentFile=-/etc/default/findserver
