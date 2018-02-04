@@ -57,7 +57,7 @@ NOTE: don't use CIFS (Windows sharing). If you have a NAS, se NFS instead. There
 make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian).
 If you don't have a NAS, DON'T use your Windows box as the storage server. Attach a USB stick to your Pi instead for storage.
 There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
-do not match your needs. You could even usde it to backup all of your servers (if any) and desktop PCs, including Windows
+do not match your needs. You could even use it to backup all of your servers (if any) and desktop PCs, including Windows
 machines. Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
 have a clone SD card with your CURRENT config.
 
@@ -427,7 +427,7 @@ that has a card writer, and use Etcher or other tool in order to write the image
 **Reminder:** you have to be logged in as the `backup` user. 
 
 ```
-  backup@pi:/server/temp$ amfetchdump -p openhab  pi /dev/mmcblk0  > /server/temp/openhabianpi-image
+  backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image
   1 volume(s) needed for restoration
   The following volumes are needed: openhab-openhab-dir-001
   Press enter when ready
