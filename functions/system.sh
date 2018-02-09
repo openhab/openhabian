@@ -162,6 +162,14 @@ permissions_corrections() {
     echo "FAILED (please execute after openHAB was installed)"
     exit 1
   fi
+
+  if is_pine64; then 
+    cond_redirect groupadd gpio
+    cond_redirect cp $BASEDIR/includes/PINE64-80-gpio-noroot.rules /etc/udev/rules.d/80-gpio-noroot.rules
+    cond_redirect sed -i -e '$i \chown -R root:gpio /sys/class/gpio \n' /etc/rc.local
+    cond_redirect sed -i -e '$i \chmod -R ug+rw /sys/class/gpio \n' /etc/rc.local
+  fi
+
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
   cond_redirect adduser openhab gpio
@@ -215,6 +223,14 @@ pine64_platform_scripts() {
   else
     echo "FAILED"
   fi
+}
+
+pine64_fix_systeminfo_binding() { # This will maybe be fixed upstreams some day. Keep an eye open.
+  echo -n "$(timestamp) [openHABian] Enable PINE64 support for systeminfo binding... "
+  cond_redirect apt install -y udev:armhf
+  cond_redirect ln -s /lib/arm-linux-gnueabihf/ /lib/linux-arm
+  cond_redirect ln -s /lib/linux-arm/libudev.so.1 /lib/linux-arm/libudev.so
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 
 pine64_fixed_mac() {
