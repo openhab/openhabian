@@ -1,0 +1,7 @@
+# /etc/udev/rules.d/80-gpio-noroot.rules
+# Corrects sys GPIO permissions on the Pine64 so non-root users in the gpio group can manipulate bits
+#
+# Change group to gpio
+SUBSYSTEM=="gpio", PROGRAM="/bin/sh -c '/bin/chown -R root:gpio /sys/devices/soc.0/*pinctrl/gpio'"
+# Change user permissions to ensure user and group have read/write permissions
+SUBSYSTEM=="gpio", PROGRAM="/bin/sh -c '/bin/chmod -R ug+rw /sys/devices/soc.0/*pinctrl/gpio'"
