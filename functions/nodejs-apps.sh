@@ -61,11 +61,3 @@ nodered_setup() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
   dashboard_add_tile nodered
 }
-
-yo_generator_setup() {
-  nodejs_setup
-  echo -n "$(timestamp) [openHABian] Installing the Yeoman openHAB generator... "
-  cond_redirect npm install -g yo generator-openhab
-  if [ $? -ne 0 ]; then echo "FAILED (yo_generator)"; exit 1; fi
-  cond_redirect npm update -g generator-openhab
-}
