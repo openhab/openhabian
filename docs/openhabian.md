@@ -245,8 +245,8 @@ All password can be changed from openHABian menu.
 - openHAB remote console (e.g. "openhab:habopen")
 - Amanda backup password (no default, applied when installing)
 - Nginx reverse proxy login (no default, applied when installing) *For manual configuration see [here](http://docs.openhab.org/installation/security.html#adding-or-removing-users).*
-- InfluxDB (No password set by default) [Manual configuraion](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761)
-- Grafana visualization ("admin:admin") [Manual configuraion](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761)
+- InfluxDB (No password set by default)
+- Grafana visualization ("admin:admin")
 
 ## Optional Components
 

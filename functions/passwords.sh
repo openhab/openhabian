@@ -4,6 +4,7 @@
 ## The function can be invoked either INTERACTIVE with userinterface UNATTENDED.
 ##
 ## When called UNATTENDED it will change all passwords. Notice that implies that the system is installed.
+## Make sure the password is at least 10 characters long to ensure compability with all services.
 ##
 ##    change_password(String password)
 ##
@@ -28,7 +29,17 @@ change_password() {
     nginxuser=`cut -d: -f1 /etc/nginx/.htpasswd`
     whipParams+=("Ngnix HTTP/HTTPS" "User; \"$nginxuser\" used for logon to openHAB web services " off )
     allAccounts+="Ngnix HTTP/HTTPS"
-  fi 
+  fi
+
+  if [ -f /etc/influxdb/influxdb.conf ]; then
+    whipParams+=("InfluxDB" "User; \"admin\" used for database configuration " off )
+    allAccounts+="InfluxDB"
+  fi
+
+  if [ -f /etc/grafana/grafana.ini ]; then
+    whipParams+=("Grafana" "User; \"admin\" used for manage graphs and the server " off )
+    allAccounts+="Grafana"
+  fi
 
   if [ -n "$INTERACTIVE" ]; then
     accounts=$(whiptail "${whipParams[@]}" 3>&1 1>&2 2>&3)
@@ -37,15 +48,19 @@ change_password() {
     # COLLECT NEW PASSWORD
     if [ $exitstatus = 0 ]; then
       while [ "$matched" = false ] && [ "$canceled" = false ]; do
-        passwordChange=$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password:" 15 80 3>&1 1>&2 2>&3)
+        passwordChange=$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password: " 15 80 3>&1 1>&2 2>&3)
         if [[ "$?" == 1 ]]; then return 0; fi
-        secondpasswordChange=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the new password:" 15 80 3>&1 1>&2 2>&3)
-        if [[ "$?" == 1 ]]; then return 0; fi
-        if [ "$passwordChange" = "$secondpasswordChange" ] && [ ! -z "$passwordChange" ]; then
-          matched=true
-        else
-          password=$(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
-        fi
+        if [ ! ${#passwordChange} -ge 10 ]; then
+          $(whiptail --title "Authentication Setup" --msgbox "Password must at least be 10 characters long... Please try again!" 15 80 3>&1 1>&2 2>&3)
+        else   
+          secondpasswordChange=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the new password:" 15 80 3>&1 1>&2 2>&3)
+          if [[ "$?" == 1 ]]; then return 0; fi
+          if [ "$passwordChange" = "$secondpasswordChange" ] && [ ! -z "$passwordChange" ]; then
+            matched=true
+          else
+            $(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
+          fi
+        fi  
       done
     else
       return 0
@@ -83,6 +98,22 @@ change_password() {
     echo "$passwordChange" | htpasswd -i /etc/nginx/.htpasswd $nginxuser
     if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   fi
+  if [[ $accounts == *"InfluxDB"* ]]; then
+    echo -n "$(timestamp) [openHABian] Changing password for InfluxDB administration account \"admin\"... "
+    sed -i "s/.*auth-enabled = .*/  auth-enabled = false/g" /etc/influxdb/influxdb.conf
+    cond_redirect systemctl restart influxdb.service
+    sleep 1
+    influx -execute "SET PASSWORD FOR admin = '$passwordChange'"
+    sed -i "s/.*auth-enabled = .*/  auth-enabled = true/g" /etc/influxdb/influxdb.conf
+    cond_redirect systemctl restart influxdb.service
+    if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  fi
+  if [[ $accounts == *"Grafana"* ]]; then
+    echo -n "$(timestamp) [openHABian] Changing password for Grafana admininistration account \"admin\"... "
+    grafana-cli admin reset-admin-password --homepath "/usr/share/grafana" --config "/etc/grafana/grafana.ini" $passwordChange
+    if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  fi
+
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
