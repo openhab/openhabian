@@ -149,35 +149,33 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "60"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 19 116 12 --cancel-button Back --ok-button Execute \
-    "61 | Upgrade System     "    "Upgrade all installed software packages to their newest version" \
-    "62 | Packages"               "Install needed and recommended system packages" \
-    "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
-    "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team" \
-    "64 | openHAB stable"         "Install the latest openHAB release" \
-    "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" \
-    "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB" \
-    "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
-    "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail)" \
-    "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional)" \
-    "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional)" \
+    choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 19 116 12 --cancel-button Back --ok-button Execute \
+    "61 | Upgrade System     "    "Upgrade all installed software packages to their newest version " OFF \
+    "62 | Packages"               "Install needed and recommended system packages " OFF \
+    "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8 " OFF \
+    "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team " OFF \
+    "64 | openHAB stable"         "Install the latest openHAB release" OFF \
+    "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
+    "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB " OFF \
+    "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares " OFF \
+    "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail) " OFF \
+    "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
+    "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-    case "$choice2" in
-      61\ *) system_upgrade ;;
-      62\ *) basic_packages && needed_packages ;;
-      63\ *) java_zulu_embedded ;;
-      *Oracle\ Java*) java_webupd8 ;;
-      64\ *) openhab2_setup ;;
-      *openHAB\ unstable) openhab2_setup unstable ;;
-      65\ *) srv_bind_mounts && permissions_corrections && misc_system_settings ;;
-      66\ *) samba_setup ;;
-      67\ *) frontail_setup ;;
-      68\ *) firemotd_setup ;;
-      69\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme ;;
-      "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
-    esac
+    
+    if [[ $choosenComponents == *"61"* ]]; then system_upgrade; fi
+    if [[ $choosenComponents == *"62"* ]]; then basic_packages && needed_packages; fi
+    if [[ $choosenComponents == *"63"* ]]; then java_zulu_embedded; fi
+    if [[ $choosenComponents == *"Oracle Java 8"* ]]; then java_webupd8; fi
+    if [[ $choosenComponents == *"64"* ]]; then openhab2_stable_setup; fi
+    if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_unstable_setup; fi
+    if [[ $choosenComponents == *"65"* ]]; then srv_bind_mounts && permissions_corrections && misc_system_settings; fi
+    if [[ $choosenComponents == *"66"* ]]; then samba_setup; fi
+    if [[ $choosenComponents == *"67"* ]]; then frontail_setup; fi
+    if [[ $choosenComponents == *"68"* ]]; then firemotd_setup; fi
+    if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax; fi
+
 
   elif [[ "$choice" == "99"* ]]; then
     show_about
