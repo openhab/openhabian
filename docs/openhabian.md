@@ -331,7 +331,7 @@ If the installation was **not successful** you will see a warning and further in
 ##### What Next?
 
 After your first setup is done, you might want to generate [Items](http://docs.openhab.org/configuration/items.html), [Sitemap](http://docs.openhab.org/configuration/sitemaps.html) and [HABPanel](http://docs.openhab.org/addons/uis/habpanel/readme.html) dashboard for your home.
-Simply checkout the generator which could be found at the openHAB dashboard.
+Simply checkout the generator [Home Builder](https://docs.openhab.org/configuration/homebuilder.html) which could be found at the openHAB dashboard.
 
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem.
 Try using a steady power source and a reliable SD card, double check the network connection.
