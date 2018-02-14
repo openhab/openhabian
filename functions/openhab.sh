@@ -46,6 +46,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   cond_redirect adduser openhab tty
   cond_redirect adduser openhab gpio
   cond_redirect adduser openhab audio
+  cond_redirect adduser openhab bluetooth
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
