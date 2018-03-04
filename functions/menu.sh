@@ -168,7 +168,7 @@ show_main_menu() {
     if [[ $choosenComponents == *"62"* ]]; then basic_packages && needed_packages; fi
     if [[ $choosenComponents == *"63"* ]]; then java_zulu_embedded; fi
     if [[ $choosenComponents == *"Oracle Java 8"* ]]; then java_webupd8; fi
-    if [[ $choosenComponents == *"64"* ]]; then openhab2_stable_setup; fi
+    if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_unstable_setup; fi
     if [[ $choosenComponents == *"65"* ]]; then srv_bind_mounts && permissions_corrections && misc_system_settings; fi
     if [[ $choosenComponents == *"66"* ]]; then samba_setup; fi
