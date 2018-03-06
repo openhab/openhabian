@@ -236,13 +236,17 @@ openHABian is supposed to provide a ready-to-use openHAB base system. There are 
 
 All of these settings **can easily be changed** via the openHABian Configuration Tool.
 
-Here are the passwords in question, their default "username:password" value and the way to change them:
+Here are the passwords in question with their respective default "username:password" values. 
+All password can be changed from openHABian menu.
 
 {: #passwords}
-- User password needed for SSH or sudo (e.g. "openhabian:openhabian") : `passwd`
-- Samba share password (e.g. "openhabian:openhabian"): `sudo smbpasswd openhabian`
-- openHAB remote console (e.g. "openhab:habopen"): Change via the openHABian menu
-- Nginx reverse proxy login (no default): Change via the openHABian menu, please see [here](http://docs.openhab.org/installation/security.html#adding-or-removing-users) for more
+- User password needed for SSH or sudo (e.g. "openhabian:openhabian")
+- Samba share password (e.g. "openhabian:openhabian")
+- openHAB remote console (e.g. "openhab:habopen")
+- Amanda backup password (no default, applied when installing)
+- Nginx reverse proxy login (no default, applied when installing) *For manual configuration see [here](http://docs.openhab.org/installation/security.html#adding-or-removing-users).*
+- InfluxDB (No password set by default)
+- Grafana visualization ("admin:admin")
 
 ## Optional Components
 
