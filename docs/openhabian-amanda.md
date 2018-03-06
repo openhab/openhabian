@@ -178,7 +178,7 @@ File system created successfully.
 root@pi:/#
 root@pi:/home/pi# mkdir -p /storage/usbstick-linux /storage/usbstick-msdos
 root@pi:/home/pi# echo "/dev/sda8     /storage/usbstick-linux    ext4     defaults,noatime  0       1" >> /etc/fstab
-root@pi:/home/pi# echo "/dev/sda1     /storage/usbstick-msdos    vfat     defaults,noatime  0       1" >> /etc/fstab
+root@pi:/home/pi# echo "/dev/sda1     /storage/usbstick-msdos    vfat     noatime,noauto,user,uid=backup  0       1" >> /etc/fstab
 root@pi:/home/pi# mount /storage/usbstick-linux
 root@pi:/home/pi# mount /storage/usbstick-msdos
 root@pi:/home/pi# df -k /storage/usbstick-linux /storage/usbstick-msdos
