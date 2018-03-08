@@ -1,3 +1,6 @@
+As an **openHABian end user**, please check out the official openHAB documentation:  
+🡺 http://docs.openhab.org/installation/openhabian.html
+
 # openHABian - Hassle-free openHAB Setup
 
 Setting up a fully working Linux system with all needed packages and openHAB recommendations is a **boring task** taking quite some time and **Linux newcomers** shouldn't worry about these technical details.
@@ -15,6 +18,8 @@ The project provides two things:
 Please check the [official documentation article](http://docs.openhab.org/installation/openhabian.html) to learn about openHABian and please visit and subscribe to our very active [community forum thread](https://community.openhab.org/t/13379).
 
 Enjoy openHABian and the wondrous world of openHAB!!
+
+![](https://docs.openhab.org/installation/images/openHABian-config.png)
 
 ----
 
