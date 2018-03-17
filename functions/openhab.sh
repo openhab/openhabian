@@ -40,7 +40,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
   fi
   cond_redirect apt update
-  cond_redirect apt -y -o Dpkg::Options::="--force-confnew" install openhab2
+  cond_redirect apt -y install openhab2
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
