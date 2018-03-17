@@ -69,7 +69,7 @@ show_main_menu() {
   elif [[ "$choice" == "20"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer          "  "openHAB Log Viewer webapp (frontail)" \
-    "22 | openHAB Generator"     "openHAB items, sitemap and HABPanel dashboard generator" \
+    "22 | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     "23 | Mosquitto"             "MQTT broker Eclipse Mosquitto" \
     "24 | InfluxDB+Grafana"      "A powerful persistence and graphing solution" \
     "25 | NodeRED"               "Flow-based programming for the Internet of Things" \
@@ -77,12 +77,11 @@ show_main_menu() {
     "27 | knxd"                  "KNX specific, the KNX router/gateway daemon knxd" \
     "28 | 1wire"                 "1wire specific, owserver and related packages" \
     "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
-    "2A | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       21\ *) frontail_setup ;;
-      22\ *) yo_generator_setup ;;
+      22\ *) miflora_setup ;;
       23\ *) mqtt_setup ;;
       24\ *) influxdb_grafana_setup ;;
       25\ *) nodered_setup ;;
@@ -90,7 +89,6 @@ show_main_menu() {
       27\ *) knxd_setup ;;
       28\ *) 1wire_setup ;;
       29\ *) find_setup ;;
-      2A\ *) miflora_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
