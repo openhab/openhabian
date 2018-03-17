@@ -225,6 +225,16 @@ Regardless of if you want to copy some files or are on the search for a solution
 Take a few minutes to study the above Tutorials and get to know the most basic commands and tools to be able to navigate on your Linux system, edit configurations, check the system state or look at log files.
 It's not complicated and something that doesn't hurt on ones résumé.
 
+### First Steps with openHAB
+
+After your first setup of openHABian is successful and you are able to access the openHAB dashboard, you should dig into the possibilites.
+Install [Bindings](https://docs.openhab.org/addons/bindings.html), discover your devices, and [configure your smart home](http://docs.openhab.org/configuration/index.html).
+You might want to start defining [Items](http://docs.openhab.org/configuration/items.html), [Sitemap](http://docs.openhab.org/configuration/sitemaps.html) and [HABPanel](http://docs.openhab.org/addons/uis/habpanel/readme.html) dashboard for your home.
+To kickstart that process you may check out the openHAB [Home Builder](https://docs.openhab.org/configuration/homebuilder.html).
+
+These are just some first hints.
+Be sure to read up on the [Configuration](http://docs.openhab.org/configuration/index.html) section of the documentation page to learn more.
+
 {: #further-config}
 ### Further Configuration Steps
 
@@ -255,7 +265,6 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 
 - [Amanda Network Backup](http://www.amanda.org/) - A built-in backup solution for your valuables. Please continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md)
 - [frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openHABianPi:9001](http://openHABianPi:9001)
-- [openHAB Generator](https://github.com/kubawolanin/generator-openhab) - Allows you to create [Items](http://docs.openhab.org/configuration/items.html), [Sitemap](http://docs.openhab.org/configuration/sitemaps.html) and [HABPanel](http://docs.openhab.org/addons/uis/habpanel/readme.html) dashboard for your home in no time
 - [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openHABianPi:1880](http://openHABianPi:1880)
 - [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
 - [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
@@ -334,12 +343,9 @@ If the installation was **not successful** you will see a warning and further in
 
 ##### What Next?
 
-After your first setup is done, you might want to generate [Items](http://docs.openhab.org/configuration/items.html), [Sitemap](http://docs.openhab.org/configuration/sitemaps.html) and [HABPanel](http://docs.openhab.org/addons/uis/habpanel/readme.html) dashboard for your home.
-Simply log in to your Raspberry PI with SSH and type `openhab-generator`. It will run a Yeoman-based [openHAB Generator](https://github.com/kubawolanin/generator-openhab) tool asking for your house structure (e.g. number of floors, rooms and devices).
-
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem.
 Try using a steady power source and a reliable SD card, double check the network connection.
-Restart the Setup process to rule out most other possible causes.
+Restart the complete setup process to rule out most other possible causes.
 
 Contact the [openHABian community forum thread](https://community.openhab.org/t/13379) if the problem persists.
 
