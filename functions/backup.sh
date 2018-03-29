@@ -20,6 +20,8 @@ create_backup_config() {
       if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
   # create virtual 'tapes'
+  mkdir ${storage}/slots # folder needed for following symlinks
+  /bin/chown ${backupuser}:${backupuser} ${storage}/slots
   ln -s ${storage}/slots ${storage}/slots/drive0;ln -s ${storage}/slots ${storage}/slots/drive1    # taper-parallel-write 2 so we need 2 virtual drives
   counter=1
   while [ ${counter} -le ${tapes} ]; do
