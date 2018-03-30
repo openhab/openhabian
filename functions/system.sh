@@ -18,10 +18,6 @@ system_upgrade() {
 
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
-  if is_pi; then
-    cond_redirect wget -O /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update
-    cond_redirect chmod +x /usr/bin/rpi-update
-  fi
   cond_redirect apt update
   apt remove raspi-config &>/dev/null || true
   cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
