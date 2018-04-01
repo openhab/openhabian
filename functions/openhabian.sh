@@ -11,9 +11,9 @@ get_git_revision() {
 
 openhabian_console_check() {
   if [ $(tput cols) -lt  120 ]; then
-    warningtext="We detected that you use a consol which is less then 120 columns wide. This tool is designed for a minimum of 120 columns and therefor some menus will not work. Please increase the width of your console and then rerun this tool.
-    \nEither just resize the window or consult the preferences of your console application."
-    whiptail --title "Compatibility Warning" --msgbox "$warningtext" 15 80
+    warningtext="We detected that you use a console which is less than 120 columns wide. This tool is designed for a minimum of 120 columns and therefore some menus may not be presented correctly. Please increase the width of your console and rerun this tool.
+    \nEither resize the window or consult the preferences of your console application."
+    whiptail --title "Compatibility Warning" --msgbox "$warningtext" 15 76
   fi
 }
 
