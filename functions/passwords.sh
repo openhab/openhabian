@@ -77,7 +77,7 @@ change_password() {
     echo "$username:$passwordChange" | chpasswd
     if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   fi
-  if [[ $accountsi == *"Samba"* ]]; then
+  if [[ $accounts == *"Samba"* ]]; then
     echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account \"$username\"... "
     (echo "$passwordChange"; echo "$passwordChange") | /usr/bin/smbpasswd -s -a "$username"
     if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
