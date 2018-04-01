@@ -84,6 +84,7 @@ else
   load_create_config
   openhabian_hotfix
   ua-netinst_check
+  openhabian_console_check
   openhabian_update_check
   while show_main_menu; do
     true
