@@ -409,11 +409,11 @@ influxdb_grafana_setup() {
   echo "Grafana... "
   if is_pi; then
     if is_pione || is_pizero || is_pizerow; then GRAFANA_REPO_PI1="-rpi-1b"; fi
-    echo "deb https://dl.bintray.com/fg2it/deb${GRAFANA_REPO_PI1} jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
+    echo "deb https://dl.bintray.com/fg2it/deb${GRAFANA_REPO_PI1} stretch main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
     cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61 || FAILED=2
   else
     cond_redirect wget -O - https://packagecloud.io/gpg.key | apt-key add - || FAILED=2
-    echo "deb https://packagecloud.io/grafana/stable/debian/ jessie main" > /etc/apt/sources.list.d/grafana.list || FAILED=2
+    echo "deb https://packagecloud.io/grafana/stable/debian/ stretch main" > /etc/apt/sources.list.d/grafana.list || FAILED=2
   fi
   cond_redirect apt update || FAILED=2
   cond_redirect apt -y install grafana || FAILED=2
