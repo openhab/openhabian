@@ -1,6 +1,6 @@
 org "openHABian %CONFIG"				# Organization name for reports
 mailto "%ADMIN"						# Email address to receive reports
-netusage 10000 Kbps					# Bandwidth limit, 10M
+netusage 90000 Kbps					# Bandwidth limit, 90M
 dumpcycle 2 weeks					# Backup cycle is 14 days
 runspercycle 7						# Run 7 times every 14 days
 tapecycle %TAPES tapes					# Dump to this number of different tapes during the cycle
@@ -16,14 +16,14 @@ logdir "/var/log/amanda/%CONFIG"			# Log directory
 indexdir "/var/lib/amanda/%CONFIG/index"		# Index directory
 define tapetype SD {
     comment "SD card size"
-    length %SIZE mbytes					# actual Bucket size 5GB (Amazon default for free S3)
+    length 16 gbytes					# default SD card size (1 bucket = 1 SD d)
 }
 define tapetype DIRECTORY {				# Define our tape behaviour
 	length %SIZE mbytes				# size of every virtual container (= max. usage per directory)
 }
 define tapetype AWS {
     comment "S3 Bucket"
-    length %SIZE mbytes					# actual Bucket size 5GB (Amazon default for free S3)
+    length %SIZE mbytes					# actual bucket size 5GB (Amazon default for free S3)
 }
 
 amrecover_changer "changer"				# Changer for amrecover
