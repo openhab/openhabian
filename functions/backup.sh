@@ -21,7 +21,7 @@ create_backup_config() {
   fi
   # create virtual 'tapes'
   mkdir ${storage}/slots # folder needed for following symlinks
-  /bin/chown ${backupuser}:${backupuser} ${storage}/slots
+  /bin/chown ${backupuser}:backup ${storage}/slots
   ln -s ${storage}/slots ${storage}/slots/drive0;ln -s ${storage}/slots ${storage}/slots/drive1    # taper-parallel-write 2 so we need 2 virtual drives
   counter=1
   while [ ${counter} -le ${tapes} ]; do
@@ -59,7 +59,8 @@ create_backup_config() {
   echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
   echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
   if [ ${tapetype}" = "DIRECTORY" ]; then
-      echo "0 2 * * * root (cd /; tar czf /volatile/backup/amanda_data_$(date +%Y%m%d%H%M%S).tar.gz etc/amanda var/lib/amanda; find ${storage} -name amanda_data_\* -mtime +30 -delete) >/dev/null 2>&1" >> /etc/cron.d/amanda
+      mkdir -p ${storage}/amanda-backups; chown ${backupuser}:backup ${storage}/amanda-backups
+      echo "0 2 * * * root (cd /; tar czf ${storage}/amanda-backups/amanda_data_$(date +%Y%m%d%H%M%S).tar.gz etc/amanda var/lib/amanda; find ${storage} -name amanda_data_\* -mtime +30 -delete) >/dev/null 2>&1" >> /etc/cron.d/amanda
   fi
   
   mkdir -p ${confdir}
