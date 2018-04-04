@@ -467,3 +467,48 @@ backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
 
 You could also move that temporary recovered image file to your Windows PC that has a card writer, rename the file to have a .raw extension,
 and use Etcher or other tool in order to write the image to the card.
+
+
+### A final word on when things have gone badly wrong...
+and your SD card to contain the Amanda database is broken: don't give up!
+Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's
+stored where) in your storage directory once a day (see `/etc/cron.d/amanda`). So you can reinstall openHABian including Amanda from scratch
+and copy back those files. Even if you fail to recover your index files, you can still access the files in your storage area. Backed-up
+directories are stored as tar files with a header, here's an example how to decode them:
+```
+[18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# ls -l
+insgesamt 2196552
+-rw-rw----+ 1 backup backup      32768 Mär 29 09:29 00000.openhab-dir-007
+-rw-rw----+ 1 backup backup   16857088 Mär 29 09:29 00001.openhab._etc.0
+-rw-rw----+ 1 backup backup  370219008 Mär 29 09:30 00002.openhab._var_lib_openhab2.0
+-rw-rw----+ 1 backup backup   22673408 Mär 29 09:30 00003.openhab._boot.0
+-rw-rw----+ 1 backup backup 1839450239 Mär 29 09:55 00004.openhab._dev_mmcblk0.0
+[18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# head -14 *001*
+AMANDA: SPLIT_FILE 20180329091738 openhab /etc  part 1/-1  lev 0 comp N program /bin/tar
+DLE=<<ENDDLE
+<dle>
+  <program>GNUTAR</program>
+  <disk>/etc</disk>
+  <level>0</level>
+  <auth>BSDTCP</auth>
+  <record>YES</record>
+  <index>YES</index>
+  <datapath>AMANDA</datapath>
+</dle>
+ENDDLE
+To restore, position tape at start of file and run:
+        dd if=<tape> bs=32k skip=1 | /bin/tar -xpGf - ...
+[18:14:49] root@openhabianpi:/volatile/backup/slots/slot7# dd if=00001.openhab._etc.0 bs=32k skip=1|tar tvf -
+drwxr-xr-x root/root      2139 2018-03-29 08:50 ./
+drwxr-xr-x root/root        15 2018-03-26 17:23 ./.java/
+drwxr-xr-x root/root        35 2018-03-26 17:23 ./.java/.systemPrefs/
+drwxr-xr-x root/root        31 2018-03-26 17:20 ./PackageKit/
+drwxr-xr-x root/root        85 2018-03-26 17:23 ./X11/
+drwxr-xr-x root/root         9 2018-03-26 17:23 ./X11/Xreset.d/
+drwxr-xr-x root/root        13 2018-03-26 17:23 ./X11/Xresources/
+drwxr-xr-x root/root       217 2018-03-26 17:23 ./X11/Xsession.d/
+drwxr-xr-x root/root         1 2017-07-18 09:38 ./X11/xkb/
+drwxr-xr-x root/root      2380 2018-03-29 08:26 ./alternatives/
+
+...
+```
