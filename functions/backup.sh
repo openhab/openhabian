@@ -59,7 +59,7 @@ create_backup_config() {
   echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
   echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
   if [ ${tapetype}" = "DIRECTORY" ]; then
-      echo "0 2 * * * root cd /; tar czf /volatile/backup/amanda_data_$(date +%Y%m%d%H%M%S).tar.gz etc/amanda var/lib/amanda; find ${storage} -name amanda_data_\* -mtime +30 -delete >/dev/null 2>&1" >> /etc/cron.d/amanda
+      echo "0 2 * * * root (cd /; tar czf /volatile/backup/amanda_data_$(date +%Y%m%d%H%M%S).tar.gz etc/amanda var/lib/amanda; find ${storage} -name amanda_data_\* -mtime +30 -delete) >/dev/null 2>&1" >> /etc/cron.d/amanda
   fi
   
   mkdir -p ${confdir}
