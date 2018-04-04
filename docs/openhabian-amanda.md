@@ -421,18 +421,52 @@ Here's another terminal session log to show how a couple of files are restored i
 To restore a raw disk partition, you need to use `amfetchdump` command. Unlike `amdump`, you have to run `amfetchdump` as user
 _backup_, though. Here's another terminal session log to use `amfetchdump` to first retrieve the backup image from storage.
 The last line also shows how to restore this image file to a SD card from Linux. In this example, we have an external SD card
-writer with a (blank) SD card attached to `/dev/sdd`. You could also move that temporary recovered image file to your Windows PC
-that has a card writer, and use Etcher or other tool in order to write the image to the card.
+writer with a (blank) SD card attached to `/dev/sdd`. 
+Restoring a partition
+To restore a raw disk partition, you need to use amfetchdump command. Unlike amdump, you have to run amfetchdump as user backup, though. Here’s another terminal session log to use amfetchdump to first retrieve the backup image from your backup storage to image called openhabianpi-image on /server/temp/
+
 
 **Reminder:** you have to be logged in as the `backup` user. 
 
 ```
-  backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image
-  1 volume(s) needed for restoration
+backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image
+ 1 volume(s) needed for restoration
   The following volumes are needed: openhab-openhab-dir-001
   Press enter when ready
-
-  amfetchdump: 4: restoring split dumpfile: date 20170322084708 host pi disk /dev/mmcblk0 part 1/UNKNOWN lev 0 comp N program APPLICATION
-  927712 kb
-  backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
 ```
+
+Before you actually press enter, you should get ready, by opening another terminal window and letting Amanda know in which slot the required
+tape is (you can do this also before starting the amfetchdump command). You have to find the slot yourself by checking their content. Once
+you find out the requested file (probably starting with 00000.) you redirect amanda to use the slot which contains the file (e.g. slot 1)
+using this:
+
+```
+backup@pi:/server/temp$ amtape openhab-dir slot 1
+slot   1: time 20170322084708 label openhab-openhab-dir-001
+changed to slot 1
+```
+
+And finally you can go back to the first terminal window and press enter. Amanda will automatically pick up another files if the backup
+consists of more than one file.
+
+```
+amfetchdump: 4: restoring split dumpfile: date 20170322084708 host pi disk /dev/mmcblk0 part 1/UNKNOWN lev 0 comp N program APPLICATION
+  927712 kb
+```
+
+You can also provide amfetchdump with the date of the backup that you want to restore by adding the date parameter (format e.g. 20180327)
+like this:
+
+```
+backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image 20180327
+```
+
+This line also shows how to restore this image file to a SD card from Linux. In this example, we have an external SD card writer with a
+(blank) SD card attached to /dev/sdd.
+
+```
+backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
+```
+
+You could also move that temporary recovered image file to your Windows PC that has a card writer, rename the file with the .raw extension,
+and use Etcher or other tool in order to write the image to the card.
