@@ -418,12 +418,9 @@ Here's another terminal session log to show how a couple of files are restored i
 
 ### Restoring a partition
 
-To restore a raw disk partition, you need to use `amfetchdump` command. Unlike `amdump`, you have to run `amfetchdump` as user
-_backup_, though. Here's another terminal session log to use `amfetchdump` to first retrieve the backup image from storage.
-The last line also shows how to restore this image file to a SD card from Linux. In this example, we have an external SD card
-writer with a (blank) SD card attached to `/dev/sdd`. 
-Restoring a partition
-To restore a raw disk partition, you need to use amfetchdump command. Unlike amdump, you have to run amfetchdump as user backup, though. Here’s another terminal session log to use amfetchdump to first retrieve the backup image from your backup storage to image called openhabianpi-image on /server/temp/
+To restore a raw disk partition, you need to use amfetchdump command. Unlike amdump, you have to run amfetchdump as user backup, though.
+Here’s another terminal session log to use amfetchdump to first retrieve the backup image from your backup storage to image called
+openhabianpi-image on /server/temp/
 
 
 **Reminder:** you have to be logged in as the `backup` user. 
@@ -437,7 +434,7 @@ backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/tem
 
 Before you actually press enter, you should get ready, by opening another terminal window and letting Amanda know in which slot the required
 tape is (you can do this also before starting the amfetchdump command). You have to find the slot yourself by checking their content. Once
-you find out the requested file (probably starting with 00000.) you redirect amanda to use the slot which contains the file (e.g. slot 1)
+you find out the requested file (probably starting with 00000.), you redirect amanda to use the slot which contains the file (e.g. slot 1)
 using this:
 
 ```
@@ -446,7 +443,7 @@ slot   1: time 20170322084708 label openhab-openhab-dir-001
 changed to slot 1
 ```
 
-And finally you can go back to the first terminal window and press enter. Amanda will automatically pick up another files if the backup
+Finally you can go back to the first terminal window and press Enter. Amanda will automatically pick up another files if the backup
 consists of more than one file.
 
 ```
@@ -468,5 +465,5 @@ This line also shows how to restore this image file to a SD card from Linux. In 
 backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
 ```
 
-You could also move that temporary recovered image file to your Windows PC that has a card writer, rename the file with the .raw extension,
+You could also move that temporary recovered image file to your Windows PC that has a card writer, rename the file to have a .raw extension,
 and use Etcher or other tool in order to write the image to the card.
