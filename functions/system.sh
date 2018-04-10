@@ -35,7 +35,7 @@ needed_packages() {
   cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon python python-pip
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-  if is_pithree || is_pizerow; then
+  if is_pithree || is_pithreeplus || is_pizerow; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
     cond_redirect apt -y install bluez python-bluez python-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -276,7 +276,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 
   # Find current settings
   if is_pi && grep -q "enable_uart=1" /boot/config.txt; then sel_1="ON"; else sel_1="OFF"; fi
-  if is_pithree && grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then sel_2="ON"; else sel_2="OFF"; fi
+  if is_pithree || is_pithreeplus && grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then sel_2="ON"; else sel_2="OFF"; fi
   if grep -q "/dev/ttyS0:/dev/ttyS2" /etc/default/openhab2; then sel_3="ON"; else sel_3="OFF"; fi
 
   if [ -n "$INTERACTIVE" ]; then
@@ -320,7 +320,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   fi
 
   if [[ $selection == *"2"* ]]; then
-    if is_pithree; then
+    if is_pithree || is_pithreeplus; then
       cond_redirect systemctl stop hciuart &>/dev/null
       cond_redirect systemctl disable hciuart &>/dev/null
       cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3)"
@@ -329,7 +329,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
       fi
     fi
   else
-    if is_pithree; then
+    if is_pithree || is_pithreeplus; then
       cond_echo "Removing 'dtoverlay=pi3-miniuart-bt' from /boot/config.txt"
       sed -i '/dtoverlay=pi3-miniuart-bt/d' /boot/config.txt
     fi
