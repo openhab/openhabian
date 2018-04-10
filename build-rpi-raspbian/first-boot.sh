@@ -5,8 +5,6 @@ exec &> >(tee -a "/boot/first-boot.log")
 
 timestamp() { date +"%F_%T_%Z"; }
 
-sh /boot/webif.sh start
-
 fail_inprogress() {
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-failed
@@ -23,6 +21,10 @@ cp /boot/openhabian.conf /etc/openhabian.conf
 sed -i 's/\r$//' /etc/openhabian.conf
 # shellcheck source=openhabian.raspbian.conf
 source /etc/openhabian.conf
+echo "OK"
+
+echo -n "$(timestamp) [openHABian] Starting webserver... "
+sh /boot/webif.sh start
 echo "OK"
 
 userdef="pi"
