@@ -56,11 +56,15 @@ is_pithree() {
   grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]08[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
+is_pithreeplus() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0d[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
 is_pi() {
   # needed for raspbian-ua-netinst chroot env #TODO can be removed?
   if [ "$hostname" == "openHABianPi" ] || [ "$boot_volume_label" == "openHABian" ]; then return 0; fi
   # normal conditions
-  if is_pizero || is_pizerow || is_pione || is_pitwo || is_pithree; then return 0; fi
+  if is_pizero || is_pizerow || is_pione || is_pitwo || is_pithree || is_pithreeplus; then return 0; fi
   return 1
 }
 is_pine64() {

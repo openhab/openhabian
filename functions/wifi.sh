@@ -2,7 +2,7 @@
 
 wifi_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Wifi (PRi3 or Pine A64)... "
-  if ! is_pithree && ! is_pizerow && ! is_pine64; then
+  if ! is_pithree && ! is_pithreeplus && ! is_pizerow && ! is_pine64; then
     if [ -n "$INTERACTIVE" ]; then
       whiptail --title "Incompatible Hardware Detected" --msgbox "Wifi setup: This option is for the Pi3, Pi0W or the Pine A64 system only." 10 60
     fi
@@ -18,7 +18,7 @@ wifi_setup() {
     SSID="myWifiSSID"
     PASS="myWifiPassword"
   fi
-  if is_pithree; then cond_redirect apt -y install firmware-brcm80211; fi
+  if is_pithree || is_pithreeplus; then cond_redirect apt -y install firmware-brcm80211; fi
   cond_redirect apt -y install wpasupplicant wireless-tools
   echo -e "ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\nupdate_config=1" > /etc/wpa_supplicant/wpa_supplicant.conf
   echo -e "network={\n\tssid=\"$SSID\"\n\tpsk=\"$PASS\"\n}" >> /etc/wpa_supplicant/wpa_supplicant.conf

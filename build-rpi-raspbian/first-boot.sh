@@ -5,6 +5,8 @@ exec &> >(tee -a "/boot/first-boot.log")
 
 timestamp() { date +"%F_%T_%Z"; }
 
+sh /boot/webif.sh start
+
 fail_inprogress() {
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-failed
@@ -83,6 +85,7 @@ apt update &>/dev/null
 apt --yes upgrade &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
+sh /boot/webif.sh restart
 echo -n "$(timestamp) [openHABian] Installing git package... "
 apt update &>/dev/null
 /usr/bin/apt -y install git &>/dev/null
@@ -114,5 +117,9 @@ echo "OK"
 echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://$hostname:8080"
 echo "$(timestamp) [openHABian] To gain access to a console, simply reconnect."
 echo "$(timestamp) [openHABian] First time setup successfully finished."
+sleep 10
+sh /boot/webif.sh inst_done
+sleep 10
+sh /boot/webif.sh cleanup
 
 # vim: filetype=sh
