@@ -15,8 +15,8 @@ nodejs_setup() {
     cond_redirect rm /tmp/nodejs-armv6l.tar.gz 2>&1
   else
     echo -n "$(timestamp) [openHABian] Installing Node.js (prerequisite for other packages)... "
-    cond_redirect wget -O /tmp/nodejs-v8.x.sh https://deb.nodesource.com/setup_8.x || FAILED=1
-    cond_redirect bash /tmp/nodejs-v8.x.sh || FAILED=1
+    cond_redirect wget -O /tmp/nodejs-setup.sh https://deb.nodesource.com/setup_8.x || FAILED=1
+    cond_redirect bash /tmp/nodejs-setup.sh || FAILED=1
     if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
     cond_redirect apt -y install nodejs
     if [ $? -ne 0 ]; then echo "FAILED (nodejs installation)"; exit 1; fi
