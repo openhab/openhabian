@@ -87,7 +87,7 @@ apt update &>/dev/null
 apt --yes upgrade &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-sh /boot/webif.sh restart
+sh /boot/webif.sh stillrunning
 echo -n "$(timestamp) [openHABian] Installing git package... "
 apt update &>/dev/null
 /usr/bin/apt -y install git &>/dev/null
