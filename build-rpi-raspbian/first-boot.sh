@@ -62,10 +62,14 @@ until ping -c1 9.9.9.9 &>/dev/null || [ "$(wget -qO- http://www.msftncsi.com/ncs
     if grep -q "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig 2>&1 | grep -q "ESSID:off"; then
       echo ""
       echo "I was not able to connect to the configured Wi-Fi."
-      echo "Please try again with your correct SSID and password."
-      echo "Also check your signal quality. Available Wi-Fi networks:"
+      echo "Please check your signal quality. Reachable Wi-Fi networks are:"
       iwlist wlan0 scanning | grep "ESSID" | sed 's/^\s*ESSID:/\t- /g'
       echo ""
+      echo "Please try again with your correct SSID and password."
+      echo "The following Wi-Fi configuration was used:"
+      echo ""
+      cat /etc/wpa_supplicant/wpa_supplicant.conf
+      rm -f /etc/wpa_supplicant/wpa_supplicant.conf
     else
       echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your network."
     fi
