@@ -15,7 +15,7 @@ Now think of a recovery concept for each of these components: what do you have t
 
 If the SD card in your Pi fails because of SD corruption (a very common problem), you need to have a PREinstalled, at least
 somewhat current clone SD card to contain all your current OS packages, including all helper programs you might be using (such
-as say mosquitto or any scripts you might have installed yourself), and your mathing CURRENT openHAB config, and more.
+as say mosquitto or any scripts you might have installed yourself), and your matching CURRENT openHAB config, and more.
 If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first!
 How long will that take you? Are you even capable of doing that ? Will the latest version of openHABian/Linux packages be 
 guaranteed to work with each other and with your hardware ?
@@ -26,7 +26,7 @@ restoration of all features and setups you used to have in operation before the 
 
 **One specific word of WARNING:**
 If you run a ZWave network like many openHAB users do, think what you need to do if the controller breaks and you need to
-replace it. A new controller has a different Home ID, so your device will not talk to it unless you re-include all of them (and
+replace it. A new controller has a different Home ID, so all of your devices will not talk to it unless you re-include all of them (and
 to physically access devices in quite a number of cases means you need to open your walls !!) And even if you have easy access,
 it can take many hours, even more so if it's dark and your ... no I'm NOT joking, and I'm not overdoing things.
 This is what happened to several people, and it can happen to you, too. We have seen people be so frustrated that they gave up
@@ -53,8 +53,8 @@ you with one solution that is designed to run on local hardware only. We provide
 destination. This can be a directory mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
 device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
 We believe this will cover most openHAB backup use cases.
-NOTE: don't use CIFS (Windows sharing). If you have a NAS, se NFS instead. There's issues with CIFS and symlinks, and it doesn't
-make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian).
+NOTE: don't use CIFS (Windows sharing). If you have a NAS, use NFS instead. There's issues with CIFS and symlinks, and it doesn't
+make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian) at all.
 If you don't have a NAS, DON'T use your Windows box as the storage server. Attach a USB stick to your Pi instead for storage.
 There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
 do not match your needs. You could even use it to backup all of your servers (if any) and desktop PCs, including Windows
