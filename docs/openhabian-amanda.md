@@ -15,7 +15,7 @@ Now think of a recovery concept for each of these components: what do you have t
 
 If the SD card in your Pi fails because of SD corruption (a very common problem), you need to have a PREinstalled, at least
 somewhat current clone SD card to contain all your current OS packages, including all helper programs you might be using (such
-as say mosquitto or any scripts you might have installed yourself), and your mathing CURRENT openHAB config, and more.
+as say mosquitto or any scripts you might have installed yourself), and your matching CURRENT openHAB config, and more.
 If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first!
 How long will that take you? Are you even capable of doing that ? Will the latest version of openHABian/Linux packages be 
 guaranteed to work with each other and with your hardware ?
@@ -26,7 +26,7 @@ restoration of all features and setups you used to have in operation before the 
 
 **One specific word of WARNING:**
 If you run a ZWave network like many openHAB users do, think what you need to do if the controller breaks and you need to
-replace it. A new controller has a different Home ID, so your device will not talk to it unless you re-include all of them (and
+replace it. A new controller has a different Home ID, so all of your devices will not talk to it unless you re-include all of them (and
 to physically access devices in quite a number of cases means you need to open your walls !!) And even if you have easy access,
 it can take many hours, even more so if it's dark and your ... no I'm NOT joking, and I'm not overdoing things.
 This is what happened to several people, and it can happen to you, too. We have seen people be so frustrated that they gave up
@@ -53,8 +53,8 @@ you with one solution that is designed to run on local hardware only. We provide
 destination. This can be a directory mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
 device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
 We believe this will cover most openHAB backup use cases.
-NOTE: don't use CIFS (Windows sharing). If you have a NAS, se NFS instead. There's issues with CIFS and symlinks, and it doesn't
-make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian).
+NOTE: don't use CIFS (Windows sharing). If you have a NAS, use NFS instead. There's issues with CIFS and symlinks, and it doesn't
+make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian) at all.
 If you don't have a NAS, DON'T use your Windows box as the storage server. Attach a USB stick to your Pi instead for storage.
 There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
 do not match your needs. You could even use it to backup all of your servers (if any) and desktop PCs, including Windows
@@ -418,21 +418,97 @@ Here's another terminal session log to show how a couple of files are restored i
 
 ### Restoring a partition
 
-To restore a raw disk partition, you need to use `amfetchdump` command. Unlike `amdump`, you have to run `amfetchdump` as user
-_backup_, though. Here's another terminal session log to use `amfetchdump` to first retrieve the backup image from storage.
-The last line also shows how to restore this image file to a SD card from Linux. In this example, we have an external SD card
-writer with a (blank) SD card attached to `/dev/sdd`. You could also move that temporary recovered image file to your Windows PC
-that has a card writer, and use Etcher or other tool in order to write the image to the card.
+To restore a raw disk partition, you need to use amfetchdump command. Unlike amdump, you have to run amfetchdump as user backup, though.
+Here’s another terminal session log to use amfetchdump to first retrieve the backup image from your backup storage to image called
+openhabianpi-image on /server/temp/
+
 
 **Reminder:** you have to be logged in as the `backup` user. 
 
 ```
-  backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image
-  1 volume(s) needed for restoration
+backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image
+ 1 volume(s) needed for restoration
   The following volumes are needed: openhab-openhab-dir-001
   Press enter when ready
+```
 
-  amfetchdump: 4: restoring split dumpfile: date 20170322084708 host pi disk /dev/mmcblk0 part 1/UNKNOWN lev 0 comp N program APPLICATION
+Before you actually press enter, you should get ready, by opening another terminal window and letting Amanda know in which slot the required
+tape is (you can do this also before starting the amfetchdump command). You have to find the slot yourself by checking their content. Once
+you find out the requested file (probably starting with 00000.), you redirect amanda to use the slot which contains the file (e.g. slot 1)
+using this:
+
+```
+backup@pi:/server/temp$ amtape openhab-dir slot 1
+slot   1: time 20170322084708 label openhab-openhab-dir-001
+changed to slot 1
+```
+
+Finally you can go back to the first terminal window and press Enter. Amanda will automatically pick up another files if the backup
+consists of more than one file.
+
+```
+amfetchdump: 4: restoring split dumpfile: date 20170322084708 host pi disk /dev/mmcblk0 part 1/UNKNOWN lev 0 comp N program APPLICATION
   927712 kb
-  backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
+```
+
+You can also provide amfetchdump with the date of the backup that you want to restore by adding the date parameter (format e.g. 20180327)
+like this:
+
+```
+backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image 20180327
+```
+
+This line also shows how to restore this image file to a SD card from Linux. In this example, we have an external SD card writer with a
+(blank) SD card attached to /dev/sdd.
+
+```
+backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
+```
+
+You could also move that temporary recovered image file to your Windows PC that has a card writer, rename the file to have a .raw extension,
+and use Etcher or other tool in order to write the image to the card.
+
+
+### A final word on when things have gone badly wrong...
+and your SD card to contain the Amanda database is broken: don't give up!
+Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's
+stored where) in your storage directory once a day (see `/etc/cron.d/amanda`). So you can reinstall openHABian including Amanda from scratch
+and copy back those files. Even if you fail to recover your index files, you can still access the files in your storage area. Backed-up
+directories are stored as tar files with a header, here's an example how to decode them:
+```
+[18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# ls -l
+insgesamt 2196552
+-rw-rw----+ 1 backup backup      32768 Mär 29 09:29 00000.openhab-dir-007
+-rw-rw----+ 1 backup backup   16857088 Mär 29 09:29 00001.openhab._etc.0
+-rw-rw----+ 1 backup backup  370219008 Mär 29 09:30 00002.openhab._var_lib_openhab2.0
+-rw-rw----+ 1 backup backup   22673408 Mär 29 09:30 00003.openhab._boot.0
+-rw-rw----+ 1 backup backup 1839450239 Mär 29 09:55 00004.openhab._dev_mmcblk0.0
+[18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# head -14 *001*
+AMANDA: SPLIT_FILE 20180329091738 openhab /etc  part 1/-1  lev 0 comp N program /bin/tar
+DLE=<<ENDDLE
+<dle>
+  <program>GNUTAR</program>
+  <disk>/etc</disk>
+  <level>0</level>
+  <auth>BSDTCP</auth>
+  <record>YES</record>
+  <index>YES</index>
+  <datapath>AMANDA</datapath>
+</dle>
+ENDDLE
+To restore, position tape at start of file and run:
+        dd if=<tape> bs=32k skip=1 | /bin/tar -xpGf - ...
+[18:14:49] root@openhabianpi:/volatile/backup/slots/slot7# dd if=00001.openhab._etc.0 bs=32k skip=1|tar tvf -
+drwxr-xr-x root/root      2139 2018-03-29 08:50 ./
+drwxr-xr-x root/root        15 2018-03-26 17:23 ./.java/
+drwxr-xr-x root/root        35 2018-03-26 17:23 ./.java/.systemPrefs/
+drwxr-xr-x root/root        31 2018-03-26 17:20 ./PackageKit/
+drwxr-xr-x root/root        85 2018-03-26 17:23 ./X11/
+drwxr-xr-x root/root         9 2018-03-26 17:23 ./X11/Xreset.d/
+drwxr-xr-x root/root        13 2018-03-26 17:23 ./X11/Xresources/
+drwxr-xr-x root/root       217 2018-03-26 17:23 ./X11/Xsession.d/
+drwxr-xr-x root/root         1 2017-07-18 09:38 ./X11/xkb/
+drwxr-xr-x root/root      2380 2018-03-29 08:26 ./alternatives/
+
+...
 ```
