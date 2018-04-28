@@ -15,7 +15,6 @@ if [ $1 = "start" ]; then
   echo "<html>
         <head>
         <title>openHABian</title>
-        <meta http-equiv="refresh" content="5" />
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
         <meta http-equiv="Pragma" content="no-cache" />
         <meta http-equiv="Expires" content="0" />
@@ -26,10 +25,10 @@ if [ $1 = "start" ]; then
         <iframe src="http://$hostname:$port/first-boot.txt" scrolling="yes" width="100%" height="90%"></iframe>
         </body>
         </html>" >> /tmp/webif/index.html
-  python3 -m http.server $port > /dev/null 2>&1 &
+  (cd /tmp/webif; python3 -m http.server $port > /dev/null 2>&1 &)
 fi
 
-if [ $1 = "stillrunning" ]; then
+if [ $1 = "reinsure_running" ]; then
   webifrunning=$(ps -ef | pgrep python3)
   if [ -z $webifrunning ]; then
     python3 -m http.server $port > /dev/null 2>&1 &
@@ -43,8 +42,7 @@ if [ $1 = "inst_done" ]; then
         </head>" > index.html
   echo "<body>
         <h1>openHABian Installation Status</h1>
-        installation is done, you can now access the your openHAB Installation
-        using <a href="http://$hostname:8080">this link</a>
+        Installation successful. You can now access the openHAB dashboard using <a href="http://$hostname:8080">this link</a>
         </body>
         </html>" > /tmp/webif/index.html
 fi
