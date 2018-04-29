@@ -8,8 +8,8 @@ nodejs_setup() {
 
   if is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Node.js for armv6l (prerequisite for other packages)... "
-    f=$(wget -qO- https://nodejs.org/download/release/latest-boron/ | grep "armv6l.tar.gz" | cut -d '"' -f 2)
-    cond_redirect wget -O /tmp/nodejs-armv6l.tar.gz https://nodejs.org/download/release/latest-boron/$f 2>&1 || FAILED=1
+    f=$(wget -qO- https://nodejs.org/download/release/latest-carbon/ | grep "armv6l.tar.gz" | cut -d '"' -f 2)
+    cond_redirect wget -O /tmp/nodejs-armv6l.tar.gz https://nodejs.org/download/release/latest-carbon/$f 2>&1 || FAILED=1
     if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
     cond_redirect tar -zxf /tmp/nodejs-armv6l.tar.gz --strip-components=1 -C /usr 2>&1
     cond_redirect rm /tmp/nodejs-armv6l.tar.gz 2>&1
