@@ -605,3 +605,61 @@ nginx_setup() {
     whiptail --title "Operation Canceled!" --msgbox "Setup was canceled, no changes were made." 15 80
   fi
 }
+
+tellstick_core_setup() {
+  FAILED=0
+  introtext="This will install tellstick core services to enable support for USB connected Tellstick and Tellstick duo. For more details, have a look at http://developer.telldus.se/"
+  failtext="Sadly there was a problem setting up tellstick core. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Success, please reboot your system to complete the installation.
+
+Next, add your devices in /etc/tellstick.conf. 
+To detect device IDs use commanline tool: tdtool-improved --event
+When devices are added restart telldusd.service by using: sudo systemctl restart telldusd
+or just reboot the system.
+"
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
+  fi
+  echo -n "$(timestamp) [openHABian] Installing tellstick-core... "
+
+  # Maybe add new repository to be able to install libconfuse1
+  if is_xenial ; then
+    echo 'APT::Default-Release "xenial";' > /etc/apt/apt.conf.d/01release
+    echo "deb http://archive.ubuntu.com/ubuntu/ artful universe" > /etc/apt/sources.list.d/ubuntu-artful.list
+    cond_redirect apt update
+    cond_redirect apt -y -t=artful install libconfuse1
+  fi
+  if is_jessie ; then
+    echo 'APT::Default-Release "jessie";' > /etc/apt/apt.conf.d/01release
+    echo "deb http://deb.debian.org/debian stretch main" > /etc/apt/sources.list.d/debian-stretch.list
+    cond_redirect apt update
+    cond_redirect apt -y -t=stretch install libconfuse1
+  fi
+
+  cond_redirect wget -O - https://s3.eu-central-1.amazonaws.com/download.telldus.com/debian/telldus-public.key | apt-key add -
+  echo "deb https://s3.eu-central-1.amazonaws.com/download.telldus.com unstable main" > /etc/apt/sources.list.d/telldus-unstable.list
+  cond_redirect apt update
+  cond_redirect apt -y install libjna-java telldus-core || FAILED=1
+  if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up systemd service for telldusd... "
+  cond_redirect cp ${BASEDIR}/includes/tellstick-core/telldusd.service /lib/systemd/system/telldusd.service
+  cond_redirect systemctl daemon-reload || FAILED=1
+  cond_redirect systemctl enable telldusd || FAILED=1
+  cond_redirect systemctl start telldusd.service || FAILED=1
+  if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up tdtool-improved... "
+  cond_redirect git clone https://github.com/EliasGabrielsson/tdtool-improved.py.git /opt/tdtool-improved
+  cond_redirect chmod +x /opt/tdtool-improved/tdtool-improved.py
+  cond_redirect ln -sf /opt/tdtool-improved/tdtool-improved.py /usr/bin/tdtool-improved
+  echo "OK"
+
+  if [ -n "$INTERACTIVE" ]; then
+    if [ $FAILED -eq 0 ]; then
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    else
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+    fi
+  fi
+}
