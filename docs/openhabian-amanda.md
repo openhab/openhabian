@@ -119,6 +119,7 @@ YOU HAVE BEEN WARNED.
 ---------------------
 
 ### NAS mount example
+
 ```
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
 pi@pi:~ $ sudo bash
@@ -134,11 +135,14 @@ Filesystem                       1K-blocks       Used Available  Use% Mounted on
 root@pi:/home/pi#
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
 ```
+
 ### USB storage mount example
+
 Note that this is showing two alternative versions, for FAT16/FAT32 filesystems (i.e. the original MS-DOS and the improved
 Windows filesystems that you usually use for USB sticks) and another version to use the ext4 native Linux filesystem. You can 
 use ext4 on a stick or USB-attached hard drive.
 Either way, you just need one or the other.
+
 ```
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
 root@pi:/home/pi# fdisk -l /dev/sda
@@ -190,6 +194,7 @@ root@pi:/home/pi#
 ```
 
 ## Software installation
+
 Next (but only AFTER you successfully mounted/prepared your storage !), install Amanda using the openHABian menu.
 When you start the Amanda installation from the openHABian menu, the install routine will create a directory/link structure in
 the directory you tell it. Your local user named "backup" will need to have write access there. Amanda install routine should do
@@ -230,6 +235,7 @@ please don't expect us to guide you through Amanda, which is a rather complex sy
 
 
 # Operating Amanda - a (yes, very brief) usage guide
+
 The overall config is to be found in `/etc/amanda/openhab-<config>/amanda.conf`.
 You are free to change this file, but doing so is at your own risk.
 You can specify files, directories and raw devices (such as HDD partitions or SD cards) that you want to be backed up in
@@ -242,6 +248,7 @@ openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to sta
 run a check at 06:00PM. 
 
 ## Backup
+
 Find below a terminal session log of a manually started backup run.
 It's showing the three most important commands to use. They all can be started as user _backup_ only, interactively or via cron, 
 and you always need to specify the config to use. You can have multiple backup configs in parallel use.
@@ -346,7 +353,9 @@ backup@pi:~$ amcheck openhab-dir
 ```
 
 ## Restore
+
 ### Restoring a file
+
 To restore a file, you need to use the `amrecover` command as the `root` user.
 Note that since Amanda is designed to restore ANY file of the system, you are required to run `amrecover` as the root user to
 have the appropriate file access rights.
@@ -422,7 +431,6 @@ To restore a raw disk partition, you need to use amfetchdump command. Unlike amd
 Here’s another terminal session log to use amfetchdump to first retrieve the backup image from your backup storage to image called
 openhabianpi-image on /server/temp/
 
-
 **Reminder:** you have to be logged in as the `backup` user. 
 
 ```
@@ -470,11 +478,13 @@ and use Etcher or other tool in order to write the image to the card.
 
 
 ### A final word on when things have gone badly wrong...
+
 and your SD card to contain the Amanda database is broken: don't give up!
 Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's
 stored where) in your storage directory once a day (see `/etc/cron.d/amanda`). So you can reinstall openHABian including Amanda from scratch
 and copy back those files. Even if you fail to recover your index files, you can still access the files in your storage area. Backed-up
 directories are stored as tar files with a header, here's an example how to decode them:
+
 ```
 [18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# ls -l
 insgesamt 2196552
