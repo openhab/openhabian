@@ -1,4 +1,4 @@
-As an **openHABian end user**, please check out the official openHAB documentation:  
+﻿As an **openHABian end user**, please check out the official openHAB documentation:  
 🡺 http://docs.openhab.org/installation/openhabian.html
 
 # openHABian - Hassle-free openHAB Setup
@@ -24,6 +24,8 @@ Enjoy openHABian and the wondrous world of openHAB!!
 ----
 
 ## Development
+
+[![Shellcheck Status](https://travis-ci.com/openhab/openhabian.svg?branch=master)](https://travis-ci.com/openhab/openhabian) (Shellcheck)
 
 For image building, please see the `build-....sh` scripts to get an idea of the process.
 
