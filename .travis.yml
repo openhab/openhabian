@@ -1,0 +1,12 @@
+language: bash
+
+addons:
+  apt:
+    update: true
+
+install:
+  - shellcheck --version
+
+script:
+  - shellcheck openhabian-setup.sh || true
+  - shellcheck functions/*.sh || true
