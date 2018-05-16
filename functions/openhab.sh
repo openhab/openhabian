@@ -30,12 +30,13 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
+  cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
+  cond_redirect apt-key add openhab-key.asc
+  if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
+  rm -f openhab-key.asc
+
   if [ ! -n "$UNSTABLE" ]; then
     echo "deb https://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
-    cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
-    cond_redirect apt-key add openhab-key.asc
-    if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
-    rm -f openhab-key.asc
   else
     echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
   fi
