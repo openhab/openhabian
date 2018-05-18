@@ -297,7 +297,7 @@ Remember to stay calm.
 The openHABian setup will take 15 up to 45 minutes to complete all steps.
 This time highly depends on your device's performance, your internet connection and sometimes even on the load of external servers.
 
-You can also check the current progress status by using SSH Progress Report or WebIF Progress Report, more information about this two options below.
+You can also check the current progress status by using SSH Progress Report or Web-Based Progress Report, more information about this two options below.
 
 <!--
 ##### LED Indication (RPi only)
@@ -333,16 +333,16 @@ The progress of a successful installation will look similar to the following:
 
 Wait till the log tells you that the setup was "successful", then reconnect to the device.
 
-##### WebIF Progress Report
+##### Web-Based Progress Report
 
 **Note:**
-WebIF is only avialible for RPi
+Web-Based Progress Report is only avialible for RPi at the moment
 
-During the setup process the WebIF will provide information about current state of your installation.
-The WebIF can be accessed using a browser and this url [http://openhabianpi](http://openhabianpi)
-The information page will refresh it self every 10 seconds during installation and will provide a link to your openHAB dashboard once the installation was successful.
+During the setup process the Web-Based Progress Report will provide information about current state of your installation.
+The webpage can be accessed using a browser and this url [http://openhabianpi](http://openhabianpi)
+The Web-Based Progress Report page will refresh itself every 10 seconds during installation and will provide a link to your openHAB dashboard once the installation was successful.
 
-Since the WebIF process is shutdown shortly after a successful installation, please check if the openHAB dashboard is already accessable in case you can't access the WebIF. 
+Since the Web-Based Progress Report process is shutdown shortly after a successful installation, please check if the openHAB dashboard is already accessable in case you can't access the webpage. 
 
 ##### SSH Login Screen
 
