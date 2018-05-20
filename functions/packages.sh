@@ -562,6 +562,7 @@ nginx_setup() {
 
     if [ "$SECURE" = true ]; then
       if [ "$VALIDDOMAIN" = true ]; then
+        certbotpackage="python-certbot-nginx"
         if is_debian || is_raspbian; then
           gpg --keyserver pgpkeys.mit.edu --recv-key 8B48AD6246925553
           gpg -a --export 8B48AD6246925553 | apt-key add -
@@ -572,7 +573,6 @@ nginx_setup() {
             certbotpackage="certbot"
           elif is_stretch; then
             certbotrepo="stretch-backports"
-            certbotpackage="python-certbot-nginx"
           fi
           certbotoption="-t"
           echo -e "# This file was added by openHABian to install certbot\ndeb http://ftp.debian.org/debian ${certbotrepo} main" > /etc/apt/sources.list.d/backports.list
