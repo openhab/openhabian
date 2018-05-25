@@ -37,7 +37,7 @@ The following features are provided by the openHABian images out of the box:
 - Zulu Embedded OpenJDK Java 8 ([newest revision](http://zulu.org/zulu-community/zulurelnotes))
 - [openHABian Configuration Tool](#openhabian-config) including updater functionality
 - openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
-- Samba file sharing with [pre-configured to use shares](http://docs.openhab.org/installation/linux.html#mounting-locally)
+- Samba file sharing with [pre-configured to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
 - Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
 - Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
 - Customized Bash shell experience
@@ -50,7 +50,7 @@ Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openha
 
 ![openHABian-config menu](images/openHABian-config.png)
 
-- Switch over to the latest openHAB 2 [*unstable/SNAPSHOT* build](http://docs.openhab.org/installation/linux.html#changing-versions)
+- Switch over to the latest openHAB 2 [*unstable/SNAPSHOT* build](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 - Install and Setup a [reverse proxy](security.html#nginx-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
 - Set up a Wi-Fi connection
 - Bind the [openHAB remote console]({{base}}/administration/console.html) to all interfaces
@@ -88,8 +88,8 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 
 
 - The device will be available under its IP or via the local DNS name `openhabianpi`
-- [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html): [http://openhabianpi:8080](http://openhabianpi:8080)
-- [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
+- [Connect to the openHAB 2 dashboard](https://www.openhab.org/docs/configuration/packages.html): [http://openhabianpi:8080](http://openhabianpi:8080)
+- [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
 - Connect to the openHAB Log Viewer (frontail): [http://openhabianpi:9001](http://openhabianpi:9001)
 - If you encounter any setup problem, [please continue here](#successful)
 
@@ -130,8 +130,8 @@ As a workaround, please be sure to not have am HDMI display connected during the
 
 
 - The device will be available under its IP or via the local DNS name `openhabianpine64`
-- [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html): [http://openhabianpine64:8080](http://openhabianpine64:8080)
-- [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
+- [Connect to the openHAB 2 dashboard](https://www.openhab.org/docs/configuration/packages.html): [http://openhabianpine64:8080](http://openhabianpine64:8080)
+- [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
 - Connect to the openHAB Log Viewer (frontail): [http://openhabianpine64:9001](http://openhabianpine64:9001)
 - If you encounter any setup problem, [please continue here](#successful)
 
@@ -228,12 +228,12 @@ It's not complicated and something that doesn't hurt on ones résumé.
 ### First Steps with openHAB
 
 After your first setup of openHABian is successful and you are able to access the openHAB dashboard, you should dig into the possibilites.
-Install [Bindings](https://docs.openhab.org/addons/bindings.html), discover your devices, and [configure your smart home](http://docs.openhab.org/configuration/index.html).
-You might want to start defining [Items](http://docs.openhab.org/configuration/items.html), [Sitemap](http://docs.openhab.org/configuration/sitemaps.html) and [HABPanel](http://docs.openhab.org/addons/uis/habpanel/readme.html) dashboard for your home.
-To kickstart that process you may check out the openHAB [Home Builder](https://docs.openhab.org/configuration/homebuilder.html).
+Install [Bindings](https://www.openhab.org/addons/), discover your devices, and [configure your smart home](https://www.openhab.org/docs/configuration/).
+You might want to start defining [Items](https://www.openhab.org/docs/configuration/items.html), [Sitemap](https://www.openhab.org/docs/configuration/sitemaps.html) and [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html) dashboard for your home.
+To kickstart that process you may check out the openHAB [Home Builder](https://www.openhab.org/docs/configuration/homebuilder.html).
 
 These are just some first hints.
-Be sure to read up on the [Configuration](http://docs.openhab.org/configuration/index.html) section of the documentation page to learn more.
+Be sure to read up on the [Configuration](https://www.openhab.org/docs/configuration/) section of the documentation page to learn more.
 
 {: #further-config}
 ### Further Configuration Steps
@@ -254,7 +254,7 @@ All password can be changed from openHABian menu.
 - Samba share password (e.g. "openhabian:openhabian")
 - openHAB remote console (e.g. "openhab:habopen")
 - Amanda backup password (no default, applied when installing)
-- Nginx reverse proxy login (no default, applied when installing) *For manual configuration see [here](http://docs.openhab.org/installation/security.html#adding-or-removing-users).*
+- Nginx reverse proxy login (no default, applied when installing) *For manual configuration see [here](https://www.openhab.org/docs/installation/security.html#adding-or-removing-users).*
 - InfluxDB (No password set by default)
 - Grafana visualization ("admin:admin")
 
@@ -356,7 +356,7 @@ openHABian installs the latest stable build of openHAB 2.
 If you want to switch over to the snapshot release branch, please do so via the openHABian Configuration Tool.
 Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
 
-Check the Linux installation article for all needed details: [Linux: Changing Versions](http://docs.openhab.org/installation/linux.html#changing-versions)
+Check the Linux installation article for all needed details: [Linux: Changing Versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 
 {: #headache}
 #### Where is the graphical user interface?

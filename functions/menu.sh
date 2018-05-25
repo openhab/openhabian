@@ -4,7 +4,7 @@ show_about() {
   whiptail --title "About openHABian and openhabian-config" --msgbox "openHABian Configuration Tool $(get_git_revision)
   \\nThis tool provides a few routines to make your openHAB experience as comfortable as possible. The menu options help with the setup and configuration of your system. Please select a menu entry to learn more.
   \\nVisit the following websites for more information:
-  - Documentation: http://docs.openhab.org/installation/openhabian.html
+  - Documentation: https://www.openhab.org/docs/installation/openhabian.html
   - Development: http://github.com/openhab/openhabian
   - Discussion: https://community.openhab.org/t/13379" 17 80
 }

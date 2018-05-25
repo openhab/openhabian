@@ -64,7 +64,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
 }
 
 openhab_shell_interfaces() {
-  introtext="The openHAB remote console is a powerful tool for every openHAB user. It allows you too have a deeper insight into the internals of your setup. Further details: http://docs.openhab.org/administration/console.html
+  introtext="The openHAB remote console is a powerful tool for every openHAB user. It allows you too have a deeper insight into the internals of your setup. Further details: https://www.openhab.org/docs/administration/console.html
 \\nThis routine will bind the console to all interfaces and thereby make it available to other devices in your network. Please provide a secure password for this connection (letters and numbers only! default: habopen):"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="The openHAB remote console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the console via:
