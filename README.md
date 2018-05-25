@@ -1,5 +1,5 @@
 ﻿As an **openHABian end user**, please check out the official openHAB documentation:  
-🡺 http://docs.openhab.org/installation/openhabian.html
+🡺 https://www.openhab.org/docs/installation/openhabian.html
 
 # openHABian - Hassle-free openHAB Setup
 
@@ -15,11 +15,11 @@ The project provides two things:
 
 ## Installation and Setup
 
-Please check the [official documentation article](http://docs.openhab.org/installation/openhabian.html) to learn about openHABian and please visit and subscribe to our very active [community forum thread](https://community.openhab.org/t/13379).
+Please check the [official documentation article](https://www.openhab.org/docs/installation/openhabian.html) to learn about openHABian and please visit and subscribe to our very active [community forum thread](https://community.openhab.org/t/13379).
 
 Enjoy openHABian and the wondrous world of openHAB!!
 
-![](https://docs.openhab.org/installation/images/openHABian-config.png)
+![](https://www.openhab.org/assets/img/openHABian-config.0c2550f6.png)
 
 ----
 

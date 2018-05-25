@@ -60,7 +60,7 @@ homegear_setup() {
   successtext="Setup was successful.
 Homegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'sudo homegear -r'.
 Please read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear
-To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/homematic/readme.html
+To continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/
 "
 
   echo -n "$(timestamp) [openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
@@ -128,7 +128,7 @@ mqtt_setup() {
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
 Eclipse Mosquitto is now up and running in the background. You should be able to make a first connection.
-To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/mqtt1/readme.html
+To continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/mqtt1/
 "
   echo -n "$(timestamp) [openHABian] Setting up the MQTT broker Eclipse Mosquitto... "
   if [ -n "$INTERACTIVE" ]; then
