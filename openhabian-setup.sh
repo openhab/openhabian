@@ -3,7 +3,7 @@
 # openHABian - hassle-free openHAB 2 installation and configuration tool
 # for the Raspberry Pi and other Linux systems
 #
-# Documentation: http://docs.openhab.org/installation/openhabian.html
+# Documentation: https://www.openhab.org/docs/installation/openhabian.html
 # Development: http://github.com/openhab/openhabian
 # Discussion: https://community.openhab.org/t/13379
 #
@@ -33,7 +33,7 @@ echo -n "$(timestamp) [openHABian] Checking for root privileges... "
 if [[ $EUID -ne 0 ]]; then
   echo ""
   echo "This script must be run as root. Did you mean 'sudo openhabian-config'?" 1>&2
-  echo "More info: http://docs.openhab.org/installation/openhabian.html"
+  echo "More info: https://www.openhab.org/docs/installation/openhabian.html"
   exit 1
 else
   echo "OK"
