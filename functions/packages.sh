@@ -562,14 +562,27 @@ nginx_setup() {
 
     if [ "$SECURE" = true ]; then
       if [ "$VALIDDOMAIN" = true ]; then
-        echo -e "# This file was added by openHABian to install certbot\ndeb http://ftp.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/backports.list
-        gpg --keyserver pgpkeys.mit.edu --recv-key 8B48AD6246925553
-        gpg -a --export 8B48AD6246925553 | apt-key add -
-        gpg --keyserver pgpkeys.mit.edu --recv-key 7638D0442B90D010
-        gpg -a --export 7638D0442B90D010 | apt-key add -
+        certbotpackage="python-certbot-nginx"
+        if is_debian || is_raspbian; then
+          gpg --keyserver pgpkeys.mit.edu --recv-key 8B48AD6246925553
+          gpg -a --export 8B48AD6246925553 | apt-key add -
+          gpg --keyserver pgpkeys.mit.edu --recv-key 7638D0442B90D010
+          gpg -a --export 7638D0442B90D010 | apt-key add -
+          if is_jessie; then
+            certbotrepo="jessie-backports"
+            certbotpackage="certbot"
+          elif is_stretch; then
+            certbotrepo="stretch-backports"
+          fi
+          certbotoption="-t"
+          echo -e "# This file was added by openHABian to install certbot\ndeb http://ftp.debian.org/debian ${certbotrepo} main" > /etc/apt/sources.list.d/backports.list
+        elif is_ubuntu; then
+          apt -y -q --force-yes install software-properties-common
+          add-apt-repository ppa:certbot/certbot
+        fi
         apt update
         echo "Installing certbot..."
-        apt -y -q --force-yes install certbot -t jessie-backports
+        apt -y -q --force-yes install "${certbotpackage}" "${certbotoption}" "${certbotrepo}"
         mkdir -p /var/www/$domain
         uncomment 37,39 /etc/nginx/sites-enabled/openhab
         nginx -t && service nginx reload
