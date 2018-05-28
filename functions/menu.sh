@@ -15,7 +15,7 @@ show_main_menu() {
   "" "" \
   "01 | Update"                  "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"          "Upgrade all installed software packages to their newest version" \
-  "03 | openHAB 2.X.X Stable"    "Switch from openHAB 2.X or 2.X-snapshot to the latest stable release" \
+  "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
