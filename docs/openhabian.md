@@ -87,10 +87,10 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 - Enjoy! 🎉
 
 
-- The device will be available under its IP or via the local DNS name `openhabianpi`
-- [Connect to the openHAB 2 dashboard](https://www.openhab.org/docs/configuration/packages.html): [http://openhabianpi:8080](http://openhabianpi:8080)
+- The device will be available under its IP or via the local DNS name `openhab`
+- [Connect to the openHAB 2 dashboard](https://www.openhab.org/docs/configuration/packages.html): [http://openhab:8080](http://openhab:8080)
 - [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
-- Connect to the openHAB Log Viewer (frontail): [http://openhabianpi:9001](http://openhabianpi:9001)
+- Connect to the openHAB Log Viewer (frontail): [http://openhab:9001](http://openhab:9001)
 - If you encounter any setup problem, [please continue here](#successful)
 
 You can stop reading now.
@@ -129,10 +129,10 @@ As a workaround, please be sure to not have am HDMI display connected during the
 - Enjoy! 🎉
 
 
-- The device will be available under its IP or via the local DNS name `openhabianpine64`
-- [Connect to the openHAB 2 dashboard](https://www.openhab.org/docs/configuration/packages.html): [http://openhabianpine64:8080](http://openhabianpine64:8080)
+- The device will be available under its IP or via the local DNS name `openhab`
+- [Connect to the openHAB 2 dashboard](https://www.openhab.org/docs/configuration/packages.html): [http://openhab:8080](http://openhab:8080)
 - [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
-- Connect to the openHAB Log Viewer (frontail): [http://openhabianpine64:9001](http://openhabianpine64:9001)
+- Connect to the openHAB Log Viewer (frontail): [http://openhab:9001](http://openhab:9001)
 - If you encounter any setup problem, [please continue here](#successful)
 
 You can stop reading now.
@@ -264,13 +264,13 @@ openHABian comes with a number of additional routines to quickly install and set
 You'll find all of these in the [openHABian Configuration Tool](#openhabian-config)
 
 - [Amanda Network Backup](http://www.amanda.org/) - A built-in backup solution for your valuables. Please continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md)
-- [frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openHABianPi:9001](http://openHABianPi:9001)
-- [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openHABianPi:1880](http://openHABianPi:1880)
+- [frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openhab:9001](http://openhab:9001)
+- [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openhab:1880](http://openhab:1880)
 - [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
 - [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
 - [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
 - [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
-- [Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openHABianPi:3000](http://openHABianPi:3000)
+- [Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openhab:3000](http://openhab:3000)
 
 ## FAQ and Troubleshooting
 
@@ -313,11 +313,11 @@ We will re-add the functionality as soon as the underlying issue is resolved.
 
 ##### openHAB Dashboard
 
-After the installation of openHABian was successful, you should be able to access the openHAB dashboard:
+After the installation of openHABian was successful, you should be able to access the openHAB dashboard
+with the following URLs:
 
-- Raspberry Pi image setup: [http://openhabianpi:8080](http://openhabianpi:8080)
-- Pine A64 image setup: [http://openhabianpine64:8080](http://openhabianpine64:8080)
-- In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP)
+* [http://openhab:8080](http://openhab:8080)
+* e.g. [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace IP accordingly)
 
 ##### SSH Progress Report
 

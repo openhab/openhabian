@@ -7,20 +7,20 @@ First, make yourself aware how important a comprehensive backup and recovery con
 Yes, this text is the README on the backup software part for openHABian that you're reading, but take a couple of minutes to
 read and think about recovery in a generic sense first. This might avoid a LOT of frustration.
 
-So you have your smart home working thanks to openHAB(ian).... but what if a component of your system fails ?
+So you have your smart home working thanks to openHAB... but what if a component of your system fails?
 First thing is: you need spare hardware of EVERY component that needs to work for your smart home to work.
 Think of EVERY relevant component and not just the obvious ones. Think of your Internet router, switch, server, NAS and required
 addons such as a ZWave or 433MHz radio or WiFi USB stick, proper power supplies and the SD card writer.
-Now think of a recovery concept for each of these components: what do you have to do if it fails ?
+Now think of a recovery concept for each of these components: what do you have to do if it fails?
 
 If the SD card in your Pi fails because of SD corruption (a very common problem), you need to have a PREinstalled, at least
 somewhat current clone SD card to contain all your current OS packages, including all helper programs you might be using (such
 as say mosquitto or any scripts you might have installed yourself), and your matching CURRENT openHAB config, and more.
 If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first!
-How long will that take you? Are you even capable of doing that ? Will the latest version of openHABian/Linux packages be 
-guaranteed to work with each other and with your hardware ?
+How long will that take you? Are you even capable of doing that? Will the latest version of openHABian/Linux packages be
+guaranteed to work with each other and with your hardware?
 Do you REALLY remember all the parts and places of your system where you configured something related to your server/home
-network and smart home ? If you're honest to yourself, the answer will often be "NO".
+network and smart home? If you're honest to yourself, the answer will often be "NO".
 Yes, you can get your smart home back up working somehow, but it will take several hours, and it will not be a complete
 restoration of all features and setups you used to have in operation before the crash.
 
@@ -64,7 +64,7 @@ have a clone SD card with your CURRENT config.
 Now all that being said, let's turn to what what you're here for: how to accomplish the software side of backup and restoration.
 
 ## Some Amanda background
-Best is to read up on and understand some of the basic Amanda concepts over at http://www.amanda.org.
+Best is to read up on and understand some of the basic Amanda concepts over at [http://www.amanda.org](http://www.amanda.org).
 That's not a mandatory step but it will probably help you understand a couple of things better.
 The world of UNIX and backup IS complex and in the end, there's no way to fully hide that from a user.
 Here's a couple of those concepts, but this is not a comprehensive list. I cannot understand the system for you,
@@ -78,8 +78,8 @@ once in a dumpcycle and will run 'level 1' dumps for the rest of the time (that 
 since the last level 0 dump was done, also called an 'incremental' backup).
 * Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount
 of data to be backed up. The number of tapes and their capacity (both of which are sort of artificially set when you store to a
-filesystem) determines how long your storage capacity will last until Amanda starts to overwrite old backups. 
-By asking you to enter the total size of the storage area, the Amanda installation routine will compute the maximum amount of 
+filesystem) determines how long your storage capacity will last until Amanda starts to overwrite old backups.
+By asking you to enter the total size of the storage area, the Amanda installation routine will compute the maximum amount of
 data that Amanda will store into each tape subdirectory as (storage size) divided by (number of tapes, 15 by default).
 The ability to backup to a directory was added later, but the 'slot', 'drive' and 'tape' concepts were kept. That's why here,
 as a deployment inside openHABian, we will have 'virtual' tapes and slots which are implemented as subdirectories (one for each
@@ -96,19 +96,19 @@ easily DESTROY YOUR SYSTEM. **Take special care !**
 
 # Installation
 ## Storage preparation
-Now once you read up on all of this and feel you have understood this stuff, the next step will NOT be hit that 'Amanda install' 
+Now once you read up on all of this and feel you have understood this stuff, the next step will NOT be hit that 'Amanda install'
 menu option in openHABian (no, we're not there yet) but to prepare your storage.
 HEADS UP: You need to "create" (or "provide", actually) your storage BEFORE you install Amanda.
 That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
 Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
-read up on it NOW. A generic (German language) intro can be found at http://www.pc-erfahrung.de/linux/linux-mounten.html.)
+read up on it NOW. A generic (German language) intro can be found at [http://www.pc-erfahrung.de/linux/linux-mounten.html](http://www.pc-erfahrung.de/linux/linux-mounten.html).
 Google is your friend, but it'll give a lot of answers, each to vary slightly depending on the Linux variant or use case.
 Make sure you ask specific questions such as “how to mount a NAS disk on a raspbian raspberry pi”.
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
 exported (= shared, i.e. made available for mounting) on that directory. This is your mountpoint.
 
-Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 192.168.1.100) and two partitions from an attached
-USB stick identified as /dev/sda (Linux ext4 and Windows VFAT filesystems).
+Here's examples how to mount a NAS (to have the DNS name "nas" and IP address `192.168.1.100`) and two partitions from an attached
+USB stick identified as `/dev/sda` (Linux ext4 and Windows VFAT filesystems).
 
 HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
 Do NOT (I repeat: NOT) deploy these commands unless you are fully aware what they will do to your system.
@@ -121,31 +121,31 @@ YOU HAVE BEEN WARNED.
 ### NAS mount example
 
 ```
------ EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
-pi@pi:~ $ sudo bash
-root@pi:/home/pi# host nas
+----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
+pi@openhab:~ $ sudo bash
+root@openhab:/home/pi# host nas
 nas.fritz.box has address 192.168.1.100
-root@pi:/home/pi#
-root@pi:/home/pi# mkdir -p /storage/server
-root@pi:/home/pi# echo "192.168.1.100://share/freespace     /storage/server    nfs     nolock,noatime  0       0" >> /etc/fstab
-root@pi:/home/pi# mount /storage/server
-root@pi:/home/pi# df -k /server
+root@openhab:/home/pi#
+root@openhab:/home/pi# mkdir -p /storage/server
+root@openhab:/home/pi# echo "192.168.1.100://share/freespace     /storage/server    nfs     nolock,noatime  0       0" >> /etc/fstab
+root@openhab:/home/pi# mount /storage/server
+root@openhab:/home/pi# df -k /server
 Filesystem                       1K-blocks       Used Available  Use% Mounted on
 192.168.1.100://share/freespace 2882740768 2502091488 380649280   87% /storage/server
-root@pi:/home/pi#
------ EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
+root@openhab:/home/pi#
+----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
 ```
 
 ### USB storage mount example
 
-Note that this is showing two alternative versions, for FAT16/FAT32 filesystems (i.e. the original MS-DOS and the improved
-Windows filesystems that you usually use for USB sticks) and another version to use the ext4 native Linux filesystem. You can 
+Note that this is showing two alternative versions, for FAT16/FAT32 file systems (i.e. the original MS-DOS and the improved
+Windows file systems that you usually use for USB sticks) and another version to use the ext4 native Linux filesystem. You can
 use ext4 on a stick or USB-attached hard drive.
 Either way, you just need one or the other.
 
 ```
------ EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
-root@pi:/home/pi# fdisk -l /dev/sda
+----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
+root@openhab:/home/pi# fdisk -l /dev/sda
 Disk /dev/sda: 14,8 GiB, 15836643328 bytes, 30930944 sectors
 Units: sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
@@ -160,7 +160,7 @@ Device     Boot    Start      End  Sectors  Size Id Type
 /dev/sda6        2424832  2553855   129024   63M  c W95 FAT32 (LBA)
 /dev/sda7        2555904 30056445 27500542 13,1G 83 Linux
 /dev/sda8       30056448 31105023  1048576  512M 83 Linux
-root@pi:/# mke2fs -t ext4  /dev/sda8
+root@openhab:/# mke2fs -t ext4  /dev/sda8
 mke2fs 1.43.3 (04-Sep-2016)
 /dev/sda8 contains a ext4 file system
         created on Sun Oct 29 00:17:48 2017
@@ -174,22 +174,22 @@ Allocating group tables: done
 Writing inode tables: done
 Creating journal (8192 blocks): done
 Writing superblocks and filesystem accounting information: done
-root@pi:/# mkexfatfs /dev/sda1
+root@openhab:/# mkexfatfs /dev/sda1
 mkexfatfs 1.1.0
 Creating... done.
 Flushing... done.
 File system created successfully.
-root@pi:/#
-root@pi:/home/pi# mkdir -p /storage/usbstick-linux /storage/usbstick-msdos
-root@pi:/home/pi# echo "/dev/sda8     /storage/usbstick-linux    ext4     defaults,noatime  0       1" >> /etc/fstab
-root@pi:/home/pi# echo "/dev/sda1     /storage/usbstick-msdos    vfat     noatime,noauto,user,uid=backup  0       1" >> /etc/fstab
-root@pi:/home/pi# mount /storage/usbstick-linux
-root@pi:/home/pi# mount /storage/usbstick-msdos
-root@pi:/home/pi# df -k /storage/usbstick-linux /storage/usbstick-msdos
+root@openhab:/#
+root@openhab:/home/pi# mkdir -p /storage/usbstick-linux /storage/usbstick-msdos
+root@openhab:/home/pi# echo "/dev/sda8     /storage/usbstick-linux    ext4     defaults,noatime  0       1" >> /etc/fstab
+root@openhab:/home/pi# echo "/dev/sda1     /storage/usbstick-msdos    vfat     noatime,noauto,user,uid=backup  0       1" >> /etc/fstab
+root@openhab:/home/pi# mount /storage/usbstick-linux
+root@openhab:/home/pi# mount /storage/usbstick-msdos
+root@openhab:/home/pi# df -k /storage/usbstick-linux /storage/usbstick-msdos
 Filesystem     1K-blocks    Used Available  Use% Mounted on
-/dev/sda8       13403236 8204144   4495196   65% /storage/usbstick-linux 
+/dev/sda8       13403236 8204144   4495196   65% /storage/usbstick-linux
 /dev/sda1       13403236 9018464   3680876   72% /storage/usbstick-msdos
-root@pi:/home/pi#
+root@openhab:/home/pi#
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
 ```
 
@@ -205,14 +205,14 @@ Installation will ask you a couple of questions.
 Here you need to enter the _local_ directory of your openHABian box, also known as _the mount point_. This is where you have
 mounted your USB storage or NAS disk share (which in above example for the NAS is `/storage/server` and for the usb stick is
 either `/storage/usbstick-linux` or `/storage/usbstick-msdos`).
-* "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be
+* "How much storage do you want to dedicate to your backup in megabytes? Recommendation: 2-3 times the amount of data to be
 backed up."
 Amanda will use at most this number of megabytes in total as its storage for backup.
 If you choose to include the raw device in the backup cycle (next question), that means you should enter 3 times the size of
 your SD disk NOW. If you choose not to include it (or selected the AWS S3 variant which omits raw SD backups per default), it's
-a lot less data and you need to estimate it by adding up the size of the config directories that are listed in the `disklist` 
+a lot less data and you need to estimate it by adding up the size of the config directories that are listed in the `disklist`
 file. If you don't have any idea, enter 1024 (= 1 GByte). You can change it in the Amanda config file at any later time.
-* "Backup raw SD card ?" (not asked if you selected AWS S3 storage)
+* "Backup raw SD card?" (not asked if you selected AWS S3 storage)
 Answer "yes" if you want to create raw disk backups of your SD card. This is only recommended if your SD card is 8GB or less in
 size, otherwise the backup can take too long. You can always add/remove this by editing `${confdir}/disklist` at a later time.
 
@@ -233,7 +233,6 @@ There's online documentation including tutorials and FAQs at http://wiki.zmanda.
 In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but
 please don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
 
-
 # Operating Amanda - a (yes, very brief) usage guide
 
 The overall config is to be found in `/etc/amanda/openhab-<config>/amanda.conf`.
@@ -245,19 +244,19 @@ directories of yours.
 Note: the raw SD card backup was left out for the AWS S3 config, as that would require a lot of bandwidth and runtime.
 
 openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups every night at 01:00AM, and to
-run a check at 06:00PM. 
+run a check at 06:00PM.
 
 ## Backup
 
 Find below a terminal session log of a manually started backup run.
-It's showing the three most important commands to use. They all can be started as user _backup_ only, interactively or via cron, 
+It's showing the three most important commands to use. They all can be started as user _backup_ only, interactively or via cron,
 and you always need to specify the config to use. You can have multiple backup configs in parallel use.
 
 The `amcheck` command is meant to remind you to put in the right removeable storage medium such as a tape or SD card,
 but for the AWS and local/NAS-mounted directory based backup configs, we don't have removable media. So don't get confused,
 `amcheck` is not a required step.
 
-The `amdump` command will start the backup run itself. 
+The `amdump` command will start the backup run itself.
 The result will be mailed to you (if your mail system was properly configured which is currently not the case with openHABian).
 
 You can run `amreport <config>` at any time to see a report on the last backup run for that config.
@@ -266,9 +265,9 @@ You can run `amreport <config>` at any time to see a report on the last backup r
 use the `sudo` (execute commands with superuser privileges) and `su` (switch user) commands as shown below.
 
 ```
-pi@pi:/etc/amanda/openhab-dir $ sudo su - backup
-backup@pi:~$
-backup@pi:~$ amcheck openhab-dir
+pi@openhab:/etc/amanda/openhab-dir $ sudo su - backup
+backup@openhab:~$
+backup@openhab:~$ amcheck openhab-dir
 
   Amanda Tape Server Host Check
   -----------------------------
@@ -287,18 +286,18 @@ backup@pi:~$ amcheck openhab-dir
 
   (brought to you by Amanda 3.3.6)
 
-  backup@pi:~$ amreport openhab-dir
+  backup@openhab:~$ amreport openhab-dir
   nothing to report on!
-  backup@pi:~$ amdump openhab-dir
-  backup@pi:~$ amreport openhab-dir
-  Hostname: pi
+  backup@openhab:~$ amdump openhab-dir
+  backup@openhab:~$ amreport openhab-dir
+  Hostname: openhab
   Org     : openHABian openhab-dir
   Config  : openhab-dir
   Date    : März 30, 2017
-  
+
   These dumps were to tape openhab-openhab-dir-001.
   The next tape Amanda expects to use is: 1 new tape.
-  
+
   STATISTICS:
                             Total       Full      Incr.   Level:#
                           --------   --------   --------  --------
@@ -306,11 +305,11 @@ backup@pi:~$ amcheck openhab-dir
   Run Time (hrs:min)          1:31
   Dump Time (hrs:min)         1:19       1:19       0:00
   Output Size (meg)         7951.1     7951.1        0.0
-  Original Size (meg)      15581.6    15581.6        0.0 
+  Original Size (meg)      15581.6    15581.6        0.0
   Avg Compressed Size (%)     51.0       51.0        --
   DLEs Dumped                    4          4          0
   Avg Dump Rate (k/s)       1723.1     1723.1        --
-  
+
   Tape Time (hrs:min)         1:19       1:19       0:00
   Tape Size (meg)           7951.1     7951.1        0.0
   Tape Used (%)                8.0        8.0        0.0
@@ -321,22 +320,22 @@ backup@pi:~$ amcheck openhab-dir
   USAGE BY TAPE:
     Label                     Time         Size      %  DLEs Parts
     openhab-openhab-dir-001   1:19     8141884k    8.0     4     4
-  
+
   NOTES:
-    planner: Adding new disk pi:/dev/mmcblk0.
-    planner: Adding new disk pi:/etc/openhab2.
-    planner: Adding new disk pi:/var/lib/openhab2/persistence.
-    planner: Adding new disk pi:/var/lib/openhab2/zwave.
-    planner: WARNING: no history available for pi:/var/lib/openhab2/zwave; guessing that size will be 1000000 KB
-    planner: WARNING: no history available for pi:/var/lib/openhab2/persistence; guessing that size will be 1000000 KB
-    planner: WARNING: no history available for pi:/etc/openhab2; guessing that size will be 1000000 KB
+    planner: Adding new disk openhab:/dev/mmcblk0.
+    planner: Adding new disk openhab:/etc/openhab2.
+    planner: Adding new disk openhab:/var/lib/openhab2/persistence.
+    planner: Adding new disk openhab:/var/lib/openhab2/zwave.
+    planner: WARNING: no history available for openhab:/var/lib/openhab2/zwave; guessing that size will be 1000000 KB
+    planner: WARNING: no history available for openhab:/var/lib/openhab2/persistence; guessing that size will be 1000000 KB
+    planner: WARNING: no history available for openhab:/etc/openhab2; guessing that size will be 1000000 KB
     taper: Slot 3 without label can be labeled
     taper: tape openhab-openhab-dir-001 kb 8141884 fm 4 [OK]
-    big estimate: pi /etc/openhab2 0
+    big estimate: openhab /etc/openhab2 0
                     est: 1000032k    out 259820k
-    big estimate: pi /var/lib/openhab2/persistence 0
+    big estimate: openhab /var/lib/openhab2/persistence 0
                     est: 1000032k    out 48720k
-    big estimate: pi /var/lib/openhab2/zwave 0
+    big estimate: openhab /var/lib/openhab2/zwave 0
                     est: 1000032k    out 1370k
 
 
@@ -344,10 +343,10 @@ backup@pi:~$ amcheck openhab-dir
                                                                        DUMPER STATS   TAPER STATS
   HOSTNAME     DISK                          L  ORIG-kB  OUT-kB  COMP%  MMM:SS   KB/s MMM:SS   KB/s
   -------------------------------------------- ----------------------- -------------- -------------
-  pi           /dev/mmcblk0                  0 15645696 7831974   50.1   78:01 1673.2  77:59 1673.9  
-  pi           /etc/openhab2                 0   259820  259820     --    0:32 8077.0   0:34 7641.8
-  pi           /var/lib/openhab2/persistence 0    48720   48720     --    0:11 4501.6   0:13 3747.7
-  pi           /var/lib/openhab2/zwave       0     1370    1370     --    0:01 1156.1   0:01 1370.0
+  openhab      /dev/mmcblk0                  0 15645696 7831974   50.1   78:01 1673.2  77:59 1673.9
+  openhab      /etc/openhab2                 0   259820  259820     --    0:32 8077.0   0:34 7641.8
+  openhab      /var/lib/openhab2/persistence 0    48720   48720     --    0:11 4501.6   0:13 3747.7
+  openhab      /var/lib/openhab2/zwave       0     1370    1370     --    0:01 1156.1   0:01 1370.0
 
   (brought to you by Amanda version 3.3.6)
 ```
@@ -364,22 +363,22 @@ have the appropriate file access rights.
 Here's another terminal session log to show how a couple of files are restored into a target directory `/server/temp`.
 
 ```
-  pi@pi:/etc/amanda/openhab-dir $ sudo bash
-  root@pi:/etc/amanda/openhab-dir# amrecover openhab-dir
+  pi@openhab:/etc/amanda/openhab-dir $ sudo bash
+  root@openhab:/etc/amanda/openhab-dir# amrecover openhab-dir
   AMRECOVER Version 3.3.6. Contacting server on localhost ...
-  220 pi AMANDA index server (3.3.6) ready.
+  220 openhab AMANDA index server (3.3.6) ready.
   Setting restore date to today (2017-03-30)
   200 Working date set to 2017-03-30.
   200 Config set to openhab-dir.
-  200 Dump host set to pi.
+  200 Dump host set to openhab.
   Use the setdisk command to choose dump disk to recover
   amrecover> listdisk
-  200- List of disk for host pi
+  200- List of disk for host openhab
   201- /dev/mmcblk0
   201- /etc/openhab
   201- /var/lib/openhab/persistence
   201- /var/lib/openhab/zwave
-  200 List of disk for host pi
+  200 List of disk for host openhab
   amrecover> setdisk /etc/openhab
   200 Disk set to /etc/openhab.
   amrecover> ls
@@ -401,40 +400,40 @@ Here's another terminal session log to show how a couple of files are restored i
   amrecover> lpwd
   /server/temp
   amrecover> extract
-  
+
   Extracting files using tape drive changer on host localhost.
   The following tapes are needed: openhab-openhab-dir-001
-  
+
   Extracting files using tape drive changer on host localhost.
   Load tape openhab-openhab-dir-001 now
   Continue [?/Y/n/s/d]? Y
   Restoring files into directory /server/temp
   All existing files in /server/temp can be deleted
   Continue [?/Y/n]? Y
-  
+
   ./logback.xml
   ./logback_debug.xml
   ./quartz.properties
   amrecover>quit
-  root@pi:/etc/amanda/openhab-dir# cd /server/temp
-  root@pi:/server/temp# ls -l
+  root@openhab:/etc/amanda/openhab-dir# cd /server/temp
+  root@openhab:/server/temp# ls -l
   insgesamt 12
   -rw-rw-r-- 1 openhab openhab 2515 Feb 19  2016 logback_debug.xml
   -rw-rw-r-- 1 openhab openhab 3573 Mär 30 06:45 logback.xml
   -rw-r--r-- 1 openhab openhab  302 Feb  3  2016 quartz.properties
-  root@pi:/server/temp#
+  root@openhab:/server/temp#
 ```
 
 ### Restoring a partition
 
-To restore a raw disk partition, you need to use amfetchdump command. Unlike amdump, you have to run amfetchdump as user backup, though.
+To restore a raw disk partition, you need to use `amfetchdump` command. Unlike `amdump`, you have to run `amfetchdump` as user backup, though.
 Here’s another terminal session log to use amfetchdump to first retrieve the backup image from your backup storage to image called
-openhabianpi-image on /server/temp/
+`openhabianpi-image` on `/server/temp/`
 
-**Reminder:** you have to be logged in as the `backup` user. 
+**Reminder:** you have to be logged in as the `backup` user.
 
 ```
-backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image
+backup@openhab:/server/temp$ amfetchdump -p openhab-dir openhab /dev/mmcblk0 > /server/temp/openhabianpi-image
  1 volume(s) needed for restoration
   The following volumes are needed: openhab-openhab-dir-001
   Press enter when ready
@@ -446,7 +445,7 @@ you find out the requested file (probably starting with 00000.), you redirect am
 using this:
 
 ```
-backup@pi:/server/temp$ amtape openhab-dir slot 1
+backup@openhab:/server/temp$ amtape openhab-dir slot 1
 slot   1: time 20170322084708 label openhab-openhab-dir-001
 changed to slot 1
 ```
@@ -455,7 +454,7 @@ Finally you can go back to the first terminal window and press Enter. Amanda wil
 consists of more than one file.
 
 ```
-amfetchdump: 4: restoring split dumpfile: date 20170322084708 host pi disk /dev/mmcblk0 part 1/UNKNOWN lev 0 comp N program APPLICATION
+amfetchdump: 4: restoring split dumpfile: date 20170322084708 host openhab disk /dev/mmcblk0 part 1/UNKNOWN lev 0 comp N program APPLICATION
   927712 kb
 ```
 
@@ -463,14 +462,14 @@ You can also provide amfetchdump with the date of the backup that you want to re
 like this:
 
 ```
-backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image 20180327
+backup@openhab:/server/temp$ amfetchdump -p openhab-dir openhab /dev/mmcblk0 > /server/temp/openhabianpi-image 20180327
 ```
 
 This line also shows how to restore this image file to a SD card from Linux. In this example, we have an external SD card writer with a
 (blank) SD card attached to /dev/sdd.
 
 ```
-backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
+backup@openhab:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
 ```
 
 You could also move that temporary recovered image file to your Windows PC that has a card writer, rename the file to have a .raw extension,
@@ -486,14 +485,14 @@ and copy back those files. Even if you fail to recover your index files, you can
 directories are stored as tar files with a header, here's an example how to decode them:
 
 ```
-[18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# ls -l
+[18:13:29] root@openhab:/volatile/backup/slots/slot7# ls -l
 insgesamt 2196552
 -rw-rw----+ 1 backup backup      32768 Mär 29 09:29 00000.openhab-dir-007
 -rw-rw----+ 1 backup backup   16857088 Mär 29 09:29 00001.openhab._etc.0
 -rw-rw----+ 1 backup backup  370219008 Mär 29 09:30 00002.openhab._var_lib_openhab2.0
 -rw-rw----+ 1 backup backup   22673408 Mär 29 09:30 00003.openhab._boot.0
 -rw-rw----+ 1 backup backup 1839450239 Mär 29 09:55 00004.openhab._dev_mmcblk0.0
-[18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# head -14 *001*
+[18:13:29] root@openhab:/volatile/backup/slots/slot7# head -14 *001*
 AMANDA: SPLIT_FILE 20180329091738 openhab /etc  part 1/-1  lev 0 comp N program /bin/tar
 DLE=<<ENDDLE
 <dle>
@@ -508,7 +507,7 @@ DLE=<<ENDDLE
 ENDDLE
 To restore, position tape at start of file and run:
         dd if=<tape> bs=32k skip=1 | /bin/tar -xpGf - ...
-[18:14:49] root@openhabianpi:/volatile/backup/slots/slot7# dd if=00001.openhab._etc.0 bs=32k skip=1|tar tvf -
+[18:14:49] root@openhab:/volatile/backup/slots/slot7# dd if=00001.openhab._etc.0 bs=32k skip=1|tar tvf -
 drwxr-xr-x root/root      2139 2018-03-29 08:50 ./
 drwxr-xr-x root/root        15 2018-03-26 17:23 ./.java/
 drwxr-xr-x root/root        35 2018-03-26 17:23 ./.java/.systemPrefs/
