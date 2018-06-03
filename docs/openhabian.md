@@ -316,8 +316,8 @@ We will re-add the functionality as soon as the underlying issue is resolved.
 After the installation of openHABian was successful, you should be able to access the openHAB dashboard
 with the following URLs:
 
-* [http://openhab:8080](http://openhab:8080)
-* e.g. [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace IP accordingly)
+* hostname or DNS name: [http://openhab:8080](http://openhab:8080)
+* IP: e.g. [http://192.168.0.2:8080](http://192.168.0.2:8080)
 
 ##### SSH Progress Report
 
