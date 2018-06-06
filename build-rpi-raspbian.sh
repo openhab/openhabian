@@ -69,6 +69,7 @@ cp $sourcefolder/first-boot.sh $buildfolder/boot/first-boot.sh
 touch $buildfolder/boot/first-boot.log
 cp $sourcefolder/openhabian.raspbian.conf $buildfolder/boot/openhabian.conf
 unix2dos $buildfolder/boot/openhabian.conf
+cp $sourcefolder/webif.sh $buildfolder/boot/webif.sh
 touch $buildfolder/root/opt/openHABian-install-inprogress
 
 echo_process "Closing up image file... "

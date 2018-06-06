@@ -23,6 +23,16 @@ sed -i 's/\r$//' /etc/openhabian.conf
 source /etc/openhabian.conf
 echo "OK"
 
+echo -n "$(timestamp) [openHABian] Starting webserver with installation log... "
+sh /boot/webif.sh start
+sleep 5
+webifisrunning=$(ps -ef | pgrep python3)
+if [ -z $webifisrunning ]; then
+  echo "FAILED"
+else
+  echo "OK"
+fi
+
 userdef="pi"
 echo -n "$(timestamp) [openHABian] Changing default username and password... "
 if [ -z ${username+x} ] || ! id $userdef &>/dev/null || id "$username" &>/dev/null; then
@@ -110,6 +120,7 @@ else
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 fi
 
+sh /boot/webif.sh reinsure_running
 echo -n "$(timestamp) [openHABian] Installing git package... "
 apt update &>/dev/null
 /usr/bin/apt -y install git &>/dev/null
@@ -141,5 +152,9 @@ echo "OK"
 echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://$hostname:8080"
 echo "$(timestamp) [openHABian] To gain access to a console, simply reconnect."
 echo "$(timestamp) [openHABian] First time setup successfully finished."
+sleep 12
+sh /boot/webif.sh inst_done
+sleep 12
+sh /boot/webif.sh cleanup
 
 # vim: filetype=sh
