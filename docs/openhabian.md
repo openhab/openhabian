@@ -103,7 +103,7 @@ You will see the following welcome screen:
 
 ![openHABian login screen](images/openHABian-SSH-MotD.png)
 
-➜ Continue at the ["openHABian Configuration Tool"](#openhabian-config) chapter below!
+➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
 
 ### Pine A64
 
