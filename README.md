@@ -27,7 +27,16 @@ Enjoy openHABian and the wondrous world of openHAB!!
 
 [![Shellcheck Status](https://travis-ci.com/openhab/openhabian.svg?branch=master)](https://travis-ci.com/openhab/openhabian) (Shellcheck)
 
-For image building, please see the `build-....sh` scripts to get an idea of the process.
+For image building, please see the `build.sh` scripts to get an idea of the process.
+```
+Simply put:
+
+$ sudo bash build.sh platform
+$ sudo bash build.sh platform dev-git # Injecting current local branch as remote endpoint (eg. fork)
+$ sudo bash build.sh platform dev-url branch url # Injecting custom branch an repository
+
+where platform can be: rpi, pine64
+```
 
 The RPi image is based on the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian) standard image,
 the Pine64 image is based on [build-pine64-image](https://github.com/longsleep/build-pine64-image).
