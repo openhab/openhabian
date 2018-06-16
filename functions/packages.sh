@@ -381,6 +381,25 @@ The article also contains instructions regarding openHAB integration.
   fi
 }
 
+speedtest_cli_setup() {
+  FAILED=0
+  introtext="This will install Speedtest CLI and Python. Soon this procedure will also set up the connection between them and with openHAB. For now, please follow the instructions found here:
+  \nhttps://community.openhab.org/t/7611/1"
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/7611/1"
+
+  echo "$(timestamp) [openHABian] Setting up Speedtest CLI... "
+
+  cond_redirect apt -y install python-setuptools || FAILED=1
+  cond_echo ""
+  echo "Speedtest CLI... "
+  cond_redirect easy_install speedtest-cli || FAILED=1
+  cond_redirect apt update || FAILED=1
+
+  if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
+  cond_echo ""
+}
+
 influxdb_grafana_setup() {
   FAILED=0
   introtext="This will install InfluxDB and Grafana. Soon this procedure will also set up the connection between them and with openHAB. For now, please follow the instructions found here:

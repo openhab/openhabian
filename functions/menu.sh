@@ -78,6 +78,7 @@ show_main_menu() {
     "28 | 1wire"                 "1wire specific, owserver and related packages" \
     "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
     "2A | Tellstick core"        "Driver and daemon for Tellstick usb devices" \
+    "2B | Speedtest CLI"         "A tool for measuring your Internet speed" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -91,6 +92,7 @@ show_main_menu() {
       28\ *) 1wire_setup ;;
       29\ *) find_setup ;;
       2A\ *) tellstick_core_setup ;;
+      2B\ *) speedtest_cli_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
