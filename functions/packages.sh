@@ -349,21 +349,21 @@ The article also contains instructions regarding openHAB integration.
 
   cond_redirect apt update
   cond_redirect apt -y install git python3 python3-pip bluetooth bluez
-  if [ $FAILED -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
   if [ ! -d "$DIRECTORY" ]; then
     cond_echo "Fresh Installation... "
     cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git $DIRECTORY
     cond_redirect cp $DIRECTORY/config.{ini.dist,ini}
-    if [ $FAILED -ne 0 ]; then echo "FAILED (git clone)"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (git clone)"; exit 1; fi
   else
     cond_echo "Update... "
     cond_redirect git -C $DIRECTORY pull --quiet origin
-    if [ $FAILED -ne 0 ]; then echo "FAILED (git pull)"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (git pull)"; exit 1; fi
   fi
   cond_redirect chown -R openhab:$username $DIRECTORY
   cond_redirect chmod -R ug+wX $DIRECTORY
   cond_redirect pip3 install -r $DIRECTORY/requirements.txt
-  if [ $FAILED -ne 0 ]; then echo "FAILED (requirements)"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED (requirements)"; exit 1; fi
   cond_redirect cp $DIRECTORY/template.service /etc/systemd/system/miflora.service
   cond_redirect systemctl daemon-reload
   systemctl start miflora.service || true
@@ -395,7 +395,7 @@ speedtest_cli_setup() {
   cond_redirect apt -y install python-setuptools
   if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
   cond_redirect easy_install speedtest-cli
-  if [ $? -ne 0 ]; then echo "FAILED"; else echo "OK"; exit 1; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
