@@ -347,22 +347,23 @@ The article also contains instructions regarding openHAB integration.
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
+  cond_redirect apt update
   cond_redirect apt -y install git python3 python3-pip bluetooth bluez
-  if [ $FAILED -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
   if [ ! -d "$DIRECTORY" ]; then
     cond_echo "Fresh Installation... "
     cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git $DIRECTORY
     cond_redirect cp $DIRECTORY/config.{ini.dist,ini}
-    if [ $FAILED -ne 0 ]; then echo "FAILED (git clone)"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (git clone)"; exit 1; fi
   else
     cond_echo "Update... "
     cond_redirect git -C $DIRECTORY pull --quiet origin
-    if [ $FAILED -ne 0 ]; then echo "FAILED (git pull)"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (git pull)"; exit 1; fi
   fi
   cond_redirect chown -R openhab:$username $DIRECTORY
   cond_redirect chmod -R ug+wX $DIRECTORY
   cond_redirect pip3 install -r $DIRECTORY/requirements.txt
-  if [ $FAILED -ne 0 ]; then echo "FAILED (requirements)"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED (requirements)"; exit 1; fi
   cond_redirect cp $DIRECTORY/template.service /etc/systemd/system/miflora.service
   cond_redirect systemctl daemon-reload
   systemctl start miflora.service || true
@@ -372,6 +373,30 @@ The article also contains instructions regarding openHAB integration.
   if grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
     cond_echo "Warning! The internal RPi3 Bluetooth module is disabled on your system. You need to enable it before the daemon may use it."
   fi
+  if [ -n "$INTERACTIVE" ]; then
+    if [ $FAILED -eq 0 ]; then
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    else
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+    fi
+  fi
+}
+
+speedtest_cli_setup() {
+  FAILED=0
+  introtext="This will install the Speedtest CLI tool. For integration with openHAB, please follow the instructions found here:
+  \nhttps://community.openhab.org/t/7611/1 \nSoon this procedure will set up the connection between it and openHAB automatically."
+  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/7611/1"
+
+  echo -n "$(timestamp) [openHABian] Setting up Speedtest CLI... "
+
+  cond_redirect apt update
+  cond_redirect apt -y install python-setuptools
+  if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
+  cond_redirect easy_install speedtest-cli
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
