@@ -7,6 +7,13 @@
 FLAG="/opt/afterfirstboot.lock"
 FIRSTBOOT="/boot/first-boot.sh"
 
+# Prefer IPv4 in /etc/gai.conf if IPv4 precedence is not already specified
+echo -n "Current IPv4 precedence in /etc/gai.conf: "
+if ! grep --extended-regexp "^[[:space:]]*precedence[[:space:]]+::ffff:0:0/96[[:space:]]+" /etc/gai.conf ; then
+    echo -e -n "\nPreferring IPv4 over IPv6: "
+    echo "precedence ::ffff:0:0/96  100" | tee -a /etc/gai.conf
+fi
+
 # Only executed after first boot
 if [ ! -f "$FLAG" ]; then
   echo "[openHABian] Flag file 'afterfirstboot.lock' not found, continuing with '$FIRSTBOOT' script."
