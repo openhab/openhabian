@@ -40,6 +40,50 @@ firemotd_setup() {
   fi
 }
 
+create_mta_config() {
+  TMP=/tmp/.$$
+  HOSTNAME=`/bin/hostname`
+  INTERFACES="`/usr/bin/dig +short $HOSTNAME | /usr/bin/tr '\n' ';'`;127.0.0.1;::1"
+  EXIM_CLIENTCONFIG=/etc/exim4/passwd.client
+
+  introtext1="We will guide you through the install of exim4 as the mail transfer agent on your system and configure it to relay mails through a public service such as Google gmail.\nPlease
+enter the data shown in the next window when being asked for. You will be able to repeat the whole installation if required by selecting the openHABian menu for MTA again."
+  introtext2="Mail server type: mail sent by smarthost; received via SMTP or fetchmail\nSystem mail name: FQDN (your full hostname including the domain art)A\nIPs should be allowed by the se
+rver: $INTERFACES\nOther destinations for which mail is accepted: $HOSTNAME\nMachines to relay mail for: Leave empty\nIP address or host name of outgoing smarthost: smtp.gmail.com::587\nHide
+ local mail name in outgoing mail: No\nKeep number of DNS-queries minimal: No\nDelivery method: Select: Maildir format in home directory\nMinimize number of DNS queries: No\nSplit configurat
+ion into small files: Yes\n"
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Mail Transfer Agent installation" --yes-button "Start" --no-button "don't change MTA" --yesno "$introtext1" 12 78) then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "Mail Transfer Agent installation" --msgbox "$introtext2" 18 78) then echo "CANCELED"; return 0; fi
+  fi
+
+  dpkg-reconfigure exim4-config
+  SMARTHOST=$(whiptail --title "Enter public mail service smarthost to relay your mails to" --inputbox "\nEnter the list of smarthost(s) to use your account for" 9 78 "*.google.com" 3>&1 1>&
+2 2>&3)
+  if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
+  RELAYUSER=$(whiptail --title "Enter your public service mail user" --inputbox "\nEnter the mail username of the public service to relay all outgoing mail to ${SMARTHOST}" 9 78 "yourname@gm
+ail.com" 3>&1 1>&2 2>&3)
+  if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
+  RELAYPASS=$(whiptail --title "Enter your public service mail password" --passwordbox "\nEnter the password used to relay mail as ${RELAYUSER}@${SMARTHOST}" 9 78 3>&1 1>&2 2>&3)
+  if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
+
+  grep '^#' ${EXIM_CLIENTCONFIG} > $TMP
+  echo ${SMARTHOST}:${RELAYUSER}:${RELAYPASS} >> $TMP
+  cp $TMP ${EXIM_CLIENTCONFIG}
+  /bin/chmod o-rwx ${EXIM_CLIENTCONFIG}
+  rm -f $TMP
+}
+
+exim_setup() {
+  apt -y install exim4 mailutils &>/dev/null
+  if [ $? -eq 0 ]; then
+    echo "OK"
+  else
+    echo "FAILED"
+  fi
+  create_mta_config
+}
+
 etckeeper_setup() {
   echo -n "$(timestamp) [openHABian] Installing etckeeper (git based /etc backup)... "
   apt -y install etckeeper &>/dev/null
