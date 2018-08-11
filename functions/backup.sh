@@ -49,10 +49,9 @@ create_backup_config() {
       let counter+=1
   done
 
-# no mailer configured for now
-#  if [ -n "$INTERACTIVE" ]; then
-#     adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the EMail address to send backup reports to. Note: Mail relaying is not enabled in openHABian yet." 10 60 3>&1 1>&2 2>&3)
-#  fi
+  if [ -n "$INTERACTIVE" ]; then
+     adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the EMail address to send backup reports to. Note: Mail relaying requires an MTA to be setup such as Exim (openHABian menu option 16)." 10 60 3>&1 1>&2 2>&3)
+  fi
 
   /bin/grep -v ${config} /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
 
