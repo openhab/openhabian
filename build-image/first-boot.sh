@@ -145,7 +145,8 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [openHABian] Cloning myself... "
 /usr/bin/git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
-if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+if [ $? -eq 128 ]; then rm -Rf /opt/openbian && /usr/bin/git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null;
+elif [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 echo "$(timestamp) [openHABian] Executing 'openhabian-setup.sh unattended'... "
