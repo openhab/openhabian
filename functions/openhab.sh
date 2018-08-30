@@ -47,7 +47,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   cond_redirect apt-key add openhab-key.asc
   if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
   rm -f openhab-key.asc
-exit 1
+
   echo $REPO > /etc/apt/sources.list.d/openhab2.list
   cond_redirect apt update
   cond_redirect apt -y install openhab2
