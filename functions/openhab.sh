@@ -5,9 +5,9 @@ openhab2_setup() {
 Please be aware that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
   successtext_stable="The stable release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.
 Check the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
-  introtext_testing="You are about to install or upgrade to the latest milestone openHAB build. It contains the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help enhancing openHAB by posting them on the community forum or by raising a Github issue.\\n
-  Please be aware that downgrading from a newer testing (milestone) build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
-successtext_testing="The milestone (testing) release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.
+  introtext_testing="You are about to install or upgrade to the latest milestone (testing) openHAB build. It contains the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help enhancing openHAB by posting them on the community forum or by raising a Github issue.\\n
+  Please be aware that downgrading from a newer build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
+successtext_testing="The testing release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.
 Check the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
   introtext_unstable="Proceed with caution!\\nYou are about to switch over to the latest openHAB 2 unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
   successtext_unstable="The latest unstable snapshot build of openHAB 2 is now running on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.\\nIf you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (the openhab2 and openhab2-addons packages) regularly."
@@ -27,10 +27,10 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
       successtext=$successtext_stable
       REPO="deb https://dl.bintray.com/openhab/apt-repo2 stable main"
     else
-      echo -n "$(timestamp) [openHABian] Installing or upgrading to latest openHAB release (milestone)... "
+      echo -n "$(timestamp) [openHABian] Installing or upgrading to latest openHAB milestone release (testing)... "
       introtext=$introtext_testing
       successtext=$successtext_testing
-      REPO="deb http://openhab.jfrog.io/openhab/openhab-linuxpkg testing main"
+      REPO="deb https://dl.bintray.com/openhab/apt-repo2 testing main"
     fi
   else
     echo -n "$(timestamp) [openHABian] Installing or switching to latest openHAB snapshot (unstable)... "
@@ -48,7 +48,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
   rm -f openhab-key.asc
 
-  echo $REPO > /etc/apt/sources.list.d/openhab2.list
+  echo "$REPO" > /etc/apt/sources.list.d/openhab2.list
   cond_redirect apt update
   cond_redirect apt -y install openhab2
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
