@@ -159,6 +159,7 @@ show_main_menu() {
     "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8 " OFF \
     "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team " OFF \
     "64 | openHAB stable"         "Install the latest openHAB release" OFF \
+    "   | openHAB testing"        "Install the latest openHAB testing build" OFF \
     "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
     "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB " OFF \
     "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares " OFF \
@@ -173,6 +174,7 @@ show_main_menu() {
     if [[ $choosenComponents == *"63"* ]]; then java_zulu_embedded; fi
     if [[ $choosenComponents == *"Oracle Java 8"* ]]; then java_webupd8; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
+    if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi
     if [[ $choosenComponents == *"65"* ]]; then srv_bind_mounts && permissions_corrections && misc_system_settings; fi
     if [[ $choosenComponents == *"66"* ]]; then samba_setup; fi
