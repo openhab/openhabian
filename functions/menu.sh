@@ -123,7 +123,7 @@ show_main_menu() {
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
     "41 | openHAB release  " "Install or switch to the latest openHAB release" \
-    "   | openHAB milestone" "Install or switch to the latest openHAB testing milestone build" \
+    "   | openHAB testing"   "Install or switch to the latest openHAB testing build" \
     "   | openHAB snapshot"  "Install or switch to the latest openHAB SNAPSHOT build" \
     "42 | Remote Console"    "Bind the openHAB SSH console to all external interfaces" \
     "43 | Reverse Proxy"     "Setup Nginx with password authentication and/or HTTPS access" \
@@ -131,7 +131,7 @@ show_main_menu() {
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       41\ *) openhab2_setup ;;
-      *openHAB\ milestone) openhab2_setup testing ;;
+      *openHAB\ testing) openhab2_setup testing ;;
       *openHAB\ snapshot) openhab2_setup unstable ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
