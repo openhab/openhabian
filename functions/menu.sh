@@ -122,15 +122,17 @@ show_main_menu() {
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
-    "41 | openHAB stable   " "Install or switch to the latest openHAB release" \
-    "   | openHAB unstable"  "Install or switch to the latest openHAB SNAPSHOT build" \
+    "41 | openHAB release  " "Install or switch to the latest openHAB release" \
+    "   | openHAB testing"   "Install or switch to the latest openHAB testing build" \
+    "   | openHAB snapshot"  "Install or switch to the latest openHAB SNAPSHOT build" \
     "42 | Remote Console"    "Bind the openHAB SSH console to all external interfaces" \
     "43 | Reverse Proxy"     "Setup Nginx with password authentication and/or HTTPS access" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       41\ *) openhab2_setup ;;
-      *openHAB\ unstable) openhab2_setup unstable ;;
+      *openHAB\ testing) openhab2_setup testing ;;
+      *openHAB\ snapshot) openhab2_setup unstable ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
       "") return 0 ;;
@@ -157,6 +159,7 @@ show_main_menu() {
     "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8 " OFF \
     "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team " OFF \
     "64 | openHAB stable"         "Install the latest openHAB release" OFF \
+    "   | openHAB testing"        "Install the latest openHAB testing build" OFF \
     "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
     "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB " OFF \
     "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares " OFF \
@@ -171,6 +174,7 @@ show_main_menu() {
     if [[ $choosenComponents == *"63"* ]]; then java_zulu_embedded; fi
     if [[ $choosenComponents == *"Oracle Java 8"* ]]; then java_webupd8; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
+    if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi
     if [[ $choosenComponents == *"65"* ]]; then srv_bind_mounts && permissions_corrections && misc_system_settings; fi
     if [[ $choosenComponents == *"66"* ]]; then samba_setup; fi
