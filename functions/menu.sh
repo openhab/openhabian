@@ -54,7 +54,6 @@ show_main_menu() {
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
     "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
     "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
-    "16 | Mail Transfer Agent"    "Install Exim4 as MTA to relay mails via public services" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -63,7 +62,6 @@ show_main_menu() {
       13\ *) srv_bind_mounts && misc_system_settings ;;
       14\ *) permissions_corrections ;;
       15\ *) firemotd_setup ;;
-      16\ *) exim_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -81,6 +79,7 @@ show_main_menu() {
     "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
     "2A | Tellstick core"        "Driver and daemon for Tellstick usb devices" \
     "2B | Speedtest CLI"         "A tool to measure your internet bandwidth" \
+    "2C | Mail Transfer Agent"   "Install Exim4 as MTA to relay mails via public services" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -95,6 +94,7 @@ show_main_menu() {
       29\ *) find_setup ;;
       2A\ *) tellstick_core_setup ;;
       2B\ *) speedtest_cli_setup ;;
+      2C\ *) exim_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
