@@ -244,8 +244,7 @@ directories of yours.
 
 Note: the raw SD card backup was left out for the AWS S3 config, as that would require a lot of bandwidth and runtime.
 
-openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups every night at 01:00AM, and to
-run a check at 06:00PM. 
+openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups you select every night at 01:00AM. 
 
 ## Backup
 
