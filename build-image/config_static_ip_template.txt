@@ -1,0 +1,19 @@
+#########Static IP file added by openhabian
+### This file will be concatinated to /etc/dhcpcd.conf file 
+### Configure the interface you would like to have static
+### eth0 for wired or wlan0 for wireless
+interface wlan0
+
+### Put the ipaddress you would like to have below
+static ip_address=192.168.1.95/24
+
+### Replace with default gateway ip.  
+### Usually the first part of ip xxx.xxx.xxx.1 
+### but ending in a 1
+static routers=192.168.1.1
+
+### Place the name servers here.  8.8.8.8 is public dns server and can be left.
+### This is usually the same as the gateway on home routers.
+static domain_name_servers=8.8.8.8 192.168.1.1
+
+#########End data added by openhabian

@@ -5,6 +5,33 @@ exec &> >(tee -a "/boot/first-boot.log")
 
 timestamp() { date +"%F_%T_%Z"; }
 
+
+if [ -s /boot/config_static_ip.txt ]
+then
+
+   echo -e "$(timestamp) [openHABian]Found config_static_ip.txt file"
+   echo -e "$(timestamp) [openHABian]building static ip config"
+   IPLines=`wc -l /boot/config_static_ip.txt | cut -d\  -f1` 
+   echo -e "$(timestamp) [openHABian] Adding $IPLines to /etc/dhcpcd.conf"
+   tail -n $IPLines /boot/config_static_ip.txt >> /etc/dhcpcd.conf
+   mv /boot/config_static_ip.txt /boot/config_static_ip_merged.txt
+   reboot 
+   
+elif [ -e /boot/config_static_ip.txt ]
+then
+
+   echo -e "$(timestamp) [openHABian] File config_static_ip.txt present but empty"
+   echo -e "$(timestamp) [openHABian] If you want a static ip you must make a copy of"
+   echo -e "$(timestamp) [openHABian] static_ip.txt and make the appropriate changes"
+   echo -e "$(timestamp) [openHABian] exiting setup"
+   exit 1
+
+else
+
+   echo -e "$(timestamp) [openHABian] No static ip file, continuing dhcp setup"
+
+fi
+
 fail_inprogress() {
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-failed
