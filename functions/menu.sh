@@ -171,7 +171,7 @@ show_main_menu() {
     
     if [[ $choosenComponents == *"61"* ]]; then system_upgrade; fi
     if [[ $choosenComponents == *"62"* ]]; then basic_packages && needed_packages; fi
-    if [[ $choosenComponents == *"63"* ]]; then java_zulu_embedded; fi
+    if [[ $choosenComponents == *"63"* ]]; then java_zulu; fi
     if [[ $choosenComponents == *"Oracle Java 8"* ]]; then java_webupd8; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
     if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
