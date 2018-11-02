@@ -66,6 +66,11 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     cond_redirect systemctl restart openhab2.service || true
   fi
 
+  if [[ is_pi || is_pine64 ]]; then
+    cond_echo "Optimizing Java to run on low memory single board computers... "
+    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms400m -Xmx512m"#g' /etc/default/openhab2
+  fi
+  
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
