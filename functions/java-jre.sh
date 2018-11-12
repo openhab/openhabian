@@ -32,10 +32,6 @@ java_zulu_embedded() {
     cond_redirect apt -y install zulu-8
   fi
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-  if [[ is_pi || is_pine64 ]]; then
-    cond_echo "Optimizing Java to run on low memory single board computers... "
-    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms400m -Xmx400m"#g' /etc/default/openhab2
-  fi
 }
 
 # Unused
