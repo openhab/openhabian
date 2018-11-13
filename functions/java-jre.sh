@@ -18,12 +18,13 @@ java_webupd8() {
 }
 
 java_zulu() {
-  FILE="/var/tmp/.zulu.$$"
-
+  local FILE="/var/tmp/.zulu.$$"
+  local INSTALLROOT=/opt/jdk
+  
   if is_arm; then
-    JAVA=zulu8.33.1.122-jdk1.8.0_192-linux_aarch32hf
+    local JAVA=zulu8.33.1.122-jdk1.8.0_192-linux_aarch32hf
   else
-    JAVA=zulu8.33.0.1-jdk8.0.192-linux_x64
+    local JAVA=zulu8.33.0.1-jdk8.0.192-linux_x64
   fi
   querytext="Downloading Zulu implies to agree to Azul Systems' Terms of Use. Display them now or proceed with downloading."
   while ! (whiptail --title "Download Zulu Java" --yes-button "Download and Install" --no-button "Read Terms of Use" --defaultno --yesno "$querytext" 10 80) ; do
@@ -31,9 +32,9 @@ java_zulu() {
   done
 
   wget -nv -O $FILE http://cdn.azul.com/zulu-embedded/bin/${JAVA}.tar.gz
-  cd /usr/lib/jvm; tar xpzf $FILE
-  cond_redirect update-alternatives --install /usr/bin/java java /usr/lib/jvm/${JAVA}/bin/java 1083000
-  cond_redirect update-alternatives --install /usr/bin/javac java /usr/lib/jvm/${JAVA}/bin/javac 1083000
+  cd ${INSTALLROOT}; tar xpzf $FILE
+  cond_redirect update-alternatives --install /usr/bin/java java ${INSTALLROOT}/${JAVA}/bin/java 1083000
+  cond_redirect update-alternatives --install /usr/bin/javac java ${INSTALLROOT}/${JAVA}/bin/javac 1083000
   rm -f $FILE
 }
 
