@@ -22,7 +22,7 @@ java_zulu() {
   local INSTALLROOT=/opt/jdk
   
   if is_arm; then
-    local JAVA=zulu8.33.1.122-jdk1.8.0_192-linux_aarch32hf
+    local JAVA=zulu8.33.1.134-jdk1.8.0_192-linux_aarch32hf
   else
     local JAVA=zulu8.33.0.1-jdk8.0.192-linux_x64
   fi
