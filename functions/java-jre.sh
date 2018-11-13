@@ -18,7 +18,7 @@ java_webupd8() {
 }
 
 java_zulu() {
-  FILE="$(mktemp /tmp/.XXXXXXXXXX)"
+  FILE="/var/tmp/.zulu.$$"
 
   if is_arm; then
     JAVA=zulu8.31.1.122-jdk1.8.0_181-linux_aarch32hf
