@@ -21,9 +21,9 @@ java_zulu() {
   FILE="/var/tmp/.zulu.$$"
 
   if is_arm; then
-    JAVA=zulu8.31.1.122-jdk1.8.0_181-linux_aarch32hf
+    JAVA=zulu8.33.1.122-jdk1.8.0_192-linux_aarch32hf
   else
-    JAVA=zulu8.31.0.1-jdk8.0.181-linux_x64
+    JAVA=zulu8.33.0.1-jdk8.0.192-linux_x64
   fi
   querytext="Downloading Zulu implies to agree to Azul Systems' Terms of Use. Display them now or proceed with downloading."
   while ! (whiptail --title "Download Zulu Java" --yes-button "Download and Install" --no-button "Read Terms of Use" --defaultno --yesno "$querytext" 10 80) ; do
