@@ -261,7 +261,7 @@ All password can be changed from openHABian menu.
 
 ## Backup
 
-openHABian provides [Amanda Network Backup](http://www.amanda.org/) as a preconfigured backup solution for your valuables. Please continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md).
+openHABian provides [Amanda Network Backup](http://www.amanda.org/) as a preconfigured backup and restore solution for your valuables. Please continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md).
 
 ## Optional Components
 
