@@ -54,6 +54,7 @@ Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openha
 - Install and Setup a [reverse proxy](security.html#nginx-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
 - Set up a Wi-Fi connection
 - Bind the [openHAB remote console]({{base}}/administration/console.html) to all interfaces
+- Setup [Backup](#backup) for your system
 - Easily install and preconfigure [Optional Components](#optional-components) of your choice
 - ... and many more
 - Raspberry Pi specific:
@@ -258,19 +259,26 @@ All password can be changed from openHABian menu.
 - InfluxDB (No password set by default)
 - Grafana visualization ("admin:admin")
 
+## Backup
+
+openHABian provides [Amanda Network Backup](http://www.amanda.org/) as a preconfigured backup and restore solution for your valuables. Please continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md).
+
 ## Optional Components
 
 openHABian comes with a number of additional routines to quickly install and set up home automation related software.
 You'll find all of these in the [openHABian Configuration Tool](#openhabian-config)
 
-- [Amanda Network Backup](http://www.amanda.org/) - A built-in backup solution for your valuables. Please continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md)
 - [frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openHABianPi:9001](http://openHABianPi:9001)
-- [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openHABianPi:1880](http://openHABianPi:1880)
-- [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
-- [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
+- Mi Flora MQTT demon
+- [InfluxDB and Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openHABianPi:3000](http://openHABianPi:3000)
 - [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
+- [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openHABianPi:1880](http://openHABianPi:1880)
+- [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
+- [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
 - [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
-- [Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openHABianPi:3000](http://openHABianPi:3000)
+- [FIND](https://www.internalpositioning.com/) - the Framework for Internal Navigation and Discovery
+- Tellstick core
+- Speedtest CLI
 
 ## FAQ and Troubleshooting
 
