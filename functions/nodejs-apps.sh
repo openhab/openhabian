@@ -47,7 +47,8 @@ nodered_setup() {
   echo -n "$(timestamp) [openHABian] Installing Node-RED... "
   FAILED=0
   cond_redirect wget -O /tmp/update-nodejs-and-nodered.sh https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered || FAILED=1
-  cond_redirect bash /tmp/update-nodejs-and-nodered.sh || FAILED=1
+  cond_redirect chmod +x /tmp/update-nodejs-and-nodered.sh || FAILED=1
+  cond_redirect /usr/bin/sudo -u $username -H sh -c "/tmp/update-nodejs-and-nodered.sh" || FAILED=1
   if [ $FAILED -eq 1 ]; then echo "FAILED (nodered)"; exit 1; fi
   cond_redirect npm install -g node-red-contrib-bigtimer
   if [ $? -ne 0 ]; then echo "FAILED (nodered bigtimer addon)"; exit 1; fi
