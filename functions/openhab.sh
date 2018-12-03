@@ -50,7 +50,8 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
 
   echo "$REPO" > /etc/apt/sources.list.d/openhab2.list
   cond_redirect apt update
-  cond_redirect apt -y install openhab2
+  local openhabVersion="$(apt-cache madison openhab | head -n 1 | cut -d'|' -f2 | xargs)"
+  cond_redirect apt-get -y install "openhab2=${openhabVersion}"
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
