@@ -128,7 +128,7 @@ mqtt_setup() {
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
 Eclipse Mosquitto is now up and running in the background. You should be able to make a first connection.
-To continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/mqtt1/
+To continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/mqtt/
 "
   echo -n "$(timestamp) [openHABian] Setting up the MQTT broker Eclipse Mosquitto... "
   if [ -n "$INTERACTIVE" ]; then
