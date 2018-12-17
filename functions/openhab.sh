@@ -70,7 +70,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     cond_echo "Optimizing Java to run on low memory single board computers... "
     sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms400m -Xmx512m"#g' /etc/default/openhab2
   fi
-  
+
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
@@ -125,10 +125,10 @@ nano_openhab_syntax() {
 }
 
 multitail_openhab_scheme() {
-  echo -n "$(timestamp) [openHABian] Adding openHAB scheme to mulitail... "
-  cond_redirect wget -O /etc/multitail.openhab.conf https://raw.githubusercontent.com/CWempe/multitail-scheme-openhab/master/multitail-scheme-openhab.conf
+  echo -n "$(timestamp) [openHABian] Adding openHAB scheme to multitail... "
+  cp $BASEDIR/includes/multitail.openhab.conf /etc/multitail.openhab.conf
   sed -i "/^.*multitail.*openhab.*$/d" /etc/multitail.conf
-  sed -i "s|# misc|# openHAB file from https://github.com/CWempe/multitail-scheme-openhab\\ninclude:/etc/multitail.openhab.conf\\n#\\n# misc|g" /etc/multitail.conf
+  sed -i "s|# misc|include:/etc/multitail.openhab.conf\\n#\\n# misc|g" /etc/multitail.conf
   echo "OK"
 }
 
