@@ -180,7 +180,7 @@ show_main_menu() {
     if [[ $choosenComponents == *"66"* ]]; then samba_setup; fi
     if [[ $choosenComponents == *"67"* ]]; then frontail_setup; fi
     if [[ $choosenComponents == *"68"* ]]; then firemotd_setup; fi
-    if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax; fi
+    if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
 
 
   elif [[ "$choice" == "99"* ]]; then
