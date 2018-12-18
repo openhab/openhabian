@@ -138,8 +138,14 @@ openhab_is_installed() {
 }
 
 openhab_is_running() {
-  #TODO
-  exit 1
+  if [ `systemctl is-active openhab2` != "active" ]; then return 1; fi
+  if [ -r /etc/default/openhab2 ]; then
+  . /etc/default/openhab2
+  fi
+  # Read and set openHAB variables set in /etc/default/ scripts
+  if [ -z "${OPENHAB_HTTP_PORT}" ];  then OPENHAB_HTTP_PORT=8080; fi
+  if [ -z "${OPENHAB_HTTPS_PORT}" ]; then OPENHAB_HTTPS_PORT=8443; fi
+  return 0;
 }
 
 # The function has one non-optinal parameter for the application to create a tile for
