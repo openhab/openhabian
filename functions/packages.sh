@@ -416,7 +416,7 @@ speedtest_cli_setup() {
 
 influxdb_grafana_setup() {
   local FAILED=0
-  local text_intro="This will install and configure InfluxDB and Grafana. Discussion thread about this configuration please consult:
+  local text_intro="This will install and configure InfluxDB and Grafana. For more information please consult this discussion thread:
   \nhttps://community.openhab.org/t/13761/1"
   local text_fail="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   local text_success="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/13761/1"
@@ -437,10 +437,10 @@ influxdb_grafana_setup() {
   local grafana_admin_password
   local openhab_integration=false
   if [ -n "$INTERACTIVE" ]; then
-    local text_influxDB_intro="A new InfluxDB instance can be installed locally on the openhabian system or an already running InfluxDB instance can be used."
+    local text_influxDB_intro="A new InfluxDB instance can be installed locally on the openhabian system or an already running InfluxDB instance can be used. Please choose one of the options. "
     if ! (whiptail --title "InfluxDB" --yes-button "Install locally" --no-button "Use existing instance" --yesno "$text_influxDB_intro" 15 80) then
       local text_influxDB_configure="Shall a new user and database be configured on the InfluxDB instance automatically or shall existing existing ones be used?"
-      if ! (whiptail --title "InfluxDB" --yes-button "Configure automatically" --no-button "Use existing database" --yesno "$text_influxDB_configure" 15 80) then
+      if ! (whiptail --title "InfluxDB" --yes-button "Create new" --no-button "Use existing" --yesno "$text_influxDB_configure" 15 80) then
         # Existing InfluxDB - Manual configuration
         influxdb_database_name=$(whiptail --title "InfluxDB" --inputbox "OpenHAB need to use a specific InfluxDB database. Please enter a configured InfluxDB database name:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
@@ -609,7 +609,7 @@ influxdb_grafana_setup() {
     cond_redirect apt update || FAILED=2
     cond_redirect apt-get install -y adduser libfontconfig
     cond_redirect dpkg -i grafana_5.3.4_armhf.deb
-  elif architecture="arm64" then
+  elif architecture="arm64"; then
     cond_redirect wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_5.3.4_arm64.deb || FAILED=2
     cond_redirect apt update || FAILED=2
     cond_redirect apt-get install -y adduser libfontconfig
