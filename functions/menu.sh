@@ -7,6 +7,11 @@ show_about() {
   - Documentation: https://www.openhab.org/docs/installation/openhabian.html
   - Development: http://github.com/openhab/openhabian
   - Discussion: https://community.openhab.org/t/13379" 17 80
+  RET=$?
+  if [ $RET -eq 255 ]; then
+    # <Esc> key pressed.
+    return 0
+  fi
 }
 
 show_main_menu() {
