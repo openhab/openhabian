@@ -123,6 +123,7 @@ echo "OK"
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
 until apt update &>/dev/null; do sleep 1; done
+sleep 10
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
