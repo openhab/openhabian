@@ -23,7 +23,11 @@ java_zulu_embedded() {
   if is_arm; then arch="[arch=armhf]"; fi
   cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
   if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
-  echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-embedded.list
+  if is_ubuntu; then
+    echo "deb $arch http://repos.azulsystems.com/ubuntu stable main" > /etc/apt/sources.list.d/zulu-embedded.list
+  else  
+    echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-embedded.list
+  fi
   if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
   cond_redirect apt update
   if is_arm; then
