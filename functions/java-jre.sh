@@ -33,25 +33,3 @@ java_zulu_embedded() {
   fi
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
-
-# Unused
-java_zulu_embedded_archive() {
-  echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK ARM build (archive)... "
-  cond_redirect dpkg --add-architecture armhf
-  cond_redirect apt update
-  cond_redirect apt -y install libc6:armhf libfontconfig1:armhf # https://github.com/openhab/openhabian/issues/93#issuecomment-279401481
-  if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
-  # Static link, not up to date: https://www.azul.com/downloads/zulu/zdk-8-ga-linux_aarch32hf.tar.gz
-  cond_redirect wget -O ezdk.tar.gz http://cdn.azul.com/zulu-embedded/bin/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf.tar.gz
-  if [ $? -ne 0 ]; then echo "FAILED (download)"; exit 1; fi
-  cond_redirect mkdir /opt/zulu-embedded
-  cond_redirect tar xvfz ezdk.tar.gz -C /opt/zulu-embedded
-  if [ $? -ne 0 ]; then echo "FAILED (extract)"; exit 1; fi
-  cond_redirect rm -f ezdk.tar.gz
-  cond_redirect chown -R 0:0 /opt/zulu-embedded
-  cond_redirect update-alternatives --auto java
-  cond_redirect update-alternatives --auto javac
-  cond_redirect update-alternatives --install /usr/bin/java java /opt/zulu-embedded/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf/bin/java 2162
-  cond_redirect update-alternatives --install /usr/bin/javac javac /opt/zulu-embedded/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf/bin/javac 2162
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (setup)"; exit 1; fi
-}
