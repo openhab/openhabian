@@ -55,4 +55,3 @@ java_zulu_embedded_archive() {
   fi
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
-
