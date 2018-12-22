@@ -123,7 +123,7 @@ apt update
 
 # Build PINE64 image
 if [ "$hw_platform" == "pine64-xenial" ]; then
-  apt --yes install git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl dos2unix
+  apt-get -y install git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl dos2unix
   echo_process "Cloning \"longsleep/build-pine64-image\" project... "
   git clone -b master https://github.com/longsleep/build-pine64-image.git $buildfolder
   
@@ -167,7 +167,7 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
 
 # Build Raspberry Pi image
 elif [ "$hw_platform" == "pi-raspbian" ]; then 
-  apt --yes install git wget curl unzip kpartx libarchive-zip-perl dos2unix
+  apt-get -y install git wget curl unzip kpartx libarchive-zip-perl dos2unix
   echo_process "Downloading latest Raspbian Lite image... "
   if [ -f "raspbian.zip" ]; then
     echo "(Using local copy...)"

@@ -45,7 +45,11 @@ java_zulu_embedded_archive() {
   if is_arm; then arch="[arch=armhf]"; fi
   cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
   if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
-  echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-embedded.list
+  if is_ubuntu; then
+    echo "deb $arch http://repos.azulsystems.com/ubuntu stable main" > /etc/apt/sources.list.d/zulu-embedded.list
+  else  
+    echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-embedded.list
+  fi
   if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
   cond_redirect apt update
   if is_arm; then
@@ -54,9 +58,4 @@ java_zulu_embedded_archive() {
     cond_redirect apt -y install zulu-8
   fi
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-  if [[ is_pi || is_pine64 ]]; then
-    cond_echo "Optimizing Java to run on low memory single board computers... "
-    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms400m -Xmx400m"#g' /etc/default/openhab2
-  fi
 }
-

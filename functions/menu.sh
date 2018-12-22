@@ -7,6 +7,11 @@ show_about() {
   - Documentation: https://www.openhab.org/docs/installation/openhabian.html
   - Development: http://github.com/openhab/openhabian
   - Discussion: https://community.openhab.org/t/13379" 17 80
+  RET=$?
+  if [ $RET -eq 255 ]; then
+    # <Esc> key pressed.
+    return 0
+  fi
 }
 
 show_main_menu() {
@@ -180,7 +185,7 @@ show_main_menu() {
     if [[ $choosenComponents == *"66"* ]]; then samba_setup; fi
     if [[ $choosenComponents == *"67"* ]]; then frontail_setup; fi
     if [[ $choosenComponents == *"68"* ]]; then firemotd_setup; fi
-    if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax; fi
+    if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
 
 
   elif [[ "$choice" == "99"* ]]; then

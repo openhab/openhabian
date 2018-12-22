@@ -91,8 +91,7 @@ uses functional users to execute tasks with specific access rights) for administ
 (that you have created that at the beginning of your openHABian installation or "openhabian" by default).
 Installation tasks including post-package-installation changes (edits) of the Amanda config files, require to use the `root`
 user. Any ordinary user (such as your personal one) can execute commands on behalf of root (and with root permission) by
-prepending "sudo " to the command. Note: commands executed as `root` will often NOT ask for confirmation, and bad commands can
-easily DESTROY YOUR SYSTEM. **Take special care !**
+prepending "sudo " to the command.
 
 # Installation
 ## Storage preparation
@@ -111,12 +110,9 @@ Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 19
 USB stick identified as /dev/sda (Linux ext4 and Windows VFAT filesystems).
 
 HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
-Do NOT (I repeat: NOT) deploy these commands unless you are fully aware what they will do to your system.
-To use a command with a wrong device name CAN DESTROY YOUR SYSTEM.
+Do not deploy these commands unless you are fully aware what they will do to your system, using a command with a wrong device 
+name can destroy your system.
 
----------------------
-YOU HAVE BEEN WARNED.
----------------------
 
 ### NAS mount example
 

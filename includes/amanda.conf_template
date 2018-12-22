@@ -8,7 +8,6 @@ runtapes 10						# number of virtual containers to use at most per backup run
 tpchanger %TPCHANGER
 taper-parallel-write 2
 autolabel "openHABian-%CONFIG-%%%" empty
-changerfile "%CONFDIR/storagestate"			# The tape-changer or SD- or disk slot or S3 state file
 tapelist "%CONFDIR/tapelist"				# The tapelist file
 tapetype %TAPETYPE
 infofile "/var/lib/amanda/%CONFIG/curinfo"		# Database directory

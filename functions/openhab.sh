@@ -50,7 +50,8 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
 
   echo "$REPO" > /etc/apt/sources.list.d/openhab2.list
   cond_redirect apt update
-  cond_redirect apt -y install openhab2
+  local openhabVersion="$(apt-cache madison openhab2 | head -n 1 | cut -d'|' -f2 | xargs)"
+  cond_redirect apt-get -y install "openhab2=${openhabVersion}"
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
@@ -64,6 +65,11 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     cond_redirect systemctl stop openhab2.service || true
   else
     cond_redirect systemctl restart openhab2.service || true
+  fi
+
+  if [[ is_pi || is_pine64 ]]; then
+    cond_echo "Optimizing Java to run on low memory single board computers... "
+    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms400m -Xmx512m"#g' /etc/default/openhab2
   fi
 
   if [ -n "$INTERACTIVE" ]; then
@@ -120,10 +126,10 @@ nano_openhab_syntax() {
 }
 
 multitail_openhab_scheme() {
-  echo -n "$(timestamp) [openHABian] Adding openHAB scheme to mulitail... "
-  cond_redirect wget -O /etc/multitail.openhab.conf https://raw.githubusercontent.com/CWempe/multitail-scheme-openhab/master/multitail-scheme-openhab.conf
+  echo -n "$(timestamp) [openHABian] Adding openHAB scheme to multitail... "
+  cp $BASEDIR/includes/multitail.openhab.conf /etc/multitail.openhab.conf
   sed -i "/^.*multitail.*openhab.*$/d" /etc/multitail.conf
-  sed -i "s|# misc|# openHAB file from https://github.com/CWempe/multitail-scheme-openhab\\ninclude:/etc/multitail.openhab.conf\\n#\\n# misc|g" /etc/multitail.conf
+  sed -i "s|# misc|include:/etc/multitail.openhab.conf\\n#\\n# misc|g" /etc/multitail.conf
   echo "OK"
 }
 
@@ -133,8 +139,14 @@ openhab_is_installed() {
 }
 
 openhab_is_running() {
-  #TODO
-  exit 1
+  if [ `systemctl is-active openhab2` != "active" ]; then return 1; fi
+  if [ -r /etc/default/openhab2 ]; then
+  . /etc/default/openhab2
+  fi
+  # Read and set openHAB variables set in /etc/default/ scripts
+  if [ -z "${OPENHAB_HTTP_PORT}" ];  then OPENHAB_HTTP_PORT=8080; fi
+  if [ -z "${OPENHAB_HTTPS_PORT}" ]; then OPENHAB_HTTPS_PORT=8443; fi
+  return 0;
 }
 
 # The function has one non-optinal parameter for the application to create a tile for
