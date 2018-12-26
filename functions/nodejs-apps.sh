@@ -9,6 +9,7 @@ nodejs_setup() {
   if is_armv6l; then f=$(wget -qO- https://nodejs.org/download/release/latest-dubnium/ | grep "armv6l.tar.gz" | cut -d '"' -f 2); fi
   if is_armv7l; then f=$(wget -qO- https://nodejs.org/download/release/latest-dubnium/ | grep "armv7l.tar.gz" | cut -d '"' -f 2); fi
   if is_aarch64; then f=$(wget -qO- https://nodejs.org/download/release/latest-dubnium/ | grep "arm64.tar.gz" | cut -d '"' -f 2); fi
+  
   if is_arm; then
     echo -n "$(timestamp) [openHABian] Installing Node.js for arm (prerequisite for other packages)... "
     cond_redirect wget -O /tmp/nodejs-arm.tar.gz https://nodejs.org/download/release/latest-dubnium/$f 2>&1 || FAILED=1
