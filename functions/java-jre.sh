@@ -22,6 +22,7 @@ java_zulu() {
   local FILE="/var/tmp/.zulu.$$"
   local INSTALLROOT=/opt/jdk
   local TEMPROOT=/opt/jdk-new
+  mkdir ${TEMPROOT}
   
   if is_arm; then
     local JAVA=zulu8.33.0.134-jdk1.8.0_192-linux_aarch32hf
