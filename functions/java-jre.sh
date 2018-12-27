@@ -21,6 +21,7 @@ java_zulu() {
   # Download Zulu Embedded Java 8 from https://www.azul.com/downloads/zulu-embedded
   local FILE="/var/tmp/.zulu.$$"
   local INSTALLROOT=/opt/jdk
+  local TEMPROOT=/opt/jdk-new
   
   if is_arm; then
     local JAVA=zulu8.33.0.134-jdk1.8.0_192-linux_aarch32hf
@@ -29,11 +30,13 @@ java_zulu() {
   fi
   whiptail --textbox $BASEDIR/includes/azul-zulu-license.md --scrolltext 27 116
   
-  wget -nv -O $FILE http://cdn.azul.com/zulu-embedded/bin/${JAVA}.tar.gz
-  tar -xpzf $FILE -C ${INSTALLROOT}
+  cond_redirect wget -nv -O $FILE http://cdn.azul.com/zulu-embedded/bin/${JAVA}.tar.gz
+  cond_redirect tar -xpzf $FILE -C ${TEMPROOT}
+  if [ $? -ne 0 ]; then echo "FAILED (Zulu java)"; rm -f ${FILE}; exit 1; fi
+  rm -rf $FILE ${INSTALLROOT}/*
+  mv ${TEMPROOT}/* ${INSTALLROOT}/; rmdir ${TEMPROOT}
   cond_redirect update-alternatives --install /usr/bin/java java ${INSTALLROOT}/${JAVA}/bin/java 1083000
   cond_redirect update-alternatives --install /usr/bin/javac java ${INSTALLROOT}/${JAVA}/bin/javac 1083000
-  rm -f $FILE
 }
 
 # Unused
