@@ -18,12 +18,13 @@ java_webupd8() {
 }
 
 java_zulu() {
-  # Download Zulu Embedded Java 8 from https://www.azul.com/downloads/zulu-embedded
   local FILE="/var/tmp/.zulu.$$"
   local INSTALLROOT=/opt/jdk
   local TEMPROOT=/opt/jdk-new
+  mkdir ${INSTALLROOT}
   mkdir ${TEMPROOT}
   
+  # Latest version, check https://www.azul.com/downloads/zulu-embedded
   if is_arm; then
     local JAVA=zulu8.33.0.134-jdk1.8.0_192-linux_aarch32hf
   else
