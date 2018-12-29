@@ -109,6 +109,7 @@ create_backup_config() {
   while [ ${counter} -le ${tapes} ]; do
       if [ "${config}" = "openhab-dir" ]; then
           mkdir -p ${storage}/slots/slot${counter}
+          chown ${backupuser}:backup ${storage}/slots/slot${counter}
       else
           if [ "${config}" = "openhab-local-SD" ]; then
               introtext="Please insert your removable storage medium number ${counter}."
