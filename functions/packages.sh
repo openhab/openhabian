@@ -604,12 +604,12 @@ influxdb_grafana_setup() {
   echo -n "Installing Grafana..."
   # TODO: Update with ARM repository when ready; https://github.com/grafana/grafana/issues/12761
   local architecture=$(dpkg --print-architecture)
-  if architecture="armhf"; then
+  if [ "$architecture" = "armhf" ]; then
     cond_redirect wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_5.3.4_armhf.deb || FAILED=2
     cond_redirect apt update || FAILED=2
     cond_redirect apt-get install -y adduser libfontconfig
     cond_redirect dpkg -i grafana_5.3.4_armhf.deb
-  elif architecture="arm64"; then
+  elif [ "$architecture" = "arm64" ]; then
     cond_redirect wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_5.3.4_arm64.deb || FAILED=2
     cond_redirect apt update || FAILED=2
     cond_redirect apt-get install -y adduser libfontconfig
