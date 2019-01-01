@@ -43,9 +43,9 @@ create_backup_config() {
   logdir="/var/log/amanda/${config}"                 # Log directory
   indexdir="/var/lib/amanda/${config}/index"         # Index directory
   /bin/mkdir -p $infofile $logdir $indexdir
-  /bin/chown -R ${backupuser}:${backupuser} /var/backups/.amandahosts ${confdir} $infofile $logdir $indexdir
+  /bin/chown -R ${backupuser}:backup /var/backups/.amandahosts ${confdir} $infofile $logdir $indexdir
   if [ "${config}" = "openhab-dir" ]; then
-      /bin/chown -R ${backupuser}:${backupuser} /var/backups/.amandahosts ${storage}
+      /bin/chown -R ${backupuser}:backup /var/backups/.amandahosts ${storage}
       /bin/chmod -R g+rwx ${storage}
       mkdir ${storage}/slots # folder needed for following symlinks
       /bin/chown ${backupuser}:backup ${storage}/slots
@@ -109,6 +109,7 @@ create_backup_config() {
   while [ ${counter} -le ${tapes} ]; do
       if [ "${config}" = "openhab-dir" ]; then
           mkdir -p ${storage}/slots/slot${counter}
+          chown ${backupuser}:backup ${storage}/slots/slot${counter}
       else
           if [ "${config}" = "openhab-local-SD" ]; then
               introtext="Please insert your removable storage medium number ${counter}."
