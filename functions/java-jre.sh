@@ -23,7 +23,7 @@ java_zulu() {
   local TEMPROOT=/opt/jdk-new
   mkdir ${INSTALLROOT}
   mkdir ${TEMPROOT}
-  
+
   if is_arm; then
     # Latest version check https://www.azul.com/downloads/zulu-embedded
     local JAVA=zulu8.33.0.134-jdk1.8.0_192-linux_aarch32hf
@@ -32,7 +32,7 @@ java_zulu() {
     local JAVA=zulu8.33.0.1-jdk8.0.192-linux_x64
   fi
   whiptail --textbox $BASEDIR/includes/azul-zulu-license.md --scrolltext 27 116
-  
+
   cond_redirect wget -nv -O $FILE http://cdn.azul.com/zulu-embedded/bin/${JAVA}.tar.gz
   cond_redirect tar -xpzf $FILE -C ${TEMPROOT}
   if [ $? -ne 0 ]; then echo "FAILED (Zulu java)"; rm -f ${FILE}; exit 1; fi

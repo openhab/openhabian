@@ -17,7 +17,7 @@ change_password() {
   canceled=false
   allAccounts=("Linux system" "openHAB Console" "Samba" "Amanda backup")
   FAILED=0
- 
+
   # BUILD LIST WITH INSTALLED SERVICES
   whipParams=( --title "Change password function" --ok-button "Execute" --cancel-button "Back" --checklist "$introtext" 20 90 10)
   whipParams+=("Linux system" "Account; \"$username\" used for login to this computer" off )
@@ -52,7 +52,7 @@ change_password() {
         if [[ "$?" == 1 ]]; then return 0; fi
         if [ ! ${#passwordChange} -ge 10 ]; then
           $(whiptail --title "Authentication Setup" --msgbox "Password must at least be 10 characters long... Please try again!" 15 80 3>&1 1>&2 2>&3)
-        else   
+        else
           secondpasswordChange=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the new password:" 15 80 3>&1 1>&2 2>&3)
           if [[ "$?" == 1 ]]; then return 0; fi
           if [ "$passwordChange" = "$secondpasswordChange" ] && [ ! -z "$passwordChange" ]; then
@@ -60,7 +60,7 @@ change_password() {
           else
             $(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
           fi
-        fi  
+        fi
       done
     else
       return 0

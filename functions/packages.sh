@@ -396,7 +396,7 @@ speedtest_cli_setup() {
   if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
   cond_redirect easy_install speedtest-cli
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-  
+
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
@@ -409,7 +409,7 @@ speedtest_cli_setup() {
 ## Function for installing and configure InfluxDB and Grafana while also integrate it to openHAB.
 ## The function can be invoked either INTERACTIVE with userinterface UNATTENDED.
 ##
-## When called UNATTENDED it will install both InfluxDB and Grafana on the local system. 
+## When called UNATTENDED it will install both InfluxDB and Grafana on the local system.
 ##
 ##    influxdb_grafana_setup()
 ##
@@ -588,7 +588,7 @@ influxdb_grafana_setup() {
     fi
     cond_echo ""
   fi
-  
+
   if [ ! -z "$influxdb_admin_username" ]; then # is set, configure database and application users
     echo -n "Setup of inital influxdb database and InfluxDB users... "
     echo -n ""
@@ -853,7 +853,7 @@ tellstick_core_setup() {
   failtext="Sadly there was a problem setting up tellstick core. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Success, please reboot your system to complete the installation.
 
-Next, add your devices in /etc/tellstick.conf. 
+Next, add your devices in /etc/tellstick.conf.
 To detect device IDs use commanline tool: tdtool-improved --event
 When devices are added restart telldusd.service by using: sudo systemctl restart telldusd
 or just reboot the system.

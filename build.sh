@@ -16,7 +16,7 @@ echo_process() { echo -e "\\e[1;94m$(timestamp) [openHABian] $*\\e[0m"; }
 
 ## Function for identify and returning current active git repository and branch
 ##
-## Return answer in global variable $clone_string 
+## Return answer in global variable $clone_string
 ##
 get_git_repo() {
     local repo_url=`git remote get-url origin`
@@ -126,7 +126,7 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   apt-get -y install git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl dos2unix
   echo_process "Cloning \"longsleep/build-pine64-image\" project... "
   git clone -b master https://github.com/longsleep/build-pine64-image.git $buildfolder
-  
+
   echo_process "Downloading aditional files needed by \"longsleep/build-pine64-image\" project... "
   wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/simpleimage-pine64-latest.img.xz
   wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/linux/linux-pine64-latest.tar.xz
@@ -166,7 +166,7 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 # Build Raspberry Pi image
-elif [ "$hw_platform" == "pi-raspbian" ]; then 
+elif [ "$hw_platform" == "pi-raspbian" ]; then
   apt-get -y install git wget curl unzip kpartx libarchive-zip-perl dos2unix
   echo_process "Downloading latest Raspbian Lite image... "
   if [ -f "raspbian.zip" ]; then
