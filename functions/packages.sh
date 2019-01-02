@@ -841,6 +841,12 @@ nginx_setup() {
   fi
 }
 
+## Function for installing Telldus Core service for Tellstick USB devices.
+## The function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    tellstick_core_setup()
+##
+
 tellstick_core_setup() {
   FAILED=0
   introtext="This will install tellstick core services to enable support for USB connected Tellstick and Tellstick duo. For more details, have a look at http://developer.telldus.se/"
@@ -857,12 +863,16 @@ or just reboot the system.
   fi
   echo -n "$(timestamp) [openHABian] Installing tellstick-core... "
 
+  if is_aarch64 ; then
+    dpkg --add-architecture armhf
+  fi
+
   # Maybe add new repository to be able to install libconfuse1
   if is_xenial ; then
     echo 'APT::Default-Release "xenial";' > /etc/apt/apt.conf.d/01release
-    echo "deb http://archive.ubuntu.com/ubuntu/ artful universe" > /etc/apt/sources.list.d/ubuntu-artful.list
+    echo "deb http://archive.ubuntu.com/ubuntu/ bionic universe" > /etc/apt/sources.list.d/ubuntu-artful.list
     cond_redirect apt update
-    cond_redirect apt -y -t=artful install libconfuse1
+    cond_redirect apt -y -t=bionic install libconfuse1
   fi
   if is_jessie ; then
     echo 'APT::Default-Release "jessie";' > /etc/apt/apt.conf.d/01release
