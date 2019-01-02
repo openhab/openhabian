@@ -415,19 +415,9 @@ speedtest_cli_setup() {
 ##
 
 influxdb_grafana_setup() {
-  local FAILED=0
-  local text_intro="This will install and configure InfluxDB and Grafana. For more information please consult this discussion thread:
-  \nhttps://community.openhab.org/t/13761/1"
-  local text_fail="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  local text_success="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/13761/1"
-
-  echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
-  if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$text_intro" 15 80) then echo "CANCELED"; return 0; fi
-  fi
-
-  local influxdb_address
-  local influxdb_admin_username
+  local FAILED
+  local text_intro text_fail text_success
+  local influxdb_address influxdb_admin_username
   local influxdb_admin_password
   local influxdb_openhab_username
   local influxdb_openhab_password
@@ -435,11 +425,35 @@ influxdb_grafana_setup() {
   local influxdb_grafana_password
   local influxdb_database_name
   local grafana_admin_password
-  local openhab_integration=false
+  local openhab_integration
+  local text_influxDB_intro
+  local text_influxDB_configure
+  local influxdb_returncode
+  local text_influxdb_address
+  local text_influxDB_admin_password
+  local matched
+  local password_check
+  local text_grafana_admin_password
+  local text_openHAB_integration
+  local dist codename
+  local architecture
+
+  FAILED=0
+  text_intro="This will install and configure InfluxDB and Grafana. For more information please consult this discussion thread:
+  \nhttps://community.openhab.org/t/13761/1"
+  text_fail="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  text_success="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/13761/1"
+
+  echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
   if [ -n "$INTERACTIVE" ]; then
-    local text_influxDB_intro="A new InfluxDB instance can be installed locally on the openhabian system or an already running InfluxDB instance can be used. Please choose one of the options. "
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$text_intro" 15 80) then echo "CANCELED"; return 0; fi
+  fi
+
+  openhab_integration=false
+  if [ -n "$INTERACTIVE" ]; then
+    text_influxDB_intro="A new InfluxDB instance can be installed locally on the openhabian system or an already running InfluxDB instance can be used. Please choose one of the options. "
     if ! (whiptail --title "InfluxDB" --yes-button "Install locally" --no-button "Use existing instance" --yesno "$text_influxDB_intro" 15 80) then
-      local text_influxDB_configure="Shall a new user and database be configured on the InfluxDB instance automatically or shall existing existing ones be used?"
+      text_influxDB_configure="Shall a new user and database be configured on the InfluxDB instance automatically or shall existing existing ones be used?"
       if ! (whiptail --title "InfluxDB" --yes-button "Create new" --no-button "Use existing" --yesno "$text_influxDB_configure" 15 80) then
         # Existing InfluxDB - Manual configuration
         influxdb_database_name=$(whiptail --title "InfluxDB" --inputbox "OpenHAB need to use a specific InfluxDB database. Please enter a configured InfluxDB database name:" 15 80 3>&1 1>&2 2>&3)
@@ -460,20 +474,19 @@ influxdb_grafana_setup() {
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
       fi
       # Influx DB server address
-      local influxdb_returncode=0
-      local text_influxdb_address="Enter InfluxDB instance adress: [protocol:address:port] \n eg. https://192.168.1.100:8086"
+      influxdb_returncode=0
+      text_influxdb_address="Enter InfluxDB instance adress: [protocol:address:port] \n eg. https://192.168.1.100:8086"
       while [ "$influxdb_returncode" != "204" ]
       do
         influxdb_address=$(whiptail --title "InfluxDB" --inputbox "$text_influxdb_address" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-        influxdb_returncode=`curl -s -o --max-time 6 --insecure /dev/null -w "%{http_code}" "$influxdb_address"/ping | sed 's/^0*//'`
+        influxdb_returncode="$(curl -s -o --max-time 6 --insecure /dev/null -w "%{http_code}" "$influxdb_address"/ping | sed 's/^0*//')"
         text_influxdb_address="Can't establish contact to InfluxDB instance. Please retry to enter InfluxDB instance adress: [protocol:address:port] \n eg. https://192.168.1.100:8086"
       done
     else
       # Local InfluxDB
-      local text_influxDB_admin_password="The local InfluxDB installation needs a password for the \"admin\" account. Enter a password:"
-      local matched=false
-      local password_check
+      text_influxDB_admin_password="The local InfluxDB installation needs a password for the \"admin\" account. Enter a password:"
+      matched=false
       while [ "$matched" = false ]; do
         influxdb_admin_password=$(whiptail --title "InfluxDB - Admin Account" --passwordbox "$text_influxDB_admin_password" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
@@ -491,8 +504,7 @@ influxdb_grafana_setup() {
       influxdb_database_name="openhab_db"
       influxdb_openhab_username="openhab"
       influxdb_grafana_username="grafana"
-      local matched=false
-      local password_check
+      matched=false
       while [ "$matched" = false ]; do
         influxdb_openhab_password=$(whiptail --title "InfluxDB - OpenHAB Account" --passwordbox "An openHAB specific InfluxDB user will be created \"openhab\". Please enter a password:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
@@ -519,9 +531,8 @@ influxdb_grafana_setup() {
     fi
 
     # Local Grafana
-    local text_grafana_admin_password="The local Grafana installation needs a password for the \"admin\" account. Enter a password:"
-    local matched=false
-    local password_check
+    text_grafana_admin_password="The local Grafana installation needs a password for the \"admin\" account. Enter a password:"
+    matched=false
     while [ "$matched" = false ]; do
       grafana_admin_password=$(whiptail --title "Grafana - Admin Account" --passwordbox "$text_grafana_admin_password" 15 80 3>&1 1>&2 2>&3)
       if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
@@ -536,7 +547,7 @@ influxdb_grafana_setup() {
 
 
     if openhab_is_running; then
-      local text_openHAB_integration="OpenHAB can use InfluxDB for persistant storage. Shall InfluxDB be configured with OpenHAB?
+      text_openHAB_integration="OpenHAB can use InfluxDB for persistant storage. Shall InfluxDB be configured with OpenHAB?
       (A new config file for openHAB will be created with basic settings.)"
       if (whiptail --title "OpenHAB integration, Continue?" --yes-button "Yes" --no-button "No" --yesno "$text_openHAB_integration" 15 80) then openhab_integration=true ; fi
     else
@@ -544,8 +555,8 @@ influxdb_grafana_setup() {
     fi
   fi
 
-  local dist="debian"
-  local codename="stretch"
+  dist="debian"
+  codename="stretch"
   if is_ubuntu; then
     dist="ubuntu"
     codename=$(lsb_release -sc)
@@ -603,7 +614,7 @@ influxdb_grafana_setup() {
 
   echo -n "Installing Grafana..."
   # TODO: Update with ARM repository when ready; https://github.com/grafana/grafana/issues/12761
-  local architecture=$(dpkg --print-architecture)
+  architecture="$(dpkg --print-architecture)"
   if [ "$architecture" = "armhf" ]; then
     cond_redirect wget https://s3-us-west-2.amazonaws.com/grafana-releases/release/grafana_5.3.4_armhf.deb || FAILED=2
     cond_redirect apt update || FAILED=2

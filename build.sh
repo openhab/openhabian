@@ -19,16 +19,17 @@ echo_process() { echo -e "\\e[1;94m$(timestamp) [openHABian] $*\\e[0m"; }
 ## Return answer in global variable $clone_string
 ##
 get_git_repo() {
-    local repo_url=`git remote get-url origin`
-    local repo_branch=`git branch | grep \* | cut -d ' ' -f2`
+    local repo_url repo_branch user_name repo_name
+    repo_url=$(git remote get-url origin)
+    repo_branch=$(git branch | grep "\*" | cut -d ' ' -f2)
     if [[ ! $repo_url = *"https"* ]]; then
         # Convert URL from SSH to HTTPS
-        local user_name=$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\1#p')
+        user_name=$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\1#p')
         if [[ -z "$user_name" ]]; then
         echo_process "Could not identify git user while converting to SSH URL. Exiting."
         exit 1
         fi
-        local repo_name=$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\2#p')
+        repo_name=$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\2#p')
         if [[ -z "$repo_name" ]]; then
         echo_process "Could not identify git repo while converting to SSH URL. Exiting."
         exit 1
