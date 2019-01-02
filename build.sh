@@ -34,7 +34,7 @@ get_git_repo() {
         echo_process "Could not identify git repo while converting to SSH URL. Exiting."
         exit 1
         fi
-        repo_url="https://github.com/"$user_name"/"$repo_name".git"
+        repo_url="https://github.com/${user_name}/${repo_name}.git"
     fi
     clone_string=$repo_branch
     clone_string+=" "
