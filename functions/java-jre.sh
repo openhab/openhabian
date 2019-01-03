@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-java_webupd8() {
+java_webupd8_archive() {
   echo -n "$(timestamp) [openHABian] Preparing and Installing Oracle Java 8 Web Upd8 repository... "
   cond_redirect apt -y install dirmngr
   cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
@@ -24,10 +24,11 @@ java_zulu() {
   mkdir ${INSTALLROOT}
   mkdir ${TEMPROOT}
   
-  # Latest version, check https://www.azul.com/downloads/zulu-embedded
   if is_arm; then
+    # Latest version check https://www.azul.com/downloads/zulu-embedded
     local JAVA=zulu8.33.0.134-jdk1.8.0_192-linux_aarch32hf
   else
+    # Latest version check https://www.azul.com/downloads/zulu-linux
     local JAVA=zulu8.33.0.1-jdk8.0.192-linux_x64
   fi
   whiptail --textbox $BASEDIR/includes/azul-zulu-license.md --scrolltext 27 116
@@ -41,24 +42,3 @@ java_zulu() {
   cond_redirect update-alternatives --install /usr/bin/javac java ${INSTALLROOT}/${JAVA}/bin/javac 1083000
 }
 
-# Unused
-java_zulu_embedded_archive() {
-  echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK... "
-  cond_redirect apt -y install dirmngr
-  if is_arm; then arch="[arch=armhf]"; fi
-  cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
-  if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
-  if is_ubuntu; then
-    echo "deb $arch http://repos.azulsystems.com/ubuntu stable main" > /etc/apt/sources.list.d/zulu-embedded.list
-  else  
-    echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-embedded.list
-  fi
-  if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
-  cond_redirect apt update
-  if is_arm; then
-    cond_redirect apt -y install zulu-embedded-8
-  else
-    cond_redirect apt -y install zulu-8
-  fi
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-}
