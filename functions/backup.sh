@@ -74,7 +74,7 @@ create_backup_config() {
   fi
 
   hostname=`/bin/hostname`
-  if [ "${config}" = "openhab-local-SD" -o "${config}" = "openhab-dir" ]; then
+  if [ "${config}" = "openhab-local-SD" ] || [ "${config}" = "openhab-dir" ]; then
       /bin/rm -f ${confdir}/disklist
 
       # don't backup SD by default as this can cause problems for large cards
