@@ -559,10 +559,10 @@ influxdb_grafana_setup() {
   codename="stretch"
   if is_ubuntu; then
     dist="ubuntu"
-    codename=$(lsb_release -sc)
+    codename="$(lsb_release -sc)"
   elif is_debian; then
     dist="debian"
-    codename=$(lsb_release -sc)
+    codename="$(lsb_release -sc)"
   fi
 
   if [ -z "$influxdb_address" ]; then # is empty, install a InfluxDB database
