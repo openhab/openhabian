@@ -28,17 +28,17 @@ change_password() {
   if [ -f /etc/nginx/.htpasswd ]; then
     nginxuser=`cut -d: -f1 /etc/nginx/.htpasswd`
     whipParams+=("Ngnix HTTP/HTTPS" "User; \"$nginxuser\" used for logon to openHAB web services " off )
-    allAccounts+="Ngnix HTTP/HTTPS"
+    allAccounts+=( "Ngnix HTTP/HTTPS" )
   fi
 
   if [ -f /etc/influxdb/influxdb.conf ]; then
     whipParams+=("InfluxDB" "User; \"admin\" used for database configuration " off )
-    allAccounts+="InfluxDB"
+    allAccounts+=( "InfluxDB" )
   fi
 
   if [ -f /etc/grafana/grafana.ini ]; then
     whipParams+=("Grafana" "User; \"admin\" used for manage graphs and the server " off )
-    allAccounts+="Grafana"
+    allAccounts+=( "Grafana" )
   fi
 
   if [ -n "$INTERACTIVE" ]; then
