@@ -643,7 +643,7 @@ influxdb_grafana_setup() {
   echo -n "Connection Grafana to InfluxDB..."
   curl  --user admin:$grafana_admin_password --request POST http://localhost:3000/api/datasources \
         --header "Content-Type: application/json" \
-        --data '{"name": "openhab_home", "type": "influxdb", "url": "http://localhost:8086", "password": "'"$influxdb_grafana_password"'", "user": "'"$influxdb_grafana_user"'", "database": "'"$influxdb_database_name"'", "access": "proxy", "basicAuth":true, "basicAuthUser":"'"$influxdb_grafana_user"'", "basicAuthPassword":"'"$influxdb_grafana_password"'", "withCredentials":false}'
+        --data '{"name": "openhab_home", "type": "influxdb", "url": "http://localhost:8086", "password": "'"$influxdb_grafana_password"'", "user": "'"$influxdb_grafana_username"'", "database": "'"$influxdb_database_name"'", "access": "proxy", "basicAuth":true, "basicAuthUser":"'"$influxdb_grafana_username"'", "basicAuthPassword":"'"$influxdb_grafana_password"'", "withCredentials":false}'
 
   echo -n "Adding openHAB dashboard tile for Grafana... "
   dashboard_add_tile grafana || FAILED=4
