@@ -73,7 +73,6 @@ create_backup_config() {
       echo "device_property \"S3_SSL\" \"YES\"                                                  # Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
   fi
 
-  hostname=`/bin/hostname`
   if [ "${config}" = "openhab-local-SD" ] || [ "${config}" = "openhab-dir" ]; then
       /bin/rm -f ${confdir}/disklist
 
