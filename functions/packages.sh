@@ -495,7 +495,7 @@ influxdb_grafana_setup() {
         if [ "$influxdb_admin_password" = "$password_check" ] && [ ! -z "$influxdb_admin_password" ]; then
           matched=true
         else
-          $(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
+          whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3
         fi
       done
     fi
@@ -513,7 +513,7 @@ influxdb_grafana_setup() {
         if [ "$influxdb_openhab_password" = "$password_check" ] && [ ! -z "$influxdb_openhab_password" ]; then
           matched=true
         else
-          $(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
+          whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3
         fi
       done
       matched=false
@@ -525,7 +525,7 @@ influxdb_grafana_setup() {
         if [ "$influxdb_grafana_password" = "$password_check" ] && [ ! -z "$influxdb_grafana_password" ]; then
           matched=true
         else
-          $(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
+          whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3
         fi
       done
     fi
@@ -541,7 +541,7 @@ influxdb_grafana_setup() {
       if [ "$grafana_admin_password" = "$password_check" ] && [ ! -z "$grafana_admin_password" ]; then
         matched=true
       else
-        $(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
+        whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3
       fi
     done
 
