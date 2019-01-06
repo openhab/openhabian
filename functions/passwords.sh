@@ -26,7 +26,7 @@ change_password() {
   whipParams+=("Amanda backup" "User account; \"backup\" which could handle openHAB backups " off )
 
   if [ -f /etc/nginx/.htpasswd ]; then
-    nginxuser=`cut -d: -f1 /etc/nginx/.htpasswd`
+    nginxuser="$(cut -d: -f1 /etc/nginx/.htpasswd)"
     whipParams+=("Ngnix HTTP/HTTPS" "User; \"$nginxuser\" used for logon to openHAB web services " off )
     allAccounts+=( "Ngnix HTTP/HTTPS" )
   fi

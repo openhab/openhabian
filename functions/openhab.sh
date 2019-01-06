@@ -142,7 +142,7 @@ openhab_is_installed() {
 }
 
 openhab_is_running() {
-  if [ `systemctl is-active openhab2` != "active" ]; then return 1; fi
+  if [ "$(systemctl is-active openhab2)" != "active" ]; then return 1; fi
   if [ -r /etc/default/openhab2 ]; then
   . /etc/default/openhab2
   fi

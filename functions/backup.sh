@@ -32,7 +32,7 @@ create_backup_config() {
 
   mkdir -p ${confdir}
   touch ${confdir}/tapelist
-  hostname=`/bin/hostname`
+  hostname="$(/bin/hostname)"
   echo "${hostname} ${backupuser}" > /var/backups/.amandahosts
   echo "${hostname} root amindexd amidxtaped" >> /var/backups/.amandahosts
   echo "localhost ${backupuser}" >> /var/backups/.amandahosts
