@@ -122,7 +122,7 @@ create_backup_config() {
           fi
       fi
 
-      let counter+=1
+      ((counter += 1))
   done
 }
 
@@ -178,7 +178,7 @@ amanda_setup() {
         dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
         tapes=15
         capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
-        let size=${capacity}/${tapes}
+        size="$((capacity / tapes))"
 
         create_backup_config ${config} ${backupuser} ${tapes} ${size} ${dir}
     fi
@@ -193,7 +193,7 @@ amanda_setup() {
       S3secretkey=$(whiptail --title "S3 secret key" --inputbox "Enter the S3 secret key you obtained at S3 setup time:" 10 60 3>&1 1>&2 2>&3)
       tapes=15
       capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
-      let size=${capacity}/${tapes}
+      size="$((capacity / tapes))"
 
       create_backup_config ${config} ${backupuser} ${tapes} ${size} AWS ${S3site} ${S3bucket} ${S3accesskey} ${S3secretkey}
     fi
