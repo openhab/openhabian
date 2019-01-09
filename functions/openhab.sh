@@ -71,7 +71,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
 
   if [[ is_pi || is_pine64 ]]; then
     cond_echo "Optimizing Java to run on low memory single board computers... "
-    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms400m -Xmx512m"#g' /etc/default/openhab2
+    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms250m -Xmx350m"#g' /etc/default/openhab2
   fi
 
   if [ -n "$INTERACTIVE" ]; then
