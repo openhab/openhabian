@@ -26,8 +26,8 @@ create_backup_config() {
   echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
   echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
   if [ "${tapetype}" = "DIRECTORY" ]; then
-      mkdir -p ${storage}/amanda-backups; chown ${backupuser}:backup ${storage}/amanda-backups
-      echo "0 2 * * * root (cd /; tar czf ${storage}/amanda-backups/amanda_data_$(date +\%Y\%m\%d\%H\%M\%S).tar.gz etc/amanda var/lib/amanda; find ${storage} -name amanda_data_\* -mtime +30 -delete) >/dev/null 2>&1" >> /etc/cron.d/amanda
+    mkdir -p ${storage}/amanda-backups; chown ${backupuser}:backup ${storage}/amanda-backups
+    echo "0 2 * * * root (cd /; tar czf ${storage}/amanda-backups/amanda_data_$(date +\%Y\%m\%d\%H\%M\%S).tar.gz etc/amanda var/lib/amanda; find ${storage} -name amanda_data_\* -mtime +30 -delete) >/dev/null 2>&1" >> /etc/cron.d/amanda
   fi
 
   mkdir -p ${confdir}
@@ -45,50 +45,50 @@ create_backup_config() {
   /bin/mkdir -p $infofile $logdir $indexdir
   /bin/chown -R ${backupuser}:backup /var/backups/.amandahosts ${confdir} $infofile $logdir $indexdir
   if [ "${config}" = "openhab-dir" ]; then
-      /bin/chown -R ${backupuser}:backup /var/backups/.amandahosts ${storage}
-      /bin/chmod -R g+rwx ${storage}
-      mkdir ${storage}/slots # folder needed for following symlinks
-      /bin/chown ${backupuser}:backup ${storage}/slots
-      ln -s ${storage}/slots ${storage}/slots/drive0;ln -s ${storage}/slots ${storage}/slots/drive1    # taper-parallel-write 2 so we need 2 virtual drives
-      tpchanger="\"chg-disk:${storage}/slots\"    # The tape-changer glue script"
-      tapetype="DIRECTORY"
+    /bin/chown -R ${backupuser}:backup /var/backups/.amandahosts ${storage}
+    /bin/chmod -R g+rwx ${storage}
+    mkdir ${storage}/slots # folder needed for following symlinks
+    /bin/chown ${backupuser}:backup ${storage}/slots
+    ln -s ${storage}/slots ${storage}/slots/drive0;ln -s ${storage}/slots ${storage}/slots/drive1    # taper-parallel-write 2 so we need 2 virtual drives
+    tpchanger="\"chg-disk:${storage}/slots\"    # The tape-changer glue script"
+    tapetype="DIRECTORY"
   else
-      if [ "${config}" = "openhab-local-SD" ]; then
-         tpchanger="\"chg-single:${sddev}\""
-         tapetype="SD"
-      else
-         tpchanger="\"chg-multi:s3:${S3bucket}/openhab-AWS/slot-{`seq -s, 1 ${tapes}`}\" # Number of virtual containers in your tapecycle"
-         tapetype="AWS"
-      fi
+    if [ "${config}" = "openhab-local-SD" ]; then
+      tpchanger="\"chg-single:${sddev}\""
+      tapetype="SD"
+    else
+      tpchanger="\"chg-multi:s3:${S3bucket}/openhab-AWS/slot-{`seq -s, 1 ${tapes}`}\" # Number of virtual containers in your tapecycle"
+      tapetype="AWS"
+    fi
   fi
 
 #   /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%BKPDIR|${bkpdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" ${BASEDIR}/includes/amanda.conf_template >${confdir}/amanda.conf
   /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" ${BASEDIR}/includes/amanda.conf_template >${confdir}/amanda.conf
 
   if [ "${config}" = "openhab-AWS" ]; then
-      echo "device_property \"S3_BUCKET_LOCATION\" \"${S3site}\"                                # Your S3 bucket location (site)" >>${confdir}/amanda.conf
-      echo "device_property \"STORAGE_API\" \"AWS4\"" >>${confdir}/amanda.conf
-      echo "device_property \"VERBOSE\" \"YES\"" >>${confdir}/amanda.conf
-      echo "device_property \"S3_ACCESS_KEY\" \"${S3accesskey}\"                        # Your S3 Access Key" >>${confdir}/amanda.conf
-      echo "device_property \"S3_SECRET_KEY\" \"${S3secretkey}\"        # Your S3 Secret Key" >>${confdir}/amanda.conf
-      echo "device_property \"S3_SSL\" \"YES\"                                                  # Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
+    echo "device_property \"S3_BUCKET_LOCATION\" \"${S3site}\"                                # Your S3 bucket location (site)" >>${confdir}/amanda.conf
+    echo "device_property \"STORAGE_API\" \"AWS4\"" >>${confdir}/amanda.conf
+    echo "device_property \"VERBOSE\" \"YES\"" >>${confdir}/amanda.conf
+    echo "device_property \"S3_ACCESS_KEY\" \"${S3accesskey}\"                        # Your S3 Access Key" >>${confdir}/amanda.conf
+    echo "device_property \"S3_SECRET_KEY\" \"${S3secretkey}\"        # Your S3 Secret Key" >>${confdir}/amanda.conf
+    echo "device_property \"S3_SSL\" \"YES\"                                                  # Curl needs to have S3 Certification Authority (Verisign today) in its CA list. If connection fails, try setting this no NO" >>${confdir}/amanda.conf
   fi
 
   if [ "${config}" = "openhab-local-SD" ] || [ "${config}" = "openhab-dir" ]; then
-      /bin/rm -f ${confdir}/disklist
+    /bin/rm -f ${confdir}/disklist
 
-      # don't backup SD by default as this can cause problems for large cards
-      if [ -n "$INTERACTIVE" ]; then
-          if (whiptail --title "Backup raw SD card, too ?" --yes-button "Backup SD" --no-button "Do not backup SD." --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 8GB or less, otherwise this can take too long. You can change this at any time by editing ${confdir}/disklist." 15 80) then
-            echo "${hostname}  /dev/mmcblk0              amraw" >>${confdir}/disklist
-        fi
+    # don't backup SD by default as this can cause problems for large cards
+    if [ -n "$INTERACTIVE" ]; then
+      if (whiptail --title "Backup raw SD card, too ?" --yes-button "Backup SD" --no-button "Do not backup SD." --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 8GB or less, otherwise this can take too long. You can change this at any time by editing ${confdir}/disklist." 15 80) then
+        echo "${hostname}  /dev/mmcblk0              amraw" >>${confdir}/disklist
       fi
+    fi
 
-      echo "${hostname}  /etc/openhab2             user-tar" >>${confdir}/disklist
-      echo "${hostname}  /var/lib/openhab2         user-tar" >>${confdir}/disklist
+    echo "${hostname}  /etc/openhab2             user-tar" >>${confdir}/disklist
+    echo "${hostname}  /var/lib/openhab2         user-tar" >>${confdir}/disklist
   else
-      echo "${hostname}  /etc/openhab2             comp-user-tar" >${confdir}/disklist
-      echo "${hostname}  /var/lib/openhab2         comp-user-tar" >>${confdir}/disklist
+    echo "${hostname}  /etc/openhab2             comp-user-tar" >${confdir}/disklist
+    echo "${hostname}  /var/lib/openhab2         comp-user-tar" >>${confdir}/disklist
   fi
 
   echo "index_server \"localhost\"" >${confdir}/amanda-client.conf
@@ -96,33 +96,32 @@ create_backup_config() {
   echo "auth \"local\"" >${confdir}/amanda-client.conf
 
   if [ "${config}" = "openhab-local-SD" ]; then
-     introtext="${introtext}\nWe will ask you to insert a specific SD card number (or USB stick) into the device ${storage} and prompt you to confirm it's plugged in. This procedure will be repeated ${tapes} times as that is the number of media you specified to be in rotational use for backup purposes."
+    introtext="${introtext}\nWe will ask you to insert a specific SD card number (or USB stick) into the device ${storage} and prompt you to confirm it's plugged in. This procedure will be repeated ${tapes} times as that is the number of media you specified to be in rotational use for backup purposes."
   else
-     introtext="${introtext}\nFor permanent storage such as USB or NAS mounted storage, as well as for cloud based storage, we will create ${tapes} virtual containers."
+    introtext="${introtext}\nFor permanent storage such as USB or NAS mounted storage, as well as for cloud based storage, we will create ${tapes} virtual containers."
   fi
   if [ -n "$INTERACTIVE" ]; then
-      if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   # create virtual 'tapes'
   counter=1
   while [ ${counter} -le ${tapes} ]; do
-      if [ "${config}" = "openhab-dir" ]; then
-          mkdir -p ${storage}/slots/slot${counter}
-          chown ${backupuser}:backup ${storage}/slots/slot${counter}
-      else
-          if [ "${config}" = "openhab-local-SD" ]; then
-              introtext="Please insert your removable storage medium number ${counter}."
-              if [ -n "$INTERACTIVE" ]; then
-                  if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
-                  /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
-              fi
-          else  # AWS
-              /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
-          fi
+    if [ "${config}" = "openhab-dir" ]; then
+      mkdir -p ${storage}/slots/slot${counter}
+      chown ${backupuser}:backup ${storage}/slots/slot${counter}
+    else
+      if [ "${config}" = "openhab-local-SD" ]; then
+        introtext="Please insert your removable storage medium number ${counter}."
+        if [ -n "$INTERACTIVE" ]; then
+          if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
+          /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
+        fi
+      else  # AWS
+        /bin/su - ${backupuser} -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
       fi
-
-      ((counter += 1))
+    fi
+    ((counter += 1))
   done
 }
 
@@ -144,15 +143,15 @@ amanda_setup() {
   matched=false
   canceled=false
   if [ -n "$INTERACTIVE" ]; then
-      while [ "$matched" = false ] && [ "$canceled" = false ]; do
-            password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for user ${backupuser}.\nRemember to select a safe password as you (and others) can use this to login to your openHABian box." 15 80 3>&1 1>&2 2>&3)
-            secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password" 15 80 3>&1 1>&2 2>&3)
-            if [ "$password" = "$secondpassword" ] && [ ! -z "$password" ]; then
-                matched=true
-            else
-                password=$(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
-            fi
-      done
+    while [ "$matched" = false ] && [ "$canceled" = false ]; do
+      password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for user ${backupuser}.\nRemember to select a safe password as you (and others) can use this to login to your openHABian box." 15 80 3>&1 1>&2 2>&3)
+      secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password" 15 80 3>&1 1>&2 2>&3)
+      if [ "$password" = "$secondpassword" ] && [ ! -z "$password" ]; then
+        matched=true
+      else
+        password=$(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
+      fi
+    done
   fi
 
   /usr/sbin/usermod -a -G backup openhabian
@@ -174,13 +173,12 @@ amanda_setup() {
 
   if [ -n "$INTERACTIVE" ]; then
     if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on locally attached or NAS mounted storage." 15 80) then
-        config=openhab-dir
-        dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
-        tapes=15
-        capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
-        size="$((capacity / tapes))"
-
-        create_backup_config ${config} ${backupuser} ${tapes} ${size} ${dir}
+      config=openhab-dir
+      dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
+      tapes=15
+      capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
+      size="$((capacity / tapes))"
+      create_backup_config ${config} ${backupuser} ${tapes} ${size} ${dir}
     fi
   fi
 
