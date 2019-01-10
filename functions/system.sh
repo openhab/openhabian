@@ -321,12 +321,14 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 
   if [[ $selection == *"2"* ]]; then
     if is_pithree || is_pithreeplus; then
-      cond_redirect systemctl stop hciuart &>/dev/null
-      cond_redirect systemctl disable hciuart &>/dev/null
+      #cond_redirect systemctl stop hciuart &>/dev/null
+      #cond_redirect systemctl disable hciuart &>/dev/null
       cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3)"
       if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
         echo "dtoverlay=pi3-miniuart-bt" >> /boot/config.txt
       fi
+    else
+      cond_echo "Option only available for Raspberry Pi 3."
     fi
   else
     if is_pithree || is_pithreeplus; then
