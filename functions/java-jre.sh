@@ -40,7 +40,7 @@ java_zulu() {
   cond_redirect wget -nv -O $FILE http://cdn.azul.com/zulu-embedded/bin/${JAVA}.tar.gz
   cond_redirect tar -xpzf $FILE -C ${TEMPROOT}
   if [ $? -ne 0 ]; then echo "FAILED (Zulu java)"; rm -f ${FILE}; exit 1; fi
-  rm -rf $FILE ${INSTALLROOT}/*
+  rm -rf $FILE ${INSTALLROOT:?}/*
   mv ${TEMPROOT}/* ${INSTALLROOT}/; rmdir ${TEMPROOT}
   cond_redirect update-alternatives --install /usr/bin/java java ${INSTALLROOT}/${JAVA}/bin/java 1083000
   cond_redirect update-alternatives --install /usr/bin/javac java ${INSTALLROOT}/${JAVA}/bin/javac 1083000
