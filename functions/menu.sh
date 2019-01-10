@@ -162,7 +162,6 @@ show_main_menu() {
     "61 | Upgrade System     "    "Upgrade all installed software packages to their newest version " OFF \
     "62 | Packages"               "Install needed and recommended system packages " OFF \
     "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8 " OFF \
-    "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team " OFF \
     "64 | openHAB stable"         "Install the latest openHAB release" OFF \
     "   | openHAB testing"        "Install the latest openHAB testing build" OFF \
     "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
@@ -176,8 +175,7 @@ show_main_menu() {
     
     if [[ $choosenComponents == *"61"* ]]; then system_upgrade; fi
     if [[ $choosenComponents == *"62"* ]]; then basic_packages && needed_packages; fi
-    if [[ $choosenComponents == *"63"* ]]; then java_zulu_embedded; fi
-    if [[ $choosenComponents == *"Oracle Java 8"* ]]; then java_webupd8; fi
+    if [[ $choosenComponents == *"63"* ]]; then java_zulu; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
     if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi
