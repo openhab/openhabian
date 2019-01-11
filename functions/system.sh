@@ -158,7 +158,7 @@ permissions_corrections() {
     exit 1
   fi
 
-  if is_pine64; then 
+  if is_pine64; then
     cond_redirect groupadd gpio
     cond_redirect cp $BASEDIR/includes/PINE64-80-gpio-noroot.rules /etc/udev/rules.d/80-gpio-noroot.rules
     cond_redirect sed -i -e '$i \chown -R root:gpio /sys/class/gpio \n' /etc/rc.local

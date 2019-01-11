@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 get_git_revision() {
-  local branch=$(git -C "$BASEDIR" rev-parse --abbrev-ref HEAD)
-  local shorthash=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
-  local revcount=$(git -C "$BASEDIR" log --oneline | wc -l)
-  local latesttag=$(git -C "$BASEDIR" describe --tags --abbrev=0)
-  local revision="[$branch]$latesttag-$revcount($shorthash)"
-  echo "$revision"
+  local branch shorthash revcount latesttag
+  branch=$(git -C "$BASEDIR" rev-parse --abbrev-ref HEAD)
+  shorthash=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
+  revcount=$(git -C "$BASEDIR" log --oneline | wc -l)
+  latesttag=$(git -C "$BASEDIR" describe --tags --abbrev=0)
+  echo "[$branch]$latesttag-$revcount($shorthash)"
 }
 
 openhabian_console_check() {
@@ -102,8 +102,10 @@ system_check_default_password() {
   fi
   export PASSWORD
   ORIGPASS=$(grep -w "$USERNAME" /etc/shadow | cut -d: -f2)
-  export ALGO=$(echo $ORIGPASS | cut -d'$' -f2)
-  export SALT=$(echo $ORIGPASS | cut -d'$' -f3)
+  ALGO=$(echo $ORIGPASS | cut -d'$' -f2)
+  export ALGO
+  SALT=$(echo $ORIGPASS | cut -d'$' -f3)
+  export SALT
   GENPASS=$(perl -le 'print crypt("$ENV{PASSWORD}","\$$ENV{ALGO}\$$ENV{SALT}\$")')
   if [ "$GENPASS" == "$ORIGPASS" ]; then
     if [ -n "$INTERACTIVE" ]; then
