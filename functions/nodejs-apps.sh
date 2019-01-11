@@ -9,13 +9,13 @@ nodejs_setup() {
   if is_armv6l; then f=$(wget -qO- https://nodejs.org/download/release/latest-dubnium/ | grep "armv6l.tar.gz" | cut -d '"' -f 2); fi
   if is_armv7l; then f=$(wget -qO- https://nodejs.org/download/release/latest-dubnium/ | grep "armv7l.tar.gz" | cut -d '"' -f 2); fi
   if is_aarch64; then f=$(wget -qO- https://nodejs.org/download/release/latest-dubnium/ | grep "arm64.tar.gz" | cut -d '"' -f 2); fi
-  
+
   if is_arm; then
     echo -n "$(timestamp) [openHABian] Installing Node.js for arm (prerequisite for other packages)... "
     cond_redirect wget -O /tmp/nodejs-arm.tar.gz https://nodejs.org/download/release/latest-dubnium/$f 2>&1 || FAILED=1
     if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
     cond_redirect tar -zxf /tmp/nodejs-arm.tar.gz --strip-components=1 -C /usr 2>&1
-    cond_redirect rm /tmp/nodejs-arm.tar.gz 2>&1  
+    cond_redirect rm /tmp/nodejs-arm.tar.gz 2>&1
   else
     echo -n "$(timestamp) [openHABian] Installing Node.js (prerequisite for other packages)... "
     cond_redirect wget -O /tmp/nodejs-setup.sh https://deb.nodesource.com/setup_10.x || FAILED=1

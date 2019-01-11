@@ -17,7 +17,7 @@ change_password() {
   canceled=false
   allAccounts=("Linux system" "openHAB Console" "Samba" "Amanda backup")
   FAILED=0
- 
+
   # BUILD LIST WITH INSTALLED SERVICES
   whipParams=( --title "Change password function" --ok-button "Execute" --cancel-button "Back" --checklist "$introtext" 20 90 10)
   whipParams+=("Linux system" "Account; \"$username\" used for login to this computer" off )
@@ -26,41 +26,41 @@ change_password() {
   whipParams+=("Amanda backup" "User account; \"backup\" which could handle openHAB backups " off )
 
   if [ -f /etc/nginx/.htpasswd ]; then
-    nginxuser=`cut -d: -f1 /etc/nginx/.htpasswd`
+    nginxuser="$(cut -d: -f1 /etc/nginx/.htpasswd)"
     whipParams+=("Ngnix HTTP/HTTPS" "User; \"$nginxuser\" used for logon to openHAB web services " off )
-    allAccounts+="Ngnix HTTP/HTTPS"
+    allAccounts+=( "Ngnix HTTP/HTTPS" )
   fi
 
   if [ -f /etc/influxdb/influxdb.conf ]; then
     whipParams+=("InfluxDB" "User; \"admin\" used for database configuration " off )
-    allAccounts+="InfluxDB"
+    allAccounts+=( "InfluxDB" )
   fi
 
   if [ -f /etc/grafana/grafana.ini ]; then
     whipParams+=("Grafana" "User; \"admin\" used for manage graphs and the server " off )
-    allAccounts+="Grafana"
+    allAccounts+=( "Grafana" )
   fi
 
   if [ -n "$INTERACTIVE" ]; then
-    accounts=$(whiptail "${whipParams[@]}" 3>&1 1>&2 2>&3)
+    accounts="$(whiptail "${whipParams[@]}" 3>&1 1>&2 2>&3)"
     exitstatus=$?
 
     # COLLECT NEW PASSWORD
     if [ $exitstatus = 0 ]; then
       while [ "$matched" = false ] && [ "$canceled" = false ]; do
-        passwordChange=$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password: " 15 80 3>&1 1>&2 2>&3)
+        passwordChange="$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password: " 15 80 3>&1 1>&2 2>&3)"
         if [[ "$?" == 1 ]]; then return 0; fi
         if [ ! ${#passwordChange} -ge 10 ]; then
-          $(whiptail --title "Authentication Setup" --msgbox "Password must at least be 10 characters long... Please try again!" 15 80 3>&1 1>&2 2>&3)
-        else   
-          secondpasswordChange=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the new password:" 15 80 3>&1 1>&2 2>&3)
+          whiptail --title "Authentication Setup" --msgbox "Password must at least be 10 characters long... Please try again!" 15 80 3>&1 1>&2 2>&3
+        else
+          secondpasswordChange="$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the new password:" 15 80 3>&1 1>&2 2>&3)"
           if [[ "$?" == 1 ]]; then return 0; fi
           if [ "$passwordChange" = "$secondpasswordChange" ] && [ ! -z "$passwordChange" ]; then
             matched=true
           else
-            $(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
+            whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3
           fi
-        fi  
+        fi
       done
     else
       return 0

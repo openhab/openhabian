@@ -16,28 +16,29 @@ echo_process() { echo -e "\\e[1;94m$(timestamp) [openHABian] $*\\e[0m"; }
 
 ## Function for identify and returning current active git repository and branch
 ##
-## Return answer in global variable $clone_string 
+## Return answer in global variable $clone_string
 ##
 get_git_repo() {
-    local repo_url=`git remote get-url origin`
-    local repo_branch=`git branch | grep \* | cut -d ' ' -f2`
-    if [[ ! $repo_url = *"https"* ]]; then
-        # Convert URL from SSH to HTTPS
-        local user_name=$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\1#p')
-        if [[ -z "$user_name" ]]; then
-        echo_process "Could not identify git user while converting to SSH URL. Exiting."
-        exit 1
-        fi
-        local repo_name=$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\2#p')
-        if [[ -z "$repo_name" ]]; then
-        echo_process "Could not identify git repo while converting to SSH URL. Exiting."
-        exit 1
-        fi
-        repo_url="https://github.com/"$user_name"/"$repo_name".git"
+  local repo_url repo_branch user_name repo_name
+  repo_url=$(git remote get-url origin)
+  repo_branch=$(git branch | grep "\*" | cut -d ' ' -f2)
+  if [[ ! $repo_url = *"https"* ]]; then
+    # Convert URL from SSH to HTTPS
+    user_name=$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\1#p')
+    if [[ -z "$user_name" ]]; then
+      echo_process "Could not identify git user while converting to SSH URL. Exiting."
+      exit 1
     fi
-    clone_string=$repo_branch
-    clone_string+=" "
-    clone_string+=$repo_url
+    repo_name=$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\2#p')
+    if [[ -z "$repo_name" ]]; then
+      echo_process "Could not identify git repo while converting to SSH URL. Exiting."
+      exit 1
+    fi
+    repo_url="https://github.com/${user_name}/${repo_name}.git"
+  fi
+  clone_string=$repo_branch
+  clone_string+=" "
+  clone_string+=$repo_url
 }
 
 ## Function for injecting custom development branch when building images.
@@ -49,15 +50,15 @@ get_git_repo() {
 ##    inject_build_repo(String path)
 ##
 inject_build_repo() {
-    if [ -z ${clone_string+x} ]; then
-        echo_process "inject_build_repo() invoked without clone_string varible set, exiting...."
-        exit 1
-    fi
-    sed -i '$a /usr/bin/apt -y install figlet &>/dev/null' $1
-    sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' $1
-    sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' $1
-    sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' $1
-    sed -i "s@master https://github.com/openhab/openhabian.git@$clone_string@g" $1
+  if [ -z ${clone_string+x} ]; then
+    echo_process "inject_build_repo() invoked without clone_string varible set, exiting...."
+    exit 1
+  fi
+  sed -i '$a /usr/bin/apt -y install figlet &>/dev/null' $1
+  sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' $1
+  sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' $1
+  sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' $1
+  sed -i "s@master https://github.com/openhab/openhabian.git@$clone_string@g" $1
 }
 
 ############################
@@ -126,7 +127,7 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   apt-get -y install git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl dos2unix
   echo_process "Cloning \"longsleep/build-pine64-image\" project... "
   git clone -b master https://github.com/longsleep/build-pine64-image.git $buildfolder
-  
+
   echo_process "Downloading aditional files needed by \"longsleep/build-pine64-image\" project... "
   wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/simpleimage-pine64-latest.img.xz
   wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/linux/linux-pine64-latest.tar.xz
@@ -166,7 +167,7 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 # Build Raspberry Pi image
-elif [ "$hw_platform" == "pi-raspbian" ]; then 
+elif [ "$hw_platform" == "pi-raspbian" ]; then
   apt-get -y install git wget curl unzip kpartx libarchive-zip-perl dos2unix
   echo_process "Downloading latest Raspbian Lite image... "
   if [ -f "raspbian.zip" ]; then
