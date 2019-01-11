@@ -120,7 +120,8 @@ amanda_setup() {
   
   /usr/sbin/exim --version 2>/dev/null >/dev/null
   if [ $? -ne 0 ]; then
-     if ! (whiptail --title "No exim mail transfer agent" --yes-button "Continue" --no-button "Back" --defaultno --yesno "Seems exim is not installed as a mail transfer agent.\nAmanda needs to be able to send emails. You should stop installing Amanda here and install exim from the openHABian menu (option 2C) first, then return here.\nOnly continue if you know there's a working mail transfer agent other than exim on your system.\nDo you want to continue with Amanda installation ?" 15 80) then echo "CANCELED"; return 0; fi
+     if ! (whiptail --title "No exim mail transfer agent" --yes-button "Install EXIM4" --no-button "MTA already exist, ignore installation" --defaultyes --yesno "Seems exim is not installed as a mail transfer agent.\nAmanda needs one to be able to send emails.\nOnly choose to ignore if you know there's a working mail transfer agent other than exim on your system.\nDo you want to continue with EXIM4 installation ?" 15 80) then echo "CANCELED"; return 0; fi
+     exim_setup
   fi
   if [ -n "$INTERACTIVE" ]; then
      local adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the email address to send backup reports to." 10 60 3>&1 1>&2 2>&3)
