@@ -14,7 +14,7 @@ create_backup_config() {
   local S3secretkey=$10
 
   TMP="/tmp/.amanda-setup.$$"
-
+  
   local introtext="We need to prepare (to \"label\") your removable storage media."
 
   /bin/grep -v ${config} /etc/cron.d/amanda > $TMP; mv $TMP /etc/cron.d/amanda

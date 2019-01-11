@@ -32,7 +32,7 @@ needed_packages() {
   # Install python/python-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   #cond_redirect apt update
-  cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon python python-pip
+  cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon python python-pip avahi-autoipd
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
   if is_pithree || is_pithreeplus || is_pizerow; then
@@ -134,7 +134,7 @@ vimrc_copy() {
 srv_bind_mounts() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
   sed -i "\#[ \t]/srv/openhab2-#d" /etc/fstab
-  sed -i "\#^$#d" /etc/fstab
+  sed -i "/^$/d" /etc/fstab
   (
     echo ""
     echo "/usr/share/openhab2          /srv/openhab2-sys           none bind 0 0"

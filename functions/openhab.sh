@@ -2,32 +2,47 @@
 
 openhab2_setup() {
   introtext_stable="You are about to install or upgrade to the latest stable openHAB release.\\n
-Please be aware, that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
+Please be aware that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
   successtext_stable="The stable release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.
 Check the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
-  # TODO: Add back in when links are known
-  # ➡ http://www.kaikreuzer.de/2017/06/28/openhab21
-  # ➡ https://github.com/openhab/openhab-distro/releases/tag/2.1.0"
-
+  introtext_testing="You are about to install or upgrade to the latest milestone (testing) openHAB build. It contains the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help enhancing openHAB by posting them on the community forum or by raising a Github issue.\\n
+  Please be aware that downgrading from a newer build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
+successtext_testing="The testing release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.
+Check the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
   introtext_unstable="Proceed with caution!\\nYou are about to switch over to the latest openHAB 2 unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
-  successtext_unstable="The latest unstable snapshot build of openHAB 2 is now running on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.\\nIf you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (the openhab2 package) regularly."
+  successtext_unstable="The latest unstable snapshot build of openHAB 2 is now running on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.\\nIf you find any problem or bug, please report it and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (the openhab2 and openhab2-addons packages) regularly."
 
   if [ "$1" == "unstable" ]; then
     UNSTABLE=1
   fi
 
+  if [ "$1" == "testing" ]; then
+    TESTING=1
+  fi
+
+  cond_redirect apt -y install apt-transport-https
+
   if [ ! -n "$UNSTABLE" ]; then
-    echo -n "$(timestamp) [openHABian] Installing or upgrading to latest openHAB release (stable)... "
-    introtext=$introtext_stable
-    successtext=$successtext_stable
+    if [ ! -n "$TESTING" ]; then
+      echo -n "$(timestamp) [openHABian] Installing or upgrading to latest openHAB release (stable)... "
+      introtext=$introtext_stable
+      successtext=$successtext_stable
+      REPO="deb https://dl.bintray.com/openhab/apt-repo2 stable main"
+    else
+      echo -n "$(timestamp) [openHABian] Installing or upgrading to latest openHAB milestone release (testing)... "
+      introtext=$introtext_testing
+      successtext=$successtext_testing
+      REPO="deb https://dl.bintray.com/openhab/apt-repo2 testing main"
+    fi
   else
     echo -n "$(timestamp) [openHABian] Installing or switching to latest openHAB snapshot (unstable)... "
     introtext=$introtext_unstable
     successtext=$successtext_unstable
+    REPO="deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main"
   fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "openHAB software change, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
   cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
@@ -35,13 +50,10 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
   rm -f openhab-key.asc
 
-  if [ ! -n "$UNSTABLE" ]; then
-    echo "deb https://dl.bintray.com/openhab/apt-repo2 stable main" > /etc/apt/sources.list.d/openhab2.list
-  else
-    echo "deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main" > /etc/apt/sources.list.d/openhab2.list
-  fi
+  echo "$REPO" > /etc/apt/sources.list.d/openhab2.list
   cond_redirect apt update
-  cond_redirect apt -y install openhab2
+  local openhabVersion="$(apt-cache madison openhab2 | head -n 1 | cut -d'|' -f2 | xargs)"
+  cond_redirect apt-get -y install "openhab2=${openhabVersion}"
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab dialout
   cond_redirect adduser openhab tty
@@ -55,6 +67,11 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     cond_redirect systemctl stop openhab2.service || true
   else
     cond_redirect systemctl restart openhab2.service || true
+  fi
+
+  if [[ is_pi || is_pine64 ]]; then
+    cond_echo "Optimizing Java to run on low memory single board computers... "
+    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms250m -Xmx350m"#g' /etc/default/openhab2
   fi
 
   if [ -n "$INTERACTIVE" ]; then
@@ -111,10 +128,10 @@ nano_openhab_syntax() {
 }
 
 multitail_openhab_scheme() {
-  echo -n "$(timestamp) [openHABian] Adding openHAB scheme to mulitail... "
-  cond_redirect wget -O /etc/multitail.openhab.conf https://raw.githubusercontent.com/CWempe/multitail-scheme-openhab/master/multitail-scheme-openhab.conf
+  echo -n "$(timestamp) [openHABian] Adding openHAB scheme to multitail... "
+  cp $BASEDIR/includes/multitail.openhab.conf /etc/multitail.openhab.conf
   sed -i "/^.*multitail.*openhab.*$/d" /etc/multitail.conf
-  sed -i "s|# misc|# openHAB file from https://github.com/CWempe/multitail-scheme-openhab\\ninclude:/etc/multitail.openhab.conf\\n#\\n# misc|g" /etc/multitail.conf
+  sed -i "s|# misc|include:/etc/multitail.openhab.conf\\n#\\n# misc|g" /etc/multitail.conf
   echo "OK"
 }
 
@@ -124,8 +141,14 @@ openhab_is_installed() {
 }
 
 openhab_is_running() {
-  #TODO
-  exit 1
+  if [ `systemctl is-active openhab2` != "active" ]; then return 1; fi
+  if [ -r /etc/default/openhab2 ]; then
+  . /etc/default/openhab2
+  fi
+  # Read and set openHAB variables set in /etc/default/ scripts
+  if [ -z "${OPENHAB_HTTP_PORT}" ];  then OPENHAB_HTTP_PORT=8080; fi
+  if [ -z "${OPENHAB_HTTPS_PORT}" ]; then OPENHAB_HTTPS_PORT=8443; fi
+  return 0;
 }
 
 # The function has one non-optinal parameter for the application to create a tile for
