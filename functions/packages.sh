@@ -55,6 +55,9 @@ ion into small files: Yes\n"
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Mail Transfer Agent installation" --yes-button "Start" --no-button "don't change MTA" --yesno "$introtext1" 12 78) then echo "CANCELED"; return 0; fi
     if ! (whiptail --title "Mail Transfer Agent installation" --msgbox "$introtext2" 18 78) then echo "CANCELED"; return 0; fi
+  else
+    echo "Ignoring MTA config creation in unattended install mode."
+    return 0
   fi
 
   dpkg-reconfigure exim4-config
