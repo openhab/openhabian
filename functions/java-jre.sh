@@ -35,8 +35,8 @@ java_zulu() {
     # Latest version check https://www.azul.com/downloads/zulu-linux
     JAVA=zulu8.33.0.1-jdk8.0.192-linux_x64
   fi
-  whiptail --textbox $BASEDIR/includes/azul-zulu-license.md --scrolltext 27 116
-
+  whiptail --textbox $BASEDIR/includes/azul_zulu_license.md --scrolltext 27 116
+  
   cond_redirect wget -nv -O $FILE http://cdn.azul.com/zulu-embedded/bin/${JAVA}.tar.gz
   cond_redirect tar -xpzf $FILE -C ${TEMPROOT}
   if [ $? -ne 0 ]; then echo "FAILED (Zulu java)"; rm -f ${FILE}; exit 1; fi
