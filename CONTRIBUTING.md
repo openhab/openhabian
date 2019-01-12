@@ -11,30 +11,15 @@ If there's a problem with the implementation, you will receive feedback on what 
 We might decide against incorporating a new feature that does not match the scope of this project.
 Get in contact early in the development to propose your idea.
 
-### Discuss your Idea in the Community Forum
-
-We recommend discussing your plans [in the openHAB community forum](https://community.openhab.org) before starting to code - especially for more ambitious contributions.
-This gives other contributors a chance to point you in the right direction, give feedback on your design, and maybe point out if someone else is working on the same thing.
-
-### Create Issues...
-
-Any significant improvement should be documented as [a GitHub issue](https://github.com/openhab/openhabian/labels/enhancement) before anybody starts working on it.
-
-### ...but Check for Existing Issues First!
-
-Please take a moment to check that an issue doesn't already exist documenting your bug report or improvement proposal.
-If it does, it never hurts to add a quick "+1" or "I have this problem too".
-This will help prioritize the most common problems and requests.
-
-### Making Changes
+### Workflow Making Changes
 
 Fork the repository and make changes on your fork in a feature branch.
 
 Update the documentation when creating or modifying features.
 Test your documentation changes for clarity, concision, and correctness, as well as a clean documentation build.
 
-Write clean code.
-Universally formatted code promotes ease of writing, reading, and maintenance.
+Write clean, modular and testable code.
+We have a codestyle which in combination the static linter Shellcheck works as guidelines.
 
 Pull requests descriptions should be as clear as possible and include a reference to all the issues that they address.
 
@@ -46,6 +31,9 @@ Code review comments may be added to your pull request.
 Discuss, then make the suggested modifications and push additional commits to your feature branch.
 Be sure to post a comment after pushing.
 The new commits will show up in the pull request automatically, but the reviewers will not be notified unless you comment.
+
+Pull request will be tested on CI platform which shall pass. 
+Please provide test-cases for new features. See testing below. 
 
 Before the pull request is merged, your commits might get squashed, based on the size and style of your contribution.
 Include documentation changes in the same pull request, so that a revert would remove all traces of the feature or fix.
@@ -125,6 +113,10 @@ You can additionally sign your contribution using GPG.
 Have a look at the [git documentation](https://git-scm.com/book/tr/v2/Git-Tools-Signing-Your-Work) for more details.
 This step is optional and not needed for the acceptance of your pull request.
 
+#### Codestyle
+
+Universally formatted code promotes ease of writing, reading, and maintenance.
+
 ## Community Guidelines
 
 We want to keep the openHAB community awesome, growing and collaborative.
@@ -149,3 +141,62 @@ Make sure that you are posting to the correct channel and avoid off-topic discus
 Remember when you update an issue or respond to an email you are potentially sending to a large number of people.
 Please consider this before you update.
 Also remember that nobody likes spam.
+
+
+## Code Guidelines
+
+* Use two (2) spaces when indent code.
+
+* `local` declerations of variables shall be used when possible.
+  
+## Test Architecture
+
+Testing is based on three pilars: A) *Installation of base system*, B) *Test Cases*, and C) *Static analys using linter*.
+
+### Test installation
+Test installation are done continuously using a Docker on a Travis Virtual Machine and by testing on actual hardware, eg. Raspberry Pi. A docker installation can be performed by three commands. Firstly a docker image is built where the `openhabian` code is injected (see `dockerfile` for details): 
+
+```
+docker build --tag openhabian/openhabian-bats .
+```
+The openhabian scripts is using `systemd` for service management, to use `systemd` with docker it must the container must be started first to ensure `systemd` gets pid 1. This is done by executing:
+
+```
+docker run --name "install-test" --privileged -d openhabian/openhabian-bats
+```
+Lastly the installation is invoked by executing:
+```
+docker exec -it install-test bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profil && /etc/rc.local"
+```
+Notice that the "docker system" mimic a hardware SD-card installation with the command `./build.bash local-test`. 
+
+### Test Cases
+The test cases are further divided into three categories and can be individual invoked by the BATS framwork. The tests categary can be identified in the naming of the test. The test code are held in a corresponding file to the code itself, i.e. Code: `helpers.bash` and tests `helpers.bats`. The categories are as follows:
+
+#### Unit Tests `unit-<name>`
+These test does not alter the host system where the test is executed and is isolated to a specific function. This test does not required a installed base system of openHABian.
+```
+docker run -it openhabian/openhabian-bats bash -c 'bats -r -f "unit-." .' 
+```
+
+#### Installation Verification `installation-<name>`
+This is a suite of tests designed to verify a normal installation.
+These tests shall not alter the system. 
+```
+docker exec -it install-test bash -c 'bats -r -f "installation-." .'
+```
+
+
+#### Destructive Verification Tests `destruct-<name>`
+These test installs new functionality and are therefore destruct for the current system. Typical usecase are testing of optional packages or a specific configuration of a baseline package.
+```
+docker exec -it install-test bash -c 'bats -r -f "destructive-." .'
+```
+
+### Linter
+
+```
+shellcheck -s bash openhabian-setup.bash
+shellcheck -s bash functions/*.bash
+shellcheck -s bash build-image/*.bash
+```

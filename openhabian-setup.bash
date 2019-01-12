@@ -51,7 +51,7 @@ fi
 
 # Include all subscripts
 # shellcheck source=/dev/null
-for shfile in $BASEDIR/functions/*.sh; do source "$shfile"; done
+for shfile in $BASEDIR/functions/*.bash; do source "$shfile"; done
 
 if [[ -n "$UNATTENDED" ]]; then
   load_create_config

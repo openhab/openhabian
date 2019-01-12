@@ -96,30 +96,30 @@ is_aarch64() {
   esac
 }
 is_ubuntu() {
-  [[ $(lsb_release -sd) =~ "Ubuntu" ]]
+  [[ $(cat /etc/*release*) =~ "Ubuntu" ]]
   return $?
 }
 is_debian() {
-  [[ $(lsb_release -sd) =~ "Debian" ]]
+  [[ $(cat /etc/*release*) =~ "Debian" ]]
   return $?
 }
 is_raspbian() {
-  [[ "$(lsb_release -si)" =~ "Raspbian" ]]
+  [[ "$(cat /etc/*release*)" =~ "Raspbian" ]]
   return $?
 }
 is_jessie() {
-  [[ $(lsb_release -sc) =~ "jessie" ]]
+  [[ $(cat /etc/*release*) =~ "jessie" ]]
   return $?
 }
 is_stretch() {
-  [[ $(lsb_release -sc) =~ "stretch" ]]
+  [[ $(cat /etc/*release*) =~ "stretch" ]]
   return $?
 }
 is_trusty() {
-  [[ $(lsb_release -sc) =~ "trusty" ]]
+  [[ $(cat /etc/*release*) =~ "trusty" ]]
   return $?
 }
 is_xenial() {
-  [[ $(lsb_release -sc) =~ "xenial" ]]
+  [[ $(cat /etc/*release*) =~ "xenial" ]]
   return $?
 }

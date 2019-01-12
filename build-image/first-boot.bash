@@ -24,13 +24,17 @@ source /etc/openhabian.conf
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Starting webserver with installation log... "
-sh /boot/webif.sh start
-sleep 5
-webifisrunning=$(ps -ef | pgrep python3)
-if [ -z $webifisrunning ]; then
-  echo "FAILED"
+if hash python 2>/dev/null; then
+  bash /boot/webif.bash start
+  sleep 5
+  webifisrunning=$(ps -ef | pgrep python3)
+  if [ -z $webifisrunning ]; then
+    echo "FAILED"
+  else
+    echo "OK"
+  fi
 else
-  echo "OK"
+  echo "Python not found, SKIPPED"    
 fi
 
 userdef="openhabian"
@@ -49,8 +53,8 @@ else
   echo "OK"
 fi
 
-# While setup: show log to logged in user, will be overwritten by openhabian-setup.sh
-echo "watch cat /boot/first-boot.log" > "/home/$username/.bash_profile"
+# While setup: show log to logged in user, will be overwritten by openhabian-setup.bash
+echo "watch cat /boot/first-boot.log" > "$HOME/.bash_profile"
 
 if [ -z "${wifi_ssid}" ]; then
   echo "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
@@ -129,39 +133,32 @@ echo "OK"
 echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
 apt update &>/dev/null
 apt --yes upgrade &>/dev/null
-if [ $? -eq 0 ]; then
-  echo "OK";
-else
-  dpkg --configure -a
-  apt update &>/dev/null
-  apt --yes upgrade &>/dev/null
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
-fi
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-sh /boot/webif.sh reinsure_running
+if hash python 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
+
 echo -n "$(timestamp) [openHABian] Installing git package... "
 apt update &>/dev/null
 /usr/bin/apt -y install git &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [openHABian] Cloning myself... "
-# check if we have remnants of a previous installation attempt.
-# If yes, remove them so we have a clean clone. See issue #513
-[ -d /opt/openhabian/ ] && rm -rf /opt/openhabian/
-/usr/bin/git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
-if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
-ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
+[ -d /opt/openhabian/ ] && rm -rf /opt/openhabian/ # check if we have remnants of a previous installation attempt.
+git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
 
-echo "$(timestamp) [openHABian] Executing 'openhabian-setup.sh unattended'... "
-if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended); then
-#if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended_debug); then
+if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+ln -sfn /opt/openhabian/openhabian-setup.bash /usr/local/bin/openhabian-config
+
+echo "$(timestamp) [openHABian] Executing 'openhabian-setup.bash unattended'... "
+if (/bin/bash /opt/openhabian/openhabian-setup.bash unattended); then
+#if (/bin/bash /opt/openhabian/openhabian-setup.bash unattended_debug); then
   systemctl start openhab2.service
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
   fail_inprogress
 fi
-echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed."
+echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.bash unattended' completed."
 
 echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready... "
 until wget -S --spider http://localhost:8080 2>&1 | grep -q 'HTTP/1.1 200 OK'; do
@@ -173,8 +170,8 @@ echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://$hostnam
 echo "$(timestamp) [openHABian] To gain access to a console, simply reconnect."
 echo "$(timestamp) [openHABian] First time setup successfully finished."
 sleep 12
-sh /boot/webif.sh inst_done
+if hash python 2>/dev/null; then bash /boot/webif.bash inst_done; fi
 sleep 12
-sh /boot/webif.sh cleanup
+if hash python 2>/dev/null; then bash /boot/webif.bash cleanup; fi
 
 # vim: filetype=sh

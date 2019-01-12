@@ -48,7 +48,11 @@ if [ $1 = "inst_done" ]; then
 fi
 
 if [ $1 = "cleanup" ]; then
-  kill $(ps -ef | pgrep python3) > /dev/null && rm -R /tmp/webif > /dev/null
-  rm /boot/webif.sh > /dev/null
+  webifrunning=$(ps -ef | pgrep python3)
+  if [ -z $webifrunning ]; then
+    kill $webifrunning > /dev/null 
+  fi
+  rm -R /tmp/webif > /dev/null
+  rm /boot/webif.bash > /dev/null
 fi
 
