@@ -79,6 +79,7 @@ locale_setting() {
   if is_ubuntu; then
     cond_redirect locale-gen $locales
   else
+    touch /etc/locale.gen
     for loc in $locales; do sed -i "/$loc/s/^# //g" /etc/locale.gen; done
     cond_redirect locale-gen
   fi

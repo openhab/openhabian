@@ -44,7 +44,7 @@ get_git_repo() {
 ## Function for injecting custom development branch when building images.
 ## This function will also watermark the image as a test build.
 ##
-## The first parameter shall be the temporary first-boot.sh file used when building the image.
+## The first parameter shall be the temporary first-boot.bash file used when building the image.
 ## The global varible $clone_string must be set prior running this function.
 ##
 ##    inject_build_repo(String path)
@@ -77,6 +77,19 @@ elif [ "$1" == "pine64" ]; then
   hw_platform="pine64-xenial"
   echo_process "Hardware platform: Pine A64 (pine64)"
 
+elif [ "$1" == "local-test" ]; then
+  echo_process "Preparing local system for installation"
+  cp ./build-image/first-boot.bash /boot/first-boot.bash
+  cp ./build-image/webif.bash /boot/webif.bash
+  cp ./build-image/openhabian.conf /boot/openhabian.conf
+  cp ./build-image/rc.local /etc/rc.local
+  sed -i -e '1r functions/helpers.bash' /boot/first-boot.bash # Add platform identification
+  sed -i 's|git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null||' /boot/first-boot.bash
+  chmod +x /boot/first-boot.bash
+  chmod +x /boot/webif.bash
+  chmod +x /etc/rc.local
+  echo_process "Local system ready for installation test. Run script /etc/rc.local or reboot to initiate"
+  exit 0
 else
   echo_process "Please provide a valid hardware platform as first argument, \"rpi\" or \"pine64\"  Exiting."
   exit 0
@@ -122,6 +135,7 @@ mkdir $buildfolder
 echo_process "Downloading prerequisites... "
 apt update
 
+
 # Build PINE64 image
 if [ "$hw_platform" == "pine64-xenial" ]; then
   apt-get -y install git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl dos2unix
@@ -132,21 +146,21 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/simpleimage-pine64-latest.img.xz
   wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/linux/linux-pine64-latest.tar.xz
 
-  echo_process "Copying over 'rc.local' and 'first-boot.sh' for image integration... "
+  echo_process "Copying over 'rc.local' and 'first-boot.bash' for image integration... "
   cp $sourcefolder/rc.local $buildfolder/simpleimage/openhabianpine64.rc.local
-  cp $sourcefolder/first-boot.sh $buildfolder/simpleimage/openhabianpine64.first-boot.sh
-  sed -i -e '1r functions/helpers.sh' $buildfolder/simpleimage/openhabianpine64.first-boot.sh # Add platform identification
+  cp $sourcefolder/first-boot.bash $buildfolder/simpleimage/openhabianpine64.first-boot.bash
+  sed -i -e '1r functions/helpers.bash' $buildfolder/simpleimage/openhabianpine64.first-boot.bash # Add platform identification
   cp $sourcefolder/openhabian.$hw_platform.conf $buildfolder/simpleimage/openhabian.conf
   unix2dos $buildfolder/simpleimage/openhabian.conf
-  cp $sourcefolder/webif.sh $buildfolder/simpleimage/webif.sh
+  cp $sourcefolder/webif.bash $buildfolder/simpleimage/webif.bash
 
   # Injecting development git repo if clone_string is set and watermark build
   if ! [ -z ${clone_string+x} ]; then
-    inject_build_repo $buildfolder/simpleimage/openhabianpine64.first-boot.sh
+    inject_build_repo $buildfolder/simpleimage/openhabianpine64.first-boot.bash
   fi
 
   echo_process "Hacking \"build-pine64-image\" build and make script... "
-  sed -i "s/date +%Y%m%d_%H%M%S_%Z/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh
+  sed -i "s/date +%Y%m%d_%H%M%S_%Z/date +%Y%m%d%H/" $buildfolder/build-pine64-image.bash
   makescript=$buildfolder/simpleimage/make_rootfs.sh
   sed -i "s/^pine64$/openHABianPine64/" $makescript
   sed -i "s/127.0.1.1 pine64/127.0.1.1 openHABianPine64/" $makescript
@@ -155,13 +169,13 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   echo -e "\n# Add openHABian modifications" >> $makescript
   echo "touch \$DEST/opt/openHABian-install-inprogress" >> $makescript
   echo "cp ./openhabianpine64.rc.local \$DEST/etc/rc.local" >> $makescript
-  echo "cp ./openhabianpine64.first-boot.sh \$BOOT/first-boot.sh" >> $makescript
+  echo "cp ./openhabianpine64.first-boot.bash \$BOOT/first-boot.bash" >> $makescript
   echo "touch \$BOOT/first-boot.log" >> $makescript
   echo "cp ./openhabian.conf \$BOOT/openhabian.conf" >> $makescript
-  echo "cp ./webif.sh \$BOOT/webif.sh" >> $makescript
+  echo "cp ./webif.bash \$BOOT/webif.bash" >> $makescript
   echo "echo \"openHABian preparations finished, /etc/rc.local in place\"" >> $makescript
   echo_process "Executing \"build-pine64-image\" build script... "
-  (cd $buildfolder; /bin/bash build-pine64-image.sh simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial)
+  (cd $buildfolder; /bin/bash build-pine64-image.bash simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial)
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   mv $buildfolder/xenial-pine64-*.img $imagefile
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -193,19 +207,19 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   echo "$hostname" > $buildfolder/root/etc/hostname
   touch $buildfolder/boot/ssh
 
-  echo_process "Injecting 'rc.local', 'first-boot.sh' and 'openhabian.conf'... "
+  echo_process "Injecting 'rc.local', 'first-boot.bash' and 'openhabian.conf'... "
   cp $sourcefolder/rc.local $buildfolder/root/etc/rc.local
-  cp $sourcefolder/first-boot.sh $buildfolder/boot/first-boot.sh
-  sed -i -e '1r functions/helpers.sh' $buildfolder/boot/first-boot.sh # Add platform identification
+  cp $sourcefolder/first-boot.bash $buildfolder/boot/first-boot.bash
+  sed -i -e '1r functions/helpers.bash' $buildfolder/boot/first-boot.bash # Add platform identification
   touch $buildfolder/boot/first-boot.log
   cp $sourcefolder/openhabian.$hw_platform.conf $buildfolder/boot/openhabian.conf
   unix2dos $buildfolder/boot/openhabian.conf
-  cp $sourcefolder/webif.sh $buildfolder/boot/webif.sh
+  cp $sourcefolder/webif.bash $buildfolder/boot/webif.bash
   touch $buildfolder/root/opt/openHABian-install-inprogress
 
   # Injecting development git repo if clone_string is set and watermark build
   if ! [ -z ${clone_string+x} ]; then
-    inject_build_repo $buildfolder/boot/first-boot.sh
+    inject_build_repo $buildfolder/boot/first-boot.bash
   fi
 
   echo_process "Closing up image file... "
