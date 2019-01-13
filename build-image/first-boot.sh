@@ -145,6 +145,9 @@ apt update &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [openHABian] Cloning myself... "
+# check if we have remnants of a previous installation attempt.
+# If yes, remove them so we have a clean clone. See issue #513
+[ -d /opt/openhabian/ ] && rm -rf /opt/openhabian/
 /usr/bin/git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
