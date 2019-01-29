@@ -182,10 +182,11 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
 
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
-  kpartx -asv $imagefile
-  #dosfslabel /dev/mapper/loop0p1 "OPENHABIAN"
-  mount -o rw -t vfat /dev/mapper/loop0p1 $buildfolder/boot
-  mount -o rw -t ext4 /dev/mapper/loop0p2 $buildfolder/root
+  loop_prefix=`kpartx -asv $imagefile | grep -oE "loop([0-9]+)" | head -n 1`
+  # dosfslabel /dev/mapper/loop0p1 "OPENHABIAN"
+
+  mount -o rw -t vfat "/dev/mapper/$(echo $loop_prefix)p1" $buildfolder/boot
+  mount -o rw -t ext4 "/dev/mapper/$(echo $loop_prefix)p2" $buildfolder/root
 
   echo_process "Setting hostname, reactivating SSH... "
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" $buildfolder/root/etc/hosts
