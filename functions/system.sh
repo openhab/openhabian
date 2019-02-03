@@ -165,15 +165,15 @@ permissions_corrections() {
     cond_redirect sed -i -e '$i \chmod -R ug+rw /sys/class/gpio \n' /etc/rc.local
   fi
 
-  cond_redirect adduser openhab dialout
-  cond_redirect adduser openhab tty
-  cond_redirect adduser openhab gpio
-  cond_redirect adduser openhab audio
-  cond_redirect adduser $username openhab
-  cond_redirect adduser $username dialout
-  cond_redirect adduser $username tty
-  cond_redirect adduser $username gpio
-  cond_redirect adduser $username audio
+  for pGroup in audio bluetooth dialout gpio tty
+  do
+    if getent group "$pGroup" > /dev/null 2>&1 ; then
+      cond_redirect adduser openhab "$pGroup"
+      cond_redirect adduser "$username" "$pGroup"
+    fi
+  done
+  cond_redirect adduser "$username" openhab
+
   #
   openhab_folders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2/addons)
   cond_redirect chown openhab:$username /srv /srv/README.txt
