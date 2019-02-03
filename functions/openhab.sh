@@ -56,11 +56,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   openhabVersion="$(apt-cache madison openhab2 | head -n 1 | cut -d'|' -f2 | xargs)"
   cond_redirect apt-get -y install "openhab2=${openhabVersion}"
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
-  cond_redirect adduser openhab dialout
-  cond_redirect adduser openhab tty
   cond_redirect adduser openhab gpio
-  cond_redirect adduser openhab audio
-  cond_redirect adduser openhab bluetooth
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
