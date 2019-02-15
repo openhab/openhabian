@@ -1,25 +1,21 @@
 #!/usr/bin/env bash
 
 create_backup_config() {
-  config=$1
-  confdir=/etc/amanda/${config}
-  backupuser=$2
-  tapes=$3
-  size=$4
-  storage=$5
-  S3site=$6
-  S3bucket=$7
-  S3accesskey=$8
-  S3secretkey=$9
+  local config=$1
+  local confdir=/etc/amanda/${config}
+  local backupuser=$2
+  local adminmail=$3
+  local tapes=$4
+  local size=$5
+  local storage=$6
+  local S3site=$7
+  local S3bucket=$8
+  local S3accesskey=$9
+  local S3secretkey=$10
 
   TMP="/tmp/.amanda-setup.$$"
-
-  introtext="We need to prepare (to \"label\") your removable storage media."
-
-# no mailer configured for now
-#  if [ -n "$INTERACTIVE" ]; then
-#     adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the EMail address to send backup reports to. Note: Mail relaying is not enabled in openHABian yet." 10 60 3>&1 1>&2 2>&3)
-#  fi
+  
+  local introtext="We need to prepare (to \"label\") your removable storage media."
 
   /bin/grep -v ${config} /etc/cron.d/amanda > $TMP; mv $TMP /etc/cron.d/amanda
 
@@ -32,7 +28,7 @@ create_backup_config() {
 
   mkdir -p ${confdir}
   touch ${confdir}/tapelist
-  hostname="$(/bin/hostname)"
+  local hostname=$(/bin/hostname)
   echo "${hostname} ${backupuser}" > /var/backups/.amandahosts
   echo "${hostname} root amindexd amidxtaped" >> /var/backups/.amandahosts
   echo "localhost ${backupuser}" >> /var/backups/.amandahosts
@@ -127,31 +123,44 @@ create_backup_config() {
 
 amanda_setup() {
 
-  querytext="So you are about to install the Amanda backup solution.\nDocumentation is available at the previous openHABian menu point or at https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md\nHave you read this document ?"
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Setup was successful. Amanda backup tool is now taking backups at 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
+  local querytext="So you are about to install the Amanda backup solution.\nDocumentation is available at the previous openHABian menu point,\nat /opt/openhabian/docs/openhabian-amanda.md or at https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md\nHave you read this document ?"
+  local introtext="This will setup a backup mechanism to allow for saving your openHAB setup and modifications to either USB attached or Amazon cloud storage.\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an all-ready replacement in case of card failures."
+  local failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  local successtext="Setup was successful. Amanda backup tool is now taking backups at 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
 
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Amanda backup installation" --yes-button "Yes" --no-button "No, I'll go read it" --defaultno --yesno "$querytext" 10 80) then return 0; fi
   fi
 
+  /usr/sbin/exim --version 2>/dev/null >/dev/null
+  if [ $? -ne 0 ]; then
+     if [ -n "$INTERACTIVE" ]; then
+        if (whiptail --title "No exim mail transfer agent" --yes-button "Install EXIM4" --no-button "MTA already exist, ignore installation" --defaultyes --yesno "Seems exim is not installed as a mail transfer agent.\nAmanda needs one to be able to send emails.\nOnly choose to ignore if you know there's a working mail transfer agent other than exim on your system.\nDo you want to continue with EXIM4 installation ?" 15 80) then
+           exim_setup
+        fi
+        local adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the email address to send backup reports to." 10 60 3>&1 1>&2 2>&3)
+     else
+        local adminmail="root@$(/bin/hostname)"
+     fi
+  fi
+
   echo -n "$(timestamp) [openHABian] Setting up the Amanda backup system ... "
-  backupuser="backup"
+  local backupuser="backup"
 
   cond_redirect apt -y install amanda-common amanda-server amanda-client || FAILED=1
 
-  matched=false
-  canceled=false
+  local matched=false
+  local canceled=false
   if [ -n "$INTERACTIVE" ]; then
-    while [ "$matched" = false ] && [ "$canceled" = false ]; do
-      password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for user ${backupuser}.\nRemember to select a safe password as you (and others) can use this to login to your openHABian box." 15 80 3>&1 1>&2 2>&3)
-      secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password" 15 80 3>&1 1>&2 2>&3)
-      if [ "$password" = "$secondpassword" ] && [ ! -z "$password" ]; then
-        matched=true
-      else
-        password=$(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
-      fi
-    done
+      while [ "$matched" = false ] && [ "$canceled" = false ]; do
+            local password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for user ${backupuser}.\nRemember to select a safe password as you (and others) can use this to login to your openHABian box." 15 80 3>&1 1>&2 2>&3)
+            local secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password" 15 80 3>&1 1>&2 2>&3)
+            if [ "$password" = "$secondpassword" ] && [ ! -z "$password" ]; then
+                matched=true
+            else
+                password=$(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
+            fi
+      done
   fi
 
   /usr/sbin/usermod -a -G backup openhabian
@@ -167,18 +176,20 @@ amanda_setup() {
 #        sddev=$(whiptail --title "Card writer device" --inputbox "What's the device name of your SD card writer?" 10 60 3>&1 1>&2 2>&3)
 #        tapes=$(whiptail --title "Number of SD cards in rotation" --inputbox "How many SD cards will you have available in rotation for backup purposes ?" 10 60 3>&1 1>&2 2>&3)
 #        size=$(whiptail --title "SD card capacity" --inputbox "What's your backup SD card capacity in megabytes? If you use different sizes, specify the smallest one. The remaining capacity will remain unused." 10 60 3>&1 1>&2 2>&3)
-#        create_backup_config ${config} ${backupuser} ${tapes} ${size} ${sddev}
+#        create_backup_config ${config} ${backupuser} ${adminmail} ${tapes} ${size} ${sddev}
 #    fi
 #  fi
 
   if [ -n "$INTERACTIVE" ]; then
     if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on locally attached or NAS mounted storage." 15 80) then
-      config=openhab-dir
-      dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
-      tapes=15
-      capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
-      size="$((capacity / tapes))"
-      create_backup_config ${config} ${backupuser} ${tapes} ${size} ${dir}
+        config=openhab-dir
+        dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
+        tapes=15
+        capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
+        let size=${capacity}/${tapes}
+
+        create_backup_config ${config} ${backupuser} ${adminmail} ${tapes} ${size} ${dir}
+
     fi
   fi
 
@@ -193,7 +204,7 @@ amanda_setup() {
       capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
       size="$((capacity / tapes))"
 
-      create_backup_config ${config} ${backupuser} ${tapes} ${size} AWS ${S3site} ${S3bucket} ${S3accesskey} ${S3secretkey}
+      create_backup_config ${config} ${backupuser} ${adminmail} ${tapes} ${size} AWS ${S3site} ${S3bucket} ${S3accesskey} ${S3secretkey}
     fi
   fi
 }

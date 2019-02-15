@@ -84,6 +84,7 @@ show_main_menu() {
     "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
     "2A | Tellstick core"        "Driver and daemon for Tellstick usb devices" \
     "2B | Speedtest CLI"         "A tool to measure your internet bandwidth" \
+    "2C | Mail Transfer Agent"   "Install Exim4 as MTA to relay mails via public services" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -98,6 +99,7 @@ show_main_menu() {
       29\ *) find_setup ;;
       2A\ *) tellstick_core_setup ;;
       2B\ *) speedtest_cli_setup ;;
+      2C\ *) exim_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
