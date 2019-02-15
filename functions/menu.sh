@@ -174,7 +174,7 @@ show_main_menu() {
     "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-    
+
     if [[ $choosenComponents == *"61"* ]]; then system_upgrade; fi
     if [[ $choosenComponents == *"62"* ]]; then basic_packages && needed_packages; fi
     if [[ $choosenComponents == *"63"* ]]; then java_zulu; fi
@@ -187,11 +187,11 @@ show_main_menu() {
     if [[ $choosenComponents == *"68"* ]]; then firemotd_setup; fi
     if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
 
-
   elif [[ "$choice" == "99"* ]]; then
     show_about
 
-  else whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
+  else
+    whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
   fi
 
   if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. Open a Ticket if the error persists: $REPOSITORYURL/issues" 12 60; return 0; fi

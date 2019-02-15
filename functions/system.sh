@@ -158,22 +158,22 @@ permissions_corrections() {
     exit 1
   fi
 
-  if is_pine64; then 
+  if is_pine64; then
     cond_redirect groupadd gpio
     cond_redirect cp $BASEDIR/includes/PINE64-80-gpio-noroot.rules /etc/udev/rules.d/80-gpio-noroot.rules
     cond_redirect sed -i -e '$i \chown -R root:gpio /sys/class/gpio \n' /etc/rc.local
     cond_redirect sed -i -e '$i \chmod -R ug+rw /sys/class/gpio \n' /etc/rc.local
   fi
 
-  cond_redirect adduser openhab dialout
-  cond_redirect adduser openhab tty
-  cond_redirect adduser openhab gpio
-  cond_redirect adduser openhab audio
-  cond_redirect adduser $username openhab
-  cond_redirect adduser $username dialout
-  cond_redirect adduser $username tty
-  cond_redirect adduser $username gpio
-  cond_redirect adduser $username audio
+  for pGroup in audio bluetooth dialout gpio tty
+  do
+    if getent group "$pGroup" > /dev/null 2>&1 ; then
+      cond_redirect adduser openhab "$pGroup"
+      cond_redirect adduser "$username" "$pGroup"
+    fi
+  done
+  cond_redirect adduser "$username" openhab
+
   #
   openhab_folders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2/addons)
   cond_redirect chown openhab:$username /srv /srv/README.txt
@@ -277,7 +277,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   # Find current settings
   if is_pi && grep -q "enable_uart=1" /boot/config.txt; then sel_1="ON"; else sel_1="OFF"; fi
   if is_pithree || is_pithreeplus && grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then sel_2="ON"; else sel_2="OFF"; fi
-  if grep -q "/dev/ttyS0:/dev/ttyS2" /etc/default/openhab2; then sel_3="ON"; else sel_3="OFF"; fi
+  if grep -q "serial ports added by openHABian" /etc/default/openhab2; then sel_3="ON"; else sel_3="OFF"; fi
 
   if [ -n "$INTERACTIVE" ]; then
     selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
@@ -321,12 +321,14 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 
   if [[ $selection == *"2"* ]]; then
     if is_pithree || is_pithreeplus; then
-      cond_redirect systemctl stop hciuart &>/dev/null
-      cond_redirect systemctl disable hciuart &>/dev/null
+      #cond_redirect systemctl stop hciuart &>/dev/null
+      #cond_redirect systemctl disable hciuart &>/dev/null
       cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3)"
       if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
         echo "dtoverlay=pi3-miniuart-bt" >> /boot/config.txt
       fi
+    else
+      cond_echo "Option only available for Raspberry Pi 3."
     fi
   else
     if is_pithree || is_pithreeplus; then
@@ -337,10 +339,10 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 
   if [[ $selection == *"3"* ]]; then
     cond_echo "Adding serial ports to openHAB java virtual machine in /etc/default/openhab2"
-    sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"#g' /etc/default/openhab2
+    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms250m -Xmx350m -Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"  \# serial ports added by openHABian#g' /etc/default/openhab2
   else
     cond_echo "Removing serial ports from openHAB java virtual machine in /etc/default/openhab2"
-    sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS=""#g' /etc/default/openhab2
+    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms250m -Xmx350m"#g' /etc/default/openhab2
   fi
 
   if [ -n "$INTERACTIVE" ]; then
