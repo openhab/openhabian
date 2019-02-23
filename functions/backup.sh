@@ -146,7 +146,6 @@ amanda_setup() {
   
   echo -n "$(timestamp) [openHABian] Setting up the Amanda backup system ... "
   local backupuser="backup"
-
   cond_redirect apt -y install amanda-common amanda-server amanda-client || FAILED=1
 
   local matched=false
