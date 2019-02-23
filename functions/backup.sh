@@ -58,7 +58,6 @@ create_backup_config() {
     fi
   fi
 
-#   /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%BKPDIR|${bkpdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" ${BASEDIR}/includes/amanda.conf_template >${confdir}/amanda.conf
   /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" ${BASEDIR}/includes/amanda.conf_template >${confdir}/amanda.conf
 
   if [ "${config}" = "openhab-AWS" ]; then
@@ -133,16 +132,18 @@ amanda_setup() {
   fi
 
   /usr/sbin/exim --version 2>/dev/null >/dev/null
-  local adminmail="root@$(/bin/hostname)"
   if [ $? -ne 0 ]; then
      if [ -n "$INTERACTIVE" ]; then
         if (whiptail --title "No exim mail transfer agent" --yes-button "Install EXIM4" --no-button "MTA already exist, ignore installation" --defaultyes --yesno "Seems exim is not installed as a mail transfer agent.\nAmanda needs one to be able to send emails.\nOnly choose to ignore if you know there's a working mail transfer agent other than exim on your system.\nDo you want to continue with EXIM4 installation ?" 15 80) then
            exim_setup
         fi
-        adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the email address to send backup reports to." 10 60 3>&1 1>&2 2>&3)
      fi
   fi
-
+  local adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the email address to send backup reports to." 10 60 3>&1 1>&2 2>&3)
+  if [ -z "$adminmail" ]; then
+     adminmail="root@$(/bin/hostname)"
+  fi
+  
   echo -n "$(timestamp) [openHABian] Setting up the Amanda backup system ... "
   local backupuser="backup"
 
