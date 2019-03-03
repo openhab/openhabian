@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-java_webupd8() {
+java_webupd8_archive() {
   echo -n "$(timestamp) [openHABian] Preparing and Installing Oracle Java 8 Web Upd8 repository... "
   cond_redirect apt -y install dirmngr
   cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys EEA14886
@@ -17,13 +17,17 @@ java_webupd8() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-java_zulu_embedded() {
+java_zulu() {
   echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK... "
   cond_redirect apt -y install dirmngr
   if is_arm; then arch="[arch=armhf]"; fi
   cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
   if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
-  echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-embedded.list
+  if is_ubuntu; then
+    echo "deb $arch http://repos.azulsystems.com/ubuntu stable main" > /etc/apt/sources.list.d/zulu-embedded.list
+  else  
+    echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-embedded.list
+  fi
   if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
   cond_redirect apt update
   if is_arm; then
@@ -34,24 +38,33 @@ java_zulu_embedded() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-# Unused
-java_zulu_embedded_archive() {
-  echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK ARM build (archive)... "
-  cond_redirect dpkg --add-architecture armhf
-  cond_redirect apt update
-  cond_redirect apt -y install libc6:armhf libfontconfig1:armhf # https://github.com/openhab/openhabian/issues/93#issuecomment-279401481
-  if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
-  # Static link, not up to date: https://www.azul.com/downloads/zulu/zdk-8-ga-linux_aarch32hf.tar.gz
-  cond_redirect wget -O ezdk.tar.gz http://cdn.azul.com/zulu-embedded/bin/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf.tar.gz
-  if [ $? -ne 0 ]; then echo "FAILED (download)"; exit 1; fi
-  cond_redirect mkdir /opt/zulu-embedded
-  cond_redirect tar xvfz ezdk.tar.gz -C /opt/zulu-embedded
-  if [ $? -ne 0 ]; then echo "FAILED (extract)"; exit 1; fi
-  cond_redirect rm -f ezdk.tar.gz
-  cond_redirect chown -R 0:0 /opt/zulu-embedded
-  cond_redirect update-alternatives --auto java
-  cond_redirect update-alternatives --auto javac
-  cond_redirect update-alternatives --install /usr/bin/java java /opt/zulu-embedded/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf/bin/java 2162
-  cond_redirect update-alternatives --install /usr/bin/javac javac /opt/zulu-embedded/ezdk-1.8.0_112-8.19.0.31-eval-linux_aarch32hf/bin/javac 2162
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (setup)"; exit 1; fi
+java_zulu_NEW() {
+  local FILE
+  local INSTALLROOT
+  local TEMPROOT
+  local JAVA
+  FILE="/var/tmp/.zulu.$$"
+  INSTALLROOT=/opt/jdk
+  TEMPROOT=/opt/jdk-new
+  mkdir ${INSTALLROOT}
+  mkdir ${TEMPROOT}
+
+  if is_arm; then
+    # Latest version check https://www.azul.com/downloads/zulu-embedded
+    JAVA=zulu8.33.0.134-jdk1.8.0_192-linux_aarch32hf
+  else
+    # Latest version check https://www.azul.com/downloads/zulu-linux
+    JAVA=zulu8.33.0.1-jdk8.0.192-linux_x64
+  fi
+  if [ -n "$INTERACTIVE" ]; then
+    whiptail --textbox $BASEDIR/includes/azul_zulu_license.md --scrolltext 27 116
+  fi
+  
+  cond_redirect wget -nv -O $FILE http://cdn.azul.com/zulu-embedded/bin/${JAVA}.tar.gz
+  cond_redirect tar -xpzf $FILE -C ${TEMPROOT}
+  if [ $? -ne 0 ]; then echo "FAILED (Zulu java)"; rm -f ${FILE}; exit 1; fi
+  rm -rf $FILE ${INSTALLROOT:?}/*
+  mv ${TEMPROOT}/* ${INSTALLROOT}/; rmdir ${TEMPROOT}
+  cond_redirect update-alternatives --install /usr/bin/java java ${INSTALLROOT}/${JAVA}/bin/java 1083000
+  cond_redirect update-alternatives --install /usr/bin/javac java ${INSTALLROOT}/${JAVA}/bin/javac 1083000
 }

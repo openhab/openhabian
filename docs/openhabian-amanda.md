@@ -33,7 +33,7 @@ This is what happened to several people, and it can happen to you, too. We have 
 on openHAB or smart home altogether because of this.
 For RaZberry/zwave.me USB stick, you can run the Z-Way software to backup and restore the ZWave network data including the
 controller. For the Aeon Gen5 stick, there's a Windows tool available for download.
-NOTE: Similar problems may arise if you run a gateway unit to control commercial systems such as a HomeMatic CCU or Insteon
+NOTE: you will face the same type of problem if you run a gateway unit to control commercial systems such as a HomeMatic CCU or Insteon
 controller.
 Remember Murphy's law: When your system fails and you need to restore your system for the first time, you'll notice your backup
 is broken. So dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and
@@ -47,14 +47,14 @@ you moved your OS or parts thereof).
 
 **Another word of WARNING:**
 To move your system off the internal SD card does NOT solve SD corruption problems or increase reliability in any other way.
-SD cards and USB sticks use the same technology. And HDDs still can get corrupted, and they can crash, too.
+SD cards and USB sticks use the same technology. And SSDs and HDDs still can get corrupted as well, and they can crash, too.
 You may or may not have or want to use Internet / cloud services for various reasons (privacy, bandwidth, cost), so we provide
 you with one solution that is designed to run on local hardware only. We provide a config to use a directory as the backup
 destination. This can be a directory mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
 device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
 We believe this will cover most openHAB backup use cases.
-NOTE: don't use CIFS (Windows sharing). If you have a NAS, use NFS instead. There's issues with CIFS and symlinks, and it doesn't
-make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian) at all.
+NOTE: don't use CIFS (Windows sharing). If you have a NAS, use NFS instead. It does not work with CIFS because of issues with symlinks,
+and it doesn't make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian) at all.
 If you don't have a NAS, DON'T use your Windows box as the storage server. Attach a USB stick to your Pi instead for storage.
 There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
 do not match your needs. You could even use it to backup all of your servers (if any) and desktop PCs, including Windows
@@ -91,8 +91,7 @@ uses functional users to execute tasks with specific access rights) for administ
 (that you have created that at the beginning of your openHABian installation or "openhabian" by default).
 Installation tasks including post-package-installation changes (edits) of the Amanda config files, require to use the `root`
 user. Any ordinary user (such as your personal one) can execute commands on behalf of root (and with root permission) by
-prepending "sudo " to the command. Note: commands executed as `root` will often NOT ask for confirmation, and bad commands can
-easily DESTROY YOUR SYSTEM. **Take special care !**
+prepending "sudo " to the command.
 
 # Installation
 ## Storage preparation
@@ -111,12 +110,9 @@ Here's examples how to mount a NAS (to have the DNS name "nas" and IP address `1
 USB stick identified as `/dev/sda` (Linux ext4 and Windows VFAT filesystems).
 
 HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
-Do NOT (I repeat: NOT) deploy these commands unless you are fully aware what they will do to your system.
-To use a command with a wrong device name CAN DESTROY YOUR SYSTEM.
+Do not deploy these commands unless you are fully aware what they will do to your system, using a command with a wrong device 
+name can destroy your system.
 
----------------------
-YOU HAVE BEEN WARNED.
----------------------
 
 ### NAS mount example
 
@@ -243,8 +239,7 @@ directories of yours.
 
 Note: the raw SD card backup was left out for the AWS S3 config, as that would require a lot of bandwidth and runtime.
 
-openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups every night at 01:00AM, and to
-run a check at 06:00PM.
+openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups you select every night at 01:00AM.
 
 ## Backup
 
@@ -426,8 +421,8 @@ Here's another terminal session log to show how a couple of files are restored i
 
 ### Restoring a partition
 
-To restore a raw disk partition, you need to use `amfetchdump` command. Unlike `amdump`, you have to run `amfetchdump` as user backup, though.
-Here’s another terminal session log to use amfetchdump to first retrieve the backup image from your backup storage to image called
+To restore a raw disk partition, you need to use `amfetchdump` command. Unlike `amdump`, you have to run amfetchdump as user backup, though.
+Here’s another terminal session log to use `amfetchdump` to first retrieve the backup image from your backup storage to image called
 `openhabianpi-image` on `/server/temp/`
 
 **Reminder:** you have to be logged in as the `backup` user.
@@ -440,8 +435,8 @@ backup@openhab:/server/temp$ amfetchdump -p openhab-dir openhab /dev/mmcblk0 > /
 ```
 
 Before you actually press enter, you should get ready, by opening another terminal window and letting Amanda know in which slot the required
-tape is (you can do this also before starting the amfetchdump command). You have to find the slot yourself by checking their content. Once
-you find out the requested file (probably starting with 00000.), you redirect amanda to use the slot which contains the file (e.g. slot 1)
+tape is (you can do this also before starting the `amfetchdump` command). You have to find the slot yourself by checking their content. Once
+you find out the requested file (probably starting with `00000.`), you redirect amanda to use the slot which contains the file (e.g. slot 1)
 using this:
 
 ```
@@ -450,7 +445,7 @@ slot   1: time 20170322084708 label openhab-openhab-dir-001
 changed to slot 1
 ```
 
-Finally you can go back to the first terminal window and press Enter. Amanda will automatically pick up another files if the backup
+Finally you can go back to the first terminal window and press Enter. Amanda will automatically pick up the other files if the backup
 consists of more than one file.
 
 ```

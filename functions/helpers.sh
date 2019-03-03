@@ -80,6 +80,18 @@ is_armv6l() {
     *) return 1 ;;
   esac
 }
+is_armv7l() {
+  case "$(uname -m)" in
+    armv7l) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+is_aarch64() {
+  case "$(uname -m)" in
+    aarch64|arm64) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 is_ubuntu() {
   [[ $(lsb_release -sd) =~ "Ubuntu" ]]
   return $?

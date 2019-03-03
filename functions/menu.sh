@@ -7,6 +7,11 @@ show_about() {
   - Documentation: https://www.openhab.org/docs/installation/openhabian.html
   - Development: http://github.com/openhab/openhabian
   - Discussion: https://community.openhab.org/t/13379" 17 80
+  RET=$?
+  if [ $RET -eq 255 ]; then
+    # <Esc> key pressed.
+    return 0
+  fi
 }
 
 show_main_menu() {
@@ -78,6 +83,8 @@ show_main_menu() {
     "28 | 1wire"                 "1wire specific, owserver and related packages" \
     "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
     "2A | Tellstick core"        "Driver and daemon for Tellstick usb devices" \
+    "2B | Speedtest CLI"         "A tool to measure your internet bandwidth" \
+    "2C | Mail Transfer Agent"   "Install Exim4 as MTA to relay mails via public services" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -91,6 +98,8 @@ show_main_menu() {
       28\ *) 1wire_setup ;;
       29\ *) find_setup ;;
       2A\ *) tellstick_core_setup ;;
+      2B\ *) speedtest_cli_setup ;;
+      2C\ *) exim_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -120,15 +129,17 @@ show_main_menu() {
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
-    "41 | openHAB stable   " "Install or switch to the latest openHAB release" \
-    "   | openHAB unstable"  "Install or switch to the latest openHAB SNAPSHOT build" \
+    "41 | openHAB release  " "Install or switch to the latest openHAB release" \
+    "   | openHAB testing"   "Install or switch to the latest openHAB testing build" \
+    "   | openHAB snapshot"  "Install or switch to the latest openHAB SNAPSHOT build" \
     "42 | Remote Console"    "Bind the openHAB SSH console to all external interfaces" \
     "43 | Reverse Proxy"     "Setup Nginx with password authentication and/or HTTPS access" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       41\ *) openhab2_setup ;;
-      *openHAB\ unstable) openhab2_setup unstable ;;
+      *openHAB\ testing) openhab2_setup testing ;;
+      *openHAB\ snapshot) openhab2_setup unstable ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
       "") return 0 ;;
@@ -153,8 +164,8 @@ show_main_menu() {
     "61 | Upgrade System     "    "Upgrade all installed software packages to their newest version " OFF \
     "62 | Packages"               "Install needed and recommended system packages " OFF \
     "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8 " OFF \
-    "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team " OFF \
     "64 | openHAB stable"         "Install the latest openHAB release" OFF \
+    "   | openHAB testing"        "Install the latest openHAB testing build" OFF \
     "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
     "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB " OFF \
     "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares " OFF \
@@ -163,24 +174,24 @@ show_main_menu() {
     "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-    
+
     if [[ $choosenComponents == *"61"* ]]; then system_upgrade; fi
     if [[ $choosenComponents == *"62"* ]]; then basic_packages && needed_packages; fi
-    if [[ $choosenComponents == *"63"* ]]; then java_zulu_embedded; fi
-    if [[ $choosenComponents == *"Oracle Java 8"* ]]; then java_webupd8; fi
+    if [[ $choosenComponents == *"63"* ]]; then java_zulu; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
+    if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi
     if [[ $choosenComponents == *"65"* ]]; then srv_bind_mounts && permissions_corrections && misc_system_settings; fi
     if [[ $choosenComponents == *"66"* ]]; then samba_setup; fi
     if [[ $choosenComponents == *"67"* ]]; then frontail_setup; fi
     if [[ $choosenComponents == *"68"* ]]; then firemotd_setup; fi
-    if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax; fi
-
+    if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
 
   elif [[ "$choice" == "99"* ]]; then
     show_about
 
-  else whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
+  else
+    whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
   fi
 
   if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. Open a Ticket if the error persists: $REPOSITORYURL/issues" 12 60; return 0; fi
