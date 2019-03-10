@@ -68,7 +68,7 @@ Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openha
 
 Here you'll find supported and tested installation platforms and instructions.
 
-### Raspberry Pi
+### Raspberry Pi (Prepackaged SD-Card Image)
 
 **Flash, plug, wait, enjoy:**
 The provided image is based on the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian) standard system.
@@ -106,7 +106,7 @@ You will see the following welcome screen:
 
 ➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
 
-### Pine A64
+### Pine A64 (Prepackaged SD-Card Image)
 
 We provide a ready to use system image for the Pine A64.
 The image is based on the official [Ubuntu Base Image by longsleep](http://wiki.pine64.org/index.php/Pine_A64_Software_Release).
@@ -148,7 +148,7 @@ You will see the following welcome screen:
 
 ➜ Continue at the ["openHABian Configuration Tool"](#openhabian-config) section below!
 
-### Manual Setup
+### Other Linux Systems (add openHABian just like any other software)
 
 openHABian also supports general Debian/Ubuntu based systems on different platforms.
 Starting with a fresh installation of your operating system, install git, then clone the openHABian project and finally execute the openHABian configuration tool:
