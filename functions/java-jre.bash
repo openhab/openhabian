@@ -17,54 +17,44 @@ java_webupd8_archive() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
-java_zulu() {
-  echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK... "
-  cond_redirect apt -y install dirmngr
-  if is_arm; then arch="[arch=armhf]"; fi
-  cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
-  if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
-  if is_ubuntu; then
-    echo "deb $arch http://repos.azulsystems.com/ubuntu stable main" > /etc/apt/sources.list.d/zulu-embedded.list
-  else  
-    echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-embedded.list
-  fi
-  if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
-  cond_redirect apt update
+java_zulu(){
   if is_arm; then
-    cond_redirect apt -y install zulu-embedded-8
+    echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK... "
+    local downloadPath
+    local file
+    local jdkTempLocation
+    local jdkInstallLocation
+    local javapath
+    jdkTempLocation=/var/tmp/jdk-new
+    file="/var/tmp/.zulu.$$"
+    
+    if is_aarch64; then 
+      downloadPath=curl -s https://www.azul.com/downloads/zulu-embedded | grep -Eo "http://[a-zA-Z0-9./?=_-]*zulu8[a-zA-Z0-9./?=_-]*aarch64.tar.gz"
+    else
+      downloadPath=curl -s https://www.azul.com/downloads/zulu-embedded | grep -Eo "http://[a-zA-Z0-9./?=_-]*zulu8[a-zA-Z0-9./?=_-]*aarch32hf.tar.gz"
+    fi
+    cond_redirect wget -nv -O $file $downloadPath
+    cond_redirect tar -xpzf $file -C ${jdkTempLocation}
+    if [ $? -ne 0 ]; then echo "FAILED"; rm -f ${file}; rm exit 1; fi
+    rm -rf $file ${jdkInstallLocation:?}/*
+    mv ${jdkTempLocation}/* ${jdkInstallLocation}/; rmdir ${jdkTempLocation}
+
+    javaPath=$(echo $downloadPath|sed 's|http://cdn.azul.com/zulu-embedded/bin/||')
+    cond_redirect update-alternatives --install /usr/bin/java java $jdkInstallLocation/$javaPath/bin/java 1083000
+    cond_redirect update-alternatives --install /usr/bin/javac java $jdkInstallLocation/$javaPath/bin/javac 1083000
+    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+
   else
+    echo -n "$(timestamp) [openHABian] Installing Zulu Enterprise OpenJDK... "
+    cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
+    if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
+    if is_ubuntu; then
+      echo "deb $arch http://repos.azulsystems.com/ubuntu stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
+    else  
+      echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
+    fi
+    cond_redirect apt-get update
     cond_redirect apt -y install zulu-8
+    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-}
-
-java_zulu_NEW() {
-  local FILE
-  local INSTALLROOT
-  local TEMPROOT
-  local JAVA
-  FILE="/var/tmp/.zulu.$$"
-  INSTALLROOT=/opt/jdk
-  TEMPROOT=/opt/jdk-new
-  mkdir ${INSTALLROOT}
-  mkdir ${TEMPROOT}
-
-  if is_arm; then
-    # Latest version check https://www.azul.com/downloads/zulu-embedded
-    JAVA=zulu8.33.0.134-jdk1.8.0_192-linux_aarch32hf
-  else
-    # Latest version check https://www.azul.com/downloads/zulu-linux
-    JAVA=zulu8.33.0.1-jdk8.0.192-linux_x64
-  fi
-  if [ -n "$INTERACTIVE" ]; then
-    whiptail --textbox $BASEDIR/includes/azul_zulu_license.md --scrolltext 27 116
-  fi
-  
-  cond_redirect wget -nv -O $FILE http://cdn.azul.com/zulu-embedded/bin/${JAVA}.tar.gz
-  cond_redirect tar -xpzf $FILE -C ${TEMPROOT}
-  if [ $? -ne 0 ]; then echo "FAILED (Zulu java)"; rm -f ${FILE}; exit 1; fi
-  rm -rf $FILE ${INSTALLROOT:?}/*
-  mv ${TEMPROOT}/* ${INSTALLROOT}/; rmdir ${TEMPROOT}
-  cond_redirect update-alternatives --install /usr/bin/java java ${INSTALLROOT}/${JAVA}/bin/java 1083000
-  cond_redirect update-alternatives --install /usr/bin/javac java ${INSTALLROOT}/${JAVA}/bin/javac 1083000
 }
