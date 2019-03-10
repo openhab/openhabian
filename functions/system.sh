@@ -192,7 +192,7 @@ permissions_corrections() {
 misc_system_settings() {
   echo -n "$(timestamp) [openHABian] Applying miscellaneous system settings... "
   cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' $(realpath /usr/bin/java)
-  setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping
+  cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping
   if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
   # user home note
   echo -e "This is your linux user's \"home\" folder.\nPlace personal files, programs or scripts here." > /home/$username/README.txt
