@@ -113,7 +113,7 @@ create_backup_config() {
   done
   
   # create cronjob to save copies of the Amanda database
-  echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
+  echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} >/dev/null 2>&1" > /etc/cron.d/amanda
   echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
   if [ "${tapetype}" = "DIRECTORY" ]; then
     mkdir -p ${storage}/amanda-backups; chown ${backupuser}:backup ${storage}/amanda-backups
