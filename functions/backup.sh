@@ -11,10 +11,10 @@ create_backup_config() {
   local S3site=$7
   local S3bucket=$8
   local S3accesskey=$9
-  local S3secretkey=$10
+  local S3secretkey=${10}
 
   TMP="/tmp/.amanda-setup.$$"
-  
+
   local introtext="We need to prepare (to \"label\") your removable storage media."
 
   /bin/grep -v ${config} /etc/cron.d/amanda > $TMP; mv $TMP /etc/cron.d/amanda
@@ -111,7 +111,7 @@ create_backup_config() {
     fi
     ((counter += 1))
   done
-  
+
   # create cronjob to save copies of the Amanda database
   echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} >/dev/null 2>&1" > /etc/cron.d/amanda
   echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
@@ -144,7 +144,7 @@ amanda_setup() {
   if [ -z "$adminmail" ]; then
      adminmail="root@$(/bin/hostname)"
   fi
-  
+
   echo -n "$(timestamp) [openHABian] Setting up the Amanda backup system ... "
   local backupuser="backup"
   cond_redirect apt -y install amanda-common amanda-server amanda-client || FAILED=1
