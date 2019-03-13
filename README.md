@@ -46,3 +46,5 @@ To improve the openHABian configuration tool, please have a look at `openhabian-
 If you find a bug or want to propose a feature, please check open Issues and Pull Requests and read the [CONTRIBUTING](CONTRIBUTING.md) guideline.
 
 Happy Hacking!
+
+test
