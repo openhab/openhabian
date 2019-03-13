@@ -1,7 +1,7 @@
 ﻿As an **openHABian end user**, please check out the official openHAB documentation:  
 🡺 https://www.openhab.org/docs/installation/openhabian.html
 
-# openHABian - Hassle-free openHAB Setup [![Shellcheck Status](https://travis-ci.com/openhab/openhabian.svg?branch=master)](https://travis-ci.com/openhab/openhabian)
+# openHABian - Hassle-free openHAB Setup [![](https://travis-ci.org/openhab/openhabian.svg?branch=master)](https://travis-ci.org/openhab/openhabian)
 
 Setting up a fully working Linux system with all needed packages and openHAB recommendations is a **boring task** taking quite some time and **Linux newcomers** shouldn't worry about these technical details.
 
@@ -42,7 +42,7 @@ $ sudo bash build.bash platform dev-url branch url
 ```
 
 ### Testing
-Testing is done continuously with Travis using the test framework [Bats](https://github.com/bats-core/bats-core) and the linter [Shellcheck](https://www.shellcheck.net/).  As the tests focus on installing software a docker solution is used for easy build-up and teardown. To run the test suite execute the commands below. `Docker` and `Shellcheck` needs to be installed. For more details regarding the tests see [Test Architecture](https://github.com/openhab/openhabian/blob/master/CONTRIBUTING.md#test-architecture) in CONTRIBUTING.
+Testing is done continuously with Travis using the test framework [Bats](https://github.com/bats-core/bats-core) and the linter [Shellcheck](https://www.shellcheck.net/).  As the tests focus on installing software a docker solution is used for easy build-up and teardown. To run the test suite execute the commands below or `"$ ./test.bash docker-full"`. Docker and Shellcheck needs to be installed. For more details regarding the tests see [Test Architecture](https://github.com/openhab/openhabian/blob/master/CONTRIBUTING.md#test-architecture) in CONTRIBUTING.
 
 ```
 docker build --tag openhabian/openhabian-bats .

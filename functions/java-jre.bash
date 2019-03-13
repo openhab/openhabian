@@ -18,6 +18,7 @@ java_webupd8_archive() {
 }
 
 java_zulu(){
+  cond_redirect systemctl stop openhab2.service
   if is_arm; then
     echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK... "
     local downloadPath
@@ -57,4 +58,5 @@ java_zulu(){
     cond_redirect apt -y install zulu-8
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
+  cond_redirect systemctl start openhab2.service
 }

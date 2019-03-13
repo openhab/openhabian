@@ -84,7 +84,9 @@ elif [ "$1" == "local-test" ]; then
   cp ./build-image/openhabian.conf /boot/openhabian.conf
   cp ./build-image/rc.local /etc/rc.local
   sed -i -e '1r functions/helpers.bash' /boot/first-boot.bash # Add platform identification
+  # Use local filesystem's version of openHABian
   sed -i 's|git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null||' /boot/first-boot.bash
+  sed -i 's|\[ -d /opt/openhabian/ \] && rm -rf /opt/openhabian/ # check if we have remnants of a previous installation attempt.||' /boot/first-boot.bash
   chmod +x /boot/first-boot.bash
   chmod +x /boot/webif.bash
   chmod +x /etc/rc.local
