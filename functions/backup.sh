@@ -117,7 +117,7 @@ create_backup_config() {
   echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
   if [ "${tapetype}" = "DIRECTORY" ]; then
     mkdir -p ${storage}/amanda-backups; chown ${backupuser}:backup ${storage}/amanda-backups
-    echo "0 2 * * * root (cd /; /bin/tar czf ${storage}/amanda-backups/amanda_data_$(date +\%Y\%m\%d\%H\%M\%S).tar.gz etc/amanda var/lib/amanda var/log/amanda; find ${storage} -name amanda_data_\* -mtime +30 -delete) >/dev/null 2>&1" >> /etc/cron.d/amanda
+    echo "0 2 * * * root (cd /; /bin/tar czf ${storage}/amanda-backups/amanda_data_\$(date +\%Y\%m\%d\%H\%M\%S).tar.gz etc/amanda var/lib/amanda var/log/amanda; find ${storage} -name amanda_data_\* -mtime +30 -delete) >/dev/null 2>&1" >> /etc/cron.d/amanda
   fi
 }
 
