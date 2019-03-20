@@ -24,7 +24,7 @@ Please check the [official documentation article](https://www.openhab.org/docs/i
 
 OpenHABian is foremost a collection of `bash` script version handled and deployed using GIT. In the current state the scripts can only be invoked through the terminal menu system [whiptail](https://en.wikibooks.org/wiki/Bash_Shell_Scripting/Whiptail). There is a longterm need to better seperate the UI part form the script code. A work have started to define conventions and further explain the code base in the document [CONTRIBUTING](CONTRIBUTING.md) along with development guidelines in general.
 
-A good place to start to look at to understand the code is the file `openhabian-setup.bash`.
+A good place to start to look at to understand the code is the file `openhabian-setup.sh`.
 
 ### Building Hardware Images
 Take a look at the `build.bash` script to get an idea of the process. 
@@ -58,7 +58,7 @@ docker rm install-test
 ```
 Use the linter by executing:
 ```
-shellcheck -s bash openhabian-setup.bash
+shellcheck -s bash openhabian-setup.sh
 shellcheck -s bash functions/*.bash
 shellcheck -s bash build-image/*.bash
 ```
