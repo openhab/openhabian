@@ -42,7 +42,7 @@ if [ "$1" == "docker-full" ]; then
     echo_process "Test complete, please review result in terminal. Access tested container by executing: \"docker exec -it install-test bash\""
     exit 0
 elif [ "$1" == "shellcheck" ]; then
-    shellcheck -s bash openhabian-setup.bash
+    shellcheck -s bash openhabian-setup.sh
     shellcheck -s bash functions/*.bash
     shellcheck -s bash build-image/*.bash    
 else

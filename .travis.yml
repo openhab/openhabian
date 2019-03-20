@@ -20,6 +20,6 @@ script:
   - docker exec -it install-test bash -c 'bats -r -f "installation-." .'
   - docker exec -it install-test bash -c 'bats -r -f "destructive-." .'
 
-  - shellcheck -s bash openhabian-setup.bash || true
+  - shellcheck -s bash openhabian-setup.sh || true
   - shellcheck -s bash functions/*.bash || true
   - shellcheck -s bash build-image/*.bash || true
