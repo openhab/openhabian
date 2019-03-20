@@ -196,7 +196,7 @@ docker exec -it install-test bash -c 'bats -r -f "destructive-." .'
 ### Linter
 
 ```
-shellcheck -s bash openhabian-setup.bash
+shellcheck -s bash openhabian-setup.sh
 shellcheck -s bash functions/*.bash
 shellcheck -s bash build-image/*.bash
 ```

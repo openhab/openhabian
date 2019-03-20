@@ -53,7 +53,7 @@ else
   echo "OK"
 fi
 
-# While setup: show log to logged in user, will be overwritten by openhabian-setup.bash
+# While setup: show log to logged in user, will be overwritten by openhabian-setup.sh
 echo "watch cat /boot/first-boot.log" > "$HOME/.bash_profile"
 
 if [ -z "${wifi_ssid}" ]; then
@@ -147,18 +147,18 @@ echo -n "$(timestamp) [openHABian] Cloning myself... "
 git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
 
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
-ln -sfn /opt/openhabian/openhabian-setup.bash /usr/local/bin/openhabian-config
+ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
-echo "$(timestamp) [openHABian] Executing 'openhabian-setup.bash unattended'... "
-if (/bin/bash /opt/openhabian/openhabian-setup.bash unattended); then
-#if (/bin/bash /opt/openhabian/openhabian-setup.bash unattended_debug); then
+echo "$(timestamp) [openHABian] Executing 'openhabian-setup.sh unattended'... "
+if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended); then
+#if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended_debug); then
   systemctl start openhab2.service
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
   fail_inprogress
 fi
-echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.bash unattended' completed."
+echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed."
 
 echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready... "
 until wget -S --spider http://localhost:8080 2>&1 | grep -q 'HTTP/1.1 200 OK'; do
