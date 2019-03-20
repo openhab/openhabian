@@ -5,17 +5,18 @@
 # value on error.
 
 FLAG="/opt/afterfirstboot.lock"
-FIRSTBOOT="/boot/first-boot.sh"
+FIRSTBOOT="/boot/first-boot.bash"
 
 # Only executed after first boot
 if [ ! -f "$FLAG" ]; then
   echo "[openHABian] Flag file 'afterfirstboot.lock' not found, continuing with '$FIRSTBOOT' script."
-  if [ ! -f "$FIRSTBOOT" ]; then "[openHABian] 'first-boot.sh' not found, Exiting."; exit 0; fi
+  if [ ! -f "$FIRSTBOOT" ]; then echo "[openHABian] 'first-boot.bash' not found, Exiting."; exit 0; fi
   if (/bin/bash "$FIRSTBOOT"); then
     echo "[openHABian] Finishing up... "
     echo "[openHABian] Created after first boot script succeeded (see /etc/rc.local). Do not delete." > "$FLAG"
   else
     echo "[openHABian] Script '$FIRSTBOOT' failed."
+    exit 1
   fi
 fi
 
