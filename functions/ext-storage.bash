@@ -52,7 +52,7 @@ Do you want to continue on your own risk?"
 
      echo
      echo "********************************************************************************"
-     echo "REBOOT, run openhabian-setup.sh again and recall menu item 'Move root to USB'"
+     echo "REBOOT, run openhabian-setup.bash again and recall menu item 'Move root to USB'"
      echo "********************************************************************************"
      whiptail --title "Reboot needed!" --msgbox "USB had to be set to high power (1A) first. Please REBOOT and RECALL this menu item" 15 78
      exit

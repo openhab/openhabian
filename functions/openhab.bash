@@ -59,7 +59,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   cond_redirect adduser openhab gpio
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable openhab2.service
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (usr)"; exit 1; fi
   if [ -n "$UNATTENDED" ]; then
     cond_redirect systemctl stop openhab2.service || true
   else
