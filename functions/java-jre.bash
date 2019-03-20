@@ -26,14 +26,17 @@ java_zulu(){
     local jdkTempLocation
     local jdkInstallLocation
     local javapath
-    jdkTempLocation=/var/tmp/jdk-new
+    jdkTempLocation="/var/tmp/jdk-new"
+    jdkInstallLocation="/opt/jdk"
     file="/var/tmp/.zulu.$$"
     
     if is_aarch64; then 
-      downloadPath=curl -s https://www.azul.com/downloads/zulu-embedded | grep -Eo "http://[a-zA-Z0-9./?=_-]*zulu8[a-zA-Z0-9./?=_-]*aarch64.tar.gz"
+      downloadPath=$(curl -s https://www.azul.com/downloads/zulu-embedded | grep -Eo "http://[a-zA-Z0-9./?=_-]*zulu8[a-zA-Z0-9./?=_-]*aarch64.tar.gz")
     else
-      downloadPath=curl -s https://www.azul.com/downloads/zulu-embedded | grep -Eo "http://[a-zA-Z0-9./?=_-]*zulu8[a-zA-Z0-9./?=_-]*aarch32hf.tar.gz"
+      downloadPath=$(curl -s https://www.azul.com/downloads/zulu-embedded | grep -Eo "http://[a-zA-Z0-9./?=_-]*zulu8[a-zA-Z0-9./?=_-]*aarch32hf.tar.gz")
     fi
+    cond_redirect mkdir -p $jdkTempLocation
+    cond_redirect mkdir -p $jdkInstallLocation
     cond_redirect wget -nv -O $file $downloadPath
     cond_redirect tar -xpzf $file -C ${jdkTempLocation}
     if [ $? -ne 0 ]; then echo "FAILED"; rm -f ${file}; rm exit 1; fi
@@ -41,8 +44,11 @@ java_zulu(){
     mv ${jdkTempLocation}/* ${jdkInstallLocation}/; rmdir ${jdkTempLocation}
 
     javaPath=$(echo $downloadPath|sed 's|http://cdn.azul.com/zulu-embedded/bin/||')
+    javaPath=$(echo $javaPath|sed 's|.tar.gz||')
+    cond_redirect update-alternatives --remove-all java
+    cond_redirect update-alternatives --remove-all javac
     cond_redirect update-alternatives --install /usr/bin/java java $jdkInstallLocation/$javaPath/bin/java 1083000
-    cond_redirect update-alternatives --install /usr/bin/javac java $jdkInstallLocation/$javaPath/bin/javac 1083000
+    cond_redirect update-alternatives --install /usr/bin/javac javac $jdkInstallLocation/$javaPath/bin/javac 1083000
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
   else
