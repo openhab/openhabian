@@ -21,6 +21,7 @@ java_zulu(){
   cond_redirect systemctl stop openhab2.service
   if is_arm; then
     echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK... "
+    local archName
     local downloadPath
     local file
     local jdkTempLocation
@@ -29,17 +30,19 @@ java_zulu(){
     jdkTempLocation="/var/tmp/jdk-new"
     jdkInstallLocation="/opt/jdk"
     file="/var/tmp/.zulu.$$"
-    
-    if is_aarch64; then 
+
+    if is_aarch64; then
       downloadPath=$(curl -s https://www.azul.com/downloads/zulu-embedded | grep -Eo "http://[a-zA-Z0-9./?=_-]*zulu8[a-zA-Z0-9./?=_-]*aarch64.tar.gz")
+      archName=aarch64
     else
       downloadPath=$(curl -s https://www.azul.com/downloads/zulu-embedded | grep -Eo "http://[a-zA-Z0-9./?=_-]*zulu8[a-zA-Z0-9./?=_-]*aarch32hf.tar.gz")
+      archName=aarch32
     fi
     cond_redirect mkdir -p $jdkTempLocation
     cond_redirect mkdir -p $jdkInstallLocation
     cond_redirect wget -nv -O $file $downloadPath
     cond_redirect tar -xpzf $file -C ${jdkTempLocation}
-    if [ $? -ne 0 ]; then echo "FAILED"; rm -f ${file}; rm exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED"; rm -f ${file}; exit 1; fi
     rm -rf $file ${jdkInstallLocation:?}/*
     mv ${jdkTempLocation}/* ${jdkInstallLocation}/; rmdir ${jdkTempLocation}
 
@@ -49,6 +52,9 @@ java_zulu(){
     cond_redirect update-alternatives --remove-all javac
     cond_redirect update-alternatives --install /usr/bin/java java $jdkInstallLocation/$javaPath/bin/java 1083000
     cond_redirect update-alternatives --install /usr/bin/javac javac $jdkInstallLocation/$javaPath/bin/javac 1083000
+    echo $jdkInstallLocation/$javaPath/lib/$archName > /etc/ld.so.conf.d/java.conf
+    echo $jdkInstallLocation/$javaPath/lib/$archName/jli >> /etc/ld.so.conf.d/java.conf
+    cond_redirect ldconfig
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
   else
@@ -57,7 +63,7 @@ java_zulu(){
     if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
     if is_ubuntu; then
       echo "deb $arch http://repos.azulsystems.com/ubuntu stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
-    else  
+    else
       echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
     fi
     cond_redirect apt-get update
