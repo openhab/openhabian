@@ -39,7 +39,7 @@ java_zulu(){
     cond_redirect mkdir -p $jdkInstallLocation
     cond_redirect wget -nv -O $file $downloadPath
     cond_redirect tar -xpzf $file -C ${jdkTempLocation}
-    if [ $? -ne 0 ]; then echo "FAILED"; rm -f ${file}; rm exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED"; rm -f ${file}; exit 1; fi
     rm -rf $file ${jdkInstallLocation:?}/*
     mv ${jdkTempLocation}/* ${jdkInstallLocation}/; rmdir ${jdkTempLocation}
 
