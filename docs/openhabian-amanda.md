@@ -202,12 +202,14 @@ Here you need to enter the _local_ directory of your openHABian box, also known 
 mounted your USB storage or NAS disk share (which in above example for the NAS is `/storage/server` and for the usb stick is
 either `/storage/usbstick-linux` or `/storage/usbstick-msdos`).
 * "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be
-backed up."
+backed up. Enter a number to consist of figures only."
 Amanda will use at most this number of megabytes in total as its storage for backup.
 If you choose to include the raw device in the backup cycle (next question), that means you should enter 3 times the size of
 your SD disk NOW. If you choose not to include it (or selected the AWS S3 variant which omits raw SD backups per default), it's
 a lot less data and you need to estimate it by adding up the size of the config directories that are listed in the `disklist` 
-file. If you don't have any idea, enter 1024 (= 1 GByte). You can change it in the Amanda config file at any later time.
+file. If you don't have any idea and chose to NOT backup your SD card, enter 1024 (= 1 GByte). If you chose to backup it, the number
+should be larger than the SD capacity in megabytes plus 1024.
+You can change it in the Amanda config file at any later time (the entry below the line reading `define tapetype DIRECTORY {`.
 * "Backup raw SD card ?" (not asked if you selected AWS S3 storage)
 Answer "yes" if you want to create raw disk backups of your SD card. This is only recommended if your SD card is 8GB or less in
 size, otherwise the backup can take too long. You can always add/remove this by editing `${confdir}/disklist` at a later time.
