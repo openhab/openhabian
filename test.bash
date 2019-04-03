@@ -12,7 +12,7 @@ timestamp() { date +"%F_%T_%Z"; }
 ##
 ##      echo_process(String message)
 ##
-echo_process() { echo -e "\\e[1;94m$(timestamp) [openHABian] $*\\e[0m"; }
+echo_process() { echo -e "$(timestamp) [openHABian] $*"; }
 
 ## This enables printout of both a executed command and its output
 ##
@@ -31,8 +31,8 @@ cond_redirect() {
 # What test case should be run?
 if [ "$1" == "docker-full" ]; then
     echo_process "Starting Docker based test..."
-    cond_redirect docker stop install-test
-    cond_redirect docker rm install-test
+    cond_redirect docker stop install-test || true
+    cond_redirect docker rm install-test || true
     cond_redirect docker build --tag openhabian/openhabian-bats .
     cond_redirect docker run -it openhabian/openhabian-bats bash -c 'bats -r -f "unit-." .'
     cond_redirect docker run --name "install-test" --privileged -d openhabian/openhabian-bats
