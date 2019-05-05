@@ -49,7 +49,7 @@ java_zulu(){
     jdkInstallLocation="/opt/jdk"
     file="/var/tmp/.zulu.$$"
 
-    if $1; then # if argument 64-bit is true
+    if $1 && is_arm; then # if argument 64-bit is true
       echo -n "$(timestamp) [openHABian] Installing Zulu Embedded 64-Bit OpenJDK... "
       downloadPath=$(curl -s https://www.azul.com/downloads/zulu-embedded | grep -Eo "http://[a-zA-Z0-9./?=_-]*zulu8[a-zA-Z0-9./?=_-]*aarch64.tar.gz")
       archName=aarch64
