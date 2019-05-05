@@ -1,6 +1,6 @@
 FROM minimum2scp/systemd-stretch
 
-RUN apt-get update && apt-get install -y git locales
+RUN apt-get update && apt-get install -y git locales jq
 RUN git clone https://github.com/bats-core/bats-core.git && \
     cd bats-core && \
     ./install.sh /usr/local

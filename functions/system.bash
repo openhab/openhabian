@@ -20,6 +20,7 @@ system_upgrade() {
     rm -f openhab-key.asc
   fi
   cond_redirect apt-get --yes upgrade
+  cond_redirect java_install_or_update "$java_arch"
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 

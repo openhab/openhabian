@@ -165,9 +165,9 @@ show_main_menu() {
 
   elif [[ "$choice" == "60"* ]]; then
     choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 20 116 13 --cancel-button Back --ok-button Execute \
-    "61 | Upgrade System     "    "Upgrade all installed software packages to their newest version " OFF \
     "62 | Packages"               "Install needed and recommended system packages " OFF \
-    "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8 " OFF \
+    "63 | Zulu OpenJDK 32-bit"    "Install Zulu OpenJDK Java 8 32-bit" OFF \
+    "   | Zulu OpenJDK 64-bit"    "Install Zulu OpenJDK Java 8 64-bit" OFF \
     "64 | openHAB stable"         "Install the latest openHAB release" OFF \
     "   | openHAB testing"        "Install the latest openHAB testing build" OFF \
     "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
@@ -180,10 +180,9 @@ show_main_menu() {
     "   | Remove zram"            "Don't use compressed memory (back to standard Raspbian FS layout)" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-
-    if [[ $choosenComponents == *"61"* ]]; then system_upgrade; fi
-    if [[ $choosenComponents == *"62"* ]]; then basic_packages && needed_packages; fi
-    if [[ $choosenComponents == *"63"* ]]; then java_zulu; fi
+    if [[ $choosenComponents == *"62"* ]]; then apt-get upgrade -y && basic_packages && needed_packages; fi
+    if [[ $choosenComponents == *"63"* ]]; then update_config_java "32-bit"; java_install_or_update "$java_arch"; fi
+    if [[ $choosenComponents == *"Zulu OpenJDK 64-bit"* ]]; then update_config_java "64-bit"; java_install_or_update "$java_arch"; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
     if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi

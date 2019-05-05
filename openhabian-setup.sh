@@ -70,7 +70,7 @@ if [[ -n "$UNATTENDED" ]]; then
   bashrc_copy
   vimrc_copy
   firemotd_setup
-  java_zulu
+  java_install_or_update "$java_arch"
   openhab2_setup
   vim_openhab_syntax
   nano_openhab_syntax
