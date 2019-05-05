@@ -95,6 +95,12 @@ is_aarch64() {
     *) return 1 ;;
   esac
 }
+is_x86_64() {
+  case "$(uname -m)" in
+    x86_64|amd64) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 is_ubuntu() {
   [[ $(cat /etc/*release*) =~ "Ubuntu" ]]
   return $?
