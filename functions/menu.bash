@@ -128,12 +128,14 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
     "41 | openHAB release  " "Install or switch to the latest openHAB release" \
     "   | openHAB testing"   "Install or switch to the latest openHAB testing build" \
     "   | openHAB snapshot"  "Install or switch to the latest openHAB SNAPSHOT build" \
     "42 | Remote Console"    "Bind the openHAB SSH console to all external interfaces" \
     "43 | Reverse Proxy"     "Setup Nginx with password authentication and/or HTTPS access" \
+    "44 | Delay rules load"  "Delay loading rules to speed up overall startup" \
+    "   | Default order"     "Reset config elements load order to default" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -142,6 +144,8 @@ show_main_menu() {
       *openHAB\ snapshot) openhab2_setup unstable ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
+      *Delay\ rules\ load) delayed_rules yes;;
+      *Default\ order) delayed_rules no;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac

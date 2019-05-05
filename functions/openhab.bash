@@ -148,6 +148,17 @@ openhab_is_running() {
   return 0;
 }
 
+# create systemd config to enforce delaying rules loading
+delayed_rules() {
+  if [ "$1" == "yes" ]; then
+    /bin/cp ${BASEDIR}/includes/systemd-override.conf /etc/systemd/system/openhab2.service.d/override.conf
+  else
+    /bin/rm /etc/systemd/system/openhab2.service.d/override.conf
+  fi
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl restart openhab2.service
+}
+
 # The function has one non-optinal parameter for the application to create a tile for
 dashboard_add_tile() {
   tile_name="$1"
