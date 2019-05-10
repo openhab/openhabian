@@ -150,10 +150,13 @@ openhab_is_running() {
 
 # create systemd config to enforce delaying rules loading
 delayed_rules() {
+  local targetdir=/etc/systemd/system/openhab2.service.d
+
   if [ "$1" == "yes" ]; then
-    /bin/cp ${BASEDIR}/includes/systemd-override.conf /etc/systemd/system/openhab2.service.d/override.conf
+    /bin/mkdir -p $targetdir
+    /bin/cp ${BASEDIR}/includes/systemd-override.conf ${targetdir}/override.conf
   else
-    /bin/rm /etc/systemd/system/openhab2.service.d/override.conf
+    /bin/rm ${targetdir}/override.conf
   fi
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl restart openhab2.service
