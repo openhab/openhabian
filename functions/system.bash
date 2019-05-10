@@ -190,6 +190,19 @@ permissions_corrections() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 
+use_zram_swap() {
+  local TMP="$(mktemp /tmp/.XXXXXXXXXX)"
+  if [ "$1" == "yes"]; then
+    /bin/grep -v zram /etc/rc.local | sed -e '/^exit 0/i \/usr\/bin\/zram.sh \&' >$TMP
+    /bin/cp ${BASEDIR}/includes/zram.sh /usr/bin
+    /bin/chmod 755 /usr/bin/zram.sh
+  else
+    /bin/grep -v zram /etc/rc.local >$TMP
+  fi
+  /bin/cp $TMP /etc/rc.local
+  /bin/rm -f $TMP
+}
+
 misc_system_settings() {
   echo -n "$(timestamp) [openHABian] Applying miscellaneous system settings... "
   cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' $(realpath /usr/bin/java)

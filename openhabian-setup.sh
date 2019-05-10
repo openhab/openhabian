@@ -54,6 +54,7 @@ fi
 for shfile in $BASEDIR/functions/*.bash; do source "$shfile"; done
 
 if [[ -n "$UNATTENDED" ]]; then
+  use_zram_swap yes
   load_create_config
   timezone_setting
   locale_setting
