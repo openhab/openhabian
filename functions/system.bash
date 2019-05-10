@@ -192,7 +192,7 @@ permissions_corrections() {
 
 use_zram_swap() {
   local TMP="$(mktemp /tmp/.XXXXXXXXXX)"
-  if [ "$1" == "yes"]; then
+  if [ "$1" == "yes" ]; then
     /bin/grep -v zram /etc/rc.local | sed -e '/^exit 0/i \/usr\/bin\/zram.sh \&' >$TMP
     /bin/cp ${BASEDIR}/includes/zram.sh /usr/bin
     /bin/chmod 755 /usr/bin/zram.sh
