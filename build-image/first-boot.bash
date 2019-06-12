@@ -132,6 +132,7 @@ echo "OK"
 
 echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
 apt update &>/dev/null
+/usr/bin/apt --yes --fix-broken install &>/dev/null
 apt --yes upgrade &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
