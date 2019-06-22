@@ -105,7 +105,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 15 116 8 --cancel-button Back --ok-button Execute \
     "31 | Change Hostname     "   "Change the name of this system, currently '$(hostname)'" \
     "32 | Set System Locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
     "33 | Set System Timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
@@ -113,6 +113,7 @@ show_main_menu() {
     "35 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
     "36 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
     "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
+    "38 | Use zram"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -123,6 +124,7 @@ show_main_menu() {
       35\ *) prepare_serial_port ;;
       36\ *) wifi_setup ;;
       37\ *) move_root2usb ;;
+      38\ *) init_zram_mounts install;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -164,7 +166,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "60"* ]]; then
-    choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 19 116 12 --cancel-button Back --ok-button Execute \
+    choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 20 116 13 --cancel-button Back --ok-button Execute \
     "61 | Upgrade System     "    "Upgrade all installed software packages to their newest version " OFF \
     "62 | Packages"               "Install needed and recommended system packages " OFF \
     "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8 " OFF \
@@ -176,6 +178,8 @@ show_main_menu() {
     "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail) " OFF \
     "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
     "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
+    "6A | Use zram"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" OFF \
+    "   | Remove zram"            "Don't use compressed memory (back to standard Raspbian FS layout)" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
 
@@ -190,6 +194,8 @@ show_main_menu() {
     if [[ $choosenComponents == *"67"* ]]; then frontail_setup; fi
     if [[ $choosenComponents == *"68"* ]]; then firemotd_setup; fi
     if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
+    if [[ $choosenComponents == *"6A"* ]]; then init_zram_mounts install; fi
+    if [[ $choosenComponents == *"Remove zram"* ]]; then init_zram_mounts remove; fi
 
   elif [[ "$choice" == "99"* ]]; then
     show_about

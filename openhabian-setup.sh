@@ -75,6 +75,7 @@ if [[ -n "$UNATTENDED" ]]; then
   srv_bind_mounts
   permissions_corrections
   misc_system_settings
+  if is_pione || is_pitwo || is_pithree || is_pithreeplus || is_pine64; then init_zram_mounts install; fi
   samba_setup
   clean_config_userpw
   nodejs_setup
