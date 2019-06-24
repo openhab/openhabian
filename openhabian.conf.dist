@@ -1,5 +1,7 @@
 # Modify your openHABian settings
 # Handle with care, only touch if you need to!!
+# This file will only be used on initial install.
+# If you want to change anything after install completed, use menu in openhabian-config.
 
 hostname=openHABianDevice
 userpw=password
