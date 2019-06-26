@@ -137,10 +137,10 @@ init_zram_mounts() {
     local ZRAMGIT=https://github.com/StuartIanNaylor/zram-config
     TMP="$(mktemp -d /tmp/.XXXXXXXXXX)"
 
-    /usr/bin/git clone ${ZRAMGIT} ${TMP}
-    cd ${TMP}
+    /usr/bin/git clone "${ZRAMGIT}" "${TMP}"
+    cd "${TMP}" || return
     /bin/sh ./install.sh
-    /usr/bin/install -m 644 ${BASEDIR}/includes/ztab /etc/ztab
+    /usr/bin/install -m 644 "${BASEDIR}/includes/ztab" /etc/ztab
     service zram-config start
     rm -rf "$TMP"
   else
