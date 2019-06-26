@@ -29,6 +29,7 @@ nodejs_setup() {
 
 frontail_setup() {
   nodejs_setup
+  return
   echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail)... "
   cond_redirect npm install -g frontail
   if [ $? -ne 0 ]; then echo "FAILED (frontail)"; exit 1; fi
