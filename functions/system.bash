@@ -3,24 +3,24 @@
 whiptail_check() {
   if ! command -v whiptail &>/dev/null; then
     echo -n "$(timestamp) [openHABian] Installing whiptail... "
-    cond_redirect apt update
-    cond_redirect apt -y install whiptail
+    cond_redirect apt-get update
+    cond_redirect apt-get -y install whiptail
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
 }
 
 system_upgrade() {
   echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
-  cond_redirect apt update
-  cond_redirect apt --yes upgrade
+  cond_redirect apt-get update
+  cond_redirect apt-get --yes upgrade
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
-  cond_redirect apt update
-  apt remove raspi-config &>/dev/null || true
-  cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
+  cond_redirect apt-get update
+  apt-get remove raspi-config &>/dev/null || true
+  cond_redirect apt-get -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
                                xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
@@ -31,13 +31,13 @@ needed_packages() {
   # Install avahi-daemon - hostname based discovery on local networks
   # Install python/python-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
-  #cond_redirect apt update
-  cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon python python-pip avahi-autoipd
+  #cond_redirect apt-get update
+  cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python python-pip avahi-autoipd
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
   if is_pithree || is_pithreeplus || is_pizerow; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
-    cond_redirect apt -y install bluez python-bluez python-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth
+    cond_redirect apt-get -y install bluez python-bluez python-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
 }
@@ -53,8 +53,8 @@ timezone_setting() {
   else
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
-      cond_redirect apt update
-      cond_redirect apt -y install python-pip
+      cond_redirect apt-get update
+      cond_redirect apt-get -y install python-pip
       cond_redirect pip install --upgrade tzupdate
       if [ $? -ne 0 ]; then echo "FAILED (pip)"; return 1; fi
     fi
@@ -224,7 +224,7 @@ pine64_platform_scripts() {
 
 pine64_fix_systeminfo_binding() { # This will maybe be fixed upstreams some day. Keep an eye open.
   echo -n "$(timestamp) [openHABian] Enable PINE64 support for systeminfo binding... "
-  cond_redirect apt install -y udev:armhf
+  cond_redirect apt-get install -y udev:armhf
   cond_redirect ln -s /lib/arm-linux-gnueabihf/ /lib/linux-arm
   cond_redirect ln -s /lib/linux-arm/libudev.so.1 /lib/linux-arm/libudev.so
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi

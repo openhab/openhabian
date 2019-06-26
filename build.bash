@@ -54,7 +54,7 @@ inject_build_repo() {
     echo_process "inject_build_repo() invoked without clone_string varible set, exiting...."
     exit 1
   fi
-  sed -i '$a /usr/bin/apt -y install figlet &>/dev/null' $1
+  sed -i '$a /usr/bin/apt-get -y install figlet &>/dev/null' $1
   sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' $1
   sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' $1
   sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' $1
@@ -135,7 +135,7 @@ mkdir $buildfolder
 
 # Prerequisites
 echo_process "Downloading prerequisites... "
-apt update
+apt-get update
 
 
 # Build PINE64 image

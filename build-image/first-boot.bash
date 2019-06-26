@@ -126,21 +126,21 @@ done
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
-until apt update &>/dev/null; do sleep 1; done
+until apt-get update &>/dev/null; do sleep 1; done
 sleep 10  # Related to: https://github.com/openhab/openhabian/issues/441#issuecomment-448583415
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
-apt update &>/dev/null
-/usr/bin/apt --yes --fix-broken install &>/dev/null
-apt --yes upgrade &>/dev/null
+apt-get update &>/dev/null
+/usr/bin/apt-get --yes --fix-broken install &>/dev/null
+apt-get --yes upgrade &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 if hash python 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
-apt update &>/dev/null
-/usr/bin/apt -y install git &>/dev/null
+apt-get update &>/dev/null
+/usr/bin/apt-get -y install git &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [openHABian] Cloning myself... "
