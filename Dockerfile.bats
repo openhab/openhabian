@@ -1,5 +1,4 @@
-FROM balenalib/raspberry-pi2
-#FROM arm32v7/debian:stretch-slim
+FROM minimum2scp/systemd-stretch
  
 RUN apt-get update && apt-get install -y git locales systemd
 RUN git clone https://github.com/bats-core/bats-core.git && \

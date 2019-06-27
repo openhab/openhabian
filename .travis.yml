@@ -17,10 +17,10 @@ install:
 
 script:
   - docker run --name bats -d -it openhabian/openhabian-bats bash -c 'bats -r -f "unit-." .'
-    #  - docker exec -it bats bash -c './build.bash local-test && mv ~/.profile ~/.bash_profil && /etc/rc.local'
-    #  - docker exec -it bats bash -c 'bats -r -f "installation-." .'
-    #  - docker exec -it bats bash -c 'bats -r -f "destructive-." .'
-  - docker run --name openhabian-test -e TINI_SUBREAPER= -it -d openhabian/rpi-openhabian
+  - docker exec -it bats bash -c './build.bash local-test && mv ~/.profile ~/.bash_profil && /etc/rc.local'
+  - docker exec -it bats bash -c 'bats -r -f "installation-." .'
+  - docker exec -it bats bash -c 'bats -r -f "destructive-." .'
+    #  - docker run --name openhabian-test -e TINI_SUBREAPER= -it -d openhabian/rpi-openhabian
 
   - shellcheck -s bash openhabian-setup.sh || true
   - shellcheck -s bash functions/*.bash || true
