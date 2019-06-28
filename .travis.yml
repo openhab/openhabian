@@ -12,7 +12,7 @@ services:
 install:
   - shellcheck --version
   - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-  - docker build -t openhabian/openhabian-bats -f Dockerfile.bats .
+  - docker build -t openhabian/openhabian-bats -f Dockerfile .
   - docker build -t openhabian/rpi-openhabian -f Dockerfile.openhabian .
 
 script:
@@ -21,7 +21,7 @@ script:
   - docker exec -it "bats" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profil && /etc/rc.local'
   - docker exec -it "bats" bash -c 'bats -r -f "installation-." .'
   - docker exec -it "bats" bash -c 'bats -r -f "destructive-." .'
-  - docker run --name openhabian-test -e TINI_SUBREAPER= -it -d openhabian/rpi-openhabian
+    #  - docker run --name openhabian-test -e TINI_SUBREAPER= -it -d openhabian/rpi-openhabian
 
   - shellcheck -s bash openhabian-setup.sh || true
   - shellcheck -s bash functions/*.bash || true
