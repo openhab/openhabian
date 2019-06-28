@@ -162,7 +162,7 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   fi
 
   echo_process "Hacking \"build-pine64-image\" build and make script... "
-  sed -i "s/date +%Y%m%d_%H%M%S_%Z/date +%Y%m%d%H/" $buildfolder/build-pine64-image.bash
+  sed -i "s/date +%Y%m%d_%H%M%S_%Z/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh
   makescript=$buildfolder/simpleimage/make_rootfs.sh
   sed -i "s/^pine64$/openHABianPine64/" $makescript
   sed -i "s/127.0.1.1 pine64/127.0.1.1 openHABianPine64/" $makescript
@@ -177,7 +177,7 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   echo "cp ./webif.bash \$BOOT/webif.bash" >> $makescript
   echo "echo \"openHABian preparations finished, /etc/rc.local in place\"" >> $makescript
   echo_process "Executing \"build-pine64-image\" build script... "
-  (cd $buildfolder; /bin/bash build-pine64-image.bash simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial)
+  (cd $buildfolder; /bin/bash build-pine64-image.sh simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial)
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   mv $buildfolder/xenial-pine64-*.img $imagefile
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
