@@ -204,7 +204,7 @@ influxdb_install() {
   cond_echo ""
   echo "Installing InfluxDB..."
   dist="debian"
-  codename="stretch"
+  codename="buster"
   if is_ubuntu; then
     dist="ubuntu"
     codename="$(lsb_release -sc)"
