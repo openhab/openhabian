@@ -64,4 +64,10 @@ define dumptype amraw {
         program "APPLICATION"
         application "app_amraw"
 }
+define dumptype amraw {
+        global
+        program "APPLICATION"
+        application "app_amraw"
+	compress fast
+}
 # vim: filetype=conf
