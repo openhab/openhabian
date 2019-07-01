@@ -67,8 +67,8 @@ create_backup_config() {
 
     # don't backup SD by default as this can cause problems for large cards
     if [ -n "$INTERACTIVE" ]; then
-      if (whiptail --title "Backup raw SD card, too ?" --yes-button "Backup SD" --no-button "Do not backup SD." --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 8GB or less, otherwise this can take too long. You can change this at any time by editing ${confdir}/disklist." 15 80) then
-        echo "${hostname}  /dev/mmcblk0              amraw" >>${confdir}/disklist
+      if (whiptail --title "Backup raw SD card, too ?" --yes-button "Backup SD" --no-button "Do not backup SD." --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 16GB or less, otherwise this can take too long. You can change this at any time by editing ${confdir}/disklist." 15 80) then
+        echo "${hostname}  /dev/mmcblk0              comp-amraw" >>${confdir}/disklist
       fi
     fi
 
