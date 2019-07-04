@@ -234,6 +234,8 @@ influxdb_install() {
     cond_redirect sed -i -e '/^# Determines whether HTTP endpoint is enabled./ { n ; s/^# enabled = true/enabled = true/ }' /etc/influxdb/influxdb.conf
     cond_redirect sed -i 's/# bind-address = ":8086"/bind-address = "localhost:8086"/g' /etc/influxdb/influxdb.conf
     cond_redirect sed -i 's/# auth-enabled = false/auth-enabled = true/g' /etc/influxdb/influxdb.conf
+    # disable stats collection to save memory, issue #506
+    cond_redirect sed -i 's/# store-enabled = true/store-enabled = false/g' /etc/influxdb/influxdb.conf
     cond_redirect systemctl restart influxdb.service
     sleep 10
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
