@@ -64,7 +64,7 @@ define dumptype amraw {
         program "APPLICATION"
         application "app_amraw"
 }
-define dumptype amraw {
+define dumptype comp-amraw {
         global
         program "APPLICATION"
         application "app_amraw"
