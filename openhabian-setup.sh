@@ -54,6 +54,9 @@ fi
 for shfile in $BASEDIR/functions/*.bash; do source "$shfile"; done
 
 if [[ -n "$UNATTENDED" ]]; then
+  # apt/dpkg commands will not try interactive dialogs
+  export DEBIAN_FRONTEND=noninteractive
+
   load_create_config
   timezone_setting
   locale_setting

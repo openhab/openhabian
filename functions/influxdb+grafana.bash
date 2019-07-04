@@ -204,7 +204,7 @@ influxdb_install() {
   cond_echo ""
   echo "Installing InfluxDB..."
   dist="debian"
-  codename="stretch"
+  codename="buster"
   if is_ubuntu; then
     dist="ubuntu"
     codename="$(lsb_release -sc)"
@@ -215,11 +215,11 @@ influxdb_install() {
   influxdb_address="http://localhost:8086"
   influxdb_admin_username="admin"
   if [ ! -f /etc/influxdb/influxdb.conf ]; then
-    cond_redirect apt -y install apt-transport-https
+    cond_redirect apt-get -y install apt-transport-https
     cond_redirect wget -O - https://repos.influxdata.com/influxdb.key | apt-key add - || FAILED=1
     echo "deb https://repos.influxdata.com/$dist $codename stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
-    cond_redirect apt update || FAILED=1
-    cond_redirect apt -y install influxdb || FAILED=1
+    cond_redirect apt-get update || FAILED=1
+    cond_redirect apt-get -y install influxdb || FAILED=1
     cond_redirect systemctl daemon-reload
     sleep 2
     cond_redirect systemctl enable influxdb.service
@@ -234,6 +234,8 @@ influxdb_install() {
     cond_redirect sed -i -e '/^# Determines whether HTTP endpoint is enabled./ { n ; s/^# enabled = true/enabled = true/ }' /etc/influxdb/influxdb.conf
     cond_redirect sed -i 's/# bind-address = ":8086"/bind-address = "localhost:8086"/g' /etc/influxdb/influxdb.conf
     cond_redirect sed -i 's/# auth-enabled = false/auth-enabled = true/g' /etc/influxdb/influxdb.conf
+    # disable stats collection to save memory, issue #506
+    cond_redirect sed -i 's/# store-enabled = true/store-enabled = false/g' /etc/influxdb/influxdb.conf
     cond_redirect systemctl restart influxdb.service
     sleep 10
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
@@ -253,8 +255,8 @@ grafana_install(){
   echo -n "Installing Grafana..."
   cond_redirect wget -O - https://packages.grafana.com/gpg.key | apt-key add - || FAILED=2
   echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list || FAILED=2
-  cond_redirect apt update || FAILED=2
-  cond_redirect apt -y install grafana || FAILED=2
+  cond_redirect apt-get update || FAILED=2
+  cond_redirect apt-get -y install grafana || FAILED=2
 
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable grafana-server.service
