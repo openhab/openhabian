@@ -148,7 +148,7 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [openHABian] Cloning myself... "
 [ -d /opt/openhabian/ ] && rm -rf /opt/openhabian/ # check if we have remnants of a previous installation attempt.
-git clone -b master https://github.com/holgerfriedrich/openhabian.git /opt/openhabian &>/dev/null
+git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
 
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
