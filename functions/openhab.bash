@@ -21,7 +21,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     TESTING=1
   fi
 
-  cond_redirect apt -y install apt-transport-https
+  cond_redirect apt-get -y install apt-transport-https
 
   if [ ! -n "$UNSTABLE" ]; then
     if [ ! -n "$TESTING" ]; then
@@ -52,7 +52,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   rm -f openhab-key.asc
 
   echo "$REPO" > /etc/apt/sources.list.d/openhab2.list
-  cond_redirect apt update
+  cond_redirect apt-get update
   openhabVersion="$(apt-cache madison openhab2 | head -n 1 | cut -d'|' -f2 | xargs)"
   cond_redirect apt-get -y install "openhab2=${openhabVersion}"
   if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
