@@ -19,7 +19,7 @@ system_upgrade() {
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
   cond_redirect apt-get update
-  apt-get remove raspi-config &>/dev/null || true
+  apt-get remove -y raspi-config &>/dev/null || true
   cond_redirect apt-get -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
                                xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
