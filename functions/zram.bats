@@ -7,6 +7,13 @@ check_zram_mounts() {
   local FILE=/etc/ztab
   local i=0
 
+<<<<<<< HEAD
+=======
+  if ! [ -f ${FILE} ]; then
+    echo "# zram not installed, can not test." >&3
+    return 0
+  fi
+>>>>>>> keep most active directories in compressed RAM with sync to disk #576
   while read -r line; do
     case "${line}" in
       "#"*) continue ;;
