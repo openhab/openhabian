@@ -3,8 +3,8 @@
 samba_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
   if ! command -v samba &>/dev/null; then
-    cond_redirect apt update
-    cond_redirect apt -y install samba
+    cond_redirect apt-get update
+    cond_redirect apt-get -y install samba
     if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   fi
   cond_echo "Copying over custom 'smb.conf'... "
@@ -20,8 +20,8 @@ samba_setup() {
 
 firemotd_setup() {
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
-  cond_redirect apt update
-  cond_redirect apt -y install bc sysstat jq moreutils
+  cond_redirect apt-get update
+  cond_redirect apt-get -y install bc sysstat jq moreutils
   rm -rf /opt/FireMotD
   cond_redirect git clone https://github.com/OutsideIT/FireMotD /opt/FireMotD
   if [ $? -eq 0 ]; then
@@ -32,7 +32,7 @@ firemotd_setup() {
     # invoke apt updates check every night
     echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
     echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
-    # invoke apt updates check after every apt action ('apt upgrade', ...)
+    # invoke apt updates check after every apt action ('apt-get upgrade', ...)
     echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /opt/FireMotD/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
     echo "OK"
   else
@@ -78,7 +78,7 @@ ail.com" 3>&1 1>&2 2>&3)
 }
 
 exim_setup() {
-  apt -y install exim4 mailutils &>/dev/null
+  apt-get -y install exim4 mailutils &>/dev/null
   if [ $? -eq 0 ]; then
     echo "OK"
   else
@@ -89,7 +89,7 @@ exim_setup() {
 
 etckeeper_setup() {
   echo -n "$(timestamp) [openHABian] Installing etckeeper (git based /etc backup)... "
-  apt -y install etckeeper &>/dev/null
+  apt-get -y install etckeeper &>/dev/null
   if [ $? -eq 0 ]; then
     cond_redirect sed -i 's/VCS="bzr"/\#VCS="bzr"/g' /etc/etckeeper/etckeeper.conf
     cond_redirect sed -i 's/\#VCS="git"/VCS="git"/g' /etc/etckeeper/etckeeper.conf
@@ -150,9 +150,9 @@ To continue your integration in openHAB 2, please follow the instructions under:
       ;;
   esac
 
-  cond_redirect apt update
+  cond_redirect apt-get update
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
-  cond_redirect apt -y install homegear homegear-homematicbidcos homegear-homematicwired
+  cond_redirect apt-get -y install homegear homegear-homematicbidcos homegear-homematicwired
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect systemctl enable homegear.service
   cond_redirect systemctl start homegear.service
@@ -189,9 +189,9 @@ To continue your integration in openHAB 2, please follow the instructions under:
     cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
     echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
   fi
-  cond_redirect apt update
+  cond_redirect apt-get update
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
-  cond_redirect apt -y install mosquitto mosquitto-clients
+  cond_redirect apt-get -y install mosquitto mosquitto-clients
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   if [ "$mqttpasswd" != "" ]; then
     if ! grep -q "password_file /etc/mosquitto/passwd" /etc/mosquitto/mosquitto.conf; then
@@ -284,8 +284,8 @@ find_setup() {
     cond_redirect systemctl restart mosquitto.service || true
   fi
 
-  cond_redirect apt update
-  cond_redirect apt -y install libsvm-tools
+  cond_redirect apt-get update
+  cond_redirect apt-get -y install libsvm-tools
   if [ $? -ne 0 ]; then echo "FAILED (SVM)"; return 1; fi
 
   cond_redirect mkdir -p ${FIND_DSTDIR}
@@ -366,7 +366,7 @@ and activate one of these most common options (depending on your device):
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect apt -y install owserver ow-shell usbutils || FAILED=1
+  cond_redirect apt-get -y install owserver ow-shell usbutils || FAILED=1
   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
   if [ -n "$INTERACTIVE" ]; then
@@ -394,8 +394,8 @@ The article also contains instructions regarding openHAB integration.
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect apt update
-  cond_redirect apt -y install git python3 python3-pip bluetooth bluez
+  cond_redirect apt-get update
+  cond_redirect apt-get -y install git python3 python3-pip bluetooth bluez
   if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
   if [ ! -d "$DIRECTORY" ]; then
     cond_echo "Fresh Installation... "
@@ -438,8 +438,8 @@ speedtest_cli_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up Speedtest CLI... "
 
-  cond_redirect apt update
-  cond_redirect apt -y install python-setuptools
+  cond_redirect apt-get update
+  cond_redirect apt-get -y install python-setuptools
   if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
   cond_redirect easy_install speedtest-cli
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -470,7 +470,7 @@ nginx_setup() {
   }
 
   echo "Installing DNS utilities..."
-  apt -y -q install dnsutils
+  apt-get -y -q install dnsutils
 
   AUTH=false
   SECURE=false
@@ -552,7 +552,7 @@ nginx_setup() {
 
   if (whiptail --title "Confirmation" --yesno "$confirmtext" 22 80) then
     echo "Installing NGINX..."
-    apt -y -q install nginx || FAILED=true
+    apt-get -y -q install nginx || FAILED=true
 
     rm -rf /etc/nginx/sites-enabled/default
     cp $BASEDIR/includes/nginx.conf /etc/nginx/sites-enabled/openhab
@@ -561,7 +561,7 @@ nginx_setup() {
 
     if [ "$AUTH" = true ]; then
       echo "Installing password utilities..."
-      apt -y -q install apache2-utils || FAILED=true
+      apt-get -y -q install apache2-utils || FAILED=true
       echo "Creating password file..."
       htpasswd -b -c /etc/nginx/.htpasswd $username $password
       uncomment 32,33 /etc/nginx/sites-enabled/openhab
@@ -584,12 +584,12 @@ nginx_setup() {
           certbotoption="-t"
           echo -e "# This file was added by openHABian to install certbot\ndeb http://ftp.debian.org/debian ${certbotrepo} main" > /etc/apt/sources.list.d/backports.list
         elif is_ubuntu; then
-          apt -y -q --force-yes install software-properties-common
+          apt -get -y -q --force-yes install software-properties-common
           add-apt-repository ppa:certbot/certbot
         fi
-        apt update
+        apt-get update
         echo "Installing certbot..."
-        apt -y -q --force-yes install "${certbotpackage}" "${certbotoption}" "${certbotrepo}"
+        apt-get -y -q --force-yes install "${certbotpackage}" "${certbotoption}" "${certbotrepo}"
         mkdir -p /var/www/$domain
         uncomment 37,39 /etc/nginx/sites-enabled/openhab
         nginx -t && service nginx reload
@@ -656,20 +656,20 @@ or just reboot the system.
   if is_xenial ; then
     echo 'APT::Default-Release "xenial";' > /etc/apt/apt.conf.d/01release
     echo "deb http://archive.ubuntu.com/ubuntu/ bionic universe" > /etc/apt/sources.list.d/ubuntu-artful.list
-    cond_redirect apt update
-    cond_redirect apt -y -t=bionic install libconfuse1
+    cond_redirect apt-get update
+    cond_redirect apt-get -y -t=bionic install libconfuse1
   fi
   if is_jessie ; then
     echo 'APT::Default-Release "jessie";' > /etc/apt/apt.conf.d/01release
     echo "deb http://deb.debian.org/debian stretch main" > /etc/apt/sources.list.d/debian-stretch.list
-    cond_redirect apt update
-    cond_redirect apt -y -t=stretch install libconfuse1
+    cond_redirect apt-get update
+    cond_redirect apt-get -y -t=stretch install libconfuse1
   fi
 
   cond_redirect wget -O - https://s3.eu-central-1.amazonaws.com/download.telldus.com/debian/telldus-public.key | apt-key add -
   echo "deb https://s3.eu-central-1.amazonaws.com/download.telldus.com unstable main" > /etc/apt/sources.list.d/telldus-unstable.list
-  cond_redirect apt update
-  cond_redirect apt -y install libjna-java telldus-core || FAILED=1
+  cond_redirect apt-get update
+  cond_redirect apt-get -y install libjna-java telldus-core || FAILED=1
   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
   echo -n "$(timestamp) [openHABian] Setting up systemd service for telldusd... "

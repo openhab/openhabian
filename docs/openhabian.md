@@ -392,7 +392,7 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
 ```shell
-sudo apt install raspberrypi-ui-mods
+sudo apt-get install raspberrypi-ui-mods
 sudo reboot
 ```
 
