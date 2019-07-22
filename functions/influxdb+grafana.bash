@@ -262,23 +262,17 @@ grafana_install(){
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable grafana-server.service
   cond_redirect systemctl start grafana-server.service
-  sleep 10
-  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; else echo -n "OK "; fi
+  sleep 20
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
   cond_echo ""
 
   echo -n "Updating Grafana admin password..."
   curl --user admin:admin --header "Content-Type: application/json" --request PUT --data "{\"password\":\"$1\"}" http://localhost:3000/api/admin/users/1/password || FAILED=2
-  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; else echo -n "OK "; fi
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
 
   echo -n "Updating Grafana configuration..."
   cond_redirect sed -i -e '/^# disable user signup \/ registration/ { n ; s/^;allow_sign_up = true/allow_sign_up = false/ }' /etc/grafana/grafana.ini
   cond_redirect sed -i -e '/^# enable anonymous access/ { n ; s/^;enabled = false/enabled = true/ }' /etc/grafana/grafana.ini
   cond_redirect systemctl restart grafana-server.service
-  sleep 10
-
-  echo -n "Updating Grafana configuration..."
-  cond_redirect sed -i -e '/^# disable user signup \/ registration/ { n ; s/^;allow_sign_up = true/allow_sign_up = false/ }' /etc/grafana/grafana.ini
-  cond_redirect sed -i -e '/^# enable anonymous access/ { n ; s/^;enabled = false/enabled = true/ }' /etc/grafana/grafana.ini
-  cond_redirect systemctl restart grafana-server.service
-  sleep 10
+  sleep 20
 }
