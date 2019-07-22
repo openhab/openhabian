@@ -23,7 +23,7 @@ elif [ -f "/opt/openHABian-install-inprogress" ]; then
   return 0
 fi
 
-if [ ! -f "/usr/bin/raspi-config" ]; then
+if [ -f "/usr/bin/raspi-config" ]; then
   alias raspi-config="echo 'raspi-config is not part of openHABian, please use openhabian-config instead.'"
 fi
 
