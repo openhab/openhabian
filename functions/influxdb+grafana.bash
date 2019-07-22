@@ -146,6 +146,7 @@ influxdb_grafana_setup() {
 
   if [ -z "$influxdb_address" ]; then # is empty, install a InfluxDB database
     influxdb_install $influxdb_admin_password
+    influxdb_address="http://localhost:8086"
   fi  
 
   if [ ! -z "$influxdb_admin_username" ]; then # is set, configure database and application users
