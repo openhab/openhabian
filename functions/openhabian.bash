@@ -117,14 +117,6 @@ system_check_default_password() {
   fi
 }
 
-openhabian_hotfix() {
-  if ! grep -q "sleep" /etc/cron.d/firemotd; then
-    introtext="It was brought to our attention that openHABian systems cause requests spikes on remote package update servers. This unwanted behavior is related to a simple cronjob configuration mistake and the fact that the openHABian user base has grown quite big over the last couple of months. Please continue to apply the appropriate modification to your system. Thank you."
-    if ! (whiptail --title "openHABian Hotfix Needed" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 15 80) then return 0; fi
-    firemotd
-  fi
-}
-
 ua-netinst_check() {
   if [ -f "/boot/config-reinstall.txt" ]; then
     introtext="Attention: It was brought to our attention that the old openHABian ua-netinst based image has a problem with a lately updated Linux package.

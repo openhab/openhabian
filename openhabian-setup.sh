@@ -85,7 +85,6 @@ if [[ -n "$UNATTENDED" ]]; then
 else
   whiptail_check
   load_create_config
-  openhabian_hotfix
   ua-netinst_check
   openhabian_console_check
   openhabian_update_check
