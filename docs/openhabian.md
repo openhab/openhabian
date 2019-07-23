@@ -259,9 +259,13 @@ All password can be changed from openHABian menu.
 - InfluxDB (No password set by default)
 - Grafana visualization ("admin:admin")
 
-## Backup
-
-openHABian provides [Amanda Network Backup](http://www.amanda.org/) as a preconfigured backup and restore solution for your valuables. Please continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md).
+## Important configuration steps you shouldn't miss if you want your home automation server to be reliable 
+Many single board computers such as Raspberry Pis are very susceptible to file corruption due to SD card wearout since by default they run off their SD card. 
+OpenHABian has been providing a means of moving the root filesystem to some more reliable USB-attached device such as an SSD (menu option 37).
+But there's a more clever option available now: menu option 6A will move write-intensive directories such as logfiles and persistence data into RAM now. You will lose this data if your computer crashes or power fails but openHAB keeps working, and you can restore these files from backup. You can force syncing this data to disk but you will have to shutdown/reboot the server for that as for the time being, it requires to unmount the RAM-located directories.
+And no matter how reliable your HW/SW is, you have to setup a **backup** of your box anyway.
+As a matter of fact, *any* storage medium will fail at some point in time. You should prepare for this to happen right in the beginning at openHAB setup time, and you should do so regardless of the type and quality of hardware you run.
+openHABian provides [Amanda Network Backup](http://www.amanda.org/) as a preconfigured backup and restore solution for your valuables. Please install it via menu option 51 and continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md).
 
 ## Optional Components
 
