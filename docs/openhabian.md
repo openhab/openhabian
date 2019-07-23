@@ -37,7 +37,7 @@ The following features are provided by the openHABian images out of the box:
 - Zulu Embedded OpenJDK Java 8 ([newest revision](http://zulu.org/zulu-community/zulurelnotes))
 - [openHABian Configuration Tool](#openhabian-config) including updater functionality
 - openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
-- Samba file sharing with [pre-configured to use shares](http://docs.openhab.org/installation/linux.html#mounting-locally)
+- Samba file sharing with [pre-configured to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
 - Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
 - Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
 - Customized Bash shell experience
@@ -50,10 +50,11 @@ Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openha
 
 ![openHABian-config menu](images/openHABian-config.png)
 
-- Switch over to the latest openHAB 2 [*unstable/SNAPSHOT* build](http://docs.openhab.org/installation/linux.html#changing-versions)
+- Switch over to the latest openHAB 2 [*unstable/SNAPSHOT* build](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 - Install and Setup a [reverse proxy](security.html#nginx-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
 - Set up a Wi-Fi connection
 - Bind the [openHAB remote console]({{base}}/administration/console.html) to all interfaces
+- Setup [Backup](#backup) for your system
 - Easily install and preconfigure [Optional Components](#optional-components) of your choice
 - ... and many more
 - Raspberry Pi specific:
@@ -67,7 +68,7 @@ Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openha
 
 Here you'll find supported and tested installation platforms and instructions.
 
-### Raspberry Pi
+### Raspberry Pi (Prepackaged SD-Card Image)
 
 **Flash, plug, wait, enjoy:**
 The provided image is based on the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian) standard system.
@@ -88,8 +89,8 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 
 
 - The device will be available under its IP or via the local DNS name `openhabianpi`
-- [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html): [http://openhabianpi:8080](http://openhabianpi:8080)
-- [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
+- [Connect to the openHAB 2 dashboard](https://www.openhab.org/docs/configuration/packages.html): [http://openhabianpi:8080](http://openhabianpi:8080)
+- [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
 - Connect to the openHAB Log Viewer (frontail): [http://openhabianpi:9001](http://openhabianpi:9001)
 - If you encounter any setup problem, [please continue here](#successful)
 
@@ -103,9 +104,9 @@ You will see the following welcome screen:
 
 ![openHABian login screen](images/openHABian-SSH-MotD.png)
 
-➜ Continue at the ["openHABian Configuration Tool"](#openhabian-config) chapter below!
+➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
 
-### Pine A64
+### Pine A64 (Prepackaged SD-Card Image)
 
 We provide a ready to use system image for the Pine A64.
 The image is based on the official [Ubuntu Base Image by longsleep](http://wiki.pine64.org/index.php/Pine_A64_Software_Release).
@@ -130,8 +131,8 @@ As a workaround, please be sure to not have am HDMI display connected during the
 
 
 - The device will be available under its IP or via the local DNS name `openhabianpine64`
-- [Connect to the openHAB 2 dashboard](http://docs.openhab.org/configuration/packages.html): [http://openhabianpine64:8080](http://openhabianpine64:8080)
-- [Connect to the Samba network shares](http://docs.openhab.org/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
+- [Connect to the openHAB 2 dashboard](https://www.openhab.org/docs/configuration/packages.html): [http://openhabianpine64:8080](http://openhabianpine64:8080)
+- [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
 - Connect to the openHAB Log Viewer (frontail): [http://openhabianpine64:9001](http://openhabianpine64:9001)
 - If you encounter any setup problem, [please continue here](#successful)
 
@@ -147,7 +148,7 @@ You will see the following welcome screen:
 
 ➜ Continue at the ["openHABian Configuration Tool"](#openhabian-config) section below!
 
-### Manual Setup
+### Other Linux Systems (add openHABian just like any other software)
 
 openHABian also supports general Debian/Ubuntu based systems on different platforms.
 Starting with a fresh installation of your operating system, install git, then clone the openHABian project and finally execute the openHABian configuration tool:
@@ -225,6 +226,16 @@ Regardless of if you want to copy some files or are on the search for a solution
 Take a few minutes to study the above Tutorials and get to know the most basic commands and tools to be able to navigate on your Linux system, edit configurations, check the system state or look at log files.
 It's not complicated and something that doesn't hurt on ones résumé.
 
+### First Steps with openHAB
+
+After your first setup of openHABian is successful and you are able to access the openHAB dashboard, you should dig into the possibilites.
+Install [Bindings](https://www.openhab.org/addons/), discover your devices, and [configure your smart home](https://www.openhab.org/docs/configuration/).
+You might want to start defining [Items](https://www.openhab.org/docs/configuration/items.html), [Sitemap](https://www.openhab.org/docs/configuration/sitemaps.html) and [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html) dashboard for your home.
+To kickstart that process you may check out the openHAB [Home Builder](https://www.openhab.org/docs/configuration/homebuilder.html).
+
+These are just some first hints.
+Be sure to read up on the [Configuration](https://www.openhab.org/docs/configuration/) section of the documentation page to learn more.
+
 {: #further-config}
 ### Further Configuration Steps
 
@@ -232,32 +243,46 @@ openHABian is supposed to provide a ready-to-use openHAB base system. There are 
 
 - **Time Zone:** The time zone of your openHABian system will be determined based on your internet connection. In some cases you might have to adjust that setting.
 - **Language:** The `locale` setting of the openHABian base system is set to "en_US.UTF-8". While this setting will not do any harm, you might prefer e.g. console errors in German or Spanish. Change the locale settings accordingly. Be aware, that error solving might be easier when using the English error messages as search phrases.
-- **Passwords:** Relying on default passwords is a security concern you should care about! The openHABian system is preconfigured with a few passwords you should change to ensure the security of your system. This is especially important of your system is accessible from outside your private subnet.
+- **Passwords:** Relying on default passwords is a security concern you should care about! The openHABian system is preconfigured with a few passwords you should change to ensure the security of your system. This is especially important if your system is accessible from outside your private subnet.
 
 All of these settings **can easily be changed** via the openHABian Configuration Tool.
 
-Here are the passwords in question, their default "username:password" value and the way to change them:
+Here are the passwords in question with their respective default "username:password" values. 
+All password can be changed from openHABian menu.
 
 {: #passwords}
-- User password needed for SSH or sudo (e.g. "openhabian:openhabian") : `passwd`
-- Samba share password (e.g. "openhabian:openhabian"): `sudo smbpasswd openhabian`
-- openHAB remote console (e.g. "openhab:habopen"): Change via the openHABian menu
-- Nginx reverse proxy login (no default): Change via the openHABian menu, please see [here](http://docs.openhab.org/installation/security.html#adding-or-removing-users) for more
+- User password needed for SSH or sudo (e.g. "openhabian:openhabian")
+- Samba share password (e.g. "openhabian:openhabian")
+- openHAB remote console (e.g. "openhab:habopen")
+- Amanda backup password (no default, applied when installing)
+- Nginx reverse proxy login (no default, applied when installing) *For manual configuration see [here](https://www.openhab.org/docs/installation/security.html#adding-or-removing-users).*
+- InfluxDB (No password set by default)
+- Grafana visualization ("admin:admin")
+
+## Important configuration steps you shouldn't miss if you want your home automation server to be reliable 
+Many single board computers such as Raspberry Pis are very susceptible to file corruption due to SD card wearout since by default they run off their SD card. 
+OpenHABian has been providing a means of moving the root filesystem to some more reliable USB-attached device such as an SSD (menu option 37).
+But there's a more clever option available now: menu option 6A will move write-intensive directories such as logfiles and persistence data into RAM now. You will lose this data if your computer crashes or power fails but openHAB keeps working, and you can restore these files from backup. You can force syncing this data to disk but you will have to shutdown/reboot the server for that as for the time being, it requires to unmount the RAM-located directories.
+And no matter how reliable your HW/SW is, you have to setup a **backup** of your box anyway.
+As a matter of fact, *any* storage medium will fail at some point in time. You should prepare for this to happen right in the beginning at openHAB setup time, and you should do so regardless of the type and quality of hardware you run.
+openHABian provides [Amanda Network Backup](http://www.amanda.org/) as a preconfigured backup and restore solution for your valuables. Please install it via menu option 51 and continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md).
 
 ## Optional Components
 
 openHABian comes with a number of additional routines to quickly install and set up home automation related software.
 You'll find all of these in the [openHABian Configuration Tool](#openhabian-config)
 
-- [Amanda Network Backup](http://www.amanda.org/) - A built-in backup solution for your valuables. Please continue reading [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md)
 - [frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openHABianPi:9001](http://openHABianPi:9001)
-- [openHAB Generator](https://github.com/kubawolanin/generator-openhab) - Allows you to create [Items](http://docs.openhab.org/configuration/items.html), [Sitemap](http://docs.openhab.org/configuration/sitemaps.html) and [HABPanel](http://docs.openhab.org/addons/uis/habpanel/readme.html) dashboard for your home in no time
-- [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openHABianPi:1880](http://openHABianPi:1880)
-- [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
-- [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
+- Mi Flora MQTT demon
+- [InfluxDB and Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openHABianPi:3000](http://openHABianPi:3000)
 - [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
+- [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openHABianPi:1880](http://openHABianPi:1880)
+- [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
+- [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
 - [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
-- [Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openHABianPi:3000](http://openHABianPi:3000)
+- [FIND](https://www.internalpositioning.com/) - the Framework for Internal Navigation and Discovery
+- Tellstick core
+- Speedtest CLI
 
 ## FAQ and Troubleshooting
 
@@ -330,12 +355,9 @@ If the installation was **not successful** you will see a warning and further in
 
 ##### What Next?
 
-After your first setup is done, you might want to generate [Items](http://docs.openhab.org/configuration/items.html), [Sitemap](http://docs.openhab.org/configuration/sitemaps.html) and [HABPanel](http://docs.openhab.org/addons/uis/habpanel/readme.html) dashboard for your home.
-Simply log in to your Raspberry PI with SSH and type `openhab-generator`. It will run a Yeoman-based [openHAB Generator](https://github.com/kubawolanin/generator-openhab) tool asking for your house structure (e.g. number of floors, rooms and devices).
-
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem.
 Try using a steady power source and a reliable SD card, double check the network connection.
-Restart the Setup process to rule out most other possible causes.
+Restart the complete setup process to rule out most other possible causes.
 
 Contact the [openHABian community forum thread](https://community.openhab.org/t/13379) if the problem persists.
 
@@ -346,7 +368,7 @@ openHABian installs the latest stable build of openHAB 2.
 If you want to switch over to the snapshot release branch, please do so via the openHABian Configuration Tool.
 Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
 
-Check the Linux installation article for all needed details: [Linux: Changing Versions](http://docs.openhab.org/installation/linux.html#changing-versions)
+Check the Linux installation article for all needed details: [Linux: Changing Versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 
 {: #headache}
 #### Where is the graphical user interface?
@@ -374,7 +396,7 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
 ```shell
-sudo apt install raspberrypi-ui-mods
+sudo apt-get install raspberrypi-ui-mods
 sudo reboot
 ```
 

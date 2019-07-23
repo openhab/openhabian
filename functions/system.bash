@@ -3,29 +3,24 @@
 whiptail_check() {
   if ! command -v whiptail &>/dev/null; then
     echo -n "$(timestamp) [openHABian] Installing whiptail... "
-    cond_redirect apt update
-    cond_redirect apt -y install whiptail
+    cond_redirect apt-get update
+    cond_redirect apt-get -y install whiptail
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
 }
 
 system_upgrade() {
   echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
-  cond_redirect apt update
-  cond_redirect apt --yes upgrade
+  cond_redirect apt-get update
+  cond_redirect apt-get --yes upgrade
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
-  if is_pi; then
-    #cond_redirect wget -O /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update
-    #cond_redirect chmod +x /usr/bin/rpi-update
-    cond_redirect rm -f /usr/bin/rpi-update
-  fi
-  cond_redirect apt update
-  apt remove raspi-config &>/dev/null || true
-  cond_redirect apt -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
+  cond_redirect apt-get update
+  apt-get remove -y raspi-config &>/dev/null || true
+  cond_redirect apt-get -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
                                xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
@@ -36,13 +31,13 @@ needed_packages() {
   # Install avahi-daemon - hostname based discovery on local networks
   # Install python/python-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
-  #cond_redirect apt update
-  cond_redirect apt -y install apt-transport-https bc sysstat avahi-daemon python python-pip
+  #cond_redirect apt-get update
+  cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python python-pip avahi-autoipd
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-  if is_pithree || is_pizerow; then
+  if is_pithree || is_pithreeplus || is_pizerow; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
-    cond_redirect apt -y install bluez python-bluez python-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth
+    cond_redirect apt-get -y install bluez python-bluez python-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
 }
@@ -58,8 +53,8 @@ timezone_setting() {
   else
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
-      cond_redirect apt update
-      cond_redirect apt -y install python-pip
+      cond_redirect apt-get update
+      cond_redirect apt-get -y install python-pip
       cond_redirect pip install --upgrade tzupdate
       if [ $? -ne 0 ]; then echo "FAILED (pip)"; return 1; fi
     fi
@@ -84,6 +79,7 @@ locale_setting() {
   if is_ubuntu; then
     cond_redirect locale-gen $locales
   else
+    touch /etc/locale.gen
     for loc in $locales; do sed -i "/$loc/s/^# //g" /etc/locale.gen; done
     cond_redirect locale-gen
   fi
@@ -138,7 +134,7 @@ vimrc_copy() {
 
 srv_bind_mounts() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
-  sed -i "/openhab2/d" /etc/fstab
+  sed -i "\#[ \t]/srv/openhab2-#d" /etc/fstab
   sed -i "/^$/d" /etc/fstab
   (
     echo ""
@@ -162,15 +158,23 @@ permissions_corrections() {
     echo "FAILED (please execute after openHAB was installed)"
     exit 1
   fi
-  cond_redirect adduser openhab dialout
-  cond_redirect adduser openhab tty
-  cond_redirect adduser openhab gpio
-  cond_redirect adduser openhab audio
-  cond_redirect adduser $username openhab
-  cond_redirect adduser $username dialout
-  cond_redirect adduser $username tty
-  cond_redirect adduser $username gpio
-  cond_redirect adduser $username audio
+
+  if is_pine64; then
+    cond_redirect groupadd gpio
+    cond_redirect cp $BASEDIR/includes/PINE64-80-gpio-noroot.rules /etc/udev/rules.d/80-gpio-noroot.rules
+    cond_redirect sed -i -e '$i \chown -R root:gpio /sys/class/gpio \n' /etc/rc.local
+    cond_redirect sed -i -e '$i \chmod -R ug+rw /sys/class/gpio \n' /etc/rc.local
+  fi
+
+  for pGroup in audio bluetooth dialout gpio tty
+  do
+    if getent group "$pGroup" > /dev/null 2>&1 ; then
+      cond_redirect adduser openhab "$pGroup"
+      cond_redirect adduser "$username" "$pGroup"
+    fi
+  done
+  cond_redirect adduser "$username" openhab
+
   #
   openhab_folders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2/addons)
   cond_redirect chown openhab:$username /srv /srv/README.txt
@@ -189,6 +193,7 @@ permissions_corrections() {
 misc_system_settings() {
   echo -n "$(timestamp) [openHABian] Applying miscellaneous system settings... "
   cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' $(realpath /usr/bin/java)
+  cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping
   if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
   # user home note
   echo -e "This is your linux user's \"home\" folder.\nPlace personal files, programs or scripts here." > /home/$username/README.txt
@@ -215,6 +220,14 @@ pine64_platform_scripts() {
   else
     echo "FAILED"
   fi
+}
+
+pine64_fix_systeminfo_binding() { # This will maybe be fixed upstreams some day. Keep an eye open.
+  echo -n "$(timestamp) [openHABian] Enable PINE64 support for systeminfo binding... "
+  cond_redirect apt-get install -y udev:armhf
+  cond_redirect ln -s /lib/arm-linux-gnueabihf/ /lib/linux-arm
+  cond_redirect ln -s /lib/linux-arm/libudev.so.1 /lib/linux-arm/libudev.so
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 
 pine64_fixed_mac() {
@@ -265,8 +278,8 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 
   # Find current settings
   if is_pi && grep -q "enable_uart=1" /boot/config.txt; then sel_1="ON"; else sel_1="OFF"; fi
-  if is_pithree && grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then sel_2="ON"; else sel_2="OFF"; fi
-  if grep -q "/dev/ttyS0:/dev/ttyS2" /etc/default/openhab2; then sel_3="ON"; else sel_3="OFF"; fi
+  if is_pithree || is_pithreeplus && grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then sel_2="ON"; else sel_2="OFF"; fi
+  if grep -q "EXTRA_JAVA_OPTS=\"-Xms250m -Xmx350m -Dgnu.io.rxtx.SerialPorts=" /etc/default/openhab2; then sel_3="ON"; else sel_3="OFF"; fi
 
   if [ -n "$INTERACTIVE" ]; then
     selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
@@ -309,16 +322,18 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   fi
 
   if [[ $selection == *"2"* ]]; then
-    if is_pithree; then
-      cond_redirect systemctl stop hciuart &>/dev/null
-      cond_redirect systemctl disable hciuart &>/dev/null
+    if is_pithree || is_pithreeplus; then
+      #cond_redirect systemctl stop hciuart &>/dev/null
+      #cond_redirect systemctl disable hciuart &>/dev/null
       cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3)"
       if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
         echo "dtoverlay=pi3-miniuart-bt" >> /boot/config.txt
       fi
+    else
+      cond_echo "Option only available for Raspberry Pi 3."
     fi
   else
-    if is_pithree; then
+    if is_pithree || is_pithreeplus; then
       cond_echo "Removing 'dtoverlay=pi3-miniuart-bt' from /boot/config.txt"
       sed -i '/dtoverlay=pi3-miniuart-bt/d' /boot/config.txt
     fi
@@ -326,10 +341,10 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 
   if [[ $selection == *"3"* ]]; then
     cond_echo "Adding serial ports to openHAB java virtual machine in /etc/default/openhab2"
-    sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"#g' /etc/default/openhab2
+    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms250m -Xmx350m -Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"#g' /etc/default/openhab2
   else
     cond_echo "Removing serial ports from openHAB java virtual machine in /etc/default/openhab2"
-    sed -i 's#EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS=""#g' /etc/default/openhab2
+    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms250m -Xmx350m"#g' /etc/default/openhab2
   fi
 
   if [ -n "$INTERACTIVE" ]; then

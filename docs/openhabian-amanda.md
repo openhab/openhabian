@@ -15,7 +15,7 @@ Now think of a recovery concept for each of these components: what do you have t
 
 If the SD card in your Pi fails because of SD corruption (a very common problem), you need to have a PREinstalled, at least
 somewhat current clone SD card to contain all your current OS packages, including all helper programs you might be using (such
-as say mosquitto or any scripts you might have installed yourself), and your mathing CURRENT openHAB config, and more.
+as say mosquitto or any scripts you might have installed yourself), and your matching CURRENT openHAB config, and more.
 If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first!
 How long will that take you? Are you even capable of doing that ? Will the latest version of openHABian/Linux packages be 
 guaranteed to work with each other and with your hardware ?
@@ -26,14 +26,14 @@ restoration of all features and setups you used to have in operation before the 
 
 **One specific word of WARNING:**
 If you run a ZWave network like many openHAB users do, think what you need to do if the controller breaks and you need to
-replace it. A new controller has a different Home ID, so your device will not talk to it unless you re-include all of them (and
+replace it. A new controller has a different Home ID, so all of your devices will not talk to it unless you re-include all of them (and
 to physically access devices in quite a number of cases means you need to open your walls !!) And even if you have easy access,
 it can take many hours, even more so if it's dark and your ... no I'm NOT joking, and I'm not overdoing things.
 This is what happened to several people, and it can happen to you, too. We have seen people be so frustrated that they gave up
 on openHAB or smart home altogether because of this.
 For RaZberry/zwave.me USB stick, you can run the Z-Way software to backup and restore the ZWave network data including the
 controller. For the Aeon Gen5 stick, there's a Windows tool available for download.
-NOTE: Similar problems may arise if you run a gateway unit to control commercial systems such as a HomeMatic CCU or Insteon
+NOTE: you will face the same type of problem if you run a gateway unit to control commercial systems such as a HomeMatic CCU or Insteon
 controller.
 Remember Murphy's law: When your system fails and you need to restore your system for the first time, you'll notice your backup
 is broken. So dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and
@@ -47,14 +47,14 @@ you moved your OS or parts thereof).
 
 **Another word of WARNING:**
 To move your system off the internal SD card does NOT solve SD corruption problems or increase reliability in any other way.
-SD cards and USB sticks use the same technology. And HDDs still can get corrupted, and they can crash, too.
+SD cards and USB sticks use the same technology. And SSDs and HDDs still can get corrupted as well, and they can crash, too.
 You may or may not have or want to use Internet / cloud services for various reasons (privacy, bandwidth, cost), so we provide
 you with one solution that is designed to run on local hardware only. We provide a config to use a directory as the backup
 destination. This can be a directory mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
 device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
 We believe this will cover most openHAB backup use cases.
-NOTE: don't use CIFS (Windows sharing). If you have a NAS, se NFS instead. There's issues with CIFS and symlinks, and it doesn't
-make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian).
+NOTE: don't use CIFS (Windows sharing). If you have a NAS, use NFS instead. It does not work with CIFS because of issues with symlinks,
+and it doesn't make sense to use a Windows protocol to share a disk from a UNIX server (all NAS) to a UNIX client (openHABian) at all.
 If you don't have a NAS, DON'T use your Windows box as the storage server. Attach a USB stick to your Pi instead for storage.
 There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
 do not match your needs. You could even use it to backup all of your servers (if any) and desktop PCs, including Windows
@@ -91,8 +91,7 @@ uses functional users to execute tasks with specific access rights) for administ
 (that you have created that at the beginning of your openHABian installation or "openhabian" by default).
 Installation tasks including post-package-installation changes (edits) of the Amanda config files, require to use the `root`
 user. Any ordinary user (such as your personal one) can execute commands on behalf of root (and with root permission) by
-prepending "sudo " to the command. Note: commands executed as `root` will often NOT ask for confirmation, and bad commands can
-easily DESTROY YOUR SYSTEM. **Take special care !**
+prepending "sudo " to the command.
 
 # Installation
 ## Storage preparation
@@ -111,14 +110,12 @@ Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 19
 USB stick identified as /dev/sda (Linux ext4 and Windows VFAT filesystems).
 
 HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
-Do NOT (I repeat: NOT) deploy these commands unless you are fully aware what they will do to your system.
-To use a command with a wrong device name CAN DESTROY YOUR SYSTEM.
+Do not deploy these commands unless you are fully aware what they will do to your system, using a command with a wrong device 
+name can destroy your system.
 
----------------------
-YOU HAVE BEEN WARNED.
----------------------
 
 ### NAS mount example
+
 ```
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
 pi@pi:~ $ sudo bash
@@ -134,11 +131,14 @@ Filesystem                       1K-blocks       Used Available  Use% Mounted on
 root@pi:/home/pi#
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
 ```
+
 ### USB storage mount example
+
 Note that this is showing two alternative versions, for FAT16/FAT32 filesystems (i.e. the original MS-DOS and the improved
 Windows filesystems that you usually use for USB sticks) and another version to use the ext4 native Linux filesystem. You can 
 use ext4 on a stick or USB-attached hard drive.
 Either way, you just need one or the other.
+
 ```
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
 root@pi:/home/pi# fdisk -l /dev/sda
@@ -178,7 +178,7 @@ File system created successfully.
 root@pi:/#
 root@pi:/home/pi# mkdir -p /storage/usbstick-linux /storage/usbstick-msdos
 root@pi:/home/pi# echo "/dev/sda8     /storage/usbstick-linux    ext4     defaults,noatime  0       1" >> /etc/fstab
-root@pi:/home/pi# echo "/dev/sda1     /storage/usbstick-msdos    vfat     defaults,noatime  0       1" >> /etc/fstab
+root@pi:/home/pi# echo "/dev/sda1     /storage/usbstick-msdos    vfat     noatime,noauto,user,uid=backup  0       1" >> /etc/fstab
 root@pi:/home/pi# mount /storage/usbstick-linux
 root@pi:/home/pi# mount /storage/usbstick-msdos
 root@pi:/home/pi# df -k /storage/usbstick-linux /storage/usbstick-msdos
@@ -190,6 +190,7 @@ root@pi:/home/pi#
 ```
 
 ## Software installation
+
 Next (but only AFTER you successfully mounted/prepared your storage !), install Amanda using the openHABian menu.
 When you start the Amanda installation from the openHABian menu, the install routine will create a directory/link structure in
 the directory you tell it. Your local user named "backup" will need to have write access there. Amanda install routine should do
@@ -201,12 +202,14 @@ Here you need to enter the _local_ directory of your openHABian box, also known 
 mounted your USB storage or NAS disk share (which in above example for the NAS is `/storage/server` and for the usb stick is
 either `/storage/usbstick-linux` or `/storage/usbstick-msdos`).
 * "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be
-backed up."
+backed up. Enter a number to consist of figures only."
 Amanda will use at most this number of megabytes in total as its storage for backup.
 If you choose to include the raw device in the backup cycle (next question), that means you should enter 3 times the size of
 your SD disk NOW. If you choose not to include it (or selected the AWS S3 variant which omits raw SD backups per default), it's
 a lot less data and you need to estimate it by adding up the size of the config directories that are listed in the `disklist` 
-file. If you don't have any idea, enter 1024 (= 1 GByte). You can change it in the Amanda config file at any later time.
+file. If you don't have any idea and chose to NOT backup your SD card, enter 1024 (= 1 GByte). If you chose to backup it, the number
+should be larger than the SD capacity in megabytes plus 1024.
+You can change it in the Amanda config file at any later time (the entry below the line reading `define tapetype DIRECTORY {`.
 * "Backup raw SD card ?" (not asked if you selected AWS S3 storage)
 Answer "yes" if you want to create raw disk backups of your SD card. This is only recommended if your SD card is 8GB or less in
 size, otherwise the backup can take too long. You can always add/remove this by editing `${confdir}/disklist` at a later time.
@@ -230,6 +233,7 @@ please don't expect us to guide you through Amanda, which is a rather complex sy
 
 
 # Operating Amanda - a (yes, very brief) usage guide
+
 The overall config is to be found in `/etc/amanda/openhab-<config>/amanda.conf`.
 You are free to change this file, but doing so is at your own risk.
 You can specify files, directories and raw devices (such as HDD partitions or SD cards) that you want to be backed up in
@@ -238,10 +242,10 @@ directories of yours.
 
 Note: the raw SD card backup was left out for the AWS S3 config, as that would require a lot of bandwidth and runtime.
 
-openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups every night at 01:00AM, and to
-run a check at 06:00PM. 
+openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups you select every night at 01:00AM. 
 
 ## Backup
+
 Find below a terminal session log of a manually started backup run.
 It's showing the three most important commands to use. They all can be started as user _backup_ only, interactively or via cron, 
 and you always need to specify the config to use. You can have multiple backup configs in parallel use.
@@ -346,7 +350,9 @@ backup@pi:~$ amcheck openhab-dir
 ```
 
 ## Restore
+
 ### Restoring a file
+
 To restore a file, you need to use the `amrecover` command as the `root` user.
 Note that since Amanda is designed to restore ANY file of the system, you are required to run `amrecover` as the root user to
 have the appropriate file access rights.
@@ -418,21 +424,103 @@ Here's another terminal session log to show how a couple of files are restored i
 
 ### Restoring a partition
 
-To restore a raw disk partition, you need to use `amfetchdump` command. Unlike `amdump`, you have to run `amfetchdump` as user
-_backup_, though. Here's another terminal session log to use `amfetchdump` to first retrieve the backup image from storage.
-The last line also shows how to restore this image file to a SD card from Linux. In this example, we have an external SD card
-writer with a (blank) SD card attached to `/dev/sdd`. You could also move that temporary recovered image file to your Windows PC
-that has a card writer, and use Etcher or other tool in order to write the image to the card.
+To restore a raw disk partition, you need to use `amfetchdump` command. Unlike `amdump`, you have to run amfetchdump as user backup, though.
+Here’s another terminal session log to use `amfetchdump` to first retrieve the backup image from your backup storage to image called
+`openhabianpi-image` on `/server/temp/`
 
 **Reminder:** you have to be logged in as the `backup` user. 
 
 ```
+<<<<<<< HEAD
   backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image
   1 volume(s) needed for restoration
+=======
+backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image
+ 1 volume(s) needed for restoration
+>>>>>>> 2f687855c7e1832b68578dc19d5523b818205df7
   The following volumes are needed: openhab-openhab-dir-001
   Press enter when ready
+```
 
-  amfetchdump: 4: restoring split dumpfile: date 20170322084708 host pi disk /dev/mmcblk0 part 1/UNKNOWN lev 0 comp N program APPLICATION
+Before you actually press enter, you should get ready, by opening another terminal window and letting Amanda know in which slot the required
+tape is (you can do this also before starting the `amfetchdump` command). You have to find the slot yourself by checking their content. Once
+you find out the requested file (probably starting with `00000.`), you redirect amanda to use the slot which contains the file (e.g. slot 1)
+using this:
+
+```
+backup@pi:/server/temp$ amtape openhab-dir slot 1
+slot   1: time 20170322084708 label openhab-openhab-dir-001
+changed to slot 1
+```
+
+Finally you can go back to the first terminal window and press Enter. Amanda will automatically pick up the other files if the backup
+consists of more than one file.
+
+```
+amfetchdump: 4: restoring split dumpfile: date 20170322084708 host pi disk /dev/mmcblk0 part 1/UNKNOWN lev 0 comp N program APPLICATION
   927712 kb
-  backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
+```
+
+You can also provide amfetchdump with the date of the backup that you want to restore by adding the date parameter (format e.g. 20180327)
+like this:
+
+```
+backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image 20180327
+```
+
+This line also shows how to restore this image file to a SD card from Linux. In this example, we have an external SD card writer with a
+(blank) SD card attached to /dev/sdd.
+
+```
+backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
+```
+
+You could also move that temporary recovered image file to your Windows PC that has a card writer, rename the file to have a .raw extension,
+and use Etcher or other tool in order to write the image to the card.
+
+
+### A final word on when things have gone badly wrong...
+
+and your SD card to contain the Amanda database is broken: don't give up!
+Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's
+stored where) in your storage directory once a day (see `/etc/cron.d/amanda`). So you can reinstall openHABian including Amanda from scratch
+and copy back those files. Even if you fail to recover your index files, you can still access the files in your storage area. Backed-up
+directories are stored as tar files with a header, here's an example how to decode them:
+
+```
+[18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# ls -l
+insgesamt 2196552
+-rw-rw----+ 1 backup backup      32768 Mär 29 09:29 00000.openhab-dir-007
+-rw-rw----+ 1 backup backup   16857088 Mär 29 09:29 00001.openhab._etc.0
+-rw-rw----+ 1 backup backup  370219008 Mär 29 09:30 00002.openhab._var_lib_openhab2.0
+-rw-rw----+ 1 backup backup   22673408 Mär 29 09:30 00003.openhab._boot.0
+-rw-rw----+ 1 backup backup 1839450239 Mär 29 09:55 00004.openhab._dev_mmcblk0.0
+[18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# head -14 *001*
+AMANDA: SPLIT_FILE 20180329091738 openhab /etc  part 1/-1  lev 0 comp N program /bin/tar
+DLE=<<ENDDLE
+<dle>
+  <program>GNUTAR</program>
+  <disk>/etc</disk>
+  <level>0</level>
+  <auth>BSDTCP</auth>
+  <record>YES</record>
+  <index>YES</index>
+  <datapath>AMANDA</datapath>
+</dle>
+ENDDLE
+To restore, position tape at start of file and run:
+        dd if=<tape> bs=32k skip=1 | /bin/tar -xpGf - ...
+[18:14:49] root@openhabianpi:/volatile/backup/slots/slot7# dd if=00001.openhab._etc.0 bs=32k skip=1|tar tvf -
+drwxr-xr-x root/root      2139 2018-03-29 08:50 ./
+drwxr-xr-x root/root        15 2018-03-26 17:23 ./.java/
+drwxr-xr-x root/root        35 2018-03-26 17:23 ./.java/.systemPrefs/
+drwxr-xr-x root/root        31 2018-03-26 17:20 ./PackageKit/
+drwxr-xr-x root/root        85 2018-03-26 17:23 ./X11/
+drwxr-xr-x root/root         9 2018-03-26 17:23 ./X11/Xreset.d/
+drwxr-xr-x root/root        13 2018-03-26 17:23 ./X11/Xresources/
+drwxr-xr-x root/root       217 2018-03-26 17:23 ./X11/Xsession.d/
+drwxr-xr-x root/root         1 2017-07-18 09:38 ./X11/xkb/
+drwxr-xr-x root/root      2380 2018-03-29 08:26 ./alternatives/
+
+...
 ```

@@ -56,11 +56,19 @@ is_pithree() {
   grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]08[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
+is_pithreeplus() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0d[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
+is_pifour() {
+  grep -q "^Revision\s*:\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]11[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
 is_pi() {
   # needed for raspbian-ua-netinst chroot env #TODO can be removed?
   if [ "$hostname" == "openHABianPi" ] || [ "$boot_volume_label" == "openHABian" ]; then return 0; fi
   # normal conditions
-  if is_pizero || is_pizerow || is_pione || is_pitwo || is_pithree; then return 0; fi
+  if is_pizero || is_pizerow || is_pione || is_pitwo || is_pithree || is_pithreeplus  || is_pifour; then return 0; fi
   return 1
 }
 is_pine64() {
@@ -79,31 +87,47 @@ is_armv6l() {
     *) return 1 ;;
   esac
 }
+is_armv7l() {
+  case "$(uname -m)" in
+    armv7l) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+is_aarch64() {
+  case "$(uname -m)" in
+    aarch64|arm64) return 0 ;;
+    *) return 1 ;;
+  esac
+}
 is_ubuntu() {
-  [[ $(lsb_release -sd) =~ "Ubuntu" ]]
+  [[ $(cat /etc/*release*) =~ "Ubuntu" ]]
   return $?
 }
 is_debian() {
-  [[ $(lsb_release -sd) =~ "Debian" ]]
+  [[ $(cat /etc/*release*) =~ "Debian" ]]
   return $?
 }
 is_raspbian() {
-  [[ "$(lsb_release -si)" =~ "Raspbian" ]]
+  [[ "$(cat /etc/*release*)" =~ "Raspbian" ]]
   return $?
 }
 is_jessie() {
-  [[ $(lsb_release -sc) =~ "jessie" ]]
+  [[ $(cat /etc/*release*) =~ "jessie" ]]
   return $?
 }
 is_stretch() {
-  [[ $(lsb_release -sc) =~ "stretch" ]]
+  [[ $(cat /etc/*release*) =~ "stretch" ]]
+  return $?
+}
+is_buster() {
+  [[ $(cat /etc/*release*) =~ "buster" ]]
   return $?
 }
 is_trusty() {
-  [[ $(lsb_release -sc) =~ "trusty" ]]
+  [[ $(cat /etc/*release*) =~ "trusty" ]]
   return $?
 }
 is_xenial() {
-  [[ $(lsb_release -sc) =~ "xenial" ]]
+  [[ $(cat /etc/*release*) =~ "xenial" ]]
   return $?
 }

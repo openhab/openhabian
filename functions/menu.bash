@@ -4,9 +4,14 @@ show_about() {
   whiptail --title "About openHABian and openhabian-config" --msgbox "openHABian Configuration Tool $(get_git_revision)
   \\nThis tool provides a few routines to make your openHAB experience as comfortable as possible. The menu options help with the setup and configuration of your system. Please select a menu entry to learn more.
   \\nVisit the following websites for more information:
-  - Documentation: http://docs.openhab.org/installation/openhabian.html
+  - Documentation: https://www.openhab.org/docs/installation/openhabian.html
   - Development: http://github.com/openhab/openhabian
   - Discussion: https://community.openhab.org/t/13379" 17 80
+  RET=$?
+  if [ $RET -eq 255 ]; then
+    # <Esc> key pressed.
+    return 0
+  fi
 }
 
 show_main_menu() {
@@ -15,7 +20,7 @@ show_main_menu() {
   "" "" \
   "01 | Update"                  "Pull the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"          "Upgrade all installed software packages to their newest version" \
-  "03 | openHAB 2.2.0 stable"    "Switch from openHAB 2.1 or 2.2-snapshot to the 2.2 stable release" \
+  "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
@@ -69,7 +74,7 @@ show_main_menu() {
   elif [[ "$choice" == "20"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer          "  "openHAB Log Viewer webapp (frontail)" \
-    "22 | openHAB Generator"     "openHAB items, sitemap and HABPanel dashboard generator" \
+    "22 | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     "23 | Mosquitto"             "MQTT broker Eclipse Mosquitto" \
     "24 | InfluxDB+Grafana"      "A powerful persistence and graphing solution" \
     "25 | NodeRED"               "Flow-based programming for the Internet of Things" \
@@ -77,12 +82,14 @@ show_main_menu() {
     "27 | knxd"                  "KNX specific, the KNX router/gateway daemon knxd" \
     "28 | 1wire"                 "1wire specific, owserver and related packages" \
     "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
-    "2A | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
+    "2A | Tellstick core"        "Driver and daemon for Tellstick usb devices" \
+    "2B | Speedtest CLI"         "A tool to measure your internet bandwidth" \
+    "2C | Mail Transfer Agent"   "Install Exim4 as MTA to relay mails via public services" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       21\ *) frontail_setup ;;
-      22\ *) yo_generator_setup ;;
+      22\ *) miflora_setup ;;
       23\ *) mqtt_setup ;;
       24\ *) influxdb_grafana_setup ;;
       25\ *) nodered_setup ;;
@@ -90,7 +97,9 @@ show_main_menu() {
       27\ *) knxd_setup ;;
       28\ *) 1wire_setup ;;
       29\ *) find_setup ;;
-      2A\ *) miflora_setup ;;
+      2A\ *) tellstick_core_setup ;;
+      2B\ *) speedtest_cli_setup ;;
+      2C\ *) exim_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -119,18 +128,24 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 11 116 4 --cancel-button Back --ok-button Execute \
-    "41 | openHAB stable   " "Install or switch to the latest openHAB release" \
-    "   | openHAB unstable"  "Install or switch to the latest openHAB SNAPSHOT build" \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
+    "41 | openHAB release  " "Install or switch to the latest openHAB release" \
+    "   | openHAB testing"   "Install or switch to the latest openHAB testing build" \
+    "   | openHAB snapshot"  "Install or switch to the latest openHAB SNAPSHOT build" \
     "42 | Remote Console"    "Bind the openHAB SSH console to all external interfaces" \
     "43 | Reverse Proxy"     "Setup Nginx with password authentication and/or HTTPS access" \
+    "44 | Delay rules load"  "Delay loading rules to speed up overall startup" \
+    "   | Default order"     "Reset config elements load order to default" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       41\ *) openhab2_setup ;;
-      *openHAB\ unstable) openhab2_setup unstable ;;
+      *openHAB\ testing) openhab2_setup testing ;;
+      *openHAB\ snapshot) openhab2_setup unstable ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
+      *Delay\ rules\ load) delayed_rules yes;;
+      *Default\ order) delayed_rules no;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -149,40 +164,38 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "60"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 19 116 12 --cancel-button Back --ok-button Execute \
-    "61 | Upgrade System     "    "Upgrade all installed software packages to their newest version" \
-    "62 | Packages"               "Install needed and recommended system packages" \
-    "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8" \
-    "   | Oracle Java 8"          "(Alternative) Install Oracle Java 8 provided by WebUpd8Team" \
-    "64 | openHAB stable"         "Install the latest openHAB release" \
-    "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" \
-    "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB" \
-    "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
-    "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail)" \
-    "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional)" \
-    "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional)" \
+    choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 19 116 12 --cancel-button Back --ok-button Execute \
+    "61 | Upgrade System     "    "Upgrade all installed software packages to their newest version " OFF \
+    "62 | Packages"               "Install needed and recommended system packages " OFF \
+    "63 | Zulu OpenJDK"           "Install Zulu Embedded OpenJDK Java 8 " OFF \
+    "64 | openHAB stable"         "Install the latest openHAB release" OFF \
+    "   | openHAB testing"        "Install the latest openHAB testing build" OFF \
+    "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
+    "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB " OFF \
+    "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares " OFF \
+    "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail) " OFF \
+    "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
+    "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-    case "$choice2" in
-      61\ *) system_upgrade ;;
-      62\ *) basic_packages && needed_packages ;;
-      63\ *) java_zulu_embedded ;;
-      *Oracle\ Java*) java_webupd8 ;;
-      64\ *) openhab2_setup ;;
-      *openHAB\ unstable) openhab2_setup unstable ;;
-      65\ *) srv_bind_mounts && permissions_corrections && misc_system_settings ;;
-      66\ *) samba_setup ;;
-      67\ *) frontail_setup ;;
-      68\ *) firemotd_setup ;;
-      69\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme ;;
-      "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
-    esac
+
+    if [[ $choosenComponents == *"61"* ]]; then system_upgrade; fi
+    if [[ $choosenComponents == *"62"* ]]; then basic_packages && needed_packages; fi
+    if [[ $choosenComponents == *"63"* ]]; then java_zulu; fi
+    if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
+    if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
+    if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi
+    if [[ $choosenComponents == *"65"* ]]; then srv_bind_mounts && permissions_corrections && misc_system_settings; fi
+    if [[ $choosenComponents == *"66"* ]]; then samba_setup; fi
+    if [[ $choosenComponents == *"67"* ]]; then frontail_setup; fi
+    if [[ $choosenComponents == *"68"* ]]; then firemotd_setup; fi
+    if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
 
   elif [[ "$choice" == "99"* ]]; then
     show_about
 
-  else whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
+  else
+    whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
   fi
 
   if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. Open a Ticket if the error persists: $REPOSITORYURL/issues" 12 60; return 0; fi

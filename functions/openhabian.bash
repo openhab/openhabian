@@ -1,12 +1,20 @@
 #!/usr/bin/env bash
 
 get_git_revision() {
-  local branch=$(git -C "$BASEDIR" rev-parse --abbrev-ref HEAD)
-  local shorthash=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
-  local revcount=$(git -C "$BASEDIR" log --oneline | wc -l)
-  local latesttag=$(git -C "$BASEDIR" describe --tags --abbrev=0)
-  local revision="[$branch]$latesttag-$revcount($shorthash)"
-  echo "$revision"
+  local branch shorthash revcount latesttag
+  branch=$(git -C "$BASEDIR" rev-parse --abbrev-ref HEAD)
+  shorthash=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
+  revcount=$(git -C "$BASEDIR" log --oneline | wc -l)
+  latesttag=$(git -C "$BASEDIR" describe --tags --abbrev=0)
+  echo "[$branch]$latesttag-$revcount($shorthash)"
+}
+
+openhabian_console_check() {
+  if [ $(tput cols) -lt  120 ]; then
+    warningtext="We detected that you use a console which is less than 120 columns wide. This tool is designed for a minimum of 120 columns and therefore some menus may not be presented correctly. Please increase the width of your console and rerun this tool.
+    \nEither resize the window or consult the preferences of your console application."
+    whiptail --title "Compatibility Warning" --msgbox "$warningtext" 15 76
+  fi
 }
 
 openhabian_update_check() {
@@ -94,8 +102,10 @@ system_check_default_password() {
   fi
   export PASSWORD
   ORIGPASS=$(grep -w "$USERNAME" /etc/shadow | cut -d: -f2)
-  export ALGO=$(echo $ORIGPASS | cut -d'$' -f2)
-  export SALT=$(echo $ORIGPASS | cut -d'$' -f3)
+  ALGO=$(echo $ORIGPASS | cut -d'$' -f2)
+  export ALGO
+  SALT=$(echo $ORIGPASS | cut -d'$' -f3)
+  export SALT
   GENPASS=$(perl -le 'print crypt("$ENV{PASSWORD}","\$$ENV{ALGO}\$$ENV{SALT}\$")')
   if [ "$GENPASS" == "$ORIGPASS" ]; then
     if [ -n "$INTERACTIVE" ]; then
@@ -120,7 +130,7 @@ ua-netinst_check() {
     introtext="Attention: It was brought to our attention that the old openHABian ua-netinst based image has a problem with a lately updated Linux package.
 If you upgrade(d) the package 'raspberrypi-bootloader-nokernel' your Raspberry Pi will run into a Kernel Panic upon reboot!
 \nDo not Upgrade, do not Reboot!
-\nA preliminary solution is to not upgrade the system (via the Upgrade menu entry or 'apt upgrade') or to modify a configuration file. In the long run we would recommend to switch over to the new openHABian Raspbian based system image! This error message will keep reapearing even after you fixed the issue at hand.
+\nA preliminary solution is to not upgrade the system (via the Upgrade menu entry or 'apt-get upgrade') or to modify a configuration file. In the long run we would recommend to switch over to the new openHABian Raspbian based system image! This error message will keep reapearing even after you fixed the issue at hand.
 Please find all details regarding the issue and the resolution of it at: https://github.com/openhab/openhabian/issues/147"
     if ! (whiptail --title "openHABian Raspberry Pi ua-netinst image detected" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 20 80) then return 0; fi
   fi

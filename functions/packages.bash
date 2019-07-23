@@ -3,8 +3,8 @@
 samba_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
   if ! command -v samba &>/dev/null; then
-    cond_redirect apt update
-    cond_redirect apt -y install samba
+    cond_redirect apt-get update
+    cond_redirect apt-get -y install samba
     if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   fi
   cond_echo "Copying over custom 'smb.conf'... "
@@ -20,8 +20,8 @@ samba_setup() {
 
 firemotd_setup() {
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
-  cond_redirect apt update
-  cond_redirect apt -y install bc sysstat jq moreutils
+  cond_redirect apt-get update
+  cond_redirect apt-get -y install bc sysstat jq moreutils
   rm -rf /opt/FireMotD
   cond_redirect git clone https://github.com/OutsideIT/FireMotD /opt/FireMotD
   if [ $? -eq 0 ]; then
@@ -32,7 +32,7 @@ firemotd_setup() {
     # invoke apt updates check every night
     echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
     echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
-    # invoke apt updates check after every apt action ('apt upgrade', ...)
+    # invoke apt updates check after every apt action ('apt-get upgrade', ...)
     echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /opt/FireMotD/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
     echo "OK"
   else
@@ -40,9 +40,56 @@ firemotd_setup() {
   fi
 }
 
+create_mta_config() {
+  TMP="$(mktemp /tmp/.XXXXXXXXXX)"
+  HOSTNAME=`/bin/hostname`
+  INTERFACES="`/usr/bin/dig +short $HOSTNAME | /usr/bin/tr '\n' ';'`;127.0.0.1;::1"
+  EXIM_CLIENTCONFIG=/etc/exim4/passwd.client
+
+  introtext1="We will guide you through the install of exim4 as the mail transfer agent on your system and configure it to relay mails through a public service such as Google gmail.\nPlease
+enter the data shown in the next window when being asked for. You will be able to repeat the whole installation if required by selecting the openHABian menu for MTA again."
+  introtext2="Mail server type: mail sent by smarthost; received via SMTP or fetchmail\nSystem mail name: FQDN (your full hostname including the domain art)A\nIPs should be allowed by the se
+rver: $INTERFACES\nOther destinations for which mail is accepted: $HOSTNAME\nMachines to relay mail for: Leave empty\nIP address or host name of outgoing smarthost: smtp.gmail.com::587\nHide
+ local mail name in outgoing mail: No\nKeep number of DNS-queries minimal: No\nDelivery method: Select: Maildir format in home directory\nMinimize number of DNS queries: No\nSplit configurat
+ion into small files: Yes\n"
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Mail Transfer Agent installation" --yes-button "Start" --no-button "don't change MTA" --yesno "$introtext1" 12 78) then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "Mail Transfer Agent installation" --msgbox "$introtext2" 18 78) then echo "CANCELED"; return 0; fi
+  else
+    echo "Ignoring MTA config creation in unattended install mode."
+    return 0
+  fi
+
+  dpkg-reconfigure exim4-config
+  SMARTHOST=$(whiptail --title "Enter public mail service smarthost to relay your mails to" --inputbox "\nEnter the list of smarthost(s) to use your account for" 9 78 "*.google.com" 3>&1 1>&
+2 2>&3)
+  if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
+  RELAYUSER=$(whiptail --title "Enter your public service mail user" --inputbox "\nEnter the mail username of the public service to relay all outgoing mail to ${SMARTHOST}" 9 78 "yourname@gm
+ail.com" 3>&1 1>&2 2>&3)
+  if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
+  RELAYPASS=$(whiptail --title "Enter your public service mail password" --passwordbox "\nEnter the password used to relay mail as ${RELAYUSER}@${SMARTHOST}" 9 78 3>&1 1>&2 2>&3)
+  if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
+
+  grep '^#' ${EXIM_CLIENTCONFIG} > $TMP
+  echo ${SMARTHOST}:${RELAYUSER}:${RELAYPASS} >> $TMP
+  cp $TMP ${EXIM_CLIENTCONFIG}
+  /bin/chmod o-rwx ${EXIM_CLIENTCONFIG}
+  rm -f $TMP
+}
+
+exim_setup() {
+  apt-get -y install exim4 mailutils &>/dev/null
+  if [ $? -eq 0 ]; then
+    echo "OK"
+  else
+    echo "FAILED"
+  fi
+  create_mta_config
+}
+
 etckeeper_setup() {
   echo -n "$(timestamp) [openHABian] Installing etckeeper (git based /etc backup)... "
-  apt -y install etckeeper &>/dev/null
+  apt-get -y install etckeeper &>/dev/null
   if [ $? -eq 0 ]; then
     cond_redirect sed -i 's/VCS="bzr"/\#VCS="bzr"/g' /etc/etckeeper/etckeeper.conf
     cond_redirect sed -i 's/\#VCS="git"/VCS="git"/g' /etc/etckeeper/etckeeper.conf
@@ -60,7 +107,7 @@ homegear_setup() {
   successtext="Setup was successful.
 Homegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'sudo homegear -r'.
 Please read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear
-To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/homematic/readme.html
+To continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/
 "
 
   echo -n "$(timestamp) [openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
@@ -103,9 +150,9 @@ To continue your integration in openHAB 2, please follow the instructions under:
       ;;
   esac
 
-  cond_redirect apt update
+  cond_redirect apt-get update
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
-  cond_redirect apt -y install homegear homegear-homematicbidcos homegear-homematicwired
+  cond_redirect apt-get -y install homegear homegear-homematicbidcos homegear-homematicwired
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   cond_redirect systemctl enable homegear.service
   cond_redirect systemctl start homegear.service
@@ -128,7 +175,7 @@ mqtt_setup() {
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
 Eclipse Mosquitto is now up and running in the background. You should be able to make a first connection.
-To continue your integration in openHAB 2, please follow the instructions under: http://docs.openhab.org/addons/bindings/mqtt1/readme.html
+To continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/mqtt/
 "
   echo -n "$(timestamp) [openHABian] Setting up the MQTT broker Eclipse Mosquitto... "
   if [ -n "$INTERACTIVE" ]; then
@@ -142,9 +189,9 @@ To continue your integration in openHAB 2, please follow the instructions under:
     cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
     echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
   fi
-  cond_redirect apt update
+  cond_redirect apt-get update
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
-  cond_redirect apt -y install mosquitto mosquitto-clients
+  cond_redirect apt-get -y install mosquitto mosquitto-clients
   if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   if [ "$mqttpasswd" != "" ]; then
     if ! grep -q "password_file /etc/mosquitto/passwd" /etc/mosquitto/mosquitto.conf; then
@@ -237,8 +284,8 @@ find_setup() {
     cond_redirect systemctl restart mosquitto.service || true
   fi
 
-  cond_redirect apt update
-  cond_redirect apt -y install libsvm-tools
+  cond_redirect apt-get update
+  cond_redirect apt-get -y install libsvm-tools
   if [ $? -ne 0 ]; then echo "FAILED (SVM)"; return 1; fi
 
   cond_redirect mkdir -p ${FIND_DSTDIR}
@@ -319,7 +366,7 @@ and activate one of these most common options (depending on your device):
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect apt -y install owserver ow-shell usbutils || FAILED=1
+  cond_redirect apt-get -y install owserver ow-shell usbutils || FAILED=1
   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
   if [ -n "$INTERACTIVE" ]; then
@@ -347,22 +394,23 @@ The article also contains instructions regarding openHAB integration.
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect apt -y install git python3 python3-pip bluetooth bluez
-  if [ $FAILED -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
+  cond_redirect apt-get update
+  cond_redirect apt-get -y install git python3 python3-pip bluetooth bluez
+  if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
   if [ ! -d "$DIRECTORY" ]; then
     cond_echo "Fresh Installation... "
     cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git $DIRECTORY
     cond_redirect cp $DIRECTORY/config.{ini.dist,ini}
-    if [ $FAILED -ne 0 ]; then echo "FAILED (git clone)"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (git clone)"; exit 1; fi
   else
     cond_echo "Update... "
     cond_redirect git -C $DIRECTORY pull --quiet origin
-    if [ $FAILED -ne 0 ]; then echo "FAILED (git pull)"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (git pull)"; exit 1; fi
   fi
   cond_redirect chown -R openhab:$username $DIRECTORY
   cond_redirect chmod -R ug+wX $DIRECTORY
   cond_redirect pip3 install -r $DIRECTORY/requirements.txt
-  if [ $FAILED -ne 0 ]; then echo "FAILED (requirements)"; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED (requirements)"; exit 1; fi
   cond_redirect cp $DIRECTORY/template.service /etc/systemd/system/miflora.service
   cond_redirect systemctl daemon-reload
   systemctl start miflora.service || true
@@ -381,53 +429,20 @@ The article also contains instructions regarding openHAB integration.
   fi
 }
 
-influxdb_grafana_setup() {
+speedtest_cli_setup() {
   FAILED=0
-  introtext="This will install InfluxDB and Grafana. Soon this procedure will also set up the connection between them and with openHAB. For now, please follow the instructions found here:
-  \nhttps://community.openhab.org/t/13761/1"
+  introtext="This will install the Speedtest CLI tool. For integration with openHAB, please follow the instructions found here:
+  \nhttps://community.openhab.org/t/7611/1 \nSoon this procedure will set up the connection between it and openHAB automatically."
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/13761/1"
+  successtext="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/7611/1"
 
-  echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
-  if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
-  fi
+  echo -n "$(timestamp) [openHABian] Setting up Speedtest CLI... "
 
-  cond_redirect apt -y install apt-transport-https
-  cond_echo ""
-  echo "InfluxDB... "
-  cond_redirect wget -O - https://repos.influxdata.com/influxdb.key | apt-key add - || FAILED=1
-  echo "deb https://repos.influxdata.com/debian jessie stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
-  cond_redirect apt update || FAILED=1
-  cond_redirect apt -y install influxdb || FAILED=1
-  cond_redirect systemctl daemon-reload
-  cond_redirect systemctl enable influxdb.service
-  cond_redirect systemctl start influxdb.service
-  if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
-  cond_echo ""
-
-  echo "Grafana... "
-  if is_pi; then
-    if is_pione || is_pizero || is_pizerow; then GRAFANA_REPO_PI1="-rpi-1b"; fi
-    echo "deb https://dl.bintray.com/fg2it/deb${GRAFANA_REPO_PI1} jessie main" > /etc/apt/sources.list.d/grafana-fg2it.list || FAILED=2
-    cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61 || FAILED=2
-  else
-    cond_redirect wget -O - https://packagecloud.io/gpg.key | apt-key add - || FAILED=2
-    echo "deb https://packagecloud.io/grafana/stable/debian/ jessie main" > /etc/apt/sources.list.d/grafana.list || FAILED=2
-  fi
-  cond_redirect apt update || FAILED=2
-  cond_redirect apt -y install grafana || FAILED=2
-  cond_redirect systemctl daemon-reload
-  cond_redirect systemctl enable grafana-server.service
-  cond_redirect systemctl start grafana-server.service
-  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; else echo -n "OK "; fi
-  cond_echo ""
-
-  echo "Connecting (TODO)... "
-  #TODO
-
-  echo "Adding openHAB dashboard tile... "
-  dashboard_add_tile grafana || FAILED=4
+  cond_redirect apt-get update
+  cond_redirect apt-get -y install python-setuptools
+  if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
+  cond_redirect easy_install speedtest-cli
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
@@ -455,7 +470,7 @@ nginx_setup() {
   }
 
   echo "Installing DNS utilities..."
-  apt -y -q install dnsutils
+  apt-get -y -q install dnsutils
 
   AUTH=false
   SECURE=false
@@ -494,7 +509,7 @@ nginx_setup() {
 
   while [ "$VALIDDOMAIN" = false ] && [ ! -z "$domain" ] && [ "$domain" != "IP" ]; do
     echo -n "Obtaining domain IP address... "
-    domainip=$(dig +short $domain |tail -1)
+    domainip=$(dig +short $domain @resolver1.opendns.com |tail -1)
     echo "$domainip"
     if [ "$wanip" = "$domainip" ]; then
       VALIDDOMAIN=true
@@ -537,7 +552,7 @@ nginx_setup() {
 
   if (whiptail --title "Confirmation" --yesno "$confirmtext" 22 80) then
     echo "Installing NGINX..."
-    apt -y -q install nginx || FAILED=true
+    apt-get -y -q install nginx || FAILED=true
 
     rm -rf /etc/nginx/sites-enabled/default
     cp $BASEDIR/includes/nginx.conf /etc/nginx/sites-enabled/openhab
@@ -546,7 +561,7 @@ nginx_setup() {
 
     if [ "$AUTH" = true ]; then
       echo "Installing password utilities..."
-      apt -y -q install apache2-utils || FAILED=true
+      apt-get -y -q install apache2-utils || FAILED=true
       echo "Creating password file..."
       htpasswd -b -c /etc/nginx/.htpasswd $username $password
       uncomment 32,33 /etc/nginx/sites-enabled/openhab
@@ -554,14 +569,27 @@ nginx_setup() {
 
     if [ "$SECURE" = true ]; then
       if [ "$VALIDDOMAIN" = true ]; then
-        echo -e "# This file was added by openHABian to install certbot\ndeb http://ftp.debian.org/debian jessie-backports main" > /etc/apt/sources.list.d/backports.list
-        gpg --keyserver pgpkeys.mit.edu --recv-key 8B48AD6246925553
-        gpg -a --export 8B48AD6246925553 | apt-key add -
-        gpg --keyserver pgpkeys.mit.edu --recv-key 7638D0442B90D010
-        gpg -a --export 7638D0442B90D010 | apt-key add -
-        apt update
+        certbotpackage="python-certbot-nginx"
+        if is_debian || is_raspbian; then
+          gpg --keyserver pgpkeys.mit.edu --recv-key 8B48AD6246925553
+          gpg -a --export 8B48AD6246925553 | apt-key add -
+          gpg --keyserver pgpkeys.mit.edu --recv-key 7638D0442B90D010
+          gpg -a --export 7638D0442B90D010 | apt-key add -
+          if is_jessie; then
+            certbotrepo="jessie-backports"
+            certbotpackage="certbot"
+          elif is_stretch; then
+            certbotrepo="stretch-backports"
+          fi
+          certbotoption="-t"
+          echo -e "# This file was added by openHABian to install certbot\ndeb http://ftp.debian.org/debian ${certbotrepo} main" > /etc/apt/sources.list.d/backports.list
+        elif is_ubuntu; then
+          apt -get -y -q --force-yes install software-properties-common
+          add-apt-repository ppa:certbot/certbot
+        fi
+        apt-get update
         echo "Installing certbot..."
-        apt -y -q --force-yes install certbot -t jessie-backports
+        apt-get -y -q --force-yes install "${certbotpackage}" "${certbotoption}" "${certbotrepo}"
         mkdir -p /var/www/$domain
         uncomment 37,39 /etc/nginx/sites-enabled/openhab
         nginx -t && service nginx reload
@@ -595,5 +623,73 @@ nginx_setup() {
     fi
   else
     whiptail --title "Operation Canceled!" --msgbox "Setup was canceled, no changes were made." 15 80
+  fi
+}
+
+## Function for installing Telldus Core service for Tellstick USB devices.
+## The function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    tellstick_core_setup()
+##
+
+tellstick_core_setup() {
+  FAILED=0
+  introtext="This will install tellstick core services to enable support for USB connected Tellstick and Tellstick duo. For more details, have a look at http://developer.telldus.se/"
+  failtext="Sadly there was a problem setting up tellstick core. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  successtext="Success, please reboot your system to complete the installation.
+
+Next, add your devices in /etc/tellstick.conf.
+To detect device IDs use commanline tool: tdtool-improved --event
+When devices are added restart telldusd.service by using: sudo systemctl restart telldusd
+or just reboot the system.
+"
+  if [ -n "$INTERACTIVE" ]; then
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
+  fi
+  echo -n "$(timestamp) [openHABian] Installing tellstick-core... "
+
+  if is_aarch64 ; then
+    dpkg --add-architecture armhf
+  fi
+
+  # Maybe add new repository to be able to install libconfuse1
+  if is_xenial ; then
+    echo 'APT::Default-Release "xenial";' > /etc/apt/apt.conf.d/01release
+    echo "deb http://archive.ubuntu.com/ubuntu/ bionic universe" > /etc/apt/sources.list.d/ubuntu-artful.list
+    cond_redirect apt-get update
+    cond_redirect apt-get -y -t=bionic install libconfuse1
+  fi
+  if is_jessie ; then
+    echo 'APT::Default-Release "jessie";' > /etc/apt/apt.conf.d/01release
+    echo "deb http://deb.debian.org/debian stretch main" > /etc/apt/sources.list.d/debian-stretch.list
+    cond_redirect apt-get update
+    cond_redirect apt-get -y -t=stretch install libconfuse1
+  fi
+
+  cond_redirect wget -O - https://s3.eu-central-1.amazonaws.com/download.telldus.com/debian/telldus-public.key | apt-key add -
+  echo "deb https://s3.eu-central-1.amazonaws.com/download.telldus.com unstable main" > /etc/apt/sources.list.d/telldus-unstable.list
+  cond_redirect apt-get update
+  cond_redirect apt-get -y install libjna-java telldus-core || FAILED=1
+  if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up systemd service for telldusd... "
+  cond_redirect cp ${BASEDIR}/includes/tellstick-core/telldusd.service /lib/systemd/system/telldusd.service
+  cond_redirect systemctl daemon-reload || FAILED=1
+  cond_redirect systemctl enable telldusd || FAILED=1
+  cond_redirect systemctl start telldusd.service || FAILED=1
+  if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up tdtool-improved... "
+  cond_redirect git clone https://github.com/EliasGabrielsson/tdtool-improved.py.git /opt/tdtool-improved
+  cond_redirect chmod +x /opt/tdtool-improved/tdtool-improved.py
+  cond_redirect ln -sf /opt/tdtool-improved/tdtool-improved.py /usr/bin/tdtool-improved
+  echo "OK"
+
+  if [ -n "$INTERACTIVE" ]; then
+    if [ $FAILED -eq 0 ]; then
+      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    else
+      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
+    fi
   fi
 }
