@@ -32,7 +32,7 @@ needed_packages() {
   # Install python/python-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   #cond_redirect apt-get update
-  cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python python-pip avahi-autoipd
+  cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python python-pip avahi-autoipd fontconfig
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
   if is_pithree || is_pithreeplus || is_pizerow; then
