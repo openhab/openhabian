@@ -176,11 +176,11 @@ permissions_corrections() {
   cond_redirect adduser "$username" openhab
 
   #
-  openhab_folders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2/addons)
+  openhab_folders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2)
   cond_redirect chown openhab:$username /srv /srv/README.txt
   cond_redirect chmod ugo+w /srv /srv/README.txt
-  cond_redirect chown -R openhab:openhab /usr/share/openhab2
-  cond_redirect chown -R openhab:$username /opt ${openhab_folders[@]}
+  cond_redirect chown -R openhab:openhab /usr/share/openhab2 ${openhab_folders[@]}
+  cond_redirect chown -R openhab:$username /opt
   cond_redirect chmod -R ug+wX /opt ${openhab_folders[@]}
   cond_redirect chown -R $username:$username /home/$username
   #
