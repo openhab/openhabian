@@ -11,6 +11,15 @@ whiptail_check() {
 
 system_upgrade() {
   echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
+  # TODO: Remove updating the key on each update after some time (in 2020)
+  cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
+  cond_redirect apt-key add openhab-key.asc
+  if [ $? -ne 0 ]; then 
+    echo "FAILED (updating OH key)"
+    echo -n "attempting to continue..."
+  else
+    rm -f openhab-key.asc
+  fi
   cond_redirect apt-get update
   cond_redirect apt-get --yes upgrade
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
