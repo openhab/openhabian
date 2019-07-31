@@ -28,7 +28,7 @@ echo "OK"
 
 echo -n "$(timestamp) [openHABian] Starting webserver with installation log... "
 cond_redirect apt-get update
-cond_redirect apt-get install python3 python3-pip
+cond_redirect apt-get -y install python3 python3-pip
 if hash python3 2>/dev/null; then
   bash /boot/webif.bash start
   sleep 5
