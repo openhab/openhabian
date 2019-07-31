@@ -27,7 +27,9 @@ source /etc/openhabian.conf
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Starting webserver with installation log... "
-if hash python 2>/dev/null; then
+cond_redirect apt-get update
+cond_redirect apt-get install python3 python3-pip
+if hash python3 2>/dev/null; then
   bash /boot/webif.bash start
   sleep 5
   webifisrunning=$(ps -ef | pgrep python3)
@@ -37,7 +39,7 @@ if hash python 2>/dev/null; then
     echo "OK"
   fi
 else
-  echo "Python not found, SKIPPED"    
+  echo "Python 3 not found, SKIPPED"    
 fi
 
 userdef="openhabian"
