@@ -163,7 +163,10 @@ amanda_setup() {
       done
   fi
 
-  /usr/sbin/usermod -a -G backup openhabian
+  /usr/bin/getent passwd openhabian
+  if [ $? -eq 0 ]; then
+  	/usr/sbin/usermod -a -G backup openhabian
+  fi
   /usr/sbin/chpasswd <<< "${backupuser}:${password}"
   /usr/bin/chsh -s /bin/bash ${backupuser}
 
