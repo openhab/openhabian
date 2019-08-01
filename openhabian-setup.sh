@@ -80,7 +80,6 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   samba_setup
   clean_config_userpw
-  nodejs_setup
   frontail_setup
 else
   whiptail_check
