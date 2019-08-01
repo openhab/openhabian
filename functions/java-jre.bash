@@ -70,4 +70,7 @@ java_zulu(){
     cond_redirect apt-get -y install zulu-8
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
+  if [ -f /usr/lib/systemd/system/openhab2.service ]; then
+    cond_redirect systemctl start openhab2.service
+  fi 
 }
