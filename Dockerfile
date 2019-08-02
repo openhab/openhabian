@@ -6,6 +6,7 @@ RUN git clone https://github.com/bats-core/bats-core.git && \
     ./install.sh /usr/local
 RUN adduser openhabian --gecos "Openhabian,,," --disabled-password
 RUN echo "openhabian:openhabian" | chpasswd   
+RUN /bin/echo -n "Running on " && /usr/bin/arch
 
 COPY . /opt/openhabian/
 
