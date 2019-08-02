@@ -4,18 +4,21 @@
 # Make sure that the script will "exit 0" on success or any other
 # value on error.
 
+timestamp() { date +"%F_%T_%Z"; }
+
+
 FLAG="/opt/afterfirstboot.lock"
 FIRSTBOOT="/boot/first-boot.bash"
 
 # Only executed after first boot
 if [ ! -f "$FLAG" ]; then
-  echo "[openHABian] Flag file 'afterfirstboot.lock' not found, continuing with '$FIRSTBOOT' script."
-  if [ ! -f "$FIRSTBOOT" ]; then echo "[openHABian] 'first-boot.bash' not found, Exiting."; exit 0; fi
+  echo "$(timestamp) [openHABian] Flag file 'afterfirstboot.lock' not found, continuing with '$FIRSTBOOT' script."
+  if [ ! -f "$FIRSTBOOT" ]; then echo "$(timestamp) [openHABian] 'first-boot.bash' not found, Exiting."; exit 0; fi
   if (/bin/bash "$FIRSTBOOT"); then
-    echo "[openHABian] Finishing up... "
-    echo "[openHABian] Created after first boot script succeeded (see /etc/rc.local). Do not delete." > "$FLAG"
+    echo "$(timestamp) [openHABian] Finishing up... "
+    echo "$(timestamp) [openHABian] Created after first boot script succeeded (see /etc/rc.local). Do not delete." > "$FLAG"
   else
-    echo "[openHABian] Script '$FIRSTBOOT' failed."
+    echo "$(timestamp) [openHABian] Script '$FIRSTBOOT' failed."
     exit 1
   fi
 fi

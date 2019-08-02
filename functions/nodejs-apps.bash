@@ -35,13 +35,15 @@ frontail_setup() {
   cond_redirect npm update -g frontail
   #
   frontail_base="/usr/lib/node_modules/frontail"
+  mkdir -p ${frontail_base}/preset ${frontail_base}/web/assets/styles
+  
   cp $BASEDIR/includes/frontail-preset.json $frontail_base/preset/openhab.json
   cp $BASEDIR/includes/frontail-theme.css $frontail_base/web/assets/styles/openhab.css
   cp $BASEDIR/includes/frontail.service /etc/systemd/system/frontail.service
   chmod 664 /etc/systemd/system/frontail.service
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable frontail.service
-  cond_redirect systemctl restart frontail.service
+  cond_redirect systemctl restart frontail
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
   dashboard_add_tile frontail
 }
