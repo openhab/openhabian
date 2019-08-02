@@ -131,3 +131,6 @@ is_xenial() {
   [[ $(cat /etc/*release*) =~ "xenial" ]]
   return $?
 }
+running_in_docker() {
+  grep -q 'docker\|lxc' /proc/1/cgroup
+}
