@@ -109,7 +109,9 @@ hostname_change() {
   hostnamectl set-hostname "$new_hostname" &>/dev/null
   hostname "$new_hostname" &>/dev/null
   echo "$new_hostname" > /etc/hostname
-  sed -i "s/127.0.1.1.*/127.0.1.1 $new_hostname/" /etc/hosts
+  local TMP="$(mktemp /tmp/.XXXXXXXXXX)"
+  sed "s/127.0.1.1.*/127.0.1.1 $new_hostname/g" /etc/hosts >${TMP} && cp $TMP /etc/hosts
+  rm -f $TMP
 
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Change Hostname" --msgbox "For the hostname change to take effect, please reboot your system now." 10 60
@@ -244,7 +246,7 @@ pine64_fixed_mac() {
 # RPi specific function
 memory_split() {
   echo -n "$(timestamp) [openHABian] Setting the GPU memory split down to 16MB for headless system... "
-  if grep -q "gpu_mem" /boot/config.txt; then
+  if grep -qs "gpu_mem" /boot/config.txt; then
     sed -i 's/gpu_mem=.*/gpu_mem=16/g' /boot/config.txt
   else
     echo "gpu_mem=16" >> /boot/config.txt

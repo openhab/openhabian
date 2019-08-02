@@ -49,7 +49,7 @@ fi
 
 if [ $1 = "cleanup" ]; then
   webifrunning=$(ps -ef | pgrep python3)
-  if [ -z $webifrunning ]; then
+  if ! [ -z $webifrunning ]; then
     kill $webifrunning > /dev/null 
   fi
   rm -R /tmp/webif > /dev/null
