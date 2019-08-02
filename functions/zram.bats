@@ -7,10 +7,6 @@ check_zram_mounts() {
   local FILE=/etc/ztab
   local i=0
 
-  if ! [ -f ${FILE} ]; then
-    echo "# zram not installed, can not test." >&3
-    return 0
-  fi
   while read -r line; do
     case "${line}" in
       "#"*) continue ;;
@@ -35,20 +31,17 @@ check_zram_mounts() {
     esac
   done < "$FILE"
 
-  echo -e "# \e[32mzram installation successful." >&3
   return 0
 }
 
 
 @test "destructive-zram" {
   run init_zram_mounts install
-  if ! [ -f /etc/ztab ]; then
-    skip "zram not installed, can not test"
-  fi
+  [ "$status" -eq 0 ]
 
   run check_zram_mounts
-  echo -e "# \e[32mAvailability of zram mounts verified." >&3
-
   [ "$status" -eq 0 ]
+
+  echo -e "# \e[32mInstallation and availability of zram mounts verified." >&3
 }
 
