@@ -1,0 +1,24 @@
+# To comment out any line Add new drives with the first collumn providing the drive type and then drive details seperated by tab
+# All algorithm in /proc/crypto are supported but only lzo/lz4 have zramctl text strings.
+# lz4 is the fastest whilst deflate(zlib) has much better text compression.
+# mem_limit is compressed memory limit and will set a hard memory limit for sys admin.
+# disk_size is virtual uncompressed size approx 220-450% of mem allocated depending on algorithm and input file.
+# Much higher than the compression alg is capable will waste mem as there is an approx 0.1% mem overhead even when empty.
+# swap_priority set zram over alternative swap devices.
+# page-cluster 0 means tuning to singular pages rather than default 3 which caches 8 for HDD tuning, which can lower latency.
+# swappiness 80 due to improved performance of zram allows more usage without effect of raising from default 60.
+# Can be up to 100 but will increase process queue on intense load such as boot.
+# zram_dir is the directory you wish to hold in zram, the original is moved to a bind mount bind_dir and is synchronised on start/stop and write commands.
+# bind_dir is a directory where the original dir will be mounted for sync purposes. Usually in /opt or /var, name optional.
+# oldlog_dir will enable logrotation to an off device directory whilst retaining only live logs in zram. Usually in /opt or /var, name optional.
+# If you need multiple zram swaps or zram dirs just create another entry in /ect/ztab.
+# Stop the service sudo service zram-config stop edit /etc/ztab sudo nano /etc/ztab start the service sudo service zram-config start
+
+# swap	alg	mem_limit	disk_size	swap_priority	page-cluster	swappiness
+swap	lz4	200M		600M		75		0		90
+
+# dir	alg	mem_limit	disk_size	target_dir		bind_dir
+dir	lz4	200M		400M		/var/lib/openhab2	/openhab2.bind
+
+# log	alg	mem_limit	disk_size	target_dir		bind_dir		oldlog_dir
+log	lzo	100M		300M		/var/log		/log.bind
