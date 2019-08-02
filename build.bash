@@ -61,6 +61,26 @@ inject_build_repo() {
   sed -i "s@master https://github.com/openhab/openhabian.git@$clone_string@g" $1
 }
 
+## Function for checking if a command is available.
+##
+## First parameter: list of commands
+## Second parameter: list of packets (may be omitted if all packages are named similar as the commands)
+##
+## Checks if all commands in $1 are available. If not, it proposes to install the packages
+## listet in $2 and exits with exit code 1.
+check_command_availability_and_exit() {
+  read -ra CMD <<< $1
+  for i in "${CMD[@]}"; do
+    if [[ -z $(which $i)  ]]; then
+          echo_process "Command $i is missing on your system." 1>&2
+          PKG="$2"
+          if [[ -z "$PKG" ]]; then PKG="$1"; fi;
+          echo_process "Please run the following command: sudo apt-get install $PKG" 1>&2
+          exit 1
+    fi
+  done
+}
+
 ############################
 #### Build script start ####
 ############################
@@ -111,12 +131,6 @@ elif [ "$2" == "dev-url" ]; then # Use custom git server as a development image
   echo_process $clone_string
 fi
 
-# Make sure only root can run our script
-if [[ $EUID -ne 0 ]]; then
-  echo_process "This script must be run as root" 1>&2
-  exit 1
-fi
-
 # Switch to the script folder
 cd "$(dirname $0)" || exit 1
 
@@ -133,14 +147,19 @@ umount $buildfolder/root &>/dev/null || true
 rm -rf $buildfolder
 mkdir $buildfolder
 
-# Prerequisites
-echo_process "Downloading prerequisites... "
-apt-get update
-
-
 # Build PINE64 image
 if [ "$hw_platform" == "pine64-xenial" ]; then
+  # Make sure only root can run our script
+  if [[ $EUID -ne 0 ]]; then
+    echo_process "This script must be run as root" 1>&2
+    exit 1
+  fi
+
+  # Prerequisites
+  echo_process "Downloading prerequisites... "
+  apt-get update
   apt-get -y install git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl dos2unix
+
   echo_process "Cloning \"longsleep/build-pine64-image\" project... "
   git clone -b master https://github.com/longsleep/build-pine64-image.git $buildfolder
 
@@ -184,7 +203,13 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
 
 # Build Raspberry Pi image
 elif [ "$hw_platform" == "pi-raspbian" ]; then
-  apt-get -y install git wget curl unzip kpartx libarchive-zip-perl dos2unix
+  # Prerequisites
+  echo_process "Checking prerequisites... "
+  # no longer checking curl, seems to be unused for rpi
+  check_command_availability_and_exit \
+   "git wget unzip crc32 dos2unix guestmount" \
+   "git wget unzip libarchive-zip-perl dos2unix libguestfs-tools" 
+
   echo_process "Downloading latest Raspbian Lite image... "
   if [ -f "raspbian.zip" ]; then
     echo "(Using local copy...)"
@@ -198,11 +223,8 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
 
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
-  loop_prefix=`kpartx -asv $imagefile | grep -oE "loop([0-9]+)" | head -n 1`
-  # dosfslabel /dev/mapper/loop0p1 "OPENHABIAN"
-
-  mount -o rw -t vfat "/dev/mapper/$(echo $loop_prefix)p1" $buildfolder/boot
-  mount -o rw -t ext4 "/dev/mapper/$(echo $loop_prefix)p2" $buildfolder/root
+  guestmount -o uid=$EUID -a $imagefile -m /dev/sda1 $buildfolder/boot
+  guestmount -o uid=$EUID -a $imagefile -m /dev/sda2 $buildfolder/root
 
   echo_process "Setting hostname, reactivating SSH... "
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" $buildfolder/root/etc/hosts
@@ -214,8 +236,7 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   cp $sourcefolder/first-boot.bash $buildfolder/boot/first-boot.bash
   sed -i -e '1r functions/helpers.bash' $buildfolder/boot/first-boot.bash # Add platform identification
   touch $buildfolder/boot/first-boot.log
-  cp $sourcefolder/openhabian.$hw_platform.conf $buildfolder/boot/openhabian.conf
-  unix2dos $buildfolder/boot/openhabian.conf
+  unix2dos -n $sourcefolder/openhabian.$hw_platform.conf $buildfolder/boot/openhabian.conf
   cp $sourcefolder/webif.bash $buildfolder/boot/webif.bash
   touch $buildfolder/root/opt/openHABian-install-inprogress
 
@@ -226,9 +247,9 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
 
   echo_process "Closing up image file... "
   sync
-  umount $buildfolder/boot
-  umount $buildfolder/root
-  kpartx -dv $imagefile
+  # maybe we should use a trap to get this done in case of error
+  guestunmount $buildfolder/boot
+  guestunmount $buildfolder/root
 fi
 
 echo_process "Moving image and cleaning up... "
