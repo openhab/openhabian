@@ -48,7 +48,7 @@ frontail_setup() {
   chmod 664 /etc/systemd/system/frontail.service
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable frontail.service
-  cond_redirect systemctl restart frontail
+  cond_redirect systemctl restart frontail.service
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
   dashboard_add_tile frontail
 }
