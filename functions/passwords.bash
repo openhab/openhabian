@@ -55,7 +55,7 @@ change_password() {
         else
           secondpasswordChange="$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the new password:" 15 80 3>&1 1>&2 2>&3)"
           if [[ "$?" == 1 ]]; then return 0; fi
-          if [ "$passwordChange" = "$secondpasswordChange" ] && [ ! -z "$passwordChange" ]; then
+          if [ "$passwordChange" = "$secondpasswordChange" ] && [ -n "$passwordChange" ]; then
             matched=true
           else
             whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3
@@ -95,7 +95,7 @@ change_password() {
   fi
   if [[ $accounts == *"Ngnix HTTP/HTTPS"* ]]; then
     echo -n "$(timestamp) [openHABian] Changing password for nginx web authentication account \"$nginxuser\"... "
-    echo "$passwordChange" | htpasswd -i /etc/nginx/.htpasswd $nginxuser
+    echo "$passwordChange" | htpasswd -i /etc/nginx/.htpasswd "$nginxuser"
     if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   fi
   if [[ $accounts == *"InfluxDB"* ]]; then
@@ -110,7 +110,7 @@ change_password() {
   fi
   if [[ $accounts == *"Grafana"* ]]; then
     echo -n "$(timestamp) [openHABian] Changing password for Grafana admininistration account \"admin\"... "
-    grafana-cli admin reset-admin-password --homepath "/usr/share/grafana" --config "/etc/grafana/grafana.ini" $passwordChange
+    grafana-cli admin reset-admin-password --homepath "/usr/share/grafana" --config "/etc/grafana/grafana.ini" "$passwordChange"
     if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   fi
 

@@ -26,10 +26,10 @@ Do you want to continue on your own risk?"
   rootonsdcard=false
 
   #extract rootpart
-  rootpart=$(cat /boot/cmdline.txt | sed "s/.*root=\([a-zA-Z0-9\/=-]*\)\(.*\)/\1/")
+  rootpart=$(sed "s/.*root=\([a-zA-Z0-9\/=-]*\)\(.*\)/\1/" < /boot/cmdline.txt)
 
   if [[ $rootpart == *"PARTUUID="* ]]; then
-    if blkid -l -t $rootpart | grep -q "/dev/mmcblk0p2"; then
+    if blkid -l -t "$rootpart" | grep -q "/dev/mmcblk0p2"; then
       rootonsdcard=true
     fi
   elif [[ $rootpart == "/dev/mmcblk0p2" ]]; then

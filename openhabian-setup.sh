@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034
 
 # openHABian - hassle-free openHAB 2 installation and configuration tool
 # for the Raspberry Pi and other Linux systems
@@ -17,7 +18,7 @@ while [ -h "$SOURCE" ]; do
   [[ $SOURCE != /* ]] && SOURCE="$BASEDIR/$SOURCE"
 done
 BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-SCRIPTNAME="$(basename $SOURCE)"
+SCRIPTNAME="$(basename "$SOURCE")"
 
 REPOSITORYURL="https://github.com/openhab/openhabian"
 CONFIGFILE="/etc/openhabian.conf"
@@ -51,7 +52,7 @@ fi
 
 # Include all subscripts
 # shellcheck source=/dev/null
-for shfile in $BASEDIR/functions/*.bash; do source "$shfile"; done
+for shfile in "$BASEDIR"/functions/*.bash; do source "$shfile"; done
 
 if [[ -n "$UNATTENDED" ]]; then
   # apt/dpkg commands will not try interactive dialogs

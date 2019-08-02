@@ -117,9 +117,7 @@ java_zulu_enterprise_8_apt(){
     if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi 
     echo "deb http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
     cond_redirect apt-get update
-    cond_redirect apt-get -y install zulu-8
-    java_zulu_install_crypto_extension
-    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect apt-get -y install zulu-8 && java_zulu_install_crypto_extension; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
 }
 
