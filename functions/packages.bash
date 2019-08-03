@@ -134,7 +134,6 @@ To continue your integration in openHAB 2, please follow the instructions under:
       ;;
     Debian-buster)
       echo 'deb https://apt.homegear.eu/Debian/ buster/' > /etc/apt/sources.list.d/homegear.list
-      cond_echo "Homegear packages for your OS might still be considered experimental, let's give it a try..."
       ;;
     Raspbian-jessie)
       echo 'deb https://apt.homegear.eu/Raspbian/ jessie/' > /etc/apt/sources.list.d/homegear.list
@@ -144,7 +143,6 @@ To continue your integration in openHAB 2, please follow the instructions under:
       ;;
     Raspbian-buster)
       echo 'deb https://apt.homegear.eu/Raspbian/ buster/' > /etc/apt/sources.list.d/homegear.list
-      cond_echo "Homegear packages for your OS might still be considered experimental, let's give it a try..."
       ;;
     Ubuntu-trusty)
       echo 'deb https://apt.homegear.eu/Ubuntu/ trusty/' > /etc/apt/sources.list.d/homegear.list
