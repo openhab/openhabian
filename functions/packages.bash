@@ -22,22 +22,26 @@ firemotd_setup() {
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
   cond_redirect apt-get update
   cond_redirect apt-get -y install bc sysstat jq moreutils
-  rm -rf /opt/FireMotD
-  cond_redirect git clone https://github.com/OutsideIT/FireMotD /opt/FireMotD
-  if [ $? -eq 0 ]; then
-    # the following is already in bash_profile by default
-    #echo -e "\necho\n/opt/FireMotD/FireMotD -HV --theme gray \necho" >> /home/$username/.bash_profile
-    # initial apt updates check
-    cond_redirect bash /opt/FireMotD/FireMotD -S
-    # invoke apt updates check every night
-    echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
-    echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /opt/FireMotD/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
-    # invoke apt updates check after every apt action ('apt-get upgrade', ...)
-    echo "DPkg::Post-Invoke { \"if [ -x /opt/FireMotD/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /opt/FireMotD/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
-    echo "OK"
-  else
-    echo "FAILED"
+  
+  # fetch and install
+  cond_redirect curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD -o /tmp/FireMotD || FAILED=1
+  chmod 755 /tmp/FireMotD
+  cond_redirect /tmp/FireMotD -I || FAILED=1
+  # generate theme
+  cond_redirect FireMotD -G Gray
+  # initial apt updates check
+  cond_redirect FireMotD -S
+  # the following is already in bash_profile by default
+  if ! grep -q "FireMotD" /home/$username/.bash_profile; then
+    echo -e "\necho\nFireMotD --theme Gray \necho" >> /home/$username/.bash_profile
   fi
+
+  # invoke apt updates check every night
+  echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
+  echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /usr/local/bin/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
+  # invoke apt updates check after every apt action ('apt-get upgrade', ...)
+  echo "DPkg::Post-Invoke { \"if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
+  if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
 }
 
 create_mta_config() {

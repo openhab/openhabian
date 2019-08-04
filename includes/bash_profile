@@ -27,10 +27,8 @@ if [ ! -f "/usr/bin/raspi-config" ]; then
   alias raspi-config="echo 'raspi-config is not part of openHABian, please use openhabian-config instead.'"
 fi
 
-if [ -f /opt/FireMotD/FireMotD ]; then
-  echo
-  bash /opt/FireMotD/FireMotD -HV --theme gray
-fi
+echo
+FireMotD --theme Gray
 
 OHVERSION=$(dpkg-query --showformat='${Version}' --show openhab2)
 OHBUILD=$(sed -n 's/build-no\s*: //p' /var/lib/openhab2/etc/version.properties)
