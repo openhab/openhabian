@@ -5,3 +5,4 @@ node_modules/
 *.img.xz
 *.img.bz2
 *.log
+.DS_Store
