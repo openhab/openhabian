@@ -391,7 +391,7 @@ and activate one of these most common options (depending on your device):
 miflora_setup() {
   FAILED=0
   DIRECTORY="/opt/miflora-mqtt-daemon"
-  introtext="This will install or update miflora-mqtt-daemon - The Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon. See for further details:\n\n   https://github.com/ThomDietrich/miflora-mqtt-daemon"
+  introtext="[CURRENTLY BROKEN] This will install or update miflora-mqtt-daemon - The Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon. See for further details:\n\n   https://github.com/ThomDietrich/miflora-mqtt-daemon"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
 The Daemon was installed and the systemd service was set up just as described in it's README. Please add your MQTT broker settings in '$DIRECTORY/config.ini' and add your Mi Flora sensors. After that be sure to restart the daemon to reload it's configuration.
@@ -430,30 +430,6 @@ The article also contains instructions regarding openHAB integration.
   if grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
     cond_echo "Warning! The internal RPi3 Bluetooth module is disabled on your system. You need to enable it before the daemon may use it."
   fi
-  if [ -n "$INTERACTIVE" ]; then
-    if [ $FAILED -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
-    else
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
-    fi
-  fi
-}
-
-speedtest_cli_setup() {
-  FAILED=0
-  introtext="This will install the Speedtest CLI tool. For integration with openHAB, please follow the instructions found here:
-  \nhttps://community.openhab.org/t/7611/1 \nSoon this procedure will set up the connection between it and openHAB automatically."
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/7611/1"
-
-  echo -n "$(timestamp) [openHABian] Setting up Speedtest CLI... "
-
-  cond_redirect apt-get update
-  cond_redirect apt-get -y install python-setuptools
-  if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
-  cond_redirect easy_install speedtest-cli
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
@@ -644,7 +620,7 @@ nginx_setup() {
 
 tellstick_core_setup() {
   FAILED=0
-  introtext="This will install tellstick core services to enable support for USB connected Tellstick and Tellstick duo. For more details, have a look at http://developer.telldus.se/"
+  introtext="[CURRENTLY BROKEN] This will install tellstick core services to enable support for USB connected Tellstick and Tellstick duo. For more details, have a look at http://developer.telldus.se/"
   failtext="Sadly there was a problem setting up tellstick core. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Success, please reboot your system to complete the installation.
 
