@@ -132,3 +132,18 @@ is_xenial() {
 running_in_docker() {
   grep -q 'docker\|lxc' /proc/1/cgroup
 }
+tryUntil() {
+  cmd="$1"
+  count=${2:-10}
+  local i=$count
+  interval=${3:-1}
+  until [ $i -le 0 ]; do
+    eval "${cmd}"
+    ret=$?
+    if [ $ret -eq 0 ]; then break; fi
+    sleep ${interval}
+    ((i-=1))
+    echo -n ".${i}."
+  done
+  return $i
+}
