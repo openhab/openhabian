@@ -5,6 +5,7 @@
 
 hostname=openHABianDevice
 userpw=password
+mode=unattended
 
 # Do not change these lines
 username=user

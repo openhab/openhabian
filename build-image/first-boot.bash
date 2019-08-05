@@ -3,7 +3,8 @@
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND=noninteractive
 
-source "functions/init.bash"
+source "init.bash"
+source "$CONFIGFILE"
 
 # Log everything to file
 exec &> >(tee -a "/boot/first-boot.log")
@@ -140,22 +141,22 @@ echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed
 apt-get --yes upgrade &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-if hash python 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
+if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
 /usr/bin/apt-get -y install git &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [openHABian] Cloning myself... "
-[ -d /opt/openhabian/ ] && rm -rf /opt/openhabian/ # check if we have remnants of a previous installation attempt.
-git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null
+if [ -d /opt/openhabian/ ]; then cd /opt && rm -rf /opt/openhabian/; fi
 
+git clone -q -b master https://github.com/openhab/openhabian.git /opt/openhabian
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
-echo "$(timestamp) [openHABian] Executing 'openhabian-setup.sh unattended'... "
-if (logme /opt/openhabian/openhabian-setup.sh unattended_debug); then
-  systemctl start openhab2.service
+echo "$(timestamp) [openHABian] Executing openhabian-setup.sh $mode ... "
+if (/bin/bash "$BASEDIR"/openhabian-setup.sh $mode); then
+#  systemctl start openhab2.service
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else

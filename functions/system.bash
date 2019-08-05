@@ -63,7 +63,7 @@ timezone_setting() {
       cond_redirect pip install --upgrade tzupdate
       if [ $? -ne 0 ]; then echo "FAILED (pip)"; return 1; fi
     fi
-    cond_redirect pip install --upgrade tzupdate
+    cond_redirect pip3 install --upgrade tzupdate
     cond_redirect tzupdate
   fi
   if [ $? -eq 0 ]; then echo -e "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
@@ -80,7 +80,9 @@ locale_setting() {
   fi
 
   echo -n "$(timestamp) [openHABian] Setting locale based on openhabian.conf... "
+set -x
   source "$CONFIGFILE"
+  cond_redirect apt-get -y install locales
   if is_ubuntu; then
     cond_redirect locale-gen $locales
   else
@@ -89,10 +91,11 @@ locale_setting() {
     cond_redirect locale-gen
   fi
   cond_redirect dpkg-reconfigure --frontend=noninteractive locales
-  cond_redirect LANG=$system_default_locale; export LANG &>/dev/null
-  cond_redirect LC_ALL=$system_default_locale; export LC_ALL &>/dev/null
-  cond_redirect LC_CTYPE=$system_default_locale; export LC_CTYPE &>/dev/null
-  cond_redirect LANGUAGE=$system_default_locale; export LANGUAGE &>/dev/null
+  LANG=$system_default_locale
+  LC_ALL=$system_default_locale
+  LC_CTYPE=$system_default_locale
+  LANGUAGE=$system_default_locale
+  export LANG LC_ALL LC_CTYPE LANGUAGE
   cond_redirect update-locale LANG=$system_default_locale LC_ALL=$system_default_locale LC_CTYPE=$system_default_locale LANGUAGE=$system_default_locale
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }

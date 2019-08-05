@@ -150,6 +150,6 @@ running_in_docker() {
 }
 logme() {
   # shellcheck disable=SC2094
-  exec "$@" 2>>"$DEBUGLOGFILE" | tee --append "$DEBUGLOGFILE"
+  eval "$@" 2>>"$DEBUGLOGFILE" | tee --append "$DEBUGLOGFILE"
 }
 

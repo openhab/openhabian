@@ -1,14 +1,5 @@
 #!/usr/bin/env bash
 
-# openHABian - hassle-free openHAB 2 installation and configuration tool
-# for the Raspberry Pi and other Linux systems
-#
-# Documentation: https://www.openhab.org/docs/installation/openhabian.html
-# Development: http://github.com/openhab/openhabian
-# Discussion: https://community.openhab.org/t/13379
-#
-
-
 # Trap CTRL+C, CTRL+Z and quit singles
 trap '' SIGINT SIGQUIT SIGTSTP
 
@@ -36,6 +27,7 @@ else
   INTERACTIVE=1
 fi
 
+echo "pwd=$(pwd) BASEDIR=$BASEDIR"
 # Include all subscripts
 # shellcheck source=/dev/null
 for shfile in $BASEDIR/functions/*.bash; do source "$shfile"; done
