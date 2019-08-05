@@ -568,7 +568,9 @@ nginx_setup() {
             certbotrepo="stretch-backports"
           fi
           certbotoption="-t"
-          echo -e "# This file was added by openHABian to install certbot\ndeb http://ftp.debian.org/debian ${certbotrepo} main" > /etc/apt/sources.list.d/backports.list
+          if [ ! -z "$certbotrepo" ]; then
+            echo -e "# This file was added by openHABian to install certbot\ndeb http://ftp.debian.org/debian ${certbotrepo} main" > /etc/apt/sources.list.d/backports.list
+          fi
         elif is_ubuntu; then
           apt -get -y -q --force-yes install software-properties-common
           add-apt-repository ppa:certbot/certbot
