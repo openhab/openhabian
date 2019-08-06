@@ -46,7 +46,7 @@ java_zulu(){
     rm -rf $file ${jdkInstallLocation:?}/*
     mv ${jdkTempLocation}/* ${jdkInstallLocation}/; rmdir ${jdkTempLocation}
 
-    javaPath=$(echo $downloadPath|sed 's|http://cdn.azul.com/zulu-embedded/bin/||')
+    javaPath=$(echo $downloadPath|sed 's|https://cdn.azul.com/zulu-embedded/bin/||')
     javaPath=$(echo $javaPath|sed 's|.tar.gz||')
     cond_redirect update-alternatives --remove-all java
     cond_redirect update-alternatives --remove-all javac
