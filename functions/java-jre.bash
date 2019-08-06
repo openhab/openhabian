@@ -19,53 +19,21 @@ java_webupd8_archive() {
 
 java_zulu(){
   cond_redirect systemctl stop openhab2.service
+  cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
+  if [ $? -ne 0 ]; then echo "FAILED (keyserver while installing Java Zulu)"; exit 1; fi
+  if is_ubuntu; then
+    echo "deb $arch http://repos.azulsystems.com/ubuntu stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
+  else
+    echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
+  fi
+
   if is_arm; then
     echo -n "$(timestamp) [openHABian] Installing Zulu Embedded OpenJDK... "
-    local archName
-    local downloadPath
-    local file
-    local jdkTempLocation
-    local jdkInstallLocation
-    local javapath
-    jdkTempLocation="/var/tmp/jdk-new"
-    jdkInstallLocation="/opt/jdk"
-    file="/var/tmp/.zulu.$$"
-
-    if is_aarch64; then
-      downloadPath="https://cdn.azul.com/zulu-embedded/bin/zulu8.40.0.178-ca-jdk1.8.0_222-linux_aarch64.tar.gz"
-      archName=aarch64
-    else
-      downloadPath="https://cdn.azul.com/zulu-embedded/bin/zulu8.40.0.178-ca-jdk1.8.0_222-linux_aarch32hf.tar.gz"
-      archName=aarch32
-    fi
-    cond_redirect mkdir -p $jdkTempLocation
-    cond_redirect mkdir -p $jdkInstallLocation
-    cond_redirect wget -nv -O $file $downloadPath
-    cond_redirect tar -xpzf $file -C ${jdkTempLocation}
-    if [ $? -ne 0 ]; then echo "FAILED"; rm -f ${file}; exit 1; fi
-    rm -rf $file ${jdkInstallLocation:?}/*
-    mv ${jdkTempLocation}/* ${jdkInstallLocation}/; rmdir ${jdkTempLocation}
-
-    javaPath=$(echo $downloadPath|sed 's|http://cdn.azul.com/zulu-embedded/bin/||')
-    javaPath=$(echo $javaPath|sed 's|.tar.gz||')
-    cond_redirect update-alternatives --remove-all java
-    cond_redirect update-alternatives --remove-all javac
-    cond_redirect update-alternatives --install /usr/bin/java java $jdkInstallLocation/$javaPath/bin/java 1083000
-    cond_redirect update-alternatives --install /usr/bin/javac javac $jdkInstallLocation/$javaPath/bin/javac 1083000
-    echo $jdkInstallLocation/$javaPath/lib/$archName > /etc/ld.so.conf.d/java.conf
-    echo $jdkInstallLocation/$javaPath/lib/$archName/jli >> /etc/ld.so.conf.d/java.conf
-    cond_redirect ldconfig
+    cond_redirect apt-get update -qq
+    cond_redirect apt-get -y install zulu-embedded-8
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
-
   else
     echo -n "$(timestamp) [openHABian] Installing Zulu Enterprise OpenJDK... "
-    cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
-    if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
-    if is_ubuntu; then
-      echo "deb $arch http://repos.azulsystems.com/ubuntu stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
-    else
-      echo "deb $arch http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
-    fi
     cond_redirect apt-get update
     cond_redirect apt-get -y install zulu-8
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
