@@ -19,6 +19,7 @@ samba_setup() {
 }
 
 firemotd_setup() {
+  FAILED=0
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
   cond_redirect apt-get update
   cond_redirect apt-get -y install bc sysstat jq moreutils
