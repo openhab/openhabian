@@ -621,7 +621,7 @@ nginx_setup() {
 
 tellstick_core_setup() {
   FAILED=0
-  introtext="[CURRENTLY BROKEN] This will install tellstick core services to enable support for USB connected Tellstick and Tellstick duo. For more details, have a look at http://developer.telldus.se/"
+  introtext="This will install tellstick core services to enable support for USB connected Tellstick and Tellstick duo. For more details, have a look at http://developer.telldus.se/"
   failtext="Sadly there was a problem setting up tellstick core. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Success, please reboot your system to complete the installation.
 
@@ -651,6 +651,18 @@ or just reboot the system.
     echo "deb http://deb.debian.org/debian stretch main" > /etc/apt/sources.list.d/debian-stretch.list
     cond_redirect apt-get update
     cond_redirect apt-get -y -t=stretch install libconfuse1
+  fi
+  # libconfuse1 is only available from old stretch repos, but currently still needed
+  if is_buster ; then
+    echo 'APT::Default-Release "buster";' > /etc/apt/apt.conf.d/01release
+    if is_raspbian ; then
+      echo "deb http://raspbian.raspberrypi.org/raspbian/ stretch main" > /etc/apt/sources.list.d/raspbian-stretch.list
+    else
+      echo "deb http://deb.debian.org/debian stretch main" > /etc/apt/sources.list.d/debian-stretch.list
+    fi
+    cond_redirect apt-get update || FAILED=1
+    cond_redirect apt-get -y -t=stretch install libconfuse1 || FAILED=1
+    if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   fi
 
   cond_redirect wget -O - https://s3.eu-central-1.amazonaws.com/download.telldus.com/debian/telldus-public.key | apt-key add -
