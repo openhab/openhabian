@@ -19,10 +19,11 @@ samba_setup() {
 }
 
 firemotd_setup() {
+  FAILED=0
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
   cond_redirect apt-get update
   cond_redirect apt-get -y install bc sysstat jq moreutils
-  
+
   # fetch and install
   cond_redirect curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD -o /tmp/FireMotD || FAILED=1
   chmod 755 /tmp/FireMotD
