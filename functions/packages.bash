@@ -65,11 +65,9 @@ ion into small files: Yes\n"
   fi
 
   dpkg-reconfigure exim4-config
-  SMARTHOST=$(whiptail --title "Enter public mail service smarthost to relay your mails to" --inputbox "\nEnter the list of smarthost(s) to use your account for" 9 78 "*.google.com" 3>&1 1>&
-2 2>&3)
+  SMARTHOST=$(whiptail --title "Enter public mail service smarthost to relay your mails to" --inputbox "\nEnter the list of smarthost(s) to use your account for" 9 78 "*.google.com" 3>&1 1>&2 2>&3)
   if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
-  RELAYUSER=$(whiptail --title "Enter your public service mail user" --inputbox "\nEnter the mail username of the public service to relay all outgoing mail to ${SMARTHOST}" 9 78 "yourname@gm
-ail.com" 3>&1 1>&2 2>&3)
+  RELAYUSER=$(whiptail --title "Enter your public service mail user" --inputbox "\nEnter the mail username of the public service to relay all outgoing mail to ${SMARTHOST}" 9 78 "yourname@gmail.com" 3>&1 1>&2 2>&3)
   if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
   RELAYPASS=$(whiptail --title "Enter your public service mail password" --passwordbox "\nEnter the password used to relay mail as ${RELAYUSER}@${SMARTHOST}" 9 78 3>&1 1>&2 2>&3)
   if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
