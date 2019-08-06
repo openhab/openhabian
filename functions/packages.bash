@@ -253,6 +253,7 @@ find_setup() {
   FIND_SYSTEMCTL="/etc/systemd/system/findserver.service"
   FIND_DEFAULT="/etc/default/findserver"
   FIND_DSTDIR="/var/lib/findserver"
+  MOSQUITTO_CONF="/etc/mosquitto/mosquitto.conf"
   MOSQUITTO_PASSWD="/etc/mosquitto/passwd"
   DEFAULTFINDUSER="find"
   FINDSERVER="localhost"
@@ -260,7 +261,7 @@ find_setup() {
   FIND_TMP="/tmp/find-latest.$$"
   CLIENT_TMP="/tmp/fingerprint-latest.$$"
 
-  if [ ! -f ${MOSQUITTO_PASSWD} ]; then
+  if [ ! -f "${MOSQUITTO_CONF}" ]; then
     mqttservermessage="FIND requires an MQTT broker to run, but Mosquitto is not installed on this system.\\nYou can configure FIND to use any existing MQTT broker (in the next step) or you can go back and install Mosquitto from the openHABian menu.\\nDo you want to continue with the FIND installation?"
     if ! (whiptail --title "Mosquitto not installed, continue?" --yes-button "Continue" --no-button "Back" --yesno "$mqttservermessage" 15 80) then echo "CANCELED"; return 0; fi
   fi
