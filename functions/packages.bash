@@ -343,6 +343,13 @@ Integration into openHAB 2 is described here: https://github.com/openhab/openhab
 
   #TODO serve file from the repository
   cond_redirect wget -O /tmp/install_knxd_systemd.sh http://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh || FAILED=1
+
+  #hotfix for #651: switch to newer libfmt
+  cond_redirect sed -i 's#git checkout tags/3.0.0#git checkout tags/5.0.0#' /tmp/install_knxd_systemd.sh || FAILED=1
+  cond_redirect sed -i 's#cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX fmt/#cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX .#' /tmp/install_knxd_systemd.sh || FAILED=1
+  #/hotfix
+
+  #NOTE install_knxd_systemd.sh currently does not give proper exit status for errors, so installer claims success...
   cond_redirect bash /tmp/install_knxd_systemd.sh || FAILED=1
   if [ $FAILED -eq 0 ]; then echo "OK. Please restart your system now..."; else echo "FAILED"; fi
   #systemctl start knxd.service
