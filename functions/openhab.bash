@@ -33,13 +33,13 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
       echo -n "$(timestamp) [openHABian] Installing or upgrading to latest openHAB milestone release (testing)... "
       introtext=$introtext_testing
       successtext=$successtext_testing
-      REPO="deb https://dl.bintray.com/openhab/apt-repo2 testing main"
+      REPO="deb https://openhab.jfrog.io/openhab/openhab-linuxpkg testing main"
     fi
   else
     echo -n "$(timestamp) [openHABian] Installing or switching to latest openHAB snapshot (unstable)... "
     introtext=$introtext_unstable
     successtext=$successtext_unstable
-    REPO="deb http://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main"
+    REPO="deb https://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main"
   fi
 
   if [ -n "$INTERACTIVE" ]; then
