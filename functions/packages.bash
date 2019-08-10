@@ -346,6 +346,7 @@ Integration into openHAB 2 is described here: https://github.com/openhab/openhab
 
   #hotfix for #651: switch to newer libfmt
   cond_redirect sed -i 's#git checkout tags/3.0.0#git checkout tags/5.0.0#' /tmp/install_knxd_systemd.sh || FAILED=1
+  #shellcheck disable=SC2016
   cond_redirect sed -i 's#cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX fmt/#cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX .#' /tmp/install_knxd_systemd.sh || FAILED=1
   #/hotfix
 
