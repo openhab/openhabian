@@ -223,7 +223,6 @@ There are four measuers and methods included to cover this matter today but they
 3. (BETA) Reduce wear on SD-card by move write intensive actions temporary to RAM during operation (logs,persistant-data). Warning: powerfailure will result in lost data. [Menu option: 6A]
 4. (Advanced) Use [Amanda Network Backup](http://www.amanda.org/) for full-system backup, longer introduction [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md). [Menu option: 51]
 
-
 ## Optional Components
 
 openHABian comes with a number of additional routines to quickly install and set up home automation related software.

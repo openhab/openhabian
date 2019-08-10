@@ -1,11 +1,10 @@
 init_zram_mounts() {
   if [ "$1" == "install" ]; then
     local ZRAMGIT=https://github.com/mstormi/zram-config
-    local BRANCH=""
-    local TAG=openhabian
+    local TAG=openhabian_v1.5
     TMP="$(mktemp -d /tmp/.XXXXXXXXXX)"
 
-    /usr/bin/git clone ${BRANCH} ${ZRAMGIT} ${TMP}
+    /usr/bin/git clone --branch "$TAG" "$ZRAMGIT" "$TMP"
     cd ${TMP}
     /usr/bin/git fetch --tags
     /usr/bin/git checkout ${TAG}
