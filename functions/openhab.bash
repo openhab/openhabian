@@ -28,7 +28,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
       echo -n "$(timestamp) [openHABian] Installing or upgrading to latest openHAB release (stable)... "
       introtext=$introtext_stable
       successtext=$successtext_stable
-      REPO="deb https://dl.bintray.com/openhab/apt-repo2 stable main"
+      REPO="deb https://openhab.jfrog.io/openhab/openhab-linuxpkg stable main"
     else
       echo -n "$(timestamp) [openHABian] Installing or upgrading to latest openHAB milestone release (testing)... "
       introtext=$introtext_testing
