@@ -3,6 +3,8 @@
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND=noninteractive
 
+source "functions/init.bash"
+
 # Log everything to file
 exec &> >(tee -a "/boot/first-boot.log")
 
@@ -152,8 +154,7 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 echo "$(timestamp) [openHABian] Executing 'openhabian-setup.sh unattended'... "
-if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended); then
-#if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended_debug); then
+if (logme /opt/openhabian/openhabian-setup.sh unattended_debug); then
   systemctl start openhab2.service
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful

@@ -148,3 +148,8 @@ is_bionic() {
 running_in_docker() {
   grep -q 'docker\|lxc' /proc/1/cgroup
 }
+logme() {
+  # shellcheck disable=SC2094
+  exec "$@" 2>>"$DEBUGLOGFILE" | tee --append "$DEBUGLOGFILE"
+}
+
