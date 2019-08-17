@@ -238,7 +238,6 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 - [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
 - [FIND](https://www.internalpositioning.com/) - the Framework for Internal Navigation and Discovery
 - Tellstick core
-- Speedtest CLI
 
 ## FAQ and Troubleshooting
 
