@@ -26,9 +26,16 @@ system_upgrade() {
 
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
+<<<<<<< HEAD
   apt-get remove -y raspi-config &>/dev/null || true
   cond_redirect apt-get -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
                                xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping
+=======
+  cond_redirect apt-get update
+  cond_redirect apt-get remove -qq -y raspi-config &>/dev/null || true
+  cond_redirect apt-get -qq -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
+                               xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping >/dev/null 2>&1
+>>>>>>> f51b286... build system refactored
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -59,17 +66,25 @@ timezone_setting() {
   else
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
+<<<<<<< HEAD
       cond_redirect apt-get -y install python-pip
       cond_redirect pip install --upgrade tzupdate
+=======
+      cond_redirect apt-get -qq update &>/dev/null
+      cond_redirect apt-get -qq -y install python-pip &>/dev/null
+      cond_redirect pip install -q --upgrade tzupdate &>/dev/null
+>>>>>>> f51b286... build system refactored
       if [ $? -ne 0 ]; then echo "FAILED (pip)"; return 1; fi
     fi
-    cond_redirect pip3 install --upgrade tzupdate
+    cond_redirect pip install -qqq --upgrade tzupdate
     cond_redirect tzupdate
   fi
   if [ $? -eq 0 ]; then echo -e "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
 }
 
 locale_setting() {
+  source "$CONFIGFILE"
+  cond_redirect apt-get -qq -y install locales
   if [ -n "$INTERACTIVE" ]; then
     echo "$(timestamp) [openHABian] Setting locale based on user choice... "
     dpkg-reconfigure locales
@@ -80,9 +95,6 @@ locale_setting() {
   fi
 
   echo -n "$(timestamp) [openHABian] Setting locale based on openhabian.conf... "
-set -x
-  source "$CONFIGFILE"
-  cond_redirect apt-get -y install locales
   if is_ubuntu; then
     cond_redirect locale-gen $locales
   else
@@ -91,10 +103,10 @@ set -x
     cond_redirect locale-gen
   fi
   cond_redirect dpkg-reconfigure --frontend=noninteractive locales
-  LANG=$system_default_locale
-  LC_ALL=$system_default_locale
-  LC_CTYPE=$system_default_locale
-  LANGUAGE=$system_default_locale
+  LANG="${system_default_locale}"
+  LC_ALL="${system_default_locale}"
+  LC_CTYPE="${system_default_locale}"
+  LANGUAGE="${system_default_locale}"
   export LANG LC_ALL LC_CTYPE LANGUAGE
   cond_redirect update-locale LANG=$system_default_locale LC_ALL=$system_default_locale LC_CTYPE=$system_default_locale LANGUAGE=$system_default_locale
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi

@@ -30,7 +30,7 @@ source /etc/openhabian.conf
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Starting webserver with installation log... "
-if hash python 2>/dev/null; then
+if hash python3 2>/dev/null; then
   bash /boot/webif.bash start
   sleep 5
   webifisrunning=$(ps -ef | pgrep python3)
@@ -147,14 +147,14 @@ echo -n "$(timestamp) [openHABian] Installing git package... "
 /usr/bin/apt-get -y install git &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-echo -n "$(timestamp) [openHABian] Cloning myself... "
+echo -n "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${branch} branch... "
 if [ -d /opt/openhabian/ ]; then cd /opt && rm -rf /opt/openhabian/; fi
+git clone -q -b "$branch" "$repositoryurl" /opt/openhabian
 
-git clone -q -b master https://github.com/openhab/openhabian.git /opt/openhabian
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
-echo "$(timestamp) [openHABian] Executing openhabian-setup.sh $mode ... "
+echo "$(timestamp) [openHABian] Executing openhabian-setup.sh ${mode}... "
 if (/bin/bash "$BASEDIR"/openhabian-setup.sh $mode); then
 #  systemctl start openhab2.service
   rm -f /opt/openHABian-install-inprogress
@@ -166,7 +166,7 @@ echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' co
 
 echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready..."
 i=0
-until wget -S --spider -t 4 --waitretry=8 http://localhost:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK' || [ $i -ge 20 ]; do
+until wget -S --spider -t 3 --waitretry=4 http://localhost:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK' || [ $i -ge 10 ]; do
   sleep 10
   let i+=1
   echo -n "${i}.."
@@ -178,8 +178,8 @@ echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://$hostnam
 echo "$(timestamp) [openHABian] To gain access to a console, simply reconnect."
 echo "$(timestamp) [openHABian] First time setup successfully finished."
 sleep 12
-if hash python 2>/dev/null; then bash /boot/webif.bash inst_done; fi
+if hash python3 2>/dev/null; then bash /boot/webif.bash inst_done; fi
 sleep 12
-if hash python 2>/dev/null; then bash /boot/webif.bash cleanup; fi
+if hash python3 2>/dev/null; then bash /boot/webif.bash cleanup; fi
 
 # vim: filetype=sh

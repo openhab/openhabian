@@ -10,7 +10,5 @@ done
 BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 SCRIPTNAME="$(basename $SOURCE)"
 
-REPOSITORYURL="https://github.com/openhab/openhabian"
 CONFIGFILE="/etc/openhabian.conf"
-DEBUGLOGFILE="/var/tmp/openhabian-debug.log"
-export SOURCE BASEDIR SCRIPTNAME REPOSITORYURL CONFIGFILE DEBUGLOGFILE
+export SOURCE BASEDIR SCRIPTNAME REPOSITORYURL CONFIGFILE
