@@ -1,7 +1,6 @@
 FROM balenalib/raspberry-pi2-debian-node:latest-buster
-#FROM minimum2scp/debian-buster
  
-RUN [ "cross-build-start" ]
+#RUN [ "cross-build-start" ]
 
 ENV container docker
 ENV INITSYSTEM on
@@ -55,5 +54,5 @@ STOPSIGNAL 37
 
 CMD ["bash", "start.sh"]
 
-RUN [ "cross-build-end" ]
+#RUN [ "cross-build-end" ]
 

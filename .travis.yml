@@ -4,21 +4,21 @@ dist: disco
 
 jobs:
   include:
-    - stage: main
-      script: docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "unit-." .'
-    - script:
+    - stage: openhabian-setup
+      script:
         - docker run --name "openhabian-test" --privileged -d openhabian/rpi-openhabian
-        - docker exec -it "openhabian-test" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profil; /etc/rc.local'
-        - travis_wait 30 docker exec -it "openhabian-test" bash -c 'bats -r -f "installation-." .'
-        - travis_wait 30 docker exec -it "openhabian-test" bash -c 'bats -r -f "destructive-." .'
-          #    - script:
-          #      - docker run --name "optional-sw-test" --privileged -d openhabian/rpi-openhabian
-        #      - docker exec -it "optional-sw-test" bash -c 'bats -r -f "installation-." .'
-        #      - travis_wait 30 docker exec -it "optional-sw-test" bash -c 'bats -r -f "destructive-." .'
-    - stage: shellcheck
-      script: shellcheck -x -s bash openhabian-setup.sh || true
+        - docker exec -it "openhabian-test" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profil && /etc/rc.local'
+        - docker commit "openhabian-test" openhabian-installed
+    - script: docker run -it openhabian/rpi-openhabian bash -c 'mkdir /var/lib/openhab2; bats -r -f "dev-zram" .'
+    - script: shellcheck -x -s bash openhabian-setup.sh || true
     - script: shellcheck -x -s bash functions/*.bash || true
     - script: shellcheck -x -s bash build-image/*.bash || true
+    - stage: main
+      script:
+        - docker run --name "bats-tests" --privileged -d openhabian-installed
+        - docker exec -it "bats-tests" bash -c 'bats -r -f "installation-." .'
+        - docker exec -it "bats-tests" bash -c 'bats -r -f "destructive-." .'
+    - script: docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "unit-." .'
 
 matrix:
   fast_finish: true

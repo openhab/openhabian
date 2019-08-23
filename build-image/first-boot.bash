@@ -165,13 +165,7 @@ fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed."
 
 echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready..."
-i=0
-until wget -S --spider -t 3 --waitretry=4 http://localhost:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK' || [ $i -ge 10 ]; do
-  sleep 10
-  let i+=1
-  echo -n "${i}.."
-done
-if [ $i -ge 20 ]; then echo "failed."; exit 1; fi
+if ! tryUntil "wget -S --spider -t 3 --waitretry=4 http://localhost:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 20 5; then echo "failed."; exit 1; fi
 echo "OK"
 
 echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://$hostname:8080"
