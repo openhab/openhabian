@@ -4,10 +4,8 @@ init_zram_mounts() {
     local TAG=openhabian_v1.5
     TMP="$(mktemp -d /tmp/.XXXXXXXXXX)"
 
-    /usr/bin/git clone --branch "$TAG" "$ZRAMGIT" "$TMP"
+    /usr/bin/git clone -q --branch "$TAG" "$ZRAMGIT" "$TMP"
     cd ${TMP}
-    /usr/bin/git fetch --tags
-    /usr/bin/git checkout ${TAG}
 
     /bin/sh ./install.sh
     /usr/bin/install -m 644 ${BASEDIR:=/opt/openhabian}/includes/ztab /etc/ztab
@@ -15,7 +13,7 @@ init_zram_mounts() {
     rm -rf "$TMP"
   else
     service zram-config stop
-    /usr/local/share/zram-config/uninstall.sh
+    /bin/sh /usr/local/share/zram-config/uninstall.sh
     rm -f /etc/ztab
   fi
 }
