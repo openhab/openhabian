@@ -39,6 +39,7 @@ frontail_setup() {
   cond_redirect npm install -g frontail
   if [ $? -ne 0 ]; then echo "FAILED (frontail)"; exit 1; fi
   cond_redirect npm update -g frontail
+  ln -sfn /usr/bin/frontail /usr/local/bin/frontail
   #
   mkdir -p ${frontail_base}/preset ${frontail_base}/web/assets/styles
   
