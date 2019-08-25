@@ -89,7 +89,7 @@ locale_setting() {
     echo "$(timestamp) [openHABian] Setting locale based on user choice... "
     dpkg-reconfigure locales
     loc=$(grep "LANG=" /etc/default/locale | sed 's/LANG=//g')
-    cond_redirect update-locale LANG=$loc LC_ALL=$loc LC_CTYPE=$loc LANGUAGE=$loc
+    cond_redirect update-locale "LANG=$loc LC_ALL=$loc LC_CTYPE=$loc LANGUAGE=$loc"
     whiptail --title "Change Locale" --msgbox "For the locale change to take effect, please reboot your system now." 10 60
     return 0
   fi
@@ -104,11 +104,12 @@ locale_setting() {
   fi
   cond_redirect dpkg-reconfigure --frontend=noninteractive locales
   LANG="${system_default_locale}"
-  LC_ALL="${system_default_locale}"
+# the following line causes a weird warning in build tests
+#  LC_ALL="${system_default_locale}"
   LC_CTYPE="${system_default_locale}"
   LANGUAGE="${system_default_locale}"
   export LANG LC_ALL LC_CTYPE LANGUAGE
-  cond_redirect update-locale LANG=$system_default_locale LC_ALL=$system_default_locale LC_CTYPE=$system_default_locale LANGUAGE=$system_default_locale
+  cond_redirect update-locale "LANG=$system_default_locale LC_ALL=$system_default_locale LC_CTYPE=$system_default_locale LANGUAGE=$system_default_locale"
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 }
 

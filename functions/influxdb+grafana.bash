@@ -198,7 +198,6 @@ influxdb_grafana_setup() {
 ##
 
 influxdb_install() {
-set -x
   local influxdb_address
   local influxdb_admin_username
   local dist codename

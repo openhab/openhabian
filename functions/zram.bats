@@ -76,6 +76,7 @@ check_zram_removal() {
 }
 
 @test "dev-zram" {
+  mkdir /var/lib/openhab2
   run init_zram_mounts install
   [ "$status" -eq 0 ]
   echo -e "# \n\e[32mInitial installation of zram mounts succeeded." >&3
