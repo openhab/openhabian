@@ -157,9 +157,9 @@ tryUntil() {
     eval "${cmd}"
     ret=$?
     if [ $ret -eq 0 ]; then break; fi
-      sleep ${interval}
-      ((i-=1))
-      echo -n ".${i}."
-    done
-    return $i
+    sleep ${interval}
+    ((i-=1))
+    echo -n ".${i}."
+  done
+  return $i
 }

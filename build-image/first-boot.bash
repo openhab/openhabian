@@ -156,7 +156,6 @@ ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 echo "$(timestamp) [openHABian] Executing openhabian-setup.sh ${mode}... "
 if (/bin/bash "$BASEDIR"/openhabian-setup.sh $mode); then
-#  systemctl start openhab2.service
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else

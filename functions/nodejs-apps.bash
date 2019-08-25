@@ -24,7 +24,7 @@ nodejs_setup() {
     cond_redirect apt-get -y install nodejs
     if [ $? -ne 0 ]; then echo "FAILED (nodejs installation)"; exit 1; fi
   fi
-  if command -v npm &>/dev/null; then echo "OK"; else echo "FAILED (service1)"; exit 1; fi
+  if command -v npm &>/dev/null; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
 }
 
 frontail_setup() {
