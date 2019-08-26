@@ -84,6 +84,19 @@ check_zram_removal() {
   echo -e "# \e[36mZRAM test installation starting..." >&3
   run init_zram_mounts install
   [ "$status" -eq 0 ]
+
+  run check_zram_mounts
+  [ "$status" -eq 0 ]
+
+  echo -e "# \e[32mInstallation and availability of zram mounts verified." >&3
+}
+
+@test "dev-zram" {
+  if ! is_arm; then skip "Not executing zram test because not on ARM architecture"; fi
+
+  run init_zram_mounts install
+#  systemctl start zram-config
+  [ "$status" -eq 0 ]
   echo -e "# \n\e[32mInitial installation of zram mounts succeeded." >&3
   run check_zram_mounts
   [ "$status" -eq 0 ]
