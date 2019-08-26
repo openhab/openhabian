@@ -66,17 +66,12 @@ timezone_setting() {
   else
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
-<<<<<<< HEAD
       cond_redirect apt-get -y install python-pip
       cond_redirect pip install --upgrade tzupdate
-=======
-      cond_redirect apt-get -qq update &>/dev/null
-      cond_redirect apt-get -qq -y install python-pip &>/dev/null
-      cond_redirect pip install -q --upgrade tzupdate &>/dev/null
->>>>>>> f51b286... build system refactored
       if [ $? -ne 0 ]; then echo "FAILED (pip)"; return 1; fi
     fi
-    cond_redirect pip install -qqq --upgrade tzupdate
+#    cond_redirect pip install -qqq --upgrade tzupdate
+    cond_redirect pip install --upgrade tzupdate
     cond_redirect tzupdate
   fi
   if [ $? -eq 0 ]; then echo -e "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
@@ -84,7 +79,8 @@ timezone_setting() {
 
 locale_setting() {
   source "$CONFIGFILE"
-  cond_redirect apt-get -qq -y install locales
+#  cond_redirect apt-get -qq -y install locales
+  cond_redirect apt-get -y install locales
   if [ -n "$INTERACTIVE" ]; then
     echo "$(timestamp) [openHABian] Setting locale based on user choice... "
     dpkg-reconfigure locales
