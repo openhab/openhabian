@@ -67,6 +67,7 @@ timezone_setting() {
 
 locale_setting() {
   cond_redirect apt-get -q -y install locales
+  source "$CONFIGFILE" 
   if [ -n "$INTERACTIVE" ]; then
     echo "$(timestamp) [openHABian] Setting locale based on user choice... "
     dpkg-reconfigure locales

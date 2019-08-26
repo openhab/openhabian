@@ -5,6 +5,9 @@ CONFIGFILE=/etc/openhabian.conf
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND=noninteractive
 
+source "init.bash"
+source "$CONFIGFILE"
+
 # Log everything to file
 exec &> >(tee -a "/boot/first-boot.log")
 
