@@ -8,10 +8,9 @@ load helpers
   [ "$status" -eq 0 ]
   echo -e "# \e[32mInfluxDB installation successful." >&3
 
-# it does not work to test for running service at this stage
-#  run systemctl is-active --quiet influxdb.service
-#  [ "$status" -eq 0 ]
-#  echo -e "# \e[32mInfluxDB service running." >&3
+  run systemctl is-active --quiet influxdb.service
+  [ "$status" -eq 0 ]
+  echo -e "# \e[32mInfluxDB service running." >&3
 }
 
 @test "destructive-grafana_install" {
@@ -19,8 +18,7 @@ load helpers
   [ "$status" -eq 0 ]
   echo -e "# \e[32mGrafana installation successful." >&3
 
-# it does not work to test for running service at this stage
-#  run systemctl is-active --quiet grafana-server.service
-#  [ "$status" -eq 0 ]
-#  echo -e "# \e[32mGrafana service running." >&3
+  run systemctl is-active --quiet grafana-server.service
+  [ "$status" -eq 0 ]
+  echo -e "# \e[32mGrafana service running." >&3
 }
