@@ -29,6 +29,7 @@ nodejs_setup() {
 
 frontail_setup() {
   nodejs_setup
+set -x
   echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail)... "
   frontail_base="/usr/lib/node_modules/frontail"
   # clear frontail install dir if it exists, otherwise npm install will fail, #647
@@ -48,8 +49,15 @@ frontail_setup() {
   chmod 664 /etc/systemd/system/frontail.service
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable frontail.service
+  find / -name frontail
+  find / -name node_modules
+  ln -sfn /usr/lib/node_modules/frontail/bin/frontail /usr/bin/frontail
+  ln -sfn /usr/lib/node_modules/frontail/bin/frontail /usr/local/bin/frontail
+  ls -l /usr/lib/node_modules/frontail/bin/frontail /usr/local/bin/frontail /usr/bin/frontail
+  cat /etc/systemd/system/frontail.service
   cond_redirect systemctl restart frontail.service
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
+#  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; fi
   dashboard_add_tile frontail
 }
 
