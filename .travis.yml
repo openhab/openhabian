@@ -16,11 +16,6 @@ addons:
 services:
   - docker
 
-    #before_install:
-    #  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-    #  - docker pull marcosj/rpi_raspbian:buster
-
-
 install:
   - shellcheck --version
   - docker run --rm --privileged multiarch/qemu-user-static:register --reset

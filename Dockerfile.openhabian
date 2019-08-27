@@ -1,5 +1,5 @@
 #FROM balenalib/raspberry-pi2-debian-node:latest-buster
-FROM marcosj/rpi_raspbian:buster
+FROM balenalib/intel-nuc-debian-node:latest-buster
 
 #RUN [ "cross-build-start" ]
 
