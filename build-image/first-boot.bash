@@ -22,6 +22,11 @@ fail_inprogress() {
   exit 1
 }
 
+if [ -n "$DEBUGMAX" ]; then
+  echo "$(timestamp) [openHABian] Enable maximum debugging output (DEBUGMAX=${DEBUGMAX})."
+  set -x
+fi
+
 echo "$(timestamp) [openHABian] Starting the openHABian initial setup."
 rm -f /opt/openHABian-install-failed
 touch /opt/openHABian-install-inprogress

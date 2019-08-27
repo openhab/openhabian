@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 FROM minimum2scp/systemd-buster
 #FROM balenalib/intel-nuc-debian-node:latest-buster
+=======
+#FROM minimum2scp/systemd-buster
+FROM balenalib/intel-nuc-debian-node:latest-buster
+>>>>>>> added debug_maximum install verbosity mode
 #FROM balenalib/raspberry-pi2-debian-node:latest-buster
 
 #RUN [ "cross-build-start" ]
