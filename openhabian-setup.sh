@@ -23,6 +23,9 @@ if [[ "$1" = "unattended" ]]; then
   SILENT=1
 elif [[ "$1" = "unattended_debug" ]]; then
   UNATTENDED=1
+elif [[ "$1" = "unattended_debug_maximum" ]]; then
+  UNATTENDED=1
+  set -x
 else
   INTERACTIVE=1
 fi
