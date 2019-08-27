@@ -29,12 +29,12 @@ nodejs_setup() {
 
 frontail_setup() {
   nodejs_setup
-set -x
-  echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail)... "
-  frontail_base="/usr/lib/node_modules/frontail"
+  # install frontail relative to nodejs base
+  node_base=$(npm list -g|head -n 1)
+  echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail) relative to nodejs base ${node_base}... "
+  frontail_base="${node_base}/node_modules/frontail"
   # clear frontail install dir if it exists, otherwise npm install will fail, #647
   if [ -d "$frontail_base" ]; then 
-    # rm -rf "$frontail_base"
     cond_redirect npm uninstall -g frontail
   fi
   cond_redirect npm install -g frontail
@@ -45,19 +45,12 @@ set -x
   
   cp "$BASEDIR"/includes/frontail-preset.json $frontail_base/preset/openhab.json
   cp "$BASEDIR"/includes/frontail-theme.css $frontail_base/web/assets/styles/openhab.css
-  cp "$BASEDIR"/includes/frontail.service /etc/systemd/system/frontail.service
+  sed -e "s|%FRONTAILBASE|${frontail_base}|g" ${BASEDIR}/includes/frontail.service > /etc/systemd/system/frontail.service
   chmod 664 /etc/systemd/system/frontail.service
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable frontail.service
-  find / -name frontail
-  find / -name node_modules
-  ln -sfn /usr/lib/node_modules/frontail/bin/frontail /usr/bin/frontail
-  ln -sfn /usr/lib/node_modules/frontail/bin/frontail /usr/local/bin/frontail
-  ls -l /usr/lib/node_modules/frontail/bin/frontail /usr/local/bin/frontail /usr/bin/frontail
-  cat /etc/systemd/system/frontail.service
   cond_redirect systemctl restart frontail.service
-#  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
   dashboard_add_tile frontail
 }
 
