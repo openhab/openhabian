@@ -67,6 +67,9 @@ for shfile in "$BASEDIR"/functions/*.bash; do source "$shfile"; done
 # avoid potential crash when deleting directory we started from
 OLDWD=$(pwd) && cd /opt || exit 1
 if [[ -n "$UNATTENDED" ]]; then
+  if [[ -n "$DEBUGMAX" ]]; then
+    set -x
+  fi
   # apt/dpkg commands will not try interactive dialogs
   export DEBIAN_FRONTEND=noninteractive
   apt-get -qq update 2>/dev/null
