@@ -2,22 +2,28 @@
 
 load helpers
 
-testthis() {
-  tryUntil "wget -S --spider -t 3 --waitretry=4 $1 2>&1 | grep -q 'HTTP/1.1 200 OK'" 5 2
-  ret=$(($? - $2))
-  if [ $ret -ne 0 ]; then echo "OK"; return 0; else echo "failed."; return 1; fi
+testNonExistingHost() {
+  tryUntil "ping -c 1 $1" 10 1
+}
+
+testAppearingHost() {
+  ( sleep 3; echo "127.0.0.1  $1" >> /etc/hosts ) &
+ 
+  tryUntil "ping -c 1 $1" 10 1
 }
 
 @test "unit-tryExistingSite" {
-  testthis "http://www.openhab.org/" 5
-  [ "$status" -eq 0 ]
-  echo -e "# \n\e[32mGetting www.openhab.org in tryUntil loop succeeded." >&3
+  run testAppearingHost thiswillappear
+  [ "$status" -eq 7 ]
+
+  echo -e "# \n\e[32mPing to host appearing after 3 seconds succeeded." >&3
 }
 
 @test "unit-tryNonExistingSite" {
-  run testthis "http://nothisdoesnotexistforsure/" 0
+  run testNonExistingHost nothisdoesnotexit
   [ "$status" -eq 0 ]
-  echo -e "Getting non-existant URL in tryUntil loop correctly timed out." >&3
+
+  echo -e "# \n\e[32mPinging to nonexistingsite failed (correctly so)." >&3
 }
 
 @test "unit-cond_echo" {
