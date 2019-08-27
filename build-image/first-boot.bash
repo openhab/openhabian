@@ -18,6 +18,10 @@ fail_inprogress() {
   exit 1
 }
 
+if [ -n "DEBUGMAX" ]; then
+  set -x
+fi
+
 echo "$(timestamp) [openHABian] Starting the openHABian initial setup."
 rm -f /opt/openHABian-install-failed
 touch /opt/openHABian-install-inprogress
@@ -163,11 +167,11 @@ else
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed."
 
-echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready..."
+echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready on http://${HOSTNAME}:8080/..."
 if tryUntil "wget -S --spider -t 3 --waitretry=4 http://localhost:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 10 2; then echo "failed."; exit 1; fi
 echo "OK"
 
-echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://$hostname:8080"
+echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://${HOSTNAME}}:8080"
 echo "$(timestamp) [openHABian] To gain access to a console, simply reconnect."
 echo "$(timestamp) [openHABian] First time setup successfully finished."
 sleep 12

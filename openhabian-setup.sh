@@ -25,7 +25,7 @@ elif [[ "$1" = "unattended_debug" ]]; then
   UNATTENDED=1
 elif [[ "$1" = "unattended_debug_maximum" ]]; then
   UNATTENDED=1
-  set -x
+  MAXDEBUG=1
 else
   INTERACTIVE=1
 fi
@@ -35,6 +35,9 @@ fi
 for shfile in $BASEDIR/functions/*.bash; do source "$shfile"; done
 
 if [[ -n "$UNATTENDED" ]]; then
+  if [ -n "DEBUGMAX" ]; then
+    set -x
+  fi
   # apt/dpkg commands will not try interactive dialogs
   export DEBIAN_FRONTEND=noninteractive
   apt-get update
@@ -61,9 +64,9 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
 # not per default for now
 # if is_pione || is_pitwo || is_pithree || is_pithreeplus || is_pifour || is_pine64; then init_zram_mounts install; fi
-  samba_setup
+#  samba_setup
   clean_config_userpw
-  frontail_setup
+#  frontail_setup
 else
   apt-get update
   whiptail_check

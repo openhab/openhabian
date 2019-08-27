@@ -1,6 +1,7 @@
-FROM balenalib/raspberry-pi2-debian-node:latest-buster
- 
-RUN [ "cross-build-start" ]
+#FROM balenalib/raspberry-pi2-debian-node:latest-buster
+FROM marcosj/rpi_raspbian:buster
+
+#RUN [ "cross-build-start" ]
 
 ENV container docker
 ENV INITSYSTEM on
@@ -44,7 +45,8 @@ RUN /bin/echo -n "Running on " && /usr/bin/arch
 
 COPY . /opt/openhabian/
 COPY openhabian.conf.dist /etc/openhabian.conf
-RUN sed -i 's/mode=unattended$/mode=unattended_debug/' /etc/openhabian.conf
+#RUN sed -i 's/mode=unattended$/mode=unattended_debug/' /etc/openhabian.conf
+RUN sed -i 's/mode=unattended$/mode=unattended_debug_maximum/' /etc/openhabian.conf
 RUN sed -i 's#repositoryurl=https://github.com/openhab/openhabian.git#repositoryurl=https://github.com/mstormi/openhabian.git#' /etc/openhabian.conf
 RUN sed -i 's#branch=master#branch=build#' /etc/openhabian.conf
 
@@ -56,5 +58,5 @@ STOPSIGNAL 37
 
 CMD ["bash", "start.sh"]
 
-RUN [ "cross-build-end" ]
+#RUN [ "cross-build-end" ]
 
