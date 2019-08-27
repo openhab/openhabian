@@ -3,7 +3,6 @@
 samba_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
   if ! command -v samba &>/dev/null; then
-    cond_redirect apt-get update
     cond_redirect apt-get -y install samba
     if [ $? -ne 0 ]; then echo "FAILED"; exit 1; fi
   fi
@@ -21,7 +20,6 @@ samba_setup() {
 firemotd_setup() {
   FAILED=0
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
-  cond_redirect apt-get update
   cond_redirect apt-get -y install bc sysstat jq moreutils
 
   # fetch and install
@@ -294,7 +292,6 @@ find_setup() {
     cond_redirect systemctl restart mosquitto.service || true
   fi
 
-  cond_redirect apt-get update
   cond_redirect apt-get -y install libsvm-tools
   if [ $? -ne 0 ]; then echo "FAILED (SVM)"; return 1; fi
 
@@ -412,7 +409,6 @@ The article also contains instructions regarding openHAB integration.
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect apt-get update
   cond_redirect apt-get -y install git python3 python3-pip bluetooth bluez
   if [ $? -ne 0 ]; then echo "FAILED (prerequisites)"; exit 1; fi
   if [ ! -d "$DIRECTORY" ]; then
