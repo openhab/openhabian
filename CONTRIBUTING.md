@@ -148,7 +148,17 @@ Also remember that nobody likes spam.
 * Use two (2) spaces when indent code.
 
 * `local` declerations of variables shall be used when possible.
-  
+
+### Usage of `apt-get update` command
+
+To minimize unnecessary updates of the local apt database running `apt-get update` is only permitted in:
+
+1) Once in the `first-boot.bash` file prior to installing the system first time.
+
+2) Once when the `openhabian-config.sh` script is invoked.
+
+3) When new repository sources are added by installation scripts.
+
 ## Test Architecture
 
 Testing is based on three pilars: A) *Installation of base system*, B) *Test Cases*, and C) *Static analys using linter*.
