@@ -3,7 +3,6 @@
 whiptail_check() {
   if ! command -v whiptail &>/dev/null; then
     echo -n "$(timestamp) [openHABian] Installing whiptail... "
-    cond_redirect apt-get update
     cond_redirect apt-get -y install whiptail
     if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
@@ -20,14 +19,12 @@ system_upgrade() {
   else
     rm -f openhab-key.asc
   fi
-  cond_redirect apt-get update
   cond_redirect apt-get --yes upgrade
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
-  cond_redirect apt-get update
   apt-get remove -y raspi-config &>/dev/null || true
   cond_redirect apt-get -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
                                xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping
@@ -40,7 +37,6 @@ needed_packages() {
   # Install avahi-daemon - hostname based discovery on local networks
   # Install python/python-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
-  #cond_redirect apt-get update
   cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python python-pip avahi-autoipd fontconfig
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 
@@ -62,7 +58,6 @@ timezone_setting() {
   else
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
-      cond_redirect apt-get update
       cond_redirect apt-get -y install python-pip
       cond_redirect pip install --upgrade tzupdate
       if [ $? -ne 0 ]; then echo "FAILED (pip)"; return 1; fi

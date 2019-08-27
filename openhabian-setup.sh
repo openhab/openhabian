@@ -56,7 +56,7 @@ for shfile in $BASEDIR/functions/*.bash; do source "$shfile"; done
 if [[ -n "$UNATTENDED" ]]; then
   # apt/dpkg commands will not try interactive dialogs
   export DEBIAN_FRONTEND=noninteractive
-
+  apt-get update
   load_create_config
   timezone_setting
   locale_setting
@@ -84,6 +84,7 @@ if [[ -n "$UNATTENDED" ]]; then
   clean_config_userpw
   frontail_setup
 else
+  apt-get update
   whiptail_check
   load_create_config
   ua-netinst_check

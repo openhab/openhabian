@@ -134,7 +134,6 @@ sleep 10  # Related to: https://github.com/openhab/openhabian/issues/441#issueco
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
-apt-get update &>/dev/null
 /usr/bin/apt-get --yes --fix-broken install &>/dev/null
 apt-get --yes upgrade &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
@@ -142,7 +141,6 @@ if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 if hash python 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
-apt-get update &>/dev/null
 /usr/bin/apt-get -y install git &>/dev/null
 if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
