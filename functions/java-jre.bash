@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+# currently unused, hard coded ubuntu trusty repo (other releases available)
 java_webupd8_archive() {
   echo -n "$(timestamp) [openHABian] Preparing and Installing Oracle Java 8 Web Upd8 repository... "
   cond_redirect apt-get -y install dirmngr
@@ -17,6 +18,9 @@ java_webupd8_archive() {
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
+# currently preferred way to install java
+# - x86: add from package repo
+# - embedded/arm: only installer available, no up-to-date package repo, update issues #592
 java_zulu(){
   cond_redirect systemctl stop openhab2.service
   if is_arm; then
