@@ -104,3 +104,27 @@ check_zram_removal() {
   echo -e "# \e[32mInstallation and availability of zram mounts verified." >&3
 }
 
+@test "dev-zram" {
+  mkdir /var/lib/openhab2
+  run init_zram_mounts install
+  [ "$status" -eq 0 ]
+  echo -e "# \n\e[32mInitial installation of zram mounts succeeded." >&3
+  run check_zram_mounts
+  [ "$status" -eq 0 ]
+  echo -e "# \e[32mAvailability of zram mounts verified." >&3
+  run init_zram_mounts uninstall
+  [ "$status" -eq 0 ]
+  echo -e "# \e[32mUninstall of zram mounts succeeded." >&3
+  run check_zram_removal
+  [ "$status" -eq 0 ]
+  echo -e "# \e[32mUninstall of zram mounts verified - none remaining." >&3
+  run init_zram_mounts install
+  [ "$status" -eq 0 ]
+  echo -e "# \e[32mSecond installation of zram mounts succeeded." >&3
+  run check_zram_mounts
+  [ "$status" -eq 0 ]
+  echo -e "# \e[32mAvailability of 2nd zram mounts verified." >&3
+
+  echo -e "# \e[32mInstallation and availability of zram mounts verified." >&3
+}
+
