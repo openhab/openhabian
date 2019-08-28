@@ -10,7 +10,7 @@ port=80 # Port the webserver is listing to
 source /etc/openhabian.conf # to get the hostname
 
 if [ $1 = "start" ]; then
-  mkdir /tmp/webif
+  mkdir /tmp/webif 2>/dev/null
   ln -s /boot/first-boot.log /tmp/webif/first-boot.txt
   echo "<html>
         <head>
@@ -36,6 +36,7 @@ if [ $1 = "reinsure_running" ]; then
 fi
 
 if [ $1 = "inst_done" ]; then
+  mkdir /tmp/webif 2>/dev/null
   echo "<html>
         <head>
         <title>openHABian</title>
