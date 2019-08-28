@@ -1,4 +1,5 @@
 FROM minimum2scp/systemd-stretch
+#FROM balenalib/intel-nuc-debian-node:latest-buster
 
 RUN apt-get update && apt-get install -y git locales jq
 RUN git clone https://github.com/bats-core/bats-core.git && \
