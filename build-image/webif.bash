@@ -11,7 +11,7 @@ port=80 # Port the webserver is listing to
 source /etc/openhabian.conf # to get the hostname
 
 if [ "$1" = "start" ]; then
-  mkdir /tmp/webif
+  mkdir /tmp/webif 2>/dev/null
   ln -s /boot/first-boot.log /tmp/webif/first-boot.txt
   # shellcheck disable=SC2016
   echo '<html>
@@ -40,7 +40,7 @@ fi
 
 if [ "$1" = "inst_done" ]; then
   # dir was eventually deleted by reboot 
-  mkdir /tmp/webif
+  mkdir /tmp/webif 2>/dev/null
   # shellcheck disable=SC2016
   echo '<html>
         <head>

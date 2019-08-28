@@ -158,8 +158,8 @@ tryUntil() {
     ret=$?
     if [ $ret -eq 0 ]; then break; fi
     sleep ${interval}
-    ((i-=1))
     echo -n ".${i}."
+    ((i-=1))
   done
   return $i
 }
