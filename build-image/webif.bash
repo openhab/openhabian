@@ -39,6 +39,8 @@ if [ "$1" = "reinsure_running" ]; then
 fi
 
 if [ "$1" = "inst_done" ]; then
+  # dir was eventually deleted by reboot 
+  mkdir /tmp/webif
   # shellcheck disable=SC2016
   echo '<html>
         <head>

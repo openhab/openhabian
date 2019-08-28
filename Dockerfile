@@ -1,4 +1,5 @@
-FROM minimum2scp/systemd-stretch
+FROM minimum2scp/systemd-buster
+#FROM minimum2scp/systemd-stretch
 #FROM balenalib/intel-nuc-debian-node:latest-buster
 
 RUN apt-get update && apt-get install -y git locales jq
