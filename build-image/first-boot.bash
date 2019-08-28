@@ -167,13 +167,13 @@ else
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed."
 
-echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready on http://${HOSTNAME}:8080/..."
-if [ -n "$UNATTENDED" -a -z "$SILENT" ]; then
+if [ "$mode" == "unattended_debug" ]; then
   service openhab2 status
   systemctl status --all
   wget -S --spider -t 3 --waitretry=4 http://${HOSTNAME}:8080/start/index 2>&1
 fi
 
+echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready on http://${HOSTNAME}:8080/..."
 if tryUntil "wget -S --spider -t 3 --waitretry=4 http://${HOSTNAME}:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 30 20; then echo "failed."; exit 1; fi
 echo "OK"
 
