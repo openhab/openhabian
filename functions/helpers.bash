@@ -109,24 +109,34 @@ is_raspbian() {
   [[ "$(cat /etc/*release*)" =~ "Raspbian" ]]
   return $?
 }
+# Debian/Raspbian, to be deprecated, LTS ends 2020-06-30
 is_jessie() {
   [[ $(cat /etc/*release*) =~ "jessie" ]]
   return $?
 }
+# Debian/Raspbian oldstable
 is_stretch() {
   [[ $(cat /etc/*release*) =~ "stretch" ]]
   return $?
 }
+# Debian/Raspbian stable
 is_buster() {
   [[ $(cat /etc/*release*) =~ "buster" ]]
   return $?
 }
+# Ubuntu 14, to be deprecated
 is_trusty() {
   [[ $(cat /etc/*release*) =~ "trusty" ]]
   return $?
 }
+# Ubuntu 16
 is_xenial() {
   [[ $(cat /etc/*release*) =~ "xenial" ]]
+  return $?
+}
+# Ubuntu 18
+is_bionic() {
+  [[ $(cat /etc/*release*) =~ "bionic" ]]
   return $?
 }
 running_in_docker() {
