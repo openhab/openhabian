@@ -151,6 +151,9 @@ To continue your integration in openHAB 2, please follow the instructions under:
     Ubuntu-xenial)
       echo 'deb https://apt.homegear.eu/Ubuntu/ xenial/' > /etc/apt/sources.list.d/homegear.list
       ;;
+    Ubuntu-bionic)
+      echo 'deb https://apt.homegear.eu/Ubuntu/ bionic/' > /etc/apt/sources.list.d/homegear.list
+      ;;
     *)
       cond_echo "Your OS is not supported"
       exit 1
