@@ -167,7 +167,7 @@ else
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed."
 
-if [ -n $UNATTENDED -a -z $SILENT ]
+if [ -n $UNATTENDED -a -z $SILENT ]; then
   service openhab2 status
   systemctl status --all
   wget -S --spider -t 3 --waitretry=4 http://${HOSTNAME}:8080/start/index 2>&1
