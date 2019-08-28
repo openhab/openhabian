@@ -174,7 +174,7 @@ if [ -n "$UNATTENDED" -a -z "$SILENT" ]; then
   wget -S --spider -t 3 --waitretry=4 http://${HOSTNAME}:8080/start/index 2>&1
 fi
 
-if tryUntil "wget -S --spider -t 3 --waitretry=4 http://${HOSTNAME}:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 20 10; then echo "failed."; exit 1; fi
+if tryUntil "wget -S --spider -t 3 --waitretry=4 http://${HOSTNAME}:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 30 20; then echo "failed."; exit 1; fi
 echo "OK"
 
 echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://${HOSTNAME}}:8080"
