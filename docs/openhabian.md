@@ -214,14 +214,14 @@ All password can be changed from openHABian menu.
 - Grafana visualization ("admin:admin")
 
 ## System Backup & Maintenance 
-When you have settled in how to use openHAB for your needs it could be a good moment to think about backup. Maybe you accedently delete something or the SD-card wearout which is a common on many single board computers such as Raspberry Pis.
+Once you have gotten grip on how to use openHAB for your needs it is a good moment to think about backup. Maybe you accidently delete something or get hit by SD card wearout problem which is quite common on many single board computers such as Raspberry Pis.
 
-There are four measuers and methods included to cover this matter today but they all need some reaserch and readup to be used. *(Hopfully will a more streamlined method be developed in the future which better integreted with openHAB itself, keep tuned.)*
+There are four measures and methods in openHABian to cover this matter today, but they all need some research and readup to be successfully used. *(Hopefully we will get to develop a more streamlined method to better integrate with openHAB itself - stay tuned.)*
 
 1. Use openHAB integrated [backup tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82?u=elias_gabrielsson).
-2. Move the root filesystem to an external USB-memory. [Menu option:37]
-3. (BETA) Reduce wear on SD-card by move write intensive actions temporary to RAM during operation (logs,persistant-data). Warning: powerfailure will result in lost data. [Menu option: 6A]
-4. (Advanced) Use [Amanda Network Backup](http://www.amanda.org/) for full-system backup, longer introduction [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md). [Menu option: 51]
+2. Move the root filesystem to an external USB-memory. Warning: USB stick are as-susceptible to flash wearout as SD cards. [Menu option:37]
+3. (BETA) Reduce wear on SD card by moving write intensive actions temporary to RAM during operation (logs,persistant-data). Warning: power failure will result in lost data. [Menu option: 6A]
+4. (Advanced) Use [Amanda Network Backup](http://www.amanda.org/) for full system backup, longer introduction [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md). [Menu option: 51]
 
 ## Optional Components
 
