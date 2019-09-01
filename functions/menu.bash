@@ -111,7 +111,7 @@ show_main_menu() {
     "35 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
     "36 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
     "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
-    "38 | Use zram"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
+    "38 | Use zram (BETA)"        "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -176,7 +176,7 @@ show_main_menu() {
     "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail) " OFF \
     "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
     "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
-    "6A | Use zram"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" OFF \
+    "6A | Use zram (BETA)"        "Use compressed RAM/disk sync for active directories to avoid SD card corruption" OFF \
     "   | Remove zram"            "Don't use compressed memory (back to standard Raspbian FS layout)" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
