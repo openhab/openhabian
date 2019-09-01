@@ -41,7 +41,7 @@ if [[ -n "$UNATTENDED" ]]; then
   fi
   # apt/dpkg commands will not try interactive dialogs
   export DEBIAN_FRONTEND=noninteractive
-  apt-get update
+  apt-get -qq update 2>/dev/null
   load_create_config
   timezone_setting
   locale_setting
