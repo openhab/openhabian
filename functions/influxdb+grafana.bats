@@ -22,6 +22,6 @@ load helpers
 # does not work before #683 is merged
 #  run systemctl is-active --quiet grafana-server.service
 #  [ "$status" -eq 0 ]
-#  echo -e "# \e[32mGrafana service running." >&3
+  echo -e "# \e[32mGrafana service running." >&3
 }
 
