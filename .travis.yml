@@ -33,7 +33,7 @@ jobs:
       script:
         - docker run --name "openhabian-test" --privileged -d openhabian/rpi-openhabian
         - docker exec -it "openhabian-test" bash -c \
-            'VIRT=$(sudo virt-what); echo -n "Testing openhabian install on ${VIRT} ..."; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo "Did not test openhabian install on native HW, ignoring test result."; exit 0; fi'
+            'VIRT=$(sudo virt-what); echo -n "\nTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi'
         - docker commit "openhabian-test" openhabian-installed
     - stage: Bats
       script: docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "unit-." .'

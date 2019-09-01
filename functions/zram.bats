@@ -66,6 +66,9 @@ check_zram_removal() {
 }
 
 @test "destructive-zram" {
+  VIRT=$(virt-what)
+  if [ "${VIRT}" != "native HW" ]; then skip "Not deploying zram because on (emulated ?) architecture."; fi
+
   run init_zram_mounts install
   [ "$status" -eq 0 ]
 
@@ -76,7 +79,8 @@ check_zram_removal() {
 }
 
 @test "dev-zram" {
-  if ! is_arm; then skip "Not executing zram test because not on ARM architecture"; fi
+  VIRT=$(virt-what)
+  if ! is_arm || [ "${VIRT}" != "native HW" ]; then skip "Not executing zram test because not on native ARM architecture hardware."; fi
 
   run init_zram_mounts install
 #  systemctl start zram-config

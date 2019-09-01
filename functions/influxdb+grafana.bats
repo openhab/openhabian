@@ -8,9 +8,10 @@ load helpers
   [ "$status" -eq 0 ]
   echo -e "# \e[32mInfluxDB installation successful." >&3
 
-  if is_arm; then skip "Not checking for running InfluxDB service because on (emulated ?) ARM architecture"; fi
+  VIRT=$(virt-what)
+  if [ "${VIRT}" != "native HW" ]; then skip "Not checking for running InfluxDB service because on (emulated ?) architecture."; fi
 
-  run systemctl.ORIG is-active --quiet influxdb.service
+  run systemctl is-active --quiet influxdb.service
   [ "$status" -eq 0 ]
   echo -e "# \e[32mInfluxDB service running." >&3
 }
@@ -20,7 +21,8 @@ load helpers
   [ "$status" -eq 0 ]
   echo -e "# \e[32mGrafana installation successful." >&3
 
-  if is_arm; then skip "Not checking for running Grafana service because on (emulated ?) ARM architecture"; fi
+  VIRT=$(virt-what)
+  if [ "${VIRT}" != "native HW" ]; then skip "Not checking for running Grafana service because on (emulated ?) architecture."; fi
 
   run systemctl is-active --quiet grafana-server.service
   [ "$status" -eq 0 ]
