@@ -30,10 +30,11 @@ elif [[ "$1" = "unattended_debug_maximum" ]]; then
 else
   INTERACTIVE=1
 fi
+export UNATTENDED SILENT DEBUGMAX INTERACTIVE
 
 # Include all subscripts
 # shellcheck source=/dev/null
-for shfile in $BASEDIR/functions/*.bash; do source "$shfile"; done
+for shfile in "$BASEDIR"/functions/*.bash; do source "$shfile"; done
 
 if [[ -n "$UNATTENDED" ]]; then
   if [[ -n "$DEBUGMAX" ]]; then
