@@ -23,9 +23,10 @@ if [[ "$1" = "unattended" ]]; then
   SILENT=1
 elif [[ "$1" = "unattended_debug" ]]; then
   UNATTENDED=1
+  unset DEBUGMAX
 elif [[ "$1" = "unattended_debug_maximum" ]]; then
   UNATTENDED=1
-  MAXDEBUG=1
+  DEBUGMAX=1
 else
   INTERACTIVE=1
 fi
@@ -35,7 +36,7 @@ fi
 for shfile in $BASEDIR/functions/*.bash; do source "$shfile"; done
 
 if [[ -n "$UNATTENDED" ]]; then
-  if [ -n "DEBUGMAX" ]; then
+  if [[ -n "$DEBUGMAX" ]]; then
     set -x
   fi
   # apt/dpkg commands will not try interactive dialogs

@@ -18,7 +18,8 @@ fail_inprogress() {
   exit 1
 }
 
-if [ -n "DEBUGMAX" ]; then
+if [ -n "$DEBUGMAX" ]; then
+  echo "$(timestamp) [openHABian] Enable maximum debugging output (DEBUGMAX=X${DEBUGMAX}X)."
   set -x
 fi
 

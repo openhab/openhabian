@@ -75,18 +75,11 @@ check_zram_removal() {
   echo -e "# \e[32mInstallation and availability of zram mounts verified." >&3
 }
 
-@test "dev-arch" {
-  if is_arm()
-    echo -e "# \e[32mRunning on ARM." >&3
-  else
-    echo -ne "# \e[32mRunning on ." >&3
-    /usr/bin/arch -k >&3
-  fi
-}
-
 @test "dev-zram" {
-  mkdir /var/lib/openhab2
+  if ! is_arm; then skip "Not executing zram test because not on ARM architecture"; fi
+
   run init_zram_mounts install
+#  systemctl start zram-config
   [ "$status" -eq 0 ]
   echo -e "# \n\e[32mInitial installation of zram mounts succeeded." >&3
   run check_zram_mounts

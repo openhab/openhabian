@@ -26,16 +26,9 @@ system_upgrade() {
 
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
-<<<<<<< HEAD
   apt-get remove -y raspi-config &>/dev/null || true
   cond_redirect apt-get -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
                                xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping
-=======
-  cond_redirect apt-get update
-  cond_redirect apt-get remove -qq -y raspi-config &>/dev/null || true
-  cond_redirect apt-get -qq -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
-                               xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping >/dev/null 2>&1
->>>>>>> f51b286... build system refactored
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
