@@ -5,7 +5,7 @@ load helpers
 
 @test "destructive-homegear_install" {
   VIRT=$(virt-what)
-  if [ "${VIRT}" != "native HW" ]; then skip "Not setting up homegear service because on (emulated ?) architecture."; fi
+  if [ "${VIRT}" != "native HW" ]; then skip "Not setting up homegear service because on (emulated ?) architecture." >&3; fi
 
   run homegear_setup
   [ "$status" -eq 0 ]
