@@ -4,6 +4,7 @@ set -e
 ##########################
 #### Load help method ####
 ##########################
+source $(dirname "$0")/functions/helpers.bash
 
 ## This format timestamp
 timestamp() { date +"%F_%T_%Z"; }
@@ -80,6 +81,31 @@ check_command_availability_and_exit() {
     fi
   done
 }
+
+# mount rpi image using userspace tools, in docker use privileged mount via kpartx
+mount_image_file() { # imagefile buildfolder
+  if ! running_in_docker; then
+    guestmount -o uid=$EUID -a "$1" -m /dev/sda1 "$2/boot"
+    guestmount -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
+  else
+    loop_prefix=`kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1`
+    mount -o rw -t vfat "/dev/mapper/$(echo $loop_prefix)p1" "$buildfolder/boot"
+    mount -o rw -t ext4 "/dev/mapper/$(echo $loop_prefix)p2" "$buildfolder/root"
+  fi
+}
+
+# umount rpi image
+umount_image_file() { # imagefile buildfolder
+  if ! running_in_docker; then
+    guestunmount "$2/boot"
+    guestunmount "$2/root"
+  else
+    umount "$2/boot"
+    umount "$2/root"
+    kpartx -dv "$1"
+  fi
+}
+
 
 ############################
 #### Build script start ####
@@ -205,10 +231,23 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
 elif [ "$hw_platform" == "pi-raspbian" ]; then
   # Prerequisites
   echo_process "Checking prerequisites... "
-  # no longer checking curl, seems to be unused for rpi
-  check_command_availability_and_exit \
-   "git wget unzip crc32 dos2unix guestmount" \
-   "git wget unzip libarchive-zip-perl dos2unix libguestfs-tools" 
+  REQ_COMMANDS="git wget unzip crc32 dos2unix xz"
+  REQ_PACKAGES="git wget unzip libarchive-zip-perl dos2unix xz-utils"
+  if running_in_docker; then
+    # in docker guestfstools are not used; do not install it and all of its prerequisites
+    # -> must be run as root
+    if [[ $EUID -ne 0 ]]; then
+      echo_process "For use with Docker, this script must be run as root" 1>&2
+      exit 1
+    fi
+    REQ_COMMANDS+=" kpartx"
+    REQ_PACKAGES+=" kpartx"
+  else
+    # if not running in docker, using userspace tools
+    REQ_COMMANDS+=" guestmount"
+    REQ_PACKAGES+=" libguestfs-tools"
+  fi
+  check_command_availability_and_exit "$REQ_COMMANDS" "$REQ_PACKAGES"
 
   echo_process "Downloading latest Raspbian Lite image... "
   if [ -f "raspbian.zip" ]; then
@@ -223,8 +262,7 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
 
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
-  guestmount -o uid=$EUID -a $imagefile -m /dev/sda1 $buildfolder/boot
-  guestmount -o uid=$EUID -a $imagefile -m /dev/sda2 $buildfolder/root
+  mount_image_file "$imagefile" "$buildfolder"
 
   echo_process "Setting hostname, reactivating SSH... "
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" $buildfolder/root/etc/hosts
@@ -248,8 +286,7 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   echo_process "Closing up image file... "
   sync
   # maybe we should use a trap to get this done in case of error
-  guestunmount $buildfolder/boot
-  guestunmount $buildfolder/root
+  umount_image_file "$imagefile" "$buildfolder"
 fi
 
 echo_process "Moving image and cleaning up... "
