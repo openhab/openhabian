@@ -11,7 +11,7 @@ openHABian aims to provide a **self-configuring** Linux system setup specific to
 The project provides two things:
 
 * A set of scripts to set up openHAB on any Debian/Ubuntu based system
-* Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations, for the *Raspberry Pi* and the *Pine A64* platforms.
+* Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations, for the *Raspberry Pi* platform.
 
 Close related to openHABian is the repository [openhab-linuxpkg](https://github.com/openhab/openhab-linuxpkg) providing linux packages for openHAB. Openhabian uses those package to setup openHAB with some additional configurations.
 
@@ -28,9 +28,9 @@ A good place to start to look at to understand the code is the file `openhabian-
 
 ### Building Hardware Images
 Take a look at the `build.bash` script to get an idea of the process. 
-Simply explained run code below with platform being either `rpi` or `pine64`. The RPi image is based on the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian) standard image while the Pine64 image is based on [build-pine64-image](https://github.com/longsleep/build-pine64-image).
+
 ```
-$ sudo bash ./build.bash platform
+$ sudo bash ./build.bash rpi
 ```
 As the script uses `openhab/openhabian` git repository during installation it must sometimes be changes to test code from other repositories, like a new feature in a fork. There is two commands for this replacing the git repo with a custom one. The first command uses the current checkout repository used in the filesystem:
 ```
