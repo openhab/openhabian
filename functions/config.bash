@@ -28,3 +28,10 @@ load_create_config() {
 clean_config_userpw() {
   cond_redirect sed -i "s/^userpw=.*/\#userpw=xxxxxxxx/g" $CONFIGFILE
 }
+
+## Update java architecture in config file
+## Valid options: "32-bit" & "64-bit"
+update_config_java() {
+  cond_redirect grep -q '^java_arch' "$CONFIGFILE" && sed -i "s/^java_arch.*/java_arch=$1/" "$CONFIGFILE" || echo "option=$1" >> "$CONFIGFILE"
+  source "$CONFIGFILE"
+}
