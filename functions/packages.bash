@@ -40,7 +40,7 @@ firemotd_setup() {
   echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /usr/local/bin/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
   # invoke apt updates check after every apt action ('apt-get upgrade', ...)
   echo "DPkg::Post-Invoke { \"if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
-  if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
+  if [ $FAILED -eq 1 ]; then echo "FAILED "; else echo "OK "; fi
 }
 
 create_mta_config() {
