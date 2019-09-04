@@ -94,7 +94,7 @@ locale_setting() {
   cond_redirect dpkg-reconfigure --frontend=noninteractive locales
   LANG="${system_default_locale}"
   # the following line causes a weird warning in build tests
-  LC_ALL="${system_default_locale}" &>/dev/null
+  LC_ALL="${system_default_locale}" 2>/dev/null
   LC_CTYPE="${system_default_locale}"
   LANGUAGE="${system_default_locale}"
   export LANG LC_ALL LC_CTYPE LANGUAGE
