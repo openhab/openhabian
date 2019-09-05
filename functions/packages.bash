@@ -367,7 +367,7 @@ Integration into openHAB 2 is described here: https://github.com/openhab/openhab
 
 1wire_setup() {
   FAILED=0
-  introtext="This will install owserver to support 1wire functionality in general, ow-shell and usbutils are helpfull tools to check USB (lsusb) and 1wire function (owdir, owread). For more details, have a look at http://owfs.com"
+  introtext="This will install owserver to support 1wire functionality in general, ow-shell and usbutils are helpfull tools to check USB (lsusb) and 1wire function (owdir, owread). For more details, have a look at http://owfs.org"
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="Setup was successful.
 Next, please configure your system in /etc/owfs.conf.
