@@ -135,7 +135,8 @@ fetch_zulu_tar_url(){
   if [ ! -x "$(command -v jq)" ]; then
     apt-get install -y jq
   fi
-  filter='.[] | select(.os == "Linux") | select(.category_slug == "java-8-lts") | select(.latest == 1) | select(.packaging_slug == "jdk") | select(.arch_slug == "'$1'") | select((.os_flavor | index("Debian")) or (.os_flavor == "[]")) | .["bundles"] | .[] | select(.extension == "tar.gz") | .["link"]' # $1 = e.g. "arm-64-bit"  
+  filter='.[] | select(.category_slug == "java-8-lts") | select(.latest == 1) | select(.packaging_slug == "jdk") | select(.arch_slug == "'$1'") | .["bundles"] | .[] | select(.extension == "tar.gz") | .["link"]' # Temporary
+  # filter='.[] | select(.os == "Linux") | select(.category_slug == "java-8-lts") | select(.latest == 1) | select(.packaging_slug == "jdk") | select(.arch_slug == "'$1'") | select((.os_flavor | index("Debian")) or (.os_flavor == "[]")) | .["bundles"] | .[] | select(.extension == "tar.gz") | .["link"]' # $1 = e.g. "arm-64-bit"  
   # Fetch an JSON array of download candidates from azul and filter them
   # shellcheck disable=SC2006
   downloadlink=`curl 'https://www.azul.com/wp-admin/admin-ajax.php' -s \
@@ -164,7 +165,8 @@ java_zulu_tar_update_available(){
   if [ ! -x "$(command -v jq)" ]; then
     apt-get install -y jq
   fi
-  filter='[.[] | select(.os == "Linux") | select(.category_slug == "java-8-lts") | select(.latest == 1)  | .["openjdk_version"]] | first'
+  filter='[.[] | select(.category_slug == "java-8-lts") | select(.latest == 1)  | .["openjdk_version"]] | first' # Temporary
+  #filter='[.[] | select(.os == "Linux") | select(.category_slug == "java-8-lts") | select(.latest == 1)  | .["openjdk_version"]] | first'
   # Fetch an JSON array of download candidates from azul and filter them
   # shellcheck disable=SC2006
   availableVersion=`curl 'https://www.azul.com/wp-admin/admin-ajax.php' -s \
