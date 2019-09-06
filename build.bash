@@ -84,7 +84,7 @@ check_command_availability_and_exit() {
 
 # mount rpi image using userspace tools, in docker use privileged mount via kpartx
 mount_image_file() { # imagefile buildfolder
-  if ! running_in_docker; then
+  if ! running_in_docker && ! is_pi; then
     guestmount -o uid=$EUID -a "$1" -m /dev/sda1 "$2/boot"
     guestmount -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
@@ -96,7 +96,7 @@ mount_image_file() { # imagefile buildfolder
 
 # umount rpi image
 umount_image_file() { # imagefile buildfolder
-  if ! running_in_docker; then
+  if ! running_in_docker && ! is_pi; then
     guestunmount "$2/boot"
     guestunmount "$2/root"
   else
@@ -233,7 +233,7 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   echo_process "Checking prerequisites... "
   REQ_COMMANDS="git wget unzip crc32 dos2unix xz"
   REQ_PACKAGES="git wget unzip libarchive-zip-perl dos2unix xz-utils"
-  if running_in_docker; then
+  if running_in_docker || is_pi; then
     # in docker guestfstools are not used; do not install it and all of its prerequisites
     # -> must be run as root
     if [[ $EUID -ne 0 ]]; then
@@ -243,7 +243,7 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
     REQ_COMMANDS+=" kpartx"
     REQ_PACKAGES+=" kpartx"
   else
-    # if not running in docker, using userspace tools
+    # if not running in Docker not on a RPi, use userspace tools
     REQ_COMMANDS+=" guestmount"
     REQ_PACKAGES+=" libguestfs-tools"
   fi
