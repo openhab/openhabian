@@ -111,7 +111,7 @@ fi
 
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
 cnt=0
-until ping -c1 9.9.9.9 &>/dev/null || [ "$(wget -qO- http://www.msftncsi.com/ncsi.txt)" == "Microsoft NCSI" ]; do
+tryUntil "ping -c1 9.9.9.9 || wget -S -t 3 --waitretry=4 http://www.msftncsi.com/ncsi.txt 2>&1 | grep -q 'Microsoft NCSI'" 10 5
   sleep 1
   cnt=$((cnt + 1))
   #echo -n ". "
@@ -163,7 +163,8 @@ echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' co
 
 echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready..."
 
-if tryUntil "wget -S --spider -t 3 --waitretry=4 http://localhost:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 10 2; then echo "failed."; exit 1; fi
+# this took ~130 seconds on a RPi2
+if tryUntil "wget -S --spider -t 3 --waitretry=4 http://localhost:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 20 10; then echo "failed."; exit 1; fi
 echo "OK"
 
 echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://${hostname:-openhab}:8080"
