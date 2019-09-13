@@ -62,6 +62,7 @@ if [[ -n "$UNATTENDED" ]]; then
   timezone_setting
   locale_setting
   hostname_change
+  if is_pi; then memory_split; enable_rpi_audio; fi
   if is_pine64; then pine64_platform_scripts; fi
   if is_pine64; then pine64_fixed_mac; fi
   if is_pine64; then pine64_fix_systeminfo_binding; fi
@@ -78,7 +79,6 @@ if [[ -n "$UNATTENDED" ]]; then
   srv_bind_mounts
   permissions_corrections
   misc_system_settings
-  if is_pi; then memory_split; enable_rpi_audio; fi
 # not per default for now
 # if is_pi; then init_zram_mounts install; fi
   samba_setup
