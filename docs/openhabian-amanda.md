@@ -105,6 +105,9 @@ Google is your friend, but it'll give a lot of answers, each to vary slightly de
 Make sure you ask specific questions such as “how to mount a NAS disk on a raspbian raspberry pi”.
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
 exported (= shared, i.e. made available for mounting) on that directory. This is your mountpoint.
+One specific thing to watch out for when configuring your export share on the NFS server is to add the `no_root_squash` option.
+Depending on your server OS or UI it might have a different name but it's function is to NOT map accesses of userID 0 (root) to some
+other UID as your server will by default do.
 
 Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 192.168.1.100) and two partitions from an attached
 USB stick identified as /dev/sda (Linux ext4 and Windows VFAT filesystems).
