@@ -12,7 +12,7 @@ nodejs_setup() {
 
   if is_arm; then
     echo -n "$(timestamp) [openHABian] Installing Node.js for arm (prerequisite for other packages)... "
-    cond_redirect wget -O /tmp/nodejs-arm.tar.gz https://nodejs.org/download/release/latest-dubnium/$f 2>&1 || FAILED=1
+    cond_redirect wget -O /tmp/nodejs-arm.tar.gz "https://nodejs.org/download/release/latest-dubnium/$f" 2>&1 || FAILED=1
     if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
     cond_redirect tar -zxf /tmp/nodejs-arm.tar.gz --strip-components=1 -C /usr 2>&1
     cond_redirect rm /tmp/nodejs-arm.tar.gz 2>&1
@@ -21,8 +21,7 @@ nodejs_setup() {
     cond_redirect wget -O /tmp/nodejs-setup.sh https://deb.nodesource.com/setup_10.x || FAILED=1
     cond_redirect bash /tmp/nodejs-setup.sh || FAILED=1
     if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
-    cond_redirect apt-get -y install nodejs
-    if [ $? -ne 0 ]; then echo "FAILED (nodejs installation)"; exit 1; fi
+    if ! cond_redirect apt-get -y install nodejs; then echo "FAILED (nodejs installation)"; exit 1; fi
   fi
   if command -v npm &>/dev/null; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
 }
@@ -36,8 +35,7 @@ frontail_setup() {
     # rm -rf "$frontail_base"
     cond_redirect npm uninstall -g frontail
   fi
-  cond_redirect npm install -g frontail
-  if [ $? -ne 0 ]; then echo "FAILED (frontail)"; exit 1; fi
+  if ! cond_redirect npm install -g frontail; then echo "FAILED (frontail)"; exit 1; fi
   cond_redirect npm update -g frontail
   #
   mkdir -p ${frontail_base}/preset ${frontail_base}/web/assets/styles
@@ -48,8 +46,7 @@ frontail_setup() {
   chmod 664 /etc/systemd/system/frontail.service
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable frontail.service
-  cond_redirect systemctl restart frontail
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
+  if cond_redirect systemctl restart frontail; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
   dashboard_add_tile frontail
 }
 
@@ -58,17 +55,14 @@ nodered_setup() {
   FAILED=0
   cond_redirect wget -O /tmp/update-nodejs-and-nodered.sh https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered || FAILED=1
   cond_redirect chmod +x /tmp/update-nodejs-and-nodered.sh || FAILED=1
-  cond_redirect /usr/bin/sudo -u $username -H sh -c "/tmp/update-nodejs-and-nodered.sh" || FAILED=1
+  cond_redirect /usr/bin/sudo -u "${username:-openhabian}" -H sh -c "/tmp/update-nodejs-and-nodered.sh" || FAILED=1
   if [ $FAILED -eq 1 ]; then echo "FAILED (nodered)"; exit 1; fi
-  cond_redirect npm install -g node-red-contrib-bigtimer
-  if [ $? -ne 0 ]; then echo "FAILED (nodered bigtimer addon)"; exit 1; fi
+  if ! cond_redirect npm install -g node-red-contrib-bigtimer; then echo "FAILED (nodered bigtimer addon)"; exit 1; fi
   cond_redirect npm update -g node-red-contrib-bigtimer
-  cond_redirect npm install -g node-red-contrib-openhab2
-  if [ $? -ne 0 ]; then echo "FAILED (nodered openhab2 addon)"; exit 1; fi
+  if ! cond_redirect npm install -g node-red-contrib-openhab2; then echo "FAILED (nodered openhab2 addon)"; exit 1; fi
   cond_redirect npm update -g node-red-contrib-openhab2
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable nodered.service
-  cond_redirect systemctl restart nodered.service
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
+  if cond_redirect systemctl restart nodered.service; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
   dashboard_add_tile nodered
 }

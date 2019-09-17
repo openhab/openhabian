@@ -23,8 +23,8 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
 
   cond_redirect apt-get -y install apt-transport-https
 
-  if [ ! -n "$UNSTABLE" ]; then
-    if [ ! -n "$TESTING" ]; then
+  if [ -z "$UNSTABLE" ]; then
+    if [ -z "$TESTING" ]; then
       echo -n "$(timestamp) [openHABian] Installing or upgrading to latest openHAB release (stable)... "
       introtext=$introtext_stable
       successtext=$successtext_stable
@@ -47,8 +47,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   fi
 
   cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
-  cond_redirect apt-key add openhab-key.asc
-  if [ $? -ne 0 ]; then echo "FAILED (key)"; exit 1; fi
+  if ! cond_redirect apt-key add openhab-key.asc; then echo "FAILED (key)"; exit 1; fi
   rm -f openhab-key.asc
 
   echo "$REPO" > /etc/apt/sources.list.d/openhab2.list
@@ -62,19 +61,17 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     # - no support for other older distros
     APT_INST_OPTS="-y"
   fi
-  cond_redirect apt-get ${APT_INST_OPTS} install "openhab2=${openhabVersion}"
-  if [ $? -ne 0 ]; then echo "FAILED (apt)"; exit 1; fi
+  if ! cond_redirect apt-get ${APT_INST_OPTS} install "openhab2=${openhabVersion}"; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab gpio
   cond_redirect systemctl daemon-reload
-  cond_redirect systemctl enable openhab2.service
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED (usr)"; exit 1; fi
+  if cond_redirect systemctl enable openhab2.service; then echo "OK"; else echo "FAILED (usr)"; exit 1; fi
   if [ -n "$UNATTENDED" ]; then
     cond_redirect systemctl stop openhab2.service || true
   else
     cond_redirect systemctl restart openhab2.service || true
   fi
 
-  if [[ is_pi || is_pine64 ]]; then
+  if is_pi || is_pine64; then
     cond_echo "Optimizing Java to run on low memory single board computers... "
     sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms250m -Xmx350m"#g' /etc/default/openhab2
   fi
@@ -88,7 +85,6 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
 openhab_shell_interfaces() {
   introtext="The openHAB remote console is a powerful tool for every openHAB user. It allows you too have a deeper insight into the internals of your setup. Further details: https://www.openhab.org/docs/administration/console.html
 \\nThis routine will bind the console to all interfaces and thereby make it available to other devices in your network. Please provide a secure password for this connection (letters and numbers only! default: habopen):"
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="The openHAB remote console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the console via:
 \\n'ssh://openhab:<password>@<openhabian-IP> -p 8101'\\n
 Please be aware, that the first connection attempt may take a few minutes or may result in a timeout due to key generation."
@@ -117,10 +113,10 @@ Please be aware, that the first connection attempt may take a few minutes or may
 vim_openhab_syntax() {
   echo -n "$(timestamp) [openHABian] Adding openHAB syntax to vim editor... "
   # these may go to "/usr/share/vim/vimfiles" ?
-  mkdir -p /home/$username/.vim/{ftdetect,syntax}
-  cond_redirect wget -O /home/$username/.vim/syntax/openhab.vim https://raw.githubusercontent.com/cyberkov/openhab-vim/master/syntax/openhab.vim
-  cond_redirect wget -O /home/$username/.vim/ftdetect/openhab.vim https://raw.githubusercontent.com/cyberkov/openhab-vim/master/ftdetect/openhab.vim
-  chown -R $username:$username /home/$username/.vim
+  mkdir -p /home/${username:-openhabian}/.vim/{ftdetect,syntax}
+  cond_redirect wget -O "/home/$username/.vim/syntax/openhab.vim" https://raw.githubusercontent.com/cyberkov/openhab-vim/master/syntax/openhab.vim
+  cond_redirect wget -O "/home/$username/.vim/ftdetect/openhab.vim" https://raw.githubusercontent.com/cyberkov/openhab-vim/master/ftdetect/openhab.vim
+  chown -R "$username:$username" /home/"$username"/.vim
   echo "OK"
 }
 
@@ -134,7 +130,7 @@ nano_openhab_syntax() {
 
 multitail_openhab_scheme() {
   echo -n "$(timestamp) [openHABian] Adding openHAB scheme to multitail... "
-  cp $BASEDIR/includes/multitail.openhab.conf /etc/multitail.openhab.conf
+  cp "$BASEDIR"/includes/multitail.openhab.conf /etc/multitail.openhab.conf
   sed -i "/^.*multitail.*openhab.*$/d" /etc/multitail.conf
   sed -i "s|# misc|include:/etc/multitail.openhab.conf\\n#\\n# misc|g" /etc/multitail.conf
   echo "OK"
@@ -148,7 +144,8 @@ openhab_is_installed() {
 openhab_is_running() {
   if [ "$(systemctl is-active openhab2)" != "active" ]; then return 1; fi
   if [ -r /etc/default/openhab2 ]; then
-  . /etc/default/openhab2
+  # shellcheck source=/etc/default/openhab2 disable=SC1091
+  source /etc/default/openhab2
   fi
   # Read and set openHAB variables set in /etc/default/ scripts
   if [ -z "${OPENHAB_HTTP_PORT}" ];  then OPENHAB_HTTP_PORT=8080; fi
@@ -162,7 +159,7 @@ delayed_rules() {
 
   if [ "$1" == "yes" ]; then
     /bin/mkdir -p $targetdir
-    /bin/cp ${BASEDIR}/includes/systemd-override.conf ${targetdir}/override.conf
+    /bin/cp "${BASEDIR}"/includes/systemd-override.conf ${targetdir}/override.conf
   else
     /bin/rm ${targetdir}/override.conf
   fi
@@ -191,7 +188,7 @@ dashboard_add_tile() {
     echo -n "Replacing... "
     sed -i "/^$tile_name.link.*$/d" $dashboard_file
   fi
-  # shellcheck source=../includes/dashboard-imagedata.sh
+  # shellcheck source=includes/dashboard-imagedata.sh disable=SC1091
   source "$BASEDIR/includes/dashboard-imagedata.sh"
   tile_desc=$(eval echo "\$tile_desc_$tile_name")
   tile_url=$(eval echo "\$tile_url_$tile_name")

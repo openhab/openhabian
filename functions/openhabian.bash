@@ -10,7 +10,7 @@ get_git_revision() {
 }
 
 openhabian_console_check() {
-  if [ $(tput cols) -lt  120 ]; then
+  if [ "$(tput cols)" -lt  120 ]; then
     warningtext="We detected that you use a console which is less than 120 columns wide. This tool is designed for a minimum of 120 columns and therefore some menus may not be presented correctly. Please increase the width of your console and rerun this tool.
     \nEither resize the window or consult the preferences of your console application."
     whiptail --title "Compatibility Warning" --msgbox "$warningtext" 15 76
@@ -39,11 +39,11 @@ openhabian_update_check() {
 openhabian_update() {
   FAILED=0
   echo -n "$(timestamp) [openHABian] Updating myself... "
-  read -t 1 -n 1 key
+  read -r -t 1 -n 1 key
   if [ "$key" != "" ]; then
     echo -e "\\nRemote git branches available:"
     git -C "$BASEDIR" branch -r
-    read -e -p "Please enter the branch to checkout: " branch
+    read -r -e -p "Please enter the branch to checkout: " branch
     branch="${branch#origin/}"
     if ! git -C "$BASEDIR" branch -r | grep -q "origin/$branch"; then
       echo "FAILED - The custom branch does not exist."
@@ -61,14 +61,14 @@ openhabian_update() {
     echo "FAILED - There was a problem fetching the latest changes for the openHABian configuration tool. Please check your internet connection and try again later..."
     return 1
   fi
-  shorthash_after=$(git -C $BASEDIR log --pretty=format:'%h' -n 1)
+  shorthash_after=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
   if [ "$shorthash_before" == "$shorthash_after" ]; then
     echo "OK - No remote changes detected. You are up to date!"
     return 0
   else
     echo "OK - Commit history (oldest to newest):"
     echo -e "\\n"
-    git -C "$BASEDIR" --no-pager log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --stat $shorthash_before..$shorthash_after
+    git -C "$BASEDIR" --no-pager log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --stat "$shorthash_before..$shorthash_after"
     echo -e "\\n"
     echo "openHABian configuration tool successfully updated."
     echo "Visit the development repository for more details: $REPOSITORYURL"
@@ -94,18 +94,11 @@ system_check_default_password() {
     echo "SKIPPED (method not implemented)"
     return 0
   fi
-  id -u $USERNAME &>/dev/null
-  if [ $? -ne 0 ]
-  then
-    echo "OK (unknown user)"
-    return 0
-  fi
-  export PASSWORD
+  if ! id -u $USERNAME &>/dev/null; then echo "OK (unknown user)"; return 0; fi
   ORIGPASS=$(grep -w "$USERNAME" /etc/shadow | cut -d: -f2)
-  ALGO=$(echo $ORIGPASS | cut -d'$' -f2)
-  export ALGO
-  SALT=$(echo $ORIGPASS | cut -d'$' -f3)
-  export SALT
+  ALGO=$(echo "$ORIGPASS" | cut -d'$' -f2)
+  SALT=$(echo "$ORIGPASS" | cut -d'$' -f3)
+  export PASSWORD ALGO SALT
   GENPASS=$(perl -le 'print crypt("$ENV{PASSWORD}","\$$ENV{ALGO}\$$ENV{SALT}\$")')
   if [ "$GENPASS" == "$ORIGPASS" ]; then
     if [ -n "$INTERACTIVE" ]; then

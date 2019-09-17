@@ -11,3 +11,4 @@ RUN /bin/echo -n "Running on " && /usr/bin/arch
 COPY . /opt/openhabian/
 
 WORKDIR /opt/openhabian/
+

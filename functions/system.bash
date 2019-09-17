@@ -3,8 +3,7 @@
 whiptail_check() {
   if ! command -v whiptail &>/dev/null; then
     echo -n "$(timestamp) [openHABian] Installing whiptail... "
-    cond_redirect apt-get -y install whiptail
-    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect apt-get -y install whiptail; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
 }
 
@@ -12,24 +11,23 @@ system_upgrade() {
   echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
   # TODO: Remove updating the key on each update after some time (in 2020)
   cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
-  cond_redirect apt-key add openhab-key.asc
-  if [ $? -ne 0 ]; then 
+  if ! cond_redirect apt-key add openhab-key.asc; then 
     echo "FAILED (updating OH key)"
     echo -n "attempting to continue..."
   else
     rm -f openhab-key.asc
   fi
   cond_redirect apt-get --yes upgrade
-  cond_redirect java_install_or_update "$java_arch"
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  # shellcheck disable=SC2154
+  if cond_redirect java_install_or_update "$java_arch"; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
   apt-get remove -y raspi-config &>/dev/null || true
-  cond_redirect apt-get -y install screen vim nano mc vfu bash-completion htop curl wget multitail git bzip2 zip unzip \
-                               xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if cond_redirect apt-get -y install screen vim nano mc vfu bash-completion htop curl wget multitail git \
+    bzip2 zip unzip xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping; \
+  then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 needed_packages() {
@@ -38,34 +36,34 @@ needed_packages() {
   # Install avahi-daemon - hostname based discovery on local networks
   # Install python/python-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
-  cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python python-pip avahi-autoipd fontconfig
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python python-pip avahi-autoipd fontconfig; then echo "OK"; else echo "FAILED"; exit 1; fi
 
   if is_pithree || is_pithreeplus || is_pizerow; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
-    cond_redirect apt-get -y install bluez python-bluez python-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth
-    if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect apt-get -y install bluez python-bluez python-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
 }
 
 timezone_setting() {
+  # shellcheck source=/etc/openhabian.conf disable=SC1091
   source "$CONFIGFILE"
+  # shellcheck disable=SC2154
   if [ -n "$INTERACTIVE" ]; then
     echo -n "$(timestamp) [openHABian] Setting timezone based on user choice... "
     dpkg-reconfigure tzdata
-  elif [ ! -z "${timezone+x}" ]; then
+  elif [ -n "${timezone+x}" ]; then
     echo -n "$(timestamp) [openHABian] Setting timezone based on openhabian.conf... "
-    cond_redirect timedatectl set-timezone $timezone
+    cond_redirect timedatectl set-timezone "$timezone"
   else
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
       cond_redirect apt-get -y install python-pip
-      cond_redirect pip install --upgrade tzupdate
-      if [ $? -ne 0 ]; then echo "FAILED (pip)"; return 1; fi
+      if ! cond_redirect pip install --upgrade tzupdate; then echo "FAILED (pip)"; return 1; fi
     fi
     cond_redirect pip install --upgrade tzupdate
     cond_redirect tzupdate
   fi
+  # shellcheck disable=SC2181
   if [ $? -eq 0 ]; then echo -e "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
 }
 
@@ -74,49 +72,51 @@ locale_setting() {
     echo "$(timestamp) [openHABian] Setting locale based on user choice... "
     dpkg-reconfigure locales
     loc=$(grep "LANG=" /etc/default/locale | sed 's/LANG=//g')
-    cond_redirect update-locale LANG=$loc LC_ALL=$loc LC_CTYPE=$loc LANGUAGE=$loc
+    cond_redirect update-locale "LANG=$loc LC_ALL=$loc LC_CTYPE=$loc LANGUAGE=$loc"
     whiptail --title "Change Locale" --msgbox "For the locale change to take effect, please reboot your system now." 10 60
     return 0
   fi
 
   echo -n "$(timestamp) [openHABian] Setting locale based on openhabian.conf... "
+  # shellcheck source=/etc/openhabian.conf disable=SC1091
   source "$CONFIGFILE"
   if is_ubuntu; then
-    cond_redirect locale-gen $locales
+    # shellcheck disable=2154
+    cond_redirect locale-gen "$locales"
   else
     touch /etc/locale.gen
     for loc in $locales; do sed -i "/$loc/s/^# //g" /etc/locale.gen; done
     cond_redirect locale-gen
   fi
   cond_redirect dpkg-reconfigure --frontend=noninteractive locales
-  cond_redirect LANG=$system_default_locale; export LANG &>/dev/null
-  cond_redirect LC_ALL=$system_default_locale; export LC_ALL &>/dev/null
-  cond_redirect LC_CTYPE=$system_default_locale; export LC_CTYPE &>/dev/null
-  cond_redirect LANGUAGE=$system_default_locale; export LANGUAGE &>/dev/null
-  cond_redirect update-locale LANG=$system_default_locale LC_ALL=$system_default_locale LC_CTYPE=$system_default_locale LANGUAGE=$system_default_locale
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  cond_redirect "LANG=${system_default_locale:-en_US.UTF-8}"
+  cond_redirect "LC_ALL=${system_default_locale:-en_US.UTF-8}"
+  cond_redirect "LC_CTYPE=${system_default_locale:-en_US.UTF-8}"
+  cond_redirect "LANGUAGE=${system_default_locale:-en_US.UTF-8}"
+  export LANG LC_ALL LC_CTYPE LANGUAGE
+  if cond_redirect update-locale "LANG=$system_default_locale LC_ALL=$system_default_locale LC_CTYPE=$system_default_locale LANGUAGE=$system_default_locale"; then echo "OK"; else echo "FAILED"; fi
 }
 
 hostname_change() {
   echo -n "$(timestamp) [openHABian] Setting hostname of the base system... "
   if [ -n "$INTERACTIVE" ]; then
-    new_hostname=$(whiptail --title "Change Hostname" --inputbox "Please enter the new system hostname (no special characters, no spaces):" 10 60 3>&1 1>&2 2>&3)
-    if [ $? -ne 0 ]; then return 1; fi
+    if ! whiptail --title "Change Hostname" --inputbox "Please enter the new system hostname (no special characters, no spaces):" 10 60 3>&1 1>&2 2>&3; then return 1; fi
     if ( echo "$new_hostname" | grep -q ' ' ) || [ -z "$new_hostname" ]; then
       whiptail --title "Change Hostname" --msgbox "The hostname you've entered is not a valid hostname. Please try again." 10 60
       echo "FAILED"
       return 1
     fi
   else
+    # shellcheck source=/etc/openhabian.conf disable=SC1091
     source "$CONFIGFILE"
-    new_hostname="$hostname"
+    new_hostname="${hostname:-openhab}"
   fi
   hostnamectl set-hostname "$new_hostname" &>/dev/null
   hostname "$new_hostname" &>/dev/null
   echo "$new_hostname" > /etc/hostname
-  local TMP="$(mktemp /tmp/.XXXXXXXXXX)"
-  sed "s/127.0.1.1.*/127.0.1.1 $new_hostname/g" /etc/hosts >${TMP} && cp $TMP /etc/hosts
-  rm -f $TMP
+  TMP="$(mktemp /tmp/openhabian.XXXXXXXXXX)"
+  sed "s/127.0.1.1.*/127.0.1.1 $new_hostname/g" /etc/hosts >"$TMP" && cp "$TMP" /etc/hosts
+  rm -f "$TMP"
 
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Change Hostname" --msgbox "For the hostname change to take effect, please reboot your system now." 10 60
@@ -126,25 +126,24 @@ hostname_change() {
 
 bashrc_copy() {
   echo -n "$(timestamp) [openHABian] Adding slightly tuned bash config files to system... "
-  cp $BASEDIR/includes/bash.bashrc /etc/bash.bashrc
-  cp $BASEDIR/includes/bashrc-root /root/.bashrc
-  cp $BASEDIR/includes/bash_profile /home/$username/.bash_profile
-  chown $username:$username /home/$username/.bash_profile
+  cp "$BASEDIR"/includes/bash.bashrc /etc/bash.bashrc
+  cp "$BASEDIR"/includes/bashrc-root /root/.bashrc
+  cp "$BASEDIR"/includes/bash_profile /home/"${username:-openhabian}"/.bash_profile
+  chown "$username:$username" /home/"$username"/.bash_profile
   echo "OK"
 }
 
 vimrc_copy() {
   echo -n "$(timestamp) [openHABian] Adding slightly tuned vim config file to system... "
-  cp $BASEDIR/includes/vimrc /etc/vim/vimrc
+  cp "$BASEDIR/includes/vimrc" /etc/vim/vimrc
   echo "OK"
 }
 
 srv_bind_mounts() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
-  sed -i "\#[ \t]/srv/openhab2-#d" /etc/fstab
+  sed -i "\\#[ \\t]/srv/openhab2-#d" /etc/fstab
   sed -i "/^$/d" /etc/fstab
-  (
-    echo ""
+  ( echo ""
     echo "/usr/share/openhab2          /srv/openhab2-sys           none bind 0 0"
     echo "/etc/openhab2                /srv/openhab2-conf          none bind 0 0"
     echo "/var/lib/openhab2            /srv/openhab2-userdata      none bind 0 0"
@@ -153,10 +152,9 @@ srv_bind_mounts() {
   ) >> /etc/fstab
   cond_redirect cat /etc/fstab
   cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}
-  cond_redirect cp $BASEDIR/includes/srv_readme.txt /srv/README.txt
+  cond_redirect cp "$BASEDIR"/includes/srv_readme.txt /srv/README.txt
   cond_redirect chmod ugo+w /srv /srv/README.txt
-  cond_redirect mount --all --verbose
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  if cond_redirect mount --all --verbose; then echo "OK"; else echo "FAILED"; fi
 }
 
 permissions_corrections() {
@@ -168,8 +166,10 @@ permissions_corrections() {
 
   if is_pine64; then
     cond_redirect groupadd gpio
-    cond_redirect cp $BASEDIR/includes/PINE64-80-gpio-noroot.rules /etc/udev/rules.d/80-gpio-noroot.rules
+    cond_redirect cp "$BASEDIR"/includes/PINE64-80-gpio-noroot.rules /etc/udev/rules.d/80-gpio-noroot.rules
+    # shellcheck disable=SC2016
     cond_redirect sed -i -e '$i \chown -R root:gpio /sys/class/gpio \n' /etc/rc.local
+    # shellcheck disable=SC2016
     cond_redirect sed -i -e '$i \chmod -R ug+rw /sys/class/gpio \n' /etc/rc.local
   fi
 
@@ -182,33 +182,31 @@ permissions_corrections() {
   done
   cond_redirect adduser "$username" openhab
 
-  #
   openhab_folders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2)
   cond_redirect chown openhab:openhab /srv /srv/README.txt /opt
   cond_redirect chmod ugo+w /srv /srv/README.txt
-  cond_redirect chown -R openhab:openhab ${openhab_folders[@]}
-  cond_redirect chmod -R ug+wX /opt ${openhab_folders[@]}
-  cond_redirect chown -R $username:$username /home/$username
-  #
-  cond_redirect setfacl -R --remove-all ${openhab_folders[@]}
-  cond_redirect setfacl -R -m g::rwX ${openhab_folders[@]}
-  cond_redirect setfacl -R -m d:g::rwX ${openhab_folders[@]}
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  cond_redirect chown -R openhab:openhab "${openhab_folders[@]}"
+  cond_redirect chmod -R ug+wX /opt "${openhab_folders[@]}"
+  cond_redirect chown -R "$username:$username" "/home/$username"
+  
+  cond_redirect setfacl -R --remove-all "${openhab_folders[@]}"
+  cond_redirect setfacl -R -m g::rwX "${openhab_folders[@]}"
+  if cond_redirect setfacl -R -m d:g::rwX "${openhab_folders[@]}"; then echo "OK"; else echo "FAILED"; fi
 }
 
 misc_system_settings() {
   echo -n "$(timestamp) [openHABian] Applying miscellaneous system settings... "
-  cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' $(realpath /usr/bin/java)
+  cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' "$(realpath /usr/bin/java)"
   cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping
   if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
   # user home note
-  echo -e "This is your linux user's \"home\" folder.\nPlace personal files, programs or scripts here." > /home/$username/README.txt
+  echo -e "This is your linux user's \"home\" folder.\\nPlace personal files, programs or scripts here." > "/home/$username/README.txt"
   # prepare SSH key file for the end user
-  mkdir /home/$username/.ssh
-  chmod 700 /home/$username/.ssh
-  touch /home/$username/.ssh/authorized_keys
-  chmod 600 /home/$username/.ssh/authorized_keys
-  chown -R $username:$username /home/$username/.ssh
+  mkdir /home/"$username"/.ssh
+  chmod 700 /home/"$username"/.ssh
+  touch /home/"$username"/.ssh/authorized_keys
+  chmod 600 /home/"$username"/.ssh/authorized_keys
+  chown -R "$username:$username" /home/"$username"/.ssh
   # A distinguishable apt User-Agent
   echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent
   #
@@ -232,8 +230,7 @@ pine64_fix_systeminfo_binding() { # This will maybe be fixed upstreams some day.
   echo -n "$(timestamp) [openHABian] Enable PINE64 support for systeminfo binding... "
   cond_redirect apt-get install -y udev:armhf
   cond_redirect ln -s /lib/arm-linux-gnueabihf/ /lib/linux-arm
-  cond_redirect ln -s /lib/linux-arm/libudev.so.1 /lib/linux-arm/libudev.so
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  if cond_redirect ln -s /lib/linux-arm/libudev.so.1 /lib/linux-arm/libudev.so; then echo "OK"; else echo "FAILED"; fi
 }
 
 pine64_fixed_mac() {
@@ -265,7 +262,7 @@ enable_rpi_audio() {
     echo "dtparam=audio=on" >> /boot/config.txt
   fi
   cond_redirect adduser openhab audio
-  cond_redirect adduser $username audio
+  cond_redirect adduser "$username" audio
   echo "OK"
 }
 
@@ -273,8 +270,8 @@ prepare_serial_port() {
   introtext="Proceeding with this routine, the serial console normally provided by a Raspberry Pi can be disabled for the sake of a usable serial port. The provided port can henceforth be used by devices like Razberry, UZB or Busware SCC.
 On a Raspberry Pi 3 the Bluetooth module can additionally be disabled, ensuring the operation of a Razberry (mutually exclusive).
 Finally, all common serial ports can be made accessible to the openHAB java virtual machine.
-\nPlease make your choice:"
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+\\nPlease make your choice:"
+#  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="All done. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0 (depends on your device)."
   # \nThis might be a good point in time to update your Raspberry Pi firmware (if this is a RPi) and reboot:\n
   # sudo rpi-update
@@ -288,12 +285,11 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   if grep -q "EXTRA_JAVA_OPTS=\"-Xms250m -Xmx350m -Dgnu.io.rxtx.SerialPorts=" /etc/default/openhab2; then sel_3="ON"; else sel_3="OFF"; fi
 
   if [ -n "$INTERACTIVE" ]; then
-    selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
+    if ! selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
     "1"  "(RPi) Disable serial console           (Razberry, SCC, Enocean)" $sel_1 \
     "2"  "(RPi3) Disable Bluetooth module        (Razberry)" $sel_2 \
     "3"  "Add common serial ports to openHAB JVM (Razberry, Enocean)" $sel_3 \
-    3>&1 1>&2 2>&3)
-    if [ $? -ne 0 ]; then echo "CANCELED"; return 0; fi
+    3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
   else
     echo "SKIPPED"
     return 0
