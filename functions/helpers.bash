@@ -13,13 +13,14 @@ COL_MAGENTA=$ESC"35;01m"
 COL_CYAN=$ESC"36;01m"
 COL_LGRAY=$ESC"37;01m"
 COL_DGRAY=$ESC"90;01m"
+export COL_DEF COL_RED COL_GREEN COL_YELLOW COL_BLUE COL_MAGENTA COL_CYAN COL_LGRAY COL_DGRAY
 
 cond_redirect() {
   if [ -n "$SILENT" ]; then
     "$@" &>/dev/null
     return $?
   else
-    echo -e "\n$COL_DGRAY\$ $@ $COL_DEF"
+    echo -e "\n$COL_DGRAY\$ $* $COL_DEF"
     "$@"
     return $?
   fi
@@ -27,7 +28,7 @@ cond_redirect() {
 
 cond_echo() {
   if [ -z "$SILENT" ]; then
-    echo -e "$COL_YELLOW$@$COL_DEF"
+    echo -e "$COL_YELLOW$*$COL_DEF"
   fi
 }
 
@@ -65,7 +66,6 @@ is_pifour() {
   return $?
 }
 is_pi() {
-  # normal conditions
   if is_pizero || is_pizerow || is_pione || is_pitwo || is_pithree || is_pithreeplus  || is_pifour; then return 0; fi
   return 1
 }
