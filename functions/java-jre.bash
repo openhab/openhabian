@@ -191,7 +191,7 @@ java_zulu_install_crypto_extension(){
   local policyTempLocation
   jdkPath="$(readlink -f "$(command -v java)")"
   jdkSecurity="$(dirname "${jdkPath}")/../lib/security"
-  mkdir -p $jdkSecurity
+  mkdir -p "$jdkSecurity"
   policyTempLocation="$(mktemp -d /tmp/openhabian.XXXXX)"
   if [ -z "$policyTempLocation" ]; then echo "FAILED"; exit 1; fi
 
