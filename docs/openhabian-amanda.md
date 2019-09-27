@@ -115,7 +115,7 @@ available, too).
 Its function is to NOT map accesses of userID 0 (root) to some other UID as your server will do by default.
 
 Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 192.168.1.100) and two partitions from an attached
-USB stick identified as /dev/sda (Linux ext4 and Windows VFAT filesystems).
+USB stick identified as `/dev/sda8` (Linux ext4) and `/dev/sda1` and Windows vfat(FAT-32) filesystems).
 
 HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
 Do not deploy these commands unless you are fully aware what they will do to your system, using a command with a wrong device 
