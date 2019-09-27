@@ -109,8 +109,9 @@ Let's be clear here: this only works if client AND server side are UNIX machines
 If you want to use Windows sharing (CIFS), you can try to use the `nounix` mount option in /etc/fstab of your openHAB machine,
 but this is known to not work and cause trouble and you are COMPLETELY on your own. Using CIFS is NOT SUPPORTED.
 Besides it also does not make sense as NFS can do the same but any Windows machine will not run 24x7 as a RPi or NAS will do.
-Another specific thing to watch out for when configuring your export share on the NFS server is to add the `no_root_squash` option
-(that's the name on a generic Linux box, depending on your server OS or UI it might have a different name but it'll be available.
+Another specific thing to watch out for when configuring your export share on the NFS server is to add the `no_root_squash`
+option (that's the name on a generic Linux box, depending on your server OS or UI it might have a different name but it'll be 
+available, too).
 Its function is to NOT map accesses of userID 0 (root) to some other UID as your server will do by default.
 
 Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 192.168.1.100) and two partitions from an attached
