@@ -6,8 +6,8 @@ init_zram_mounts() {
       # point to ZRAM status thread on forum
       if ! (whiptail --title "Install ZRAM, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
     fi
-    local ZRAMGIT=https://github.com/StuartIanNaylor/zram-config
-    local TAG=mster
+    local ZRAMGIT=https://github.com/mstormi/openhabian-zram
+    local TAG=master
     TMP="$(mktemp -d /tmp/openhabian.XXXXXXXXXX)"
 
     /usr/bin/git clone -q --branch "$TAG" "$ZRAMGIT" "$TMP"
