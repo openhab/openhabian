@@ -105,9 +105,17 @@ Google is your friend, but it'll give a lot of answers, each to vary slightly de
 Make sure you ask specific questions such as “how to mount a NAS disk on a raspbian raspberry pi”.
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
 exported (= shared, i.e. made available for mounting) on that directory. This is your mountpoint.
+Let's be clear here: this only works if client AND server side are UNIX machines. And it only works to use NFS.
+If you want to use Windows sharing (CIFS), you can try to use the `nounix` mount option in /etc/fstab of your openHAB machine,
+but this is known to not work and cause trouble and you are COMPLETELY on your own. Using CIFS is NOT SUPPORTED.
+Besides it also does not make sense as NFS can do the same but any Windows machine will not run 24x7 as a RPi or NAS will do.
+Another specific thing to watch out for when configuring your export share on the NFS server is to add the `no_root_squash`
+option (that's the name on a generic Linux box, depending on your server OS or UI it might have a different name but it'll be 
+available, too).
+Its function is to NOT map accesses of userID 0 (root) to some other UID as your server will do by default.
 
 Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 192.168.1.100) and two partitions from an attached
-USB stick identified as /dev/sda (Linux ext4 and Windows VFAT filesystems).
+USB stick identified as `/dev/sda8` (Linux ext4) and `/dev/sda1` and Windows vfat(FAT-32) filesystems).
 
 HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
 Do not deploy these commands unless you are fully aware what they will do to your system, using a command with a wrong device 
