@@ -27,14 +27,15 @@ create_backup_config() {
   infofile="/var/lib/amanda/${config}/curinfo"       # Database directory
   logdir="/var/log/amanda/${config}"                 # Log directory
   indexdir="/var/lib/amanda/${config}/index"         # Index directory
-  /bin/mkdir -p "$infofile $logdir $indexdir"
-  /bin/chown -R "${backupuser}":backup /var/backups/.amandahosts "${confdir} $infofile $logdir $indexdir"
+  /bin/mkdir -p "${infofile}" "${logdir}" "${indexdir}"
+  /bin/chown -R "${backupuser}":backup /var/backups/.amandahosts "${confdir}" "${infofile}" "${logdir}" "${indexdir}"
   if [ "${config}" = "openhab-dir" ]; then
     /bin/chown -R "${backupuser}":backup /var/backups/.amandahosts "${storage}"
     /bin/chmod -R g+rwx "${storage}"
     mkdir "${storage}"/slots # folder needed for following symlinks
     /bin/chown "${backupuser}":backup "${storage}"/slots
-    ln -s "${storage}"/slots "${storage}"/slots/drive0;ln -s "${storage}"/slots "${storage}"/slots/drive1    # taper-parallel-write 2 so we need 2 virtual drives
+    ln -s "${storage}"/slots "${storage}"/slots/drive0
+    ln -s "${storage}"/slots "${storage}"/slots/drive1    # taper-parallel-write 2 so we need 2 virtual drives
     tpchanger="\"chg-disk:${storage}/slots\"    # The tape-changer glue script"
     tapetype="DIRECTORY"
   else
@@ -47,7 +48,7 @@ create_backup_config() {
 #    fi
   fi
 
-  /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g ${BASEDIR}"/includes/amanda.conf_template >"${confdir}"/amanda.conf
+  /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" "${BASEDIR}"/includes/amanda.conf_template >"${confdir}"/amanda.conf
 
   if [ "${config}" = "openhab-AWS" ]; then
     { echo "device_property \"S3_BUCKET_LOCATION\" \"${S3site}\"                                # Your S3 bucket location (site)"; \
@@ -112,7 +113,8 @@ create_backup_config() {
   echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} >/dev/null 2>&1" > /etc/cron.d/amanda
   echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
   if [ "${tapetype}" = "DIRECTORY" ]; then
-    mkdir -p "${storage}"/amanda-backups; chown "${backupuser}":backup "${storage}"/amanda-backups
+    mkdir -p "${storage}"/amanda-backups
+    chown "${backupuser}":backup "${storage}"/amanda-backups
     echo "0 2 * * * root (cd /; /bin/tar czf ${storage}/amanda-backups/amanda_data_\$(date +\\%Y\\%m\\%d\\%H\\%M\\%S).tar.gz etc/amanda var/lib/amanda var/log/amanda; find ${storage} -name amanda_data_\\* -mtime +30 -delete) >/dev/null 2>&1" >> /etc/cron.d/amanda
   fi
 }
@@ -172,7 +174,7 @@ amanda_setup() {
 #        sddev=$(whiptail --title "Card writer device" --inputbox "What's the device name of your SD card writer?" 10 60 3>&1 1>&2 2>&3)
 #        tapes=$(whiptail --title "Number of SD cards in rotation" --inputbox "How many SD cards will you have available in rotation for backup purposes ?" 10 60 3>&1 1>&2 2>&3)
 #        size=$(whiptail --title "SD card capacity" --inputbox "What's your backup SD card capacity in megabytes? If you use different sizes, specify the smallest one. The remaining capacity will remain unused." 10 60 3>&1 1>&2 2>&3)
-#        create_backup_config ${config} ${backupuser} ${adminmail} ${tapes} ${size} ${sddev}
+#        create_backup_config "${config}" "${backupuser}" "${adminmail}" "${tapes}" "${size}" "${sddev}"
 #    fi
 #  fi
 
@@ -184,7 +186,7 @@ amanda_setup() {
         capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
 	((size=capacity/tapes))
 
-        create_backup_config "${config} ${backupuser} ${adminmail} ${tapes} ${size} ${dir}"
+        create_backup_config "${config}" "${backupuser}" "${adminmail}" "${tapes}" "${size}" "${dir}"
 
     fi
   fi
@@ -200,7 +202,7 @@ amanda_setup() {
       capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
       size="$((capacity / tapes))"
 
-      create_backup_config "${config} ${backupuser} ${adminmail} ${tapes} ${size} AWS ${S3site} ${S3bucket} ${S3accesskey} ${S3secretkey}"
+      create_backup_config "${config}" "${backupuser}" "${adminmail}" "${tapes}" "${size}" AWS "${S3site}" "${S3bucket}" "${S3accesskey}" "${S3secretkey}"
     fi
   fi
 
@@ -208,3 +210,4 @@ amanda_setup() {
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
 }
+
