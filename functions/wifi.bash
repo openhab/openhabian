@@ -11,10 +11,10 @@ wifi_setup() {
   if [ -n "$INTERACTIVE" ]; then
     if ! SSID=$(whiptail --title "Wifi Setup" --inputbox "Which Wifi (SSID) do you want to connect to?" 10 60 3>&1 1>&2 2>&3); then return 1; fi
     if ! PASS=$(whiptail --title "Wifi Setup" --inputbox "What's the password for that Wifi?" 10 60 3>&1 1>&2 2>&3); then return 1; fi
-    if ! WIFICOUNTRY=$(whiptail --title "Wifi Setup" --inputbox "Please enter the two-letter country code matching your region eg. US DE NZ AU...\nSee https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2" 10 60 3>&1 1>&2 2>&3); then return 1; fi
+    if ! WIFICOUNTRY=$(whiptail --title "Wifi Setup" --inputbox "Please enter the two-letter country code matching your region eg. US DE NZ AU...\\nSee https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2" 10 60 3>&1 1>&2 2>&3); then return 1; fi
     # check the user input for the country code
     # check: from the start of line, the uppercased input must be followed by a whitespace
-    if grep -q "^${WIFICOUNTRY^^}\s" /usr/share/zoneinfo/zone.tab; then
+    if grep -q "^${WIFICOUNTRY^^}\\s" /usr/share/zoneinfo/zone.tab; then
       WIFICOUNTRY=${WIFICOUNTRY^^}
     else
       whiptail --title "Wifi Setup" --msgbox "${WIFICOUNTRY} is not a valid country code found in /usr/share/zoneinfo/zone.tab" 10 60
@@ -56,7 +56,7 @@ wifi_setup() {
     cond_echo "Not writing to '/etc/network/interfaces', wlan0 entry already available. You might need to check, adopt or remove these lines."
     cond_echo ""
   else
-    echo -e "\nallow-hotplug wlan0\niface wlan0 inet manual\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\niface default inet dhcp" >> /etc/network/interfaces
+    echo -e "\\nallow-hotplug wlan0\\niface wlan0 inet manual\\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\\niface default inet dhcp" >> /etc/network/interfaces
   fi
   cond_redirect wpa_cli reconfigure
   cond_redirect ifdown wlan0

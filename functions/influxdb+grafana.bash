@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 ## Function for installing and configure InfluxDB and Grafana while also integrate it to openHAB.
 ## The function can be invoked either INTERACTIVE with userinterface UNATTENDED.
 ##
@@ -29,10 +31,9 @@ influxdb_grafana_setup() {
   local text_openHAB_integration
 
   FAILED=0
-  text_intro="This will install and configure InfluxDB and Grafana. For more information please consult this discussion thread:
-  \nhttps://community.openhab.org/t/13761/1"
+  text_intro="This will install and configure InfluxDB and Grafana. For more information please consult this discussion thread:\\nhttps://community.openhab.org/t/13761/1"
   text_fail="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  text_success="Setup successful. Please continue with the instructions you can find here:\n\nhttps://community.openhab.org/t/13761/1"
+  text_success="Setup successful. Please continue with the instructions you can find here:\\n\\nhttps://community.openhab.org/t/13761/1"
 
   echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
   if [ -n "$INTERACTIVE" ]; then
@@ -65,13 +66,13 @@ influxdb_grafana_setup() {
       fi
       # Influx DB server address
       influxdb_returncode=0
-      text_influxdb_address="Enter InfluxDB instance adress: [protocol:address:port] \n eg. https://192.168.1.100:8086"
+      text_influxdb_address="Enter InfluxDB instance adress: [protocol:address:port] \\n eg. https://192.168.1.100:8086"
       while [ "$influxdb_returncode" != "204" ]
       do
         influxdb_address=$(whiptail --title "InfluxDB" --inputbox "$text_influxdb_address" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
         influxdb_returncode="$(curl -s -o --max-time 6 --insecure /dev/null -w "%{http_code}" "$influxdb_address"/ping | sed 's/^0*//')"
-        text_influxdb_address="Can't establish contact to InfluxDB instance. Please retry to enter InfluxDB instance adress: [protocol:address:port] \n eg. https://192.168.1.100:8086"
+        text_influxdb_address="Can't establish contact to InfluxDB instance. Please retry to enter InfluxDB instance adress: [protocol:address:port] \\n eg. https://192.168.1.100:8086"
       done
     else
       # Local InfluxDB

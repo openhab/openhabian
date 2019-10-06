@@ -11,7 +11,7 @@ load_create_config() {
     exit 1
   else
     echo -n "$(timestamp) [openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup... "
-    question="Welcome to openHABian!\n\nPlease provide the name of your Linux user i.e. the account you normally log in with.\nTypical user names are 'pi' or 'ubuntu'."
+    question="Welcome to openHABian!\\n\\nPlease provide the name of your Linux user i.e. the account you normally log in with.\\nTypical user names are 'pi' or 'ubuntu'."
     input=$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
     if ! id -u "$input" &>/dev/null; then
       echo "FAILED"
@@ -27,12 +27,13 @@ load_create_config() {
 }
 
 clean_config_userpw() {
-  cond_redirect sed -i "s/^userpw=.*/\#userpw=xxxxxxxx/g" "$CONFIGFILE"
+  cond_redirect sed -i "s/^userpw=.*/\\#userpw=xxxxxxxx/g" "$CONFIGFILE"
 }
 
 ## Update java architecture in config file
 ## Valid options: "32-bit" & "64-bit"
 update_config_java() {
   cond_redirect grep -q '^java_arch' "$CONFIGFILE" && sed -i "s/^java_arch.*/java_arch=$1/" "$CONFIGFILE" || echo "option=$1" >> "$CONFIGFILE"
+  # shellcheck disable=SC1090
   source "$CONFIGFILE"
 }

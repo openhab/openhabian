@@ -12,7 +12,7 @@ get_git_revision() {
 openhabian_console_check() {
   if [ "$(tput cols)" -lt  120 ]; then
     warningtext="We detected that you use a console which is less than 120 columns wide. This tool is designed for a minimum of 120 columns and therefore some menus may not be presented correctly. Please increase the width of your console and rerun this tool.
-    \nEither resize the window or consult the preferences of your console application."
+    \\nEither resize the window or consult the preferences of your console application."
     whiptail --title "Compatibility Warning" --msgbox "$warningtext" 15 76
   fi
 }
@@ -81,7 +81,7 @@ openhabian_update() {
 
 system_check_default_password() {
   introtext="The default password was detected on your system! That's a serious security concern. Others or malicious programs in your subnet are able to gain root access!
-  \nPlease set a strong password by typing the command 'passwd'!"
+  \\nPlease set a strong password by typing the command 'passwd'!"
 
   echo -n "$(timestamp) [openHABian] Checking for default openHABian username:password combination... "
   if is_pi && id -u pi &>/dev/null; then
@@ -112,11 +112,7 @@ system_check_default_password() {
 
 ua-netinst_check() {
   if [ -f "/boot/config-reinstall.txt" ]; then
-    introtext="Attention: It was brought to our attention that the old openHABian ua-netinst based image has a problem with a lately updated Linux package.
-If you upgrade(d) the package 'raspberrypi-bootloader-nokernel' your Raspberry Pi will run into a Kernel Panic upon reboot!
-\nDo not Upgrade, do not Reboot!
-\nA preliminary solution is to not upgrade the system (via the Upgrade menu entry or 'apt-get upgrade') or to modify a configuration file. In the long run we would recommend to switch over to the new openHABian Raspbian based system image! This error message will keep reapearing even after you fixed the issue at hand.
-Please find all details regarding the issue and the resolution of it at: https://github.com/openhab/openhabian/issues/147"
+    introtext="Attention: It was brought to our attention that the old openHABian ua-netinst based image has a problem with a lately updated Linux package.\\nIf you upgrade(d) the package 'raspberrypi-bootloader-nokernel' your Raspberry Pi will run into a Kernel Panic upon reboot!\\nDo not upgrade, do not reboot!\\nA preliminary solution is to not upgrade the system (via the Upgrade menu entry or 'apt-get upgrade') or to modify a configuration file. In the long run we would recommend to switch over to the new openHABian Raspbian based system image! This error message will keep reapearing even after you fixed the issue at hand.\\nPlease find all details regarding the issue and the resolution of it at: https://github.com/openhab/openhabian/issues/147"
     if ! (whiptail --title "openHABian Raspberry Pi ua-netinst image detected" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 20 80) then return 0; fi
   fi
 }

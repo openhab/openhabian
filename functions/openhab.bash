@@ -113,7 +113,7 @@ Please be aware, that the first connection attempt may take a few minutes or may
 vim_openhab_syntax() {
   echo -n "$(timestamp) [openHABian] Adding openHAB syntax to vim editor... "
   # these may go to "/usr/share/vim/vimfiles" ?
-  mkdir -p /home/${username:-openhabian}/.vim/{ftdetect,syntax}
+  mkdir -p /home/"${username:-openhabian}"/.vim/{ftdetect,syntax}
   cond_redirect wget -O "/home/$username/.vim/syntax/openhab.vim" https://raw.githubusercontent.com/cyberkov/openhab-vim/master/syntax/openhab.vim
   cond_redirect wget -O "/home/$username/.vim/ftdetect/openhab.vim" https://raw.githubusercontent.com/cyberkov/openhab-vim/master/ftdetect/openhab.vim
   chown -R "$username:$username" /home/"$username"/.vim
