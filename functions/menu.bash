@@ -112,6 +112,7 @@ show_main_menu() {
     "36 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
     "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
     "38 | Use zram (BETA)"        "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
+    "   | Remove zram"            "Don't use compressed memory (back to standard Raspbian FS layout)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -123,6 +124,7 @@ show_main_menu() {
       36\ *) wifi_setup ;;
       37\ *) move_root2usb ;;
       38\ *) init_zram_mounts install;;
+      *Remove\ zram) init_zram_mounts remove;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
