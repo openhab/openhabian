@@ -1,5 +1,7 @@
+#!/usr/bin/env bash
+
 init_zram_mounts() {
-  local introtext="You are about to activate the ZRAM feature.\nBe aware this is BETA software that comes with a number of restrictions and problems you need to be aware of. Use is at your own risk of data loss.\nPlease check out the \"ZRAM status\" thread at https://community.openhab.org/t/zram-status/80996 before proceeding."
+  local introtext="You are about to activate the ZRAM feature.\\nBe aware this is BETA software that comes with a number of restrictions and problems you need to be aware of. Use is at your own risk of data loss.\\nPlease check out the \"ZRAM status\" thread at https://community.openhab.org/t/zram-status/80996 before proceeding."
   if [ "$1" == "install" ]; then
     if [ -z "$UNATTENDED" ]; then
       # ... display warn disclaimer...
@@ -12,7 +14,7 @@ init_zram_mounts() {
 
     /usr/bin/git clone -q --branch "$TAG" "$ZRAMGIT" "$TMP"
 
-    cd ${TMP}
+    cd "$TMP" || return
     /bin/sh ./install.sh
     /usr/bin/install -m 644 "${BASEDIR:=/opt/openhabian}"/includes/ztab /etc/ztab
     service zram-config start
