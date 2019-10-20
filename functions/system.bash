@@ -72,7 +72,7 @@ locale_setting() {
     echo "$(timestamp) [openHABian] Setting locale based on user choice... "
     dpkg-reconfigure locales
     loc=$(grep "LANG=" /etc/default/locale | sed 's/LANG=//g')
-    cond_redirect update-locale "LANG=$loc LC_ALL=$loc LC_CTYPE=$loc LANGUAGE=$loc"
+    cond_redirect update-locale LANG=$loc LC_ALL=$loc LC_CTYPE=$loc LANGUAGE=$loc
     whiptail --title "Change Locale" --msgbox "For the locale change to take effect, please reboot your system now." 10 60
     return 0
   fi
@@ -82,7 +82,7 @@ locale_setting() {
   source "$CONFIGFILE"
   if is_ubuntu; then
     # shellcheck disable=2154
-    cond_redirect locale-gen "$locales"
+    cond_redirect locale-gen $locales
   else
     touch /etc/locale.gen
     for loc in $locales; do sed -i "/$loc/s/^# //g" /etc/locale.gen; done
@@ -94,13 +94,14 @@ locale_setting() {
   cond_redirect "LC_CTYPE=${system_default_locale:-en_US.UTF-8}"
   cond_redirect "LANGUAGE=${system_default_locale:-en_US.UTF-8}"
   export LANG LC_ALL LC_CTYPE LANGUAGE
-  if cond_redirect update-locale "LANG=$system_default_locale LC_ALL=$system_default_locale LC_CTYPE=$system_default_locale LANGUAGE=$system_default_locale"; then echo "OK"; else echo "FAILED"; fi
+  if cond_redirect update-locale LANG=$system_default_locale LC_ALL=$system_default_locale LC_CTYPE=$system_default_locale LANGUAGE=$system_default_locale; then echo "OK"; else echo "FAILED"; fi
 }
 
 hostname_change() {
   echo -n "$(timestamp) [openHABian] Setting hostname of the base system... "
   if [ -n "$INTERACTIVE" ]; then
-    if ! new_hostname=$(whiptail --title "Change Hostname" --inputbox "Please enter the new system hostname (no special characters, no spaces):" 10 60 3 >&1 1>&2 2>&3); then return 1; fi
+    new_hostname=$(whiptail --title "Change Hostname" --inputbox "Please enter the new system hostname (no special characters, no spaces):" 10 60 3>&1 1>&2 2>&3)
+    if [ $? -ne 0 ]; then return 1; fi
     if ( echo "$new_hostname" | grep -q ' ' ) || [ -z "$new_hostname" ]; then
       whiptail --title "Change Hostname" --msgbox "The hostname you've entered is not a valid hostname. Please try again." 10 60
       echo "FAILED"
