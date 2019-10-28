@@ -100,7 +100,7 @@ locale_setting() {
 hostname_change() {
   echo -n "$(timestamp) [openHABian] Setting hostname of the base system... "
   if [ -n "$INTERACTIVE" ]; then
-    if ! new_hostname=$(whiptail --title "Change Hostname" --inputbox "Please enter the new system hostname (no special characters, no spaces):" 10 60 3 >&1 1>&2 2>&3); then return 1; fi
+    if ! new_hostname=$(whiptail --title "Change Hostname" --inputbox "Please enter the new system hostname (no special characters, no spaces):" 10 60 3>&1 1>&2 2>&3); then return 1; fi
     if ( echo "$new_hostname" | grep -q ' ' ) || [ -z "$new_hostname" ]; then
       whiptail --title "Change Hostname" --msgbox "The hostname you've entered is not a valid hostname. Please try again." 10 60
       echo "FAILED"
