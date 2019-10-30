@@ -76,7 +76,7 @@ ion into small files: Yes\\n"
 }
 
 exim_setup() {
-  if apt-get -y install exim4 mailutils &>/dev/null; then
+  if apt-get -y install exim4 dnsutils mailutils &>/dev/null; then
     echo "OK"
   else
     echo "FAILED"
