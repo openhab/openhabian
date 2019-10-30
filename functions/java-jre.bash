@@ -45,10 +45,12 @@ java_zulu_8_tar(){
   if [ "$1" == "32-bit" ]; then
     echo -n "$(timestamp) [openHABian] Installing Java Zulu 32-Bit OpenJDK... "
     if is_arm; then 
-      link="$(fetch_zulu_tar_url "arm-32-bit-hf")";
+      #link="$(fetch_zulu_tar_url "arm-32-bit-hf")";
+      link="https://cdn.azul.com/zulu-embedded/bin/zulu8.40.0.178-ca-jdk1.8.0_222-linux_aarch32hf.tar.gz"
       jdkArch="aarch32"
     else 
-      link="$(fetch_zulu_tar_url "x86-32-bit")";
+      #link="$(fetch_zulu_tar_url "x86-32-bit")";
+      link="https://cdn.azul.com/zulu/bin/zulu8.42.0.21-ca-jdk8.0.232-linux_i686.tar.gz"
       jdkArch="i386"
     fi
 
@@ -67,10 +69,12 @@ java_zulu_8_tar(){
   elif [ "$1" == "64-bit" ]; then
     echo -n "$(timestamp) [openHABian] Installing Java Zulu 64-Bit OpenJDK... "
     if is_arm; then 
-      link="$(fetch_zulu_tar_url "arm-64-bit")";
+      #link="$(fetch_zulu_tar_url "arm-64-bit")";
+      link="https://cdn.azul.com/zulu-embedded/bin/zulu8.40.0.178-ca-jdk1.8.0_222-linux_aarch64.tar.gz"
       jdkArch="aarch64"
     else 
-      link="$(fetch_zulu_tar_url "x86-64-bit")";
+      #link="$(fetch_zulu_tar_url "x86-64-bit")";
+      link="https://cdn.azul.com/zulu/bin/zulu8.42.0.21-ca-jdk8.0.232-linux_x64.tar.gz"
       jdkArch="amd64"
     fi
 
