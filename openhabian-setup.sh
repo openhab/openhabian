@@ -80,7 +80,7 @@ if [[ -n "$UNATTENDED" ]]; then
   permissions_corrections
   misc_system_settings
 # not per default for now
-# if is_pi; then init_zram_mounts install; fi
+# if is_pione || is_pitwo || is_pithree || is_pithreeplus || is_pifour || is_pine64; then init_zram_mounts install; fi
   samba_setup
   clean_config_userpw
   frontail_setup
