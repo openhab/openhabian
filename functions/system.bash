@@ -261,7 +261,6 @@ enable_rpi_audio() {
   if ! grep -q "dtparam=audio" /boot/config.txt; then
     echo "dtparam=audio=on" >> /boot/config.txt
   fi
-  cond_redirect adduser openhab audio
   cond_redirect adduser "$username" audio
   echo "OK"
 }
