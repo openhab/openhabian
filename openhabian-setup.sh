@@ -49,7 +49,7 @@ elif [[ "$1" = "unattended_debug" ]]; then
 else
   INTERACTIVE=1
 fi
-
+set -x
 # Include all subscripts
 # shellcheck source=/dev/null
 for shfile in "$BASEDIR"/functions/*.bash; do source "$shfile"; done

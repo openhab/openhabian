@@ -2,7 +2,7 @@
 
 load packages
 load helpers
-
+set -x
 @test "destructive-homegear_install" {
   run homegear_setup
   [ "$status" -eq 0 ]
