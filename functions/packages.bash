@@ -173,10 +173,9 @@ To continue your integration in openHAB 2, please follow the instructions under:
 
 mqtt_setup() {
   FAILED=0
-  introtext="The MQTT broker Eclipse Mosquitto will be installed through the official repository, as desribed at: https://mosquitto.org/2013/01/mosquitto-debian-repository \\nAdditionally you can activate username:password authentication."
+  introtext="The MQTT broker Eclipse Mosquitto will be installed through the official repository, as desribed in: https://mosquitto.org/2013/01/mosquitto-debian-repository\\nAdditionally you can activate username:password authentication.\\n\\nHEADS UP: Only proceed when you are aware that this will be in conflict with use of the MQTTv2 binding which will also be using the same ports."
   failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Setup was successful.
-Eclipse Mosquitto is now up and running in the background. You should be able to make a first connection.
+  successtext="Setup was successful.\\nEclipse Mosquitto is now up and running in the background. You should be able to make a first connection.
 To continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/mqtt/
 "
   echo -n "$(timestamp) [openHABian] Setting up the MQTT broker Eclipse Mosquitto... "

@@ -4,18 +4,24 @@ move_root2usb() {
   NEWROOTDEV=/dev/sda
   NEWROOTPART=/dev/sda1
 
-  infotext="DANGEROUS OPERATION, USE WITH PRECAUTION!\\nThis will move your system root from your SD card to a USB device like an SSD or a USB stick to reduce wear and failure or the SD card.\\n1.) Make a backup of your SD card\\n2.) Remove all USB massstorage devices from your Pi\\n3.) Insert the USB device to be used for the new system root.\\nTHIS DEVICE WILL BE COMPLETELY DELETED\\n\\nDo you want to continue on your own risk?"
+  infotext="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will move your system root from your SD card to a USB device like an SSD or a USB stick.\\nATTENTION: this is NOT the recommended method to reduce wearout and failure of the SD card. If that is your intention, stop here and go for ZRAM (menu option 38).\\n\\nIf you still want to proceed,\\n1.) Ensure your RPi model can boot from a device other than the internal SD card reader.\\n2.) Make a backup of your SD card\\n3.) Remove all USB mass storage devices from your Pi\\n4.) Insert the USB device to be used for the new system root.\\n\\nTHIS DEVICE WILL BE COMPLETELY DELETED\\n\\nDo you want to continue at your own risk?"
 
   if ! is_pi; then
     if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Incompatible Hardware Detected" --msgbox "Move root to USB: This option is for the Raspberry Pi only." 10 60
+      whiptail --title "Incompatible hardware detected" --msgbox "Move root to USB: this option is for the Raspberry Pi only." 10 60
     fi
     echo "FAILED"; return 1
   fi
 
-  if ! (whiptail --title "Move system root to '$NEWROOTPART'" --yes-button "Continue" --no-button "Back" --yesno "$infotext" 18 78) then echo "CANCELED"; return 0; fi
+  if [ -f /etc/ztab ]; then
+    if [ -n "$INTERACTIVE" ]; then
+      whiptail --title "Incompatible selection detected" --msgbox "Move root to USB must not be used together with ZRAM.\\nIf you want to mitigate SD carsd corruption, don't move root but stay with ZRAM, it is the proper choice. If you want to move for other reasons, uninstall ZRAM first then return here." 10 60
+    fi
+    echo "FAILED"; return 1
+  fi
+  if ! (whiptail --title "Move system root to '$NEWROOTPART'" --yes-button "Continue" --no-button "Back" --yesno "$infotext" 22 116) then echo "CANCELED"; return 0; fi
 
-  #check if system root is on partion 2 of the SD card
+  #check if system root is on partition 2 of the SD card
   #since 2017-06, rasbian uses PARTUUID=.... in cmdline.txt and fstab instead of /dev/mmcblk0p2...
   rootonsdcard=false
 
@@ -100,7 +106,7 @@ move_root2usb() {
   echo "*************************************************************"
   echo "OK, moving system root finished you're all set, PLEASE REBOOT"
   echo
-  echo "In the unlikely case that the reboot does not suceed,"
+  echo "In the unlikely case that the reboot does not succeed,"
   echo "please put the SD card into another device and copy back"
   echo "/boot/cmdline.txt.sdcard to /boot/cmdline.txt"
   echo "*************************************************************"

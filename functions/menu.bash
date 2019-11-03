@@ -18,7 +18,7 @@ show_main_menu() {
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian    "    "Information about the openHABian project and this tool" \
   "" "" \
-  "01 | Update"                  "Pull the latest revision of the openHABian Configuration Tool" \
+  "01 | Update"                  "Fetch the latest revision of the openHABian Configuration Tool" \
   "02 | Upgrade System"          "Upgrade all installed software packages to their newest version" \
   "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
   "" "" \
@@ -111,8 +111,8 @@ show_main_menu() {
     "35 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
     "36 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
     "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
-    "38 | Use zram (BETA)"        "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
-    "   | Remove zram"            "Don't use compressed memory (back to standard Raspbian FS layout)" \
+    "38 | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
+    "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspbian filesystem layout)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -137,7 +137,7 @@ show_main_menu() {
     "42 | Remote Console"    "Bind the openHAB SSH console to all external interfaces" \
     "43 | Reverse Proxy"     "Setup Nginx with password authentication and/or HTTPS access" \
     "44 | Delay rules load"  "Delay loading rules to speed up overall startup" \
-    "   | Default order"     "Reset config elements load order to default" \
+    "   | Default order"     "Reset config load order to default (random)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
@@ -171,15 +171,15 @@ show_main_menu() {
     "63 | Zulu OpenJDK 32-bit"    "Install Zulu OpenJDK Java 8 32-bit" OFF \
     "   | Zulu OpenJDK 64-bit"    "Install Zulu OpenJDK Java 8 64-bit" OFF \
     "64 | openHAB stable"         "Install the latest openHAB release" OFF \
-    "   | openHAB testing"        "Install the latest openHAB testing build" OFF \
+    "   | openHAB testing"        "Install the latest openHAB testing (milestone) build" OFF \
     "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
     "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB " OFF \
     "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares " OFF \
     "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail) " OFF \
     "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
     "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
-    "6A | Use zram (BETA)"        "Use compressed RAM/disk sync for active directories to avoid SD card corruption" OFF \
-    "   | Remove zram"            "Don't use compressed memory (back to standard Raspbian FS layout)" OFF \
+    "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" OFF \
+    "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspbian filesystem layout)" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     if [[ $choosenComponents == *"62"* ]]; then apt-get upgrade -y && basic_packages && needed_packages; fi
