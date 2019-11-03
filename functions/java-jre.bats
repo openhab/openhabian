@@ -17,12 +17,14 @@ load helpers
 }
 
 @test "destructive-update_java-64bit_tar" {
+  echo -e "# \e[32mZulu 64-bit Java installation is being updated..." >&3
   case "$(uname -m)" in
     aarch64|arm64|x86_64|amd64) ;;
     *) skip ;;
   esac
   run systemctl start openhab2
   run java_zulu_8_tar 64-bit
+  echo -e "# \e[32mZulu 64-bit Java installation successful." >&3
   [ "$status" -eq 0 ]
   run systemctl is-active --quiet openhab2
   [ "$status" -eq 0 ]
@@ -33,8 +35,10 @@ load helpers
 }
 
 @test "destructive-update_java-32bit_tar" {
+  echo -e "# \e[32mZulu 32-bit Java installation is being updated..." >&3
   run systemctl start openhab2
   run java_zulu_8_tar 32-bit
+  echo -e "# \e[32mZulu 32-bit Java installation successful." >&3
   [ "$status" -eq 0 ]
   run systemctl is-active --quiet openhab2
   [ "$status" -eq 0 ]

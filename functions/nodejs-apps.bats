@@ -5,4 +5,5 @@ load helpers
 @test "installation-Frontail_is_running" {
   run systemctl is-active --quiet frontail.service
   [ "$status" -eq 0 ]
+  echo -e "# \e[32mFrontail service running." >&3
 }
