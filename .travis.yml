@@ -25,7 +25,7 @@ script:
     #  - docker exec -it install-test bash -c 'bats -r -f "destructive-update_java-32bit_tar" .'
     #  - docker exec -it install-test bash -c 'bats -r -f "destructive-homegear_install" .'
     #  - docker exec -it install-test bash -c 'bats -r -f "destructive-zram" .'
-  - docker exec -it install-test bash -c 'bats -r -f "destructive-." .'
+  - travis_wait 90 sleep infinity & docker exec -it install-test bash -c 'bats -p -r -f "destructive-." .'
 
   - shellcheck -s bash openhabian-setup.sh || true
   - shellcheck -s bash functions/*.bash || true

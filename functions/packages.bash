@@ -82,10 +82,10 @@ ion into small files: Yes\\n"
 exim_setup() {
   if apt-get -y install exim4 dnsutils mailutils &>/dev/null; then
     echo "OK"
+    create_mta_config
   else
     echo "FAILED"
   fi
-  create_mta_config
 }
 
 etckeeper_setup() {
