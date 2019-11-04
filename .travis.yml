@@ -1,9 +1,17 @@
 language: bash
 
+dist: disco
+
+matrix:
+  fast_finish: true
+
+cache: false
+
 addons:
   apt:
     packages:
     - shellcheck
+    - virt-what
     update: true
 
 services:
@@ -11,22 +19,29 @@ services:
 
 install:
   - shellcheck --version
-  - docker build --tag openhabian/openhabian-bats .
+  - /usr/bin/id
+  - sudo apt-get install virt-what && VIRT=$(sudo virt-what) && echo "Travis VM running on ${VIRT:-native HW}."
+  - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+  - docker build -t openhabian/rpi-openhabian -f Dockerfile .
 
-script:
-  - docker run -it openhabian/openhabian-bats bash -c 'bats -r -f "unit-." .'
-  - docker run --name "install-test" --privileged -d openhabian/openhabian-bats
-  - travis_wait 60 sleep infinity & docker exec -it "install-test" bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profil && /etc/rc.local"
-  - travis_wait 60 sleep infinity & docker exec -it install-test bash -c 'bats -r -f "installation-." .'
-    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-influxDB" .'
-    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-grafana" .'
-    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-java_exist" .'
-    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-update_java-64bit_tar" .'
-    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-update_java-32bit_tar" .'
-    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-homegear_install" .'
-    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-zram" .'
-  - travis_wait 90 sleep infinity & docker exec -it install-test bash -c 'bats -p -r -f "destructive-." .'
-
-  - shellcheck -s bash openhabian-setup.sh || true
-  - shellcheck -s bash functions/*.bash || true
-  - shellcheck -s bash build-image/*.bash || true
+jobs:
+  include:
+    - stage: Dev+unit-tests
+      script: docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "dev-." .'
+    - script: docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "unit-." .'
+    - stage: Openhabian-Setup
+      script:
+        - docker run --name "openhabian-test" --privileged -d openhabian/rpi-openhabian
+        - docker exec -it "openhabian-test" bash -c \
+            'VIRT=$(sudo virt-what); echo -e "\n\e[34mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi'
+        - docker commit "openhabian-test" openhabian-installed
+    - stage: Bats
+      script: docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "unit-." .'
+    - script:
+        - docker run --name "bats-tests" --privileged -d openhabian/rpi-openhabian
+        - travis_wait 60 sleep infinity & docker exec -it "bats-tests" bash -c 'bats -r -f "installation-." .'
+        - travis_wait 60 sleep infinity & docker exec -it "bats-tests" bash -c 'bats -r -f "destructive-." .'
+    - stage: Shellcheck
+      script: shellcheck -x -s bash openhabian-setup.sh || true
+    - script: shellcheck -x -s bash functions/*.bash || true
+    - script: shellcheck -x -s bash build-image/*.bash || true

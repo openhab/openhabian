@@ -2,7 +2,7 @@ FROM minimum2scp/systemd-buster
 #FROM minimum2scp/systemd-stretch
 #FROM balenalib/intel-nuc-debian-node:latest-buster
 
-RUN apt-get update && apt-get install -q -y git locales python3 python3-pip jq
+RUN apt-get update && apt-get install -q -y git locales python3 python3-pip jq virt-what
 RUN git clone https://github.com/bats-core/bats-core.git && \
     cd bats-core && \
     ./install.sh /usr/local
