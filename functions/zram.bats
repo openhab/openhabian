@@ -1,6 +1,4 @@
 #!/usr/bin/env bats 
-echo -e "# \e[32Skipping zram tests." >&3
-exit 0
 
 load helpers
 load zram

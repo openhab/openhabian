@@ -18,14 +18,14 @@ script:
   - docker run --name "install-test" --privileged -d openhabian/openhabian-bats
   - travis_wait 60 sleep infinity & docker exec -it "install-test" bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profil && /etc/rc.local"
   - travis_wait 60 sleep infinity & docker exec -it install-test bash -c 'bats -r -f "installation-." .'
-  - docker exec -it install-test bash -c 'bats -r -f "destructive-influxDB" .'
-  - docker exec -it install-test bash -c 'bats -r -f "destructive-grafana" .'
-  - docker exec -it install-test bash -c 'bats -r -f "destructive-java_exist" .'
-  - docker exec -it install-test bash -c 'bats -r -f "destructive-update_java-64bit_tar" .'
-  - docker exec -it install-test bash -c 'bats -r -f "destructive-update_java-32bit_tar" .'
-  - docker exec -it install-test bash -c 'bats -r -f "destructive-homegear_install" .'
-  - docker exec -it install-test bash -c 'bats -r -f "destructive-zram" .'
-#  - docker exec -it install-test bash -c 'bats -r -f "destructive-." .'
+    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-influxDB" .'
+    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-grafana" .'
+    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-java_exist" .'
+    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-update_java-64bit_tar" .'
+    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-update_java-32bit_tar" .'
+    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-homegear_install" .'
+    #  - docker exec -it install-test bash -c 'bats -r -f "destructive-zram" .'
+  - docker exec -it install-test bash -c 'bats -r -f "destructive-." .'
 
   - shellcheck -s bash openhabian-setup.sh || true
   - shellcheck -s bash functions/*.bash || true

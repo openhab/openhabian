@@ -50,11 +50,6 @@ else
   INTERACTIVE=1
 fi
 
-set -x
-REPOSITORYURL=$(grep -i '^repositoryurl' openhabian.conf.dist | cut -d '=' -f2)
-CLONEBRANCH=$(grep -i '^clonebranch' openhabian.conf.dist | cut -d '=' -f2)
-export REPOSITORYURL CLONEBRANCH
-
 # Include all subscripts
 # shellcheck source=/dev/null
 for shfile in "$BASEDIR"/functions/*.bash; do source "$shfile"; done
