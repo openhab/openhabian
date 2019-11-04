@@ -36,7 +36,7 @@ check_zram_mounts() {
 
 
 @test "destructive-zram" {
-  echo -e "# \e[32mZRAM installation starting..." >&3
+  echo -e "# \e[36mZRAM installation starting..." >&3
   run init_zram_mounts install
   [ "$status" -eq 0 ]
   run check_zram_mounts

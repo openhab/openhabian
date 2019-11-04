@@ -4,7 +4,7 @@ load influxdb+grafana
 load helpers
 
 @test "destructive-influxDB_install" {
-  echo -e "# \e[32mInfluxDB installation starting..." >&3
+  echo -e "# \e[36mInfluxDB installation starting..." >&3
   run influxdb_install "Password1234"
   [ "$status" -eq 0 ]
   echo -e "# \e[32mInfluxDB installation successful." >&3
@@ -14,7 +14,7 @@ load helpers
 }
 
 @test "destructive-grafana_install" {
-  echo -e "# \e[32mGrafana installation starting..." >&3
+  echo -e "# \e[36mGrafana installation starting..." >&3
   run grafana_install "Password1234"
   [ "$status" -eq 0 ]
   echo -e "# \e[32mGrafana installation successful." >&3
