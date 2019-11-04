@@ -5,9 +5,6 @@
 
 hostname=openHABianDevice
 userpw=password
-mode=unattended_debug
-repositoryurl=https://github.com/openhab/openhabian.git
-branch=master
 
 # Do not change these lines
 username=user

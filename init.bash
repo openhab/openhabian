@@ -8,7 +8,10 @@ while [ -h "$SOURCE" ]; do
   [[ $SOURCE != /* ]] && SOURCE="$BASEDIR/$SOURCE"
 done
 BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
-SCRIPTNAME="$(basename $SOURCE)"
+SCRIPTNAME="$(basename "$SOURCE")"
 
 CONFIGFILE="/etc/openhabian.conf"
-export SOURCE BASEDIR SCRIPTNAME REPOSITORYURL CONFIGFILE
+REPOSITORYURL=$(grep -i '^repositoryurl' ${CONFIGFILE} | cut -d '=' -f2)
+CLONEBRANCH=$(grep -i '^clonebranch' ${CONFIGFILE} | cut -d '=' -f2)
+
+export SOURCE BASEDIR SCRIPTNAME REPOSITORYURL CLONEBRANCH CONFIGFILE
