@@ -13,14 +13,14 @@ testAppearingHost() {
 }
 
 @test "unit-tryExistingSite" {
-  run testAppearingHost thiswillappear
+  runc --debug testAppearingHost thiswillappear
   [ "$status" -eq 7 ]
 
   echo -e "# \n\e[32mPing to host appearing after 3 seconds succeeded." >&3
 }
 
 @test "unit-tryNonExistingSite" {
-  run testNonExistingHost nothisdoesnotexit
+  runc --debug testNonExistingHost nothisdoesnotexit
   [ "$status" -eq 0 ]
 
   echo -e "# \n\e[32mPinging to nonexistingsite failed (correctly so)." >&3
