@@ -15,4 +15,8 @@ timezone=Europe/Berlin
 locales="en_US.UTF-8 de_DE.UTF-8"
 system_default_locale="en_US.UTF-8"
 
+# repo to clone from (if not master for build and test)
+repositoryurl=https://github.com/openhab/openhabian.git
+branch=master
+
 # vim: filetype=sh

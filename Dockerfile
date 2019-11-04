@@ -11,6 +11,9 @@ RUN echo "openhabian:openhabian" | chpasswd
 RUN /bin/echo -n "Running on " && /usr/bin/arch
 
 COPY . /opt/openhabian/
+COPY openhabian.conf.dist /etc/openhabian.conf
+RUN sed -i 's#repositoryurl=https://github.com/openhab/openhabian.git#repositoryurl=https://github.com/mstormi/openhabian.git#' /etc/openhabian.conf
+RUN sed -i 's#branch=master#branch=buildfixes#' /etc/openhabian.conf
 
 WORKDIR /opt/openhabian/
 

@@ -49,7 +49,12 @@ elif [[ "$1" = "unattended_debug" ]]; then
 else
   INTERACTIVE=1
 fi
+
 set -x
+REPOSITORYURL=$(egrep -i '^repositoryurl' openhabian.conf.dist | cut -d '=' -f2)
+CLONEBRANCH=$(egrep -i '^clonebranch' openhabian.conf.dist | cut -d '=' -f2)
+export REPOSITORYURL CLONEBRANCH
+
 # Include all subscripts
 # shellcheck source=/dev/null
 for shfile in "$BASEDIR"/functions/*.bash; do source "$shfile"; done
