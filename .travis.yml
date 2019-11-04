@@ -23,6 +23,7 @@ install:
   - docker build -t openhabian/rpi-openhabian -f Dockerfile .
 
 jobs:
+  fast_finish: true
   include:
     - stage: Dev+unit-tests
       script: docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "dev-." .'
