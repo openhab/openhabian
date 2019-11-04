@@ -153,11 +153,11 @@ tryUntil() {
   count=${2:-10}
   local i=$count
   interval=${3:-1}
-  until [ $i -le 0 ]; do
+  until [ "$i" -le 0 ]; do
     eval "${cmd}"
     ret=$?
     if [ $ret -eq 0 ]; then break; fi
-    sleep ${interval}
+    sleep "${interval}"
     echo -n ".${i}."
     ((i-=1))
   done

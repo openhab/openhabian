@@ -51,8 +51,8 @@ else
 fi
 
 set -x
-REPOSITORYURL=$(egrep -i '^repositoryurl' openhabian.conf.dist | cut -d '=' -f2)
-CLONEBRANCH=$(egrep -i '^clonebranch' openhabian.conf.dist | cut -d '=' -f2)
+REPOSITORYURL=$(grep -i '^repositoryurl' openhabian.conf.dist | cut -d '=' -f2)
+CLONEBRANCH=$(grep -i '^clonebranch' openhabian.conf.dist | cut -d '=' -f2)
 export REPOSITORYURL CLONEBRANCH
 
 # Include all subscripts

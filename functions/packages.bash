@@ -197,7 +197,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
       echo -e "\\npassword_file /etc/mosquitto/passwd\\nallow_anonymous false\\n" >> /etc/mosquitto/mosquitto.conf
     fi
     echo -n "" > /etc/mosquitto/passwd
-    if ! cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd $mqttuser $mqttpasswd; then echo "FAILED"; exit 1; fi
+    if ! cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd "$mqttuser" "$mqttpasswd"; then echo "FAILED"; exit 1; fi
   else
     cond_redirect sed -i "/password_file/d" /etc/mosquitto/mosquitto.conf
     cond_redirect sed -i "/allow_anonymous/d" /etc/mosquitto/mosquitto.conf
@@ -548,7 +548,7 @@ nginx_setup() {
             certbotrepo="stretch-backports"
           fi
           certbotoption="-t"
-          if [ ! -z "$certbotrepo" ]; then
+          if [ -n "$certbotrepo" ]; then
             echo -e "# This file was added by openHABian to install certbot\\ndeb http://ftp.debian.org/debian ${certbotrepo} main" > /etc/apt/sources.list.d/backports.list
           fi
         elif is_ubuntu; then
