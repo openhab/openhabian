@@ -27,7 +27,7 @@ jobs:
   include:
     - stage: Dev+unit-tests
       script: docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "dev-." .'
-      script: docker run -it openhabian/rpi-openhabian bash -c 'sudo bats -r -f "unit-." .'
+    - script: docker run -it openhabian/rpi-openhabian bash -c 'sudo bats -r -f "unit-." .'
     - stage: Openhabian-Setup
       script:
         - docker run --name "openhabian-test" --privileged -d openhabian/rpi-openhabian
@@ -35,11 +35,12 @@ jobs:
             'VIRT=$(sudo virt-what); echo -e "\n\e[34mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi'
         - docker commit "openhabian-test" openhabian-installed
     - stage: Bats
-      script: docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "unit-." .'
+      script:
+        docker run --name "bats-inst-tests" --privileged -d openhabian/rpi-openhabian
+        docker exec -it "bats-inst-tests" bash -c 'bats -r -f "installation-." .'
     - script:
-        - docker run --name "bats-tests" --privileged -d openhabian/rpi-openhabian
-        - travis_wait 60 sleep infinity & docker exec -it "bats-tests" bash -c 'bats -r -f "installation-." .'
-          #        - travis_wait 60 sleep infinity & docker exec -it "bats-tests" bash -c 'bats -r -f "destructive-." .'
+        docker run --name "bats-dest-tests" --privileged -d openhabian/rpi-openhabian
+        docker exec -it "bats-dest-tests" bash -c 'bats -r -f "destructive-." .'
     - stage: Shellcheck
       script: shellcheck -x -s bash openhabian-setup.sh || true
     - script: shellcheck -x -s bash functions/*.bash || true
