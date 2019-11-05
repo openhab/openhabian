@@ -27,7 +27,7 @@ jobs:
   include:
     - stage: Dev+unit-tests
       script: docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "dev-." .'
-    - script: docker run -it openhabian/rpi-openhabian bash -c 'sudo bats -r -f "unit-." .'
+      script: docker run -it openhabian/rpi-openhabian bash -c 'sudo bats -r -f "unit-." .'
     - stage: Openhabian-Setup
       script:
         - docker run --name "openhabian-test" --privileged -d openhabian/rpi-openhabian
