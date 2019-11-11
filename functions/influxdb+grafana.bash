@@ -47,9 +47,9 @@ influxdb_grafana_setup() {
       text_influxDB_configure="Shall a new user and database be configured on the InfluxDB instance automatically or shall existing existing ones be used?"
       if ! (whiptail --title "InfluxDB" --yes-button "Create new" --no-button "Use existing" --yesno "$text_influxDB_configure" 15 80) then
         # Existing InfluxDB - Manual configuration
-        influxdb_database_name=$(whiptail --title "InfluxDB" --inputbox "OpenHAB need to use a specific InfluxDB database. Please enter a configured InfluxDB database name:" 15 80 3>&1 1>&2 2>&3)
+        influxdb_database_name=$(whiptail --title "InfluxDB" --inputbox "openHAB need to use a specific InfluxDB database. Please enter a configured InfluxDB database name:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-        influxdb_openhab_username=$(whiptail --title "InfluxDB" --inputbox "OpenHAB need write/read access to previous defined database. Please enter an InfluxDB username for OpenHAB:" 15 80 3>&1 1>&2 2>&3)
+        influxdb_openhab_username=$(whiptail --title "InfluxDB" --inputbox "openHAB need write/read access to previous defined database. Please enter an InfluxDB username for openHAB:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
         influxdb_openhab_password=$(whiptail --title "InfluxDB" --passwordbox "Password for InfluxDB account \"$influxdb_openhab_username:\"" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
@@ -97,9 +97,9 @@ influxdb_grafana_setup() {
       influxdb_grafana_username="grafana"
       matched=false
       while [ "$matched" = false ]; do
-        influxdb_openhab_password=$(whiptail --title "InfluxDB - OpenHAB Account" --passwordbox "An openHAB specific InfluxDB user will be created \"openhab\". Please enter a password:" 15 80 3>&1 1>&2 2>&3)
+        influxdb_openhab_password=$(whiptail --title "InfluxDB - openHAB Account" --passwordbox "An openHAB specific InfluxDB user will be created \"openhab\". Please enter a password:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-        password_check=$(whiptail --title "InfluxDB - OpenHAB Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
+        password_check=$(whiptail --title "InfluxDB - openHAB Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
         if [ "$influxdb_openhab_password" = "$password_check" ] && [ -n "$influxdb_openhab_password" ]; then
           matched=true
@@ -137,11 +137,11 @@ influxdb_grafana_setup() {
     done
 
     if openhab_is_running; then
-      text_openHAB_integration="OpenHAB can use InfluxDB for persistant storage. Shall InfluxDB be configured with OpenHAB?
+      text_openHAB_integration="openHAB can use InfluxDB for persistant storage. Shall InfluxDB be configured with openHAB?
       (A new config file for openHAB will be created with basic settings.)"
-      if (whiptail --title "OpenHAB integration, Continue?" --yes-button "Yes" --no-button "No" --yesno "$text_openHAB_integration" 15 80) then openhab_integration=true ; fi
+      if (whiptail --title "openHAB integration, Continue?" --yes-button "Yes" --no-button "No" --yesno "$text_openHAB_integration" 15 80) then openhab_integration=true ; fi
     else
-      cond_echo "OpenHAB is not running. InfluxDB and grafana openHAB integration is skipped..."
+      cond_echo "openHAB is not running. InfluxDB and grafana openHAB integration is skipped..."
     fi
   fi
 
@@ -173,7 +173,7 @@ influxdb_grafana_setup() {
   dashboard_add_tile grafana || FAILED=4
 
   if [ "$openhab_integration" = true ]; then
-    echo -n "Adding install InfluxDB with database configuration to OpenHAB"
+    echo -n "Adding install InfluxDB with database configuration to openHAB"
     curl -X POST --header "Content-Type: application/json" --header "Accept: application/json" "http://localhost:$OPENHAB_HTTP_PORT/rest/extensions/influxdb/install"
     cond_redirect touch /etc/openhab2/services/influxdb.cfg
     { echo "url=$influxdb_address"; \
