@@ -488,6 +488,7 @@ Whenever you use a directory as the storage area, openHABian Amanda by default c
 So you can reinstall openHABian including Amanda from scratch and copy back those files.
 Even if you fail to recover your index files, you can still access the files in your storage area.
 Amanda storage files are tar files of the destination directory or compressed raw copies of partitions, both have an additional 32KB header.
+If you just want to retrieve some files from a partition backup file, you can mount that file. See https://major.io/2010/12/14/mounting-a-raw-partition-file-made-with-dd-or-dd_rescue-in-linux/.
 Here's examples how to decode them:
 
 ```
@@ -523,7 +524,8 @@ drwxr-xr-x root/root         9 2018-03-26 17:23 ./X11/Xreset.d/
 
 ...
 
-[18:14:49] root@openhabianpi:/volatile/backup/slots/slot7# dd if=00004.openhab._dev_mmcblk0.0 bs=32k skip=1 | zcat | dd of= ...
+[18:14:49] root@openhabianpi:/volatile/backup/slots/slot7# dd if=00004.openhab._dev_mmcblk0.0 bs=32k skip=1 | zcat | dd of=/volatile/temp/restore_file
+
 
 ...
 ```
