@@ -227,7 +227,7 @@ influxdb_install() {
     cond_redirect systemctl enable influxdb.service
     sleep 2
     cond_redirect systemctl restart influxdb.service
-    sleep 10
+    sleep 30
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
     echo -n "Configure InfluxDB admin account... "; echo -n ""
     curl --insecure $influxdb_address/query --data-urlencode "q=CREATE USER admin WITH PASSWORD '$1' WITH ALL PRIVILEGES" || FAILED=1
@@ -239,7 +239,7 @@ influxdb_install() {
     # disable stats collection to save memory, issue #506
     cond_redirect sed -i 's/# store-enabled = true/store-enabled = false/g' /etc/influxdb/influxdb.conf
     cond_redirect systemctl restart influxdb.service
-    sleep 10
+    sleep 30
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
   else
     echo "SKIPPED"
