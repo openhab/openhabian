@@ -76,6 +76,7 @@ influxdb_grafana_setup() {
       done
     else
       # Local InfluxDB
+      influxdb_admin_username="admin"
       text_influxDB_admin_password="The local InfluxDB installation needs a password for the \"admin\" account. Enter a password:"
       matched=false
       while [ "$matched" = false ]; do
@@ -227,19 +228,19 @@ influxdb_install() {
     cond_redirect systemctl enable influxdb.service
     sleep 2
     cond_redirect systemctl restart influxdb.service
-    sleep 10
+    sleep 30
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
     echo -n "Configure InfluxDB admin account... "; echo -n ""
     curl --insecure $influxdb_address/query --data-urlencode "q=CREATE USER admin WITH PASSWORD '$1' WITH ALL PRIVILEGES" || FAILED=1
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
     echo -n "Configure listen on localhost only... "; echo -n ""
-    cond_redirect sed -i -e '/^# Determines whether HTTP endpoint is enabled./ { n ; s/^# enabled = true/enabled = true/ }' /etc/influxdb/influxdb.conf
+    cond_redirect sed -i -e '/# Determines whether HTTP endpoint is enabled./ { n ; s/# enabled = true/enabled = true/ }' /etc/influxdb/influxdb.conf
     cond_redirect sed -i 's/# bind-address = ":8086"/bind-address = "localhost:8086"/g' /etc/influxdb/influxdb.conf
     cond_redirect sed -i 's/# auth-enabled = false/auth-enabled = true/g' /etc/influxdb/influxdb.conf
     # disable stats collection to save memory, issue #506
     cond_redirect sed -i 's/# store-enabled = true/store-enabled = false/g' /etc/influxdb/influxdb.conf
     cond_redirect systemctl restart influxdb.service
-    sleep 10
+    sleep 30
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
   else
     echo "SKIPPED"
