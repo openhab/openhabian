@@ -51,7 +51,7 @@ change_password() {
         passwordChange="$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password: " 15 80 3>&1 1>&2 2>&3)"
         if [[ "$?" == 1 ]]; then return 0; fi
         if [ ! ${#passwordChange} -ge 10 ]; then
-          whiptail --title "Authentication Setup" --msgbox "Password must at least be 8 characters long... Please try again!" 15 80 3>&1 1>&2 2>&3
+          whiptail --title "Authentication Setup" --msgbox "Password must at least be 10 characters long... Please try again!" 15 80 3>&1 1>&2 2>&3
         else
           secondpasswordChange="$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the new password:" 15 80 3>&1 1>&2 2>&3)"
           if [[ "$?" == 1 ]]; then return 0; fi
