@@ -76,6 +76,7 @@ influxdb_grafana_setup() {
       done
     else
       # Local InfluxDB
+      influxdb_admin_username="admin"
       text_influxDB_admin_password="The local InfluxDB installation needs a password for the \"admin\" account. Enter a password:"
       matched=false
       while [ "$matched" = false ]; do
