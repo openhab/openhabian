@@ -233,7 +233,7 @@ influxdb_install() {
     curl --insecure $influxdb_address/query --data-urlencode "q=CREATE USER admin WITH PASSWORD '$1' WITH ALL PRIVILEGES" || FAILED=1
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
     echo -n "Configure listen on localhost only... "; echo -n ""
-    cond_redirect sed -i -e '/^# Determines whether HTTP endpoint is enabled./ { n ; s/^# enabled = true/enabled = true/ }' /etc/influxdb/influxdb.conf
+    cond_redirect sed -i -e '/# Determines whether HTTP endpoint is enabled./ { n ; s/# enabled = true/enabled = true/ }' /etc/influxdb/influxdb.conf
     cond_redirect sed -i 's/# bind-address = ":8086"/bind-address = "localhost:8086"/g' /etc/influxdb/influxdb.conf
     cond_redirect sed -i 's/# auth-enabled = false/auth-enabled = true/g' /etc/influxdb/influxdb.conf
     # disable stats collection to save memory, issue #506
