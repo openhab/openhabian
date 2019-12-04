@@ -207,12 +207,6 @@ misc_system_settings() {
   touch /home/"$username"/.ssh/authorized_keys
   chmod 600 /home/"$username"/.ssh/authorized_keys
   chown -R "$username:$username" /home/"$username"/.ssh
-  # By default, systemd logs are kept in volatile memory. Relocate to persistent memory to allow log rotation and archiving
-  echo "Creating persistent systemd journal folder location: /var/log/journal"
-  mkdir -p /var/log/journal
-  systemd-tmpfiles --create --prefix /var/log/journal
-  echo "Keeping at most 30 days of systemd journal entries"
-  journalctl --vacuum-time=30d
   # A distinguishable apt User-Agent
   echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent
   #
