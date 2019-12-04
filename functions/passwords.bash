@@ -19,15 +19,15 @@ change_password() {
   FAILED=0
 
   # BUILD LIST WITH INSTALLED SERVICES
-  whipParams=( --title "Change password function" --ok-button "Execute" --cancel-button "Back" --checklist "$introtext" 20 90 10)
+  whipParams=( --title "Change password function" --ok-button "Execute" --cancel-button "Back" --checklist "$introtext" 14 90 6)
   whipParams+=("Linux system" "Account; \"$username\" used for login to this computer" off )
   whipParams+=("openHAB Console" "Remote console account; \"openhab\" for manage openHAB" off )
   whipParams+=("Samba" "Fileshare account; \"$username\" for configuration files" off )
-  whipParams+=("Amanda backup" "User account; \"backup\" which could handle openHAB backups " off )
+  whipParams+=("Amanda backup" "User account; \"backup\" to handle openHAB backups" off )
 
   if [ -f /etc/nginx/.htpasswd ]; then
-    nginxuser="$(cut -d: -f1 /etc/nginx/.htpasswd)"
-    whipParams+=("Ngnix HTTP/HTTPS" "User; \"$nginxuser\" used for logon to openHAB web services " off )
+    nginxuser="$(cut -d: -f1 /etc/nginx/.htpasswd | head -1)"
+    whipParams+=("Ngnix HTTP/HTTPS" "User; \"$nginxuser\" used for logon to openHAB web services" off )
     allAccounts+=( "Ngnix HTTP/HTTPS" )
   fi
 
