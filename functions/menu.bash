@@ -124,7 +124,7 @@ show_main_menu() {
       36\ *) wifi_setup ;;
       37\ *) move_root2usb ;;
       38\ *) init_zram_mounts install;;
-      *Remove\ zram) init_zram_mounts remove;;
+      *Uninstall\ ZRAM) init_zram_mounts remove;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -195,7 +195,7 @@ show_main_menu() {
     if [[ $choosenComponents == *"68"* ]]; then firemotd_setup; fi
     if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
     if [[ $choosenComponents == *"6A"* ]]; then init_zram_mounts install; fi
-    if [[ $choosenComponents == *"Remove zram"* ]]; then init_zram_mounts remove; fi
+    if [[ $choosenComponents == *"Uninstall ZRAM"* ]]; then init_zram_mounts remove; fi
 
   elif [[ "$choice" == "99"* ]]; then
     show_about
