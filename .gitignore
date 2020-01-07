@@ -6,3 +6,10 @@ node_modules/
 *.img.bz2
 *.log
 .DS_Store
+
+# =========================
+### JetBrains IDE
+
+.idea/
+*.iws
+*.iml
