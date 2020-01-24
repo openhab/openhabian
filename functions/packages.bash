@@ -181,10 +181,8 @@ To continue your integration in openHAB 2, please follow the instructions under:
   echo -n "$(timestamp) [openHABian] Setting up the MQTT broker Eclipse Mosquitto... "
 
   mqttuser="openhabian"
-  question1="Do you really want to install a separate MQTT broker?\\nNote that openHAB version 2.5M1 or higher comes with a new OHv2 MQTT binding that if you choose to enable it by default will use thus occupy the same ports as mosquitto here would try to use."
-  question2="Do you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\\nUsername will be '$mqttuser', please provide a password (consisting of ASCII printable characters except space). Leave blank for no authentication, run method again to change."
-  if ! (whiptail --title "MQTT Broker installation" --yes-button "Install Mosquitto" --no-button "Use MQTTv2 binding" --yesno "$question1" 12 78) then echo "CANCELED"; return 0; fi
-  mqttpasswd=$(whiptail --title "MQTT Authentication" --inputbox "$question2" 15 80 3>&1 1>&2 2>&3)
+  question="Do you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\\nUsername will be '$mqttuser', please provide a password (consisting of ASCII printable characters except space). Leave blank for no authentication, run method again to change."
+  mqttpasswd=$(whiptail --title "MQTT Authentication" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
   if is_jessie; then
     cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
     echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
