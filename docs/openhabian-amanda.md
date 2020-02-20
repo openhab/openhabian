@@ -97,12 +97,12 @@ prepending "sudo " to the command.
 ## Storage preparation
 Now once you read up on all of this and feel you have understood this stuff, the next step will NOT be hit that 'Amanda install' 
 menu option in openHABian (no, we're not there yet) but to prepare your storage.
-HEADS UP: You need to "create" (or "provide", actually) your storage BEFORE you install Amanda.
-That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
+HEADS UP: You need to provide your storage BEFORE you install Amanda.
+That is, you have to mount the USB device or share from your NAS to a directory that is LOCAL to your openHABian box.
 Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
-read up on it NOW. A generic (German language) intro can be found at http://www.pc-erfahrung.de/linux/linux-mounten.html.)
+read up on it NOW. A tutorial can be found at https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux/.
 Google is your friend, but it'll give a lot of answers, each to vary slightly depending on the Linux variant or use case.
-Make sure you ask specific questions such as “how to mount a NAS disk on a raspbian raspberry pi”.
+Make sure you ask specific questions such as “how to mount a NAS disk on a raspbian buster” because that's what openHABian is.
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
 exported (= shared, i.e. made available for mounting) on that directory. This is your mountpoint.
 Let's be clear here: this only works if client AND server side are UNIX machines. And it only works to use NFS.
