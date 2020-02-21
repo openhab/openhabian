@@ -271,7 +271,8 @@ but for the AWS and local/NAS-mounted directory based backup configs, we don't h
 The `amdump` command will start the backup run itself. 
 The result will be mailed to you (if your mail system was properly configured which is currently not the case with openHABian).
 
-You can run `amreport <config>` at any time to see a report on the last backup run for that config.
+You can run `amreport [-l=logfile] <config>` at any time to see a report on the last backup run for that config.
+Use -l with a filename of /var/log/amanda/<config>/log* to get reports of past dumps.
 
 **Reminder:** you have to be logged in or use `sudo -u backup` to execute commands as the `backup` user. To accomplish that, you can also login as your ordinary user and
 use the `sudo` (execute commands with superuser privileges) and `su` (switch user) commands as shown below.
