@@ -91,7 +91,7 @@ uses functional users to execute tasks with specific access rights) for administ
 (that you have created that at the beginning of your openHABian installation or "openhabian" by default).
 Installation tasks including post-package-installation changes (edits) of the Amanda config files, require to use the `root`
 user. Any ordinary user (such as your personal one) can execute commands on behalf of root (and with root permission) by
-prepending "sudo " to the command. Prepend "sudo -u backup" to execute the following command as the "backup" user.
+prepending "sudo " to the command. As yourself, prepend "sudo -u backup" to execute the following command as the "backup" user.
 
 # Installation
 ## Storage preparation
@@ -555,7 +555,7 @@ You could also move that temporary recovered image file to your Windows PC that 
 
 and your SD card to contain the Amanda database is broken: you don't have to give up.
 Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/cron.d/amanda`).
-So you can reinstall openHABian including Amanda from scratch and copy back those files.
+So you can reinstall openHABian including Amanda from scratch and copy back those files. Eventually see `amadmin import` option.
 Even if you fail to recover your index files, you can still access the files in your storage area.
 The `amindex` command can be used to regenerate the database. How to apply unfortunately is  out of scope for this document so please g**gle if needed.
 There's also a manual way: Amanda storage files are tar files of the destination directory or compressed raw copies of partitions, both have an additional 32KB header.
