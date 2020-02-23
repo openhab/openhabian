@@ -72,6 +72,10 @@ ion into small files: Yes\\n"
   echo "${SMARTHOST}:${RELAYUSER}:${RELAYPASS}" >> "$TMP"
   cp "$TMP" "${EXIM_CLIENTCONFIG}"
   /bin/chmod o-rwx "${EXIM_CLIENTCONFIG}"
+  {
+    echo "openhab: ${RELAYUSER}";echo "openhabian: ${RELAYUSER}";
+    echo "root: ${RELAYUSER}";echo "backup: ${RELAYUSER}";
+  } >> /etc/email-addresses
   rm -f "$TMP"
 }
 
