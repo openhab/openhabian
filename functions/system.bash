@@ -202,7 +202,7 @@ misc_system_settings() {
   # user home note
   echo -e "This is your linux user's \"home\" folder.\\nPlace personal files, programs or scripts here." > "/home/$username/README.txt"
   # prepare SSH key file for the end user
-  mkdir /home/"$username"/.ssh
+  mkdir -p /home/"$username"/.ssh
   chmod 700 /home/"$username"/.ssh
   touch /home/"$username"/.ssh/authorized_keys
   chmod 600 /home/"$username"/.ssh/authorized_keys
