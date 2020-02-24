@@ -48,7 +48,7 @@ you moved your OS or parts thereof).
 **Another word of WARNING:**
 To move your system off the internal SD card does NOT solve SD corruption problems or increase reliability in any other way.
 SD cards and USB sticks use the same technology. And SSDs and HDDs still can get corrupted as well, and they can crash, too.
-You may or may not have or want to use Internet / cloud services for various reasons (privacy, bandwidth, cost), so we provide
+You may or may not want to use Internet / cloud services for various reasons (privacy, bandwidth, cost), so we provide
 you with one solution that is designed to run on local hardware only. We provide a config to use a directory as the backup
 destination. This can be a directory mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
 device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
@@ -58,8 +58,8 @@ and it doesn't make sense to use a Windows protocol to share a disk from a UNIX 
 If you don't have a NAS, DON'T use your Windows box as the storage server. Attach a USB stick to your Pi instead for storage.
 There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
 do not match your needs. You could even use it to backup all of your servers (if any) and desktop PCs, including Windows
-machines. Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
-have a clone SD card with your CURRENT config.
+machines. Either way, it's not one-or-the-other, you can run multiple configs in parallel.
+But in any case, you will need to have a clone SD card with your CURRENT config.
 
 Now all that being said, let's turn to what what you're here for: how to accomplish the software side of backup and restoration.
 
@@ -100,7 +100,7 @@ menu option in openHABian (no, we're not there yet) but to prepare your storage.
 HEADS UP: You need to provide your storage BEFORE you install Amanda.
 That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
 Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
-read up on it NOW. A generic (German language) intro can be found at http://www.pc-erfahrung.de/linux/linux-mounten.html.)
+read up on it NOW. Various tutorial can be found on the net such as https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux .
 Google is your friend, but it'll give a lot of answers, each to vary slightly depending on the Linux variant or use case.
 Make sure you ask specific questions such as “how to mount a NAS disk on a raspbian raspberry pi”.
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
