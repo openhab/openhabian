@@ -76,6 +76,15 @@ called a 'slot' inside the tape library cabinet.
 * The default dumpcycle for a openHABian install is 2 weeks. Amanda will run a 'level 0' dump (that means to backup EVERYTHING)
 once in a dumpcycle and will run 'level 1' dumps for the rest of the time (that means to only backup files that have CHANGED
 since the last level 0 dump was done, also called an 'incremental' backup).
+Amanda will combine level 0 of some devices with level 1 or 2 of others, aiming to have the more or less same amount of data
+to be backed up every day (every invocation, actually). No cannot have it do level 0 on weekends and level 1 else,
+[see FAQ](https://wiki.zmanda.com/index.php/FAQ:How_do_I_make_Amanda_do_full_backups_on_weekends_and_incrementals_during_the_week%3F).
+* Note for *raw* devices to backup such as `/dev/mmcblk0` (which is the internal SD card reader of a RPi), nothing but a level 0
+dump will work because there is no efficient way  to determine what has been changed since the last full dump.
+So if you include `/dev/mmcblk0` in your disklist, it'll be backed up on EACH run. If you don't want that (as it'll likely consume
+the by far largest part of your backup run time and capacity then remove it from the disklist. You can create a second Amanda
+configuration to only include that raw device and run it say just once every month. Essentially you need to create a copy of the
+/etc/amanda.conf/openhab-dir directory and contents, but a full explanation is out of scope for these docs.
 * Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount
 of data to be backed up. The number of tapes and their capacity (both of which are sort of artificially set when you store to a
 filesystem) determines how long your storage capacity will last until Amanda starts to overwrite old backups. 
