@@ -46,9 +46,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     if ! (whiptail --title "openHAB software change, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
-  if ! cond_redirect apt-key add openhab-key.asc; then echo "FAILED (key)"; exit 1; fi
-  rm -f openhab-key.asc
+  if ! cond_redirect wget -qO - 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab' | apt-key add -; then echo "FAILED (key)"; exit 1; fi
 
   echo "$REPO" > /etc/apt/sources.list.d/openhab2.list
   cond_redirect apt-get update
