@@ -83,24 +83,40 @@ check_command_availability_and_exit() {
 }
 
 # mount rpi image using userspace tools, in docker use privileged mount via kpartx
-mount_image_file() { # imagefile buildfolder
+mount_image_file_boot() { # imagefile buildfolder
   if ! running_in_docker && ! is_pi; then
-    guestmount -o uid=$EUID -a "$1" -m /dev/sda1 "$2/boot"
-    guestmount -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
+    guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda1 "$2/boot"
   else
     loop_prefix=`kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1`
     mount -o rw -t vfat "/dev/mapper/$(echo $loop_prefix)p1" "$buildfolder/boot"
+  fi
+}
+
+mount_image_file_root() { # imagefile buildfolder
+  if ! running_in_docker && ! is_pi; then
+    guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
+  else
+    loop_prefix=`kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1`
     mount -o rw -t ext4 "/dev/mapper/$(echo $loop_prefix)p2" "$buildfolder/root"
   fi
 }
 
+
 # umount rpi image
-umount_image_file() { # imagefile buildfolder
+umount_image_file_boot() { # imagefile buildfolder
   if ! running_in_docker && ! is_pi; then
     guestunmount "$2/boot"
-    guestunmount "$2/root"
   else
     umount "$2/boot"
+    kpartx -dv "$1"
+  fi
+}
+
+# umount rpi image
+umount_image_file_root() { # imagefile buildfolder
+  if ! running_in_docker && ! is_pi; then
+    guestunmount "$2/root"
+  else
     umount "$2/root"
     kpartx -dv "$1"
   fi
@@ -170,6 +186,8 @@ buildfolder=/tmp/build-$hw_platform-image
 imagefile=$buildfolder/$hw_platform.img
 umount $buildfolder/boot &>/dev/null || true
 umount $buildfolder/root &>/dev/null || true
+guestunmount $buildfolder/boot &>/dev/null || true
+guestunmount $buildfolder/root &>/dev/null || true
 rm -rf $buildfolder
 mkdir $buildfolder
 
@@ -262,21 +280,26 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
 
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
-  mount_image_file "$imagefile" "$buildfolder"
 
-  echo_process "Setting hostname, reactivating SSH... "
+  mount_image_file_root "$imagefile" "$buildfolder"
+  echo_process "Setting hostname... "
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" $buildfolder/root/etc/hosts
   echo "$hostname" > $buildfolder/root/etc/hostname
-  touch $buildfolder/boot/ssh
 
   echo_process "Injecting 'rc.local', 'first-boot.bash' and 'openhabian.conf'... "
   cp $sourcefolder/rc.local $buildfolder/root/etc/rc.local
+  touch $buildfolder/root/opt/openHABian-install-inprogress
+  # maybe we should use a trap to get this done in case of error
+  umount_image_file_root "$imagefile" "$buildfolder"
+
+  echo_process "Reactivating SSH... "
+  mount_image_file_boot "$imagefile" "$buildfolder"
+  touch $buildfolder/boot/ssh
   cp $sourcefolder/first-boot.bash $buildfolder/boot/first-boot.bash
   sed -i -e '1r functions/helpers.bash' $buildfolder/boot/first-boot.bash # Add platform identification
   touch $buildfolder/boot/first-boot.log
   unix2dos -n $sourcefolder/openhabian.$hw_platform.conf $buildfolder/boot/openhabian.conf
   cp $sourcefolder/webif.bash $buildfolder/boot/webif.bash
-  touch $buildfolder/root/opt/openHABian-install-inprogress
 
   # Injecting development git repo if clone_string is set and watermark build
   if ! [ -z ${clone_string+x} ]; then
@@ -286,7 +309,7 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   echo_process "Closing up image file... "
   sync
   # maybe we should use a trap to get this done in case of error
-  umount_image_file "$imagefile" "$buildfolder"
+  umount_image_file_boot "$imagefile" "$buildfolder"
 fi
 
 echo_process "Moving image and cleaning up... "
