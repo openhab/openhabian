@@ -59,7 +59,7 @@ OLDWD=$(pwd) && cd /opt
 if [[ -n "$UNATTENDED" ]]; then
   # apt/dpkg commands will not try interactive dialogs
   export DEBIAN_FRONTEND=noninteractive
-  apt-get update
+  cond_redirect apt-get update
   load_create_config
   timezone_setting
   locale_setting
