@@ -146,6 +146,8 @@ echo -n "$(timestamp) [openHABian] Installing git package... "
 if apt-get -y install git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 echo -n "$(timestamp) [openHABian] Cloning myself... "
+# make sure current dir is not opt openhabian, then clean it, then clone the repo
+cd /tmp
 if [ -d /opt/openhabian/ ]; then rm -rf /opt/openhabian/; fi
 if git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
