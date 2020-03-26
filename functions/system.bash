@@ -212,7 +212,7 @@ misc_system_settings() {
   mkdir -p /var/log/journal
   systemd-tmpfiles --create --prefix /var/log/journal
   echo "Keeping at most 30 days of systemd journal entries"
-  journalctl --vacuum-time=30d
+  journalctl -q --vacuum-time=30d
   # A distinguishable apt User-Agent
   echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent
   #
