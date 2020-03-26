@@ -21,8 +21,6 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     TESTING=1
   fi
 
-  cond_redirect apt-get -y install apt-transport-https
-
   if [ -z "$UNSTABLE" ]; then
     if [ -z "$TESTING" ]; then
       echo -n "$(timestamp) [openHABian] Installing or upgrading to latest openHAB release (stable)... "
