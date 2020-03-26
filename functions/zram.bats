@@ -36,12 +36,14 @@ check_zram_mounts() {
 
 
 @test "destructive-zram" {
+  echo -e "# \e[32mInstallation and availability of zram mounts" >&3-
+
   run init_zram_mounts install
   [ "$status" -eq 0 ]
 
   run check_zram_mounts
   [ "$status" -eq 0 ]
 
-  echo -e "# \e[32mInstallation and availability of zram mounts verified." >&3
+  echo -e "# \e[32mInstallation and availability of zram mounts verified." >&3-
 }
 
