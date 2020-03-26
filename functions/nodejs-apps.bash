@@ -56,7 +56,6 @@ nodered_setup() {
   FAILED=0
   cond_redirect wget -O /tmp/update-nodejs-and-nodered.sh https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered || FAILED=1
   cond_redirect chmod +x /tmp/update-nodejs-and-nodered.sh || FAILED=1
-  cond_redirect ln -sf /tmp/update-nodejs-and-nodered.sh /usr/bin/update-nodejs-and-nodered || FAILED=1
   cond_redirect /usr/bin/sudo -u "${username:-openhabian}" -H sh -c "/tmp/update-nodejs-and-nodered.sh" || FAILED=1
   if [ $FAILED -eq 1 ]; then echo "FAILED (nodered)"; exit 1; fi
   if ! cond_redirect npm install -g node-red-contrib-bigtimer; then echo "FAILED (nodered bigtimer addon)"; exit 1; fi
