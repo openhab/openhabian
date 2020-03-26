@@ -48,7 +48,7 @@ you moved your OS or parts thereof).
 **Another word of WARNING:**
 To move your system off the internal SD card does NOT solve SD corruption problems or increase reliability in any other way.
 SD cards and USB sticks use the same technology. And SSDs and HDDs still can get corrupted as well, and they can crash, too.
-You may or may not have or want to use Internet / cloud services for various reasons (privacy, bandwidth, cost), so we provide
+You may or may not want to use Internet / cloud services for various reasons (privacy, bandwidth, cost), so we provide
 you with one solution that is designed to run on local hardware only. We provide a config to use a directory as the backup
 destination. This can be a directory mounted from your NAS (if you have one), a USB-attached storage stick, hard drive, or other
 device. We also provide a config to store your most important data on Amazon Web Services if you are not afraid of that.
@@ -58,8 +58,8 @@ and it doesn't make sense to use a Windows protocol to share a disk from a UNIX 
 If you don't have a NAS, DON'T use your Windows box as the storage server. Attach a USB stick to your Pi instead for storage.
 There's many more possible configurations, the software is very flexible and you can tailor it to your own needs if those offers
 do not match your needs. You could even use it to backup all of your servers (if any) and desktop PCs, including Windows
-machines. Either way, it's not one-or-the-other, you can run multiple configs in parallel. But in any case, you will need to
-have a clone SD card with your CURRENT config.
+machines. Either way, it's not one-or-the-other, you can run multiple configs in parallel.
+But in any case, you will need to have a clone SD card with your CURRENT config.
 
 Now all that being said, let's turn to what what you're here for: how to accomplish the software side of backup and restoration.
 
@@ -76,6 +76,15 @@ called a 'slot' inside the tape library cabinet.
 * The default dumpcycle for a openHABian install is 2 weeks. Amanda will run a 'level 0' dump (that means to backup EVERYTHING)
 once in a dumpcycle and will run 'level 1' dumps for the rest of the time (that means to only backup files that have CHANGED
 since the last level 0 dump was done, also called an 'incremental' backup).
+Amanda will combine level 0 of some devices with level 1 or 2 of others, aiming to have the more or less same amount of data
+to be backed up every day (every invocation, actually). No cannot have it do level 0 on weekends and level 1 else,
+[see FAQ](https://wiki.zmanda.com/index.php/FAQ:How_do_I_make_Amanda_do_full_backups_on_weekends_and_incrementals_during_the_week%3F).
+* Note for *raw* devices to backup such as `/dev/mmcblk0` (which is the internal SD card reader of a RPi), nothing but a level 0
+dump will work because there is no efficient way  to determine what has been changed since the last full dump.
+So if you include `/dev/mmcblk0` in your disklist, it'll be backed up on EACH run. If you don't want that (as it'll likely consume
+the by far largest part of your backup run time and capacity then remove it from the disklist. You can create a second Amanda
+configuration to only include that raw device and run it say just once every month. Essentially you need to create a copy of the
+/etc/amanda.conf/openhab-dir directory and contents, but a full explanation is out of scope for these docs.
 * Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount
 of data to be backed up. The number of tapes and their capacity (both of which are sort of artificially set when you store to a
 filesystem) determines how long your storage capacity will last until Amanda starts to overwrite old backups. 
@@ -91,16 +100,16 @@ uses functional users to execute tasks with specific access rights) for administ
 (that you have created that at the beginning of your openHABian installation or "openhabian" by default).
 Installation tasks including post-package-installation changes (edits) of the Amanda config files, require to use the `root`
 user. Any ordinary user (such as your personal one) can execute commands on behalf of root (and with root permission) by
-prepending "sudo " to the command.
+prepending "sudo " to the command. As yourself, prepend "sudo -u backup" to execute the following command as the "backup" user.
 
 # Installation
 ## Storage preparation
 Now once you read up on all of this and feel you have understood this stuff, the next step will NOT be hit that 'Amanda install' 
 menu option in openHABian (no, we're not there yet) but to prepare your storage.
-HEADS UP: You need to "create" (or "provide", actually) your storage BEFORE you install Amanda.
+HEADS UP: You need to provide your storage BEFORE you install Amanda.
 That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
 Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
-read up on it NOW. A generic (German language) intro can be found at http://www.pc-erfahrung.de/linux/linux-mounten.html.)
+read up on it NOW. Various tutorial can be found on the net such as https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux .
 Google is your friend, but it'll give a lot of answers, each to vary slightly depending on the Linux variant or use case.
 Make sure you ask specific questions such as “how to mount a NAS disk on a raspbian raspberry pi”.
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
@@ -120,7 +129,6 @@ USB stick identified as `/dev/sda8` (Linux ext4) and `/dev/sda1` and Windows vfa
 HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
 Do not deploy these commands unless you are fully aware what they will do to your system, using a command with a wrong device 
 name can destroy your system.
-
 
 ### NAS mount example
 
@@ -199,7 +207,14 @@ root@pi:/home/pi#
 
 ## Software installation
 
-Next (but only AFTER you successfully mounted/prepared your storage !), install Amanda using the openHABian menu.
+First, mount/prepare your storage (see examples).
+Next, double check that your `backup` user has write access to all of the storage area (preferrably, he `owns` the directory):
+*Create* a file there (`touch /path/to/storage/file`), check its ownership (`ls -l /path/to/storage/file`), then delete it
+(`rm /path/to/storage/file`).
+If that does not work as expected (to produce a file that is owned by the `backup` user), you need to change export options
+on your NAS/NFS server. See also [paragraph on `no_root_squash`](#Storage preparation) above.
+
+Now finally, install Amanda using the openHABian menu.
 When you start the Amanda installation from the openHABian menu, the install routine will create a directory/link structure in
 the directory you tell it. Your local user named "backup" will need to have write access there. Amanda install routine should do
 that for you, but it only CAN do it for you if you created/mounted it before you ran the installation.
@@ -217,7 +232,7 @@ your SD disk NOW. If you choose not to include it (or selected the AWS S3 varian
 a lot less data and you need to estimate it by adding up the size of the config directories that are listed in the `disklist` 
 file. If you don't have any idea and chose to NOT backup your SD card, enter 1024 (= 1 GByte). If you chose to backup it, the number
 should be larger than the SD capacity in megabytes plus 1024.
-You can change it in the Amanda config file at any later time (the entry below the line reading `define tapetype DIRECTORY {`.
+You can change it in the Amanda config file at any later time (the entry below the line reading `define tapetype DIRECTORY {`).
 * "Backup raw SD card ?" (not asked if you selected AWS S3 storage)
 Answer "yes" if you want to create raw disk backups of your SD card. This is only recommended if your SD card is 8GB or less in
 size, otherwise the backup can take too long. You can always add/remove this by editing `${confdir}/disklist` at a later time.
@@ -265,9 +280,10 @@ but for the AWS and local/NAS-mounted directory based backup configs, we don't h
 The `amdump` command will start the backup run itself. 
 The result will be mailed to you (if your mail system was properly configured which is currently not the case with openHABian).
 
-You can run `amreport <config>` at any time to see a report on the last backup run for that config.
+You can run `amreport [-l=logfile] <config>` at any time to see a report on the last backup run for that config.
+Use -l with a filename of /var/log/amanda/<config>/log* to get reports of past dumps.
 
-**Reminder:** you have to be logged in as the `backup` user. To accomplish that, you can also login as your ordinary user and
+**Reminder:** you have to be logged in or use `sudo -u backup` to execute commands as the `backup` user. To accomplish that, you can also login as your ordinary user and
 use the `sudo` (execute commands with superuser privileges) and `su` (switch user) commands as shown below.
 
 ```
@@ -359,6 +375,68 @@ backup@pi:~$ amcheck openhab-dir
 
 ## Restore
 
+### Locating a backup
+
+Depending on the type of storage medium, you eventually may need to locate which volume a wanted backup is stored on.
+You can use the `amadmin` and eventually `amtape` commands to do this:
+
+```
+[14:24:16] backup@openhabianpi:~$ amadmin openhab-dir find  openhabianpi /dev/mmcblk0 /var/lib/openhab2
+
+date                host         disk              lv storage     pool        tape or file    file part  status
+2019-12-06 01:00:02 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-005    5   1/1 OK
+2019-12-07 01:00:02 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-008    5   1/1 OK
+2019-12-08 01:00:02 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-009    5   1/1 OK
+2019-12-09 01:00:03 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-010    5   1/1 OK
+2019-12-10 01:00:06 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-011    5   1/1 OK
+2019-12-11 01:00:03 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-012    5   1/1 OK
+2019-12-12 01:00:04 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-013    5   1/1 OK
+2019-12-13 01:00:04 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-014    5   1/1 OK
+2019-12-14 01:00:03 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-015    5   1/1 OK
+2019-12-15 01:00:06 openhabianpi /dev/mmcblk0       0                                            0 -1/-1 FAILED (planner) "[/usr/lib/amanda/application/amraw terminated with signal 15: see /var/log/amanda/client/openhab-dir/sendsize.20191215010011.debug]"
+2019-12-16 01:00:03 openhabianpi /dev/mmcblk0       0                                            0 -1/-1 FAILED (planner) "[missing result for /dev/mmcblk0 in openhabianpi response]"
+2019-12-17 01:00:03 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-018    5   1/1 OK
+2019-12-18 01:00:02 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-019    5   1/1 OK
+2019-12-19 01:00:02 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-006    5   1/1 OK
+2019-12-30 01:00:03 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-007    5   1/1 OK
+2019-12-06 01:00:02 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-005    1   1/1 OK
+2019-12-07 01:00:02 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-008    1   1/1 OK
+2019-12-08 01:00:02 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-009    1   1/1 OK
+2019-12-09 01:00:03 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-010    1   1/1 OK
+2019-12-10 01:00:06 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-011    1   1/1 OK
+2019-12-11 01:00:03 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-012    1   1/1 OK
+2019-12-12 01:00:04 openhabianpi /var/lib/openhab2  1 openhab-dir openhab-dir openhab-dir-013    2   1/1 OK
+2019-12-13 01:00:04 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-014    1   1/1 OK
+2019-12-14 01:00:03 openhabianpi /var/lib/openhab2  1 openhab-dir openhab-dir openhab-dir-015    2   1/1 OK
+2019-12-15 01:00:06 openhabianpi /var/lib/openhab2  1 openhab-dir openhab-dir openhab-dir-016    2   1/1 OK
+2019-12-17 01:00:03 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-018    1   1/1 OK
+2019-12-18 01:00:02 openhabianpi /var/lib/openhab2  1 openhab-dir openhab-dir openhab-dir-019    1   1/1 OK
+2019-12-19 01:00:02 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-006    1   1/1 OK
+2019-12-30 01:00:03 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-007    1   1/1 OK
+```
+
+`amtape` can show which volume is in which slot:
+
+```
+  [13:59:15] backup@openhabianpi:~$ amtape openhab-dir show
+  scanning all 15 slots in changer:
+  slot   1: date 20191215010006 label openhab-dir-016
+  slot   2: date 20191216010003 label openhab-dir-017
+  slot   3: date 20191217010003 label openhab-dir-018
+  slot   4: date 20191218010002 label openhab-dir-019
+  slot   5: in use
+  slot   6: date 20191219010002 label openhab-dir-006
+  slot   7: date 20191230010003 label openhab-dir-007
+  slot   8: date 20191207010002 label openhab-dir-008
+  slot   9: date 20191208010002 label openhab-dir-009
+  slot  10: date 20191209010003 label openhab-dir-010
+  slot  11: date 20191210010006 label openhab-dir-011
+  slot  12: date 20191211010003 label openhab-dir-012
+  slot  13: date 20191212010004 label openhab-dir-013
+  slot  14: date 20191213010004 label openhab-dir-014
+  slot  15: date 20191214010003 label openhab-dir-015
+```
+
 ### Restoring a file
 
 To restore a file, you need to use the `amrecover` command as the `root` user.
@@ -439,16 +517,18 @@ Here’s another terminal session log to use `amfetchdump` to first retrieve the
 **Reminder:** you have to be logged in as the `backup` user. 
 
 ```
-backup@pi:/server/temp$ amfetchdump -p openhab-dir pi /dev/mmcblk0 > /server/temp/openhabianpi-image
+backup@pi:/server/temp$ amfetchdump -p openhab-dir openhabianpi /dev/mmcblk0 20191218010002  > /server/temp/openhabianpi-image
  1 volume(s) needed for restoration
   The following volumes are needed: openhab-openhab-dir-001
   Press enter when ready
 ```
 
-Before you actually press enter, you should get ready, by opening another terminal window and letting Amanda know in which slot the required
-tape is (you can do this also before starting the `amfetchdump` command). You have to find the slot yourself by checking their content. Once
-you find out the requested file (probably starting with `00000.`), you redirect amanda to use the slot which contains the file (e.g. slot 1)
-using this:
+Remember to specify the date. If you don't, Amanda will restore ALL available dumps. That likely is not what you want.
+When the partition(s) you specify to restore are stored across multiple (virtual) tapes, Amanda will eventually ask you to mount
+ a specific volume (put a virtual tape into a virtual tape drive).
+Be prepared and have another terminal window open as the backup user.
+Use `amadmin` (see above) to find out where a specific backup is located.
+When in need, you can instruct Amanda to load a specific volume like this:
 
 ```
 backup@pi:/server/temp$ amtape openhab-dir slot 1
@@ -485,9 +565,10 @@ You could also move that temporary recovered image file to your Windows PC that 
 
 and your SD card to contain the Amanda database is broken: you don't have to give up.
 Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/cron.d/amanda`).
-So you can reinstall openHABian including Amanda from scratch and copy back those files.
+So you can reinstall openHABian including Amanda from scratch and copy back those files. Eventually see `amadmin import` option.
 Even if you fail to recover your index files, you can still access the files in your storage area.
-Amanda storage files are tar files of the destination directory or compressed raw copies of partitions, both have an additional 32KB header.
+The `amindex` command can be used to regenerate the database. How to apply unfortunately is  out of scope for this document so please g**gle if needed.
+There's also a manual way: Amanda storage files are tar files of the destination directory or compressed raw copies of partitions, both have an additional 32KB header.
 If you just want to retrieve some files from a partition backup file, you can mount that file. See https://major.io/2010/12/14/mounting-a-raw-partition-file-made-with-dd-or-dd_rescue-in-linux/.
 Here's examples how to decode them:
 
