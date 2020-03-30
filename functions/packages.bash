@@ -430,10 +430,10 @@ nginx_setup() {
   fi
 
   function comment {
-    sed -i "$1"' s/^/#/' "$2"
+    sed -e "/[[:space:]]$1/ s/^#*/#/g" -i "$2"
   }
   function uncomment {
-    sed -i "$1"' s/^ *#//' "$2"
+    sed -e "/$1/s/^$1//g" -i "$2"
   }
 
   echo "Installing DNS utilities..."
@@ -530,7 +530,7 @@ nginx_setup() {
       apt-get -y -q install apache2-utils || FAILED=true
       echo "Creating password file..."
       htpasswd -b -c /etc/nginx/.htpasswd "$username" "$password"
-      uncomment 32,33 /etc/nginx/sites-enabled/openhab
+      uncomment "#AUTH" /etc/nginx/sites-enabled/openhab
     fi
 
     if [ "$SECURE" = true ]; then
@@ -558,7 +558,7 @@ nginx_setup() {
         echo "Installing certbot..."
         apt-get -y -q --force-yes install "${certbotpackage}" "${certbotoption}" "${certbotrepo}"
         mkdir -p /var/www/$domain
-        uncomment 37,39 /etc/nginx/sites-enabled/openhab
+        uncomment "#WEBROOT" /etc/nginx/sites-enabled/openhab
         nginx -t && service nginx reload
         echo "Creating Let's Encrypt certificate..."
         certbot certonly --webroot -w /var/www/$domain -d $domain || FAILED=true #This will cause a prompt
@@ -574,12 +574,12 @@ nginx_setup() {
         openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout $keypath -out $certpath || FAILED=true #This will cause a prompt
       fi
       if [ "$FAILED" = false ]; then
-        uncomment 20,21 /etc/nginx/sites-enabled/openhab
+        uncomment "#CERT" /etc/nginx/sites-enabled/openhab
         sed -i "s|CERTPATH|${certpath}|g" /etc/nginx/sites-enabled/openhab
         sed -i "s|KEYPATH|${keypath}|g" /etc/nginx/sites-enabled/openhab
-        uncomment 6,10 /etc/nginx/sites-enabled/openhab
-        uncomment 15,17 /etc/nginx/sites-enabled/openhab
-        comment 14 /etc/nginx/sites-enabled/openhab
+        uncomment "#REDIR" /etc/nginx/sites-enabled/openhab
+        comment "listen" /etc/nginx/sites-enabled/openhab
+        uncomment "#SSL" /etc/nginx/sites-enabled/openhab
       fi
     fi
     nginx -t && systemctl reload nginx.service || FAILED=true
