@@ -1,12 +1,13 @@
 #!/usr/bin/env bash
 
 wifi_setup() {
-  echo -n "$(timestamp) [openHABian] Setting up Wifi (PRi3 or Pine A64)... "
-  if ! is_pithree && ! is_pithreeplus && ! is_pizerow && ! is_pine64; then
+  local question="We could not any WiFi hardware on your system.\\nYou are not running any of supported systems RPi4, RPi3, RPi0W or Pine to have WiFi builtin, but we cannot detect all possible WiFi hardware.\\nDo you really want to continue and have openHABian try to setup WiFi ?"
+  echo -n "$(timestamp) [openHABian] Setting up WiFi (PRi3 or Pine A64)... "
+
+  if ! is_pifour && ! is_pithree && ! is_pithreeplus && ! is_pizerow && ! is_pine64; then
     if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Incompatible Hardware Detected" --msgbox "Wifi setup: This option is for the Pi3, Pi0W or the Pine A64 system only." 10 60
+      if ! (whiptail --title "No WiFi Hardware Detected" --yesno "$question" 10 80); then echo "FAILED"; return 1; fi
     fi
-    echo "FAILED"; return 1
   fi
   if [ -n "$INTERACTIVE" ]; then
     if ! SSID=$(whiptail --title "Wifi Setup" --inputbox "Which Wifi (SSID) do you want to connect to?" 10 60 3>&1 1>&2 2>&3); then return 1; fi
@@ -22,15 +23,15 @@ wifi_setup() {
     if grep -q "^${WIFICOUNTRY^^}\\s" /usr/share/zoneinfo/zone.tab; then
       WIFICOUNTRY=${WIFICOUNTRY^^}
     else
-      whiptail --title "Wifi Setup" --msgbox "${WIFICOUNTRY} is not a valid country code found in /usr/share/zoneinfo/zone.tab" 10 60
+      whiptail --title "WiFi Setup" --msgbox "${WIFICOUNTRY} is not a valid country code found in /usr/share/zoneinfo/zone.tab" 10 60
       echo "${WIFICOUNTRY} is not a valid country code found in /usr/share/zoneinfo/zone.tab"; return 1
     fi
   else
     echo -n "Setting default SSID and password in 'wpa_supplicant.conf' "
-    SSID="myWifiSSID"
-    PASS="myWifiPassword"
+    SSID="myWiFiSSID"
+    PASS="myWiFiPassword"
   fi
-  if is_pithree || is_pithreeplus; then cond_redirect apt-get -y install firmware-brcm80211; fi
+  if is_pifour || is_pithree || is_pithreeplus; then cond_redirect apt-get -y install firmware-brcm80211; fi
   if is_pithreeplus; then
     if iwlist wlan0 scanning 2>&1 | grep -q "Interface doesn't support scanning"; then
       # wifi might be blocked
@@ -67,7 +68,7 @@ wifi_setup() {
   cond_redirect ifdown wlan0
   cond_redirect ifup wlan0
   if [ -n "$INTERACTIVE" ]; then
-    whiptail --title "Operation Successful!" --msgbox "Setup was successful. Your Wifi credentials were NOT tested. Please reboot now." 15 80
+    whiptail --title "Operation Successful!" --msgbox "Setup was successful. Your WiFi credentials were NOT tested. Please reboot now." 15 80
   fi
   echo "OK (Reboot needed)"
 }
