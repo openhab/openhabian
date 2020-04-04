@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 wifi_setup() {
-  local question="We could not any WiFi hardware on your system.\\nYou are not running any of supported systems RPi4, RPi3, RPi0W or Pine to have WiFi builtin, but we cannot detect all possible WiFi hardware.\\nDo you really want to continue and have openHABian try to setup WiFi ?"
+  local question="We could not detect any WiFi hardware on your system.\\nYou are not running any of supported systems RPi4, RPi3, RPi0W or Pine to have WiFi builtin, but we cannot detect all possible WiFi hardware.\\nDo you really want to continue and have openHABian try to setup WiFi ?"
   echo -n "$(timestamp) [openHABian] Setting up WiFi (PRi3 or Pine A64)... "
 
   if ! is_pifour && ! is_pithree && ! is_pithreeplus && ! is_pizerow && ! is_pine64; then
