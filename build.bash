@@ -55,11 +55,11 @@ inject_build_repo() {
     echo_process "inject_build_repo() invoked without clone_string varible set, exiting...."
     exit 1
   fi
-  sed -i '$a /usr/bin/apt-get -y install figlet &>/dev/null' $1
-  sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' $1
-  sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' $1
-  sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' $1
-  sed -i "s@master https://github.com/openhab/openhabian.git@$clone_string@g" $1
+  sed -i '$a /usr/bin/apt-get -y install figlet &>/dev/null' "$1"
+  sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' "$1"
+  sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' "$1"
+  sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' "$1"
+  sed -i "s#master https://github.com/openhab/openhabian.git#$clone_string#g" "$1"
 }
 
 ## Function for checking if a command is available.
@@ -128,6 +128,7 @@ umount_image_file_root() { # imagefile buildfolder
 ############################
 
 timestamp=$(date +%Y%m%d%H%M)
+file_tag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
 
 # Identify hardware platform
@@ -156,21 +157,27 @@ elif [ "$1" == "local-test" ]; then
   exit 0
 else
   echo_process "Please provide a valid hardware platform as first argument, \"rpi\" or \"pine64\"  Exiting."
-  exit 0
+  exit 1
 fi
 
 # Check if a specific repository shall be included
 if [ "$2" == "dev-git" ]; then # Use current git repo and branch as a development image
+  file_tag=custom
   get_git_repo
   echo_process "Injecting current branch and git repo when building this image, make sure to push local content to:"
   echo_process $clone_string
 
 elif [ "$2" == "dev-url" ]; then # Use custom git server as a development image
+  file_tag=custom
   clone_string=$3
   clone_string+=" "
   clone_string+=$4
-  echo_process "Injecting current branch and git repo when building this image, make sure to push local content to:"
+  echo_process "Injecting given git repo when building this image, make sure to push local content to:"
   echo_process $clone_string
+
+elif [ "x$2" != "x" ]; then
+  echo_process "Unknown parameter \"$2\". Exiting."
+  exit 1
 fi
 
 # Switch to the script folder
@@ -186,8 +193,8 @@ buildfolder=/tmp/build-$hw_platform-image
 imagefile=$buildfolder/$hw_platform.img
 umount $buildfolder/boot &>/dev/null || true
 umount $buildfolder/root &>/dev/null || true
-guestunmount $buildfolder/boot &>/dev/null || true
-guestunmount $buildfolder/root &>/dev/null || true
+guestunmount --no-retry $buildfolder/boot &>/dev/null || true
+guestunmount --no-retry $buildfolder/root &>/dev/null || true
 rm -rf $buildfolder
 mkdir $buildfolder
 
@@ -267,11 +274,11 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   fi
   check_command_availability_and_exit "$REQ_COMMANDS" "$REQ_PACKAGES"
 
-  echo_process "Downloading latest Raspbian Lite image... "
   if [ -f "raspbian.zip" ]; then
-    echo "(Using local copy...)"
+    echo_process "Using local copy of Raspbian Lite image, raspbian.zip... "
     cp raspbian.zip $buildfolder/raspbian.zip
   else
+    echo_process "Downloading latest Raspbian Lite image (no local copy raspbian.zip found)... "
     wget -nv -O $buildfolder/raspbian.zip "https://downloads.raspberrypi.org/raspbian_lite_latest"
   fi
   echo_process "Unpacking image... "
@@ -315,7 +322,7 @@ fi
 echo_process "Moving image and cleaning up... "
 shorthash=$(git log --pretty=format:'%h' -n 1)
 crc32checksum=$(crc32 $imagefile)
-destination="openhabian-$hw_platform-$timestamp-git$shorthash-crc$crc32checksum.img"
+destination="openhabian-$hw_platform-$timestamp-git$file_tag$shorthash-crc$crc32checksum.img"
 mv -v $imagefile "$destination"
 rm -rf $buildfolder
 
@@ -323,7 +330,7 @@ echo_process "Compressing image... "
 # speedup compression, T0 will use all cores and should be supported by reasonably new versions of xz
 xz --verbose --compress --keep -T0 "$destination"
 crc32checksum=$(crc32 "$destination.xz")
-mv "$destination.xz" "openhabian-$hw_platform-$timestamp-git$shorthash-crc$crc32checksum.img.xz"
+mv "$destination.xz" "openhabian-$hw_platform-$timestamp-git$file_tag$shorthash-crc$crc32checksum.img.xz"
 
 echo_process "Finished! The results:"
 ls -alh "openhabian-$hw_platform-$timestamp"*
