@@ -1,5 +1,9 @@
 #!/bin/bash
 
+REPOSITORYURL=$(grep -i '^repositoryurl' /etc/openhabian.conf | cut -d '=' -f2)
+CLONEBRANCH=$(grep -i '^clonebranch' /etc/openhabian.conf | cut -d '=' -f2)
+export REPOSITORYURL CLONEBRANCH
+
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND=noninteractive
 
@@ -27,7 +31,7 @@ source /etc/openhabian.conf
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Starting webserver with installation log... "
-if hash python 2>/dev/null; then
+if hash python3 2>/dev/null; then
   bash /boot/webif.bash start
   sleep 5
   webifisrunning=$(ps -ef | pgrep python3)
@@ -110,12 +114,7 @@ else
 fi
 
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
-cnt=0
-until ping -c1 9.9.9.9 &>/dev/null || [ "$(wget -qO- http://www.msftncsi.com/ncsi.txt)" == "Microsoft NCSI" ]; do
-  sleep 1
-  cnt=$((cnt + 1))
-  #echo -n ". "
-  if [ $cnt -eq 100 ]; then
+if tryUntil "ping -c1 9.9.9.9 >/dev/null || wget -S -t 3 --waitretry=4 http://www.msftncsi.com/ncsi.txt 2>&1 | grep -q 'Microsoft NCSI'" 10 1; then
     echo "FAILED"
     if grep -q "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig 2>&1 | grep -q "ESSID:off"; then
       echo "$(timestamp) [openHABian] I was not able to connect to the configured Wi-Fi. Please check your signal quality. Reachable Wi-Fi networks are:"
@@ -128,7 +127,6 @@ until ping -c1 9.9.9.9 &>/dev/null || [ "$(wget -qO- http://www.msftncsi.com/ncs
     fi
     fail_inprogress
   fi
-done
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
@@ -140,14 +138,14 @@ echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed
 apt-get --yes --fix-broken install &>/dev/null
 if apt-get --yes upgrade &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-if hash python 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
+if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
 if apt-get -y install git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-echo -n "$(timestamp) [openHABian] Cloning myself... "
-if [ -d /opt/openhabian/ ]; then rm -rf /opt/openhabian/; fi
-if git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+echo -n "$(timestamp) [openHABian] Cloning myself from ${REPOSITORYURL}, ${CLONEBRANCH} branch... "
+if [ -d /opt/openhabian/ ]; then cd /opt && rm -rf /opt/openhabian/; fi
+if git clone -q -b "$CLONEBRANCH" "$REPOSITORYURL" /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 echo "$(timestamp) [openHABian] Executing 'openhabian-setup.sh unattended'... "
@@ -162,21 +160,17 @@ fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed."
 
 echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready..."
-i=0
-until wget -S --spider -t 4 --waitretry=8 http://localhost:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK' || [ $i -ge 20 ]; do
-  sleep 10
-  ((i++))
-  echo -n "${i}.."
-done
-if [ $i -ge 20 ]; then echo "failed."; exit 1; fi
+
+# this took ~130 seconds on a RPi2
+if tryUntil "wget -S --spider -t 3 --waitretry=4 http://localhost:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 20 10; then echo "failed."; exit 1; fi
 echo "OK"
 
 echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://${hostname:-openhab}:8080"
 echo "$(timestamp) [openHABian] To gain access to a console, simply reconnect."
 echo "$(timestamp) [openHABian] First time setup successfully finished."
 sleep 12
-if hash python 2>/dev/null; then bash /boot/webif.bash inst_done; fi
+if hash python3 2>/dev/null; then bash /boot/webif.bash inst_done; fi
 sleep 12
-if hash python 2>/dev/null; then bash /boot/webif.bash cleanup; fi
+if hash python3 2>/dev/null; then bash /boot/webif.bash cleanup; fi
 
 # vim: filetype=sh

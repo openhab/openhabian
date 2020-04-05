@@ -120,7 +120,6 @@ create_backup_config() {
 }
 
 amanda_setup() {
-
   local querytext="So you are about to install the Amanda backup solution.\\nDocumentation is available at the previous openHABian menu point,\\nat /opt/openhabian/docs/openhabian-amanda.md or at https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md\\nHave you read this document ?"
   local introtext="This will setup a backup mechanism to allow for saving your openHAB setup and modifications to either USB attached or Amazon cloud storage.\\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an all-ready replacement in case of card failures."
   local successtext="Setup was successful. Amanda backup tool is now taking backups at 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
@@ -143,7 +142,7 @@ amanda_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up the Amanda backup system ... "
   local backupuser="backup"
-  cond_redirect apt-get -y install amanda-common amanda-server amanda-client
+  cond_redirect apt-get -q -y install amanda-common amanda-server amanda-client
 
   local matched=false
   local canceled=false
