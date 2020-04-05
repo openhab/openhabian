@@ -19,7 +19,7 @@ echo_process() { echo -e "$(timestamp) [openHABian] $*"; }
 ##      cond_redirect(bash command)
 ##
 cond_redirect() {
-    echo -e "\n$COL_DGRAY\$ $@ $COL_DEF"
+    echo -e "\\n$COL_DGRAY\$ $* $COL_DEF"
     "$@"
     return $?
 }
