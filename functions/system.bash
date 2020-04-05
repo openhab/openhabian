@@ -348,10 +348,12 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
 
   if [[ $selection == *"3"* ]]; then
     cond_echo "Adding serial ports to openHAB java virtual machine in /etc/default/openhab2"
-    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms192m -Xmx320m -Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"#g' /etc/default/openhab2
+    # eventually keep user defined settings
+    sed -i "/^[[:space:]]*EXTRA_JAVA_OPTS/s/-Dgnu.io.rxtx.SerialPorts=[^ \"]*//g" /etc/default/openhab2
+    sed -i "/^[[:space:]]*EXTRA_JAVA_OPTS/s#EXTRA_JAVA_OPTS[[:space:]]*=[[:space:]]*\"#EXTRA_JAVA_OPTS=\"-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0 #g" /etc/default/openhab2
   else
     cond_echo "Removing serial ports from openHAB java virtual machine in /etc/default/openhab2"
-    sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"#g' /etc/default/openhab2
+    sed -i "/^[[:space:]]*EXTRA_JAVA_OPTS/s/-Dgnu.io.rxtx.SerialPorts=[^ \"]*//g" /etc/default/openhab2
   fi
 
   if [ -n "$INTERACTIVE" ]; then

@@ -73,7 +73,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
 
   if is_pi || is_pine64; then
     cond_echo "Optimizing Java to run on low memory single board computers... "
-    if is_pizerow; then
+    if is_pizerow || is_pione ; then
       sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"#g' /etc/default/openhab2
     else
       sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"#g' /etc/default/openhab2
