@@ -11,7 +11,7 @@ port=80 # Port the webserver is listing to
 source /etc/openhabian.conf # to get the hostname
 
 if [ "$1" = "start" ]; then
-  mkdir /tmp/webif 2>/dev/null
+  mkdir -p /tmp/webif
   ln -s /boot/first-boot.log /tmp/webif/first-boot.txt
   # shellcheck disable=SC2016
   echo '<html>
@@ -31,6 +31,7 @@ if [ "$1" = "start" ]; then
   (cd /tmp/webif || exit 1; python3 -m http.server $port > /dev/null 2>&1 &)
 fi
 
+# changed to python3 due to issues in automated testing
 if [ "$1" = "reinsure_running" ]; then
   webifrunning=$(ps -ef | pgrep python3)
   if [ -z "$webifrunning" ]; then
@@ -40,7 +41,7 @@ fi
 
 if [ "$1" = "inst_done" ]; then
   # dir was eventually deleted by reboot 
-  mkdir /tmp/webif 2>/dev/null
+  mkdir -p /tmp/webif
   # shellcheck disable=SC2016
   echo '<html>
         <head>

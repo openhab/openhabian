@@ -149,6 +149,9 @@ running_in_docker() {
   grep -q 'docker\|lxc' /proc/1/cgroup
 }
 tryUntil() {
+  # tryUntil() executes $1 as command
+  # either $2 times or until cmd evaluates to 0, sleeps $3 seconds inbetween
+  # returns the number of cmd runs that would have been left
   cmd="$1"
   count=${2:-10}
   local i=$count
@@ -163,3 +166,4 @@ tryUntil() {
   done
   return $i
 }
+
