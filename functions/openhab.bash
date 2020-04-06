@@ -44,7 +44,9 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     if ! (whiptail --title "openHAB software change, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect wget --no-check-certificate -qO - 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab' | apt-key add -
+  env
+  set -x
+  cond_redirect wget -d --no-check-certificate -qO - 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab' | apt-key add -
 
   echo "$REPO" > /etc/apt/sources.list.d/openhab2.list
   cond_redirect apt-get update
@@ -75,7 +77,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
       sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"#g' /etc/default/openhab2
     fi
   fi
-
+  set +x
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
