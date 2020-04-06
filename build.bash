@@ -4,7 +4,8 @@ set -e
 ##########################
 #### Load help method ####
 ##########################
-source $(dirname "$0")/functions/helpers.bash
+# shellcheck disable=SC1090
+source "$(dirname "$0")"/functions/helpers.bash
 
 ## This format timestamp
 timestamp() { date +"%F_%T_%Z"; }
@@ -22,7 +23,7 @@ echo_process() { echo -e "\\e[1;94m$(timestamp) [openHABian] $*\\e[0m"; }
 get_git_repo() {
   local repo_url repo_branch user_name repo_name
   repo_url=$(git remote get-url origin)
-  repo_branch=$(git branch | grep "\*" | cut -d ' ' -f2)
+  repo_branch=$(git branch | grep "\\*" | cut -d ' ' -f2)
   if [[ ! $repo_url = *"https"* ]]; then
     # Convert URL from SSH to HTTPS
     user_name=$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\1#p')
@@ -59,7 +60,7 @@ inject_build_repo() {
   sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' "$1"
-  sed -i "s#master https://github.com/openhab/openhabian.git#$clone_string#g" "$1"
+  sed -i "s@master https://github.com/openhab/openhabian.git@$clone_string@g" "$1"
 }
 
 ## Function for checking if a command is available.
@@ -70,9 +71,9 @@ inject_build_repo() {
 ## Checks if all commands in $1 are available. If not, it proposes to install the packages
 ## listet in $2 and exits with exit code 1.
 check_command_availability_and_exit() {
-  read -ra CMD <<< $1
+  read -ra CMD <<< "$1"
   for i in "${CMD[@]}"; do
-    if [[ -z $(which $i)  ]]; then
+    if [[ -z $(command -v "$i") ]]; then
           echo_process "Command $i is missing on your system." 1>&2
           PKG="$2"
           if [[ -z "$PKG" ]]; then PKG="$1"; fi;
@@ -165,7 +166,7 @@ if [ "$2" == "dev-git" ]; then # Use current git repo and branch as a developmen
   file_tag=custom
   get_git_repo
   echo_process "Injecting current branch and git repo when building this image, make sure to push local content to:"
-  echo_process $clone_string
+  echo_process "$clone_string"
 
 elif [ "$2" == "dev-url" ]; then # Use custom git server as a development image
   file_tag=custom
@@ -181,13 +182,14 @@ elif [ "x$2" != "x" ]; then
 fi
 
 # Switch to the script folder
-cd "$(dirname $0)" || exit 1
+cd "$(dirname "$0")" || exit 1
 
 # Log everything to a file
 exec &> >(tee -a "openhabian-build-$timestamp.log")
 
 # Load config, create temporary build folder, cleanup
 sourcefolder=build-image
+# shellcheck disable=SC1090
 source $sourcefolder/openhabian.$hw_platform.conf
 buildfolder=/tmp/build-$hw_platform-image
 imagefile=$buildfolder/$hw_platform.img
@@ -236,21 +238,22 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   makescript=$buildfolder/simpleimage/make_rootfs.sh
   sed -i "s/^pine64$/openHABianPine64/" $makescript
   sed -i "s/127.0.1.1 pine64/127.0.1.1 openHABianPine64/" $makescript
+  # shellcheck disable=SC2154
   sed -i "s/DEBUSER=ubuntu/DEBUSER=$username/" $makescript
+  # shellcheck disable=SC2154
   sed -i "s/DEBUSERPW=ubuntu/DEBUSERPW=$userpw/" $makescript
-  echo -e "\n# Add openHABian modifications" >> $makescript
-  echo "touch \$DEST/opt/openHABian-install-inprogress" >> $makescript
-  echo "cp ./openhabianpine64.rc.local \$DEST/etc/rc.local" >> $makescript
-  echo "cp ./openhabianpine64.first-boot.bash \$BOOT/first-boot.bash" >> $makescript
-  echo "touch \$BOOT/first-boot.log" >> $makescript
-  echo "cp ./openhabian.conf \$BOOT/openhabian.conf" >> $makescript
-  echo "cp ./webif.bash \$BOOT/webif.bash" >> $makescript
-  echo "echo \"openHABian preparations finished, /etc/rc.local in place\"" >> $makescript
+  { echo -e "\\n# Add openHABian modifications"; \
+    echo "touch \$DEST/opt/openHABian-install-inprogress"; \
+    echo "cp ./openhabianpine64.rc.local \$DEST/etc/rc.local"; \
+    echo "cp ./openhabianpine64.first-boot.bash \$BOOT/first-boot.bash"; \
+    echo "touch \$BOOT/first-boot.log"; \
+    echo "cp ./openhabian.conf \$BOOT/openhabian.conf"; \
+    echo "cp ./webif.bash \$BOOT/webif.bash"; \
+    echo "echo \"openHABian preparations finished, /etc/rc.local in place\""
+  } >> $makescript
   echo_process "Executing \"build-pine64-image\" build script... "
-  (cd $buildfolder; /bin/bash build-pine64-image.sh simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial)
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
-  mv $buildfolder/xenial-pine64-*.img $imagefile
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if (cd $buildfolder; /bin/bash build-pine64-image.sh simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial); then echo "OK"; else echo "FAILED"; fi
+  if mv $buildfolder/xenial-pine64-*.img $imagefile; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 # Build Raspberry Pi image
 elif [ "$hw_platform" == "pi-raspbian" ]; then
