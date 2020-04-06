@@ -2,6 +2,7 @@
 
 openhab2_setup() {
   local openhabVersion
+  local RepoKey=/tmp/openhab-key.asc
   introtext_stable="You are about to install or upgrade to the latest stable openHAB release.\\n
 Please be aware that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
   successtext_stable="The stable release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.
@@ -44,7 +45,9 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
     if ! (whiptail --title "openHAB software change, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect wget --no-check-certificate -qO - 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab' | apt-key add -
+  wget --no-check-certificate -qO "$RepoKey" 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
+  cond_redirect apt-key add "$RepoKey"
+  rm -f "$RepoKey"
 
   echo "$REPO" > /etc/apt/sources.list.d/openhab2.list
   cond_redirect apt-get update
@@ -75,7 +78,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
       sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"#g' /etc/default/openhab2
     fi
   fi
-
+  set +x
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
