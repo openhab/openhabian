@@ -51,3 +51,4 @@ jobs:
               shellcheck -x -s bash functions/*.bash && echo "shellcheck functions/*.bash - OK"; 
               shellcheck -x -s bash build-image/*.bash && echo "shellcheck build-image/*.bash - OK";
               shellcheck -x -s bash build.bash && echo "shellcheck build.bash - OK"
+
