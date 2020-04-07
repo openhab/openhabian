@@ -34,14 +34,13 @@ java_adoptopenjdk_8_tar(){
   local jdkBin
   local jdkLib
   local jdkArch
-  local jdkSecurity
   if [ "$1" == "32-bit" ]; then
     echo -n "$(timestamp) [openHABian] Installing Java AdoptOpenJDK 32-Bit OpenJDK... "
     if is_arm; then
-      link="https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=linux&arch=arm&release=latest&type=jdk"
+      link="https://api.adoptopenjdk.net/v3/binary/latest/8/ga/linux/arm/jdk/hotspot/normal/adoptopenjdk?project=jdk"
       jdkArch="aarch32"
     else
-      link="https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=linux&arch=x32&release=latest&type=jdk"
+      link="https://api.adoptopenjdk.net/v3/binary/latest/8/ga/linux/x32/jdk/hotspot/normal/adoptopenjdk?project=jdk"
       jdkArch="i386"
     fi
 
@@ -60,10 +59,10 @@ java_adoptopenjdk_8_tar(){
   elif [ "$1" == "64-bit" ]; then
     echo -n "$(timestamp) [openHABian] Installing Java AdopyOpenJDK 64-Bit OpenJDK... "
     if is_arm; then
-      link="https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=linux&arch=aarch64&release=latest&type=jdk"
+      link="https://api.adoptopenjdk.net/v3/binary/latest/8/ga/linux/aarch64/jdk/hotspot/normal/adoptopenjdk?project=jdk"
       jdkArch="aarch64"
     else
-      link="https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=linux&arch=x64&release=latest&type=jdk"
+      link="https://api.adoptopenjdk.net/v3/binary/latest/8/ga/linux/x64/jdk/hotspot/normal/adoptopenjdk?project=jdk"
       jdkArch="amd64"
     fi
 
