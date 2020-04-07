@@ -58,7 +58,7 @@ java_adoptopenjdk_8_tar(){
     fi
 
   elif [ "$1" == "64-bit" ]; then
-    echo -n "$(timestamp) [openHABian] Installing Java Zulu 64-Bit OpenJDK... "
+    echo -n "$(timestamp) [openHABian] Installing Java AdopyOpenJDK 64-Bit OpenJDK... "
     if is_arm; then
       link="https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=linux&arch=aarch64&release=latest&type=jdk"
       jdkArch="aarch64"
