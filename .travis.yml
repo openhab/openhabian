@@ -45,6 +45,6 @@ jobs:
         docker exec -it "bats-dest-tests" bash -c 'bats -r -f "destructive-." .'
 # for now spellcheck tests are not enforced, return true to consider result as ok
     - stage: Shellcheck
-      script: shellcheck -x -s bash openhabian-setup.sh || true
-    - script: shellcheck -x -s bash functions/*.bash || true
-    - script: shellcheck -x -s bash build-image/*.bash || true
+      script: shellcheck -x -s bash openhabian-setup.sh
+    - script: shellcheck -x -s bash functions/*.bash
+    - script: shellcheck -x -s bash build-image/*.bash
