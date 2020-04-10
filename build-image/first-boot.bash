@@ -2,12 +2,14 @@
 
 REPOSITORYURL=$(grep -i '^repositoryurl' /etc/openhabian.conf | cut -d '=' -f2)
 CLONEBRANCH=$(grep -i '^clonebranch' /etc/openhabian.conf | cut -d '=' -f2)
-export REPOSITORYURL CLONEBRANCH
+MODE=$(grep -i '^mode' /etc/openhabian.conf | cut -d '=' -f2)
+export REPOSITORYURL CLONEBRANCH MODE
 
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND=noninteractive
 
 source "init.bash"
+# shellcheck disable=SC1090
 source "$CONFIGFILE"
 
 # Log everything to file
@@ -162,8 +164,8 @@ echo -n "$(timestamp) [openHABian] Cloning myself from ${REPOSITORYURL}, ${CLONE
 if git clone -q -b "$CLONEBRANCH" "$REPOSITORYURL" /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
-echo "$(timestamp) [openHABian] Executing openhabian-setup.sh ${mode}... "
-if (/bin/bash "$BASEDIR"/openhabian-setup.sh $mode); then
+echo "$(timestamp) [openHABian] Executing openhabian-setup.sh ${MODE}... "
+if (/bin/bash "$BASEDIR"/openhabian-setup.sh "$MODE"); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
