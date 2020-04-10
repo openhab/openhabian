@@ -26,5 +26,6 @@ wifi_psk=""
 # repo to clone from (if not master for build and test)
 repositoryurl=https://github.com/openhab/openhabian.git
 clonebranch=master
+mode=unattended
 
 # vim: filetype=sh
