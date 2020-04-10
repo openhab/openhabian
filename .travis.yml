@@ -1,10 +1,6 @@
 language: bash
 
-<<<<<<< HEAD
 # using latest Ubuntu (not the travis-ci default) to get latest tool versions in Travis environment
-=======
-# intentionally choosing latest Ubuntu distro rather than travis-ci default to get latest tool versions in Travis env
->>>>>>> changes following review
 dist: disco
 
 cache: false
