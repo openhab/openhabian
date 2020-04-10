@@ -43,7 +43,7 @@ load helpers
   echo -e "# \e[32mZulu 32-bit Java installation successful." >&3
   [ "$status" -eq 0 ]
   echo -e "# \e[32mZulu 32-bit Java installation successful." >&3
-# does not work before #683 is merged
+# systemctl does not work before it is replaced by systemctl.py in #683
 #  run systemctl is-active --quiet openhab2
 #  [ "$status" -eq 0 ]
   run java -version
