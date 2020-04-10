@@ -6,6 +6,7 @@ CONFIGFILE=/etc/openhabian.conf
 export DEBIAN_FRONTEND=noninteractive
 
 source "init.bash"
+# shellcheck disable=SC1090
 source "$CONFIGFILE"
 
 # Log everything to file
