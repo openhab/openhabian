@@ -100,6 +100,6 @@ else
   system_check_default_password
   echo -e "$(timestamp) [openHABian] We hope you got what you came for! See you again soon ;)"
 fi
-cd $OLDWD || exit 1
+cd "$OLDWD" || exit 1
 
 # vim: filetype=sh

@@ -229,7 +229,7 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   cp $sourcefolder/webif.bash $buildfolder/simpleimage/webif.bash
 
   # Injecting development git repo if clone_string is set and watermark build
-  if ! [ -z ${clone_string+x} ]; then
+  if [ -n ${clone_string+x} ]; then
     inject_build_repo $buildfolder/simpleimage/openhabianpine64.first-boot.bash
   fi
 
@@ -313,7 +313,7 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   cp $sourcefolder/webif.bash $buildfolder/boot/webif.bash
 
   # Injecting development git repo if clone_string is set and watermark build
-  if ! [ -z ${clone_string+x} ]; then
+  if [ -n ${clone_string+x} ]; then
     inject_build_repo $buildfolder/boot/first-boot.bash
   fi
 

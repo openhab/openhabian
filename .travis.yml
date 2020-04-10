@@ -1,10 +1,7 @@
 language: bash
 
-# get latest Travis tool versions
+# using latest Ubuntu (not the travis-ci default) to get latest tool versions in Travis environment
 dist: disco
-
-matrix:
-  fast_finish: true
 
 cache: false
 
