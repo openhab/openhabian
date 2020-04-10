@@ -41,7 +41,7 @@ jobs:
         docker run --name "bats-dest-tests" --privileged -d openhabian/rpi-openhabian
         docker exec -it "bats-dest-tests" bash -c 'bats -r -f "destructive-." .'
     - stage: Shellcheck
-      script: shellcheck -x -s bash openhabian-setup.sh && echo "shellcheck openhabian-setup.sh - OK"; \
-              shellcheck -x -s bash functions/*.bash && echo "shellcheck functions/*.bash - OK"; \
-              shellcheck -x -s bash build-image/*.bash && echo "shellcheck build-image/*.bash - OK"; \
+      script: shellcheck -x -s bash openhabian-setup.sh && echo "shellcheck openhabian-setup.sh - OK"; 
+              shellcheck -x -s bash functions/*.bash && echo "shellcheck functions/*.bash - OK"; 
+              shellcheck -x -s bash build-image/*.bash && echo "shellcheck build-image/*.bash - OK";
               shellcheck -x -s bash build.bash && echo "shellcheck build.bash - OK"
