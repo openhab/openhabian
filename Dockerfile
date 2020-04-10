@@ -13,7 +13,7 @@ RUN /bin/echo -n "Running on " && /usr/bin/arch
 COPY . /opt/openhabian/
 COPY openhabian.conf.dist /etc/openhabian.conf
 RUN sed -i 's#repositoryurl=https://github.com/openhab/openhabian.git#repositoryurl=https://github.com/mstormi/openhabian.git#' /etc/openhabian.conf
-RUN sed -i 's#clonebranch=master#clonebranch=buildfixes#' /etc/openhabian.conf
+RUN sed -i 's#clonebranch=master#clonebranch=buildsystem-bats#' /etc/openhabian.conf
 
 WORKDIR /opt/openhabian/
 

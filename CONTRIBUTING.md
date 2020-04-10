@@ -181,7 +181,10 @@ docker exec -it install-test bash -c "./build.bash local-test && mv ~/.profile ~
 Notice that the "docker system" mimic a hardware SD-card installation with the command `./build.bash local-test`. 
 
 ### Test Cases
-The test cases are further divided into three categories and can be individual invoked by the BATS framwork. The tests categary can be identified in the naming of the test. The test code are held in a corresponding file to the code itself, i.e. Code: `helpers.bash` and tests `helpers.bats`. The categories are as follows:
+The test cases are further divided into four categories and can be individually invoked by the BATS framwork. The tests categary can be identified in the naming of the test. The test code are held in a corresponding file to the code itself, i.e. Code: `helpers.bash` and tests `helpers.bats`. The categories are as follows:
+
+#### Development Tests `dev-<name>`
+These test may alter the host system. Use dev-<name> tests to test new features under development. They are the first to be started in a test run and first to finish so you can see as early as possible if your feature works fine. Testing will not proceed beyond the `dev` stage if there's errors.
 
 #### Unit Tests `unit-<name>`
 These test does not alter the host system where the test is executed and is isolated to a specific function. This test does not required a installed base system of openHABian.

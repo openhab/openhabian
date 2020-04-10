@@ -24,6 +24,7 @@ load helpers
   esac
   run systemctl start openhab2
   run java_zulu_8_tar 64-bit
+  echo -e "# \e[32mZulu 64-bit Java installation successful." >&3
   [ "$status" -eq 0 ]
   echo -e "# \e[32mZulu 64-bit Java installation successful." >&3
 # does not work before #683 is merged
@@ -39,9 +40,10 @@ load helpers
   echo -e "# \e[36mZulu 32-bit Java test installation is starting..." >&3
   run systemctl start openhab2
   run java_zulu_8_tar 32-bit
+  echo -e "# \e[32mZulu 32-bit Java installation successful." >&3
   [ "$status" -eq 0 ]
   echo -e "# \e[32mZulu 32-bit Java installation successful." >&3
-# does not work before #683 is merged
+# systemctl does not work before it is replaced by systemctl.py in #683
 #  run systemctl is-active --quiet openhab2
 #  [ "$status" -eq 0 ]
   run java -version

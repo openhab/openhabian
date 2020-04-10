@@ -23,6 +23,7 @@ install:
   - docker build -t openhabian/rpi-openhabian -f Dockerfile .
 
 jobs:
+  fast_finish: true
   include:
     - stage: Dev+unit-tests
       script: docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "dev-." .'
@@ -31,7 +32,7 @@ jobs:
       script:
         - docker run --name "openhabian-test" --privileged -d openhabian/rpi-openhabian
         - docker exec -it "openhabian-test" bash -c \
-            'VIRT=$(sudo virt-what); echo -e "\n\e[34mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi'
+            'VIRT=$(sudo virt-what); echo -e "\n\e[34mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
         - docker commit "openhabian-test" openhabian-installed
     - stage: Bats
       script:
@@ -45,3 +46,4 @@ jobs:
               shellcheck -x -s bash functions/*.bash && echo "shellcheck functions/*.bash - OK"; 
               shellcheck -x -s bash build-image/*.bash && echo "shellcheck build-image/*.bash - OK";
               shellcheck -x -s bash build.bash && echo "shellcheck build.bash - OK"
+
