@@ -78,7 +78,6 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
       sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"#g' /etc/default/openhab2
     fi
   fi
-  set +x
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi

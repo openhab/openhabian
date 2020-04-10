@@ -55,7 +55,7 @@ fi
 for shfile in "$BASEDIR"/functions/*.bash; do source "$shfile"; done
 
 # avoid potential crash when deleting directory we started from
-OLDWD=$(pwd) && cd /opt
+OLDWD=$(pwd) && cd /opt || exit 1
 if [[ -n "$UNATTENDED" ]]; then
   # apt/dpkg commands will not try interactive dialogs
   export DEBIAN_FRONTEND=noninteractive
@@ -100,6 +100,6 @@ else
   system_check_default_password
   echo -e "$(timestamp) [openHABian] We hope you got what you came for! See you again soon ;)"
 fi
-cd $OLDWD
+cd "$OLDWD" || exit 1
 
 # vim: filetype=sh

@@ -52,7 +52,7 @@ get_git_repo() {
 ##    inject_build_repo(String path)
 ##
 inject_build_repo() {
-  if [ -z ${clone_string+x} ]; then
+  if [ -z "${clone_string+x}" ]; then
     echo_process "inject_build_repo() invoked without clone_string varible set, exiting...."
     exit 1
   fi
@@ -88,8 +88,8 @@ mount_image_file_boot() { # imagefile buildfolder
   if ! running_in_docker && ! is_pi; then
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda1 "$2/boot"
   else
-    loop_prefix=`kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1`
-    mount -o rw -t vfat "/dev/mapper/$(echo $loop_prefix)p1" "$buildfolder/boot"
+    loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
+    mount -o rw -t vfat "/dev/mapper/${loop_prefix}p1" "$buildfolder/boot"
   fi
 }
 
@@ -97,8 +97,8 @@ mount_image_file_root() { # imagefile buildfolder
   if ! running_in_docker && ! is_pi; then
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
-    loop_prefix=`kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1`
-    mount -o rw -t ext4 "/dev/mapper/$(echo $loop_prefix)p2" "$buildfolder/root"
+    loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
+    mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
   fi
 }
 
@@ -174,7 +174,7 @@ elif [ "$2" == "dev-url" ]; then # Use custom git server as a development image
   clone_string+=" "
   clone_string+=$4
   echo_process "Injecting given git repo when building this image, make sure to push local content to:"
-  echo_process $clone_string
+  echo_process "$clone_string"
 
 elif [ "x$2" != "x" ]; then
   echo_process "Unknown parameter \"$2\". Exiting."
@@ -229,7 +229,7 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   cp $sourcefolder/webif.bash $buildfolder/simpleimage/webif.bash
 
   # Injecting development git repo if clone_string is set and watermark build
-  if ! [ -z ${clone_string+x} ]; then
+  if [ -n "${clone_string+x}" ]; then
     inject_build_repo $buildfolder/simpleimage/openhabianpine64.first-boot.bash
   fi
 
@@ -293,6 +293,7 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
 
   mount_image_file_root "$imagefile" "$buildfolder"
   echo_process "Setting hostname... "
+  # shellcheck disable=SC2154
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" $buildfolder/root/etc/hosts
   echo "$hostname" > $buildfolder/root/etc/hostname
 
@@ -312,7 +313,7 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   cp $sourcefolder/webif.bash $buildfolder/boot/webif.bash
 
   # Injecting development git repo if clone_string is set and watermark build
-  if ! [ -z ${clone_string+x} ]; then
+  if [ -n "${clone_string+x}" ]; then
     inject_build_repo $buildfolder/boot/first-boot.bash
   fi
 
