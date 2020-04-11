@@ -219,7 +219,7 @@ misc_system_settings() {
   # A distinguishable apt User-Agent
   echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent
   #
-  cond_redirect echo "OK"
+  echo "OK"
 }
 
 pine64_platform_scripts() {
