@@ -3,7 +3,7 @@ set -e
 
 
 usage() {
-  echo -e "Usage: $(basename $0) <platform> [dev-git|dev-url] <branch> <url>"
+  echo -e "Usage: $(basename "$0") <platform> [dev-git|dev-url] <branch> <url>"
   echo -e "\\nCurrently supported platforms: rpi"
 }
 
@@ -191,7 +191,7 @@ else
 fi
 
 # Switch to the script folder
-cd "$(dirname $0)" || (echo "$(dirname $0) cannot be accessed."; exit 1)
+cd "$(dirname "$0")" || (echo "$(dirname "$0") cannot be accessed."; exit 1)
 
 # Log everything to a file
 exec &> >(tee -a "openhabian-build-$timestamp.log")
