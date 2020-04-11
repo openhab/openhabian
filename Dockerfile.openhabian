@@ -54,4 +54,3 @@ STOPSIGNAL 37
 
 CMD ["bash", "start.sh"]
 
-
