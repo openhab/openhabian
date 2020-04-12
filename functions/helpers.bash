@@ -156,7 +156,7 @@ tryUntil() {
   count=${2:-10}
   local i=$count
   interval=${3:-1}
-  cond_echo "Running the following command up to $count times with $interval secs pause interval:\n$cmd"
+#  cond_echo "Running the following command up to $count times with $interval secs pause interval: $cmd"
   until [ "$i" -le 0 ]; do
     eval "${cmd}"
     ret=$?

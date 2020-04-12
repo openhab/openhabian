@@ -64,11 +64,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   cond_redirect adduser openhab gpio
   cond_redirect systemctl daemon-reload
   if cond_redirect systemctl enable openhab2.service; then echo "OK"; else echo "FAILED (usr)"; exit 1; fi
-#  if [ -n "$UNATTENDED" ]; then
-#    cond_redirect systemctl stop openhab2.service || true
-#  else
-    cond_redirect systemctl restart openhab2.service || true
-#  fi
+  cond_redirect systemctl restart openhab2.service || true
 
   if is_pi || is_pine64; then
     cond_echo "Optimizing Java to run on low memory single board computers... "
