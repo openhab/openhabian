@@ -82,4 +82,3 @@ The main program is in `openhabian-setup.sh`. If the initial unattended install 
 For obvious reasons, changing openhabian code is not a supported procedure. We just want to give you a hint what you _could_ try doing if your install fails and you're sitting there, desperately looking for a fix.
 G*oo*gle and learn yourself what you need to edit a file, learn to understand shell programming basics, you're on your own here.
 If you change openHABian code on your box, remember for the time it takes to get openHABian officially fixed, you must not let openhabian-config update itself on start as that would overwrite your changes.
-

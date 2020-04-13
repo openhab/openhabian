@@ -87,7 +87,7 @@ if [[ -n "$UNATTENDED" ]]; then
   vimrc_copy
   firemotd_setup
   # shellcheck disable=SC2154
-  java_install_or_update "$java_arch"
+  java_install_or_update "$JAVA_ARCH"
   openhab2_setup
   vim_openhab_syntax
   nano_openhab_syntax
