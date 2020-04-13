@@ -184,8 +184,8 @@ show_main_menu() {
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     if [[ $choosenComponents == *"62"* ]]; then apt-get upgrade -y && basic_packages && needed_packages; fi
     # shellcheck disable=SC2154
-    if [[ $choosenComponents == *"63"* ]]; then update_config_java "32-bit"; java_install_or_update "$java_arch"; fi
-    if [[ $choosenComponents == *"Zulu OpenJDK 64-bit"* ]]; then update_config_java "64-bit"; java_install_or_update "$java_arch"; fi
+    if [[ $choosenComponents == *"63"* ]]; then update_config_java "32-bit"; java_install_or_update "$JAVA_ARCH"; fi
+    if [[ $choosenComponents == *"Zulu OpenJDK 64-bit"* ]]; then update_config_java "64-bit"; java_install_or_update "$JAVA_ARCH"; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
     if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi
