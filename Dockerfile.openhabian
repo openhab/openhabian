@@ -2,20 +2,29 @@ FROM minimum2scp/systemd-buster
 #FROM balenalib/intel-nuc-debian-node:latest-buster
 #FROM balenalib/raspberry-pi2-debian-node:latest-buster
 
+# Docker concept based on
+# https://www.balena.io/docs/reference/base-images/base-images/#installing-your-own-initsystem
 
 ENV container docker
 ENV INITSYSTEM on
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 
+# install base packages usually installed by Raspbian image and first-boot.bash
+# delete temporary files to minimize build size
 RUN apt-get update -qq \
-    && apt-get install -y -qq --no-install-recommends systemd systemd-sysv git wget python python-pip python3 python3-pip apt-utils jq virt-what \
+    && apt-get install -y -qq --no-install-recommends \
+    systemd systemd-sysv \
+    git wget apt-utils jq virt-what \
+    python python-pip python3 python3-pip \
     && rm -rf /var/lib/apt/lists/*
+
+# install BATS framework for testing
 RUN git clone https://github.com/bats-core/bats-core.git && \
     cd bats-core && \
     ./install.sh /usr/local
 
 # We never want these to run in a container
-# Feel free to edit the list but this is the one we used
+# based on list from Balena maintainers' example
 RUN systemctl mask \
     dev-hugepages.mount \
     sys-fs-fuse-connections.mount \
@@ -23,13 +32,13 @@ RUN systemctl mask \
     display-manager.service \
     getty@.service \
     systemd-logind.service \
-    systemd-remount-fs.service \
+#    systemd-remount-fs.service \
     getty.target \
     graphical.target
 
 WORKDIR /
-COPY entry.sh /usr/bin/entry.sh
-COPY resin.service /etc/systemd/system/resin.service
+COPY docker-tests/entry.sh /usr/bin/entry.sh
+COPY docker-tests/resin.service /etc/systemd/system/resin.service
 
 RUN systemctl enable /etc/systemd/system/resin.service
 
@@ -47,7 +56,7 @@ COPY . /opt/openhabian/
 COPY openhabian.conf.dist /etc/openhabian.conf
 
 WORKDIR /opt/openhabian/
-COPY start.sh ./
+COPY docker-tests/start.sh ./
 
 VOLUME ["/sys/fs/cgroup"]
 STOPSIGNAL 37
