@@ -17,6 +17,11 @@ fail_inprogress() {
   exit 1
 }
 
+restart_apt-daily() {
+  echo -n "$(timestamp) [openHABian] Restarting apt-daily service... "
+  service apt-daily start
+}
+
 echo "$(timestamp) [openHABian] Starting the openHABian initial setup."
 rm -f /opt/openHABian-install-failed
 touch /opt/openHABian-install-inprogress
@@ -138,6 +143,10 @@ if tryUntil "ping -c1 9.9.9.9 >/dev/null || wget -S -t 3 --waitretry=4 http://ww
     fail_inprogress
   fi
 echo "OK"
+
+echo -n "$(timestamp) [openHABian] Temporarily deactivating apt-daily service... "
+service apt-daily stop
+trap restart_apt-daily EXIT
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
 until apt-get update &>/dev/null; do sleep 1; done

@@ -308,6 +308,8 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
 
   echo_process "Injecting 'rc.local', 'first-boot.bash' and 'openhabian.conf'... "
   cp $sourcefolder/rc.local $buildfolder/root/etc/rc.local
+  # delay start of installer until system started
+  sed -i "s/^After=network-online.target/After=multi-user.target/" $buildfolder/root/lib/systemd/system/rc-local.service.d/debian.conf
   touch $buildfolder/root/opt/openHABian-install-inprogress
   # maybe we should use a trap to get this done in case of error
   umount_image_file_root "$imagefile" "$buildfolder"
