@@ -1,10 +1,5 @@
 #!/bin/bash
 
-REPOSITORYURL=$(grep -i '^repositoryurl' /etc/openhabian.conf | cut -d '=' -f2)
-CLONEBRANCH=$(grep -i '^clonebranch' /etc/openhabian.conf | cut -d '=' -f2)
-MODE=$(grep -i '^mode' /etc/openhabian.conf | cut -d '=' -f2)
-export REPOSITORYURL CLONEBRANCH MODE
-
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND=noninteractive
 

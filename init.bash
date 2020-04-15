@@ -14,5 +14,6 @@ CONFIGFILE="/etc/openhabian.conf"
 REPOSITORYURL=$(grep -i '^repositoryurl' ${CONFIGFILE} | cut -d '=' -f2)
 CLONEBRANCH=$(grep -i '^clonebranch' ${CONFIGFILE} | cut -d '=' -f2)
 JAVA_ARCH=$(grep -i '^java_arch' ${CONFIGFILE} | cut -d '=' -f2)
+MODE=$(grep -i '^mode' /etc/openhabian.conf | cut -d '=' -f2)
 
-export SOURCE BASEDIR SCRIPTNAME CONFIGFILE REPOSITORYURL CLONEBRANCH JAVA_ARCH
+export SOURCE BASEDIR SCRIPTNAME CONFIGFILE REPOSITORYURL CLONEBRANCH JAVA_ARCH MODE
