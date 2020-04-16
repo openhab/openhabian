@@ -1,7 +1,7 @@
 #!/bin/bash
 
-REPOSITORYURL=$(grep -i '^repositoryurl' /etc/openhabian.conf | cut -d '=' -f2)
-CLONEBRANCH=$(grep -i '^clonebranch' /etc/openhabian.conf | cut -d '=' -f2)
+REPOSITORYURL=$(grep -i '^repositoryurl' /boot/openhabian.conf | cut -d '=' -f2)
+CLONEBRANCH=$(grep -i '^clonebranch' /boot/openhabian.conf | cut -d '=' -f2)
 export REPOSITORYURL CLONEBRANCH
 
 # apt/dpkg commands will not try interactive dialogs
