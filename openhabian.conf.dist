@@ -15,6 +15,14 @@ timezone=Europe/Berlin
 locales="en_US.UTF-8 de_DE.UTF-8"
 system_default_locale="en_US.UTF-8"
 
+# Wi-Fi settings. An ethernet connection is recommended
+# Requirement: RPi4, RPi3, RPi0W or a supported external Wi-Fi dongle
+# Fill in your SSID and password below, leave empty to use ethernet
+# ATTENTION: you need to escape these special characters: $, `, ", \, (newline)
+# 'Escaping' means to put an additional \ in front of that character
+wifi_ssid=""
+wifi_psk=""
+
 # repo to clone from (if not master for build and test)
 repositoryurl=https://github.com/openhab/openhabian.git
 clonebranch=master
