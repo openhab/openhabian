@@ -375,6 +375,9 @@ backup@pi:~$ amcheck openhab-dir
 
 ## Restore
 
+There are two types of restore, the easier one where amanda is still working and you want to restore some files, the harder case is is where perhaps your sd card is dead and you first have to use your backup system img file or you might have to do a reinstall from scratch. The good news is that the files backed up by amanda are accessible and you may need to restore the storage index information first so that amanda can find them. You can also go directly to the latest backup files without using amanda. The easier case is explained first. For the second case jump to "when things have gone badly wrong".
+
+
 ### Locating a backup
 
 Depending on the type of storage medium, you eventually may need to locate which volume a wanted backup is stored on.
@@ -564,12 +567,12 @@ You could also move that temporary recovered image file to your Windows PC that 
 ### A final word on when things have gone badly wrong...
 
 and your SD card to contain the Amanda database is broken: you don't have to give up.
-Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/cron.d/amanda`).
-So you can reinstall openHABian including Amanda from scratch and copy back those files. Eventually see `amadmin import` option.
+Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/cron.d/amanda`). This is usually the amanda-backups directory, rather than the slots directory, and you extract the /var/lib/amanda files from the amanda_data_DATE.tar.gz file you want (probably the latest). You can also extract the /var/log/amanda directory if needed.
+So you can reinstall openHABian including Amanda from scratch and copy back those extracted files. Eventually see `amadmin import` option.
 Even if you fail to recover your index files, you can still access the files in your storage area.
 The `amindex` command can be used to regenerate the database. How to apply unfortunately is  out of scope for this document so please g**gle if needed.
 There's also a manual way: Amanda storage files are tar files of the destination directory or compressed raw copies of partitions, both have an additional 32KB header.
-If you just want to retrieve some files from a partition backup file, you can mount that file. See https://major.io/2010/12/14/mounting-a-raw-partition-file-made-with-dd-or-dd_rescue-in-linux/.
+If you just want to retrieve some files (such as the items, things, rules, sitemaps, icons and the jsondb information written directly by the paperUI or HABpanelUI) from a partition backup file in the slots directory, you can mount/download that file. See https://major.io/2010/12/14/mounting-a-raw-partition-file-made-with-dd-or-dd_rescue-in-linux/.
 Here's examples how to decode them:
 
 ```
