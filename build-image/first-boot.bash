@@ -158,7 +158,7 @@ ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 # shellcheck disable=SC2154
 echo "$(timestamp) [openHABian] Executing openhabian-setup.sh ${mode}... "
-if (/bin/bash "/opt/openhabian/openhabian-setup.sh $mode"); then
+if (/bin/bash /opt/openhabian/openhabian-setup.sh "$mode"); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
