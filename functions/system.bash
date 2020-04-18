@@ -46,7 +46,7 @@ needed_packages() {
 
 timezone_setting() {
   # shellcheck source=/etc/openhabian.conf disable=SC1091
-  source "$CONFIGFILE"
+  source "$configfile"
   # shellcheck disable=SC2154
   if [ -n "$INTERACTIVE" ]; then
     echo -n "$(timestamp) [openHABian] Setting timezone based on user choice... "
@@ -70,7 +70,7 @@ timezone_setting() {
 locale_setting() {
   cond_redirect apt-get -q -y install locales
   # shellcheck disable=SC1090
-  source "$CONFIGFILE" 
+  source "$configfile" 
   if [ -n "$INTERACTIVE" ]; then
     echo "$(timestamp) [openHABian] Setting locale based on user choice... "
     dpkg-reconfigure locales
@@ -82,7 +82,7 @@ locale_setting() {
 
   echo -n "$(timestamp) [openHABian] Setting locale based on openhabian.conf... "
   # shellcheck source=/etc/openhabian.conf disable=SC1091
-  source "$CONFIGFILE"
+  source "$configfile"
   if is_ubuntu; then
     # shellcheck disable=2086,2154
     cond_redirect locale-gen $locales
@@ -111,7 +111,7 @@ hostname_change() {
     fi
   else
     # shellcheck source=/etc/openhabian.conf disable=SC1091
-    source "$CONFIGFILE"
+    source "$configfile"
     new_hostname="${hostname:-openhab}"
   fi
   hostnamectl set-hostname "$new_hostname" &>/dev/null

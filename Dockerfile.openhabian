@@ -53,7 +53,6 @@ RUN echo "openhabian:openhabian" | chpasswd
 RUN /bin/echo -n "Running on " && /usr/bin/arch
 
 COPY . /opt/openhabian/
-COPY openhabian.conf.dist /etc/openhabian.conf
 COPY build-image/openhabian.conf /etc/openhabian.conf
 
 WORKDIR /opt/openhabian/

@@ -18,13 +18,12 @@ fail_inprogress() {
 echo "$(timestamp) [openHABian] Starting the openHABian initial setup."
 rm -f /opt/openHABian-install-failed
 touch /opt/openHABian-install-inprogress
+
 echo -n "$(timestamp) [openHABian] Storing configuration... "
 cp /boot/openhabian.conf /etc/openhabian.conf
 sed -i 's/\r$//' /etc/openhabian.conf
-
-source "init.bash"
-# shellcheck disable=SC1090
-source "$CONFIGFILE"
+# shellcheck disable=SC1091
+source /etc/openhabian.conf
 echo "OK"
 
 if [ -n "$DEBUGMAX" ]; then
@@ -159,7 +158,7 @@ ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 # shellcheck disable=SC2154
 echo "$(timestamp) [openHABian] Executing openhabian-setup.sh ${mode}... "
-if (/bin/bash "$BASEDIR"/openhabian-setup.sh "$mode"); then
+if (/bin/bash "/opt/openhabian/openhabian-setup.sh $mode"); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
