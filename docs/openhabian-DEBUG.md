@@ -75,13 +75,9 @@ You can also clone the openhabian repository, make your changes locally and use 
 Either way, don't forget to sign your work.
 
 ## Checkpoint
-::: tip
 Remember to always let `openhabian-config` update itself on start.
-:::
 
-::: tip
 If you want to change anything to work around some not yet fixed bug, you can directly edit the files in and below `/opt/openhabian` on your box. Just do not let openhabian-config update itself on start as that would overwrite your changes.
-:::
 
 The main program is in `openhabian-setup.sh`. If the initial unattended install fails again and again at the same step (say Java installation), you may comment that step out. But mind the code in build-image/first-boot.bash quite towards the end starting with`git clone`. This is where openHABian updates itself. If you don't comment that out as well, it'll overwrite your changes on next install run.
 
@@ -89,5 +85,5 @@ The main program is in `openhabian-setup.sh`. If the initial unattended install 
 For obvious reasons, this is not a supported procedure. We just want to give you a hint what you _could_ try doing if your install fails
 and you're sitting there, desperately looking for a fix.
 G*oo*gle and learn yourself what you need to edit a file, learn to understand shell programming basics, you're on your own here.
-If you change openHABian code on your box, temember for the time it takes to get openHABian officially fixed, you must not let openhabian-config update itself on start as that would overwrite your changes.
+If you change openHABian code on your box, remember for the time it takes to get openHABian officially fixed, you must not let openhabian-config update itself on start as that would overwrite your changes.
 :::
