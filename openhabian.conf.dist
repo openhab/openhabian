@@ -3,6 +3,7 @@
 # This file will only be used on initial install.
 # If you want to change anything after install completed, use menu in openhabian-config.
 
+configfile=/etc/openhabian.conf
 hostname=openHABianDevice
 username=openhabian
 userpw=password
