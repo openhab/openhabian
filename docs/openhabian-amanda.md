@@ -375,7 +375,7 @@ backup@pi:~$ amcheck openhab-dir
 
 ## Restore
 
-There are two types of restore, the easier one where amanda is still working and you want to restore some files, the harder case is is where perhaps your sd card is dead and you first have to use your backup system img file or you might have to do a reinstall from scratch. The good news is that the files backed up by amanda are accessible and you may need to restore the storage index information first so that amanda can find them. You can also go directly to the latest backup files without using amanda. The easier case is explained first. For the second case jump to "when things have gone badly wrong".
+There are two types of restore, the easier one where amanda is still working and you want to restore some files, the harder case is where perhaps your sd card is dead and you first have to use your backup system img file or you might have to do a reinstall from scratch. The good news is that the files backed up by amanda are accessible and you may need to restore the storage index information first so that amanda can find them. You can also go directly to the latest backup files without using amanda. The easier case is explained first. For the second case jump to "when things have gone badly wrong".
 
 
 ### Locating a backup
