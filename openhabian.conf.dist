@@ -32,6 +32,6 @@ mode=unattended
 
 # Java architecture mode
 # Use "32-bit" or "64-bit"
-java_arch="32-bit"
+java_arch="64-bit"
 
 # vim: filetype=sh
