@@ -12,13 +12,13 @@ Read on to find out how to improve debug verbosity and how to proceed with that 
 ## Prerequisites
 First, please make sure you use proper host hardware that is supported as per README.
 
-For one, openHABian requires a minimum of 1GB of RAM to run well. That's including commonly used tools such as frontail and mosquitto and an average-sized openHAB installation on top. So any SBC to have less memory such as a RPi Zero is not supported.
+OpenHABian requires a minimum of 1GB of RAM to run well. While you can get away with a 512MB box like a RPi0W, you must not run anything other than openHAB itself, in particular do NOT run memory hogs such as InfluxDB or Grafana.
 
-For two, on "supported" hardware in general:
+On "supported" hardware in general:
 It may work to install and run openHABian on unsupported hardware. If it does not work, you are welcome to find out what's missing and contribute back to the community with a Pull Request. It's sometimes simple things like a naming string. We'll be happy to include that in openHABian so you can use your box with openHABian. We'll keep that code in unless there's a valid reason to change or remove it.
 Remind you, though, that that doesn't make your box a "supported" one as we don't have it available for our further development and testing works. So there remains a risk that future openHABian releases will fail to work on your SBC because we changed a thing that broke support for your HW - unintentionally so but also inevitably so.
 
-Second, openHABian requires you to provide direct Internet access. Using private IP addresses is fine as long as your router properly provides NAT (Network Address Translation) services.
+openHABian requires you to provide direct Internet access. Using private IP addresses is fine as long as your router properly provides NAT (Network Address Translation) services.
 Note we assume an Ethernet connection to be present at time of installation. We do not support installing via WiFi.
 To illustrate again what "supported" means: this does not mean it wouldn't work, most of the time it does in fact - but we do not take care of this and cannot test against this setup so the functionality may be or become broken at any time, and you are expected to install from Ethernet before asking for help on the forum.
 
