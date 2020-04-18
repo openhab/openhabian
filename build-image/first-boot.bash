@@ -5,10 +5,6 @@ CONFIGFILE=/etc/openhabian.conf
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND=noninteractive
 
-source "init.bash"
-# shellcheck disable=SC1090
-source "$CONFIGFILE"
-
 # Log everything to file
 exec &> >(tee -a "/boot/first-boot.log")
 
@@ -21,18 +17,13 @@ fail_inprogress() {
   exit 1
 }
 
-if [ -n "$DEBUGMAX" ]; then
-  echo "$(timestamp) [openHABian] Enable maximum debugging output (DEBUGMAX=${DEBUGMAX})."
-  set -x
-fi
-
 echo "$(timestamp) [openHABian] Starting the openHABian initial setup."
 rm -f /opt/openHABian-install-failed
 touch /opt/openHABian-install-inprogress
-
 echo -n "$(timestamp) [openHABian] Storing configuration... "
 cp /boot/openhabian.conf /etc/openhabian.conf
 sed -i 's/\r$//' /etc/openhabian.conf
+
 # shellcheck disable=SC1090
 source "$CONFIGFILE"
 echo "OK"
