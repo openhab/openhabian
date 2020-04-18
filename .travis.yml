@@ -21,10 +21,10 @@ install:
   - sudo apt-get install virt-what && VIRT=$(sudo virt-what) && echo "Travis VM running on ${VIRT:-native HW}."
   - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 # prepare configuration for tests, select debug level here:
-  - sed -iE 's#mode=.*$#mode=unattended_debug#' openhabian.conf.dist
-  - #sed -iE 's#mode=.*$#mode=debug_maximum#' openhabian.conf.dist
-  - sed -i 's#repositoryurl=https://github.com/openhab/openhabian.git#repositoryurl=https://github.com/'${TRAVIS_REPO_SLUG}'.git#' openhabian.conf.dist
-  - sed -i 's#clonebranch=master#clonebranch='${TRAVIS_BRANCH}'#' openhabian.conf.dist
+  - #sed -iE 's#mode=.*$#mode=unattended_debug#' openhabian.conf.dist
+  - sed -iE 's#mode=.*$#mode=debug_maximum#' openhabian.conf.dist
+  - sed -i 's#repositoryurl=https://github.com/openhab/openhabian.git#repositoryurl=https://github.com/'${TRAVIS_REPO_SLUG}'.git#' build-image/openhabian.conf
+  - sed -i 's#clonebranch=master#clonebranch='${TRAVIS_BRANCH}'#' build-image/openhabian.conf
   - docker build -t openhabian/rpi-openhabian -f Dockerfile.openhabian .
 
 jobs:

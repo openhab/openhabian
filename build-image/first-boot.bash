@@ -3,10 +3,6 @@
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND=noninteractive
 
-source "init.bash"
-# shellcheck disable=SC1090
-source "$CONFIGFILE"
-
 # Log everything to file
 exec &> >(tee -a "/boot/first-boot.log")
 
@@ -19,21 +15,22 @@ fail_inprogress() {
   exit 1
 }
 
+echo "$(timestamp) [openHABian] Starting the openHABian initial setup."
+rm -f /opt/openHABian-install-failed
+touch /opt/openHABian-install-inprogress
+echo -n "$(timestamp) [openHABian] Storing configuration... "
+cp /boot/openhabian.conf /etc/openhabian.conf
+sed -i 's/\r$//' /etc/openhabian.conf
+
+source "init.bash"
+# shellcheck disable=SC1090
+source "$CONFIGFILE"
+echo "OK"
+
 if [ -n "$DEBUGMAX" ]; then
   echo "$(timestamp) [openHABian] Enable maximum debugging output (DEBUGMAX=${DEBUGMAX})."
   set -x
 fi
-
-echo "$(timestamp) [openHABian] Starting the openHABian initial setup."
-rm -f /opt/openHABian-install-failed
-touch /opt/openHABian-install-inprogress
-
-echo -n "$(timestamp) [openHABian] Storing configuration... "
-cp /boot/openhabian.conf /etc/openhabian.conf
-sed -i 's/\r$//' /etc/openhabian.conf
-# shellcheck disable=SC1091
-source /etc/openhabian.conf
-echo "OK"
 
 echo -n "$(timestamp) [openHABian] Starting webserver with installation log... "
 if hash python3 2>/dev/null; then
@@ -155,12 +152,14 @@ echo -n "$(timestamp) [openHABian] Installing git package... "
 if apt-get -y install git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 if [ -d /opt/openhabian/ ]; then cd /opt && rm -rf /opt/openhabian/; fi
-echo -n "$(timestamp) [openHABian] Cloning myself from ${REPOSITORYURL}, ${CLONEBRANCH} branch... "
-if git clone -q -b "$CLONEBRANCH" "$REPOSITORYURL" /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+# shellcheck disable=SC2154
+echo -n "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
+if git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
-echo "$(timestamp) [openHABian] Executing openhabian-setup.sh ${MODE}... "
-if (/bin/bash "$BASEDIR"/openhabian-setup.sh "$MODE"); then
+# shellcheck disable=SC2154
+echo "$(timestamp) [openHABian] Executing openhabian-setup.sh ${mode}... "
+if (/bin/bash "$BASEDIR"/openhabian-setup.sh "$mode"); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else

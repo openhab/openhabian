@@ -28,7 +28,7 @@ else
 fi
 
 
-source "/opt/openhabian/init.bash"
+source "/etc/openhabian.conf"
 
 # script will be called with 'unattended' argument by openHABian images
 if [[ "$1" = "unattended" ]]; then
@@ -73,7 +73,7 @@ if [[ -n "$UNATTENDED" ]]; then
   vimrc_copy
   firemotd_setup
   # shellcheck disable=SC2154
-  java_install_or_update "$JAVA_ARCH"
+  java_install_or_update "$java_arch"
   openhab2_setup
   vim_openhab_syntax
   nano_openhab_syntax
