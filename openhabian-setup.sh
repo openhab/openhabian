@@ -9,6 +9,8 @@
 # Discussion: https://community.openhab.org/t/13379
 #
 
+CONFIGFILE=/etc/openhabian.conf
+
 # Find the absolute script location dir (e.g. BASEDIR=/opt/openhabian)
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
@@ -36,8 +38,8 @@ else
   echo "OK"
 fi
 
-
-source "/etc/openhabian.conf"
+# shellcheck disable=SC1091
+source "$CONFIGFILE"
 
 # script will be called with 'unattended' argument by openHABian images
 if [[ "$1" = "unattended" ]]; then

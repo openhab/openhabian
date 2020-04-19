@@ -1,5 +1,7 @@
 #!/bin/bash
 
+CONFIGFILE=/etc/openhabian.conf
+
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND=noninteractive
 
@@ -23,7 +25,7 @@ echo -n "$(timestamp) [openHABian] Storing configuration... "
 cp /boot/openhabian.conf /etc/openhabian.conf
 sed -i 's/\r$//' /etc/openhabian.conf
 # shellcheck disable=SC1091
-source /etc/openhabian.conf
+source "$CONFIGFILE"
 echo "OK"
 
 if [ -n "$DEBUGMAX" ]; then
