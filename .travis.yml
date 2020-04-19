@@ -20,21 +20,18 @@ services:
   - docker
 
 stages:
-  - Run unattended openHABian installation
   - Dev & Unit tests
   - BATS tests
+  - Run unattended openHABian installation
   - Shellcheck
 
 install:
-  - shellcheck --version
-# some tests such as zram.bats may fail if we run in emulation mode (testing for ARM emulated on x86 Travis cloud servers)
-  - docker run --rm --privileged multiarch/qemu-user-static:register --reset
 # prepare configuration for tests, select debug level here:
   - sed -iE 's#mode=.*$#mode=unattended_debug#' build-image/openhabian.conf
   - #sed -iE 's#mode=.*$#mode=debug_maximum#' build-image/openhabian.conf
+  - echo "Cloning openHABian repo from https://github.com/${TRAVIS_REPO_SLUG}.git"
   - sed -i 's#repositoryurl=https://github.com/openhab/openhabian.git#repositoryurl=https://github.com/'${TRAVIS_REPO_SLUG}'.git#' build-image/openhabian.conf
   - sed -i 's#clonebranch=master#clonebranch='${TRAVIS_BRANCH}'#' build-image/openhabian.conf
-  - docker build -t openhabian/rpi-openhabian -f Dockerfile.openhabian .
 
 jobs:
   fast_finish: true
@@ -77,7 +74,7 @@ jobs:
       script:
         - export HW=rpi
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
-        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-rpi .
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-native .
 # Docker doesn't work on Travis ARM yet (it's still alpha)
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
           docker exec -it "openhabian-${HW}" bash -c \

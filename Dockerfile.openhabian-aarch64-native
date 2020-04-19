@@ -1,7 +1,6 @@
-# assumes at least ARMv71 but not ARMv8 (aarch64) yet
-FROM balenalib/raspberry-pi2-debian-node:latest-buster
- 
-RUN [ "cross-build-start" ]
+# Note RPi3 base (first RPi to have aarch64 available)
+FROM balenalib/raspberrypi3-debian-node:latest-buster
+
 
 ENV container docker
 ENV INITSYSTEM on
@@ -52,6 +51,3 @@ VOLUME ["/sys/fs/cgroup"]
 STOPSIGNAL 37
 
 CMD ["bash", "start.sh"]
-
-RUN [ "cross-build-end" ]
-
