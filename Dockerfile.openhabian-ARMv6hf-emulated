@@ -1,5 +1,7 @@
-FROM balenalib/intel-nuc-debian-node:latest-buster
-
+# RPi1, RPi0W (ARMv6hf arch)
+FROM balenalib/raspberry-pi-debian-node:latest-buster
+ 
+RUN [ "cross-build-start" ]
 
 ENV container docker
 ENV INITSYSTEM on
@@ -50,3 +52,6 @@ VOLUME ["/sys/fs/cgroup"]
 STOPSIGNAL 37
 
 CMD ["bash", "start.sh"]
+
+RUN [ "cross-build-end" ]
+

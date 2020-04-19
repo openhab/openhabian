@@ -1,4 +1,3 @@
-# intentional RPi2 base
 FROM balenalib/raspberry-pi2-debian-node:latest-buster
  
 RUN [ "cross-build-start" ]
@@ -43,7 +42,7 @@ RUN echo "openhabian:openhabian" | chpasswd
 RUN /bin/echo -n "Running on " && /usr/bin/arch
 
 COPY . /opt/openhabian/
-COPY openhabian.conf.dist /etc/openhabian.conf
+COPY build-image/openhabian.conf /etc/openhabian.conf
 
 WORKDIR /opt/openhabian/
 COPY start.sh ./
