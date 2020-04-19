@@ -3,10 +3,6 @@ os: linux
 # using latest Ubuntu (not the travis-ci default) to get latest tool versions in Travis environment
 dist: bionic
 
-#arch:
-#  - amd64
-#  - arm64
-
 cache: false
 
 addons:
@@ -24,9 +20,9 @@ services:
   - docker
 
 stages:
-  - Dev+unit-tests
-  - Bats
-  - Openhabian-Setup
+  - Dev & Unit tests
+  - BATS tests
+  - Run unattended openHABian installation
   - Shellcheck
 
 install:
@@ -43,25 +39,27 @@ install:
 jobs:
   fast_finish: true
   include:
-    - stage: Dev+unit-tests
+    - stage: Dev & Unit tests
       script:
-        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' openhabian.conf.dist
-        - docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "dev-." .'
-        - docker run -it openhabian/rpi-openhabian bash -c 'bats -r -f "unit-." .'
-    - stage: Openhabian-Setup
+        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
+        - docker build -t openhabian/generic-openhabian -f Dockerfile.openhabian-x86 .
+        - docker run -it openhabian/generic-openhabian bash -c 'bats -r -f "dev-." .'
+        - docker run -it openhabian/generic-openhabian bash -c 'bats -r -f "unit-." .'
+    - stage: Run unattended openHABian installation
       env: amd64
       script:
         - export HW=x86
-        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' openhabian.conf.dist
-        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-${HW} .
+        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-x86 .
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
           docker exec -it "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
     - env: arm32hf
       script:
+        - docker run --rm --privileged multiarch/qemu-user-static:register --reset
         - export HW=rpi
-        - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' openhabian.conf.dist
-        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-${HW} .
+        - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-emulated .
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
           docker exec -it "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
@@ -69,18 +67,16 @@ jobs:
       arch: arm64
       script:
         - export HW=rpi
-        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' openhabian.conf.dist
-        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-${HW} .
+        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-rpi .
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
           docker exec -it "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
-    - stage: Bats
+    - stage: BATS tests
       script:
-        docker run --name "bats-inst-tests" --privileged -d openhabian/rpi-openhabian
-        docker exec -it "bats-inst-tests" bash -c 'bats -r -f "installation-." .'
-    - script:
-       docker run --name "bats-dest-tests" --privileged -d openhabian/rpi-openhabian
-        docker exec -it "bats-dest-tests" bash -c 'bats -r -f "destructive-." .'
+      - docker build -t openhabian/rpi-openhabian -f Dockerfile.openhabian-emulated .
+      - docker run --name "bats-inst-tests" --privileged -d openhabian/rpi-openhabian bash -c 'bats -r -f "installation-." .'
+      - docker run --name "bats-dest-tests" --privileged -d openhabian/rpi-openhabian bash -c 'bats -r -f "destructive-." .'
     - stage: Shellcheck
       script: shellcheck -x -s bash openhabian-setup.sh && echo "shellcheck openhabian-setup.sh - OK"; 
               shellcheck -x -s bash functions/*.bash && echo "shellcheck functions/*.bash - OK"; 
