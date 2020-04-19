@@ -24,7 +24,7 @@ touch /opt/openHABian-install-inprogress
 echo -n "$(timestamp) [openHABian] Storing configuration... "
 cp /boot/openhabian.conf /etc/openhabian.conf
 sed -i 's/\r$//' /etc/openhabian.conf
-# shellcheck disable=SC1091
+# shellcheck disable=SC1090
 source "$CONFIGFILE"
 echo "OK"
 

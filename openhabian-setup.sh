@@ -38,7 +38,7 @@ else
   echo "OK"
 fi
 
-# shellcheck disable=SC1091
+# shellcheck disable=SC1090
 source "$CONFIGFILE"
 
 # script will be called with 'unattended' argument by openHABian images
