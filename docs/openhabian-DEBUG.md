@@ -45,7 +45,7 @@ As a first attempt, you should reboot your box to see if the same problems also 
 ## Debug
 If the problem persists, check `/boot/first-boot.log` to get an indication what went wrong in the install process and where.
 You can avoid openHABian to start reinstalling on future reboots by removing the file, i.e. `rm -f /opt/openHABian-install*`, BUT be aware that your installation is incomplete and that you should NOT run openHAB on a box in that state.
-You can use this state to debug, you can also use the 6X menu options in openhabian-config` to manually install everything that failed or missing. See `/opt/openhabian/openhabian-setup.sh` and the code in `/opt/openhabian/functions/*.bash` what usually gets installed on an unattended installation. Note that if you keep or recreate (just "touch") `/opt/openhabian-install-failed`, you can reboot at any time to continue unattended installation. So if say Java install fails (Java being a prerequisite to installation of openHAB), you can do that manually (if you know how to) or use `openhabian-config` to do that, then continue installation by rebooting.
+You can use this state to debug, you can also use the 6X menu options in `openhabian-config` to manually install everything that failed or missing. See `/opt/openhabian/openhabian-setup.sh` and the code in `/opt/openhabian/functions/*.bash` what usually gets installed on an unattended installation. Note that if you keep or recreate (just "touch") `/opt/openhabian-install-failed`, you can reboot at any time to continue unattended installation. So if say Java install fails (Java being a prerequisite to installation of openHAB), you can do that manually (if you know how to) or use `openhabian-config` to do that, then continue installation by rebooting.
 Should you succeed at some point in time - great! Let us know what you did to make it work please by opening a Github issue (see below).
 As you and we cannot be sure everything on your box is 100% the same what an unattended install gets you, please also remember to do a complete reinstall before you start running openHAB. If possible start with the flash step. If no, at least delete all packages that openhabian-setup installed before you reboot.
 
@@ -58,7 +58,7 @@ If installation still fails to finish, please retrieve `/boot/first-log.boot` fr
 
 ### How to open a Github issue
 While written for openHAB, the guideline at https://community.openhab.org/t/how-to-file-an-issue/68464 also applies to openHABian issues.
-Please proceed as told there. openHABian has its own repository at https://github.com/openhab/openhabian/
+Please proceed as told there. openHABian has its own repository at https://github.com/openhab/openhabian .
 Search the issues listed there first if 'your' problem has already been seen and eventually opened as an issue by someone else. If so, you may leave a "me too" comment there but please do not open another issue to avoid duplicates.
 You can reference other issues (eventually also request to reopen closed ones) and Pull Requests by their number (just type #nnn along with your text, GitHub will insert the proper link).
 If you open an issue, we kindly ask you to deliver as much information as possible. It is awkwardly annoying if we need to spend time asking and asking what the real problem is about. Please avoid that situation, be proactive and tell us in the very first place.
@@ -76,11 +76,9 @@ Remember to always let `openhabian-config` update itself on start.
 
 If you want to change anything to work around some not yet fixed bug, you can directly edit the files in and below `/opt/openhabian` on your box. Just do not let openhabian-config update itself on start as that would overwrite your changes.
 
-The main program is in `openhabian-setup.sh`. If the initial unattended install fails again and again at the same step (say Java installation), you may comment that step out. But mind the code in build-image/first-boot.bash quite towards the end starting with`git clone`. This is where openHABian updates itself. If you don't comment that out as well, it'll overwrite your changes on next install run.
+The main program is in `openhabian-setup.sh`. If the initial unattended install fails again and again at the same step (say Java installation), you may comment that step out. But mind the code in `build-image/first-boot.bash` quite towards the end starting with`git clone`. This is where openHABian updates itself. If you don't comment that out as well, it'll overwrite your changes on next install run.
 
-::: warning Disclaimer
-For obvious reasons, this is not a supported procedure. We just want to give you a hint what you _could_ try doing if your install fails
-and you're sitting there, desperately looking for a fix.
+## Disclaimer
+For obvious reasons, changing openhabian code is not a supported procedure. We just want to give you a hint what you _could_ try doing if your install fails and you're sitting there, desperately looking for a fix.
 G*oo*gle and learn yourself what you need to edit a file, learn to understand shell programming basics, you're on your own here.
 If you change openHABian code on your box, remember for the time it takes to get openHABian officially fixed, you must not let openhabian-config update itself on start as that would overwrite your changes.
-:::
