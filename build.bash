@@ -60,9 +60,8 @@ inject_build_repo() {
   sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' "$1"
-#  sed -i "s@master https://github.com/openhab/openhabian.git@$clone_string@g" "$1"
-  sed -i "s@master@$clonebranch@g" "/etc/openhabian.conf"
-  sed -i "s@https://github.com/openhab/openhabian.git@$repositoryurl@g" "/etc/openhabian.conf"
+  sed -i "s@^clonebranch=.*@clonebranch=$clonebranch@g" "/etc/openhabian.conf"
+  sed -i "s@^repositoryurl=.*@repositoryurl=$repositoryurl@g" "/etc/openhabian.conf"
 }
 
 ## Function for checking if a command is available.
