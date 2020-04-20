@@ -570,21 +570,24 @@ and your SD card to contain the Amanda database is broken: you don't have to giv
 Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/cron.d/amanda`). You need to gain an understanding of how your physical storage device works, whether it is a USB stick, USB drive, NAS device on your network, or other device. For example, using a web browser view of a NAS device you will find an amanda-backups directory and a slots directory under the folder you assigned for amanda to use on the NAS.
 
 Example files are
-`/volume1/rp3Backup/amanda-backups/amanda_data_20200331020001.tar.gz
+```
+/volume1/rp3Backup/amanda-backups/amanda_data_20200331020001.tar.gz
 /volume1/rp3Backup/slots/slot14/00000.openHABian-openhab-dir-014
 /volume1/rp3Backup/slots/slot14/00001.openhab._var_lib_openhab2.1
-/volume1/rp3Backup/slots/slot14/00002.openhab._etc_openhab2.0`
+/volume1/rp3Backup/slots/slot14/00002.openhab._etc_openhab2.0
+```
 
 You can extract the /var/lib/amanda files from the amanda_data_DATE.tar.gz file you want (probably the latest). You can also extract the /var/log/amanda directory if needed.
 So you can reinstall openHABian including Amanda from scratch and copy back those extracted files. Eventually see `amadmin import` option.
 Even if you fail to recover your index files, you can still access the files in your storage area.
 The `amindex` command can be used to regenerate the database. How to apply unfortunately is out of scope for this document so please g**gle if needed.
 
-**There's also a manual way**
+**There is also a manual way**
 
-Amanda storage files are tar files of the destination directory or compressed raw copies of partitions, both have an additional 32KB header. If you just want to retrieve some files (such as the items, things, rules, sitemaps, icons and the jsondb information written directly by the paperUI or HABpanelUI) from a partition backup file in the slots directory, you get the relevant slot numbered files from your storage device corresponding to the date you need. The openhab._etc_openhab2.0 file contains the items, icons, sitemaps and similar folders while the openhab._var_lib_openhab2.1 file contains config, etc, jsondb and other folders. Basically you run dd plus tar tvf to list the contents and dd plus tar xvf to extract the files. An exmaple using the above etc_openhab2 slots file is
+Amanda storage files are tar files of the destination directory or compressed raw copies of partitions, both have an additional 32KB header. If you just want to retrieve some files (such as the items, things, rules, sitemaps, icons and the jsondb information written directly by the paperUI or HABpanelUI) from a partition backup file in the slots directory, you get the relevant slot numbered files from your storage device corresponding to the date you need. The `openhab._etc_openhab2.0` file contains the items, icons, sitemaps and similar folders while the `openhab._var_lib_openhab2.1` file contains config, etc, jsondb and other folders. Basically you run dd plus tar tvf to list the contents and dd plus tar xvf to extract the files. An exmaple using the above etc_openhab2 slots file is
 
-`head -14 00002.openhab._etc_openhab2.0
+```
+head -14 00002.openhab._etc_openhab2.0
 AMANDA: SPLIT_FILE 20200414010002 openhab /etc/openhab2  part 1/-1  lev 0 comp N program /bin/tar
 DLE=<<ENDDLE
 <dle>
@@ -598,9 +601,11 @@ DLE=<<ENDDLE
 </dle>
 ENDDLE
 To restore, position tape at start of file and run:
-	dd if=<tape> bs=32k skip=1 | /bin/tar -xpGf - ... `
+	dd if=<tape> bs=32k skip=1 | /bin/tar -xpGf - ... 
+  ```
 
-`dd if=00002.openhab._etc_openhab2.0 bs=32k skip=1 | tar tvf -
+```
+dd if=00002.openhab._etc_openhab2.0 bs=32k skip=1 | tar tvf -
 drwxrwxr-x openhab/openhab 106 2020-03-15 19:17 ./
 drwxrwxr-x openhabian/openhabian 16 2020-02-09 21:16 ./.vscode/
 drwxrwxr-x openhab/openhab       25 2020-01-27 21:53 ./html/
@@ -619,9 +624,11 @@ drwxrwxr-x openhab/openhab       40 2020-01-28 18:05 ./transform/
 -rwxrwxrwx openhabian/openhabian 13063 2020-04-08 12:05 ./sitemaps/demo.sitemap
 -rw-rw-r-- openhab/openhab         241 2020-01-13 08:53 ./sitemaps/readme.txt
 -rw-rw-r-- openhab/openhab        8776 2020-01-13 08:53 ./sounds/barking.mp3
--rw-rw-r-- openhab/openhab      102399 2020-01-13 08:53 ./sounds/doorbell.mp3`
+-rw-rw-r-- openhab/openhab      102399 2020-01-13 08:53 ./sounds/doorbell.mp3
+```
 
- `dd if=00002.openhab._etc_openhab2.0 bs=32k skip=1 | tar xvf -
+```
+dd if=00002.openhab._etc_openhab2.0 bs=32k skip=1 | tar xvf -
 ./
 ./.vscode/
 ./html/
@@ -629,12 +636,13 @@ drwxrwxr-x openhab/openhab       40 2020-01-28 18:05 ./transform/
 ...
 ./transform/de.map
 ./transform/en.map
-./transform/readme.txt`
+./transform/readme.txt
+```
 
 You can then put the extracted files back in the correct location on your openhabian box. You do not even have to put back the amanda_data files since amanda will just build new indexes based on the new daily backups, just like it did the first time amanda was installed. It is highly recommended that you make an image backup of the openhabian box sd card as soon as it is fully back in operation. You may have to reinstall SNAPSHOT.jar binding files, reconfigure exim4 to receive the amanda backup emails and other settings or files not backed up by default by amanda.
 
 See https://major.io/2010/12/14/mounting-a-raw-partition-file-made-with-dd-or-dd_rescue-in-linux/ for more information.
-Here's examples how to decode them. The very last example is for an image restore.
+Here are examples of how to decode them. The very last example is for an image restore.
 
 ```
 [18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# ls -l
