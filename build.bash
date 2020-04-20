@@ -53,14 +53,16 @@ get_git_repo() {
 ##
 inject_build_repo() {
   if [ -z "${clone_string+x}" ]; then
-    echo_process "inject_build_repo() invoked without clone_string varible set, exiting...."
+    echo_process "inject_build_repo() invoked without clone_string variable set, exiting...."
     exit 1
   fi
   sed -i '$a /usr/bin/apt-get -y install figlet &>/dev/null' "$1"
   sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' "$1"
-  sed -i "s@master https://github.com/openhab/openhabian.git@$clone_string@g" "$1"
+#  sed -i "s@master https://github.com/openhab/openhabian.git@$clone_string@g" "$1"
+  sed -i "s@master@$clonebranch@g" "/etc/openhabian.conf"
+  sed -i "s@https://github.com/openhab/openhabian.git@$repositoryurl@g" "/etc/openhabian.conf"
 }
 
 ## Function for checking if a command is available.
@@ -149,8 +151,8 @@ elif [ "$1" == "local-test" ]; then
   cp ./build-image/rc.local /etc/rc.local
   sed -i -e '1r functions/helpers.bash' /boot/first-boot.bash # Add platform identification
   # Use local filesystem's version of openHABian
-  sed -i 's|git clone -b master https://github.com/openhab/openhabian.git /opt/openhabian &>/dev/null||' /boot/first-boot.bash
-  sed -i 's|\[ -d /opt/openhabian/ \] && rm -rf /opt/openhabian/ # check if we have remnants of a previous installation attempt.||' /boot/first-boot.bash
+  sed -i 's|if \[ -d /opt/openhabian/ \]; then cd /opt && rm -rf /opt/openhabian/; fi||' /boot/first-boot.bash
+  sed -i 's|if git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi||' /boot/first-boot.bash
   chmod +x /boot/first-boot.bash
   chmod +x /boot/webif.bash
   chmod +x /etc/rc.local
@@ -171,8 +173,10 @@ if [ "$2" == "dev-git" ]; then # Use current git repo and branch as a developmen
 elif [ "$2" == "dev-url" ]; then # Use custom git server as a development image
   file_tag=custom
   clone_string=$3
+  clonebranch=$3
   clone_string+=" "
   clone_string+=$4
+  repositoryurl=$4
   echo_process "Injecting given git repo when building this image, make sure to push local content to:"
   echo_process "$clone_string"
 
