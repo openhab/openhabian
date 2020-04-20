@@ -204,6 +204,6 @@ show_main_menu() {
     whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
   fi
 
-  # shellcheck disable=SC2181
-  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. Open a Ticket if the error persists: $REPOSITORYURL/issues" 12 60; return 0; fi
+  # shellcheck disable=SC2154,SC2181
+  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again.If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or $REPOSITORYURL/docs/openhabian-DEBUG.md how to proceed." 12 60; return 0; fi
 }

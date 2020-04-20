@@ -45,8 +45,6 @@ needed_packages() {
 }
 
 timezone_setting() {
-  # shellcheck source=/etc/openhabian.conf disable=SC1091
-  source "$CONFIGFILE"
   # shellcheck disable=SC2154
   if [ -n "$INTERACTIVE" ]; then
     echo -n "$(timestamp) [openHABian] Setting timezone based on user choice... "
@@ -79,8 +77,6 @@ locale_setting() {
   fi
 
   echo -n "$(timestamp) [openHABian] Setting locale based on openhabian.conf... "
-  # shellcheck source=/etc/openhabian.conf disable=SC1091
-  source "$CONFIGFILE"
   if is_ubuntu; then
     # shellcheck disable=2086,2154
     cond_redirect locale-gen $locales
@@ -108,8 +104,6 @@ hostname_change() {
       return 1
     fi
   else
-    # shellcheck source=/etc/openhabian.conf disable=SC1091
-    source "$CONFIGFILE"
     new_hostname="${hostname:-openhab}"
   fi
   hostnamectl set-hostname "$new_hostname" &>/dev/null
@@ -217,7 +211,7 @@ misc_system_settings() {
   # A distinguishable apt User-Agent
   echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent
   #
-  cond_redirect echo "OK"
+  echo "OK"
 }
 
 pine64_platform_scripts() {

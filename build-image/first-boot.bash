@@ -1,8 +1,6 @@
 #!/bin/bash
 
-REPOSITORYURL=$(grep -i '^repositoryurl' /etc/openhabian.conf | cut -d '=' -f2)
-CLONEBRANCH=$(grep -i '^clonebranch' /etc/openhabian.conf | cut -d '=' -f2)
-export REPOSITORYURL CLONEBRANCH
+CONFIGFILE=/etc/openhabian.conf
 
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND=noninteractive
@@ -26,9 +24,14 @@ touch /opt/openHABian-install-inprogress
 echo -n "$(timestamp) [openHABian] Storing configuration... "
 cp /boot/openhabian.conf /etc/openhabian.conf
 sed -i 's/\r$//' /etc/openhabian.conf
-# shellcheck disable=SC1091
-source /etc/openhabian.conf
+# shellcheck disable=SC1090
+source "$CONFIGFILE"
 echo "OK"
+
+if [ -n "$DEBUGMAX" ]; then
+  echo "$(timestamp) [openHABian] Enable maximum debugging output (DEBUGMAX=${DEBUGMAX})."
+  set -x
+fi
 
 echo -n "$(timestamp) [openHABian] Starting webserver with installation log... "
 if hash python3 2>/dev/null; then
@@ -149,15 +152,15 @@ if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 echo -n "$(timestamp) [openHABian] Installing git package... "
 if apt-get -y install git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-echo -n "$(timestamp) [openHABian] Cloning myself from ${REPOSITORYURL}, ${CLONEBRANCH} branch... "
 if [ -d /opt/openhabian/ ]; then cd /opt && rm -rf /opt/openhabian/; fi
-if git clone -q -b "$CLONEBRANCH" "$REPOSITORYURL" /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+# shellcheck disable=SC2154
+echo -n "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
+if git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
-echo "$(timestamp) [openHABian] Executing 'openhabian-setup.sh unattended'... "
-if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended); then
-#if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended_debug); then
-  systemctl start openhab2.service
+# shellcheck disable=SC2154
+echo "$(timestamp) [openHABian] Executing openhabian-setup.sh ${mode}... "
+if (/bin/bash /opt/openhabian/openhabian-setup.sh "$mode"); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
@@ -165,13 +168,13 @@ else
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed."
 
-echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready..."
+echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready on $HOSTNAME ..."
 
 # this took ~130 seconds on a RPi2
-if tryUntil "wget -S --spider -t 3 --waitretry=4 http://localhost:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 20 10; then echo "failed."; exit 1; fi
-echo "OK"
+if tryUntil "wget -S --spider -t 3 --waitretry=4 http://${HOSTNAME}:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 20 10; then echo "failed."; exit 1; fi
+echo " OK"
 
-echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://${hostname:-openhab}:8080"
+echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://${HOSTNAME:-openhab}:8080"
 echo "$(timestamp) [openHABian] To gain access to a console, simply reconnect."
 echo "$(timestamp) [openHABian] First time setup successfully finished."
 sleep 12

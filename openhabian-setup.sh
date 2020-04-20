@@ -9,6 +9,7 @@
 # Discussion: https://community.openhab.org/t/13379
 #
 
+CONFIGFILE=/etc/openhabian.conf
 
 # Find the absolute script location dir (e.g. BASEDIR=/opt/openhabian)
 SOURCE="${BASH_SOURCE[0]}"
@@ -19,9 +20,6 @@ while [ -h "$SOURCE" ]; do
 done
 BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 SCRIPTNAME="$(basename "$SOURCE")"
-
-REPOSITORYURL="https://github.com/openhab/openhabian"
-CONFIGFILE="/etc/openhabian.conf"
 
 # Trap CTRL+C, CTRL+Z and quit singles
 trap '' SIGINT SIGQUIT SIGTSTP
@@ -40,15 +38,26 @@ else
   echo "OK"
 fi
 
+# shellcheck disable=SC1090
+source "$CONFIGFILE"
+
 # script will be called with 'unattended' argument by openHABian images
 if [[ "$1" = "unattended" ]]; then
   UNATTENDED=1
   SILENT=1
 elif [[ "$1" = "unattended_debug" ]]; then
   UNATTENDED=1
+  unset DEBUGMAX
+elif [[ "$1" = "debug_maximum" ]]; then
+  UNATTENDED=1
+  DEBUGMAX=1
 else
   INTERACTIVE=1
 fi
+if [[ -n "$DEBUGMAX" ]]; then
+  set -x
+fi
+
 export UNATTENDED SILENT DEBUGMAX INTERACTIVE
 
 # Include all subscripts

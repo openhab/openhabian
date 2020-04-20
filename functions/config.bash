@@ -33,7 +33,7 @@ clean_config_userpw() {
 ## Update java architecture in config file
 ## Valid options: "32-bit" & "64-bit"
 update_config_java() {
-  cond_redirect grep -q '^java_arch' "$CONFIGFILE" && sed -i "s/^java_arch.*/java_arch=$1/" "$CONFIGFILE" || echo "option=$1" >> "$CONFIGFILE"
+  cond_redirect grep -q '^java_arch' "$CONFIGFILE" && sed -i "s/^java_arch.*/java_arch=$1/" "$CONFIGFILE" || echo "java_arch=$1" >> "$CONFIGFILE"
   # shellcheck disable=SC1090
   source "$CONFIGFILE"
 }

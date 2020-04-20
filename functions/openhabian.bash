@@ -71,7 +71,8 @@ openhabian_update() {
     git -C "$BASEDIR" --no-pager log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --stat "$shorthash_before..$shorthash_after"
     echo -e "\\n"
     echo "openHABian configuration tool successfully updated."
-    echo "Visit the development repository for more details: $REPOSITORYURL"
+    # shellcheck disable=SC2154
+    echo "Visit the development repository for more details: $repositoryurl"
     echo "The tool will now restart to load the updates... "
     echo -e "\\n"
     exec "$BASEDIR/$SCRIPTNAME"

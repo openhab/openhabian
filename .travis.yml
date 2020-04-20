@@ -1,7 +1,7 @@
-language: bash
-
+language: shell
+os: linux
 # using latest Ubuntu (not the travis-ci default) to get latest tool versions in Travis environment
-dist: disco
+dist: bionic
 
 cache: false
 
@@ -20,7 +20,12 @@ install:
 # some tests such as zram.bats may fail if we run in emulation mode (testing for ARM emulated on x86 Travis cloud servers)
   - sudo apt-get install virt-what && VIRT=$(sudo virt-what) && echo "Travis VM running on ${VIRT:-native HW}."
   - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-  - docker build -t openhabian/rpi-openhabian -f Dockerfile .
+# prepare configuration for tests, select debug level here:
+  - sed -iE 's#mode=.*$#mode=unattended_debug#' build-image/openhabian.conf
+  - #sed -iE 's#mode=.*$#mode=debug_maximum#' build-image/openhabian.conf
+  - sed -i 's#repositoryurl=https://github.com/openhab/openhabian.git#repositoryurl=https://github.com/'${TRAVIS_REPO_SLUG}'.git#' build-image/openhabian.conf
+  - sed -i 's#clonebranch=master#clonebranch='${TRAVIS_BRANCH}'#' build-image/openhabian.conf
+  - docker build -t openhabian/rpi-openhabian -f Dockerfile.openhabian .
 
 jobs:
   fast_finish: true
@@ -32,7 +37,7 @@ jobs:
       script:
         - docker run --name "openhabian-test" --privileged -d openhabian/rpi-openhabian
         - docker exec -it "openhabian-test" bash -c \
-            'VIRT=$(sudo virt-what); echo -e "\n\e[34mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
+            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
         - docker commit "openhabian-test" openhabian-installed
     - stage: Bats
       script:
@@ -46,4 +51,3 @@ jobs:
               shellcheck -x -s bash functions/*.bash && echo "shellcheck functions/*.bash - OK"; 
               shellcheck -x -s bash build-image/*.bash && echo "shellcheck build-image/*.bash - OK";
               shellcheck -x -s bash build.bash && echo "shellcheck build.bash - OK"
-

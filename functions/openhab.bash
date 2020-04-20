@@ -63,12 +63,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   if ! cond_redirect apt-get ${APT_INST_OPTS} install "openhab2=${openhabVersion}"; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab gpio
   cond_redirect systemctl daemon-reload
-  if cond_redirect systemctl enable openhab2.service; then echo "OK"; else echo "FAILED (usr)"; exit 1; fi
-  if [ -n "$UNATTENDED" ]; then
-    cond_redirect systemctl stop openhab2.service || true
-  else
-    cond_redirect systemctl restart openhab2.service || true
-  fi
+  if cond_redirect systemctl enable --now openhab2; then echo "OK"; else echo "FAILED (usr)"; exit 1; fi
 
   if is_pi || is_pine64; then
     cond_echo "Optimizing Java to run on low memory single board computers... "
