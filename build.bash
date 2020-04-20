@@ -151,6 +151,7 @@ elif [ "$1" == "local-test" ]; then
   sed -i -e '1r functions/helpers.bash' /boot/first-boot.bash # Add platform identification
   # Use local filesystem's version of openHABian
   sed -i 's|if \[ -d /opt/openhabian/ \]; then cd /opt && rm -rf /opt/openhabian/; fi||' /boot/first-boot.bash
+  # shellcheck disable=SC2016
   sed -i 's|if git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi||' /boot/first-boot.bash
   chmod +x /boot/first-boot.bash
   chmod +x /boot/webif.bash
