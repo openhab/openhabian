@@ -78,7 +78,7 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 **Setup:**
 
 - [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
-- Write the image to your SD card (e.g. with [Etcher](https://etcher.io), able to directly work with *xz* files)
+- Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/), able to directly work with *xz* files)
 - Insert the SD card into the Raspberry Pi, connect Ethernet ([Wi-Fi supported](#wi-fi-based-setup-notes)) and power
 - Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhab).)
 - Enjoy! 🎉

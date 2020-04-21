@@ -10,8 +10,8 @@ if [ -f "/opt/openHABian-install-failed" ]; then
   echo "In order to find the cause of the problem, have a look at the installation log:"
   echo -e "   \e[90;01msudo cat /boot/first-boot.log\e[39;49;00m"
   echo ""
-  echo "Contact the openHAB community forum for help if the problem persists:"
-  echo -e "\e[94;04mhttps://community.openhab.org/tags/openhabian\e[39;49;00m"
+  echo "If the error persists, please read the debug guide at:"
+  echo -e "\e[94;04mhttps://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md\e[39;49;00m"
   echo ""
   return 0
 elif [ -f "/opt/openHABian-install-inprogress" ]; then
