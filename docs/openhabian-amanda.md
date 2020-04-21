@@ -639,10 +639,9 @@ dd if=00002.openhab._etc_openhab2.0 bs=32k skip=1 | tar xvf -
 ./transform/readme.txt
 ```
 
-You can then put the extracted files back in the correct location on your openhabian box. You do not even have to put back the amanda_data files since amanda will just build new indexes based on the new daily backups, just like it did the first time amanda was installed. It is highly recommended that you make an image backup of the openhabian box sd card as soon as it is fully back in operation. You may have to reinstall SNAPSHOT.jar binding files, reconfigure exim4 to receive the amanda backup emails and other settings or files not backed up by default by amanda.
+You can then put the extracted files back in the correct location on your openhabian box. You do not even have to put back the amanda_data files since amanda will just build new indexes based on the new daily backups, just like it did the first time amanda was installed. It is highly recommended that you make an image backup of the openhabian box SD card as soon as it is fully back in operation. You may have had to reinstall SNAPSHOT.jar binding files, reconfigure exim4 to receive the amanda backup emails and other settings or files not backed up by default by amanda.
 
-See https://major.io/2010/12/14/mounting-a-raw-partition-file-made-with-dd-or-dd_rescue-in-linux/ for more information.
-Here are examples of how to decode them. The very last example is for an image restore.
+Here are other examples of how to decode slots files, including the SD card where you are using amanda to back it up.
 
 ```
 [18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# ls -l
@@ -674,11 +673,38 @@ drwxr-xr-x root/root        35 2018-03-26 17:23 ./.java/.systemPrefs/
 drwxr-xr-x root/root        31 2018-03-26 17:20 ./PackageKit/
 drwxr-xr-x root/root        85 2018-03-26 17:23 ./X11/
 drwxr-xr-x root/root         9 2018-03-26 17:23 ./X11/Xreset.d/
-
 ...
+```
+If you have included `/dev/mmcblk0` in the amanda disklist file, then amanda will also make full backups of your SD card and the following example shows how to access files from that backup. The slot file header is removed, the Linux partition discovered, checked for consistency by fsck (made accessible as a block device by losetup) and then the Linux partition mounted ready to access the files. For further information on this method see
+https://major.io/2010/12/14/mounting-a-raw-partition-file-made-with-dd-or-dd_rescue-in-linux/
 
-[18:14:49] root@openhabianpi:/volatile/backup/slots/slot7# dd if=00004.openhab._dev_mmcblk0.0 bs=32k skip=1 | zcat | dd of=/volatile/temp/restore_file
+```
+[12:27:49] root@openhabianpi:/volatile/backup/slots/slot7# dd if=00004.openhab._dev_mmcblk0.0 bs=32k skip=1 | zcat | dd of=/volatile/temp/restore_file
 
+[12:31:38] root@openhabianpi:/volatile/backup# fdisk -l /volatile/temp/restore_file
+Disk /volatile/temp/restore_file: 14,9 GiB, 15931539456 bytes, 31116288 sectors
+Units: sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disklabel type: dos
+Disk identifier: 0xfc7531cb
 
+Device                       Boot Start      End  Sectors  Size Id Type
+/volatile/temp/restore_file1       8192    93236    85045 41,5M  c W95 FAT32 (LBA)
+/volatile/temp/restore_file2      94208 14774271 14680064    7G 83 Linux
+[12:32:09] root@openhabianpi:/volatile/backup# echo '94208*512' | bc
+48234496
+[12:32:11] root@openhabianpi:/volatile/temp# losetup --offset 48234496 /dev/loop2 /volatile/temp/restore_file
+[12:32:15] root@openhabianpi:/volatile/temp# fsck /dev/loop2
+fsck from util-linux 2.33.1
+e2fsck 1.44.5 (15-Dec-2018)
+rootfs: clean, 138115/442624 files, 1555806/1835008 blocks
+[12:37:32] root@openhabianpi:/volatile/backup# mount -o loop,offset=48234496 /volatile/temp/restore_file /mnt
+[12:37:45] root@openhabianpi:/volatile/temp# ls -l /mnt/etc/openhab2/
+insgesamt 56
+drwxrwxr-x  5 openhab openhab 4096 Jan 18 17:59 automation
+drwxrwxr-x  2 openhab openhab 4096 Apr 19 17:05 html
+drwxrwxr-x  3 openhab openhab 4096 Jan 21 10:07 icons
+drwxrwxr-x  2 openhab openhab 4096 Apr 19 17:05 items
 ...
 ```
