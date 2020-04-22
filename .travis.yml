@@ -40,8 +40,8 @@ jobs:
       script:
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/generic-openhabian -f Dockerfile.openhabian-x86 .
-        - docker run -it openhabian/generic-openhabian bash -c 'bats -r -f "dev-." .'
-        - docker run -it openhabian/generic-openhabian bash -c 'bats -r -f "unit-." .'
+        - docker run -it openhabian/generic-openhabian bash -c '/usr/local/bin/bats -r -f "dev-." .'
+        - docker run -it openhabian/generic-openhabian bash -c '/usr/local/bin/bats -r -f "unit-." .'
     - stage: Run unattended openHABian installation
       env: amd64
       script:
@@ -54,7 +54,7 @@ jobs:
     - env: arm32hf
       script:
         - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-        - export HW=rpi
+        - export HW=rpi2
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-emulated .
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
@@ -63,7 +63,7 @@ jobs:
     - env: arm32hf
       script:
         - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-        - export HW=rpi
+        - export HW=rpi01
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-ARMv6hf-emulated .
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
@@ -72,18 +72,19 @@ jobs:
     - env: aarch64
       arch: arm64
       script:
-        - export HW=rpi
+        - export HW=rpi3
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-native .
-# Docker doesn't work on Travis ARM yet (it's still alpha), cannot access priviledged FS for now ?
-        - docker run --name "openhabian-${HW}" --priviledged -d openhabian/${HW}-openhabian;
+# Docker doesn't work on Travis ARM yet (it's still alpha), cannot access privileged FS for now ?
+        - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
           docker exec -it "openhabian-${HW}" bash -c \
-            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT' || true
+            './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local' || true
+#            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT' || true
     - stage: BATS tests
       script:
       - docker build -t openhabian/rpi-openhabian -f Dockerfile.openhabian-emulated .
-      - docker run --name "bats-inst-tests" --privileged -d openhabian/rpi-openhabian bash -c 'bats -r -f "installation-." .'
-      - docker run --name "bats-dest-tests" --privileged -d openhabian/rpi-openhabian bash -c 'bats -r -f "destructive-." .'
+      - docker run --name "bats-inst-tests" --privileged -d openhabian/rpi-openhabian bash -c '/usr/local/bin/bats -r -f "installation-." .'
+      - docker run --name "bats-dest-tests" --privileged -d openhabian/rpi-openhabian bash -c '/usr/local/bin/bats -r -f "destructive-." .'
     - stage: Shellcheck
       script: shellcheck -x -s bash openhabian-setup.sh && echo "shellcheck openhabian-setup.sh - OK"; 
               shellcheck -x -s bash functions/*.bash && echo "shellcheck functions/*.bash - OK"; 
