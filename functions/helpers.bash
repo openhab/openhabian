@@ -148,6 +148,10 @@ is_bionic() {
 running_in_docker() {
   grep -q 'docker\|lxc' /proc/1/cgroup
 }
+running_on_github() {
+  [[ -n "$GITHUB_RUN_ID" ]]
+  return $?
+}
 tryUntil() {
   # tryUntil() executes $1 as command
   # either $2 times or until cmd evaluates to 0, sleeps $3 seconds inbetween
