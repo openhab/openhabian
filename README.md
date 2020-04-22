@@ -2,7 +2,7 @@
 -   <https://www.openhab.org/docs/installation/openhabian.html>
 
 # openHABian - Hassle-free openHAB Setup
-[![build](https://travis-ci.org/openhab/openhabian.svg?branch=master)](https://travis-ci.org/openhab/openhabian)
+[![build](https://travis-ci.org/openhab/openhabian.svg?branch=master)](https://travis-ci.com/github/openhab/openhabian)
 ![shellcheck](https://github.com/openhab/openhabian/workflows/shellcheck/badge.svg?branch=master)
 
 Setting up a fully working Linux system with all needed packages and openHAB recommendations is a **boring task** taking quite some time and **Linux newcomers** shouldn't worry about these technical details.
