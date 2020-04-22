@@ -567,7 +567,7 @@ You could also move that temporary recovered image file to your Windows PC that 
 ### A final word on when things have gone badly wrong...
 
 and your SD card to contain the Amanda database is broken: you don't have to give up.
-Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/cron.d/amanda`). You need to gain an understanding of how your physical storage device works, whether it is a USB stick, USB drive, NAS device on your network, or other device. For example, using a web browser view of a NAS device you will find an amanda-backups directory and a slots directory under the folder you assigned for Amanda to use on the NAS.
+Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/cron.d/amanda`). Restore these to another machine of yours to become your temporary Amanda host for the time being to restore your old box.
 
 Example files are
 ```
@@ -577,12 +577,15 @@ Example files are
 /volume1/rp3Backup/slots/slot14/00002.openhab._etc_openhab2.0
 ```
 
-You can extract the /var/lib/amanda files from the amanda_data_DATE.tar.gz file you want (probably the latest). You can also extract the /var/log/amanda directory if needed.
+You can extract the `/var/lib/amanda` files from the amanda_data_DATE.tar.gz file you want (probably the latest). You can also extract the `/var/log/amanda` directory if needed.
 So you can reinstall openHABian including Amanda from scratch and copy back those extracted files. Eventually see `amadmin import` option.
 Even if you fail to recover your index files, you can still access the files in your storage area.
 The `amindex` command can be used to regenerate the database. How to apply unfortunately is out of scope for this document so please g**gle if needed.
 
 **There is also a manual way**
+
+If to recreate the database does not work out for you, you can use a series of commands to manually the stored backup files.
+First, you need to have an understanding of how to access and copy files from your physical storage device, no matter whether it is a USB stick, USB drive, NAS device on your network, or other device. For example, using a web browser view or Windows share of a NAS device you will find an amanda-backups directory and a slots directory under the folder you assigned for Amanda to use on the NAS. Others to be familiar with Linux and SSH will want to use that.
 
 Amanda storage files are tar files of the destination directory or compressed raw copies of partitions, both have an additional 32KB header. If you just want to retrieve some files (such as the items, things, rules, sitemaps, icons and the jsondb information written directly by the paperUI or HABpanelUI) from a partition backup file in the slots directory, you get the relevant slot numbered files from your storage device corresponding to the date you need. The `openhab._etc_openhab2.0` file contains the items, icons, sitemaps and similar folders while the `openhab._var_lib_openhab2.1` file contains config, etc, jsondb and other folders. Basically you run dd plus tar tvf to list the contents and dd plus tar xvf to extract the files. An exmaple using the above etc_openhab2 slots file is
 
