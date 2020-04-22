@@ -1,7 +1,9 @@
 ﻿As an **openHABian end user**, please check out the official openHAB documentation:  
-🡺 https://www.openhab.org/docs/installation/openhabian.html
+-   <https://www.openhab.org/docs/installation/openhabian.html>
 
-# openHABian - Hassle-free openHAB Setup [![](https://travis-ci.org/openhab/openhabian.svg?branch=master)](https://travis-ci.org/openhab/openhabian)
+# openHABian - Hassle-free openHAB Setup
+[![build](https://travis-ci.org/openhab/openhabian.svg?branch=master)](https://travis-ci.org/openhab/openhabian)
+![shellcheck](https://github.com/openhab/openhabian/workflows/shellcheck/badge.svg?branch=master)
 
 Setting up a fully working Linux system with all needed packages and openHAB recommendations is a **boring task** taking quite some time and **Linux newcomers** shouldn't worry about these technical details.
 
@@ -10,8 +12,8 @@ Setting up a fully working Linux system with all needed packages and openHAB rec
 openHABian aims to provide a **self-configuring** Linux system setup specific to the needs of every openHAB user.
 The project provides two things:
 
-* A set of scripts to set up openHAB on any Debian/Ubuntu based system
-* Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations, for the *Raspberry Pi* and the *Pine A64* platforms.
+*   A set of scripts to set up openHAB on any Debian/Ubuntu based system
+*   Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations, for the *Raspberry Pi* and the *Pine A64* platforms.
 
 Closely related to openHABian is the repository [openhab-linuxpkg](https://github.com/openhab/openhab-linuxpkg) which provides linux packages for openHAB. openHABian uses those packages to setup openHAB with some additional configurations.
 
@@ -27,7 +29,7 @@ openHABian is foremost a collection of `bash` script version handled and deploye
 A good place to look at to start to understand the code is the file `openhabian-setup.sh`.
 
 ### Building Hardware Images
-Take a look at the `build.bash` script to get an idea of the process. 
+Take a look at the `build.bash` script to get an idea of the process.
 Simply explained run the code below with `platform` being either `rpi` or `pine64`. The RPi image is based on the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian) standard image while the Pine64 image is based on [build-pine64-image](https://github.com/longsleep/build-pine64-image).
 ```
 $ sudo bash ./build.bash platform
