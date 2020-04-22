@@ -375,7 +375,7 @@ backup@pi:~$ amcheck openhab-dir
 
 ## Restore
 
-There are two types of restore, the easier one where amanda is still working and you want to restore some files, the harder case is where perhaps your sd card is dead and you first have to use your backup system img file or you might have to do a reinstall from scratch. The good news is that the files backed up by amanda are accessible and you may need to restore the storage index information first so that amanda can find them. You can also go directly to the latest backup files without using amanda. The easier case is explained first. For the second case jump to "when things have gone badly wrong".
+There are two types of restore, the easier one where Amanda is still working and you want to restore some files, the harder case is where perhaps your sd card is dead and you first have to use your backup system img file or you might have to do a reinstall from scratch. The good news is that the files backed up by Amanda are accessible and you may need to restore the storage index information first so that Amanda can find them. You can also go directly to the latest backup files without using Amanda. The easier case is explained first. For the second case jump to "when things have gone badly wrong".
 
 
 ### Locating a backup
@@ -567,7 +567,7 @@ You could also move that temporary recovered image file to your Windows PC that 
 ### A final word on when things have gone badly wrong...
 
 and your SD card to contain the Amanda database is broken: you don't have to give up.
-Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/cron.d/amanda`). You need to gain an understanding of how your physical storage device works, whether it is a USB stick, USB drive, NAS device on your network, or other device. For example, using a web browser view of a NAS device you will find an amanda-backups directory and a slots directory under the folder you assigned for amanda to use on the NAS.
+Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/cron.d/amanda`). You need to gain an understanding of how your physical storage device works, whether it is a USB stick, USB drive, NAS device on your network, or other device. For example, using a web browser view of a NAS device you will find an amanda-backups directory and a slots directory under the folder you assigned for Amanda to use on the NAS.
 
 Example files are
 ```
@@ -587,7 +587,7 @@ The `amindex` command can be used to regenerate the database. How to apply unfor
 Amanda storage files are tar files of the destination directory or compressed raw copies of partitions, both have an additional 32KB header. If you just want to retrieve some files (such as the items, things, rules, sitemaps, icons and the jsondb information written directly by the paperUI or HABpanelUI) from a partition backup file in the slots directory, you get the relevant slot numbered files from your storage device corresponding to the date you need. The `openhab._etc_openhab2.0` file contains the items, icons, sitemaps and similar folders while the `openhab._var_lib_openhab2.1` file contains config, etc, jsondb and other folders. Basically you run dd plus tar tvf to list the contents and dd plus tar xvf to extract the files. An exmaple using the above etc_openhab2 slots file is
 
 ```
-head -14 00002.openhab._etc_openhab2.0
+[14:10:22] root@openhabianpi:/volatile/backup/slots/slot14# head -14 00002.openhab._etc_openhab2.0
 AMANDA: SPLIT_FILE 20200414010002 openhab /etc/openhab2  part 1/-1  lev 0 comp N program /bin/tar
 DLE=<<ENDDLE
 <dle>
@@ -605,7 +605,7 @@ To restore, position tape at start of file and run:
   ```
 
 ```
-dd if=00002.openhab._etc_openhab2.0 bs=32k skip=1 | tar tvf -
+[14:11:09] root@openhabianpi:/volatile/backup/slots/slot14# dd if=00002.openhab._etc_openhab2.0 bs=32k skip=1 | tar tvf -
 drwxrwxr-x openhab/openhab 106 2020-03-15 19:17 ./
 drwxrwxr-x openhabian/openhabian 16 2020-02-09 21:16 ./.vscode/
 drwxrwxr-x openhab/openhab       25 2020-01-27 21:53 ./html/
@@ -628,7 +628,7 @@ drwxrwxr-x openhab/openhab       40 2020-01-28 18:05 ./transform/
 ```
 
 ```
-dd if=00002.openhab._etc_openhab2.0 bs=32k skip=1 | tar xvf -
+[14:11:52] root@openhabianpi:/volatile/backup/slots/slot14# dd if=00002.openhab._etc_openhab2.0 bs=32k skip=1 | tar xvf -
 ./
 ./.vscode/
 ./html/
@@ -639,9 +639,15 @@ dd if=00002.openhab._etc_openhab2.0 bs=32k skip=1 | tar xvf -
 ./transform/readme.txt
 ```
 
-You can then put the extracted files back in the correct location on your openhabian box. You do not even have to put back the amanda_data files since amanda will just build new indexes based on the new daily backups, just like it did the first time amanda was installed. It is highly recommended that you make an image backup of the openhabian box SD card as soon as it is fully back in operation. You may have had to reinstall SNAPSHOT.jar binding files, reconfigure exim4 to receive the amanda backup emails and other settings or files not backed up by default by amanda.
+You can then put the extracted files back in the correct location on your openHABian box. You do not even have to put back the amanda_data files since Amanda will just build new indexes based on the new daily backups, just like it did the first time Amanda was installed. It is highly recommended that you make a backup copy of the openHABian box SD card as soon as it is fully back in operation. You may have had to reinstall SNAPSHOT.jar binding files, reconfigure exim4 to receive the Amanda backup emails and other settings or files not backed up by default by Amanda. To do so, you can include `/dev/mmcblk0` in the disklist on your next backup run and restore that to a new SD card (see restore section). If your SD card is large then daily backups of the SD card might be a problem. In addition, you may prefer to be able to just put a replacement SD card in your openHABian box almost immediatley should you have a failed SD card crash. There are several options:
+1. Shutdown the working openHABian box, take out the SD card and make a backup copy on another computer using, for example
+    `andrew@Meerkat:~/rp3_backup$ sudo dd if=/dev/sdc of=raspbian_backup19April2020.img`
+2. Make a copy of the openHABian SD card on your storage device using
+    `[13:44:51] openhabian@openhab:~$ sudo dd if=/dev/mmcblk0 of=/storage/server/sdcard-backups/sd_card_$(date +\%Y\%m\%d\%H\%M\%S).img`
+3. Automate this process, where SD card backups are made to your storage device on the first day of every month, by adding the following to the `/etc/cron.d/amanda` file
+    `0 3 1 * * root (cd /; dd if=/dev/mmcblk0 of=/storage/server/sdcard-backups/sd_card_$(date +\%Y\%m\%d\%H\%M\%S).img; find /storage/server -name sdcard_card_\* -mtime +150 -delete) >/dev/null 2>&1`
 
-Here are other examples of how to decode slots files, including the SD card where you are using amanda to back it up.
+Here are other examples of how to decode slots files, including the SD card where you are using Amanda to back it up.
 
 ```
 [18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# ls -l
