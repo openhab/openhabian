@@ -77,8 +77,8 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 
 **Setup:**
 
-- [Download the latest "openHABianPi" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
-- Write the image to your SD card (e.g. with [Etcher](https://etcher.io), able to directly work with *xz* files)
+- [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
+- Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/), able to directly work with *xz* files)
 - Insert the SD card into the Raspberry Pi, connect Ethernet ([Wi-Fi supported](#wi-fi-based-setup-notes)) and power
 - Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhab).)
 - Enjoy! 🎉
@@ -163,7 +163,7 @@ The configuration tool is the heart of openHABian.
 It is not only a menu with a set of options, it's also used in a special unattended mode inside the ready to use images.
 
 ⌨ - A quick note on menu navigation.
-Use the cursor keys to navigate, &lt;Enter&gt; to execute, &lt;Space&gt; to select and &lt;Tab&gt; to jump to the actions on the bottom of the screen. Press &lt;Esc&gt; twice to exit the configuration tool.
+Use the cursor keys to navigate, <kbd>Enter</kbd> to execute, <kbd>Space</kbd> to select and <kbd>Tab</kbd> to jump to the actions on the bottom of the screen. Press <kbd>Esc</kbd> twice to exit the configuration tool.
 
 ### Linux Hints
 
@@ -201,7 +201,7 @@ openHABian is supposed to provide a ready-to-use openHAB base system. There are 
 
 All of these settings **can easily be changed** via the openHABian Configuration Tool.
 
-Here are the passwords in question with their respective default "username:password" values. 
+Here are the passwords in question with their respective default "username:password" values.
 All password can be changed from openHABian menu.
 
 {: #passwords}
@@ -213,7 +213,7 @@ All password can be changed from openHABian menu.
 - InfluxDB (No password set by default)
 - Grafana visualization ("admin:admin")
 
-## System Backup & Maintenance 
+## System Backup & Maintenance
 Once you have gotten grip on how to use openHAB for your needs it is a good moment to think about backup. Maybe you accidently delete something or get hit by SD card wearout problem which is quite common on many single board computers such as Raspberry Pis.
 
 There are four measures and methods in openHABian to cover this matter today, but they all need some research and readup to be successfully used. *(Hopefully we will get to develop a more streamlined method to better integrate with openHAB itself - stay tuned.)*
@@ -275,7 +275,7 @@ During and after the first boot of your Raspberry Pi, the green on-board LED wil
 -->
 
 **RPi note:**
-The progress indication via the **green Raspberry Pi LED** is currently not possible and hence not part of the openHABian v1.3 image.
+The progress indication via the **green Raspberry Pi LED** is currently not possible and hence not part of the openHABian v1.3+ image.
 We will re-add the functionality as soon as the underlying issue is resolved.
 
 ##### openHAB Dashboard
