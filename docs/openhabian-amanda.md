@@ -639,13 +639,19 @@ drwxrwxr-x openhab/openhab       40 2020-01-28 18:05 ./transform/
 ./transform/readme.txt
 ```
 
-You can then put the extracted files back in the correct location on your openHABian box. You do not even have to put back the amanda_data files since Amanda will just build new indexes based on the new daily backups, just like it did the first time Amanda was installed. It is highly recommended that you make a backup copy of the openHABian box SD card as soon as it is fully back in operation. You may have had to reinstall SNAPSHOT.jar binding files, reconfigure exim4 to receive the Amanda backup emails and other settings or files not backed up by default by Amanda. To do so, you can include `/dev/mmcblk0` in the disklist on your next backup run and restore that to a new SD card (see restore section). If your SD card is large then daily backups of the SD card might be a problem. In addition, you may prefer to be able to just put a replacement SD card in your openHABian box almost immediatley should you have a failed SD card crash. There are several options:
-1. Shutdown the working openHABian box, take out the SD card and make a backup copy on another computer using, for example
-    `andrew@Meerkat:~/rp3_backup$ sudo dd if=/dev/sdc of=raspbian_backup19April2020.img`
+You can then put the extracted files back in the correct location on your openHABian box. You do not even have to put back the amanda_data files since Amanda will just build new indexes based on the new daily backups, just like it did the first time Amanda was installed. It is highly recommended that you make a backup copy of the openHABian box SD card as soon as it is fully back in operation. You may have had to reinstall SNAPSHOT.jar binding files, reconfigure exim4 to receive the Amanda backup emails and other settings or files not backed up by default by Amanda. To do so, you can include `/dev/mmcblk0` in the disklist on your next backup run and restore that to a new SD card (see restore section). If your SD card is large then daily backups of the SD card might be a problem. In addition, you may prefer to be able to just put a replacement SD card in your openHABian box in a one step process, should you have a failed SD card crash. There are several options to ensure that you have easy access to a recent SD card backup:
+
+1. Shutdown the working openHABian box, take out the SD card and make a backup copy on another computer using, for example with Linux
+    `andrew@Meerkat:~/rp3_backup$ sudo dd if=/dev/sdc of=raspbian_backup4March2020.img`
+    It is worthwhie doing this at least once to learn the mechanics of SD card backup and restore, and a Linux "flash" example is
+    `andrew@Meerkat:~/rp3_backup$ sudo dd if=raspbian_backup19April2020.img of=/dev/sdc`
+    You can also use other tools such as Etcher to flash the SD card with the backup image (or raw) file
 2. Make a copy of the openHABian SD card on your storage device using
     `[13:44:51] openhabian@openhab:~$ sudo dd if=/dev/mmcblk0 of=/storage/server/sdcard-backups/sd_card_$(date +\%Y\%m\%d\%H\%M\%S).img`
 3. Automate this process, where SD card backups are made to your storage device on the first day of every month, by adding the following to the `/etc/cron.d/amanda` file
     `0 3 1 * * root (cd /; dd if=/dev/mmcblk0 of=/storage/server/sdcard-backups/sd_card_$(date +\%Y\%m\%d\%H\%M\%S).img; find /storage/server -name sdcard_card_\* -mtime +150 -delete) >/dev/null 2>&1`
+
+To restore your openHABian system you flash (or dd) a SD card with the most recent SD card backup and use it to get your openHABian box up and running again. You then get the most recent amanda_data files onto your system and use Amanda to run `amrecover` to restore files not included in your SD card backup.
 
 Here are other examples of how to decode slots files, including the SD card where you are using Amanda to back it up.
 
