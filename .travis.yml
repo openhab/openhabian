@@ -26,8 +26,8 @@ stages:
 
 install:
 # prepare configuration for tests, select debug level here:
-  - #sed -iE 's#mode=.*$#mode=unattended_debug#' build-image/openhabian.conf
-  - sed -iE 's#mode=.*$#mode=debug_maximum#' build-image/openhabian.conf
+  - sed -iE 's#mode=.*$#mode=unattended_debug#' build-image/openhabian.conf
+  - #sed -iE 's#mode=.*$#mode=debug_maximum#' build-image/openhabian.conf
   - echo "Cloning openHABian repo from https://github.com/${TRAVIS_REPO_SLUG}.git"
   - sed -i 's#repositoryurl=https://github.com/openhab/openhabian.git#repositoryurl=https://github.com/'${TRAVIS_REPO_SLUG}'.git#' build-image/openhabian.conf
   - sed -i 's#clonebranch=master#clonebranch='${TRAVIS_BRANCH}'#' build-image/openhabian.conf
@@ -47,9 +47,9 @@ jobs:
       - docker run --name "bats-inst-tests" --privileged -d openhabian/rpi-openhabian bash -c '/usr/local/bin/bats -r -f "installation-." .'
       - docker run --name "bats-dest-tests" --privileged -d openhabian/rpi-openhabian bash -c '/usr/local/bin/bats -r -f "destructive-." .'
       - shellcheck -x -s bash openhabian-setup.sh && echo "shellcheck openhabian-setup.sh - OK"; 
-              shellcheck -x -s bash functions/*.bash && echo "shellcheck functions/*.bash - OK"; 
-              shellcheck -x -s bash build-image/*.bash && echo "shellcheck build-image/*.bash - OK";
-              shellcheck -x -s bash build.bash && echo "shellcheck build.bash - OK"
+        shellcheck -x -s bash functions/*.bash && echo "shellcheck functions/*.bash - OK"; 
+        shellcheck -x -s bash build-image/*.bash && echo "shellcheck build-image/*.bash - OK";
+        shellcheck -x -s bash build.bash && echo "shellcheck build.bash - OK"
     - stage: Run unattended openHABian installation
       env: amd64
       script:
@@ -58,8 +58,7 @@ jobs:
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-x86 .
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
           docker exec -it "openhabian-${HW}" bash -c \
-            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
-#            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
+            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
     - env: arm32hf
       script:
         - docker run --rm --privileged multiarch/qemu-user-static:register --reset
@@ -68,8 +67,7 @@ jobs:
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-emulated .
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
           docker exec -it "openhabian-${HW}" bash -c \
-            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
-#            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
+            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
     - env: arm32hf
       script:
         - docker run --rm --privileged multiarch/qemu-user-static:register --reset
@@ -78,8 +76,7 @@ jobs:
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-ARMv6hf-emulated .
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
           docker exec -it "openhabian-${HW}" bash -c \
-            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
-#            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
+            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
     - env: aarch64
       arch: arm64
       script:
@@ -89,5 +86,5 @@ jobs:
 # Docker doesn't work on Travis ARM yet (it's still alpha), cannot access privileged FS for now ?
         - docker run --name "openhabian-${HW}" --privileged -t -d openhabian/${HW}-openhabian;
           docker exec -it "openhabian-${HW}" bash -c \
-            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
-#            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT' || true
+            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT' || true
+
