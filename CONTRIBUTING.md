@@ -32,8 +32,8 @@ Discuss, then make the suggested modifications and push additional commits to yo
 Be sure to post a comment after pushing.
 The new commits will show up in the pull request automatically, but the reviewers will not be notified unless you comment.
 
-Pull request will be tested on CI platform which shall pass. 
-Please provide test-cases for new features. See testing below. 
+Pull request will be tested on CI platform which shall pass.
+Please provide test-cases for new features. See testing below.
 
 Before the pull request is merged, your commits might get squashed, based on the size and style of your contribution.
 Include documentation changes in the same pull request, so that a revert would remove all traces of the feature or fix.
@@ -104,8 +104,8 @@ Signed-off-by: Joe Smith <joe.smith@email.com> (github: github_handle_joe)
 There are several exceptions to the sign-off requirement.
 Currently these are:
 
-* Your patch fixes spelling or grammar errors.
-* Your patch is a single line change to documentation.
+*   Your patch fixes spelling or grammar errors.
+*   Your patch is a single line change to documentation.
 
 ### Sign your Work using GPG
 
@@ -123,20 +123,20 @@ We want to keep the openHAB community awesome, growing and collaborative.
 We need your help to keep it that way.
 To help with this we've come up with some general guidelines for the community as a whole:
 
-* **Be nice:**
+*   **Be nice:**
 Be courteous, respectful and polite to fellow community members:
 no regional, racial, gender, or other abuse will be tolerated.
 We like nice people way better than mean ones!
 
-* **Encourage diversity and participation:**
+*   **Encourage diversity and participation:**
 Make everyone in our community feel welcome, regardless of their background and the extent of their contributions.
 Do everything possible to encourage participation in our community.
 
-* **Keep it legal:**
+*   **Keep it legal:**
 Basically, don't get us in trouble.
 Share only content that you own, do not share private or sensitive information, and don't break the law.
 
-* **Stay on topic:**
+*   **Stay on topic:**
 Make sure that you are posting to the correct channel and avoid off-topic discussions.
 Remember when you update an issue or respond to an email you are potentially sending to a large number of people.
 Please consider this before you update.
@@ -145,9 +145,9 @@ Also remember that nobody likes spam.
 
 ## Code Guidelines
 
-* Use two (2) spaces when indent code.
+*   Use two (2) spaces when indent code.
 
-* `local` declerations of variables shall be used when possible.
+*   `local` declerations of variables shall be used when possible.
 
 ### Usage of `apt-get update` command
 
@@ -164,7 +164,7 @@ To minimize unnecessary updates of the local apt database running `apt-get updat
 Testing is based on three pilars: A) *Installation of base system*, B) *Test Cases*, and C) *Static analys using linter*.
 
 ### Test installation
-Test installation are done continuously using a Docker on a Travis Virtual Machine and by testing on actual hardware, eg. Raspberry Pi. A docker installation can be performed by three commands. Firstly a docker image is built where the `openhabian` code is injected (see `dockerfile` for details): 
+Test installation are done continuously using a Docker on a Travis Virtual Machine and by testing on actual hardware, eg. Raspberry Pi. A docker installation can be performed by three commands. Firstly a docker image is built where the `openhabian` code is injected (see `dockerfile` for details):
 
 ```
 docker build --tag openhabian/openhabian-bats .
@@ -176,9 +176,9 @@ docker run --name "install-test" --privileged -d openhabian/openhabian-bats
 ```
 Lastly the installation is invoked by executing:
 ```
-docker exec -it install-test bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profil && /etc/rc.local"
+docker exec -it install-test bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local"
 ```
-Notice that the "docker system" mimic a hardware SD-card installation with the command `./build.bash local-test`. 
+Notice that the "docker system" mimic a hardware SD-card installation with the command `./build.bash local-test`.
 
 ### Test Cases
 The test cases are further divided into four categories and can be individually invoked by the BATS framwork. The tests category can be identified in the naming of the test. The test code are held in a corresponding file to the code itself, i.e. Code: `helpers.bash` and tests `helpers.bats`. The categories are as follows:
@@ -189,12 +189,12 @@ These test may alter the host system. Use dev-<name> tests to test new features 
 #### Unit Tests `unit-<name>`
 These test does not alter the host system where the test is executed and is isolated to a specific function. This test does not required a installed base system of openHABian.
 ```
-docker run -it openhabian/openhabian-bats bash -c 'bats -r -f "unit-." .' 
+docker run -it openhabian/openhabian-bats bash -c 'bats -r -f "unit-." .'
 ```
 
 #### Installation Verification `installation-<name>`
 This is a suite of tests designed to verify a normal installation.
-These tests shall not alter the system. 
+These tests shall not alter the system.
 ```
 docker exec -it install-test bash -c 'bats -r -f "installation-." .'
 ```

@@ -114,4 +114,3 @@ move_root2usb() {
   infotext="OK, moving system root finished. PLEASE REBOOT\\nIn the unlikely case that the reboot does not succeed,\\nplease put the SD card into another device and copy back\\n/boot/cmdline.txt.sdcard to /boot/cmdline.txt\\n"
   whiptail --title "Moving system root finished ...." --msgbox "$infotext" 12 78
 }
-

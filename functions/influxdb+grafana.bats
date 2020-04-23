@@ -22,4 +22,3 @@ load helpers
   [ "$status" -eq 0 ]
   echo -e "# \e[32mGrafana service running." >&3
 }
-

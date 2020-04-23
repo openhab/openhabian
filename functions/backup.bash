@@ -209,4 +209,3 @@ amanda_setup() {
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
 }
-

@@ -49,4 +49,3 @@ load helpers
   [[ $output == *"Zulu"* ]]
   [[ $output == *"32"* ]]
 }
-
