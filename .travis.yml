@@ -62,7 +62,7 @@ jobs:
     - env: arm32hf
       script:
         - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-        - export HW=rpi
+        - export HW=rpi2
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-emulated .
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
@@ -71,7 +71,7 @@ jobs:
     - env: arm32hf
       script:
         - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-        - export HW=rpi
+        - export HW=rpi01
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-ARMv6hf-emulated .
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
@@ -80,7 +80,7 @@ jobs:
     - env: aarch64
       arch: arm64
       script:
-        - export HW=rpi
+        - export HW=rpi3
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-native .
 # Docker doesn't work on Travis ARM yet (it's still alpha), cannot access privileged FS for now ?
