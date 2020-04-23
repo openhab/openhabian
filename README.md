@@ -24,7 +24,7 @@ Please check the [official documentation article](https://www.openhab.org/docs/i
 
 ## Development
 
-openHABian is foremost a collection of `bash` script version handled and deployed using GIT. In the current state the scripts can only be invoked through the terminal menu system [whiptail](https://en.wikibooks.org/wiki/Bash_Shell_Scripting/Whiptail). There is a longterm need to better seperate the UI part from the script code. A work has started to define conventions and further explain the code base in the document [CONTRIBUTING](CONTRIBUTING.md) along with development guidelines in general.
+openHABian is foremost a collection of `bash` script version handled and deployed using GIT. In the current state the scripts can only be invoked through the terminal menu system [whiptail](https://en.wikibooks.org/wiki/Bash_Shell_Scripting/Whiptail). There is a longterm need to better separate the UI part from the script code. A work has started to define conventions and further explain the code base in the document [CONTRIBUTING](CONTRIBUTING.md) along with development guidelines in general.
 
 A good place to look at to start to understand the code is the file `openhabian-setup.sh`.
 
