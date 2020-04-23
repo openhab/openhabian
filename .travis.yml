@@ -35,6 +35,8 @@ install:
 
 jobs:
   fast_finish: true
+  allow_failures:
+      env: aarch64
   include:
     - stage: Dev & Unit tests
       script:
@@ -78,7 +80,7 @@ jobs:
 # Docker doesn't work on Travis ARM yet (it's still alpha), cannot access privileged FS for now ?
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
           docker exec -it "openhabian-${HW}" bash -c \
-            './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local' || true
+            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT'
 #            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local; OUTPUT=$?; if [ "${VIRT}" != "native HW" ]; then echo -e "\n\e[32mDid not test openhabian install on native HW, ignoring test result.\n"; exit 0; fi; exit $OUTPUT' || true
     - stage: BATS tests
       script:
