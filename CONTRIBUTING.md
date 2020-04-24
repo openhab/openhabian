@@ -16,24 +16,24 @@ Get in contact early in the development to propose your idea.
 Fork the repository and make changes on your fork in a feature branch.
 
 Update the documentation when creating or modifying features.
-Test your documentation changes for clarity, concision, and correctness, as well as a clean documentation build.
+Test your changes for clarity, concision, and correctness, as well as a clean documentation build.
 
 Write clean, modular and testable code.
-We have a codestyle which in combination the static linter Shellcheck works as guidelines.
+We have a codestyle which in combination with the static linter Shellcheck works as guidelines.
 
 Pull requests descriptions should be as clear as possible and include a reference to all the issues that they address.
 
 Pull requests must not contain commits from other users or branches.
 
-Commit messages must start with a capitalized and short summary (max. 50 chars) written in the imperative, followed by an optional, more detailed explanatory text which is separated from the summary by an empty line. [See here for more details.](http://chris.beams.io/posts/git-commit)
+Commit messages **must** start with a capitalized and short summary (max. 50 chars) written in the imperative, followed by an optional, more detailed explanatory text which is separated from the summary by an empty line. [See here for more details.](https://chris.beams.io/posts/git-commit)
 
 Code review comments may be added to your pull request.
 Discuss, then make the suggested modifications and push additional commits to your feature branch.
 Be sure to post a comment after pushing.
 The new commits will show up in the pull request automatically, but the reviewers will not be notified unless you comment.
 
-Pull request will be tested on CI platform which shall pass.
-Please provide test-cases for new features. See testing below.
+Pull requests will be tested on the Travis CI platform which **shall** pass.
+Please provide test-cases for new features. See [Test Architecture](#test-architecture) below.
 
 Before the pull request is merged, your commits might get squashed, based on the size and style of your contribution.
 Include documentation changes in the same pull request, so that a revert would remove all traces of the feature or fix.
@@ -43,7 +43,7 @@ Commits that fix or close a GitHub issue should include a reference like `Closes
 ### Sign-off your Work
 
 The sign-off is a simple line at the end of the explanation for the patch, which certifies that you wrote it or otherwise have the right to pass it on as an open-source patch.
-If you can certify the below (from [developercertificate.org](http://developercertificate.org)):
+If you can certify the below (from [developercertificate.org](https://developercertificate.org)):
 
 ```
 Developer Certificate of Origin Version 1.1
@@ -85,7 +85,7 @@ By making a contribution to this project, I certify that:
 
 then you just add a line to the end of every git commit message:
 
-```text
+```
 Signed-off-by: Joe Smith <joe.smith@email.com> (github: github_handle)
 ```
 
@@ -126,7 +126,7 @@ To help with this we've come up with some general guidelines for the community a
 *   **Be nice:**
 Be courteous, respectful and polite to fellow community members:
 no regional, racial, gender, or other abuse will be tolerated.
-We like nice people way better than mean ones!
+We like nice people way more than mean ones!
 
 *   **Encourage diversity and participation:**
 Make everyone in our community feel welcome, regardless of their background and the extent of their contributions.
@@ -138,7 +138,7 @@ Share only content that you own, do not share private or sensitive information, 
 
 *   **Stay on topic:**
 Make sure that you are posting to the correct channel and avoid off-topic discussions.
-Remember when you update an issue or respond to an email you are potentially sending to a large number of people.
+Remember when you update an issue or respond to an email you are potentially sending notifications to a large number of people.
 Please consider this before you update.
 Also remember that nobody likes spam.
 
@@ -147,7 +147,7 @@ Also remember that nobody likes spam.
 
 *   Use two (2) spaces when indent code.
 
-*   `local` declerations of variables shall be used when possible.
+*   `local` declarations of variables **shall** be used when possible.
 
 ### Usage of `apt-get update` command
 
@@ -161,15 +161,15 @@ To minimize unnecessary updates of the local apt database running `apt-get updat
 
 ## Test Architecture
 
-Testing is based on three pilars: A) *Installation of base system*, B) *Test Cases*, and C) *Static analys using linter*.
+Testing is based on three pilars: A) *Installation of base system*, B) *Test Cases*, and C) *Static analysis using linter*.
 
 ### Test installation
-Test installation are done continuously using a Docker on a Travis Virtual Machine and by testing on actual hardware, eg. Raspberry Pi. A docker installation can be performed by three commands. Firstly a docker image is built where the `openhabian` code is injected (see `dockerfile` for details):
+Test installations are done continuously using Docker on a Travis Virtual Machine and by testing on actual hardware, eg. Raspberry Pi. A Docker installation can be performed by three commands. Firstly a Docker image is built where the `openhabian` code is injected (see `dockerfile` for details):
 
 ```
 docker build --tag openhabian/openhabian-bats .
 ```
-The openhabian scripts is using `systemd` for service management, to use `systemd` with docker it must the container must be started first to ensure `systemd` gets pid 1. This is done by executing:
+The openHABian scripts are using `systemd` for service management, to use `systemd` with Docker the container must be started first to ensure `systemd` gets pid 1. This is done by executing:
 
 ```
 docker run --name "install-test" --privileged -d openhabian/openhabian-bats
@@ -178,30 +178,30 @@ Lastly the installation is invoked by executing:
 ```
 docker exec -it install-test bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local"
 ```
-Notice that the "docker system" mimic a hardware SD-card installation with the command `./build.bash local-test`.
+Notice that the "Docker system" mimics a hardware SD-card installation with the command `./build.bash local-test`.
 
 ### Test Cases
-The test cases are further divided into four categories and can be individually invoked by the BATS framwork. The tests category can be identified in the naming of the test. The test code are held in a corresponding file to the code itself, i.e. Code: `helpers.bash` and tests `helpers.bats`. The categories are as follows:
+The test cases are further divided into four categories and can be individually invoked by the BATS framework. The tests categories can be identified in the naming of the test. The tests' code are held in a corresponding file to the code itself, i.e. code: `helpers.bash` and tests `helpers.bats`. The categories are as follows:
 
 #### Development Tests `dev-<name>`
-These test may alter the host system. Use dev-<name> tests to test new features under development. They are the first to be started in a test run and first to finish so you can see as early as possible if your feature works fine. Testing will not proceed beyond the `dev` stage if there's errors.
+These tests may alter the host system. Use dev-<name> tests to test new features under development. They are the first to be started in a test run and first to finish so you can see as early as possible if your feature works fine. Testing will not proceed beyond the `dev` stage if there are errors.
 
 #### Unit Tests `unit-<name>`
-These test does not alter the host system where the test is executed and is isolated to a specific function. This test does not required a installed base system of openHABian.
+These tests do not alter the host system, the test is executed and is isolated to a specific function. These tests are not required on a installed base system of openHABian.
 ```
 docker run -it openhabian/openhabian-bats bash -c 'bats -r -f "unit-." .'
 ```
 
 #### Installation Verification `installation-<name>`
 This is a suite of tests designed to verify a normal installation.
-These tests shall not alter the system.
+These tests **shall** not alter the system.
 ```
 docker exec -it install-test bash -c 'bats -r -f "installation-." .'
 ```
 
 
 #### Destructive Verification Tests `destruct-<name>`
-These test installs new functionality and are therefore destruct for the current system. Typical usecase are testing of optional packages or a specific configuration of a baseline package.
+These tests install new functionality and are therefore destructive for the current system. Typical use-cases are testing of optional packages or a specific configuration of a baseline package.
 ```
 docker exec -it install-test bash -c 'bats -r -f "destructive-." .'
 ```
