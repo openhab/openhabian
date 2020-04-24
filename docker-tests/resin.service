@@ -2,7 +2,8 @@
 Description=Resin.io User Application
 
 [Service]
-EnvironmentFile=/etc/docker.env
+# disabled as docker.env is not part of Balena example files
+#EnvironmentFile=/etc/docker.env
 ExecStart=/etc/resinApp.sh
 StandardOutput=tty
 StandardError=tty

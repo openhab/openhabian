@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
+
+usage() {
+  echo -e "Usage: $(basename "$0") <platform> [dev-git|dev-url] <branch> <url>"
+  echo -e "\\nCurrently supported platforms: rpi"
+}
+
 ##########################
 #### Load help method ####
 ##########################
@@ -159,8 +165,8 @@ elif [ "$1" == "local-test" ]; then
   echo_process "Local system ready for installation test. Run script /etc/rc.local or reboot to initiate"
   exit 0
 else
-  echo_process "Please provide a valid hardware platform as first argument, \"rpi\" or \"pine64\"  Exiting."
-  exit 1
+  usage
+  exit 0
 fi
 
 # Check if a specific repository shall be included
@@ -179,14 +185,13 @@ elif [ "$2" == "dev-url" ]; then # Use custom git server as a development image
   repositoryurl=$4
   echo_process "Injecting given git repo when building this image, make sure to push local content to:"
   echo_process "$clone_string"
-
-elif [ "x$2" != "x" ]; then
-  echo_process "Unknown parameter \"$2\". Exiting."
+else
+  usage
   exit 1
 fi
 
 # Switch to the script folder
-cd "$(dirname "$0")" || exit 1
+cd "$(dirname "$0")" || (echo "$(dirname "$0") cannot be accessed."; exit 1)
 
 # Log everything to a file
 exec &> >(tee -a "openhabian-build-$timestamp.log")
