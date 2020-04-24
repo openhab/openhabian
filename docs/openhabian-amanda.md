@@ -211,7 +211,7 @@ Next, double check that your `backup` user has write access to all of the storag
 *Create* a file there (`touch /path/to/storage/file`), check its ownership (`ls -l /path/to/storage/file`), then delete it
 (`rm /path/to/storage/file`).
 If that does not work as expected (to produce a file that is owned by the `backup` user), you need to change export options
-on your NAS/NFS server. See also paragraph on [no_root_squash](#Storage preparation) above.
+on your NAS/NFS server. See also paragraph on [no_root_squash](#storage-preparation) above.
 
 Now finally, install Amanda using the openHABian menu.
 When you start the Amanda installation from the openHABian menu, the install routine will create a directory/link structure in
