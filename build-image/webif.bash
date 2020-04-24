@@ -25,7 +25,7 @@ if [ "$1" = "start" ]; then
   echo '<body>
         <h1>openHABian Installation Status</h1>
         the log will be refreshed automatically every 10 seconds
-        <iframe src='"http://${hostname:-openhab}:$port/first-boot.txt"' scrolling="yes" width="100%" height="90%"></iframe>
+        <iframe src='"http://${HOSTNAME:-$hostname}:$port/first-boot.txt"' scrolling="yes" width="100%" height="90%"></iframe>
         </body>
         </html>' >> /tmp/webif/index.html
   (cd /tmp/webif || exit 1; python3 -m http.server $port > /dev/null 2>&1 &)
@@ -49,7 +49,7 @@ if [ "$1" = "inst_done" ]; then
         </head>' > index.html
   echo '<body>
         <h1>openHABian Installation Status</h1>
-        Installation successful. You can now access the openHAB dashboard using <a href='"http://$hostname:8080"'>this link</a>
+        Installation successful. You can now access the openHAB dashboard using <a href='"http://${HOSTNAME:-$hostname}:8080"'>this link</a>
         </body>
         </html>' > /tmp/webif/index.html
 fi
