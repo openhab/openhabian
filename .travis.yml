@@ -34,6 +34,8 @@ install:
 
 jobs:
   fast_finish: true
+  allow_failures:
+    - env: aarch64
   include:
     - stage: Dev & Unit tests
       script:
@@ -75,7 +77,7 @@ jobs:
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-ARMv6hf-emulated .
         - docker run --name "openhabian-${HW}" --privileged -d openhabian/${HW}-openhabian;
-          docker exec -it "openhabian-${HW}" bash -c \
+          docker exec -i "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
     - env: aarch64
       arch: arm64
@@ -84,7 +86,8 @@ jobs:
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-native .
 # Docker doesn't work on Travis ARM yet (it's still alpha), cannot access privileged FS for now ?
-        - docker run --name "openhabian-${HW}" --privileged -t -d openhabian/${HW}-openhabian;
-          docker exec -it "openhabian-${HW}" bash -c \
-            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local' || true
+#        - docker run --name "openhabian-${HW}" --privileged -t -d openhabian/${HW}-openhabian;
+        - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
+          docker exec -i "openhabian-${HW}" bash -c \
+            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
 
