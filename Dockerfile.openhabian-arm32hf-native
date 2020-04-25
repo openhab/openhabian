@@ -1,9 +1,6 @@
-# Note RPi3 base (first RPi to have aarch64 available)
-FROM balenalib/raspberrypi3-debian-node:latest-buster
-#FROM balenalib/generic-aarch64-debian-node
-#FROM balenalib/raspberrypi3-64-debian-node
-
-
+# assumes at least ARMv71 but not ARMv8 (aarch64) yet
+FROM balenalib/raspberry-pi2-debian-node:latest-buster
+ 
 ENV container docker
 ENV INITSYSTEM on
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
@@ -53,3 +50,4 @@ VOLUME ["/sys/fs/cgroup"]
 STOPSIGNAL 37
 
 CMD ["bash", "start.sh"]
+

@@ -66,8 +66,9 @@ check_zram_removal() {
 }
 
 @test "destructive-zram" {
-  VIRT=$(virt-what)
-  if [ "${VIRT}" != "native HW" ]; then skip "Not deploying zram because on (emulated ?) architecture."; fi
+#  VIRT=$(virt-what)
+#  if [ "${VIRT}" != "native HW" ]; then skip "Not deploying zram because on (emulated ?) architecture."; fi
+  if ! is_arm; then skip "Not deploying zram because not on ARM (emulated ?) architecture."; fi
 
   echo -e "# \e[36mZRAM test installation starting..." >&3
   run init_zram_mounts install
@@ -78,8 +79,9 @@ check_zram_removal() {
 }
 
 @test "dev-zram" {
-  VIRT=$(virt-what)
-  if ! is_arm || [ "${VIRT:-native HW}" != "native HW" ]; then skip "Not executing zram test because not on native ARM architecture hardware."; fi
+# VIRT=$(virt-what)
+# if ! is_arm || [ "${VIRT:-native HW}" != "native HW" ]; then skip "Not executing zram test because not on native ARM architecture hardware."; fi
+  if ! is_arm; then skip "Not executing zram test because not on native ARM architecture hardware."; fi
 
   echo -e "# \e[36mZRAM test installation starting..." >&3
   run init_zram_mounts install

@@ -161,6 +161,7 @@ tryUntil() {
   local i=$count
   interval=${3:-1}
   until [ "$i" -le 0 ]; do
+    echo "Executing ${cmd}"
     eval "${cmd}"
     ret=$?
     if [ $ret -eq 0 ]; then break; fi
