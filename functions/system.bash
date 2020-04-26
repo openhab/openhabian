@@ -99,7 +99,7 @@ hostname_change() {
   hostnamectl set-hostname "$new_hostname" &>/dev/null
   hostname "$new_hostname" &>/dev/null
   echo "$new_hostname" > /etc/hostname
-  TMP="$(mktemp /tmp/openhabian.XXXXXXXXXX)"
+  TMP="$(mktemp /tmp/openhabian.XXXXX)"
   sed "s/127.0.1.1.*/127.0.1.1 $new_hostname/g" /etc/hosts >"$TMP" && cp "$TMP" /etc/hosts
   rm -f "$TMP"
 

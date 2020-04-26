@@ -44,7 +44,7 @@ firemotd_setup() {
 }
 
 create_mta_config() {
-  TMP="$(mktemp /tmp/.XXXXXXXXXX)"
+  TMP="$(mktemp /tmp/openhabian.XXXXX)"
   HOSTNAME=$(/bin/hostname)
   INTERFACES="$(/usr/bin/dig +short "$HOSTNAME" | /usr/bin/tr '\n' ';');127.0.0.1;::1"
   EXIM_CLIENTCONFIG=/etc/exim4/passwd.client
