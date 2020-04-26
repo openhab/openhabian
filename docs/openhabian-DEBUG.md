@@ -10,7 +10,7 @@ This document is meant to give a guiding hand to users when their openHABian ins
 Read on to find out how to improve debug verbosity and how to proceed with that information.
 
 ## Prerequisites
-First, please make sure you use the proper host hardware that is supported as per [README](https://github.com/blob/master/README.md).
+First, please make sure you use the proper host hardware that is supported as per [README](https://github.com/openhab/openhabian/blob/master/README.md).
 
 openHABian requires a minimum of 1GB of RAM to run well. While you can get away with a 512MB box like a RPi0W, you must not run anything other than openHAB itself, in particular do **not** run memory hogs such as InfluxDB or Grafana.
 
