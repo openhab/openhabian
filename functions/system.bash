@@ -9,17 +9,7 @@ whiptail_check() {
 
 system_upgrade() {
   echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
-  # TODO: Remove updating the key on each update after some time (in 2020)
-  cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
-  if ! cond_redirect apt-key add openhab-key.asc; then
-    echo "FAILED (updating OH key)"
-    echo -n "attempting to continue..."
-  else
-    rm -f openhab-key.asc
-  fi
   cond_redirect apt-get --yes upgrade
-  # shellcheck disable=SC2154
-  if cond_redirect java_install_or_update "$java_arch"; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 basic_packages() {
