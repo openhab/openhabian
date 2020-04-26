@@ -147,7 +147,7 @@ Also remember that nobody likes spam.
 
 *   Use two (2) spaces when indent code.
 
-*   `local` declarations of variables **shall** be used when possible.
+*   `local` declarations of variables should be used when possible.
 
 ### Usage of `apt-get update` command
 
@@ -164,7 +164,7 @@ To minimize unnecessary updates of the local apt database running `apt-get updat
 Testing is based on three pilars: A) *Installation of base system*, B) *Test Cases*, and C) *Static analysis using linter*.
 
 ### Test installation
-Test installations are done continuously using Docker on a Travis Virtual Machine and by testing on actual hardware, eg. Raspberry Pi. A Docker installation can be performed by three commands. Firstly a Docker image is built where the `openhabian` code is injected (see `dockerfile` for details):
+Test installations are done continuously using Docker on a Travis Virtual Machine and by testing on actual hardware, eg. Raspberry Pi. A Docker installation can be performed by three commands. Firstly a Docker image is built where the `openhabian` code is injected (see `Dockerfile.*` for details):
 
 ```
 docker build --tag openhabian/openhabian-bats .

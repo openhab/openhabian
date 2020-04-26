@@ -1,7 +1,8 @@
-# How to backup your openHABian server using Amanda
+How to backup your openHABian server using Amanda
+=================================================
 
-## Intro
-### The need for recovery
+# Intro
+## The need for recovery
 First, make yourself aware how important a comprehensive backup and recovery concept is.
 Yes, this text is the README on the backup software part for openHABian that you're reading, but take a couple of minutes to
 read and think about recovery in a generic sense first. This might avoid a LOT of frustration.
@@ -38,7 +39,7 @@ Remember Murphy's law: When your system fails and you need to restore your syste
 is broken. So dive into and ensure you have a working restore procedure and don't just believe it'll work BUT TEST IT, and
 repeat every now and then.
 
-#### SD card issues
+### SD card issues
 As there's many many ways of operating a server, we can obviously only support a specific subset of all possible modes.
 The most common setup for a openHAB smart home server is to run a Raspberry Pi off its internal SD card, so we provide a backup
 concept for that one. But it will also work on most other SBCs (single board computers) and modified configurations (such as if
@@ -62,29 +63,29 @@ But in any case, you will need to have a clone SD card with your CURRENT config.
 
 Now all that being said, let's turn to what what you're here for: how to accomplish the software side of backup and restoration.
 
-### Some Amanda background
-Best is to read up on and understand some of the basic Amanda concepts over at <http://www.amanda.org>.
+## Some Amanda background
+Best is to read up on and understand some of the basic Amanda concepts over at http://www.amanda.org.
 That's not a mandatory step but it will probably help you understand a couple of things better.
 The world of UNIX and backup IS complex and in the end, there's no way to fully hide that from a user.
 Here's a couple of those concepts, but this is not a comprehensive list. I cannot understand the system for you,
 that's something you have to accomplish on your own. Read and understand the Amanda docs.
 
-*   It's helpful to know that Amanda was originally built to use magnetic tape changer libraries as backup storage in professional
+* It's helpful to know that Amanda was originally built to use magnetic tape changer libraries as backup storage in professional
 data center installations. It can operate multiple tape drives in parallel, and the tapes used to be commonly stored in what's
 called a 'slot' inside the tape library cabinet.
-*   The default dumpcycle for a openHABian install is 2 weeks. Amanda will run a 'level 0' dump (that means to backup EVERYTHING)
+* The default dumpcycle for a openHABian install is 2 weeks. Amanda will run a 'level 0' dump (that means to backup EVERYTHING)
 once in a dumpcycle and will run 'level 1' dumps for the rest of the time (that means to only backup files that have CHANGED
 since the last level 0 dump was done, also called an 'incremental' backup).
 Amanda will combine level 0 of some devices with level 1 or 2 of others, aiming to have the more or less same amount of data
 to be backed up every day (every invocation, actually). No cannot have it do level 0 on weekends and level 1 else,
 [see FAQ](https://wiki.zmanda.com/index.php/FAQ:How_do_I_make_Amanda_do_full_backups_on_weekends_and_incrementals_during_the_week%3F).
-*   Note for *raw* devices to backup such as `/dev/mmcblk0` (which is the internal SD card reader of a RPi), nothing but a level 0
+* Note for *raw* devices to backup such as `/dev/mmcblk0` (which is the internal SD card reader of a RPi), nothing but a level 0
 dump will work because there is no efficient way  to determine what has been changed since the last full dump.
 So if you include `/dev/mmcblk0` in your disklist, it'll be backed up on EACH run. If you don't want that (as it'll likely consume
 the by far largest part of your backup run time and capacity then remove it from the disklist. You can create a second Amanda
 configuration to only include that raw device and run it say just once every month. Essentially you need to create a copy of the
 /etc/amanda.conf/openhab-dir directory and contents, but a full explanation is out of scope for these docs.
-*   Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount
+* Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount
 of data to be backed up. The number of tapes and their capacity (both of which are sort of artificially set when you store to a
 filesystem) determines how long your storage capacity will last until Amanda starts to overwrite old backups.
 By asking you to enter the total size of the storage area, the Amanda installation routine will compute the maximum amount of
@@ -93,7 +94,7 @@ The ability to backup to a directory was added later, but the 'slot', 'drive' an
 as a deployment inside openHABian, we will have 'virtual' tapes and slots which are implemented as subdirectories (one for each
 'tape') and filesystem links (two by default config, drive0 and drive1) to point to a virtual tape.
 If you have the drive1 link point to the slot3 directory, it effectively means that tape 3 is currently inserted in drive 1).
-*   Amanda was built on top of UNIX and makes use of its user and rights system, so it is very useful and you are requested to
+* Amanda was built on top of UNIX and makes use of its user and rights system, so it is very useful and you are requested to
 familiarize yourself with that. As a general good UNIX practice, you shouldn’t use functional users such as “backup” (the OS
 uses functional users to execute tasks with specific access rights) for administration tasks. Use your personal user instead
 (that you have created that at the beginning of your openHABian installation or "openhabian" by default).
@@ -101,14 +102,14 @@ Installation tasks including post-package-installation changes (edits) of the Am
 user. Any ordinary user (such as your personal one) can execute commands on behalf of root (and with root permission) by
 prepending "sudo " to the command. As yourself, prepend "sudo -u backup" to execute the following command as the "backup" user.
 
-## Installation
-### Storage preparation
+# Installation
+## Storage preparation
 Now once you read up on all of this and feel you have understood this stuff, the next step will NOT be hit that 'Amanda install'
 menu option in openHABian (no, we're not there yet) but to prepare your storage.
 HEADS UP: You need to provide your storage BEFORE you install Amanda.
 That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
 Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
-read up on it NOW. Various tutorial can be found on the net such as <https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux>.
+read up on it NOW. Various tutorial can be found on the net such as https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux .
 Google is your friend, but it'll give a lot of answers, each to vary slightly depending on the Linux variant or use case.
 Make sure you ask specific questions such as “how to mount a NAS disk on a raspbian raspberry pi”.
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
@@ -129,7 +130,7 @@ HEADS UP: These are just EXAMPLES. Device and directory names will be different 
 Do not deploy these commands unless you are fully aware what they will do to your system, using a command with a wrong device
 name can destroy your system.
 
-#### NAS mount example
+### NAS mount example
 
 ```
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
@@ -147,7 +148,7 @@ root@pi:/home/pi#
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
 ```
 
-#### USB storage mount example
+### USB storage mount example
 
 Note that this is showing two alternative versions, for FAT16/FAT32 filesystems (i.e. the original MS-DOS and the improved
 Windows filesystems that you usually use for USB sticks) and another version to use the ext4 native Linux filesystem. You can
@@ -204,14 +205,14 @@ root@pi:/home/pi#
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
 ```
 
-### Software installation
+## Software installation
 
 First, mount/prepare your storage (see examples).
 Next, double check that your `backup` user has write access to all of the storage area (preferrably, he `owns` the directory):
 *Create* a file there (`touch /path/to/storage/file`), check its ownership (`ls -l /path/to/storage/file`), then delete it
 (`rm /path/to/storage/file`).
 If that does not work as expected (to produce a file that is owned by the `backup` user), you need to change export options
-on your NAS/NFS server. See also paragraph on [no_root_squash](#storage-preparation) above.
+on your NAS/NFS server. See also [paragraph on `no_root_squash`](#Storage preparation) above.
 
 Now finally, install Amanda using the openHABian menu.
 When you start the Amanda installation from the openHABian menu, the install routine will create a directory/link structure in
@@ -219,11 +220,11 @@ the directory you tell it. Your local user named "backup" will need to have writ
 that for you, but it only CAN do it for you if you created/mounted it before you ran the installation.
 
 Installation will ask you a couple of questions.
-*   "What's the directory to store backups into?"
-Here you need to enter the *local* directory of your openHABian box, also known as *the mount point*. This is where you have
+* "What's the directory to store backups into?"
+Here you need to enter the _local_ directory of your openHABian box, also known as _the mount point_. This is where you have
 mounted your USB storage or NAS disk share (which in above example for the NAS is `/storage/server` and for the usb stick is
 either `/storage/usbstick-linux` or `/storage/usbstick-msdos`).
-*   "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be
+* "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be
 backed up. Enter a number to consist of figures only."
 Amanda will use at most this number of megabytes in total as its storage for backup.
 If you choose to include the raw device in the backup cycle (next question), that means you should enter 3 times the size of
@@ -232,7 +233,7 @@ a lot less data and you need to estimate it by adding up the size of the config 
 file. If you don't have any idea and chose to NOT backup your SD card, enter 1024 (= 1 GByte). If you chose to backup it, the number
 should be larger than the SD capacity in megabytes plus 1024.
 You can change it in the Amanda config file at any later time (the entry below the line reading `define tapetype DIRECTORY {`).
-*   "Backup raw SD card ?" (not asked if you selected AWS S3 storage)
+* "Backup raw SD card ?" (not asked if you selected AWS S3 storage)
 Answer "yes" if you want to create raw disk backups of your SD card. This is only recommended if your SD card is 8GB or less in
 size, otherwise the backup can take too long. You can always add/remove this by editing `${confdir}/disklist` at a later time.
 
@@ -248,13 +249,13 @@ device to be backed up to have that same name.
 You will have two Amanda config directories (located in `/etc/amanda`) called `openhab-dir` and `openhab-AWS` if you choose to
 setup both of them.
 If any of your Amanda backup or recovery runs fails (which might well be the case particularly if you try to use the S3 backup),
-you should try getting it to work following the guides and knowledge base available on the Web at <http://www.amanda.org/>.
-There's online documentation including tutorials and FAQs at <http://wiki.zmanda.com/index.php/User_documentation>.
+you should try getting it to work following the guides and knowledge base available on the Web at http://www.amanda.org/.
+There's online documentation including tutorials and FAQs at http://wiki.zmanda.com/index.php/User_documentation.
 In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but
 please don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
 
 
-## Operating Amanda - a (yes, very brief) usage guide
+# Operating Amanda - a (yes, very brief) usage guide
 
 The overall config is to be found in `/etc/amanda/openhab-<config>/amanda.conf`.
 You are free to change this file, but doing so is at your own risk.
@@ -266,13 +267,13 @@ Note: the raw SD card backup was left out for the AWS S3 config, as that would r
 
 openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups you select every night at 01:00AM.
 
-### Backup
+## Backup
 
 Find below a terminal session log of a manually started backup run.
-It's showing the three most important commands to use. They all can be started as user *backup* only, interactively or via cron,
+It's showing the three most important commands to use. They all can be started as user _backup_ only, interactively or via cron,
 and you always need to specify the config to use. You can have multiple backup configs in parallel use.
 
-The `amcheck` command is meant to remind you to put in the right removable storage medium such as a tape or SD card,
+The `amcheck` command is meant to remind you to put in the right removeable storage medium such as a tape or SD card,
 but for the AWS and local/NAS-mounted directory based backup configs, we don't have removable media. So don't get confused,
 `amcheck` is not a required step.
 
@@ -372,9 +373,9 @@ backup@pi:~$ amcheck openhab-dir
   (brought to you by Amanda version 3.3.6)
 ```
 
-### Restore
+## Restore
 
-#### Locating a backup
+### Locating a backup
 
 Depending on the type of storage medium, you eventually may need to locate which volume a wanted backup is stored on.
 You can use the `amadmin` and eventually `amtape` commands to do this:
@@ -436,7 +437,7 @@ date                host         disk              lv storage     pool        ta
   slot  15: date 20191214010003 label openhab-dir-015
 ```
 
-#### Restoring a file
+### Restoring a file
 
 To restore a file, you need to use the `amrecover` command as the `root` user.
 Note that since Amanda is designed to restore ANY file of the system, you are required to run `amrecover` as the root user to
@@ -560,7 +561,7 @@ backup@pi:/server/temp$ dd bs=4M if=/server/temp/openhabianpi-image of=/dev/sdd
 You could also move that temporary recovered image file to your Windows PC that has a card writer, rename the file to have a .raw extension, and use Etcher or other tool in order to write the image to the card.
 
 
-#### A final word on when things have gone badly wrong...
+### A final word on when things have gone badly wrong...
 
 and your SD card to contain the Amanda database is broken: you don't have to give up.
 Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/cron.d/amanda`).
@@ -568,7 +569,7 @@ So you can reinstall openHABian including Amanda from scratch and copy back thos
 Even if you fail to recover your index files, you can still access the files in your storage area.
 The `amindex` command can be used to regenerate the database. How to apply unfortunately is  out of scope for this document so please g**gle if needed.
 There's also a manual way: Amanda storage files are tar files of the destination directory or compressed raw copies of partitions, both have an additional 32KB header.
-If you just want to retrieve some files from a partition backup file, you can mount that file. See <https://major.io/2010/12/14/mounting-a-raw-partition-file-made-with-dd-or-dd_rescue-in-linux/>.
+If you just want to retrieve some files from a partition backup file, you can mount that file. See https://major.io/2010/12/14/mounting-a-raw-partition-file-made-with-dd-or-dd_rescue-in-linux/.
 Here's examples how to decode them:
 
 ```
