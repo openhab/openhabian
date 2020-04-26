@@ -1,7 +1,7 @@
 #!/bin/bash
 # start:     	starts a minimalistic web server
 # 	    	shows the status of OpenHABianPi installation
-# restart:   	checks if webserver is running 
+# restart:   	checks if webserver is running
 # inst_done: 	create finish message and link to http://$hostname:8080
 # cleanup:	stops the webserver
 #	     	removes all no longer needed files
@@ -40,7 +40,7 @@ if [ "$1" = "reinsure_running" ]; then
 fi
 
 if [ "$1" = "inst_done" ]; then
-  # dir was eventually deleted by reboot 
+  # dir was eventually deleted by reboot
   mkdir -p /tmp/webif
   # shellcheck disable=SC2016
   echo '<html>
@@ -57,9 +57,8 @@ fi
 if [ "$1" = "cleanup" ]; then
   webifrunning=$(ps -ef | pgrep python3)
   if [ -n "$webifrunning" ]; then
-    kill "$webifrunning" > /dev/null 
+    kill "$webifrunning" > /dev/null
   fi
   rm -R /tmp/webif > /dev/null
   rm /boot/webif.bash > /dev/null
 fi
-

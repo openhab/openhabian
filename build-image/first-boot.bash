@@ -45,7 +45,7 @@ if hash python3 2>/dev/null; then
     echo "OK"
   fi
 else
-  echo "Python not found, SKIPPED"    
+  echo "Python not found, SKIPPED"
 fi
 
 userdef="openhabian"

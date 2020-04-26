@@ -103,4 +103,3 @@ check_zram_removal() {
 
   echo -e "# \e[32mInstallation and availability of zram mounts verified." >&3
 }
-

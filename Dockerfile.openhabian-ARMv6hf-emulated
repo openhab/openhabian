@@ -1,6 +1,6 @@
 # RPi1, RPi0W (ARMv6hf arch)
 FROM balenalib/raspberry-pi-debian-node:latest-buster
- 
+
 RUN [ "cross-build-start" ]
 
 ENV container docker
@@ -39,7 +39,7 @@ RUN cp docker-systemctl-replacement/files/docker/systemctl.py /bin/systemctl
 ENTRYPOINT ["/usr/bin/entry.sh"]
 
 RUN adduser openhabian --gecos "Openhabian,,," --disabled-password
-RUN echo "openhabian:openhabian" | chpasswd   
+RUN echo "openhabian:openhabian" | chpasswd
 RUN /bin/echo -n "Running on " && /usr/bin/arch
 
 COPY . /opt/openhabian/
@@ -54,4 +54,3 @@ STOPSIGNAL 37
 CMD ["bash", "start.sh"]
 
 RUN [ "cross-build-end" ]
-

@@ -8,7 +8,7 @@ testNonExistingHost() {
 
 testAppearingHost() {
   ( sleep 3; echo "127.0.0.1  $1" >> /etc/hosts ) &
- 
+
   tryUntil "ping -c 1 $1" 10 1
 }
 
@@ -30,7 +30,7 @@ testAppearingHost() {
   run cond_echo 'Generic Text @!/\1'
   [ "$status" -eq 0 ]
   [[ $output == *'Generic Text @!/\1'* ]]
-  
+
   SILENT=1
   run cond_echo 'Generic Text @!/\2'
   [ "$status" -eq 0 ]

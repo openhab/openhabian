@@ -15,5 +15,3 @@ load helpers
   VIRT=$(virt-what)
   echo -e "# \e[32mRunning on ${VIRT:-native HW}." >&3
 }
-
-

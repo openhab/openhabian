@@ -17,7 +17,7 @@ If the SD card in your Pi fails because of SD corruption (a very common problem)
 somewhat current clone SD card to contain all your current OS packages, including all helper programs you might be using (such
 as say mosquitto or any scripts you might have installed yourself), and your matching CURRENT openHAB config, and more.
 If you believe "in case of SD card crash, I'll simply reinstall my server from scratch", then think first!
-How long will that take you? Are you even capable of doing that ? Will the latest version of openHABian/Linux packages be 
+How long will that take you? Are you even capable of doing that ? Will the latest version of openHABian/Linux packages be
 guaranteed to work with each other and with your hardware ?
 Do you REALLY remember all the parts and places of your system where you configured something related to your server/home
 network and smart home ? If you're honest to yourself, the answer will often be "NO".
@@ -87,8 +87,8 @@ configuration to only include that raw device and run it say just once every mon
 /etc/amanda.conf/openhab-dir directory and contents, but a full explanation is out of scope for these docs.
 * Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount
 of data to be backed up. The number of tapes and their capacity (both of which are sort of artificially set when you store to a
-filesystem) determines how long your storage capacity will last until Amanda starts to overwrite old backups. 
-By asking you to enter the total size of the storage area, the Amanda installation routine will compute the maximum amount of 
+filesystem) determines how long your storage capacity will last until Amanda starts to overwrite old backups.
+By asking you to enter the total size of the storage area, the Amanda installation routine will compute the maximum amount of
 data that Amanda will store into each tape subdirectory as (storage size) divided by (number of tapes, 15 by default).
 The ability to backup to a directory was added later, but the 'slot', 'drive' and 'tape' concepts were kept. That's why here,
 as a deployment inside openHABian, we will have 'virtual' tapes and slots which are implemented as subdirectories (one for each
@@ -104,7 +104,7 @@ prepending "sudo " to the command. As yourself, prepend "sudo -u backup" to exec
 
 # Installation
 ## Storage preparation
-Now once you read up on all of this and feel you have understood this stuff, the next step will NOT be hit that 'Amanda install' 
+Now once you read up on all of this and feel you have understood this stuff, the next step will NOT be hit that 'Amanda install'
 menu option in openHABian (no, we're not there yet) but to prepare your storage.
 HEADS UP: You need to provide your storage BEFORE you install Amanda.
 That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
@@ -119,7 +119,7 @@ If you want to use Windows sharing (CIFS), you can try to use the `nounix` mount
 but this is known to not work and cause trouble and you are COMPLETELY on your own. Using CIFS is NOT SUPPORTED.
 Besides it also does not make sense as NFS can do the same but any Windows machine will not run 24x7 as a RPi or NAS will do.
 Another specific thing to watch out for when configuring your export share on the NFS server is to add the `no_root_squash`
-option (that's the name on a generic Linux box, depending on your server OS or UI it might have a different name but it'll be 
+option (that's the name on a generic Linux box, depending on your server OS or UI it might have a different name but it'll be
 available, too).
 Its function is to NOT map accesses of userID 0 (root) to some other UID as your server will do by default.
 
@@ -127,13 +127,13 @@ Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 19
 USB stick identified as `/dev/sda8` (Linux ext4) and `/dev/sda1` and Windows vfat(FAT-32) filesystems).
 
 HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
-Do not deploy these commands unless you are fully aware what they will do to your system, using a command with a wrong device 
+Do not deploy these commands unless you are fully aware what they will do to your system, using a command with a wrong device
 name can destroy your system.
 
 ### NAS mount example
 
 ```
------ EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
+----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
 pi@pi:~ $ sudo bash
 root@pi:/home/pi# host nas
 nas.fritz.box has address 192.168.1.100
@@ -145,18 +145,18 @@ root@pi:/home/pi# df -k /server
 Filesystem                       1K-blocks       Used Available  Use% Mounted on
 192.168.1.100://share/freespace 2882740768 2502091488 380649280   87% /storage/server
 root@pi:/home/pi#
------ EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
+----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
 ```
 
 ### USB storage mount example
 
 Note that this is showing two alternative versions, for FAT16/FAT32 filesystems (i.e. the original MS-DOS and the improved
-Windows filesystems that you usually use for USB sticks) and another version to use the ext4 native Linux filesystem. You can 
+Windows filesystems that you usually use for USB sticks) and another version to use the ext4 native Linux filesystem. You can
 use ext4 on a stick or USB-attached hard drive.
 Either way, you just need one or the other.
 
 ```
------ EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY ----- 
+----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
 root@pi:/home/pi# fdisk -l /dev/sda
 Disk /dev/sda: 14,8 GiB, 15836643328 bytes, 30930944 sectors
 Units: sectors of 1 * 512 = 512 bytes
@@ -199,7 +199,7 @@ root@pi:/home/pi# mount /storage/usbstick-linux
 root@pi:/home/pi# mount /storage/usbstick-msdos
 root@pi:/home/pi# df -k /storage/usbstick-linux /storage/usbstick-msdos
 Filesystem     1K-blocks    Used Available  Use% Mounted on
-/dev/sda8       13403236 8204144   4495196   65% /storage/usbstick-linux 
+/dev/sda8       13403236 8204144   4495196   65% /storage/usbstick-linux
 /dev/sda1       13403236 9018464   3680876   72% /storage/usbstick-msdos
 root@pi:/home/pi#
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do ! ----- EXAMPLE ONLY -----
@@ -229,7 +229,7 @@ backed up. Enter a number to consist of figures only."
 Amanda will use at most this number of megabytes in total as its storage for backup.
 If you choose to include the raw device in the backup cycle (next question), that means you should enter 3 times the size of
 your SD disk NOW. If you choose not to include it (or selected the AWS S3 variant which omits raw SD backups per default), it's
-a lot less data and you need to estimate it by adding up the size of the config directories that are listed in the `disklist` 
+a lot less data and you need to estimate it by adding up the size of the config directories that are listed in the `disklist`
 file. If you don't have any idea and chose to NOT backup your SD card, enter 1024 (= 1 GByte). If you chose to backup it, the number
 should be larger than the SD capacity in megabytes plus 1024.
 You can change it in the Amanda config file at any later time (the entry below the line reading `define tapetype DIRECTORY {`).
@@ -265,19 +265,19 @@ directories of yours.
 
 Note: the raw SD card backup was left out for the AWS S3 config, as that would require a lot of bandwidth and runtime.
 
-openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups you select every night at 01:00AM. 
+openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups you select every night at 01:00AM.
 
 ## Backup
 
 Find below a terminal session log of a manually started backup run.
-It's showing the three most important commands to use. They all can be started as user _backup_ only, interactively or via cron, 
+It's showing the three most important commands to use. They all can be started as user _backup_ only, interactively or via cron,
 and you always need to specify the config to use. You can have multiple backup configs in parallel use.
 
 The `amcheck` command is meant to remind you to put in the right removeable storage medium such as a tape or SD card,
 but for the AWS and local/NAS-mounted directory based backup configs, we don't have removable media. So don't get confused,
 `amcheck` is not a required step.
 
-The `amdump` command will start the backup run itself. 
+The `amdump` command will start the backup run itself.
 The result will be mailed to you (if your mail system was properly configured which is currently not the case with openHABian).
 
 You can run `amreport [-l=logfile] <config>` at any time to see a report on the last backup run for that config.
@@ -316,10 +316,10 @@ backup@pi:~$ amcheck openhab-dir
   Org     : openHABian openhab-dir
   Config  : openhab-dir
   Date    : März 30, 2017
-  
+
   These dumps were to tape openhab-openhab-dir-001.
   The next tape Amanda expects to use is: 1 new tape.
-  
+
   STATISTICS:
                             Total       Full      Incr.   Level:#
                           --------   --------   --------  --------
@@ -327,11 +327,11 @@ backup@pi:~$ amcheck openhab-dir
   Run Time (hrs:min)          1:31
   Dump Time (hrs:min)         1:19       1:19       0:00
   Output Size (meg)         7951.1     7951.1        0.0
-  Original Size (meg)      15581.6    15581.6        0.0 
+  Original Size (meg)      15581.6    15581.6        0.0
   Avg Compressed Size (%)     51.0       51.0        --
   DLEs Dumped                    4          4          0
   Avg Dump Rate (k/s)       1723.1     1723.1        --
-  
+
   Tape Time (hrs:min)         1:19       1:19       0:00
   Tape Size (meg)           7951.1     7951.1        0.0
   Tape Used (%)                8.0        8.0        0.0
@@ -342,7 +342,7 @@ backup@pi:~$ amcheck openhab-dir
   USAGE BY TAPE:
     Label                     Time         Size      %  DLEs Parts
     openhab-openhab-dir-001   1:19     8141884k    8.0     4     4
-  
+
   NOTES:
     planner: Adding new disk pi:/dev/mmcblk0.
     planner: Adding new disk pi:/etc/openhab2.
@@ -484,17 +484,17 @@ Here's another terminal session log to show how a couple of files are restored i
   amrecover> lpwd
   /server/temp
   amrecover> extract
-  
+
   Extracting files using tape drive changer on host localhost.
   The following tapes are needed: openhab-openhab-dir-001
-  
+
   Extracting files using tape drive changer on host localhost.
   Load tape openhab-openhab-dir-001 now
   Continue [?/Y/n/s/d]? Y
   Restoring files into directory /server/temp
   All existing files in /server/temp can be deleted
   Continue [?/Y/n]? Y
-  
+
   ./logback.xml
   ./logback_debug.xml
   ./quartz.properties
@@ -514,7 +514,7 @@ To restore a raw disk partition, you need to use `amfetchdump` command. Unlike `
 Here’s another terminal session log to use `amfetchdump` to first retrieve the backup image from your backup storage to image called
 `openhabianpi-image` on `/server/temp/`
 
-**Reminder:** you have to be logged in as the `backup` user. 
+**Reminder:** you have to be logged in as the `backup` user.
 
 ```
 backup@pi:/server/temp$ amfetchdump -p openhab-dir openhabianpi /dev/mmcblk0 20191218010002  > /server/temp/openhabianpi-image

@@ -51,7 +51,7 @@ docker build --tag openhabian/openhabian-bats .
 docker run -it openhabian/openhabian-bats bash -c 'bats -r -f "unit-." .'
 
 docker run --name "install-test" --privileged -d openhabian/openhabian-bats
-docker exec -it install-test bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profil && /etc/rc.local"                                                
+docker exec -it install-test bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local"
 docker exec -it install-test bash -c 'bats -r -f "installation-." .'
 docker exec -it install-test bash -c 'bats -r -f "destructive-." .'
 

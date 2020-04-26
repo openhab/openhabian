@@ -1,6 +1,4 @@
-
-
-Zulu is copyrighted software based on OpenJDK (http://openjdk.java.net/) and is 100% open source.
+Zulu is copyrighted software based on OpenJDK (<http://openjdk.java.net/>) and is 100% open source.
 By downloading, installing, or otherwise using Zulu, you hereby agree as follows:
 
 Zulu is provided “AS IS” and without warranty of any kind, express or implied, including without limitation any
@@ -17,4 +15,4 @@ You also represent and warrant that you do not intend to distribute the software
 with relevant export control laws or regulations administered by the U.S. Commerce Department, OFAC, or any other
 government agency.
 
-https://www.azul.com/products/zulu-and-zulu-enterprise/zulu-terms-of-use/
+<https://www.azul.com/products/zulu-and-zulu-enterprise/zulu-terms-of-use/>

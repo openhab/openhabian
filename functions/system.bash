@@ -11,7 +11,7 @@ system_upgrade() {
   echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
   # TODO: Remove updating the key on each update after some time (in 2020)
   cond_redirect wget -O openhab-key.asc 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
-  if ! cond_redirect apt-key add openhab-key.asc; then 
+  if ! cond_redirect apt-key add openhab-key.asc; then
     echo "FAILED (updating OH key)"
     echo -n "attempting to continue..."
   else
@@ -183,7 +183,7 @@ permissions_corrections() {
   cond_redirect chown -R openhab:openhab "${openhab_folders[@]}"
   cond_redirect chmod -R ug+wX /opt "${openhab_folders[@]}"
   cond_redirect chown -R "$username:$username" "/home/$username"
-  
+
   cond_redirect setfacl -R --remove-all "${openhab_folders[@]}"
   cond_redirect setfacl -R -m g::rwX "${openhab_folders[@]}"
   if cond_redirect setfacl -R -m d:g::rwX "${openhab_folders[@]}"; then echo "OK"; else echo "FAILED"; fi

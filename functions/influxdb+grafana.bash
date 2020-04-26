@@ -149,7 +149,7 @@ influxdb_grafana_setup() {
   if [ -z "$influxdb_address" ]; then # is empty, install a InfluxDB database
     influxdb_install "$influxdb_admin_password"
     influxdb_address="http://localhost:8086"
-  fi  
+  fi
 
   if [ -n "$influxdb_admin_username" ]; then # is set, configure database and application users
     echo -n "Setup of inital influxdb database and InfluxDB users... "
@@ -203,7 +203,7 @@ influxdb_install() {
   local influxdb_address
   local influxdb_admin_username
   local dist codename
-  
+
   cond_echo ""
   echo "Installing InfluxDB..."
   dist="debian"
