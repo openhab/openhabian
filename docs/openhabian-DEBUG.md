@@ -12,7 +12,7 @@ Read on to find out how to improve debug verbosity and how to proceed with that 
 ## Prerequisites
 First, please make sure you use the proper host hardware that is supported as per [README](https://github.com/blob/master/README.md).
 
-OpenHABian requires a minimum of 1GB of RAM to run well. While you can get away with a 512MB box like a RPi0W, you must not run anything other than openHAB itself, in particular do **not** run memory hogs such as InfluxDB or Grafana.
+openHABian requires a minimum of 1GB of RAM to run well. While you can get away with a 512MB box like a RPi0W, you must not run anything other than openHAB itself, in particular do **not** run memory hogs such as InfluxDB or Grafana.
 
 On "supported" hardware in general:
 It may work to install and run openHABian on unsupported hardware. If it does not work, you are welcome to find out what's missing and contribute it back to the community with a Pull Request. It's sometimes simple things like a naming string. We'll be happy to include that in openHABian so you can use your box with openHABian. We'll keep that code in unless there's a valid reason to change or remove it.
@@ -35,7 +35,7 @@ If you have one available, attach a console (monitor and keyboard) to follow the
 It will display the contents of `/boot/first-log.boot` at intervals of 2 seconds.
 Mind you that if installation fails, network access may or may not be possible so you might need to access the box via console anyway in order to find out what went wrong.
 
-Login to your box using either the console or the network using `ssh openhabian@<hostname>`. The default hostname is `openhab`. The default passwort is `openhabian` unless you changed it in `openhabian.conf` at installation time.
+Login to your box using either the console or the network using `ssh openhabian@<hostname>`. The default hostname is `openhab`. The default password is `openhabian` unless you changed it in `openhabian.conf` at installation time.
 If that step already fails, it is likely that installation failed because you have not provided a proper DNS or DHCP service as mentioned in the _prerequisites_ section.
 
 Once logged in, enter `sudo bash` to become the root user.
