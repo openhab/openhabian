@@ -10,7 +10,7 @@ init_zram_mounts() {
     fi
     local ZRAMGIT=https://github.com/mstormi/openhabian-zram
     local TAG=openhabian_v1.5
-    TMP="$(mktemp -d /tmp/openhabian.XXXXXXXXXX)"
+    TMP="$(mktemp -d /tmp/openhabian.XXXXX)"
 
     /usr/bin/git clone -q --branch "$TAG" "$ZRAMGIT" "$TMP"
 
