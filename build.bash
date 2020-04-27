@@ -185,7 +185,7 @@ elif [ "$2" == "dev-url" ]; then # Use custom git server as a development image
   repositoryurl=$4
   echo_process "Injecting given git repo when building this image, make sure to push local content to:"
   echo_process "$clone_string"
-else
+elif [ -n "$2" ]; then
   usage
   exit 1
 fi
