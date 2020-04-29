@@ -29,6 +29,8 @@ install:
   - sed -iE 's#mode=.*$#mode=unattended_debug#' build-image/openhabian.conf
   - #sed -iE 's#mode=.*$#mode=debug_maximum#' build-image/openhabian.conf
   - echo "Cloning openHABian repo from https://github.com/${TRAVIS_REPO_SLUG}.git"
+  - grep -i cgroups /etc/default/* /etc/* || true 
+  - cat /etc/default/grub 
   - sed -i 's#repositoryurl=https://github.com/openhab/openhabian.git#repositoryurl=https://github.com/'${TRAVIS_REPO_SLUG}'.git#' build-image/openhabian.conf
   - sed -i 's#clonebranch=master#clonebranch='${TRAVIS_BRANCH}'#' build-image/openhabian.conf
 
@@ -83,7 +85,7 @@ jobs:
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-native .
         - echo -e "\n\e[36mopenHABian test installation starting on virtual $HW ...\n"
-        - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
+        - docker run --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
           docker exec -i "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
     - env: aarch64
@@ -93,8 +95,9 @@ jobs:
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-native .
         - echo -e "\n\e[36mopenHABian test installation starting on virtual $HW ...\n"
-        - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
-          docker exec -i "openhabian-${HW}" bash -c \
+#        - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
+#          docker exec -i "openhabian-${HW}" bash -c \
+        - docker run --name "openhabian-${HW}" "openhabian/openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
     - env: aarch64
       arch: arm64
