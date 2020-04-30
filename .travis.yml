@@ -20,8 +20,8 @@ services:
   - docker
 
 stages:
-  - Dev & Unit tests
-  - BATS and shellcheck tests
+#  - Dev & Unit tests
+#  - BATS and shellcheck tests
   - Run unattended openHABian installation
 
 install:
@@ -67,12 +67,13 @@ jobs:
           docker exec -i "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
     - env: arm32hf
+      arch: arm64
       script:
-        - export HW=rpi2
-        - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+        - export HW=rpi01
+#        - docker run --rm --privileged multiarch/qemu-user-static:register --reset
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
-        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-emulated .
-        - echo -e "\n\e[36mopenHABian test installation starting on virtual $HW (emulated) ...\n"
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-ARMv6hf-native .
+        - echo -e "\n\e[36mopenHABian test installation starting on virtual $HW ...\n"
         - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
           docker exec -i "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
