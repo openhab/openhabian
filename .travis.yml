@@ -20,8 +20,8 @@ services:
   - docker
 
 stages:
-#  - Dev & Unit tests
-#  - BATS and shellcheck tests
+  - Dev & Unit tests
+  - BATS and shellcheck tests
   - Run unattended openHABian installation
 
 install:
@@ -34,8 +34,6 @@ install:
 
 jobs:
   fast_finish: true
-  allow_failures:
-    - arch: arm64
   include:
     - stage: Dev & Unit tests
       env: aarch64
@@ -69,7 +67,7 @@ jobs:
     - env: arm32hf
       arch: arm64
       script:
-        - export HW=rpi01
+        - export HW=RPi01
 #        - docker run --rm --privileged multiarch/qemu-user-static:register --reset
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-ARMv6hf-native .
@@ -80,7 +78,7 @@ jobs:
     - env: arm32hf
       arch: arm64
       script:
-        - export HW=rpi2
+        - export HW=RPi2
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-native .
         - echo -e "\n\e[36mopenHABian test installation starting on virtual $HW ...\n"
@@ -90,7 +88,7 @@ jobs:
     - env: aarch64
       arch: arm64
       script:
-        - export HW=rpi3
+        - export HW=RPi3
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-native .
         - echo -e "\n\e[36mopenHABian test installation starting on virtual $HW ...\n"
@@ -100,7 +98,7 @@ jobs:
     - env: aarch64
       arch: arm64
       script:
-        - export HW=rpi4
+        - export HW=RPi4
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-64bit .
         - echo -e "\n\e[36mopenHABian test installation starting on virtual $HW ...\n"
