@@ -65,10 +65,22 @@ java_zulu_8_tar(){
   elif [ "$1" == "64-bit" ]; then
     echo -n "$(timestamp) [openHABian] Installing Java Zulu 64-Bit OpenJDK... "
     link=$(fetch_zulu_tar_url 64-bit)
-    if is_arm; then
+    if is_aarch64 && [ "$(getconf LONG_BIT)" == "64" ]; then
       jdkArch="aarch64"
-    else
+    elif is_x86_64 && [ "$(getconf LONG_BIT)" == "64" ]; then
       jdkArch="amd64"
+    else
+      if [ -n "$INTERACTIVE" ]; then
+        whiptail --title "Incompatible hardware detected" --msgbox "Zulu OpenJDK 64-bit: this option does not currently work on your platform.\\n\\nDefaulting to 32-bit installation." 10 60
+      else
+        echo "Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to 32-bit installation."
+      fi
+      link=$(fetch_zulu_tar_url 32-bit)
+      if is_arm; then
+        jdkArch="aarch32"
+      else
+        jdkArch="i386"
+      fi
     fi
 
   else
@@ -192,8 +204,7 @@ java_zulu_tar_update_available(){
     fi
 
   else
-    echo -n "[DEBUG] Invalid argument to function java_zulu_tar_update_available()"
-    exit 1
+    if [ $? -ne 0 ]; then echo "FAILED (java update available)"; exit 1; fi
   fi
 
   if [[ $javaVersion == "$availableVersion" ]]; then
