@@ -32,7 +32,7 @@ wifi_setup() {
     PASS="myWiFiPassword"
   fi
   if is_pifour || is_pithree || is_pithreeplus; then cond_redirect apt-get -y install firmware-brcm80211; fi
-  if is_pithreeplus; then
+  if is_pithreeplus || is_pifour; then
     if iwlist wlan0 scanning 2>&1 | grep -q "Interface doesn't support scanning"; then
       # wifi might be blocked
       rfkill unblock wifi

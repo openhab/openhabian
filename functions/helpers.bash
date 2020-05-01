@@ -53,6 +53,10 @@ is_pione() {
     return 1
   fi
 }
+is_cmone() {
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]06[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
 is_pitwo() {
   if [[ "$hw" == "pi2" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]04[0-9a-fA-F]$" /proc/cpuinfo
@@ -61,6 +65,10 @@ is_pitwo() {
 is_pithree() {
   if [[ "$hw" == "pi3" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]08[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
+is_cmthree() {
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[aA][0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pithreeplus() {
@@ -74,7 +82,7 @@ is_pifour() {
   return $?
 }
 is_pi() {
-  if is_pizero || is_pizerow || is_pione || is_pitwo || is_pithree || is_pithreeplus  || is_pifour; then return 0; fi
+  if is_pizero || is_pizerow || is_pione || is_cmone || is_pitwo || is_pithree || is_cmthree || is_pithreeplus || is_cmthreeplus || is_pifour; then return 0; fi
   return 1
 }
 is_pine64() {

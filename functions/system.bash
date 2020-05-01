@@ -30,7 +30,7 @@ needed_packages() {
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   if cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python3 python3-pip avahi-autoipd fontconfig; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-  if is_pithree || is_pithreeplus || is_pizerow || is_pifour; then
+  if is_pizerow || is_pithree || is_pithreeplus || is_pifour; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
     local BTPKGS
     BTPKGS="bluez python3-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth"
@@ -144,7 +144,8 @@ srv_bind_mounts() {
     echo "/var/lib/openhab2            /srv/openhab2-userdata      none bind 0 0"
     echo "/var/log/openhab2            /srv/openhab2-logs          none bind 0 0"
     echo "/usr/share/openhab2/addons   /srv/openhab2-addons        none bind 0 0"
-  ) >> /etc/fstab
+  ) >> /etc/fstab # dummy" to fix vim coloring
+
   cond_redirect cat /etc/fstab
   cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}
   cond_redirect cp "$BASEDIR"/includes/srv_readme.txt /srv/README.txt
@@ -322,18 +323,18 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   fi
 
   if [[ $selection == *"2"* ]]; then
-    if is_pithree || is_pithreeplus; then
+    if is_pithree || is_pithreeplus || is_pifour; then
       #cond_redirect systemctl stop hciuart &>/dev/null
       #cond_redirect systemctl disable hciuart &>/dev/null
-      cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3)"
+      cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3/4)"
       if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
         echo "dtoverlay=pi3-miniuart-bt" >> /boot/config.txt
       fi
     else
-      cond_echo "Option only available for Raspberry Pi 3."
+      cond_echo "Option only available for Raspberry Pi 3/4."
     fi
   else
-    if is_pithree || is_pithreeplus; then
+    if is_pithree || is_pithreeplus || is_pifour; then
       cond_echo "Removing 'dtoverlay=pi3-miniuart-bt' from /boot/config.txt"
       sed -i '/dtoverlay=pi3-miniuart-bt/d' /boot/config.txt
     fi
