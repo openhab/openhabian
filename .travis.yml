@@ -52,10 +52,7 @@ jobs:
       - docker build -t openhabian/bats-openhabian -f Dockerfile.openhabian-aarch64-native .
       - docker run --name "bats-inst-tests" -d openhabian/bats-openhabian bash -c '/usr/local/bin/bats -r -f "installation-." .'
       - docker run --name "bats-dest-tests" -d openhabian/bats-openhabian bash -c '/usr/local/bin/bats -r -f "destructive-." .'
-      - shellcheck -x -s bash openhabian-setup.sh && echo "shellcheck openhabian-setup.sh - OK"; 
-        shellcheck -x -s bash functions/*.bash && echo "shellcheck functions/*.bash - OK"; 
-        shellcheck -x -s bash build-image/*.bash && echo "shellcheck build-image/*.bash - OK";
-        shellcheck -x -s bash build.bash && echo "shellcheck build.bash - OK"
+      - shellcheck -x -s bash openhabian-setup.sh functions/*.bash build-image/*.bash build.bash && echo "shellcheck - OK"
     - stage: Run unattended openHABian installation
       env: amd64
       script:
