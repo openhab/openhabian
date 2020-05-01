@@ -98,6 +98,16 @@ jobs:
     - env: aarch64
       arch: arm64
       script:
+        - export HW=cm3
+        - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-CM3 .
+        - echo -e "\n\e[36mopenHABian test installation 32bit Azul Embedded Java on virtual $HW ...\n"
+        - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
+        - docker exec -i "openhabian-${HW}" bash -c \
+            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+    - env: aarch64
+      arch: arm64
+      script:
         - export HW=rpi4
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-64bit .
