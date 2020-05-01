@@ -46,7 +46,7 @@ jobs:
         - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "dev-." .'
         - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "unit-." .'
     - stage: BATS and shellcheck tests
-      env: aarch64
+      env: arm32hf
       arch: arm64
       script:
       - docker build -t openhabian/bats-openhabian -f Dockerfile.openhabian-aarch64-native .
