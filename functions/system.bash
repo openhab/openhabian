@@ -323,23 +323,52 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   fi
 
   if [[ $selection == *"2"* ]]; then
-    if is_pithree || is_pithreeplus; then
+    if is_pithree || is_pithreeplus || is_pifour; then
       #cond_redirect systemctl stop hciuart &>/dev/null
       #cond_redirect systemctl disable hciuart &>/dev/null
-      cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3/4)"
-      if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
-        echo "dtoverlay=pi3-miniuart-bt" >> /boot/config.txt
+      cond_echo "Adding 'dtoverlay=miniuart-bt' to /boot/config.txt (RPi3/4)"
+      if ! grep -q "dtoverlay=miniuart-bt" /boot/config.txt; then
+        echo "dtoverlay=miniuart-bt" >> /boot/config.txt
       fi
     else
       cond_echo "Option only available for Raspberry Pi 3/4."
     fi
   else
-    if is_pithree || is_pithreeplus; then
-      cond_echo "Removing 'dtoverlay=pi3-miniuart-bt' from /boot/config.txt"
-      sed -i '/dtoverlay=pi3-miniuart-bt/d' /boot/config.txt
+    if is_pithree || is_pithreeplus || is_pifour; then
+      cond_echo "Removing 'dtoverlay=miniuart-bt' from /boot/config.txt"
+      sed -i '/dtoverlay=miniuart-bt/d' /boot/config.txt
     fi
   fi
 
+<<<<<<< HEAD
+=======
+  if [[ $selection == *"3"* ]]; then
+    cond_echo "Adding serial ports to openHAB java virtual machine in /etc/default/openhab2"
+    # eventually keep user defined settings
+    sed -i "/^[[:space:]]*EXTRA_JAVA_OPTS/s/-Dgnu.io.rxtx.SerialPorts=[^ \"]*//g" /etc/default/openhab2
+    sed -i "/^[[:space:]]*EXTRA_JAVA_OPTS/s#EXTRA_JAVA_OPTS[[:space:]]*=[[:space:]]*\"#EXTRA_JAVA_OPTS=\"-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0 #g" /etc/default/openhab2
+  else
+    cond_echo "Removing serial ports from openHAB java virtual machine in /etc/default/openhab2"
+    sed -i "/^[[:space:]]*EXTRA_JAVA_OPTS/s/-Dgnu.io.rxtx.SerialPorts=[^ \"]*//g" /etc/default/openhab2
+  fi
+
+  if [[ $selection == *"4"* ]]; then
+    if is_pithree || is_pithreeplus || is_pifour; then
+      cond_echo "Adding 'dtoverlay=disable-wifi' to /boot/config.txt (RPi3/4)"
+      if ! grep -q "dtoverlay=disable-wifi" /boot/config.txt; then
+        echo "dtoverlay=disable-wifi" >> /boot/config.txt
+      fi
+    else
+      cond_echo "Option only available for Raspberry Pi 3/4."
+    fi
+  else
+    if is_pithree || is_pithreeplus || is_pifour; then
+      cond_echo "Removing 'dtoverlay=disable-wifi' from /boot/config.txt"
+      sed -i '/dtoverlay=disable-wifi/d' /boot/config.txt
+    fi
+  fi
+
+>>>>>>> add disable-wifi to option 35
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 16 80
   fi
