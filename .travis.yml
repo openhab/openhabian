@@ -25,7 +25,7 @@ stages:
   - Run unattended openHABian installation
 
 install:
-# prepare configuration for tests, select debug level here:
+  # prepare configuration for tests, select debug level here:
   - sed -iE 's#mode=.*$#mode=unattended_debug#' build-image/openhabian.conf
   - #sed -iE 's#mode=.*$#mode=debug_maximum#' build-image/openhabian.conf
   - echo "Cloning openHABian repo from https://github.com/${TRAVIS_REPO_SLUG}.git"
@@ -34,60 +34,90 @@ install:
 
 jobs:
   fast_finish: true
-  allow_failures:
-    - env: aarch64
+#  allow_failures:
+#    - env: aarch64
   include:
     - stage: Dev & Unit tests
+      env: aarch64
+      arch: arm64
       script:
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
-        - docker build -t openhabian/generic-openhabian -f Dockerfile.openhabian-x86 .
-        - docker run -it openhabian/generic-openhabian bash -c '/usr/local/bin/bats -r -f "dev-." .'
-        - docker run -it openhabian/generic-openhabian bash -c '/usr/local/bin/bats -r -f "unit-." .'
+        - docker build -t openhabian/dev-openhabian -f Dockerfile.openhabian-aarch64-native .
+        - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "dev-." .'
+        - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "unit-." .'
     - stage: BATS and shellcheck tests
+      env: arm32hf
+      arch: arm64
       script:
-      - docker build -t openhabian/rpi-openhabian -f Dockerfile.openhabian-emulated .
-      - docker run --name "bats-inst-tests" -d openhabian/rpi-openhabian bash -c '/usr/local/bin/bats -r -f "installation-." .'
-      - docker run --name "bats-dest-tests" -d openhabian/rpi-openhabian bash -c '/usr/local/bin/bats -r -f "destructive-." .'
-      - shellcheck -x -s bash openhabian-setup.sh && echo "shellcheck openhabian-setup.sh - OK"; 
-        shellcheck -x -s bash functions/*.bash && echo "shellcheck functions/*.bash - OK"; 
-        shellcheck -x -s bash build-image/*.bash && echo "shellcheck build-image/*.bash - OK";
-        shellcheck -x -s bash build.bash && echo "shellcheck build.bash - OK"
+      - docker build -t openhabian/bats-openhabian -f Dockerfile.openhabian-aarch64-native .
+      - docker run --name "bats-inst-tests" -d openhabian/bats-openhabian bash -c '/usr/local/bin/bats -r -f "installation-." .'
+      - docker run --name "bats-dest-tests" -d openhabian/bats-openhabian bash -c '/usr/local/bin/bats -r -f "destructive-." .'
+      - shellcheck -x -s bash openhabian-setup.sh functions/*.bash build-image/*.bash build.bash && echo "shellcheck - OK"
     - stage: Run unattended openHABian installation
       env: amd64
       script:
+        # 64bit Azul Java native on 64bit x86 on 64bit OS on Travis AMD64 HW
         - export HW=x86
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-x86 .
+        - echo -e "\n\e[36mopenHABian test installation 64bit Azul Enterprise Java on virtual $HW ...\n"
         - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
           docker exec -i "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
     - env: arm32hf
+      arch: arm64
       script:
-        - docker run --rm --privileged multiarch/qemu-user-static:register --reset
-        - export HW=rpi2
-        - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
-        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-emulated .
-        - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
-          docker exec -i "openhabian-${HW}" bash -c \
-            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
-    - env: arm32hf
-      script:
-        - docker run --rm --privileged multiarch/qemu-user-static:register --reset
+        # 32bit Azul Java on 32bit ARMv6hf (RPi0(W) and RPi1) on 32bit OS on Travis Arm64 HW
         - export HW=rpi01
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
-        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-ARMv6hf-emulated .
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-ARMv6hf-native .
+        - echo -e "\n\e[36mopenHABian test installation 32bit Azul Embedded Java on virtual $HW ...\n"
         - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
           docker exec -i "openhabian-${HW}" bash -c \
+            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+    - env: arm32hf
+      arch: arm64
+      script:
+        # 32bit Azul Java on 32bit ARMv7l (RPi2) on 32bit OS on Travis Arm64 HW
+        - export HW=rpi2
+        - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-native .
+        - echo -e "\n\e[36mopenHABian test installation 32bit Azul Embedded Java on virtual $HW ...\n"
+        - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian
+        - docker exec -i "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
     - env: aarch64
       arch: arm64
       script:
+        # 64bit Azul Java on 64bit ARMv8 (RPi3, CM3) on 32bit OS on Travis Arm64 HW -- supposed to fail !
         - export HW=rpi3
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-native .
-# Docker doesn't work on Travis ARM yet (it's still alpha), cannot access privileged FS for now ?
-#        - docker run --name "openhabian-${HW}" --privileged -t -d openhabian/${HW}-openhabian;
-        - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
+        - echo -e "\n\e[36mopenHABian test installation 64bit Azul Embedded Java on virtual $HW ..."
+        - echo -e "\e[31m ** This is known to not work. openHABian is supposed to force install down to 32bit **\n"
+        - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
+        - docker exec -i "openhabian-${HW}" bash -c \
+            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+    - env: arm32hf
+      arch: arm64
+      script:
+        # 32bit Azul Java on 64bit ARMv8 (CM3, RPi3) on 32bit OS on Travis Arm64 HW
+        - export HW=cm3
+        - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-CM3 .
+        - echo -e "\n\e[36mopenHABian test installation 32bit Azul Embedded Java on virtual $HW ...\n"
+        - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
+        - docker exec -i "openhabian-${HW}" bash -c \
+            'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+    - env: aarch64
+      arch: arm64
+      script:
+        # 64bit Azul Java on 64bit ARMv8 (RPi3,4) on 64bit OS on Travis Arm64 HW
+        - export HW=rpi4
+        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-64bit .
+        - echo -e "\n\e[36mopenHABian test installation 64bit Azul Embedded Java \e[31m on 64bit OS\e[36m on virtual $HW ...\n"
+        - docker run --memory="2G" --memory-reservation="2G" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
           docker exec -i "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
 
