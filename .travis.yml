@@ -37,7 +37,6 @@ jobs:
   allow_failures:
     - stage: Dev & Unit tests
     - stage: BATS and shellcheck tests
-          #    - env: aarch64
   include:
     - stage: Dev & Unit tests
       env: aarch64
@@ -48,7 +47,7 @@ jobs:
         - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "dev-." .'
         - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "unit-." .'
     - stage: BATS and shellcheck tests
-      env: arm32hf
+      env: aarch64
       arch: arm64
       script:
       - docker build -t openhabian/bats-openhabian -f Dockerfile.openhabian-aarch64-native .
@@ -128,4 +127,4 @@ jobs:
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-64bit .
         - echo -e "\n\e[36mopenHABian test installation 64bit Azul Embedded Java \e[31m on 64bit OS\e[36m on virtual $HW ...\n"
         - docker run --memory="2G" --memory-reservation="2G" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
-          docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+        -  docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
