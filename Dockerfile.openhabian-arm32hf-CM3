@@ -1,7 +1,6 @@
-# Note RPi3 base (first RPi to have aarch64 available)
+# CM3 is like RPi3 but without BT,WiFi,Ethernet
 # ATTENTION: Zulu Java on raspberrypi3 images fails to run
-FROM balenalib/raspberrypi3-debian-node:latest-buster
-#FROM balenalib/generic-aarch64-debian-node
+FROM balenalib/fincm3-debian-node:latest-buster
 
 
 ENV container docker

@@ -183,4 +183,9 @@ if hash python3 2>/dev/null; then bash /boot/webif.bash inst_done; fi
 sleep 12
 if hash python3 2>/dev/null; then bash /boot/webif.bash cleanup; fi
 
+if [ -z "$SILENT" ]; then
+  echo -e "\n\e[36mMemory usage:"
+  free -m && ps -auxq "$(cat /var/lib/openhab2/tmp/karaf.pid)" |awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
+fi
+
 # vim: filetype=sh
