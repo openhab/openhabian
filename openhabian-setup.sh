@@ -96,17 +96,17 @@ if [[ -n "$UNATTENDED" ]]; then
   # shellcheck disable=SC2154
   java_install_or_update "$java_arch"
   openhab2_setup
+  delayed_rules yes
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme
   srv_bind_mounts
   permissions_corrections
   misc_system_settings
-# not per default for now
-# if is_pione || is_pitwo || is_pithree || is_pithreeplus || is_pifour || is_pine64; then init_zram_mounts install; fi
   samba_setup
   clean_config_userpw
   frontail_setup
+  zram_setup
 else
   apt_update
   whiptail_check

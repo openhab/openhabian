@@ -8,13 +8,14 @@ init_zram_mounts() {
       # point to ZRAM status thread on forum
       if ! (whiptail --title "Install ZRAM, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
     fi
+
     local ZRAMGIT=https://github.com/mstormi/openhabian-zram
     local TAG=openhabian_v1.5
     TMP="$(mktemp -d /tmp/openhabian.XXXXX)"
 
     /usr/bin/git clone -q --branch "$TAG" "$ZRAMGIT" "$TMP"
-
-    cd "$TMP" || return
+    cond_redirect apt-get install -y -q --no-install-recommends make
+    cd "$TMP" || return 1
     /bin/sh ./install.sh
     /usr/bin/install -m 644 "${BASEDIR:=/opt/openhabian}"/includes/ztab /etc/ztab
     service zram-config start
@@ -25,3 +26,17 @@ init_zram_mounts() {
     rm -f /etc/ztab
   fi
 }
+
+zram_setup() {
+  if is_arm; then
+    if ! is_pione && ! is_cmone && ! is_pizero && ! is_pizerow; then
+      echo -n "$(timestamp) [openHABian] Installing ZRAM ..."
+      init_zram_mounts install
+    else
+      echo -n "$(timestamp) [openHABian] Skipping ZRAM install on hardware without enough memory."
+    fi
+  else
+    echo -n "$(timestamp) [openHABian] Skipping ZRAM install on non-ARM hardware."
+  fi
+}
+
