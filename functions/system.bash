@@ -322,7 +322,7 @@ On a Raspberry Pi 3 the Bluetooth module can be disabled, ensuring the operation
   fi
 
   if [[ $selection == *"2"* ]]; then
-    if is_pithree || is_pithreeplus || is_pifour; then
+    if is_pithree || is_pithreeplus; then
       #cond_redirect systemctl stop hciuart &>/dev/null
       #cond_redirect systemctl disable hciuart &>/dev/null
       cond_echo "Adding 'dtoverlay=miniuart-bt' to /boot/config.txt (RPi3/4)"
