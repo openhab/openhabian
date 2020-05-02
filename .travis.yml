@@ -56,6 +56,7 @@ jobs:
     - stage: Run unattended openHABian installation
       env: amd64
       script:
+        # 64bit Azul Java native on 64bit x86 on 64bit OS on Travis AMD64 HW
         - export HW=x86
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-x86 .
@@ -66,8 +67,8 @@ jobs:
     - env: arm32hf
       arch: arm64
       script:
+        # 32bit Azul Java on 32bit ARMv6hf (RPi0(W) and RPi1) on 32bit OS on Travis Arm64 HW
         - export HW=rpi01
-#        - docker run --rm --privileged multiarch/qemu-user-static:register --reset
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-ARMv6hf-native .
         - echo -e "\n\e[36mopenHABian test installation 32bit Azul Embedded Java on virtual $HW ...\n"
@@ -77,6 +78,7 @@ jobs:
     - env: arm32hf
       arch: arm64
       script:
+        # 32bit Azul Java on 32bit ARMv7l (RPi2) on 32bit OS on Travis Arm64 HW
         - export HW=rpi2
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-native .
@@ -87,6 +89,7 @@ jobs:
     - env: aarch64
       arch: arm64
       script:
+        # 64bit Azul Java on 64bit ARMv8 (RPi3, CM3) on 32bit OS on Travis Arm64 HW -- supposed to fail !
         - export HW=rpi3
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-native .
@@ -95,9 +98,10 @@ jobs:
         - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
         - docker exec -i "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
-    - env: aarch64
+    - env: arm32hf
       arch: arm64
       script:
+        # 32bit Azul Java on 64bit ARMv8 (CM3, RPi3) on 32bit OS on Travis Arm64 HW
         - export HW=cm3
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-CM3 .
@@ -108,6 +112,7 @@ jobs:
     - env: aarch64
       arch: arm64
       script:
+        # 64bit Azul Java on 64bit ARMv8 (RPi3,4) on 64bit OS on Travis Arm64 HW
         - export HW=rpi4
         - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-64bit .
