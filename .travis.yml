@@ -104,7 +104,7 @@ jobs:
         # 32bit Azul Java on 64bit ARMv8 (CM3, RPi3) on 32bit OS on Travis Arm64 HW
         - export HW=cm3
         - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
-        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-CM3 .
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-CM3 .
         - echo -e "\n\e[36mopenHABian test installation 32bit Azul Embedded Java on virtual $HW ...\n"
         - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
         - docker exec -i "openhabian-${HW}" bash -c \
