@@ -79,7 +79,7 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 
 - [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
 - Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/), able to directly work with *xz* files)
-- Insert the SD card into the Raspberry Pi, connect Ethernet ([WiFi supported](#wi-fi-based-setup-notes)) and power
+- Insert the SD card into your Raspberry Pi, connect Ethernet ([WiFi also supported](#wi-fi-setup)) and power on.
 - Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhab).)
 - Enjoy! 🎉
 
@@ -181,7 +181,7 @@ The configuration tool is the heart of openHABian.
 It is not only a menu with a set of options, it's also used in a special unattended mode inside the ready to use images.
 
 ⌨ - A quick note on menu navigation.
-Use the cursor keys to navigate, <kbd>Enter</kbd> to execute, <kbd>Space</kbd> to select and <kbd>Tab</kbd> to jump to the actions on the bottom of the screen. Press <kbd>Esc</kbd> twice to exit the configuration tool.
+Use the cursor keys to navigate, &lt;Enter&gt; to execute, &lt;Space&gt; to select and &lt;Tab&gt; to jump to the actions on the bottom of the screen. Press &lt;Esc&gt; twice to exit the configuration tool.
 
 ### Linux Hints
 
@@ -196,7 +196,7 @@ A lot of helpful articles can be found on the internet, for example:
 
 Regardless of if you want to copy some files or are on the search for a solution to a problem, sooner or later you'll have to know some Linux.
 Take a few minutes to study the above Tutorials and get to know the most basic commands and tools to be able to navigate on your Linux system, edit configurations, check the system state or look at log files.
-It's not complicated and something that doesn't hurt on ones résumé.
+It's not complicated and something that doesn't hurt on one's résumé.
 
 ### First Steps with openHAB
 
@@ -210,15 +210,17 @@ Be sure to read up on the [Configuration](https://www.openhab.org/docs/configura
 
 ### Further Configuration Steps {#further-config}
 
-openHABian is supposed to provide a ready-to-use openHAB base system. There are however a few things we can not decide for you.
+openHABian is supposed to provide a ready-to-use openHAB base system.
+There are a few things, however, we need you to decide and act on right now at the beginning:
 
+- **Delayed Rules Loading** openHAB startup times can be annoyingly long. There's an optimization available that *delays* loading the rules, *effectively speeding up* openHAB startup. We recommend to enable this now. See [menu option: 44].
 - **Time Zone:** The time zone of your openHABian system will be determined based on your internet connection. In some cases you might have to adjust that setting.
 - **Language:** The `locale` setting of the openHABian base system is set to "en_US.UTF-8". While this setting will not do any harm, you might prefer e.g. console errors in German or Spanish. Change the locale settings accordingly. Be aware, that error solving might be easier when using the English error messages as search phrases.
 - **Passwords:** Relying on default passwords is a security concern you should care about! The openHABian system is preconfigured with a few passwords you should change to ensure the security of your system. This is especially important if your system is accessible from outside your private subnet.
 
 All of these settings **can easily be changed** via the openHABian Configuration Tool.
 
-Here are the passwords in question with their respective default "username:password" values.
+Here are the passwords in question with their respective default "username:password" values. 
 All password can be changed from openHABian menu.
 
 ### Passwords {#passwords}
@@ -230,20 +232,26 @@ All password can be changed from openHABian menu.
 - InfluxDB (No password set by default)
 - Grafana visualization ("admin:admin")
 
-## System Backup & Maintenance
-Once you have gotten grip on how to use openHAB for your needs it is a good moment to think about backup. Maybe you accidently delete something or get hit by SD card wearout problem which is quite common on many single board computers such as Raspberry Pis.
+## Availability and Backup
+openHAB is designed to reliably run 24 hours a day, seven days a week - and so should be your server.
+This is the right time to prepare your system for disasters such as getting hit by the SD card wearout/corruption problem which is quite common on single board computers such as Raspberry Pis. openHABian has a number of features built in to enhance resilience:
 
 There are a number of measures in openHABian to address data safety today.
 
-- Use the openHAB integrated [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to backup your **openHAB configuration files**.
-- Reduce wear on SD card by moving write intensive actions temporary to RAM during operation (logs,persistant-data). Warning: power failure will result in lost data. [Menu option: 6A]
-- Use [Amanda Network Backup](http://www.amanda.org/) for full system backup, longer introduction [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md). [Menu option: 51]
+1. the ZRAM feature will move write intensive parts of openHABian (swap, logs, persistence data) into RAM to mitigate the risk of SD card corruption. See [here](https://community.openhab.org/t/zram-status/80996) for more up to date information.
+WARNING: power failure will result in some data to get lost (albeit the system should continue to run). Get an UPS. [menu option 38]
+2. You can also move the root filesystem to USB-attached memory. WARNING: USB sticks are as susceptible to flash wearout as SD cards are, making ZRAM the better choice for a standard Pi to run off its internal SD card. But you can use this option to migrate your system to a safe medium such as an SSD or HDD. [menu option 37]
+3. Use the openHAB integrated [backup tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively backup/restore your openHAB **config**.
+4. Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, longer introduction [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md). [Menu option: 51]
 
-You can also move the root filesystem to an external USB memory [Menu option: 37].
-A WARNING though: USB stick are as-susceptible to flash wearout as are SD cards.
+Standard openHABian install enables ZRAM (#1) by default. Once installed, you can disable ZRAM and choose to install to a safe external medium such as an SSD (#2) instead via menu options in menu 30.
+
+Finally, we strongly suggest you install Amanda (#4) right after you finish your setup. Amanda is to take care to backup your openHAB config and whole server to be able to quickly restore it when in need.
+This is not done by default because it requires a number of user inputs, but you should not skip it for your own safety !
+
+Delayed rules load will also be enabled by default. You can toggle to use this feature in menu option 44.
 
 ## Optional Components
-
 openHABian comes with a number of additional routines to quickly install and set up home automation related software.
 You'll find all of these in the [openHABian Configuration Tool](#openhabian-config)
 
@@ -292,7 +300,7 @@ During and after the first boot of your Raspberry Pi, the green on-board LED wil
 * `❇️️ ❇️️ ❇️️ ❇️️ ❇️️ ❇️️ ❇️️` - Fast blinking: error while setup
 
 **RPi note:**
-The progress indication via the **green Raspberry Pi LED** is currently not possible and hence not part of the openHABian v1.3+ image.
+The progress indication via the **green Raspberry Pi LED** is currently not possible and hence not part of the openHABian v1.3 image.
 We will re-add the functionality as soon as the underlying issue is resolved.
 -->
 
