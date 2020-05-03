@@ -1,6 +1,6 @@
 # CM3 is like RPi3 but without BT,WiFi,Ethernet
 # ATTENTION: Zulu Java on raspberrypi3 images fails to run
-FROM balenalib/fincm3-debian-node:latest-buster
+FROM balenalib/fincm3-debian-node:latest-buster-build
 
 
 ENV container docker
