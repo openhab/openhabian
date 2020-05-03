@@ -30,8 +30,10 @@ init_zram_mounts() {
 zram_setup() {
   if is_arm; then
     if ! is_pione && ! is_cmone && ! is_pizero && ! is_pizerow; then
+      cond_redirect systemctl stop openhab2
       echo -n "$(timestamp) [openHABian] Installing ZRAM ..."
       init_zram_mounts install
+      cond_redirect systemctl start openhab2
     else
       echo -n "$(timestamp) [openHABian] Skipping ZRAM install on hardware without enough memory."
     fi
