@@ -34,8 +34,8 @@ install:
 
 jobs:
   fast_finish: true
-#  allow_failures:
-#    - env: aarch64
+  allow_failures:
+    - env: aarch64
   include:
     - stage: Dev & Unit tests
       env: aarch64
@@ -120,4 +120,3 @@ jobs:
         - docker run --memory="2G" --memory-reservation="2G" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
           docker exec -i "openhabian-${HW}" bash -c \
             'VIRT=$(sudo virt-what); echo -e "\n\e[37mTesting openhabian install on ${VIRT} ...\n"; ./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
-
