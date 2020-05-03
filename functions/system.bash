@@ -45,10 +45,10 @@ timezone_setting() {
   else
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
-      cond_redirect apt-get -y install python-pip
-      if ! cond_redirect pip install --upgrade tzupdate; then echo "FAILED (pip)"; return 1; fi
+      cond_redirect apt-get -y install python3-pip
+      if ! cond_redirect pip3 install --upgrade tzupdate; then echo "FAILED (pip3)"; return 1; fi
     fi
-    cond_redirect pip install --upgrade tzupdate
+    cond_redirect pip3 install --upgrade tzupdate
     cond_redirect tzupdate
   fi
   # shellcheck disable=SC2181
