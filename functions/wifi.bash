@@ -9,7 +9,24 @@ wifi_setup() {
       if ! (whiptail --title "No WiFi Hardware Detected" --yesno "$question" 10 80); then echo "FAILED"; return 1; fi
     fi
   fi
+
   if [ -n "$INTERACTIVE" ]; then
+    if grep -q "dtoverlay=disable-wifi" /boot/config.txt; then
+      if (whiptail --title "WiFi is currently disabled" --yesno "WiFi is currently disabled on your box. Enable ?" 7 55); then 
+        cond_echo "Removing 'dtoverlay=disable-wifi' from /boot/config.txt"
+        sed -i '/dtoverlay=disable-wifi/d' /boot/config.txt
+	whiptail --title "Operation Successful!" --msgbox "Please reboot now to enable your WiFi hardware.\\nRun openhabian-config and select this menu option again to continue." 8 75
+      fi
+      return 0
+    else
+      if (whiptail --title "WiFi is currently ON" --defaultno --yesno "WiFi is currently enabled on your box.\\n\\nATTENTION:\\nDo you want to PERMANENTLY disable it ?" 10 50); then 
+        cond_echo "Adding 'dtoverlay=disable-wifi' to /boot/config.txt (RPi0W/3/4)"
+        echo "dtoverlay=disable-wifi" >> /boot/config.txt
+	whiptail --title "Operation successful!" --msgbox "Please reboot now to permanently disable your WiFi hardware." 7 70
+        return 0
+      fi
+    fi
+
     if ! SSID=$(whiptail --title "Wifi Setup" --inputbox "Which Wifi (SSID) do you want to connect to?" 10 60 3>&1 1>&2 2>&3); then return 1; fi
     if ! PASS=$(whiptail --title "Wifi Setup" --inputbox "What's the password for that Wifi?" 10 60 3>&1 1>&2 2>&3); then return 1; fi
     # use wpa_passphrase to escape the password, it handles special characters - how

@@ -32,6 +32,7 @@ cond_echo() {
   fi
 }
 
+# for RPi model identification see https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
 is_pizero() {
   # shellcheck disable=SC2154
   if [[ "$hw" == "pi0" ]]; then return 0; fi
