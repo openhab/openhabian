@@ -10,6 +10,8 @@ whiptail_check() {
 system_upgrade() {
   echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
   cond_redirect apt-get --yes upgrade
+  # shellcheck disable=SC2154
+  if cond_redirect java_install_or_update "$java_arch"; then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
 basic_packages() {
