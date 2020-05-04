@@ -1,6 +1,6 @@
 # assumes at least ARMv71 but not ARMv8 (aarch64) yet
 FROM balenalib/raspberry-pi2-debian-node:latest-buster
- 
+
 ENV container docker
 ENV INITSYSTEM on
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
@@ -37,7 +37,7 @@ RUN cp docker-systemctl-replacement/files/docker/systemctl.py /bin/systemctl
 ENTRYPOINT ["/usr/bin/entry.sh"]
 
 RUN adduser openhabian --gecos "Openhabian,,," --disabled-password
-RUN echo "openhabian:openhabian" | chpasswd   
+RUN echo "openhabian:openhabian" | chpasswd
 RUN /bin/echo -n "Running on " && /usr/bin/arch
 
 COPY . /opt/openhabian/
@@ -50,4 +50,3 @@ VOLUME ["/sys/fs/cgroup"]
 STOPSIGNAL 37
 
 CMD ["bash", "start.sh"]
-

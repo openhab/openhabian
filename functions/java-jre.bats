@@ -3,17 +3,17 @@
 load java-jre
 load helpers
 
-@test "unit-zulu_fetch_tar_url" {
-  run echo "https://cdn.azul.com/zulu-embedded/bin/zulu8.40.0.178-ca-jdk1.8.0_222-linux_aarch32hf.tar.gz"
-  echo "# Fetched .TAR download link for \"arm-32-bit-hf\": $output"
-  curl -s --head "$output" | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null # Check if link is valid, result it $?
-  [ $? -eq 0 ]
-}
-
 @test "installation-java_exist" {
   run java -version
   [ "$status" -eq 0 ]
   [[ $output == *"Zulu"* ]]
+}
+
+@test "unit-zulu_fetch_tar_url" {
+  run fetch_zulu_tar_url 32-bit
+  echo "# Fetched .tar.gz download link for Java Zulu 32-bit: $output"
+  curl -s --head "$output" | head -n 1 | grep "HTTP/1.[01] [23].." > /dev/null # Check if link is valid, result it $?
+  [ $? -eq 0 ]
 }
 
 @test "destructive-update_java-64bit_tar" {
