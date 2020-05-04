@@ -582,7 +582,9 @@ nginx_setup() {
         uncomment "#SSL" /etc/nginx/sites-enabled/openhab
       fi
     fi
-    nginx -t && systemctl reload nginx.service || FAILED=true
+
+    mkdir -p /var/log/nginx && chgrp adm /var/log/nginx && chmod 775 /var/log/nginx
+    nginx -t && systemctl restart nginx.service || FAILED=true
     if [ "$FAILED" = true ]; then
       whiptail --title "Operation Failed!" --msgbox "$failtext" 15 80
     else
