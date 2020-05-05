@@ -3,7 +3,7 @@
 # shellcheck disable=SC2144
 
 ## Install appropriate Java version based on current choice.
-## Valid arguments: AdoptOpenJDK, Zulu32, Zulu64
+## Valid arguments: "AdoptOpenJDK", "Zulu32", or "Zulu64"
 ##
 ##    java_install_and_update(String type)
 ##

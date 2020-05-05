@@ -143,7 +143,6 @@ show_main_menu() {
     "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
     "44 | Delay rules load"       "Delay loading rules to speed up overall startup" \
     "   | Default order"          "Reset config load order to default (random)" \
-
     "45 | Zulu OpenJDK 32-bit"    "Install Zulu 32-bit OpenJDK as primary Java provider" \
     "   | Zulu OpenJDK 64-bit"    "Install Zulu 64-bit OpenJDK as primary Java provider" \
     "   | AdoptOpenJDK"           "Install AdoptOpenJDK as primary Java provider" \
@@ -183,6 +182,9 @@ show_main_menu() {
   elif [[ "$choice" == "60"* ]]; then
     choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 20 116 13 --cancel-button Back --ok-button Execute \
     "62 | Packages"               "Install needed and recommended system packages " OFF \
+    "63 | Zulu OpenJDK 32-bit"    "Install Zulu 32-bit OpenJDK as primary Java provider" \
+    "   | Zulu OpenJDK 64-bit"    "Install Zulu 64-bit OpenJDK as primary Java provider" \
+    "   | AdoptOpenJDK"           "Install AdoptOpenJDK as primary Java provider" \
     "64 | openHAB stable"         "Install the latest openHAB release" OFF \
     "   | openHAB testing"        "Install the latest openHAB testing (milestone) build" OFF \
     "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
@@ -197,6 +199,10 @@ show_main_menu() {
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
     if [[ $choosenComponents == *"62"* ]]; then apt-get upgrade -y && basic_packages && needed_packages; fi
+    # shellcheck disable=SC2154
+    if [[ $choosenComponents == *"Zulu OpenJDK 32-bit"* ]]; then update_config_java "Zulu32" && java_install_or_update "$java_opt"; fi
+    if [[ $choosenComponents == *"Zulu OpenJDK 64-bit"* ]]; then update_config_java "Zulu64" && java_install_or_update "$java_opt"; fi
+    if [[ $choosenComponents == *"AdoptOpenJDK"* ]]; then update_config_java "AdoptOpenJDK" && java_install_or_update "$java_opt"; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
     if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi
