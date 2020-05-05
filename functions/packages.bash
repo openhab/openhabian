@@ -518,6 +518,7 @@ nginx_setup() {
 
   if (whiptail --title "Confirmation" --yesno "$confirmtext" 22 80) then
     echo "Installing NGINX..."
+    mkdir -p /etc/nginx && chmod 755 /etc/nginx
     apt-get -y -q install nginx || FAILED=true
 
     rm -rf /etc/nginx/sites-enabled/default
