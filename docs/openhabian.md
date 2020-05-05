@@ -4,8 +4,6 @@ title: openHABian
 source: https://github.com/openhab/openhabian/blob/master/docs/openhabian.md
 ---
 
-{% include base.html %}
-
 <!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source repository -->
 
 # openHABian - Hassle-free openHAB Setup
@@ -21,12 +19,6 @@ To that end, the project provides two things:
 * Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations for the Raspberry Pi and the Pine A64
 * The openHABian Configuration Tool to set up and configure openHAB and many related things on any Debian/Ubuntu based system
 
-#### Table of Contents
-
-{::options toc_levels="2..3"/}
-
-- TOC
-{:toc}
 
 ## Features
 
@@ -81,7 +73,7 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 - Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/), able to directly work with *xz* files)
 - Insert the SD card into your Raspberry Pi, connect Ethernet ([WiFi also supported](#wi-fi-setup)) and power on.
 - Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhab).)
-- Enjoy! 🎉
+- Enjoy!
 
 
 - The device will be available under its IP or via the local DNS name `openhab`
@@ -242,7 +234,7 @@ There are a number of measures in openHABian to address data safety today.
 WARNING: power failure will result in some data to get lost (albeit the system should continue to run). Get an UPS. [menu option 38]
 2. You can also move the root filesystem to USB-attached memory. WARNING: USB sticks are as susceptible to flash wearout as SD cards are, making ZRAM the better choice for a standard Pi to run off its internal SD card. But you can use this option to migrate your system to a safe medium such as an SSD or HDD. [menu option 37]
 3. Use the openHAB integrated [backup tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively backup/restore your openHAB **config**.
-4. Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, longer introduction [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md). [Menu option: 51]
+4. Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, documentation [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md). [Menu option: 51]
 
 Standard openHABian install enables ZRAM (#1) by default. Once installed, you can disable ZRAM and choose to install to a safe external medium such as an SSD (#2) instead via menu options in menu 30.
 
@@ -300,7 +292,7 @@ During and after the first boot of your Raspberry Pi, the green on-board LED wil
 * `❇️️ ❇️️ ❇️️ ❇️️ ❇️️ ❇️️ ❇️️` - Fast blinking: error while setup
 
 **RPi note:**
-The progress indication via the **green Raspberry Pi LED** is currently not possible and hence not part of the openHABian v1.3 image.
+The progress indication via the **green Raspberry Pi LED** is currently not possible.
 We will re-add the functionality as soon as the underlying issue is resolved.
 -->
 
