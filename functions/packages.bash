@@ -518,7 +518,6 @@ nginx_setup() {
 
   if (whiptail --title "Confirmation" --yesno "$confirmtext" 22 80) then
     echo "Installing NGINX..."
-    mkdir -p /etc/nginx && chmod 755 /etc/nginx
     apt-get -y -q install nginx || FAILED=true
 
     rm -rf /etc/nginx/sites-enabled/default
@@ -584,7 +583,6 @@ nginx_setup() {
       fi
     fi
 
-    mkdir -p /var/log/nginx && chgrp adm /var/log/nginx && chmod 775 /var/log/nginx
     nginx -t && systemctl restart nginx.service || FAILED=true
     if [ "$FAILED" = true ]; then
       whiptail --title "Operation Failed!" --msgbox "$failtext" 15 80
