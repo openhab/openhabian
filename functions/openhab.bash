@@ -3,6 +3,7 @@
 openhab2_setup() {
   local openhabVersion
   local RepoKey=/tmp/openhab-key.asc
+  local totalmemory
   introtext_stable="You are about to install or upgrade to the latest stable openHAB release.\\n
 Please be aware that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
   successtext_stable="The stable release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.
@@ -63,11 +64,13 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   if ! cond_redirect apt-get ${APT_INST_OPTS} install "openhab2=${openhabVersion}"; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab gpio
   cond_redirect systemctl daemon-reload
+  cp "${BASEDIR}"/includes/start-level.script ${OPENHAB_USERDATA}/etc/
   if cond_redirect systemctl enable --now openhab2; then echo "OK"; else echo "FAILED (usr)"; exit 1; fi
 
   if is_pi || is_pine64; then
-    cond_echo "Optimizing Java to run on low memory single board computers... "
-    if is_pizerow || is_pione ; then
+    echo -n "$(timestamp) [openHABian] Optimizing Java to run on low memory single board computers... "
+    totalmemory=$(grep MemTotal /proc/meminfo |awk '{print $2}')
+    if [ "${totalmemory:-1000000}" -lt 900000 ]; then
       sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"#g' /etc/default/openhab2
     else
       sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"#g' /etc/default/openhab2

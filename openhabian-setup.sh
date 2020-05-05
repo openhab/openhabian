@@ -96,7 +96,6 @@ if [[ -n "$UNATTENDED" ]]; then
   # shellcheck disable=SC2154
   java_install_or_update "$java_arch"
   openhab2_setup
-  delayed_rules yes
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme
