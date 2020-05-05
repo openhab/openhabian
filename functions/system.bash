@@ -134,23 +134,33 @@ vimrc_copy() {
   echo "OK"
 }
 
+create_mount() {
+  F=/etc/systemd/system/$(systemd-escape --path /srv/openhab2-"${2}").mount
+  sed -e "s|%SRC|$1|g" -e "s|%DEST|$2|g" "$BASEDIR"/includes/mount_template > "$F"
+  systemctl -q enable "srv-openhab2\\x2d$2.mount"
+  systemctl -q start "srv-openhab2\\x2d$2.mount"
+}
+
 srv_bind_mounts() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
+  systemctl is-active --quiet smbd && systemctl stop smbd
+  systemctl is-active --quiet zram-config && systemctl stop zram-config
+  cond_redirect umount -q /srv/openhab2-{sys,conf,userdata,logs,addons}
   sed -i "\\#[ \\t]/srv/openhab2-#d" /etc/fstab
-  sed -i "/^$/d" /etc/fstab
-  ( echo ""
-    echo "/usr/share/openhab2          /srv/openhab2-sys           none bind 0 0"
-    echo "/etc/openhab2                /srv/openhab2-conf          none bind 0 0"
-    echo "/var/lib/openhab2            /srv/openhab2-userdata      none bind 0 0"
-    echo "/var/log/openhab2            /srv/openhab2-logs          none bind 0 0"
-    echo "/usr/share/openhab2/addons   /srv/openhab2-addons        none bind 0 0"
-  ) >> /etc/fstab # dummy" to fix vim coloring
-
-  cond_redirect cat /etc/fstab
+  # dummy " to fix vim coloring
+  cond_redirect rm -f /etc/systemd/system/srv*.mount
   cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}
   cond_redirect cp "$BASEDIR"/includes/srv_readme.txt /srv/README.txt
   cond_redirect chmod ugo+w /srv /srv/README.txt
-  if cond_redirect mount --all --verbose; then echo "OK"; else echo "FAILED"; fi
+
+  cond_redirect create_mount /usr/share/openhab2 sys
+  cond_redirect create_mount /etc/openhab2 conf
+  cond_redirect create_mount /var/lib/openhab2 userdata
+  cond_redirect create_mount /var/log/openhab2 logs
+  cond_redirect create_mount /usr/share/openhab2/addons addons
+
+  if [ -f /etc/ztab ]; then systemctl start zram-config; fi
+  if [ -f /etc/samba/smb.conf ]; then systemctl start smbd; fi
 }
 
 permissions_corrections() {
