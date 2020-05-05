@@ -1,26 +1,36 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2181
+# shellcheck disable=SC2144
 
-## Install appropriate Java version based on current platform.
-## Valid arguments: 64-bit, 32-bit
+## Install appropriate Java version based on current choice.
+## Valid arguments: "AdoptOpenJDK", "Zulu32", or "Zulu64"
 ##
-##    java_install_and_update(String arch)
+##    java_install_and_update(String type)
 ##
 java_install_or_update(){
-  # Make sure we don't overwrite existing non Java Zulu installations
-  if ! [ -x "$(command -v java)" ] || [[ ! "$(java -version)" == *"Zulu"* ]]; then
-    if [ "$1" == "64-bit" ]; then
-      if is_x86_64; then
-        java_zulu_enterprise_8_apt
+  # Make sure we don't overwrite existing unsupported installations
+  if ! [ -x "$(command -v java)" ] || [[ ! "$(java -version > /dev/null 2>&1)" == *"Zulu"* ]] || [[ ! "$(java -version > /dev/null 2>&1)" == *"AdoptOpenJDK"* ]]; then
+    if [ "$1" == "AdoptOpenJDK" ]; then
+      adoptopenjdk_install_apt
+    elif ! [ "$1" == "AdoptOpenJDK" ]; then
+      if [[ "$(java -version > /dev/null 2>&1)" == *"AdoptOpenJDK"* ]] && [ -d /opt/jdk/* ]; then
+        cond_redirect systemctl stop openhab2.service
+        cond_redirect java_alternatives_reset "Zulu"
+        cond_redirect systemctl start openhab2.service
       else
-        if java_zulu_tar_update_available 64-bit; then
-          java_zulu_8_tar 64-bit
+        if [ "$1" == "Zulu64" ]; then
+          if is_x86_64; then
+            java_zulu_enterprise_8_apt
+          else
+            if java_zulu_tar_update_available 64-bit; then
+              java_zulu_8_tar 64-bit
+            fi
+          fi
+        else # Default to 32-bit installation
+          if java_zulu_tar_update_available 32-bit; then
+            java_zulu_8_tar 32-bit
+          fi
         fi
-      fi
-
-    else # Default to 32-bit installation
-      if java_zulu_tar_update_available 32-bit; then
-        java_zulu_8_tar 32-bit
       fi
     fi
   fi
@@ -28,7 +38,7 @@ java_install_or_update(){
 }
 
 ## Install Java Zulu 8 directly from fetched .tar.gz file
-## Valid arguments: 64-bit, 32-bit
+## Valid arguments: "32-bit" or "64-bit"
 ##
 ##    java_zulu_8_tar(String arch)
 ##
@@ -36,7 +46,6 @@ java_zulu_8_tar(){
   local link
   local jdkTempLocation
   local jdkInstallLocation
-  local jdkBin
   local jdkLib
   local jdkArch
 
@@ -101,12 +110,9 @@ java_zulu_8_tar(){
   rmdir "${jdkTempLocation}"
 
   # Update system with new installation
-  jdkBin=$(find "${jdkInstallLocation}"/*/bin ... -print -quit)
   jdkLib=$(find "${jdkInstallLocation}"/*/lib ... -print -quit)
-  cond_redirect update-alternatives --remove-all java
-  ## TODO: remove sometime in late 2020
-  cond_redirect update-alternatives --remove-all javac
-  cond_redirect update-alternatives --install /usr/bin/java java "$jdkBin"/java 1083000
+  cond_redirect java_alternatives_reset "Zulu"
+  cond_redirect update-alternatives --remove-all javac ## TODO: remove sometime in late 2020
   echo "$jdkLib"/"$jdkArch" > /etc/ld.so.conf.d/java.conf
   echo "$jdkLib"/"$jdkArch"/jli >> /etc/ld.so.conf.d/java.conf
   ldconfig
@@ -121,20 +127,21 @@ java_zulu_8_tar(){
 ## (package manager distributions only available on x86-64bit platforms when checked in April 2020)
 ##
 java_zulu_enterprise_8_apt(){
-  if ! dpkg -s 'zulu-8' >/dev/null 2>&1; then # Check if already is installed
-    cond_redirect systemctl stop openhab2.service
-    echo -n "$(timestamp) [openHABian] Installing Zulu Enterprise 64-Bit OpenJDK... "
-    cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
-    if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; return 1; fi
-    echo "deb http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
-    cond_redirect apt-get update
-    if cond_redirect apt-get --yes install zulu-8 && java_zulu_install_crypto_extension; then echo "OK"; else echo "FAILED"; return 1; fi
-    cond_redirect systemctl start openhab2.service
-  fi
+  if ! dpkg -s 'zulu-8' > /dev/null 2>&1; then # Check if already is installed
+  echo -n "$(timestamp) [openHABian] Adding Zulu keys to apt... "
+  cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
+  if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
+  cond_redirect systemctl stop openhab2.service
+  echo -n "$(timestamp) [openHABian] Installing Zulu Enterprise 64-Bit OpenJDK... "
+  echo "deb http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
+  cond_redirect apt-get update
+  if cond_redirect apt-get --yes install zulu-8 && java_zulu_install_crypto_extension; then echo "OK"; else echo "FAILED"; exit 1; fi
+  cond_redirect systemctl start openhab2.service
+fi
 }
 
 ## Fetch Java Zulu 8 directly from Azul API v1
-## Valid arguments: 64-bit, 32-bit
+## Valid arguments: "32-bit" or "64-bit"
 ##
 ##    fetch_zulu_tar_url(String arch)
 ##
@@ -170,12 +177,12 @@ fetch_zulu_tar_url(){
 
 ## Check if a newer version of Java Zulu 8 is available.
 ## Returns 0 / true if new version exists
-## Valid arguments: 64-bit, 32-bit
+## Valid arguments: "32-bit" or "64-bit"
 ##
 ##    java_zulu_tar_update_available(String arch)
 ##
 java_zulu_tar_update_available(){
-  if [ ! -x "$(command -v java)" ]; then return 0; fi
+  if [ ! -x "$(command -v java)" ] || [[ "$(java -version 2>&1)" == *"AdoptOpenJDK"* ]]; then return 0; fi
   local availableVersion
   local javaVersion
   local filter
@@ -230,4 +237,79 @@ java_zulu_install_crypto_extension(){
 
   rm -rf "${policyTempLocation}"
   return 0
+}
+
+## Fetch AdoptOpenJDK using APT repository.
+##
+adoptopenjdk_fetch_apt(){
+  local adoptKey="/tmp/adoptopenjdk.asc"
+  echo -n "$(timestamp) [openHABian] Adding AdoptOpenJDK keys to apt... "
+  cond_redirect wget -qO "$adoptKey" https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public
+  if cond_redirect apt-key add "$adoptKey"; then
+    echo "OK"
+  else
+    echo "FAILED (keyserver)"
+    rm -f "$adoptKey"
+    exit 1;
+  fi
+  echo -n "$(timestamp) [openHABian] Fetching AdoptOpenJDK... "
+  echo "deb http://adoptopenjdk.jfrog.io/adoptopenjdk/deb buster main" > /etc/apt/sources.list.d/adoptopenjdk.list
+  cond_redirect apt-get update
+  if cond_redirect apt-get install --download-only adoptopenjdk-8-hotspot-jre; then echo "OK"; else echo "FAILED"; exit 1; fi
+}
+
+## Install AdoptOpenJDK using APT repository.
+##
+adoptopenjdk_install_apt(){
+  if ! dpkg -s 'adoptopenjdk-8-hotspot-jre' > /dev/null 2>&1; then # Check if already is installed
+    echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK... "
+    adoptopenjdk_fetch_apt
+    cond_redirect systemctl stop openhab2.service
+    cond_redirect java_alternatives_reset
+    if cond_redirect apt-get install --yes adoptopenjdk-8-hotspot-jre; then echo "OK"; else echo "FAILED"; exit 1; fi
+    cond_redirect systemctl start openhab2.service
+  elif dpkg -s 'adoptopenjdk-8-hotspot-jre' >/dev/null 2>&1; then
+    cond_redirect systemctl stop openhab2.service
+    cond_redirect java_alternatives_reset
+    if cond_redirect dpkg-reconfigure adoptopenjdk-8-hotspot-jre; then echo "OK"; else echo "FAILED"; exit 1; fi
+    cond_redirect systemctl start openhab2.service
+  fi
+}
+
+## Reset Java in update-alternatives
+## Valid arguments: "Zulu"
+##
+##    java_alternatives_reset(String opt)
+##
+java_alternatives_reset(){
+  update-alternatives --remove-all java
+  update-alternatives --remove-all jjs
+  update-alternatives --remove-all keytool
+  update-alternatives --remove-all orbd
+  update-alternatives --remove-all pack200
+  update-alternatives --remove-all policytool
+  update-alternatives --remove-all rmid
+  update-alternatives --remove-all rmiregistry
+  update-alternatives --remove-all servertool
+  update-alternatives --remove-all tnameserv
+  update-alternatives --remove-all unpack200
+  update-alternatives --remove-all jexec
+  if [[ "$1" == "Zulu" ]]; then
+    local jdkBin
+    local jdkLib
+    jdkBin=$(find /opt/jdk/*/bin ... -print -quit)
+    jdkLib=$(find /opt/jdk/*/lib ... -print -quit)
+    update-alternatives --install /usr/bin/java java "$jdkBin"/java 1000000
+    update-alternatives --install /usr/bin/jjs jjs "$jdkBin"/jjs 1000000
+    update-alternatives --install /usr/bin/keytool keytool "$jdkBin"/keytool 1000000
+    update-alternatives --install /usr/bin/orbd orbd "$jdkBin"/orbd 1000000
+    update-alternatives --install /usr/bin/pack200 pack200 "$jdkBin"/pack200 1000000
+    update-alternatives --install /usr/bin/policytool policytool "$jdkBin"/policytool 1000000
+    update-alternatives --install /usr/bin/rmid rmid "$jdkBin"/rmid 1000000
+    update-alternatives --install /usr/bin/rmiregistry rmiregistry "$jdkBin"/rmiregistry 1000000
+    update-alternatives --install /usr/bin/servertool servertool "$jdkBin"/servertool 1000000
+    update-alternatives --install /usr/bin/tnameserv tnameserv "$jdkBin"/tnameserv 1000000
+    update-alternatives --install /usr/bin/unpack200 unpack200 "$jdkBin"/unpack200 1000000
+    update-alternatives --install /usr/bin/jexec jexec "$jdkLib"/jexec 1000000
+  fi
 }

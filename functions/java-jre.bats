@@ -49,3 +49,18 @@ load helpers
   [[ $output == *"Zulu"* ]]
   [[ $output == *"32"* ]]
 }
+
+@test "destructive-install_adopt" {
+  echo -e "# \e[36mAdoptOpenJDK Java installation is being (test-)installed..." >&3
+  run systemctl start openhab2
+  run adoptopenjdk_fetch_apt
+  run adoptopenjdk_install_apt
+  echo -e "# \e[32mAdoptOpenJDK Java installation successful." >&3
+  [ "$status" -eq 0 ]
+  echo -e "# \e[32mAdoptOpenJDK Java installation successful." >&3
+  run systemctl is-active --quiet openhab2
+  [ "$status" -eq 0 ]
+  run java -version
+  [ "$status" -eq 0 ]
+  [[ $output == *"AdoptOpenJDK"* ]]
+}

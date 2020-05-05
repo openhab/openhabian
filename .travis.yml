@@ -42,7 +42,7 @@ jobs:
       env: aarch64
       arch: arm64
       script:
-        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
+        - sed -i 's/^java_opt=.*/java_opt=Zulu64/' build-image/openhabian.conf
         - docker build -t openhabian/dev-openhabian -f Dockerfile.openhabian-aarch64-native .
         - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "dev-." .'
         - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "unit-." .'
@@ -59,7 +59,7 @@ jobs:
       script:
         # 64bit Azul Java native on 64bit x86 on 64bit OS on Travis AMD64 HW
         - export HW=x86
-        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
+        - sed -i 's/^java_opt=.*/java_opt=Zulu64/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-x86 .
         - echo -e "\n\e[36mopenHABian test installation 64bit Azul Enterprise Java on virtual $HW ...\n"
         - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
@@ -69,7 +69,7 @@ jobs:
       script:
         # 32bit Azul Java on 32bit ARMv6hf (RPi0(W) and RPi1) on 32bit OS on Travis Arm64 HW
         - export HW=rpi01
-        - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
+        - sed -i 's/^java_opt=.*/java_opt=Zulu32/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-ARMv6hf-native .
         - echo -e "\n\e[36mopenHABian test installation 32bit Azul Embedded Java on virtual $HW ...\n"
         - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
@@ -79,7 +79,7 @@ jobs:
       script:
         # 32bit Azul Java on 32bit ARMv7l (RPi2) on 32bit OS on Travis Arm64 HW
         - export HW=rpi2
-        - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
+        - sed -i 's/^java_opt=.*/java_opt=Zulu32/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-native .
         - echo -e "\n\e[36mopenHABian test installation 32bit Azul Embedded Java on virtual $HW ...\n"
         - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian
@@ -89,7 +89,7 @@ jobs:
       script:
         # 32bit Azul Java on 64bit ARMv8 (CM3, RPi3) on 32bit OS on Travis Arm64 HW
         - export HW=cm3
-        - sed -i 's/java_arch=64-bit$/java_arch=32-bit/' build-image/openhabian.conf
+        - sed -i 's/^java_opt=.*/java_opt=Zulu32/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-CM3 .
         - echo -e "\n\e[36mopenHABian test installation 32bit Azul Embedded Java on virtual $HW ...\n"
         - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
@@ -100,7 +100,7 @@ jobs:
         # 64bit Azul Java on 32bit ARMv8 (RPi3, CM3) on 32bit OS on Travis Arm64 HW
         # This is known to not work - openHABian is supposed to downgrade to 32bit on install.
         - export HW=rpi3
-        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
+        - sed -i 's/^java_opt=.*/java_opt=Zulu64/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-native .
         - echo -e "\n\e[36mopenHABian test installation 64bit Azul Embedded Java on virtual $HW ..."
         - echo -e "\e[31m ** This is known to not work. openHABian is supposed to force install down to 32bit **\n"
@@ -112,7 +112,7 @@ jobs:
         # 64bit Azul Java on 64bit ARMv8 (RPi3,4) on 32bit OS on Travis Arm64 HW
         # This is known to not work - openHABian is supposed to downgrade to 32bit on install.
         - export HW=rpi3
-        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
+        - sed -i 's/^java_opt=.*/java_opt=Zulu64/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-native .
         - echo -e "\n\e[36mopenHABian test installation 64bit Azul Embedded Java on virtual $HW ..."
         - echo -e "\e[31m ** This is known to not work. openHABian is supposed to force install down to 32bit **\n"
@@ -123,8 +123,18 @@ jobs:
       script:
         # 64bit Azul Java on 64bit ARMv8 (RPi3,4) on 64bit OS on Travis Arm64 HW
         - export HW=rpi4
-        - sed -i 's/java_arch=32-bit$/java_arch=64-bit/' build-image/openhabian.conf
+        - sed -i 's/^java_opt=.*/java_opt=Zulu64/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-aarch64-64bit .
         - echo -e "\n\e[36mopenHABian test installation 64bit Azul Embedded Java \e[31m on 64bit OS\e[36m on virtual $HW ...\n"
         - docker run --memory="2G" --memory-reservation="2G" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
+          docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+    - env: aarch64
+      arch: arm64
+      script:
+        # AdoptOpenJDK Java on 32bit ARMv7 on 32bit OS on Travis Arm64 HW
+        - export HW=rpi2
+        - sed -i 's/^java_opt=.*/java_opt=AdoptOpenJDK/' build-image/openhabian.conf
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-native .
+        - echo -e "\n\e[36mopenHABian test installation 64bit AdoptOpenJDK Java \e[31m on 32bit OS\e[36m on virtual $HW ...\n"
+        - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
         - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
