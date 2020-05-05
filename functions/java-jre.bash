@@ -1,26 +1,33 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2181
 
-## Install appropriate Java version based on current platform.
-## Valid arguments: 64-bit, 32-bit
+## Install appropriate Java version based on current choice.
+## Valid arguments: AdoptOpenJDK, Zulu32, Zulu64
 ##
 ##    java_install_and_update(String arch)
 ##
 java_install_or_update(){
-  # Make sure we don't overwrite existing non Java Zulu installations
-  if ! [ -x "$(command -v java)" ] || [[ ! "$(java -version)" == *"Zulu"* ]]; then
-    if [ "$1" == "64-bit" ]; then
-      if is_x86_64; then
-        java_zulu_enterprise_8_apt
-      else
-        if java_zulu_tar_update_available 64-bit; then
-          java_zulu_8_tar 64-bit
-        fi
+  # Make sure we don't overwrite existing unsupported installations
+  if ! [ -x "$(command -v java)" ] || [[ ! "$(java -version 2>&1)" == *"Zulu"* ]] || [[ ! "$(java -version 2>&1)" == *"AdoptOpenJDK"* ]]; then
+    if [ "$1" == "AdoptOpenJDK" ]; then
+      adoptopenjdk_install_apt
+    else
+      if dpkg -s 'adoptopenjdk-8-hotspot-jre' >/dev/null 2>&1; then
+        adoptopenjdk_uninstall_apt
       fi
+      if [ "$1" == "Zulu64" ]; then
+        if is_x86_64; then
+          java_zulu_enterprise_8_apt
+        else
+          if java_zulu_tar_update_available 64-bit; then
+            java_zulu_8_tar 64-bit
+          fi
+        fi
 
-    else # Default to 32-bit installation
-      if java_zulu_tar_update_available 32-bit; then
-        java_zulu_8_tar 32-bit
+      else # Default to 32-bit installation
+        if java_zulu_tar_update_available 32-bit; then
+          java_zulu_8_tar 32-bit
+        fi
       fi
     fi
   fi
@@ -104,9 +111,31 @@ java_zulu_8_tar(){
   jdkBin=$(find "${jdkInstallLocation}"/*/bin ... -print -quit)
   jdkLib=$(find "${jdkInstallLocation}"/*/lib ... -print -quit)
   cond_redirect update-alternatives --remove-all java
+  cond_redirect update-alternatives --remove-all jjs
+  cond_redirect update-alternatives --remove-all keytool
+  cond_redirect update-alternatives --remove-all orbd
+  cond_redirect update-alternatives --remove-all pack200
+  cond_redirect update-alternatives --remove-all policytool
+  cond_redirect update-alternatives --remove-all rmid
+  cond_redirect update-alternatives --remove-all rmiregistry
+  cond_redirect update-alternatives --remove-all servertool
+  cond_redirect update-alternatives --remove-all tnameserv
+  cond_redirect update-alternatives --remove-all unpack200
+  cond_redirect update-alternatives --remove-all jexec
   ## TODO: remove sometime in late 2020
   cond_redirect update-alternatives --remove-all javac
   cond_redirect update-alternatives --install /usr/bin/java java "$jdkBin"/java 1083000
+  cond_redirect update-alternatives --install /usr/bin/jjs jjs "$jdkBin"/jjs 1083000
+  cond_redirect update-alternatives --install /usr/bin/keytool keytool "$jdkBin"/keytool 1083000
+  cond_redirect update-alternatives --install /usr/bin/orbd orbd "$jdkBin"/orbd 1083000
+  cond_redirect update-alternatives --install /usr/bin/pack200 pack200 "$jdkBin"/pack200 1083000
+  cond_redirect update-alternatives --install /usr/bin/policytool policytool "$jdkBin"/policytool 1083000
+  cond_redirect update-alternatives --install /usr/bin/rmid rmid "$jdkBin"/rmid 1083000
+  cond_redirect update-alternatives --install /usr/bin/rmiregistry rmiregistry "$jdkBin"/rmiregistry 1083000
+  cond_redirect update-alternatives --install /usr/bin/servertool servertool "$jdkBin"/servertool 1083000
+  cond_redirect update-alternatives --install /usr/bin/tnameserv tnameserv "$jdkBin"/tnameserv 1083000
+  cond_redirect update-alternatives --install /usr/bin/unpack200 unpack200 "$jdkBin"/unpack200 1083000
+  cond_redirect update-alternatives --install /usr/bin/jexec jexec "$jdkLib"/jexec 1083000
   echo "$jdkLib"/"$jdkArch" > /etc/ld.so.conf.d/java.conf
   echo "$jdkLib"/"$jdkArch"/jli >> /etc/ld.so.conf.d/java.conf
   ldconfig
@@ -122,10 +151,11 @@ java_zulu_8_tar(){
 ##
 java_zulu_enterprise_8_apt(){
   if ! dpkg -s 'zulu-8' >/dev/null 2>&1; then # Check if already is installed
-    cond_redirect systemctl stop openhab2.service
-    echo -n "$(timestamp) [openHABian] Installing Zulu Enterprise 64-Bit OpenJDK... "
+    echo -n "$(timestamp) [openHABian] Adding Zulu keys to apt... "
     cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
     if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
+    cond_redirect systemctl stop openhab2.service
+    echo -n "$(timestamp) [openHABian] Installing Zulu Enterprise 64-Bit OpenJDK... "
     echo "deb http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
     cond_redirect apt-get update
     if cond_redirect apt-get --yes install zulu-8 && java_zulu_install_crypto_extension; then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -230,4 +260,48 @@ java_zulu_install_crypto_extension(){
 
   rm -rf "${policyTempLocation}"
   return 0
+}
+
+## Install AdoptOpenJDK using APT repository.
+##
+adoptopenjdk_install_apt(){
+  local adoptKey="/tmp/adoptopenjdk.asc"
+  if ! dpkg -s 'adoptopenjdk-8-hotspot-jre' >/dev/null 2>&1; then # Check if already is installed
+    echo -n "$(timestamp) [openHABian] Adding AdoptOpenJDK keys to apt... "
+    cond_redirect wget -qO "$adoptKey" https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public
+    if cond_redirect apt-key add "$adoptKey"; then
+      echo "OK"
+    else
+      echo "FAILED (keyserver)"
+      rm -f "$adoptKey"
+      exit 1;
+    fi
+    echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK... "
+    cond_redirect systemctl stop openhab2.service
+    cond_redirect update-alternatives --remove-all java
+    echo "deb http://adoptopenjdk.jfrog.io/adoptopenjdk/deb buster main" > /etc/apt/sources.list.d/adoptopenjdk.list
+    cond_redirect apt-get update
+    if cond_redirect apt-get --yes install adoptopenjdk-8-hotspot-jre; then echo "OK"; else echo "FAILED"; exit 1; fi
+    cond_redirect systemctl start openhab2.service
+  fi
+}
+
+## Uninstall AdoptOpenJDK using APT repository.
+##
+adoptopenjdk_uninstall_apt(){
+  if dpkg -s 'adoptopenjdk-8-hotspot-jre' >/dev/null 2>&1; then
+    echo -n "$(timestamp) [openHABian] Removing AdoptOpenJDK... "
+    cond_redirect update-alternatives --remove-all java
+    cond_redirect update-alternatives --remove-all jjs
+    cond_redirect update-alternatives --remove-all keytool
+    cond_redirect update-alternatives --remove-all orbd
+    cond_redirect update-alternatives --remove-all pack200
+    cond_redirect update-alternatives --remove-all policytool
+    cond_redirect update-alternatives --remove-all rmid
+    cond_redirect update-alternatives --remove-all rmiregistry
+    cond_redirect update-alternatives --remove-all servertool
+    cond_redirect update-alternatives --remove-all tnameserv
+    cond_redirect update-alternatives --remove-all unpack200
+    cond_redirect update-alternatives --remove-all jexec
+  fi
 }
