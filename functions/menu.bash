@@ -158,9 +158,9 @@ show_main_menu() {
       43\ *) nginx_setup ;;
       *Delay\ rules\ load) delayed_rules yes;;
       *Default\ order) delayed_rules no;;
-      *Zulu\ OpenJDK\ 32-bit) update_config_java "Zulu32" && java_install_or_update "$java_opt";;
-      *Zulu\ OpenJDK\ 64-bit) update_config_java "Zulu64" && java_install_or_update "$java_opt";;
-      *AdoptOpenJDK) update_config_java "AdoptOpenJDK" && java_install_or_update "$java_opt";;
+      *Zulu\ OpenJDK\ 32-bit) update_config_java "Zulu32" && java_install_or_update "Zulu32";;
+      *Zulu\ OpenJDK\ 64-bit) update_config_java "Zulu64" && java_install_or_update "Zulu64";;
+      *AdoptOpenJDK) update_config_java "AdoptOpenJDK" && java_install_or_update "AdoptOpenJDK";;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -200,9 +200,9 @@ show_main_menu() {
     wait_for_apt_to_finish_update
     if [[ $choosenComponents == *"62"* ]]; then apt-get upgrade -y && basic_packages && needed_packages; fi
     # shellcheck disable=SC2154
-    if [[ $choosenComponents == *"Zulu OpenJDK 32-bit"* ]]; then update_config_java "Zulu32" && java_install_or_update "$java_opt"; fi
-    if [[ $choosenComponents == *"Zulu OpenJDK 64-bit"* ]]; then update_config_java "Zulu64" && java_install_or_update "$java_opt"; fi
-    if [[ $choosenComponents == *"AdoptOpenJDK"* ]]; then update_config_java "AdoptOpenJDK" && java_install_or_update "$java_opt"; fi
+    if [[ $choosenComponents == *"Zulu OpenJDK 32-bit"* ]]; then update_config_java "Zulu32" && java_install_or_update "Zulu32"; fi
+    if [[ $choosenComponents == *"Zulu OpenJDK 64-bit"* ]]; then update_config_java "Zulu64" && java_install_or_update "Zulu64"; fi
+    if [[ $choosenComponents == *"AdoptOpenJDK"* ]]; then update_config_java "AdoptOpenJDK" && java_install_or_update "AdoptOpenJDK"; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
     if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi

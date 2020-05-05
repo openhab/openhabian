@@ -129,7 +129,7 @@ java_zulu_8_tar(){
 ## (package manager distributions only available on x86-64bit platforms when checked in April 2020)
 ##
 java_zulu_enterprise_8_apt(){
-  if ! dpkg -s 'zulu-8' >/dev/null 2>&1; then # Check if already is installed
+  if ! dpkg -s 'zulu-8' > /dev/null 2>&1; then # Check if already is installed
   echo -n "$(timestamp) [openHABian] Adding Zulu keys to apt... "
   cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
   if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
