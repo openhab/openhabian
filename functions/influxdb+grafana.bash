@@ -29,7 +29,6 @@ influxdb_grafana_setup() {
   local password_check
   local text_grafana_admin_password
   local text_openHAB_integration
-  local totalmemory
   local lowmemory
 
   FAILED=0
@@ -43,9 +42,8 @@ influxdb_grafana_setup() {
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$text_intro" 15 80); then echo "CANCELED"; return 0; fi
      # now check if hardware is recommended for Grafana/InfluxDB, Pi0 and Pi1 are not really suited to run it in conjunction with OH
-     totalmemory=$(grep MemTotal /proc/meminfo |awk '{print $2}')
      lowmemory=false
-     if [ "${totalmemory:-1000000}" -lt 900000 ]; then
+     if has_lowmem; then
        lowmemory=true
        if ! (whiptail --title "WARNING, Continue?" --yes-button "Continue" --no-button "Back" --yesno --defaultno "$text_lowmem" 15 80); then echo "CANCELED"; return 0; fi
      fi

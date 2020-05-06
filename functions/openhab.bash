@@ -17,7 +17,6 @@ delayed_rules() {
 openhab2_setup() {
   local openhabVersion
   local RepoKey=/tmp/openhab-key.asc
-  local totalmemory
   introtext_stable="You are about to install or upgrade to the latest stable openHAB release.\\n
 Please be aware that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
   successtext_stable="The stable release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you did changes to files below '/var/lib/openhab2' before, they were replaced but you can restore them from backup files next to the originals.
@@ -83,8 +82,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
 
   if is_pi || is_pine64; then
     echo -n "$(timestamp) [openHABian] Optimizing Java to run on low memory single board computers... "
-    totalmemory=$(grep MemTotal /proc/meminfo |awk '{print $2}')
-    if [ "${totalmemory:-1000000}" -lt 900000 ]; then
+    if has_lowmem; then
       sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"#g' /etc/default/openhab2
     else
       sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"#g' /etc/default/openhab2
