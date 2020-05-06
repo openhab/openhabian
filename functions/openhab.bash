@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
 
+# create systemd config to enforce delaying rules loading
+delayed_rules() {
+  local targetdir=/etc/systemd/system/openhab2.service.d
+
+  if [ "$1" == "yes" ]; then
+    /bin/mkdir -p $targetdir
+    /bin/cp "${BASEDIR}"/includes/systemd-override.conf ${targetdir}/override.conf
+  else
+    /bin/rm ${targetdir}/override.conf
+  fi
+  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl restart openhab2.service
+}
+
 openhab2_setup() {
   local openhabVersion
   local RepoKey=/tmp/openhab-key.asc
@@ -79,6 +93,8 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
+
+  delayed_rules yes
   dashboard_add_tile openhabiandocs
 }
 
@@ -151,20 +167,6 @@ openhab_is_running() {
   if [ -z "${OPENHAB_HTTP_PORT}" ];  then OPENHAB_HTTP_PORT=8080; fi
   if [ -z "${OPENHAB_HTTPS_PORT}" ]; then OPENHAB_HTTPS_PORT=8443; fi
   return 0;
-}
-
-# create systemd config to enforce delaying rules loading
-delayed_rules() {
-  local targetdir=/etc/systemd/system/openhab2.service.d
-
-  if [ "$1" == "yes" ]; then
-    /bin/mkdir -p $targetdir
-    /bin/cp "${BASEDIR}"/includes/systemd-override.conf ${targetdir}/override.conf
-  else
-    /bin/rm ${targetdir}/override.conf
-  fi
-  cond_redirect systemctl daemon-reload
-  cond_redirect systemctl restart openhab2.service
 }
 
 # The function has one non-optinal parameter for the application to create a tile for
