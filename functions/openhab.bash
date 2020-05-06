@@ -64,7 +64,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   if ! cond_redirect apt-get ${APT_INST_OPTS} install "openhab2=${openhabVersion}"; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab gpio
   cond_redirect systemctl daemon-reload
-  cp "${BASEDIR}"/includes/start-level.script ${OPENHAB_USERDATA}/etc/
+  cp "${BASEDIR}"/includes/start-level.script "${OPENHAB_USERDATA}"/etc/
   if cond_redirect systemctl enable --now openhab2; then echo "OK"; else echo "FAILED (usr)"; exit 1; fi
 
   if is_pi || is_pine64; then
