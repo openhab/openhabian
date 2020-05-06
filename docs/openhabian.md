@@ -241,7 +241,7 @@ Standard openHABian install enables ZRAM (#1) by default. Once installed, you ca
 Finally, we strongly suggest you install Amanda (#4) right after you finish your setup. Amanda is to take care to backup your openHAB config and whole server to be able to quickly restore it when in need.
 This is not done by default because it requires a number of user inputs, but you should not skip it for your own safety !
 
-Delayed rules load will also be enabled by default. You can toggle to use this feature in menu option 44.
+Delayed rules load will also be enabled by default. This is renaming the rules files, then after 2 minutes it renames them back. You can toggle to use this feature in menu option 44.
 
 ## Optional Components
 openHABian comes with a number of additional routines to quickly install and set up home automation related software.
