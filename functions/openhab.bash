@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-# create systemd config to enforce delaying rules loading
+# two overlapping methods to enforce proper load order:
+# /var/lib/openhab2/etc/scripts/start-level.script to provide default start levels
+# /etc/systemd/system/openhab2.service.d/override.conf to quickly rename rules forth and back after 2 minutes
 delayed_rules() {
   local targetdir=/etc/systemd/system/openhab2.service.d
 
@@ -77,7 +79,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   if ! cond_redirect apt-get ${APT_INST_OPTS} install "openhab2=${openhabVersion}"; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab gpio
   cond_redirect systemctl daemon-reload
-  cp "${BASEDIR}"/includes/start-level.script "${OPENHAB_USERDATA}"/etc/
+  cp "${BASEDIR}"/includes/start-level.script "${OPENHAB_USERDATA}"/etc/scripts/
   if cond_redirect systemctl enable --now openhab2; then echo "OK"; else echo "FAILED (usr)"; exit 1; fi
 
   if is_pi || is_pine64; then
