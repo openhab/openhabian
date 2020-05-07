@@ -205,7 +205,7 @@ Be sure to read up on the [Configuration](https://www.openhab.org/docs/configura
 openHABian is supposed to provide a ready-to-use openHAB base system.
 There are a few things, however, we need you to decide and act on right now at the beginning:
 
-- **Delayed Rules Loading** openHAB startup times can be annoyingly long. There's an optimization available that *delays* loading the rules, *effectively speeding up* openHAB startup. We recommend to enable this now. See [menu option: 44].
+- **Delayed Rules Loading** openHAB startup times can be annoyingly long. There's an optimization available that *delays* loading the rules. It quickly renames rules forth and back after 2 minutes, *effectively speeding up* openHAB startup. This is setup by default, you can disable this via [menu option: 44].
 - **Time Zone:** The time zone of your openHABian system will be determined based on your internet connection. In some cases you might have to adjust that setting.
 - **Language:** The `locale` setting of the openHABian base system is set to "en_US.UTF-8". While this setting will not do any harm, you might prefer e.g. console errors in German or Spanish. Change the locale settings accordingly. Be aware, that error solving might be easier when using the English error messages as search phrases.
 - **Passwords:** Relying on default passwords is a security concern you should care about! The openHABian system is preconfigured with a few passwords you should change to ensure the security of your system. This is especially important if your system is accessible from outside your private subnet.
