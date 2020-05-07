@@ -276,10 +276,8 @@ You'll also see added commits when executing the "Update" function within the op
 
 ### Did my Installation succeed? What to do in case of a problem? {#successful}
 
-**A note on patience:**
-Remember to stay calm.
-The openHABian setup will take 15 up to 45 minutes to complete all steps.
-This time highly depends on your device's performance, your internet connection and sometimes even on the load of external servers.
+A note on **patience**: stay calm - the openHABian setup will take 15 up to 45 minutes to complete all steps.
+The amount of time highly depends on your device's performance and a number of extrenal factors such as your internet connection.
 
 
 <!--
