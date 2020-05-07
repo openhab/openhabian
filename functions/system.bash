@@ -297,7 +297,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   if [[ $selection == *"1"* ]] && is_pi; then
     cond_echo ""
     cond_echo "Adding 'enable_uart=1' to /boot/config.txt"
-    if grep -q "enable_uart" /boot/config.txt; then
+    if grep -Eq "^enable_uart" /boot/config.txt; then
       sed -i 's/^.*enable_uart=.*$/enable_uart=1/g' /boot/config.txt
     else
       echo "enable_uart=1" >> /boot/config.txt
@@ -327,7 +327,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
       #cond_redirect systemctl stop hciuart &>/dev/null
       #cond_redirect systemctl disable hciuart &>/dev/null
       cond_echo "Adding 'dtoverlay=miniuart-bt' to /boot/config.txt (RPi3/4)"
-      if ! grep -q "dtoverlay=miniuart-bt" /boot/config.txt; then
+      if ! grep -Eq "^dtoverlay=miniuart-bt" /boot/config.txt; then
         echo "dtoverlay=miniuart-bt" >> /boot/config.txt
       fi
     else
@@ -336,7 +336,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   else
     if is_pithree || is_pithreeplus || is_pifour; then
       cond_echo "Removing 'dtoverlay=miniuart-bt' from /boot/config.txt"
-      sed -i '/dtoverlay=miniuart-bt/d' /boot/config.txt
+      sed -i '/^dtoverlay=miniuart-bt/d' /boot/config.txt
     fi
   fi
 
