@@ -7,10 +7,12 @@ delayed_rules() {
   local targetdir=/etc/systemd/system/openhab2.service.d
 
   if [ "$1" == "yes" ]; then
-    /bin/mkdir -p $targetdir
-    /bin/cp "${BASEDIR}"/includes/systemd-override.conf ${targetdir}/override.conf
+    mkdir -p $targetdir
+    cp "${BASEDIR}"/includes/systemd-override.conf ${targetdir}/override.conf
+    cp "${BASEDIR}"/includes/start-level.script "${OPENHAB_USERDATA}"/etc/scripts/
   else
-    /bin/rm ${targetdir}/override.conf
+    rm ${targetdir}/override.conf
+    rm "${OPENHAB_USERDATA}"/etc/scripts/
   fi
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl restart openhab2.service
@@ -79,7 +81,6 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   if ! cond_redirect apt-get ${APT_INST_OPTS} install "openhab2=${openhabVersion}"; then echo "FAILED (apt)"; exit 1; fi
   cond_redirect adduser openhab gpio
   cond_redirect systemctl daemon-reload
-  cp "${BASEDIR}"/includes/start-level.script "${OPENHAB_USERDATA}"/etc/scripts/
   if cond_redirect systemctl enable --now openhab2; then echo "OK"; else echo "FAILED (usr)"; exit 1; fi
 
   if is_pi || is_pine64; then
