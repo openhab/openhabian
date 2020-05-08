@@ -31,8 +31,8 @@ Note that this is just a summary to cover the most commonly encountered cases. T
 
 ## Install
 Etch-Burn-d(isk)d(ump)-Flash-whatever the image to an SD card, insert it and boot from there.
-If you have one available, attach a console (monitor and keyboard) to follow the install process. If you don't have any, try to access the web console at `http://<yourhostip>:8080/first-boot.txt`.
-It will display the contents of `/boot/first-log.boot` at intervals of 2 seconds.
+If you have one available, attach a console (monitor and keyboard) to follow the install process. If you don't have any, try to access the web console at `http://<yourhostip>:80/first-boot.txt`.
+It will display the contents of `/boot/first-log.boot` at intervals of 2 seconds while installing.
 Mind you that if installation fails, network access may or may not be possible so you might need to access the box via console anyway in order to find out what went wrong.
 
 Login to your box using either the console or the network using `ssh openhabian@<hostname>`. The default hostname is `openhab`. The default password is `openhabian` unless you changed it in `openhabian.conf` at installation time.
