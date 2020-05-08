@@ -6,7 +6,7 @@ ENV INITSYSTEM on
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 
 RUN apt-get update -qq \
-    && apt-get install -y -qq --no-install-recommends systemd systemd-sysv git wget python python-pip python3 python3-pip apt-utils jq virt-what \
+    && apt-get install -y -qq --no-install-recommends systemd systemd-sysv git wget python3 python3-pip apt-utils jq virt-what \
     && rm -rf /var/lib/apt/lists/*
 RUN git clone https://github.com/bats-core/bats-core.git && \
     cd bats-core && \
@@ -32,7 +32,7 @@ COPY docker-tests/resin.service /etc/systemd/system/resin.service
 RUN systemctl enable /etc/systemd/system/resin.service
 
 RUN git clone https://github.com/gdraheim/docker-systemctl-replacement
-RUN cp docker-systemctl-replacement/files/docker/systemctl.py /bin/systemctl
+RUN cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
 
 ENTRYPOINT ["/usr/bin/entry.sh"]
 
