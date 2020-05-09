@@ -147,9 +147,9 @@ fetch_zulu_tar_url(){
 
   if [ "$1" == "32-bit" ]; then
     if is_arm; then
-      downloadlink=$(curl "${link}&arch=arm&hw_bitness=32" -s -L -I -o /dev/null -w '%{url_effective}')
+      downloadlink=$(curl "${link}&arch=arm&hw_bitness=32" -s -L -I -o /dev/null -w '%{url_effective}' | sed -e 's#32sf#32hf#g')
     else
-      downloadlink=$(curl "${link}&arch=x86&hw_bitness=32" -s -L -I -o /dev/null -w '%{url_effective}')
+      downloadlink=$(curl "${link}&arch=x86&hw_bitness=32" -s -L -I -o /dev/null -w '%{url_effective}' | sed -e 's#32sf#32hf#g')
     fi
 
   elif [ "$1" == "64-bit" ]; then
