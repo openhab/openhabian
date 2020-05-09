@@ -246,7 +246,7 @@ It's also available on your system in `/opt/openhabian/docs/`.
 
 - [https://community.openhab.org/t/13379](https://community.openhab.org/t/13379)
 
-If you want to get involved, you found a bug, or just want to see what's planned for the future, visit us on Github:
+If you want to get involved, you found a bug, or just want to see what's planned for the future, visit us on GitHub:
 
 - [https://github.com/openhab/openhabian/](https://github.com/openhab/openhabian/)
 
