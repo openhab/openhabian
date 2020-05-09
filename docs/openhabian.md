@@ -239,15 +239,16 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 - [FIND](https://www.internalpositioning.com/) - the Framework for Internal Navigation and Discovery
 - Tellstick core
 
-## FAQ and Troubleshooting
+## Troubleshooting
 
-For openHABian related questions and further details, please have a look at the main discussion thread in the Community Forum:
+In case you're having problems to get openHABian to install properly, check out the [debug guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md).
+It's also available on your system in `/opt/openhabian/docs/`.
 
 - [https://community.openhab.org/t/13379](https://community.openhab.org/t/13379)
 
-If you want to get involved, you found a bug, or just want to see what's planned for the future, come visit our Issue Tracker:
+If you want to get involved, you found a bug, or just want to see what's planned for the future, visit us on Github:
 
-- [https://github.com/openhab/openhabian/issues](https://github.com/openhab/openhabian/issues)
+- [https://github.com/openhab/openhabian/](https://github.com/openhab/openhabian/)
 
 {: #changelog}
 #### Where can I find a changelog for openHABian?
