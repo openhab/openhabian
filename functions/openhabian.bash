@@ -9,6 +9,19 @@ get_git_revision() {
   echo "[$branch]$latesttag-$revcount($shorthash)"
 }
 
+apt_update() {
+  echo -n "$(timestamp) [openHABian] Updating Linux package information ... "
+  apt-get -q update >/dev/null 2>&1 &
+  PID_APT=$!
+}
+
+wait_for_apt_to_finish_update() {
+  if [ ! -v PID_APT ]; then
+    apt_update
+  fi
+  wait -f ${PID_APT} 2>/dev/null
+}
+
 openhabian_console_check() {
   if [ "$(tput cols)" -lt  120 ]; then
     warningtext="We detected that you use a console which is less than 120 columns wide. This tool is designed for a minimum of 120 columns and therefore some menus may not be presented correctly. Please increase the width of your console and rerun this tool.
