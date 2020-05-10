@@ -16,7 +16,11 @@ apt_update() {
 }
 
 wait_for_apt_to_finish_update() {
-    wait ${PID_APT} 2>/dev/null
+  if [ -v PID_APT ]; then
+    wait -f ${PID_APT} 2>/dev/null
+  else
+    apt_update
+  fi
 }
 
 openhabian_console_check() {
