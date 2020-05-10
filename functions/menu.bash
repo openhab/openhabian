@@ -47,9 +47,11 @@ show_main_menu() {
     openhabian_update
 
   elif [[ "$choice" == "02"* ]]; then
+    wait_for_apt_to_finish_update
     system_upgrade
 
   elif [[ "$choice" == "03"* ]]; then
+    wait_for_apt_to_finish_update
     openhab2_setup
 
   elif [[ "$choice" == "10"* ]]; then
@@ -61,6 +63,7 @@ show_main_menu() {
     "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    wait_for_apt_to_finish_update
     case "$choice2" in
       11\ *) basic_packages && needed_packages ;;
       12\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme ;;
@@ -86,6 +89,7 @@ show_main_menu() {
     "2C | Mail Transfer Agent"   "Install Exim4 as MTA to relay mails via public services" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    wait_for_apt_to_finish_update
     case "$choice2" in
       21\ *) frontail_setup ;;
       22\ *) miflora_setup ;;
@@ -115,6 +119,7 @@ show_main_menu() {
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspbian filesystem layout)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    wait_for_apt_to_finish_update
     case "$choice2" in
       31\ *) hostname_change ;;
       32\ *) locale_setting ;;
@@ -140,6 +145,7 @@ show_main_menu() {
     "   | Default order"     "Reset config load order to default (random)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    wait_for_apt_to_finish_update
     case "$choice2" in
       41\ *) openhab2_setup ;;
       *openHAB\ testing) openhab2_setup testing ;;
@@ -158,6 +164,7 @@ show_main_menu() {
     "51 | Amanda Backup"                  "Set up Amanda to backup your openHAB config and openHABian box" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    wait_for_apt_to_finish_update
     case "$choice2" in
       50\ *) whiptail --textbox /opt/openhabian/docs/openhabian-amanda.md --scrolltext 25 116 ;;
       51\ *) amanda_setup ;;
@@ -182,6 +189,7 @@ show_main_menu() {
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspbian filesystem layout)" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    wait_for_apt_to_finish_update
     if [[ $choosenComponents == *"62"* ]]; then apt-get upgrade -y && basic_packages && needed_packages; fi
     # shellcheck disable=SC2154
     if [[ $choosenComponents == *"63"* ]]; then update_config_java "32-bit"; java_install_or_update "$java_arch"; fi
