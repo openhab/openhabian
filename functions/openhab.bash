@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-# two overlapping methods to enforce proper load order:
-# /var/lib/openhab2/etc/scripts/start-level.script to provide default start levels
 # /etc/systemd/system/openhab2.service.d/override.conf to quickly rename rules forth and back after 2 minutes
 delayed_rules() {
   local targetdir=/etc/systemd/system/openhab2.service.d
@@ -9,10 +7,8 @@ delayed_rules() {
   if [ "$1" == "yes" ]; then
     mkdir -p $targetdir
     cp "${BASEDIR}"/includes/systemd-override.conf ${targetdir}/override.conf
-    cp "${BASEDIR}"/includes/start-level.script "${OPENHAB_USERDATA}"/etc/scripts/
   else
     rm ${targetdir}/override.conf
-    rm "${OPENHAB_USERDATA}"/etc/scripts/
   fi
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl restart openhab2.service
