@@ -26,13 +26,13 @@ needed_packages() {
   # Install apt-transport-https - update packages through https repository
   # Install bc + sysstat - needed for FireMotD
   # Install avahi-daemon - hostname based discovery on local networks
-  # Install python/python-pip - for python packages
+  # Install python/python3-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
-  if cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python python-pip avahi-autoipd fontconfig; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python3 python3-pip avahi-autoipd fontconfig; then echo "OK"; else echo "FAILED"; exit 1; fi
 
   if is_pithree || is_pithreeplus || is_pizerow; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
-    if cond_redirect apt-get -y install bluez python-bluez python-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect apt-get -y install bluez python3-bluez python3-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
 }
 
@@ -47,7 +47,7 @@ timezone_setting() {
   else
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
-      cond_redirect apt-get -y install python3-pip
+      cond_redirect apt-get -y install python3-pip python3-wheel python3-setuptools
       if ! cond_redirect pip3 install --upgrade tzupdate; then echo "FAILED (pip3)"; return 1; fi
     fi
     cond_redirect pip3 install --upgrade tzupdate

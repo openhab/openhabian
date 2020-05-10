@@ -24,6 +24,7 @@ java_install_or_update(){
       fi
     fi
   fi
+  cond_redirect java -version
 }
 
 ## Install Java Zulu 8 directly from fetched .tar.gz file

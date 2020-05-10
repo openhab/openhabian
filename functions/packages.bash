@@ -535,7 +535,7 @@ nginx_setup() {
 
     if [ "$SECURE" = true ]; then
       if [ "$VALIDDOMAIN" = true ]; then
-        certbotpackage="python-certbot-nginx"
+        certbotpackage="python3-certbot-nginx"
         if is_debian || is_raspbian; then
           gpg --keyserver pgpkeys.mit.edu --recv-key 8B48AD6246925553
           gpg -a --export 8B48AD6246925553 | apt-key add -
