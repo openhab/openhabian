@@ -16,6 +16,7 @@ apt_update() {
 }
 
 wait_for_apt_to_finish_update() {
+  echo -n "$(timestamp) [openHABian] Updating Linux package information ... "
   if [ ! -v PID_APT ]; then
     apt_update
   fi
