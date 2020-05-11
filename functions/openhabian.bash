@@ -42,14 +42,14 @@ openhabian_update_check() {
   git -C "$BASEDIR" config user.name 'openhabian'
   git -C "$BASEDIR" fetch --quiet origin || FAILED=1
   # shellcheck disable=SC2046
-  if [ $(git -C "$BASEDIR" rev-parse $branch) == $(git -C "$BASEDIR" rev-parse @\{u\}) ]; then
+  if [ $(git -C "$BASEDIR" rev-parse "$branch") == $(git -C "$BASEDIR" rev-parse @\{u\}) ]; then
     echo "OK"
   else
     echo -n "Updates available... "
     introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
     if ! (whiptail --title "openHABian Update Available" --yes-button "Continue" --no-button "Skip" --yesno "$introtext" 15 80) then echo "SKIP"; return 0; fi
     echo ""
-    openhabian_update $branch
+    openhabian_update "$branch"
   fi
 }
 
@@ -71,7 +71,7 @@ openhabian_update() {
   else
     branch="${1:-master}"
   fi
-  exit 1
+
   shorthash_before=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
   git -C "$BASEDIR" fetch --quiet origin || FAILED=1
   git -C "$BASEDIR" reset --quiet --hard "origin/$branch" || FAILED=1
