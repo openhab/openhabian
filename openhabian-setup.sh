@@ -41,6 +41,7 @@ fi
 # shellcheck disable=SC1090
 source "$CONFIGFILE"
 
+# shellcheck disable=SC2154
 if [[ "$mode" = "debug_maximum" ]]; then
   DEBUGMAX=1
 fi
