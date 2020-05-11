@@ -71,7 +71,7 @@ openhabian_update() {
   else
     branch="${1:-master}"
   fi
-  exit 1
+
   shorthash_before=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
   git -C "$BASEDIR" fetch --quiet origin || FAILED=1
   git -C "$BASEDIR" reset --quiet --hard "origin/$branch" || FAILED=1
