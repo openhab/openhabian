@@ -8,9 +8,7 @@ init_zram_mounts() {
       # display warn disclaimer and point to ZRAM status thread on forum
       if ! (whiptail --title "Install ZRAM, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
       # double check if there's enough RAM to run ZRAM
-      lowmemory=false
       if has_lowmem; then
-        lowmemory=true
         if ! (whiptail --title "WARNING, Continue?" --yes-button "REALLY Continue" --no-button "Step Back" --yesno --defaultno "$text_lowmem" 15 80) then echo "CANCELED"; return 0; fi
       fi
     fi
