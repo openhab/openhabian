@@ -29,8 +29,8 @@ install:
   - sed -iE 's#mode=.*$#mode=unattended_debug#' build-image/openhabian.conf
   - #sed -iE 's#mode=.*$#mode=debug_maximum#' build-image/openhabian.conf
   - echo "Cloning openHABian repo from https://github.com/${TRAVIS_REPO_SLUG}.git"
-  - sed -i 's#repositoryurl=https://github.com/openhab/openhabian.git#repositoryurl=https://github.com/'${TRAVIS_REPO_SLUG}'.git#' build-image/openhabian.conf
-  - sed -i 's#clonebranch=master#clonebranch='${TRAVIS_BRANCH}'#' build-image/openhabian.conf
+  - sed -i 's#repositoryurl=.*$#repositoryurl=https://github.com/'${TRAVIS_REPO_SLUG}'.git#' build-image/openhabian.conf
+  - sed -i 's#clonebranch=.*$#clonebranch='${TRAVIS_BRANCH}'#' build-image/openhabian.conf
 
 jobs:
   fast_finish: true
