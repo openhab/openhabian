@@ -275,13 +275,11 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   # Find current settings
   if is_pi && grep -q "enable_uart=1" /boot/config.txt; then sel_1="ON"; else sel_1="OFF"; fi
   if is_pithree || is_pithreeplus && grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then sel_2="ON"; else sel_2="OFF"; fi
-  if grep -Eq "EXTRA_JAVA_OPTS=\".*-Dgnu.io.rxtx.SerialPorts=" /etc/default/openhab2; then sel_3="ON"; else sel_3="OFF"; fi
 
   if [ -n "$INTERACTIVE" ]; then
     if ! selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
     "1"  "(RPi) Disable serial console           (Razberry, SCC, Enocean)" $sel_1 \
     "2"  "(RPi3) Disable Bluetooth module        (Razberry)" $sel_2 \
-    "3"  "Add common serial ports to openHAB JVM (Razberry, Enocean)" $sel_3 \
     3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
   else
     echo "SKIPPED"
@@ -332,16 +330,6 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
       cond_echo "Removing 'dtoverlay=pi3-miniuart-bt' from /boot/config.txt"
       sed -i '/dtoverlay=pi3-miniuart-bt/d' /boot/config.txt
     fi
-  fi
-
-  if [[ $selection == *"3"* ]]; then
-    cond_echo "Adding serial ports to openHAB java virtual machine in /etc/default/openhab2"
-    # eventually keep user defined settings
-    sed -i "/^[[:space:]]*EXTRA_JAVA_OPTS/s/-Dgnu.io.rxtx.SerialPorts=[^ \"]*//g" /etc/default/openhab2
-    sed -i "/^[[:space:]]*EXTRA_JAVA_OPTS/s#EXTRA_JAVA_OPTS[[:space:]]*=[[:space:]]*\"#EXTRA_JAVA_OPTS=\"-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0 #g" /etc/default/openhab2
-  else
-    cond_echo "Removing serial ports from openHAB java virtual machine in /etc/default/openhab2"
-    sed -i "/^[[:space:]]*EXTRA_JAVA_OPTS/s/-Dgnu.io.rxtx.SerialPorts=[^ \"]*//g" /etc/default/openhab2
   fi
 
   if [ -n "$INTERACTIVE" ]; then
