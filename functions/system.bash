@@ -130,7 +130,6 @@ vimrc_copy() {
 srv_bind_mounts() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
   sed -i "\\#[ \\t]/srv/openhab2-#d" /etc/fstab
-  # dummy "
   sed -i "/^$/d" /etc/fstab
   ( echo ""
     echo "/usr/share/openhab2          /srv/openhab2-sys           none bind 0 0"
