@@ -32,25 +32,30 @@ openhabian_console_check() {
 }
 
 openhabian_update_check() {
+  local branch
+
   FAILED=0
   echo "$(timestamp) [openHABian] openHABian configuration tool version: $(get_git_revision)"
-  echo -n "$(timestamp) [openHABian] Checking for changes in origin... "
+  branch=${clonebranch:-HEAD}
+  echo -n "$(timestamp) [openHABian] Checking for changes in origin branch $branch ... "
   git -C "$BASEDIR" config user.email 'openhabian@openHABian'
   git -C "$BASEDIR" config user.name 'openhabian'
   git -C "$BASEDIR" fetch --quiet origin || FAILED=1
   # shellcheck disable=SC2046
-  if [ $(git -C "$BASEDIR" rev-parse HEAD) == $(git -C "$BASEDIR" rev-parse @\{u\}) ]; then
+  if [ $(git -C "$BASEDIR" rev-parse "$branch") == $(git -C "$BASEDIR" rev-parse @\{u\}) ]; then
     echo "OK"
   else
     echo -n "Updates available... "
     introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
     if ! (whiptail --title "openHABian Update Available" --yes-button "Continue" --no-button "Skip" --yesno "$introtext" 15 80) then echo "SKIP"; return 0; fi
     echo ""
-    openhabian_update
+    openhabian_update "$branch"
   fi
 }
 
 openhabian_update() {
+  local branch shorthash_before
+
   FAILED=0
   echo -n "$(timestamp) [openHABian] Updating myself... "
   read -r -t 1 -n 1 key
@@ -64,8 +69,9 @@ openhabian_update() {
       return 1
     fi
   else
-    branch="master"
+    branch="${1:-master}"
   fi
+
   shorthash_before=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
   git -C "$BASEDIR" fetch --quiet origin || FAILED=1
   git -C "$BASEDIR" reset --quiet --hard "origin/$branch" || FAILED=1
