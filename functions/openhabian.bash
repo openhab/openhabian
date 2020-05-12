@@ -68,7 +68,7 @@ openhabian_update() {
       local introtext="You are currently using neither the stable version nor the latest (\"master\") version of openHABian.\\nAccess to the latest features would require you to switch to master while the default is to use the stable version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the clonebranch= parameter in /etc/openhabian.conf.\\n"
     fi
   fi
-set -x
+
   FAILED=0
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ "$current" == "stable" || "$current" == "master" ]]; then
