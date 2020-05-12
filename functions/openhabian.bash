@@ -60,16 +60,23 @@ openhabian_update() {
   local branch shorthash_before
   current=$(git -C "$BASEDIR" rev-parse --abbrev-ref HEAD)
   if [ "$current" == "master" ]; then
-    target="stable"
     local introtext="You are currently using the very latest (\"master\") version of openHABian.\\nThis is providing you with the latest features but less people have tested it so it is a little more likely that you run into errors.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch at any time by selecting this menu option again or by setting the clonebranch= parameter in /etc/openhabian.conf.\\n"
   else
-    target="master"
-    local introtext="You are currently using the stable version of openHABian.\\nAccess to the latest features would require you to switch to the latest version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the clonebranch= parameter in /etc/openhabian.conf.\\n"
+    if [ "$current" == "stable" ]; then
+      local introtext="You are currently using the stable version of openHABian.\\nAccess to the latest features would require you to switch to the latest version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the clonebranch= parameter in /etc/openhabian.conf.\\n"
+    else
+      local introtext="You are currently using neither the stable version nor the latest (\"master\") version of openHABian.\\nAccess to the latest features would require you to switch to master while the default is to use the stable version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the clonebranch= parameter in /etc/openhabian.conf.\\n"
+    fi
   fi
-
+set -x
   FAILED=0
   if [[ -n "$INTERACTIVE" ]]; then
-    if ! (whiptail --title "openHABian version" --yes-button "$target" --no-button "$current" --yesno --cancel-button "Cancel" "$introtext" 12 90) then echo "SKIP"; return 0; fi
+    if [[ "$current" == "stable" || "$current" == "master" ]]; then
+      if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 3 stable "recommended standard version of openHABian" on master "very latest version of openHABian" off 3>&1 1>&2 2>&3); then return 0; fi
+    else
+      if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 3 stable "recommended standard version of openHABian" on master "very latest version of openHABian" off "$current" "some other version you fetched yourself" off 3>&1 1>&2 2>&3); then return 0; fi
+    fi
+    sed -i "s@^clonebranch=.*@clonebranch=$sel@g" "/etc/openhabian.conf"
   fi
   echo -n "$(timestamp) [openHABian] Updating myself... "
   read -r -t 1 -n 1 key
@@ -83,7 +90,7 @@ openhabian_update() {
       return 1
     fi
   else
-    branch="${clonebranch:-stable}"
+    branch="${sel:-stable}"
   fi
 
   shorthash_before=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
