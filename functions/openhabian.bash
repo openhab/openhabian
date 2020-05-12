@@ -53,7 +53,7 @@ openhabian_update_check() {
   fi
   echo -n "$(timestamp) [openHABian] Switching to branch $clonebranch ... "
 //  git -C "$BASEDIR" checkout --quiet @\{u\} || FAILED=1
-  git -C "$BASEDIR" checkout --quiet $clonebranch && echo "OK" || (FAILED=1; echo "FAILED"; return 0)
+  git -C "$BASEDIR" checkout --quiet "$clonebranch" && echo "OK" || (FAILED=1; echo "FAILED"; return 0)
 }
 
 openhabian_update() {
