@@ -16,9 +16,9 @@ show_about() {
 
 show_main_menu() {
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
-  "00 | About openHABian    "    "Information about the openHABian project and this tool" \
+  "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
-  "01 | Update"                  "Fetch the latest revision of the openHABian Configuration Tool" \
+  "01 | Select Branch"           "Select the openHABian version (\"branch\") to run" \
   "02 | Upgrade System"          "Upgrade all installed software packages to their newest version" \
   "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
   "" "" \
