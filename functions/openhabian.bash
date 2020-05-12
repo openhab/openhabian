@@ -74,7 +74,7 @@ set -x
     if [[ "$current" == "stable" || "$current" == "master" ]]; then
       if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 3 stable "recommended standard version of openHABian" on master "very latest version of openHABian" off 3>&1 1>&2 2>&3); then return 0; fi
     else
-      if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 3 stable "recommended standard version of openHABian" on master "very latest version of openHABian" off "$current" "some other version you fetched yourself" off 3>&1 1>&2 2>&3); then return 0; fi
+      if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 3 stable "recommended standard version of openHABian" off master "very latest version of openHABian" off "$current" "some other version you fetched yourself" on 3>&1 1>&2 2>&3); then return 0; fi
     fi
     sed -i "s@^clonebranch=.*@clonebranch=$sel@g" "/etc/openhabian.conf"
   fi
