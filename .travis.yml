@@ -130,7 +130,7 @@ jobs:
     - env: aarch64
       arch: arm64
       script:
-        # 64bit AdoptOpenJDK Java on 32bit ARMv7 on 32bit OS on Travis Arm64 HW
+        # AdoptOpenJDK Java on 32bit ARMv7 on 32bit OS on Travis Arm64 HW
         - export HW=rpi2
         - sed -i 's/^java_opt=.*/java_opt=AdoptOpenJDK/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-native .
