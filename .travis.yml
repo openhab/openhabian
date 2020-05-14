@@ -45,16 +45,6 @@ jobs:
         - docker build -t openhabian/dev-openhabian -f Dockerfile.openhabian-aarch64-native .
         - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "dev-." .'
         - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "unit-." .'
-    - env: aarch64
-      arch: arm64
-      script:
-        # 64bit AdoptOpenJDK Java on 32bit ARMv7 on 32bit OS on Travis Arm64 HW
-        - export HW=rpi2
-        - sed -i 's/^java_opt=.*/java_opt=AdoptOpenJDK/' build-image/openhabian.conf
-        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-native .
-        - echo -e "\n\e[36mopenHABian test installation 64bit AdoptOpenJDK Java \e[31m on 32bit OS\e[36m on virtual $HW ...\n"
-        - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
-        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
     - stage: BATS and shellcheck tests
       env: arm32hf
       arch: arm64
@@ -137,3 +127,13 @@ jobs:
         - echo -e "\n\e[36mopenHABian test installation 64bit Azul Embedded Java \e[31m on 64bit OS\e[36m on virtual $HW ...\n"
         - docker run --memory="2G" --memory-reservation="2G" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
           docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+    - env: aarch64
+      arch: arm64
+      script:
+        # 64bit AdoptOpenJDK Java on 32bit ARMv7 on 32bit OS on Travis Arm64 HW
+        - export HW=rpi2
+        - sed -i 's/^java_opt=.*/java_opt=AdoptOpenJDK/' build-image/openhabian.conf
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-native .
+        - echo -e "\n\e[36mopenHABian test installation 64bit AdoptOpenJDK Java \e[31m on 32bit OS\e[36m on virtual $HW ...\n"
+        - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
+        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
