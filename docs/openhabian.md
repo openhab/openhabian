@@ -149,7 +149,7 @@ Additionally to the setup instructions given above, the following steps are need
 {: #ipv6-notes}
 ### IPv6 notes
 
-You might encounter problems when you make use of IPv6 of some sort. openHABian installation may stop or hang forever.
+You might encounter problems when you make use of IPv6 on some networks and systems. openHABian installation may stop or hang forever.
 In that case _or if you are sure that you do not need IPv6 on your openHABian server_, you can disable IPv6.
 Follow the instructions in the previous section and insert a line into `openhabian.conf` reading `ipv6=disable`.
 
@@ -298,7 +298,7 @@ If there is absolutely no output for more than 10 minutes, your installation has
 with the way your router or local network are setup.
 
 You might want to try disabling IPv6.
-Read on in the [Troubleshooting] section or move on to the [DEBUG guide](docs
+Read on in the [Troubleshooting] section or move on to the [DEBUG guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md).
 
 
 It is also always possible to [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device (after a few minutes of boot up time).
