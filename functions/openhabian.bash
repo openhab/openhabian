@@ -135,6 +135,7 @@ ua-netinst_check() {
 choose_ipv6() {
   local IPV6_DISABLE="net.ipv6.conf.all.disable_ipv6"
 
+  # shellcheck disable=SC2154
   if [[ "$ipv6" == "disable" ]]; then
     if ! grep -qE "^${IPV6_DISABLE}" "${SYSCTL_INIT}"; then
       disable_ipv6 yes
