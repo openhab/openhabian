@@ -37,7 +37,7 @@ clonebranch=master
 mode=unattended
 
 # Java architecture mode
-# values: "Zulu32", "Zulu64" or "AdoptOpenJDK"
+# Valid arguments: "AdoptOpenJDK", "Zulu32", or "Zulu64"
 java_arch=32-bit
 
 # vim: filetype=sh

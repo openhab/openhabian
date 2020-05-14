@@ -135,7 +135,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 11 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Back --ok-button Execute \
     "41 | openHAB release"        "Install or switch to the latest openHAB release" \
     "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
     "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
@@ -143,8 +143,8 @@ show_main_menu() {
     "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
     "44 | Delay rules load"       "Delay loading rules to speed up overall startup" \
     "   | Default order"          "Reset config load order to default (random)" \
-    "45 | Zulu OpenJDK 32-bit"    "Install Zulu OpenJDK as primary Java provider" \
-    "   | Zulu OpenJDK 64-bit"    "Install Zulu OpenJDK as primary Java provider" \
+    "45 | Zulu OpenJDK 32-bit"    "Install Zulu 32-bit OpenJDK as primary Java provider" \
+    "   | Zulu OpenJDK 64-bit"    "Install Zulu 64-bit OpenJDK as primary Java provider" \
     "   | AdoptOpenJDK"           "Install AdoptOpenJDK as primary Java provider" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
@@ -160,7 +160,7 @@ show_main_menu() {
       *Default\ order) delayed_rules no;;
       *Zulu\ OpenJDK\ 32-bit) update_config_java "Zulu32" && java_install_or_update "$java_opt";;
       *Zulu\ OpenJDK\ 64-bit) update_config_java "Zulu64" && java_install_or_update "$java_opt";;
-      *Use\ AdoptOpenJDK) update_config_java "AdoptOpenJDK" && java_install_or_update "$java_opt";;
+      *AdoptOpenJDK) update_config_java "AdoptOpenJDK" && java_install_or_update "$java_opt";;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -196,9 +196,6 @@ show_main_menu() {
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
     if [[ $choosenComponents == *"62"* ]]; then apt-get upgrade -y && basic_packages && needed_packages; fi
-    # shellcheck disable=SC2154
-    if [[ $choosenComponents == *"63"* ]]; then update_config_java "Zulu32"; java_install_or_update "$java_opt"; fi
-    if [[ $choosenComponents == *"Zulu OpenJDK 64-bit"* ]]; then update_config_java "Zulu64"; java_install_or_update "$java_opt"; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
     if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi
