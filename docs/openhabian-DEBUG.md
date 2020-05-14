@@ -26,6 +26,7 @@ Next, you need your router (or a different device) to provide properly configure
 The DHCP server also has to announce which DNS resolver to use so your box knows how to translate DNS names into IP addresses.
 It also needs to announce which IP address to use as the default gateway to the internet - a typical access router is also the DHCP server will announce it's own address here.
 Finally, the DHCP server should also announce the NTP server(s) to use for proper time services. Lack thereof will not break the installation procedure but can lead to all sorts of long term issues so we recommend to setup DHCP to announce a reachable and working NTP server.
+A note on IPv6: openHABian was reported failing to boot in some environments that make use of IPv6. If basic IP initialization fails (you cannot `ping` your box) or  installation gets stuck trying to download software packages, you might want to disabling IPv6. You can also do that before the very first install attempt if you're sure you don't need any IPv6 connectivity on your openHABian box. See [this section of openhabian.md](openhabian.md#ipv6-notes) how to disable IPv6 on your system.
 Note that this is just a summary to cover the most commonly encountered cases. The full boot procedure and how to obtain IP addresses, DNS resolver, default route and NTP server addresses are highly complex and widely customizable and a comprehensive description on how to properly configure your Internet access and router are out of scope of openHABian. Please Google for how to accomplish that.
 
 

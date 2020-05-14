@@ -24,15 +24,20 @@ system_default_locale="en_US.UTF-8"
 wifi_ssid=""
 wifi_psk=""
 
-# repo to clone from (if not master for build and test)
+# Eventually disable all IPv6 e.g. on installation problems
+# values: "enable", "disable"
+ipv6=disable
+
+# repo and branch to clone from
 repositoryurl=https://github.com/openhab/openhabian.git
 clonebranch=master
+
 # debug verbosity mode
-# unattended, unattended_debug (verbose output in log) or debug_maximum (show every command)
+# values: "unattended", "unattended_debug" (verbose output in log) or "debug_maximum" (show every command in either mode)
 mode=unattended
 
 # Java architecture mode
-# Use 32-bit or 64-bit
+# values: "Zulu32", "Zulu64" or "AdoptOpenJDK"
 java_arch=64-bit
 
 # vim: filetype=sh
