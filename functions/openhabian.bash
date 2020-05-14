@@ -139,15 +139,14 @@ choose_ipv6() {
   if [[ "$ipv6" == "disable" ]]; then
     if ! grep -qE "^${IPV6_DISABLE}" "${SYSCTL_INIT}"; then
       disable_ipv6 yes
-      cond_echo -n "$(timestamp) [openHABian] Disabling IPv6 as requested in openhabian.conf ... will reboot to take effect."
-      sleep 12
-      shutdown -r now
     fi
   else
     if [[ "$ipv6" == "enable" ]]; then
       disable_ipv6 no
     fi
   fi
+
+  sysctl -p
 }
 
 # arguments: "yes", "no"
