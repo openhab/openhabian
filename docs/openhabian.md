@@ -146,6 +146,10 @@ Additionally to the setup instructions given above, the following steps are need
 - Save, Unmount, Insert, Boot
 - Continue with the instructions for your hardware
 
+{: #debug-mode}
+### Debug mode
+See [Troubleshooting] section if you run into trouble installing. If you want to turn on debug mode, follow the instructions in the previous section and insert a line into `openhabian.conf` reading either `mode=unattended_debug` or better right away `mode=debug_maximum`.
+
 {: #ipv6-notes}
 ### IPv6 notes
 
