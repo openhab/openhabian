@@ -1,7 +1,7 @@
 ---
 layout: documentation
 title: openHABian
-source: https://github.com/openhab/openhabian/blob/master/docs/openhabiab-DEBUG.md
+source: https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md
 ---
 
 <!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source repository -->
