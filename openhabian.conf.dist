@@ -37,7 +37,10 @@ clonebranch=stable
 mode=unattended
 
 # Java architecture mode
-# values: "Zulu32", "Zulu64" or "AdoptOpenJDK"
-java_arch=32-bit
+# Use Zulu64, Zulu32, AdoptOpenJDK
+java_opt=Zulu64
 
 # vim: filetype=sh
+username=openhabian
+userpw=openhabian
+# Fill in your SSID and password below, leave empty to use ethernet

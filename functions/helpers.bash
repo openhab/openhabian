@@ -169,5 +169,5 @@ tryUntil() {
     echo -n ".${i}."
     ((i-=1))
   done
-  return $i
+  return "$i"
 }
