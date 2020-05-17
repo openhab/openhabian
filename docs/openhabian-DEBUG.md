@@ -33,7 +33,7 @@ Note that this is just a summary to cover the most commonly encountered cases. T
 ## Install
 Etch-Burn-d(isk)d(ump)-Flash-whatever the image to an SD card.
 
-Mind you at this stage that you can access the openHABian config file to set parameters to affect install at this stage. See the description in [openhabian.md](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md) on WiFi boot how to mount your SD card and modify `openhabian.conf`. You can also do that later times via SSH login, but in case your system does not properly obtain any IP address, you would be out of luck.
+Mind you that at this stage, you can access the openHABian config file to set parameters to affect install. See the description in [openhabian.md](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md) on WiFi boot how to mount your SD card and modify `openhabian.conf`. You can also do that later times via SSH login, but in case your system does not properly obtain any IP address, you would be out of luck.
 
 If you have one available, attach a console (monitor and keyboard) to follow the install process. Now insert the SD card and turn on your system.
 If you don't have any console , try to access the web console at `http://<yourhostip>:80/first-boot.txt`.
