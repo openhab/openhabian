@@ -66,6 +66,10 @@ for shfile in "$BASEDIR"/functions/*.bash; do source "$shfile"; done
 
 # avoid potential crash when deleting directory we started from
 OLDWD=$(pwd) && cd /opt || exit 1
+
+# disable ipv6 if requested in openhabian.conf (eventually reboots)
+choose_ipv6
+
 if [[ -n "$UNATTENDED" ]]; then
   # apt/dpkg commands will not try interactive dialogs
   export DEBIAN_FRONTEND=noninteractive
