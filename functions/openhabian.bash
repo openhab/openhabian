@@ -212,3 +212,46 @@ disable_ipv6() {
     sed -i "s/^${IPV6_ENABLE}.*/# ${IPV6_ENABLE}/g" "${SYSCTL_INIT}"
   fi
 }
+
+choose_ipv6() {
+  local IPV6_DISABLE="net.ipv6.conf.all.disable_ipv6"
+
+  # shellcheck disable=SC2154
+  if [[ "$ipv6" == "disable" ]]; then
+    if ! grep -qE "^${IPV6_DISABLE}" "${SYSCTL_INIT}"; then
+      disable_ipv6 yes
+    fi
+  else
+    if [[ "$ipv6" == "enable" ]]; then
+      disable_ipv6 no
+    fi
+  fi
+
+  sysctl -p
+}
+
+# arguments: "yes", "no"
+disable_ipv6() {
+  local APT_IPV6_DISABLE='Acquire::ForceIPv4 "true";'
+  local APT_INIT=/etc/apt/apt.conf/S90force-ipv4
+  local IPV6_DISABLE="net.ipv6.conf.all.disable_ipv6"
+  local SYSCTL_INIT="/etc/sysctl.d/99-sysctl.conf"
+
+  if [[ "$1" == "yes" ]]; then
+    echo "${APT_IPV6_DISABLE}" | sudo tee "${APT_INIT}"
+
+    if ! grep -qE "^${IPV6_DISABLE}" "${SYSCTL_INIT}"; then
+      ( echo ""
+        echo "###################################################################"
+        echo "# disable all IPv6 functionality" >> "${SYSCTL_INIT}"
+        echo "${IPV6_DISABLE}=1"
+      )	>> "${SYSCTL_INIT}"
+    else
+      sed -i "s/^# ${IPV6_ENABLE}.*/${IPV6_ENABLE}/g" "${SYSCTL_INIT}"
+    fi
+  else
+    rm -f "${APT_INIT}"
+    sed -i "s/^${IPV6_ENABLE}.*/# ${IPV6_ENABLE}/g" "${SYSCTL_INIT}"
+  fi
+}
+

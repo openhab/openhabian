@@ -21,6 +21,13 @@ To that end, the project provides two things:
 * Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations for the Raspberry Pi and the Pine A64
 * The openHABian Configuration Tool to set up and configure openHAB and many related things on any Debian/Ubuntu based system
 
+#### Table of Contents
+
+{::options toc_levels="2..3"/}
+
+- TOC
+{:toc}
+
 ## Features
 
 The following features are provided by the openHABian images out of the box:
@@ -147,7 +154,6 @@ In `openhabian.conf`, uncomment and complete the lines reading `wifi_ssid="My Wi
 If to install openHABian fails because you have a non-supported hardware or run an unsupported OS release, you can "fake" your hardware and OS to make openHABian behave as if you did own that HW/OS.
 In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` and/or `release=` with the hw and os versions you want to attempt installation with.
 
-{: #debug-mode}
 ### Debug mode {#debug-mode}
 See [Troubleshooting](#Troubleshooting) section if you run into trouble installing. If you want to turn on debug mode, 
 edit `openhabian.conf` and set the `debugmode=` parameter to either `off`, `on` or `maximum`.
