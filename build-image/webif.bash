@@ -20,6 +20,7 @@ if [ "$1" = "start" ]; then
         <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
         <meta http-equiv="Pragma" content="no-cache" />
         <meta http-equiv="Expires" content="0" />
+        <meta http-equiv="Refresh" content="10" />
         </head>' > /tmp/webif/index.html
   # shellcheck disable=SC2016
   echo '<body>

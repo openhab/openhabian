@@ -129,7 +129,7 @@ else
 fi
 
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
-if tryUntil "ping -c1 9.9.9.9 >/dev/null || wget -S -t 3 --waitretry=4 http://www.msftncsi.com/ncsi.txt 2>&1 | grep -q 'Microsoft NCSI'" 10 1; then
+if tryUntil "ping -c1 9.9.9.9 >/dev/null || wget -S -t 3 --waitretry=4 http://www.msftncsi.com/ncsi.txt 2>&1 | grep -q 'Microsoft NCSI'" 60 1; then
     echo "FAILED"
     if grep -q "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig 2>&1 | grep -q "ESSID:off"; then
       echo "$(timestamp) [openHABian] I was not able to connect to the configured Wi-Fi. Please check your signal quality. Reachable Wi-Fi networks are:"
