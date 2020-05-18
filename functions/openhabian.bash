@@ -48,7 +48,7 @@ openhabian_update_check() {
     introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
     if ! (whiptail --title "openHABian update available" --yes-button "Continue" --no-button "Skip" --yesno "$introtext" 15 80) then echo "SKIP"; return 0; fi
     echo ""
-    openhabian_update
+    openhabian_update "$branch"
   fi
   echo -n "$(timestamp) [openHABian] Switching to branch $clonebranch ... "
   # shellcheck disable=SC2015

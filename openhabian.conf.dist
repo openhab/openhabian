@@ -32,7 +32,7 @@ clonebranch=stable
 debugmode=on
 
 # Java architecture mode
-# Use 32-bit or 64-bit
-java_arch=64-bit
+# Use Zulu64, Zulu32, AdoptOpenJDK
+java_opt=Zulu64
 
 # vim: filetype=sh
