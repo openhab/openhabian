@@ -10,13 +10,12 @@ get_git_revision() {
 }
 
 apt_update() {
-  echo -n "$(timestamp) [openHABian] Updating Linux package information ... "
   apt-get -q update >/dev/null 2>&1 &
   PID_APT=$!
 }
 
 wait_for_apt_to_finish_update() {
-  echo -n "$(timestamp) [openHABian] Updating Linux package information ... "
+  echo "$(timestamp) [openHABian] Updating Linux package information ... "
   if [ ! -v PID_APT ]; then
     apt_update
   fi
@@ -72,7 +71,7 @@ openhabian_update() {
   FAILED=0
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ "$current" == "stable" || "$current" == "master" ]]; then
-      if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 3 stable "recommended standard version of openHABian" on master "very latest version of openHABian" off 3>&1 1>&2 2>&3); then return 0; fi
+      if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 2 stable "recommended standard version of openHABian" on master "very latest version of openHABian" off 3>&1 1>&2 2>&3); then return 0; fi
     else
       if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 3 stable "recommended standard version of openHABian" off master "very latest version of openHABian" off "$current" "some other version you fetched yourself" on 3>&1 1>&2 2>&3); then return 0; fi
     fi

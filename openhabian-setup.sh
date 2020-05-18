@@ -41,26 +41,28 @@ fi
 # shellcheck disable=SC1090
 source "$CONFIGFILE"
 
-# shellcheck disable=SC2154
-if [[ "$mode" = "debug_maximum" ]]; then
-  DEBUGMAX=1
-fi
-
 # script will be called with 'unattended' argument by openHABian images else retrieve values from openhabian.conf
-verbosity=${1:-$mode}
-if [[ "$verbosity" = "unattended" ]]; then
+if [[ "$1" = "unattended" ]]; then
   UNATTENDED=1
   SILENT=1
-  unset DEBUGMAX
-elif [[ "$verbosity" = "unattended_debug" ]]; then
-  UNATTENDED=1
-  unset DEBUGMAX
 else
   INTERACTIVE=1
 fi
-if [[ -n "$DEBUGMAX" ]]; then
+
+# shellcheck disable=SC2154
+if [[ "$debugmode" = "none" ]]; then
+  SILENT=1
+  unset DEBUGMAX
+elif [[ "$debugmode" = "on" ]]; then
+  unset SILENT
+  unset DEBUGMAX
+elif [[ "$debugmode" = "maximum" ]]; then
+  unset SILENT
+  DEBUGMAX=1
+  
   set -x
 fi
+
 
 export UNATTENDED SILENT DEBUGMAX INTERACTIVE
 
