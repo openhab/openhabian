@@ -41,6 +41,3 @@ debugmode=on
 java_opt=Zulu64
 
 # vim: filetype=sh
-username=openhabian
-userpw=openhabian
-# Fill in your SSID and password below, leave empty to use ethernet
