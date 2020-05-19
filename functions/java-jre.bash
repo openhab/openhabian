@@ -5,15 +5,15 @@
 ## Install appropriate Java version based on current choice.
 ## Valid arguments: AdoptOpenJDK, Zulu32, Zulu64
 ##
-##    java_install_and_update(String arch)
+##    java_install_and_update(String type)
 ##
 java_install_or_update(){
   # Make sure we don't overwrite existing unsupported installations
-  if ! [ -x "$(command -v java)" ] || [[ ! "$(java -version 2>&1)" == *"Zulu"* ]] || [[ ! "$(java -version 2>&1)" == *"AdoptOpenJDK"* ]]; then
+  if ! [ -x "$(command -v java)" ] || [[ ! "$(java -version > /dev/null 2>&1)" == *"Zulu"* ]] || [[ ! "$(java -version > /dev/null 2>&1)" == *"AdoptOpenJDK"* ]]; then
     if [ "$1" == "AdoptOpenJDK" ]; then
       adoptopenjdk_install_apt
     elif ! [ "$1" == "AdoptOpenJDK" ]; then
-      if [[ "$(java -version 2>&1)" == *"AdoptOpenJDK"* ]] && [ -d /opt/jdk/* ]; then
+      if [[ "$(java -version > /dev/null 2>&1)" == *"AdoptOpenJDK"* ]] && [ -d /opt/jdk/* ]; then
         cond_redirect systemctl stop openhab2.service
         cond_redirect java_alternatives_reset "Zulu"
         cond_redirect systemctl start openhab2.service
@@ -38,7 +38,7 @@ java_install_or_update(){
 }
 
 ## Install Java Zulu 8 directly from fetched .tar.gz file
-## Valid arguments: 64-bit, 32-bit
+## Valid arguments: "32-bit" or "64-bit"
 ##
 ##    java_zulu_8_tar(String arch)
 ##
@@ -141,7 +141,7 @@ fi
 }
 
 ## Fetch Java Zulu 8 directly from Azul API v1
-## Valid arguments: 64-bit, 32-bit
+## Valid arguments: "32-bit" or "64-bit"
 ##
 ##    fetch_zulu_tar_url(String arch)
 ##
@@ -177,7 +177,7 @@ fetch_zulu_tar_url(){
 
 ## Check if a newer version of Java Zulu 8 is available.
 ## Returns 0 / true if new version exists
-## Valid arguments: 64-bit, 32-bit
+## Valid arguments: "32-bit" or "64-bit"
 ##
 ##    java_zulu_tar_update_available(String arch)
 ##
@@ -239,26 +239,34 @@ java_zulu_install_crypto_extension(){
   return 0
 }
 
+## Fetch AdoptOpenJDK using APT repository.
+##
+adoptopenjdk_fetch_apt(){
+  local adoptKey="/tmp/adoptopenjdk.asc"
+  echo -n "$(timestamp) [openHABian] Adding AdoptOpenJDK keys to apt... "
+  cond_redirect wget -qO "$adoptKey" https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public
+  if cond_redirect apt-key add "$adoptKey"; then
+    echo "OK"
+  else
+    echo "FAILED (keyserver)"
+    rm -f "$adoptKey"
+    exit 1;
+  fi
+  echo -n "$(timestamp) [openHABian] Fetching AdoptOpenJDK... "
+  echo "deb http://adoptopenjdk.jfrog.io/adoptopenjdk/deb buster main" > /etc/apt/sources.list.d/adoptopenjdk.list
+  cond_redirect apt-get update
+  if cond_redirect apt-get install --download-only adoptopenjdk-8-hotspot-jre; then echo "OK"; else echo "FAILED"; exit 1; fi
+}
+
 ## Install AdoptOpenJDK using APT repository.
 ##
 adoptopenjdk_install_apt(){
-  local adoptKey="/tmp/adoptopenjdk.asc"
-  if ! dpkg -s 'adoptopenjdk-8-hotspot-jre' >/dev/null 2>&1; then # Check if already is installed
-    echo -n "$(timestamp) [openHABian] Adding AdoptOpenJDK keys to apt... "
-    cond_redirect wget -qO "$adoptKey" https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public
-    if cond_redirect apt-key add "$adoptKey"; then
-      echo "OK"
-    else
-      echo "FAILED (keyserver)"
-      rm -f "$adoptKey"
-      exit 1;
-    fi
+  if ! dpkg -s 'adoptopenjdk-8-hotspot-jre' > /dev/null 2>&1; then # Check if already is installed
     echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK... "
+    adoptopenjdk_fetch_apt
     cond_redirect systemctl stop openhab2.service
     cond_redirect java_alternatives_reset
-    echo "deb http://adoptopenjdk.jfrog.io/adoptopenjdk/deb buster main" > /etc/apt/sources.list.d/adoptopenjdk.list
-    cond_redirect apt-get update
-    if cond_redirect apt-get --yes install adoptopenjdk-8-hotspot-jre; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect apt-get install --yes adoptopenjdk-8-hotspot-jre; then echo "OK"; else echo "FAILED"; exit 1; fi
     cond_redirect systemctl start openhab2.service
   elif dpkg -s 'adoptopenjdk-8-hotspot-jre' >/dev/null 2>&1; then
     cond_redirect systemctl stop openhab2.service
@@ -269,6 +277,9 @@ adoptopenjdk_install_apt(){
 }
 
 ## Reset Java in update-alternatives
+## Valid arguments: "Zulu"
+##
+##    java_alternatives_reset(String opt)
 ##
 java_alternatives_reset(){
   update-alternatives --remove-all java

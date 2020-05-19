@@ -143,8 +143,9 @@ show_main_menu() {
     "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
     "44 | Delay rules load"       "Delay loading rules to speed up overall startup" \
     "   | Default order"          "Reset config load order to default (random)" \
-    "45 | Zulu OpenJDK 32-bit"    "Install Zulu OpenJDK as primary Java provider" \
-    "   | Zulu OpenJDK 64-bit"    "Install Zulu OpenJDK as primary Java provider" \
+
+    "45 | Zulu OpenJDK 32-bit"    "Install Zulu 32-bit OpenJDK as primary Java provider" \
+    "   | Zulu OpenJDK 64-bit"    "Install Zulu 64-bit OpenJDK as primary Java provider" \
     "   | AdoptOpenJDK"           "Install AdoptOpenJDK as primary Java provider" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
