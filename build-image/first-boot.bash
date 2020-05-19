@@ -29,6 +29,7 @@ sed -i 's/\r$//' /etc/openhabian.conf
 source "$CONFIGFILE"
 echo "OK"
 
+# shellcheck disable=SC2154
 if [[ "$debugmode" == "default" ]]; then
   unset SILENT
   unset DEBUGMAX
