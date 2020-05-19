@@ -29,8 +29,11 @@ sed -i 's/\r$//' /etc/openhabian.conf
 source "$CONFIGFILE"
 echo "OK"
 
-if [ -n "$DEBUGMAX" ]; then
-  echo "$(timestamp) [openHABian] Enable maximum debugging output (DEBUGMAX=${DEBUGMAX})."
+if [[ "$debugmode" == "default" ]]; then
+  unset SILENT
+  unset DEBUGMAX
+elif [[ "$debugmode" == "maximum" ]]; then
+  echo "$(timestamp) [openHABian] Enable maximum debugging output"
   set -x
 fi
 

@@ -16,9 +16,9 @@ show_about() {
 
 show_main_menu() {
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
-  "00 | About openHABian    "    "Information about the openHABian project and this tool" \
+  "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
-  "01 | Update"                  "Fetch the latest revision of the openHABian Configuration Tool" \
+  "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Upgrade all installed software packages to their newest version" \
   "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
   "" "" \
@@ -143,6 +143,7 @@ show_main_menu() {
     "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
     "44 | Delay rules load"       "Delay loading rules to speed up overall startup" \
     "   | Default order"          "Reset config load order to default (random)" \
+
     "45 | Zulu OpenJDK 32-bit"    "Install Zulu 32-bit OpenJDK as primary Java provider" \
     "   | Zulu OpenJDK 64-bit"    "Install Zulu 64-bit OpenJDK as primary Java provider" \
     "   | AdoptOpenJDK"           "Install AdoptOpenJDK as primary Java provider" \
