@@ -33,36 +33,43 @@ cond_echo() {
 }
 
 is_pizero() {
+  if [[ "$hw" == "Pi0" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]09[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pizerow() {
+  if [[ "$hw" == "Pi0W" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[cC][0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pione() {
+  if [[ "$hw" == "Pi1" ]]; then return 0; fi
   if grep -q "^Revision\\s*:\\s*00[0-9a-fA-F][0-9a-fA-F]$" /proc/cpuinfo; then
     return 0
-  elif  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[0-36][0-9a-fA-F]$" /proc/cpuinfo; then
+  elif grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[0-36][0-9a-fA-F]$" /proc/cpuinfo; then
     return 0
   else
     return 1
   fi
 }
 is_pitwo() {
+  if [[ "$hw" == "Pi2" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]04[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pithree() {
+  if [[ "$hw" == "Pi3" ]]; return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]08[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pithreeplus() {
+  if [[ "$hw" == "Pi3+" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0d[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pifour() {
-  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]11[0-9a-fA-F]$" /proc/cpuinfo
+  if [[ "$hw" == "Pi4" ]]; then return 0; fi
+  ! grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]11[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pi() {
@@ -74,75 +81,111 @@ is_pine64() {
   return $?
 }
 is_arm() {
+  if is_armv6l || is_armv7l || is_aarch64; then return 0; fi
+  return 1;
+}
+is_arm64() {
+  if [[ "$hwarch" == "arm64" ]]; then return 0; fi
   case "$(uname -m)" in
-    armv6l|armv7l|armhf|arm64|aarch64) return 0 ;;
+    arm64) return 0 ;;
     *) return 1 ;;
   esac
 }
 is_armv6l() {
+  if [[ "$hwarch" == "armv6l" ]]; then return 0; fi
   case "$(uname -m)" in
     armv6l) return 0 ;;
     *) return 1 ;;
   esac
 }
 is_armv7l() {
+  if [[ "$hwarch" == "armv7l" ]]; then return 0; fi
   case "$(uname -m)" in
     armv7l) return 0 ;;
     *) return 1 ;;
   esac
 }
 is_aarch64() {
+  if [[ "$hwarch" == "aarch64" ]] || [[ "$hwarch" == "arm64" ]]; then return 0; fi
   case "$(uname -m)" in
     aarch64|arm64) return 0 ;;
     *) return 1 ;;
   esac
 }
 is_x86_64() {
+  if [[ "$hwarch" == "x86_64" ]] || [[ "$hwarch" == "amd64" ]]; then return 0; fi
   case "$(uname -m)" in
     x86_64|amd64) return 0 ;;
     *) return 1 ;;
   esac
 }
 is_ubuntu() {
+  if [[ "$release" == "ubuntu" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "Ubuntu" ]]
   return $?
 }
 is_debian() {
+  if [[ "$release" == "debian" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "Debian" ]]
   return $?
 }
 is_raspbian() {
+  if [[ "$release" == "raspbian" ]]; then return 0; fi
   [[ "$(cat /etc/*release*)" =~ "Raspbian" ]]
   return $?
 }
 # Debian/Raspbian, to be deprecated, LTS ends 2020-06-30
 is_jessie() {
+  if [[ "$release" == "jessie" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "jessie" ]]
   return $?
 }
 # Debian/Raspbian oldstable
 is_stretch() {
+  if [[ "$release" == "stretch" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "stretch" ]]
   return $?
 }
 # Debian/Raspbian stable
 is_buster() {
+  if [[ "$release" == "buster" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "buster" ]]
+  return $?
+}
+# Debian/Raspbian testing
+is_bullseye() {
+  if [[ "$release" == "bullseye" ]]; then return 0; fi
+  [[ $(cat /etc/*release*) =~ "bullseye" ]]
+  return $?
+}
+# Debian/Raspbian unstable
+is_sid() {
+  if [[ "$release" == "sid" ]]; then return 0; fi
+  [[ $(cat /etc/*release*) =~ "sid" ]]
   return $?
 }
 # Ubuntu 14, to be deprecated
 is_trusty() {
+  if [[ "$release" == "trusty" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "trusty" ]]
   return $?
 }
 # Ubuntu 16
 is_xenial() {
+  if [[ "$release" == "xenial" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "xenial" ]]
   return $?
 }
 # Ubuntu 18
 is_bionic() {
+  if [[ "$release" == "bionic" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "bionic" ]]
+  return $?
+}
+# Ubuntu 20
+is_disco() {
+  if [[ "$release" == "disco" ]]; then return 0; fi
+  [[ $(cat /etc/*release*) =~ "disco" ]]
   return $?
 }
 running_in_docker() {
