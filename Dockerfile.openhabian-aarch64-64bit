@@ -1,7 +1,7 @@
 # Note RPi3 base (first RPi to have aarch64 available) WITH 64bit OS
 #FROM balenalib/raspberrypi3-debian-node:latest-buster
 #FROM balenalib/generic-aarch64-debian-node
-FROM balenalib/raspberrypi4-64-debian-node
+FROM balenalib/raspberrypi4-64-debian-node:latest-buster-build
 
 
 ENV container docker
