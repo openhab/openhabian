@@ -30,9 +30,15 @@ needed_packages() {
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   if cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python3 python3-pip avahi-autoipd fontconfig; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-  if is_pithree || is_pithreeplus || is_pizerow; then
+  if is_pithree || is_pithreeplus || is_pizerow || is_pifour; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
-    if cond_redirect apt-get -y install bluez python3-bluez python3-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth; then echo "OK"; else echo "FAILED"; exit 1; fi
+    local BTPKGS
+    BTPKGS="bluez python3-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth"
+    # phython3-bluez not available in stretch, but in newer distros
+    if ! is_stretch; then
+      BTPKGS="$BTPKGS python3-bluez"
+    fi
+    if cond_redirect apt-get -y install "$BTPKGS"; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
 }
 
