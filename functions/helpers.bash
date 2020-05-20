@@ -34,17 +34,17 @@ cond_echo() {
 
 is_pizero() {
   # shellcheck disable=SC2154
-  if [[ "$hw" == "Pi0" ]]; then return 0; fi
+  if [[ "$hw" == "pi0" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]09[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pizerow() {
-  if [[ "$hw" == "Pi0W" ]]; then return 0; fi
+  if [[ "$hw" == "pi0w" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[cC][0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pione() {
-  if [[ "$hw" == "Pi1" ]]; then return 0; fi
+  if [[ "$hw" == "pi1" ]]; then return 0; fi
   if grep -q "^Revision\\s*:\\s*00[0-9a-fA-F][0-9a-fA-F]$" /proc/cpuinfo; then
     return 0
   elif grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[0-36][0-9a-fA-F]$" /proc/cpuinfo; then
@@ -54,22 +54,22 @@ is_pione() {
   fi
 }
 is_pitwo() {
-  if [[ "$hw" == "Pi2" ]]; then return 0; fi
+  if [[ "$hw" == "pi2" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]04[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pithree() {
-  if [[ "$hw" == "Pi3" ]]; then return 0; fi
+  if [[ "$hw" == "pi3" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]08[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pithreeplus() {
-  if [[ "$hw" == "Pi3+" ]]; then return 0; fi
+  if [[ "$hw" == "pi3+" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0d[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pifour() {
-  if [[ "$hw" == "Pi4" ]]; then return 0; fi
+  if [[ "$hw" == "pi4" ]]; then return 0; fi
   ! grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]11[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
