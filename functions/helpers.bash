@@ -32,12 +32,8 @@ cond_echo() {
   fi
 }
 
-<<<<<<< HEAD
 # fingerprinting based on
 # https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
-=======
-# for RPi model identification see https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
->>>>>>> move WiFi enable/disable to wifi_setup() option 36
 is_pizero() {
   # shellcheck disable=SC2154
   if [[ "$hw" == "pi0" ]]; then return 0; fi
