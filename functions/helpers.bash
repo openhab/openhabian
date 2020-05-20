@@ -33,6 +33,7 @@ cond_echo() {
 }
 
 is_pizero() {
+  # shellcheck disable=SC2154
   if [[ "$hw" == "Pi0" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]09[0-9a-fA-F]$" /proc/cpuinfo
   return $?
@@ -58,7 +59,7 @@ is_pitwo() {
   return $?
 }
 is_pithree() {
-  if [[ "$hw" == "Pi3" ]]; return 0; fi
+  if [[ "$hw" == "Pi3" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]08[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
@@ -85,6 +86,7 @@ is_arm() {
   return 1;
 }
 is_arm64() {
+  # shellcheck disable=SC2154
   if [[ "$hwarch" == "arm64" ]]; then return 0; fi
   case "$(uname -m)" in
     arm64) return 0 ;;
@@ -120,6 +122,7 @@ is_x86_64() {
   esac
 }
 is_ubuntu() {
+  # shellcheck disable=SC2154
   if [[ "$release" == "ubuntu" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "Ubuntu" ]]
   return $?
