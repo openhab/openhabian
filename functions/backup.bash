@@ -1,5 +1,32 @@
 #!/usr/bin/env bash
 
+filebrowser() {
+  bkppath=/var/lib/openhab2/backups
+  # shellcheck disable=SC2164,SC2012
+  bkpfile=$(cd ${bkppath}; ls -lthp openhab2-backup-* 2>/dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }')
+}
+
+backup_openhab_config() {
+  infotext="You have successfully created a backup of your openHAB configuration."
+  out=$(openhab-cli backup | tail -2 | head -1 | awk -F ' ' '{print $NF}')
+  msg="${infotext}\\n\\nFile is ${out}"
+  whiptail --title "Created openHAB config backup" --msgbox "$msg" 11 78
+}
+
+restore_openhab_config() {
+  filebrowser
+  if [[ -z "$bkpfile" ]]; then whiptail --title "Could not find backup" --msgbox "We could not find any configuration backup file in the storage dir ${bkppath}" 8 80; return 0; fi
+  # shellcheck disable=SC2086
+  if ! fileselect=$(whiptail --title "Restore openHAB config" --cancel-button Cancel --ok-button Select  --menu "\\nSelect your backup from most current 20 files below:" 30 60 20 $bkpfile 3>&1 1>&2 2>&3); then return 0; fi
+  cond_redirect systemctl stop openhab2
+  if echo "y" | openhab-cli restore "${bkppath}/${fileselect}"; then
+    whiptail --msgbox "Your selected openHAB configuration was successfully restored." 8 70
+  else
+    whiptail --msgbox "Sadly, there was a problem restoring your selected openHAB configuration." 8 70
+  fi
+  cond_redirect systemctl start openhab2
+}
+
 create_backup_config() {
   local config=$1
   local confdir=/etc/amanda/${config}

@@ -145,7 +145,7 @@ show_main_menu() {
     "   | Default order"          "Reset config load order to default (random)" \
     "45 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" \
     "   | Zulu 8 OpenJDK 64-bit"  "Install Zulu 8 64-bit OpenJDK as primary Java provider" \
-    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider (beta)" \
+    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider (beta)" \
     "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider (beta)" \
     "   | AdoptOpenJDK 11"        "Install AdoptOpenJDK 11 as primary Java provider (beta)" \
     3>&1 1>&2 2>&3)
@@ -171,16 +171,17 @@ show_main_menu() {
 
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
-    "50 | Amanda Backup documentation "   "Read this before installing the Amanda backup software" \
-    "51 | Amanda Backup"                  "Set up Amanda to backup your openHAB config and openHABian box" \
+    "50 | Backup openHAB config"      "Backup the current active openHAB configuration" \
+    "51 | Restore an openHAB config"  "Restore a previous openHAB configuration from backup" \
+    "52 | Amanda System Backup"       "Set up Amanda to comprehensively backup your complete openHABian box" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-    wait_for_apt_to_finish_update
     case "$choice2" in
-      50\ *) whiptail --textbox /opt/openhabian/docs/openhabian-amanda.md --scrolltext 25 116 ;;
-      51\ *) amanda_setup ;;
+      50\ *) backup_openhab_config ;;
+      51\ *) restore_openhab_config ;;
+      52\ *) wait_for_apt_to_finish_update && amanda_setup ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "A non supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "60"* ]]; then
@@ -230,5 +231,5 @@ show_main_menu() {
   fi
 
   # shellcheck disable=SC2154,SC2181
-  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or $repositoryurl/docs/openhabian-DEBUG.md how to proceed." 12 60; return 0; fi
+  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md how to proceed." 12 70; return 0; fi
 }

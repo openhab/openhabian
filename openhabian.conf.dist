@@ -36,6 +36,20 @@ clonebranch=stable
 # none, on (verbose output in log) or maximum (show every command)
 debugmode=on
 
+# Hardware
+# pi0, pi0w, pi1, cm1, pi2, pi3, cm3, pi3+, cm3+, pi4
+#hw=pi3
+
+# Hardware architecture
+# x86_64, amd64, armv6l, armv7l, aarch64, arm64
+#hwarch=armv7l
+
+# OS Release
+# ubuntu, raspbian, debian
+# jessie, stretch, buster, bullseye, sid,
+# trusty, xenial, bionic, disco
+#release=buster
+
 # Java architecture mode
 # Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
 java_opt=Zulu8-32

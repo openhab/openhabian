@@ -53,7 +53,7 @@ influxdb_grafana_setup() {
 
   openhab_integration=false
   if [ -n "$INTERACTIVE" ]; then
-    text_influxDB_intro="A new InfluxDB instance can be installed locally on the openhabian system or an already running InfluxDB instance can be used. Please choose one of the options. "
+    text_influxDB_intro="A new InfluxDB instance can be installed locally on the openHABian system or an already running InfluxDB instance can be used. Please choose one of the options. "
     if ! (whiptail --title "InfluxDB" --yes-button "Install locally" --no-button "Use existing instance" --yesno "$text_influxDB_intro" 15 80) then
       text_influxDB_configure="Shall a new user and database be configured on the InfluxDB instance automatically or shall existing existing ones be used?"
       if ! (whiptail --title "InfluxDB" --yes-button "Create new" --no-button "Use existing" --yesno "$text_influxDB_configure" 15 80) then
@@ -156,7 +156,7 @@ influxdb_grafana_setup() {
       (A new config file for openHAB will be created with basic settings.)"
       if (whiptail --title "openHAB integration, Continue?" --yes-button "Yes" --no-button "No" --yesno "$text_openHAB_integration" 15 80) then openhab_integration=true ; fi
     else
-      cond_echo "openHAB is not running. InfluxDB and grafana openHAB integration is skipped..."
+      cond_echo "openHAB is not running. InfluxDB and Grafana openHAB integration is skipped..."
     fi
   fi
 
@@ -243,6 +243,7 @@ influxdb_install() {
 #  if [ ! -f /etc/influxdb/influxdb.conf ]; then
     cond_redirect wget -O - https://repos.influxdata.com/influxdb.key | apt-key add - || FAILED=1
     echo "deb https://repos.influxdata.com/$dist $codename stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
+    cond_redirect apt-get update || FAILED=1
     cond_redirect apt-get -y install influxdb || FAILED=1
 
     # disable authentication, to allow changes in existing installations
@@ -288,23 +289,32 @@ grafana_install(){
   echo -n "Installing Grafana... "
   cond_redirect wget -O - https://packages.grafana.com/gpg.key | apt-key add - || FAILED=2
   echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list || FAILED=2
+  cond_redirect apt-get update || FAILED=1
   cond_redirect apt-get -y install grafana || FAILED=2
 
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable grafana-server.service
   cond_redirect systemctl start grafana-server.service
-  sleep 2
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  cond_echo ""
+
+  echo -n "Wait for Grafana to start... "
+  curl --retry 5 --retry-connrefused -s http://localhost:3000 >/dev/null || FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  sleep 10 
   cond_echo ""
 
   # password reset required if Grafana password was already set before (no first-time install)
   echo -n "Resetting Grafana admin password... "
+  curl --retry 5 --retry-connrefused -s http://localhost:3000 >/dev/null || FAILED=2
   cond_redirect grafana-cli admin reset-admin-password admin || FAILED=2
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  cond_echo ""
 
   echo -n "Updating Grafana admin password... "
   curl --retry 7 --retry-connrefused --user admin:admin --header "Content-Type: application/json" --request PUT --data "{\"password\":\"$1\"}" http://localhost:3000/api/admin/users/1/password || FAILED=2
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  cond_echo ""
 
   echo -n "Updating Grafana configuration... "
   cond_redirect sed -i -e '/^# disable user signup \/ registration/ { n ; s/^;allow_sign_up = true/allow_sign_up = false/ }' /etc/grafana/grafana.ini || FAILED=2
