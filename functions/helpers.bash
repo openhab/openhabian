@@ -32,7 +32,6 @@ cond_echo() {
   fi
 }
 
-# for RPi model identification see https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
 is_pizero() {
   # shellcheck disable=SC2154
   if [[ "$hw" == "pi0" ]]; then return 0; fi
@@ -55,6 +54,8 @@ is_pione() {
   fi
 }
 is_cmone() {
+  # shellcheck disable=SC2154
+  if [[ "$hw" == "cm1" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]06[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
@@ -69,12 +70,18 @@ is_pithree() {
   return $?
 }
 is_cmthree() {
+  if [[ "$hw" == "cm3" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[aA][0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pithreeplus() {
   if [[ "$hw" == "pi3+" ]]; then return 0; fi
-  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0d[0-9a-fA-F]$" /proc/cpuinfo
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[dDeE][0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
+is_cmthreeplus() {
+  if [[ "$hw" == "cm3+" ]]; then return 0; fi
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]10[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pifour() {
