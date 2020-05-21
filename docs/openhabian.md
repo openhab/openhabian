@@ -131,6 +131,17 @@ The "Manual/Fresh Setup" submenu entry is the right place for you. Execute all e
 > Please be cautious and have a close look at the console output for errors.
 > Report problems you encounter to the [openHABian Issue Tracker](https://github.com/openhab/openhabian/issues).
 
+{: #openhabian.conf}
+You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails.
+
+- Flash the system image to your micro SD card as described, do not remove the SD card yet
+- Access the first SD card partition using the file explorer. It's a vfat (Windows) filesystem.
+  (we assume you're using a Windows, Mac or other desktop system to flash the SD)
+- Open the file `openhabian.conf` in a text editor
+- Uncomment and complete the lines to contain the parameters you want to set
+- Save, Unmount, Insert, Boot
+- Continue with the instructions for your hardware
+
 {: #wifi-setup}
 ### Wi-Fi based Setup Notes
 
@@ -138,17 +149,18 @@ If you own a RPi3, RPi3+, RPi4, a RPi0W, a Pine A64, or a compatible Wi-Fi dongl
 For the setup on Wi-Fi, you'll need to make your SSID and password known to the system before the first boot.
 Additionally to the setup instructions given above, the following steps are needed:
 
-- Flash the system image to your micro SD card as described, do not remove the SD card yet
-- Access the first SD card partition using the file explorer. It's a vfat (Windows) filesystem.
-  (we assume you're using a Windows, Mac or other desktop system to flash the SD)
-- Open the file `openhabian.conf` in a text editor
-- Uncomment and complete the lines reading `wifi_ssid="My Wi-Fi SSID"` and `wifi_psk="password123"`
-- Save, Unmount, Insert, Boot
-- Continue with the instructions for your hardware
+In `openhabian.conf`, uncomment and complete the lines reading `wifi_ssid="My Wi-Fi SSID"` and `wifi_psk="password123"`
+
+{: #fake-hw}
+### Fake hardware mode
+If to install openHABian fails because you have a non-supported hardware or run an unsupported OS release, you can "fake" your hardware and OS to make openHABian behave as if you did own that HW/OS.
+
+In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` and/or `release=` with the hw and os versions you want to attempt installation with.
 
 {: #debug-mode}
 ### Debug mode
-See [Troubleshooting] section if you run into trouble installing. If you want to turn on debug mode, follow the instructions in the previous section and insert a line into `openhabian.conf` reading either `mode=unattended_debug` or better right away `mode=debug_maximum`.
+See [Troubleshooting] section if you run into trouble installing. If you want to turn on debug mode, 
+edit `openhabian.conf` and set the `debug=` parameter to either `none`, `on` or `maximum`.
 
 {: #ipv6-notes}
 ### IPv6 notes
