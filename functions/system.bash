@@ -39,7 +39,7 @@ needed_packages() {
       BTPKGS="$BTPKGS python3-bluez"
     fi
     # shellcheck disable=SC2086
-    if cond_redirect apt-get -y install $BTPKGS; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect apt-get -y install $BTPKGS; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 }
 
