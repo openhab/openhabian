@@ -21,6 +21,8 @@ Closely related to openHABian is the repository [openhab-linuxpkg](https://githu
 
 Please check the [official documentation article](https://www.openhab.org/docs/installation/openhabian.html) to learn about openHABian and please visit and subscribe to our very active [community forum thread](https://community.openhab.org/t/13379).
 
+If you want to install openHABian on non-supported hardware, you can actually fake it to make openHABian treat your box as if it was one of the supported ones. Needless to say that that may work out or not, but it's worth a try.
+See [openhabian](openhabian.md) how to edit openhabian.conf before booting. Set the hw, hwarch and release parameters to match your system best.
 
 ## Development
 
