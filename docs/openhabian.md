@@ -132,7 +132,7 @@ The "Manual/Fresh Setup" submenu entry is the right place for you. Execute all e
 > Report problems you encounter to the [openHABian Issue Tracker](https://github.com/openhab/openhabian/issues).
 
 {: #openhabian.conf}
-You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if you initial attempt fails.
+You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails.
 
 - Flash the system image to your micro SD card as described, do not remove the SD card yet
 - Access the first SD card partition using the file explorer. It's a vfat (Windows) filesystem.
