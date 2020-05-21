@@ -10,13 +10,13 @@ get_git_revision() {
 }
 
 apt_update() {
-  echo -n "$(timestamp) [openHABian] Updating Linux package information ... "
+  echo "$(timestamp) [openHABian] Updating Linux package information ... "
   apt-get -q update >/dev/null 2>&1 &
   PID_APT=$!
 }
 
 wait_for_apt_to_finish_update() {
-  echo -n "$(timestamp) [openHABian] Updating Linux package information ... "
+  echo "$(timestamp) [openHABian] Updating Linux package information ... "
   if [ ! -v PID_APT ]; then
     apt_update
   fi
@@ -173,4 +173,3 @@ disable_ipv6() {
     sed -i "s/^${IPV6_ENABLE}.*/# ${IPV6_ENABLE}/g" "${SYSCTL_INIT}"
   fi
 }
-
