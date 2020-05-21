@@ -182,9 +182,9 @@ show_main_menu() {
   elif [[ "$choice" == "60"* ]]; then
     choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 20 116 13 --cancel-button Back --ok-button Execute \
     "62 | Packages"               "Install needed and recommended system packages " OFF \
-    "63 | Zulu OpenJDK 32-bit"    "Install Zulu 32-bit OpenJDK as primary Java provider" \
-    "   | Zulu OpenJDK 64-bit"    "Install Zulu 64-bit OpenJDK as primary Java provider" \
-    "   | AdoptOpenJDK"           "Install AdoptOpenJDK as primary Java provider" \
+    "63 | Zulu OpenJDK 32-bit"    "Install Zulu 32-bit OpenJDK as primary Java provider" OFF \
+    "   | Zulu OpenJDK 64-bit"    "Install Zulu 64-bit OpenJDK as primary Java provider" OFF \
+    "   | AdoptOpenJDK"           "Install AdoptOpenJDK as primary Java provider" OFF \
     "64 | openHAB stable"         "Install the latest openHAB release" OFF \
     "   | openHAB testing"        "Install the latest openHAB testing (milestone) build" OFF \
     "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
