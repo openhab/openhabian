@@ -38,6 +38,6 @@ debugmode=on
 
 # Java architecture mode
 # Valid arguments: "AdoptOpenJDK", "Zulu32", or "Zulu64"
-java_arch=32-bit
+java_opt=Zulu32
 
 # vim: filetype=sh
