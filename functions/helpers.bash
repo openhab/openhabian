@@ -70,7 +70,7 @@ is_pithreeplus() {
 }
 is_pifour() {
   if [[ "$hw" == "pi4" ]]; then return 0; fi
-  ! grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]11[0-9a-fA-F]$" /proc/cpuinfo
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]11[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pi() {
