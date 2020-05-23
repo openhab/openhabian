@@ -160,16 +160,15 @@ show_main_menu() {
 
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
-    "50 | Amanda System Backup"       "Set up Amanda to comprehensively backup your complete openHABian box" \
-    "51 | Backup openHAB config"      "Backup the current active openHAB configuration" \
-    "52 | Restore an openHAB config"  "Restore a previous openHAB configuration from backup" \
+    "50 | Backup openHAB config"      "Backup the current active openHAB configuration" \
+    "51 | Restore an openHAB config"  "Restore a previous openHAB configuration from backup" \
+    "52 | Amanda System Backup"       "Set up Amanda to comprehensively backup your complete openHABian box" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-    wait_for_apt_to_finish_update
     case "$choice2" in
-      50\ *) amanda_setup ;;
-      51\ *) backup_openhab_config ;;
-      52\ *) restore_openhab_config ;;
+      50\ *) backup_openhab_config ;;
+      51\ *) restore_openhab_config ;;
+      52\ *) wait_for_apt_to_finish_update && amanda_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A non supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -215,5 +214,5 @@ show_main_menu() {
   fi
 
   # shellcheck disable=SC2154,SC2181
-  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or $repositoryurl/docs/openhabian-DEBUG.md how to proceed." 12 60; return 0; fi
+  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md how to proceed." 12 70; return 0; fi
 }

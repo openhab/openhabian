@@ -1,15 +1,31 @@
 #!/usr/bin/env bash
 
 # WORK IN PROGRESS
+filebrowser() {
+  bkppath=/var/lib/openhab2/backups
+  # shellcheck disable=SC2164,SC2012
+  bkpfile=$(cd ${bkppath}; ls -lthp openhab2-backup-* | head -20 | awk -F ' ' '{ print $9 " " $5 }')
+}
+
 backup_openhab_config() {
-	# -full option?
-	openhab-cli backup
+  infotext="You have successfully created a backup of your openHAB configuration."
+  out=$(openhab-cli backup | tail -2 | head -1 | awk -F ' ' '{print $NF}')
+  msg="${infotext}\\n\\nFile is ${out}"
+  whiptail --title "Created openHAB config backup" --msgbox "$msg" 11 78
 }
 
 restore_openhab_config() {
-	# gibt es eine file selection box?
-	if ! bkpfile=$(whiptail --title "Restore openHAB config" --inputbox "Please enter the filename of the backup config you would like to restore:" 10 60 3>&1 1>&2 2>&3); then return 1; fi
-	openhab-cli restore "$bkpfile"
+  filebrowser
+  # shellcheck disable=SC2086
+  fileselect=$(whiptail --title "Restore openHAB config" --cancel-button Cancel --ok-button Select  --menu "\\nSelect your backup from most current 20 files below:" 30 60 20 $bkpfile 3>&1 1>&2 2>&3)
+  cond_redirect systemctl stop openhab2
+  echo "y" | openhab-cli restore "${bkppath}/${fileselect}"
+  if [ $? -eq 0 ]; then
+    whiptail --msgbox "Your selected openHAB configuration was successfully restored." 8 70
+  else
+    whiptail --msgbox "Sadly, there was a problem restoring your selected openHAB configuration." 8 70
+  fi
+  cond_redirect systemctl start openhab2
 }
 
 create_backup_config() {
