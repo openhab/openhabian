@@ -19,8 +19,7 @@ restore_openhab_config() {
   # shellcheck disable=SC2086
   fileselect=$(whiptail --title "Restore openHAB config" --cancel-button Cancel --ok-button Select  --menu "\\nSelect your backup from most current 20 files below:" 30 60 20 $bkpfile 3>&1 1>&2 2>&3)
   cond_redirect systemctl stop openhab2
-  echo "y" | openhab-cli restore "${bkppath}/${fileselect}"
-  if [ $? -eq 0 ]; then
+  if echo "y" | openhab-cli restore "${bkppath}/${fileselect}"; then
     whiptail --msgbox "Your selected openHAB configuration was successfully restored." 8 70
   else
     whiptail --msgbox "Sadly, there was a problem restoring your selected openHAB configuration." 8 70
