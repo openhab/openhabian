@@ -1,5 +1,17 @@
 #!/usr/bin/env bash
 
+# WORK IN PROGRESS
+backup_openhab_config() {
+	# -full option?
+	openhab-cli backup
+}
+
+restore_openhab_config() {
+	# gibt es eine file selection box?
+	if ! bkpfile=$(whiptail --title "Restore openHAB config" --inputbox "Please enter the filename of the backup config you would like to restore:" 10 60 3>&1 1>&2 2>&3); then return 1; fi
+	openhab-cli restore "$bkpfile"
+}
+
 create_backup_config() {
   local config=$1
   local confdir=/etc/amanda/${config}

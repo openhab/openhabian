@@ -160,16 +160,18 @@ show_main_menu() {
 
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
-    "50 | Amanda Backup documentation "   "Read this before installing the Amanda backup software" \
-    "51 | Amanda Backup"                  "Set up Amanda to backup your openHAB config and openHABian box" \
+    "50 | Amanda System Backup"       "Set up Amanda to comprehensively backup your complete openHABian box" \
+    "51 | Backup openHAB config"      "Backup the current active openHAB configuration" \
+    "52 | Restore an openHAB config"  "Restore a previous openHAB configuration from backup" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
     case "$choice2" in
-      50\ *) whiptail --textbox /opt/openhabian/docs/openhabian-amanda.md --scrolltext 25 116 ;;
-      51\ *) amanda_setup ;;
+      50\ *) amanda_setup ;;
+      51\ *) backup_openhab_config ;;
+      52\ *) restore_openhab_config ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "A non supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "60"* ]]; then
