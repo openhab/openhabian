@@ -243,6 +243,7 @@ influxdb_install() {
 #  if [ ! -f /etc/influxdb/influxdb.conf ]; then
     cond_redirect wget -O - https://repos.influxdata.com/influxdb.key | apt-key add - || FAILED=1
     echo "deb https://repos.influxdata.com/$dist $codename stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
+    cond_redirect apt-get update || FAILED=1
     cond_redirect apt-get -y install influxdb || FAILED=1
 
     # disable authentication, to allow changes in existing installations
@@ -288,6 +289,7 @@ grafana_install(){
   echo -n "Installing Grafana... "
   cond_redirect wget -O - https://packages.grafana.com/gpg.key | apt-key add - || FAILED=2
   echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list || FAILED=2
+  cond_redirect apt-get update || FAILED=1
   cond_redirect apt-get -y install grafana || FAILED=2
 
   cond_redirect systemctl daemon-reload

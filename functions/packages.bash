@@ -190,6 +190,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   if is_jessie; then
     cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
     echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
+    cond_redirect apt-get update
   fi
   if ! cond_redirect apt-get -y install mosquitto mosquitto-clients; then echo "FAILED"; exit 1; fi
   if [ "$mqttpasswd" != "" ]; then
@@ -550,6 +551,7 @@ nginx_setup() {
           certbotoption="-t"
           if [ -n "$certbotrepo" ]; then
             echo -e "# This file was added by openHABian to install certbot\\ndeb http://ftp.debian.org/debian ${certbotrepo} main" > /etc/apt/sources.list.d/backports.list
+            apt-get update
           fi
         elif is_ubuntu; then
           apt -get -y -q --force-yes install software-properties-common
