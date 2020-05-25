@@ -4,7 +4,7 @@
 filebrowser() {
   bkppath=/var/lib/openhab2/backups
   # shellcheck disable=SC2164,SC2012
-  bkpfile=$(cd ${bkppath}; ls -lthp openhab2-backup-* | head -20 | awk -F ' ' '{ print $9 " " $5 }')
+  bkpfile=$(cd ${bkppath}; ls -lthp openhab2-backup-* 2>/dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }')
 }
 
 backup_openhab_config() {
@@ -16,8 +16,9 @@ backup_openhab_config() {
 
 restore_openhab_config() {
   filebrowser
+  if [[ -n "$filebrowser" ]]; then whiptail --title "Could not find backup" --msgbox "We could not find any configuration backup file in ${bkppath}." 5 80; return 0; fi
   # shellcheck disable=SC2086
-  fileselect=$(whiptail --title "Restore openHAB config" --cancel-button Cancel --ok-button Select  --menu "\\nSelect your backup from most current 20 files below:" 30 60 20 $bkpfile 3>&1 1>&2 2>&3)
+  if ! fileselect=$(whiptail --title "Restore openHAB config" --cancel-button Cancel --ok-button Select  --menu "\\nSelect your backup from most current 20 files below:" 30 60 20 $bkpfile 3>&1 1>&2 2>&3); then return 0; fi
   cond_redirect systemctl stop openhab2
   if echo "y" | openhab-cli restore "${bkppath}/${fileselect}"; then
     whiptail --msgbox "Your selected openHAB configuration was successfully restored." 8 70
