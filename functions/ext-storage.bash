@@ -52,6 +52,7 @@ move_root2usb() {
 
      echo
      echo "********************************************************************************"
+     # shellcheck disable=SC2086
      echo "REBOOT, run $(basename $0) again and recall menu item 'Move root to USB'"
      echo "********************************************************************************"
      whiptail --title "Reboot needed!" --msgbox "USB had to be set to high power (1A) first. Please REBOOT and RECALL this menu item." 15 78
