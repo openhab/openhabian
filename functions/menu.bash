@@ -176,7 +176,6 @@ show_main_menu() {
     "52 | Amanda System Backup"       "Set up Amanda to comprehensively backup your complete openHABian box" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-    wait_for_apt_to_finish_update
     case "$choice2" in
       50\ *) backup_openhab_config ;;
       51\ *) restore_openhab_config ;;
