@@ -16,7 +16,7 @@ backup_openhab_config() {
 
 restore_openhab_config() {
   filebrowser
-  if [[ -n "$filebrowser" ]]; then whiptail --title "Could not find backup" --msgbox "We could not find any configuration backup file in ${bkppath}." 5 80; return 0; fi
+  if [[ -z "$bkpfile" ]]; then whiptail --title "Could not find backup" --msgbox "We could not find any configuration backup file in ${bkppath}." 7 80; return 0; fi
   # shellcheck disable=SC2086
   if ! fileselect=$(whiptail --title "Restore openHAB config" --cancel-button Cancel --ok-button Select  --menu "\\nSelect your backup from most current 20 files below:" 30 60 20 $bkpfile 3>&1 1>&2 2>&3); then return 0; fi
   cond_redirect systemctl stop openhab2
