@@ -129,7 +129,7 @@ openhabian_update() {
     echo "The tool will now restart to load the updates... "
     echo -e "\\n"
     exec "$BASEDIR/$SCRIPTNAME"
-    exit 1
+    exit 0
   fi
 }
 

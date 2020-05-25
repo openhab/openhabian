@@ -120,6 +120,7 @@ else
   system_check_default_password
   echo -e "$(timestamp) [openHABian] We hope you got what you came for! See you again soon ;)"
 fi
-cd "$OLDWD" || exit 1
+# shellcheck disable=SC2164
+cd "$OLDWD"
 
 # vim: filetype=sh
