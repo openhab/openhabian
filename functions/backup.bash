@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-# WORK IN PROGRESS
 filebrowser() {
   bkppath=/var/lib/openhab2/backups
   # shellcheck disable=SC2164,SC2012
