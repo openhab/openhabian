@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2181
 # shellcheck disable=SC2144
+# shellcheck disable=SC2069
 
 ## Install appropriate Java version based on current choice.
 ## Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
@@ -70,7 +71,7 @@ java_install_or_update(){
   cond_redirect java -version
 }
 
-## Install Java Zulu directly from fetched .tar.gz file
+## Install Java Zulu directly from fetched files
 ## Valid arguments: "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
 ##
 ##    java_zulu_install(String arch)
@@ -124,7 +125,7 @@ java_zulu_install(){
 
   cond_redirect java_zulu_install_crypto_extension
 
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; return 1; fi
   cond_redirect systemctl start openhab2.service
 }
 
@@ -210,7 +211,7 @@ java_zulu_update_available(){
   filter='[.zulu_version[] | tostring] | join(".")'
   link8="https://api.azul.com/zulu/download/community/v1.0/bundles/latest/?jdk_version=8&ext=tar.gz&os=linux"
   link11="https://api.azul.com/zulu/download/community/v1.0/bundles/latest/?jdk_version=11&ext=tar.gz&os=linux"
-  javaVersion=$(java -version 2>&1 | grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}")
+  javaVersion=$(java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}")
 
   if [ "$1" == "Zulu8-32" ]; then
     if is_arm; then
@@ -241,7 +242,7 @@ java_zulu_update_available(){
     fi
 
   else
-    if [ $? -ne 0 ]; then echo "FAILED (java update available)"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (java update available)"; return 1; fi
   fi
 
   if [[ $javaVersion == "$availableVersion" ]]; then
@@ -294,7 +295,7 @@ java_zulu_install_crypto_extension(){
   jdkSecurity="$(dirname "${jdkPath}")/../lib/security"
   mkdir -p "$jdkSecurity"
   policyTempLocation="$(mktemp -d /tmp/openhabian.XXXXX)"
-  if [ -z "$policyTempLocation" ]; then echo "FAILED"; exit 1; fi
+  if [ -z "$policyTempLocation" ]; then echo "FAILED"; return 1; fi
 
   cond_redirect wget -nv -O "$policyTempLocation"/crypto.zip https://cdn.azul.com/zcek/bin/ZuluJCEPolicies.zip
   cond_redirect unzip "$policyTempLocation"/crypto.zip -d "$policyTempLocation"
@@ -306,7 +307,8 @@ java_zulu_install_crypto_extension(){
 ## Fetch AdoptOpenJDK using APT repository.
 ##
 adoptopenjdk_fetch_apt(){
-  local adoptKey="/tmp/adoptopenjdk.asc"
+  local adoptKey
+  adoptKey="/tmp/adoptopenjdk.asc"
   echo -n "$(timestamp) [openHABian] Adding AdoptOpenJDK keys to apt... "
   cond_redirect wget -qO "$adoptKey" https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public
   if cond_redirect apt-key add "$adoptKey"; then
@@ -314,12 +316,13 @@ adoptopenjdk_fetch_apt(){
   else
     echo "FAILED (keyserver)"
     rm -f "$adoptKey"
-    exit 1;
+    return 1;
   fi
   echo -n "$(timestamp) [openHABian] Fetching AdoptOpenJDK... "
   echo "deb http://adoptopenjdk.jfrog.io/adoptopenjdk/deb buster main" > /etc/apt/sources.list.d/adoptopenjdk.list
   cond_redirect apt-get update
-  if cond_redirect apt-get install --download-only adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if cond_redirect apt-get install --download-only --yes adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
+  return 0
 }
 
 ## Install AdoptOpenJDK using APT repository.
@@ -330,15 +333,16 @@ adoptopenjdk_install_apt(){
     adoptopenjdk_fetch_apt
     cond_redirect systemctl stop openhab2.service
     cond_redirect java_alternatives_reset
-    if cond_redirect apt-get install --yes adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect apt-get install --yes adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
     cond_redirect systemctl start openhab2.service
-  elif dpkg -s 'adoptopenjdk-11-hotspot-jre' >/dev/null 2>&1; then
+  elif dpkg -s 'adoptopenjdk-11-hotspot-jre' > /dev/null 2>&1; then
     echo -n "$(timestamp) [openHABian] Reconfiguring AdoptOpenJDK 11... "
     cond_redirect systemctl stop openhab2.service
     cond_redirect java_alternatives_reset
-    if cond_redirect dpkg-reconfigure adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect dpkg-reconfigure adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
     cond_redirect systemctl start openhab2.service
   fi
+  return 0
 }
 
 ## Reset Java in update-alternatives
@@ -346,14 +350,12 @@ adoptopenjdk_install_apt(){
 java_alternatives_reset(){
   update-alternatives --remove-all java
   update-alternatives --remove-all jjs
+  update-alternatives --remove-all jrunscript
   update-alternatives --remove-all keytool
-  update-alternatives --remove-all orbd
   update-alternatives --remove-all pack200
   update-alternatives --remove-all policytool
   update-alternatives --remove-all rmid
   update-alternatives --remove-all rmiregistry
-  update-alternatives --remove-all servertool
-  update-alternatives --remove-all tnameserv
   update-alternatives --remove-all unpack200
   update-alternatives --remove-all jexec
   update-alternatives --remove-all javac # TODO: remove sometime late 2020
