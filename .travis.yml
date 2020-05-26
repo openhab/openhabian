@@ -34,8 +34,10 @@ install:
 
 jobs:
   fast_finish: true
-#  allow_failures:
-#    - env: aarch64
+  allow_failures:
+    - stage: Dev & Unit tests
+    - stage: BATS and shellcheck tests
+          #    - env: aarch64
   include:
     - stage: Dev & Unit tests
       env: aarch64
