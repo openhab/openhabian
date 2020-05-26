@@ -156,7 +156,7 @@ show_main_menu() {
     "   | Default order"          "Reset config load order to default (random)" \
     "45 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" \
     "   | Zulu 8 OpenJDK 64-bit"  "Install Zulu 8 64-bit OpenJDK as primary Java provider" \
-    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider (beta)" \
+    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider (beta)" \
     "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider (beta)" \
     "   | AdoptOpenJDK 11"        "Install AdoptOpenJDK 11 as primary Java provider (beta)" \
     3>&1 1>&2 2>&3)
@@ -175,7 +175,7 @@ show_main_menu() {
       *Zulu\ 8\ OpenJDK\ 64-bit) update_config_java "Zulu8-64" && java_install_or_update "Zulu8-64";;
       *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
       *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
-      *AdoptOpenJDK\ 11) update_config_java "AdoptOpenJDK" && java_install_or_update "AdoptOpenJDK";;
+      *AdoptOpenJDK\ 11) update_config_java "Adopt11" && java_install_or_update "Adopt11";;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -211,7 +211,7 @@ show_main_menu() {
     "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail) " OFF \
     "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
     "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
-    "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories (reduces SD card wear)" OFF \
+    "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories (mitigates SD card wear)" OFF \
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspbian filesystem layout)" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
@@ -222,7 +222,7 @@ show_main_menu() {
     if [[ $choosenComponents == *"Zulu 8 OpenJDK 64-bit"* ]]; then update_config_java "Zulu8-64" && java_install_or_update "Zulu8-64"; fi
     if [[ $choosenComponents == *"Zulu 11 OpenJDK 32-bit"* ]]; then update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32"; fi
     if [[ $choosenComponents == *"Zulu 11 OpenJDK 64-bit"* ]]; then update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64"; fi
-    if [[ $choosenComponents == *"AdoptOpenJDK 11"* ]]; then update_config_java "AdoptOpenJDK" && java_install_or_update "AdoptOpenJDK"; fi
+    if [[ $choosenComponents == *"AdoptOpenJDK 11"* ]]; then update_config_java "Adopt11" && java_install_or_update "Adopt11"; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
     if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi
