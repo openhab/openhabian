@@ -31,16 +31,16 @@ clean_config_userpw() {
 }
 
 ## Update java architecture in config file
-## Valid options: "Zulu32", "Zulu64", "AdoptOpenJDK"
+## Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
 update_config_java() {
-  if [ "$1" == "Zulu64" ]; then
+  if [ "$1" == "Zulu8-64" ] || [ "$1" == "Zulu11-64" ]; then
     if (! is_x86_64 && ! [ "$(getconf LONG_BIT)" == "64" ]) || (! is_aarch64 && ! [ "$(getconf LONG_BIT)" == "64" ]); then
       if [ -n "$INTERACTIVE" ]; then
-        whiptail --title "Incompatible hardware detected" --msgbox "Zulu OpenJDK 64-bit: this option does not currently work on your platform.\\n\\nDefaulting to 32-bit installation." 10 60
+        whiptail --title "Incompatible hardware detected" --msgbox "Zulu OpenJDK 64-bit: this option does not currently work on your platform.\\n\\nDefaulting to Java Zulu 8 32-bit installation." 10 60
       else
-        echo "Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to 32-bit installation."
+        echo "Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to Java Zulu 8 32-bit installation."
       fi
-      cond_redirect grep -q '^java_opt' "$CONFIGFILE" && sed -i "s/^java_opt.*/java_opt=Zulu32/" "$CONFIGFILE" || echo "java_opt=Zulu32" >> "$CONFIGFILE"
+      cond_redirect grep -q '^java_opt' "$CONFIGFILE" && sed -i "s/^java_opt.*/java_opt=Zulu8-32/" "$CONFIGFILE" || echo "java_opt=Zulu8-32" >> "$CONFIGFILE"
     fi
   else
     cond_redirect grep -q '^java_opt' "$CONFIGFILE" && sed -i "s/^java_opt.*/java_opt=$1/" "$CONFIGFILE" || echo "java_opt=$1" >> "$CONFIGFILE"
