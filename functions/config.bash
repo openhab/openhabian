@@ -31,7 +31,7 @@ clean_config_userpw() {
 }
 
 ## Update java architecture in config file
-## Valid arguments: "AdoptOpenJDK", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
+## Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
 update_config_java() {
   if [ "$1" == "Zulu8-64" ] || [ "$1" == "Zulu11-64" ]; then
     if (! is_x86_64 && ! [ "$(getconf LONG_BIT)" == "64" ]) || (! is_aarch64 && ! [ "$(getconf LONG_BIT)" == "64" ]); then

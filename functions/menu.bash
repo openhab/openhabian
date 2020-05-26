@@ -164,7 +164,7 @@ show_main_menu() {
       *Zulu\ 8\ OpenJDK\ 64-bit) update_config_java "Zulu8-64" && java_install_or_update "Zulu8-64";;
       *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
       *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
-      *AdoptOpenJDK\ 11) update_config_java "AdoptOpenJDK" && java_install_or_update "AdoptOpenJDK";;
+      *AdoptOpenJDK\ 11) update_config_java "Adopt11" && java_install_or_update "Adopt11";;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -210,7 +210,7 @@ show_main_menu() {
     if [[ $choosenComponents == *"Zulu 8 OpenJDK 64-bit"* ]]; then update_config_java "Zulu8-64" && java_install_or_update "Zulu8-64"; fi
     if [[ $choosenComponents == *"Zulu 11 OpenJDK 32-bit"* ]]; then update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32"; fi
     if [[ $choosenComponents == *"Zulu 11 OpenJDK 64-bit"* ]]; then update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64"; fi
-    if [[ $choosenComponents == *"AdoptOpenJDK 11"* ]]; then update_config_java "AdoptOpenJDK" && java_install_or_update "AdoptOpenJDK"; fi
+    if [[ $choosenComponents == *"AdoptOpenJDK 11"* ]]; then update_config_java "Adopt11" && java_install_or_update "Adopt11"; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
     if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi

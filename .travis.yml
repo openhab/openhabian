@@ -132,8 +132,8 @@ jobs:
       script:
         # AdoptOpenJDK Java on 32bit ARMv7 on 32bit OS on Travis Arm64 HW
         - export HW=rpi2
-        - sed -i 's/^java_opt=.*/java_opt=AdoptOpenJDK/' build-image/openhabian.conf
+        - sed -i 's/^java_opt=.*/java_opt=Adopt11/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.openhabian-arm32hf-native .
-        - echo -e "\n\e[36mopenHABian test installation 64bit AdoptOpenJDK Java \e[31m on 32bit OS\e[36m on virtual $HW ...\n"
+        - echo -e "\n\e[36mopenHABian test installation 64bit AdoptOpenJDK 11 Java \e[31m on 32bit OS\e[36m on virtual $HW ...\n"
         - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
         - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
