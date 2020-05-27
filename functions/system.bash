@@ -70,7 +70,7 @@ locale_setting() {
   if [ -n "$INTERACTIVE" ]; then
     echo "$(timestamp) [openHABian] Setting locale based on user choice... "
     dpkg-reconfigure locales
-    loc=$(grep "LANG=" /etc/default/locale | sed 's/LANG=//g')
+    loc=$(grep "^[[:space:]]*LANG=" /etc/default/locale | sed 's/LANG=//g')
     cond_redirect update-locale LANG="$loc" LC_ALL="$loc" LC_CTYPE="$loc" LANGUAGE="$loc"
     whiptail --title "Change Locale" --msgbox "For the locale change to take effect, please reboot your system now." 10 60
     return 0
@@ -249,7 +249,7 @@ pine64_fixed_mac() {
 # RPi specific function
 memory_split() {
   echo -n "$(timestamp) [openHABian] Setting the GPU memory split down to 16MB for headless system... "
-  if grep -qs "gpu_mem" /boot/config.txt; then
+  if grep -qs "^[[:space:]]*gpu_mem" /boot/config.txt; then
     sed -i 's/gpu_mem=.*/gpu_mem=16/g' /boot/config.txt
   else
     echo "gpu_mem=16" >> /boot/config.txt
@@ -260,7 +260,7 @@ memory_split() {
 # RPi specific function
 enable_rpi_audio() {
   echo -n "$(timestamp) [openHABian] Enabling Audio output... "
-  if ! grep -q "dtparam=audio" /boot/config.txt; then
+  if ! grep -q "^[[:space:]]*dtparam=audio" /boot/config.txt; then
     echo "dtparam=audio=on" >> /boot/config.txt
   fi
   cond_redirect adduser "$username" audio
@@ -281,8 +281,8 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   echo -n "$(timestamp) [openHABian] Configuring serial console for serial port peripherals... "
 
   # Find current settings
-  if is_pi && grep -q "enable_uart=1" /boot/config.txt; then sel_1="ON"; else sel_1="OFF"; fi
-  if is_pithree || is_pithreeplus && grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then sel_2="ON"; else sel_2="OFF"; fi
+  if is_pi && grep -q "^[[:space:]]*enable_uart=1" /boot/config.txt; then sel_1="ON"; else sel_1="OFF"; fi
+  if is_pithree || is_pithreeplus && grep -q "^[[:space:]]*dtoverlay=pi3-miniuart-bt" /boot/config.txt; then sel_2="ON"; else sel_2="OFF"; fi
 
   if [ -n "$INTERACTIVE" ]; then
     if ! selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
@@ -297,7 +297,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   if [[ $selection == *"1"* ]] && is_pi; then
     cond_echo ""
     cond_echo "Adding 'enable_uart=1' to /boot/config.txt"
-    if grep -Eq "^enable_uart" /boot/config.txt; then
+    if grep -Eq "^[[:space:]]*enable_uart" /boot/config.txt; then
       sed -i 's/^.*enable_uart=.*$/enable_uart=1/g' /boot/config.txt
     else
       echo "enable_uart=1" >> /boot/config.txt
@@ -327,7 +327,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
       #cond_redirect systemctl stop hciuart &>/dev/null
       #cond_redirect systemctl disable hciuart &>/dev/null
       cond_echo "Adding 'dtoverlay=miniuart-bt' to /boot/config.txt (RPi3/4)"
-      if ! grep -Eq "^dtoverlay=miniuart-bt" /boot/config.txt; then
+      if ! grep -Eq "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" /boot/config.txt; then
         echo "dtoverlay=miniuart-bt" >> /boot/config.txt
       fi
     else
@@ -336,7 +336,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   else
     if is_pithree || is_pithreeplus || is_pifour; then
       cond_echo "Removing 'dtoverlay=miniuart-bt' from /boot/config.txt"
-      sed -i '/^dtoverlay=miniuart-bt/d' /boot/config.txt
+      sed -i -E '/^[[:space:]]dtoverlay=(pi3-)?miniuart-bt/d' /boot/config.txt
     fi
   fi
 

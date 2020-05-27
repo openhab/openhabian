@@ -11,7 +11,7 @@ wifi_setup() {
   fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if grep -q "dtoverlay=disable-wifi" /boot/config.txt; then
+    if grep -q "^[[:space:]]*dtoverlay=disable-wifi" /boot/config.txt; then
       if (whiptail --title "WiFi is currently disabled" --yesno "WiFi is currently disabled on your box. Enable ?" 7 55); then 
         cond_echo "Removing 'dtoverlay=disable-wifi' from /boot/config.txt"
         sed -i '/dtoverlay=disable-wifi/d' /boot/config.txt
@@ -19,10 +19,10 @@ wifi_setup() {
       fi
       return 0
     else
-      if (whiptail --title "WiFi is currently ON" --defaultno --yesno "WiFi is currently enabled on your box.\\n\\nATTENTION:\\nDo you want to PERMANENTLY disable it ?" 10 50); then 
+      if (whiptail --title "WiFi is currently ON" --defaultno --yesno "WiFi is currently enabled on your box.\\n\\nATTENTION:\\nDo you want to disable it ?" 10 50); then 
         cond_echo "Adding 'dtoverlay=disable-wifi' to /boot/config.txt (RPi0W/3/4)"
         echo "dtoverlay=disable-wifi" >> /boot/config.txt
-	whiptail --title "Operation successful!" --msgbox "Please reboot now to permanently disable your WiFi hardware." 7 70
+	whiptail --title "Operation successful!" --msgbox "Please reboot now to have your WiFi hardware disabled." 7 70
         return 0
       fi
     fi
