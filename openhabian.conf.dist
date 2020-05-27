@@ -47,7 +47,7 @@ mode=unattended
 # OS Release
 # ubuntu, raspbian, debian
 # jessie, stretch, buster, bullseye, sid
-# trusty, xenial, bionic, disco, focal
+# trusty, xenial, bionic, focal
 #release=buster
 
 # Java architecture mode

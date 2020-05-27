@@ -195,19 +195,13 @@ is_xenial() {
   [[ $(cat /etc/*release*) =~ "xenial" ]]
   return $?
 }
-# Ubuntu 18
+# Ubuntu 18.04 LTS
 is_bionic() {
   if [[ "$release" == "bionic" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "bionic" ]]
   return $?
 }
-# Ubuntu 20
-is_disco() {
-  if [[ "$release" == "disco" ]]; then return 0; fi
-  [[ $(cat /etc/*release*) =~ "disco" ]]
-  return $?
-}
-# Ubuntu 22
+# Ubuntu 20.04 LTS
 is_focal() {
   if [[ "$release" == "focal" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "focal" ]]
