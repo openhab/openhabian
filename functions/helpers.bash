@@ -209,12 +209,6 @@ is_focal() {
   [[ $(cat /etc/*release*) =~ "focal" ]]
   return $?
 }
-# Ubuntu 22
-is_focal() {
-  if [[ "$release" == "focal" ]]; then return 0; fi
-  [[ $(cat /etc/*release*) =~ "focal" ]]
-  return $?
-}
 running_in_docker() {
   grep -q 'docker\|lxc' /proc/1/cgroup
 }
