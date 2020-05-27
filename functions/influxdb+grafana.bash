@@ -311,6 +311,12 @@ grafana_install(){
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
   cond_echo ""
 
+  sleep 2
+  echo -n "Restarting Grafana... "
+  cond_redirect systemctl restart grafana-server.service || FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  sleep 2
+
   echo -n "Updating Grafana admin password... "
   curl --retry 7 --retry-connrefused --user admin:admin --header "Content-Type: application/json" --request PUT --data "{\"password\":\"$1\"}" http://localhost:3000/api/admin/users/1/password || FAILED=2
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
