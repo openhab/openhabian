@@ -335,7 +335,7 @@ On a Raspberry Pi 3 the Bluetooth module can be disabled, ensuring the operation
   else
     if is_pithree || is_pithreeplus || is_pifour; then
       cond_echo "Removing 'dtoverlay=miniuart-bt' from /boot/config.txt"
-      sed -i -E '/^[[:space:]]dtoverlay=(pi3-)?miniuart-bt/d' /boot/config.txt
+      sed -i -E '/^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt/d' /boot/config.txt
     fi
   fi
 

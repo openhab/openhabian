@@ -14,7 +14,7 @@ wifi_setup() {
     if grep -q "^[[:space:]]*dtoverlay=disable-wifi" /boot/config.txt; then
       if (whiptail --title "WiFi is currently disabled" --yesno "WiFi is currently disabled on your box. Enable ?" 7 55); then 
         cond_echo "Removing 'dtoverlay=disable-wifi' from /boot/config.txt"
-        sed -i '/dtoverlay=disable-wifi/d' /boot/config.txt
+        sed -i '/^[[:space:]]*dtoverlay=disable-wifi/d' /boot/config.txt
 	whiptail --title "Operation Successful!" --msgbox "Please reboot now to enable your WiFi hardware.\\nRun openhabian-config and select this menu option again to continue." 8 75
       fi
       return 0
