@@ -30,7 +30,7 @@ needed_packages() {
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   if cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python3 python3-pip avahi-autoipd fontconfig; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-  if is_pithree || is_pithreeplus || is_pizerow || is_pifour; then
+  if is_pizerow || is_pithree || is_pithreeplus || is_pifour; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
     local BTPKGS
     BTPKGS="bluez python3-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth"
@@ -70,7 +70,7 @@ locale_setting() {
   if [ -n "$INTERACTIVE" ]; then
     echo "$(timestamp) [openHABian] Setting locale based on user choice... "
     dpkg-reconfigure locales
-    loc=$(grep "LANG=" /etc/default/locale | sed 's/LANG=//g')
+    loc=$(grep "^[[:space:]]*LANG=" /etc/default/locale | sed 's/LANG=//g')
     cond_redirect update-locale LANG="$loc" LC_ALL="$loc" LC_CTYPE="$loc" LANGUAGE="$loc"
     whiptail --title "Change Locale" --msgbox "For the locale change to take effect, please reboot your system now." 10 60
     return 0
@@ -144,7 +144,8 @@ srv_bind_mounts() {
     echo "/var/lib/openhab2            /srv/openhab2-userdata      none bind 0 0"
     echo "/var/log/openhab2            /srv/openhab2-logs          none bind 0 0"
     echo "/usr/share/openhab2/addons   /srv/openhab2-addons        none bind 0 0"
-  ) >> /etc/fstab
+  ) >> /etc/fstab # dummy" to fix vim coloring
+
   cond_redirect cat /etc/fstab
   cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}
   cond_redirect cp "$BASEDIR"/includes/srv_readme.txt /srv/README.txt
@@ -248,7 +249,7 @@ pine64_fixed_mac() {
 # RPi specific function
 memory_split() {
   echo -n "$(timestamp) [openHABian] Setting the GPU memory split down to 16MB for headless system... "
-  if grep -qs "gpu_mem" /boot/config.txt; then
+  if grep -qs "^[[:space:]]*gpu_mem" /boot/config.txt; then
     sed -i 's/gpu_mem=.*/gpu_mem=16/g' /boot/config.txt
   else
     echo "gpu_mem=16" >> /boot/config.txt
@@ -259,7 +260,7 @@ memory_split() {
 # RPi specific function
 enable_rpi_audio() {
   echo -n "$(timestamp) [openHABian] Enabling Audio output... "
-  if ! grep -q "dtparam=audio" /boot/config.txt; then
+  if ! grep -q "^[[:space:]]*dtparam=audio" /boot/config.txt; then
     echo "dtparam=audio=on" >> /boot/config.txt
   fi
   cond_redirect adduser "$username" audio
@@ -268,8 +269,7 @@ enable_rpi_audio() {
 
 prepare_serial_port() {
   introtext="Proceeding with this routine, the serial console normally provided by a Raspberry Pi can be disabled for the sake of a usable serial port. The provided port can henceforth be used by devices like Razberry, UZB or Busware SCC.
-On a Raspberry Pi 3 the Bluetooth module can additionally be disabled, ensuring the operation of a Razberry (mutually exclusive).
-Finally, all common serial ports can be made accessible to the openHAB java virtual machine.
+On a Raspberry Pi 3 the Bluetooth module can be disabled, ensuring the operation of a RaZberry or other HAT (usage of BT and HATs to use serial is mutually exclusive).
 \\nPlease make your choice:"
 #  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="All done. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0 (depends on your device)."
@@ -280,8 +280,8 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   echo -n "$(timestamp) [openHABian] Configuring serial console for serial port peripherals... "
 
   # Find current settings
-  if is_pi && grep -q "enable_uart=1" /boot/config.txt; then sel_1="ON"; else sel_1="OFF"; fi
-  if is_pithree || is_pithreeplus && grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then sel_2="ON"; else sel_2="OFF"; fi
+  if is_pi && grep -q "^[[:space:]]*enable_uart=1" /boot/config.txt; then sel_1="ON"; else sel_1="OFF"; fi
+  if is_pithree || is_pithreeplus && grep -q "^[[:space:]]*dtoverlay=pi3-miniuart-bt" /boot/config.txt; then sel_2="ON"; else sel_2="OFF"; fi
 
   if [ -n "$INTERACTIVE" ]; then
     if ! selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
@@ -296,7 +296,7 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   if [[ $selection == *"1"* ]] && is_pi; then
     cond_echo ""
     cond_echo "Adding 'enable_uart=1' to /boot/config.txt"
-    if grep -q "enable_uart" /boot/config.txt; then
+    if grep -Eq "^[[:space:]]*enable_uart" /boot/config.txt; then
       sed -i 's/^.*enable_uart=.*$/enable_uart=1/g' /boot/config.txt
     else
       echo "enable_uart=1" >> /boot/config.txt
@@ -322,20 +322,20 @@ Finally, all common serial ports can be made accessible to the openHAB java virt
   fi
 
   if [[ $selection == *"2"* ]]; then
-    if is_pithree || is_pithreeplus; then
+    if is_pithree || is_pithreeplus || is_pifour; then
       #cond_redirect systemctl stop hciuart &>/dev/null
       #cond_redirect systemctl disable hciuart &>/dev/null
-      cond_echo "Adding 'dtoverlay=pi3-miniuart-bt' to /boot/config.txt (RPi3)"
-      if ! grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
-        echo "dtoverlay=pi3-miniuart-bt" >> /boot/config.txt
+      cond_echo "Adding 'dtoverlay=miniuart-bt' to /boot/config.txt (RPi3/4)"
+      if ! grep -Eq "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" /boot/config.txt; then
+        echo "dtoverlay=miniuart-bt" >> /boot/config.txt
       fi
     else
-      cond_echo "Option only available for Raspberry Pi 3."
+      cond_echo "Option only available for Raspberry Pi 3/4."
     fi
   else
-    if is_pithree || is_pithreeplus; then
-      cond_echo "Removing 'dtoverlay=pi3-miniuart-bt' from /boot/config.txt"
-      sed -i '/dtoverlay=pi3-miniuart-bt/d' /boot/config.txt
+    if is_pithree || is_pithreeplus || is_pifour; then
+      cond_echo "Removing 'dtoverlay=miniuart-bt' from /boot/config.txt"
+      sed -i -E '/^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt/d' /boot/config.txt
     fi
   fi
 
