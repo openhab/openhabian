@@ -6,7 +6,7 @@ init_zram_mounts() {
     if [ -z "$UNATTENDED" ]; then
       # ... display warn disclaimer...
       # point to ZRAM status thread on forum
-      if ! (whiptail --title "Install ZRAM, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
+      if ! (whiptail --title "Install ZRAM, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
     fi
     local ZRAMGIT=https://github.com/mstormi/openhabian-zram
     local TAG=openhabian_v1.5
