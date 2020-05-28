@@ -71,7 +71,7 @@ echo "watch cat /boot/first-boot.log" > "$HOME/.bash_profile"
 # shellcheck disable=SC2154
 if [ -z "${wifi_ssid}" ]; then
   echo "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
-elif grep -q "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -q "dtoverlay=disable-wifi" /boot/config.txt; then
+elif grep -q "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -q "^[[:space:]]*dtoverlay=disable-wifi" /boot/config.txt; then
   echo -n "$(timestamp) [openHABian] Setting up Wi-Fi connection... "
   if iwlist wlan0 scanning 2>&1 | grep -q "Interface doesn't support scanning"; then
     # wifi might be blocked
