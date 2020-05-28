@@ -108,12 +108,12 @@ show_main_menu() {
 
   elif [[ "$choice" == "30"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 16 116 9 --cancel-button Back --ok-button Execute \
-    "31 | Change Hostname     "   "Change the name of this system, currently '$(hostname)'" \
-    "32 | Set System Locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
-    "33 | Set System Timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
-    "34 | Change Passwords"       "Change passwords for Samba, openHAB Console or the system user" \
-    "35 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
-    "36 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
+    "31 | Change hostname     "   "Change the name of this system, currently '$(hostname)'" \
+    "32 | Set system locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
+    "33 | Set system timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
+    "34 | Change passwords"       "Change passwords for Samba, openHAB Console or the system user" \
+    "35 | Serial port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
+    "36 | WiFi setup"             "Configure wireless network connection" \
     "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
     "38 | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspbian filesystem layout)" \

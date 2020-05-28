@@ -32,7 +32,7 @@ To that end, the project provides two things:
 
 The following features are provided by the openHABian images out of the box:
 
-- Hassle-free setup without a display or keyboard, connected via [Ethernet or Wi-Fi](#wifi-setup)
+- Hassle-free setup without a display or keyboard, connected via [Ethernet or WiFi](#wifi-setup)
 - openHAB 2 in the latest stable version
 - Zulu Embedded OpenJDK Java 8
 - [openHABian Configuration Tool](#openhabian-config) including updater functionality
@@ -51,7 +51,7 @@ Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openha
 
 - Switch over to the latest *Milestone* or *Snapshot* release of openHAB 2 [*unstable/SNAPSHOT* build](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 - Install and Setup a [reverse proxy](security.html#nginx-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
-- Set up a Wi-Fi connection
+- Set up a WiFi connection
 - Bind the [openHAB remote console]({{base}}/administration/console.html) to all interfaces
 - Setup [Backup](#backup) for your system
 - Easily install and preconfigure [Optional Components](#optional-components) of your choice
@@ -79,7 +79,7 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 
 - [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
 - Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/), able to directly work with *xz* files)
-- Insert the SD card into the Raspberry Pi, connect Ethernet ([Wi-Fi supported](#wi-fi-based-setup-notes)) and power
+- Insert the SD card into the Raspberry Pi, connect Ethernet ([WiFi supported](#wi-fi-based-setup-notes)) and power
 - Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhab).)
 - Enjoy! 🎉
 
@@ -143,13 +143,13 @@ You can actually set a number of parameters before you try installing from SD ca
 - Continue with the instructions for your hardware
 
 {: #wifi-setup}
-### Wi-Fi based Setup Notes
+### WiFi based Setup Notes
 
-If you own a RPi3, RPi3+, RPi4, a RPi0W, a Pine A64, or a compatible Wi-Fi dongle you can set up and use openHABian purely via Wi-Fi.
-For the setup on Wi-Fi, you'll need to make your SSID and password known to the system before the first boot.
+If you own a RPi3, RPi3+, RPi4, a RPi0W, a Pine A64, or a compatible WiFi dongle you can set up and use openHABian purely via WiFi.
+For the setup on WiFi, you'll need to make your SSID and password known to the system before the first boot.
 Additionally to the setup instructions given above, the following steps are needed:
 
-In `openhabian.conf`, uncomment and complete the lines reading `wifi_ssid="My Wi-Fi SSID"` and `wifi_psk="password123"`
+In `openhabian.conf`, uncomment and complete the lines reading `wifi_ssid="My WiFi SSID"` and `wifi_psk="password123"`
 
 {: #fake-hw}
 ### Fake hardware mode
