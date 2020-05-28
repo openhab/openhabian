@@ -41,22 +41,22 @@ influxdb_grafana_setup() {
 
   echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$text_intro" 15 80) then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$text_intro" 15 80); then echo "CANCELED"; return 0; fi
      # now check if hardware is recommended for Grafana/InfluxDB, Pi0 and Pi1 are not really suited to run it in conjunction with OH
      totalmemory=$(grep MemTotal /proc/meminfo |awk '{print $2}')
      lowmemory=false
      if [ "${totalmemory:-1000000}" -lt 900000 ]; then
        lowmemory=true
-       if ! (whiptail --title "WARNING, Continue?" --yes-button "Continue" --no-button "Back" --yesno --defaultno "$text_lowmem" 15 80) then echo "CANCELED"; return 0; fi
+       if ! (whiptail --title "WARNING, Continue?" --yes-button "Continue" --no-button "Back" --yesno --defaultno "$text_lowmem" 15 80); then echo "CANCELED"; return 0; fi
      fi
   fi
 
   openhab_integration=false
   if [ -n "$INTERACTIVE" ]; then
     text_influxDB_intro="A new InfluxDB instance can be installed locally on the openHABian system or an already running InfluxDB instance can be used. Please choose one of the options. "
-    if ! (whiptail --title "InfluxDB" --yes-button "Install locally" --no-button "Use existing instance" --yesno "$text_influxDB_intro" 15 80) then
+    if ! (whiptail --title "InfluxDB" --yes-button "Install locally" --no-button "Use existing instance" --yesno "$text_influxDB_intro" 15 80); then
       text_influxDB_configure="Shall a new user and database be configured on the InfluxDB instance automatically or shall existing existing ones be used?"
-      if ! (whiptail --title "InfluxDB" --yes-button "Create new" --no-button "Use existing" --yesno "$text_influxDB_configure" 15 80) then
+      if ! (whiptail --title "InfluxDB" --yes-button "Create new" --no-button "Use existing" --yesno "$text_influxDB_configure" 15 80); then
         # Existing InfluxDB - Manual configuration
         influxdb_database_name=$(whiptail --title "InfluxDB" --inputbox "openHAB need to use a specific InfluxDB database. Please enter a configured InfluxDB database name:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
@@ -154,7 +154,7 @@ influxdb_grafana_setup() {
     if openhab_is_running; then
       text_openHAB_integration="openHAB can use InfluxDB for persistant storage. Shall InfluxDB be configured with openHAB?
       (A new config file for openHAB will be created with basic settings.)"
-      if (whiptail --title "openHAB integration, Continue?" --yes-button "Yes" --no-button "No" --yesno "$text_openHAB_integration" 15 80) then openhab_integration=true ; fi
+      if (whiptail --title "openHAB integration, Continue?" --yes-button "Yes" --no-button "No" --yesno "$text_openHAB_integration" 15 80); then openhab_integration=true ; fi
     else
       cond_echo "openHAB is not running. InfluxDB and Grafana openHAB integration is skipped..."
     fi
