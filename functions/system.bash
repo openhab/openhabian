@@ -296,15 +296,7 @@ On a Raspberry Pi 3 the Bluetooth module can be disabled, ensuring the operation
   if [[ $selection == *"1"* ]] && is_pi; then
     cond_echo ""
     cond_echo "Adding 'enable_uart=1' to /boot/config.txt"
-<<<<<<< HEAD
-<<<<<<< HEAD
     if grep -Eq "^[[:space:]]*enable_uart" /boot/config.txt; then
-=======
-    if grep -Eq "^enable_uart" /boot/config.txt; then
->>>>>>> safeguard comments from being replaced in /boot/config.txt
-=======
-    if grep -Eq "^[[:space:]]*enable_uart" /boot/config.txt; then
->>>>>>> changes on review
       sed -i 's/^.*enable_uart=.*$/enable_uart=1/g' /boot/config.txt
     else
       echo "enable_uart=1" >> /boot/config.txt
