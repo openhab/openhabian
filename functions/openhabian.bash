@@ -44,7 +44,7 @@ openhabian_update_check() {
   else
     echo -n "Updates available... "
     introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
-    if ! (whiptail --title "openHABian Update Available" --yes-button "Continue" --no-button "Skip" --yesno "$introtext" 15 80) then echo "SKIP"; return 0; fi
+    if ! (whiptail --title "openHABian Update Available" --yes-button "Continue" --no-button "Skip" --yesno "$introtext" 15 80); then echo "SKIP"; return 0; fi
     echo ""
     openhabian_update
   fi
@@ -128,7 +128,7 @@ system_check_default_password() {
 ua-netinst_check() {
   if [ -f "/boot/config-reinstall.txt" ]; then
     introtext="Attention: It was brought to our attention that the old openHABian ua-netinst based image has a problem with a lately updated Linux package.\\nIf you upgrade(d) the package 'raspberrypi-bootloader-nokernel' your Raspberry Pi will run into a Kernel Panic upon reboot!\\nDo not upgrade, do not reboot!\\nA preliminary solution is to not upgrade the system (via the Upgrade menu entry or 'apt-get upgrade') or to modify a configuration file. In the long run we would recommend to switch over to the new openHABian Raspbian based system image! This error message will keep reapearing even after you fixed the issue at hand.\\nPlease find all details regarding the issue and the resolution of it at: https://github.com/openhab/openhabian/issues/147"
-    if ! (whiptail --title "openHABian Raspberry Pi ua-netinst image detected" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 20 80) then return 0; fi
+    if ! (whiptail --title "openHABian Raspberry Pi ua-netinst image detected" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 20 80); then return 0; fi
   fi
 }
 

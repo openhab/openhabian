@@ -42,7 +42,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "openHAB software change, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80) then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "openHAB software change, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
   fi
 
   wget --no-check-certificate -qO "$RepoKey" 'https://bintray.com/user/downloadSubjectPublicKey?username=openhab'
