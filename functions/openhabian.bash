@@ -24,12 +24,21 @@ wait_for_apt_to_finish_update() {
 
 openhabian_announcements() {
   local newsfile="${BASEDIR}/NEWS"
-  local newsstore="${BASEDIR}/docs/READNEWS"
+  local readnews="${BASEDIR}/docs/LASTNEWS"
+  local newsstore="${BASEDIR}/docs/NEWSLOG"
 pwd
   local news=$(cat "$newsfile")
 
   if ! diff -q "$newsfile" "$newsstore" >/dev/null 2>&1; then
-    if (whiptail --title "openHABian breaking NEWS" --yes-button "I have read this" --no-button "keep displaying" --defaultno --yesno --scrolltext "$(cat $newsfile)" 22 90); then cp "$newsfile" "$newsstore"; fi
+    if (whiptail --title "openHABian breaking NEWS" --yes-button "I have read this" --no-button "keep displaying" --defaultno --yesno --scrolltext "$(cat $newsfile)" 22 90); then
+      cp "$newsfile" "$readnews";
+      cp $newsstore ${newsstore}.tmp
+      echo "\n========================== $(date) ==========================" > $newsstore
+      cat $newsfile >>$newsstore
+      echo "\n\n" >> $newsstore
+      cat ${newsstore}.tmp >>$newsstore
+      rm -f ${newsstore}.tmp
+    fi
   fi
 }
 
