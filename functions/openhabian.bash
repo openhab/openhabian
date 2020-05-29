@@ -33,7 +33,7 @@ pwd
     if (whiptail --title "openHABian breaking NEWS" --yes-button "I have read this" --no-button "keep displaying" --defaultno --yesno --scrolltext "$(cat $newsfile)" 22 90); then
       cp "$newsfile" "$readnews";
       cp $newsstore ${newsstore}.tmp
-      echo "\n========================== $(date) ==========================" > $newsstore
+      echo "\n========================== $(date) ==========================\n" > $newsstore
       cat $newsfile >>$newsstore
       echo "\n\n" >> $newsstore
       cat ${newsstore}.tmp >>$newsstore
