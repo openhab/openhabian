@@ -18,7 +18,9 @@ fail_inprogress() {
   exit 1
 }
 
-echo "$(timestamp) [openHABian] Starting the openHABian initial setup."
+###### start ######
+sleep 5
+echo -e "\n\n$(timestamp) [openHABian] Starting the openHABian initial setup."
 rm -f /opt/openHABian-install-failed
 touch /opt/openHABian-install-inprogress
 
