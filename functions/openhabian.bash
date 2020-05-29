@@ -22,6 +22,17 @@ wait_for_apt_to_finish_update() {
   wait -f ${PID_APT} 2>/dev/null
 }
 
+openhabian_announcements() {
+  local newsfile="${BASEDIR}/NEWS"
+  local newsstore="${BASEDIR}/docs/READNEWS"
+pwd
+  local news=$(cat "$newsfile")
+
+  if ! diff -q "$newsfile" "$newsstore" >/dev/null 2>&1; then
+    if (whiptail --title "openHABian breaking NEWS" --yes-button "I have read this" --no-button "keep displaying" --defaultno --yesno --scrolltext "$(cat $newsfile)" 16 90); then cp "$newsfile" "$newsstore"; fi
+  fi
+}
+
 openhabian_console_check() {
   if [ "$(tput cols)" -lt  120 ]; then
     warningtext="We detected that you use a console which is less than 120 columns wide. This tool is designed for a minimum of 120 columns and therefore some menus may not be presented correctly. Please increase the width of your console and rerun this tool.
@@ -33,8 +44,8 @@ openhabian_console_check() {
 openhabian_update_check() {
   local branch
   local introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
-
   FAILED=0
+  openhabian_announcements
   echo "$(timestamp) [openHABian] openHABian configuration tool version: $(get_git_revision)"
   branch=${clonebranch:-HEAD}
   echo -n "$(timestamp) [openHABian] Checking for changes in origin branch $branch ... "
@@ -50,6 +61,7 @@ openhabian_update_check() {
     echo ""
     openhabian_update "$branch"
   fi
+  openhabian_announcements
   echo -n "$(timestamp) [openHABian] Switching to branch $clonebranch ... "
   # shellcheck disable=SC2015
   git -C "$BASEDIR" checkout --quiet "$clonebranch" && echo "OK" || (FAILED=1; echo "FAILED"; return 0)
