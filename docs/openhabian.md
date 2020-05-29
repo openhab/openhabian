@@ -159,7 +159,7 @@ In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` 
 
 {: #debug-mode}
 ### Debug mode
-See [Troubleshooting] section if you run into trouble installing. If you want to turn on debug mode, 
+See [Troubleshooting] section if you run into trouble installing. If you want to turn on debug mode,
 edit `openhabian.conf` and set the `debug=` parameter to either `none`, `on` or `maximum`.
 
 {: #ipv6-notes}
