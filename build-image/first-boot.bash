@@ -29,8 +29,12 @@ sed -i 's/\r$//' /etc/openhabian.conf
 source "$CONFIGFILE"
 echo "OK"
 
-if [ -n "$DEBUGMAX" ]; then
-  echo "$(timestamp) [openHABian] Enable maximum debugging output (DEBUGMAX=${DEBUGMAX})."
+# shellcheck disable=SC2154
+if [[ "$debugmode" == "default" ]]; then
+  unset SILENT
+  unset DEBUGMAX
+elif [[ "$debugmode" == "maximum" ]]; then
+  echo "$(timestamp) [openHABian] Enable maximum debugging output"
   set -x
 fi
 
@@ -160,8 +164,8 @@ if git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "O
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 # shellcheck disable=SC2154
-echo "$(timestamp) [openHABian] Executing openhabian-setup.sh ${mode}... "
-if (/bin/bash /opt/openhabian/openhabian-setup.sh "$mode"); then
+echo "$(timestamp) [openHABian] Executing openhabian-setup.sh unattended... "
+if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
@@ -184,7 +188,7 @@ sleep 12
 if hash python3 2>/dev/null; then bash /boot/webif.bash cleanup; fi
 
 if [ -z "$SILENT" ]; then
-  echo -e "\n\e[36mMemory usage:"
+  echo -e "\\n\\e[36mMemory usage:"
   free -m && ps -auxq "$(cat /var/lib/openhab2/tmp/karaf.pid)" |awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
 fi
 

@@ -225,7 +225,7 @@ tryUntil() {
   local i=$count
   interval=${3:-1}
   until [ "$i" -le 0 ]; do
-    cond_echo "Executing ${cmd}"
+    cond_echo -n "(executing ${cmd})"
     eval "${cmd}"
     ret=$?
     if [ $ret -eq 0 ]; then break; fi
