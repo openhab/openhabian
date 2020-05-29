@@ -50,7 +50,7 @@ else
 fi
 
 # shellcheck disable=SC2154
-if [[ "$debugmode" = "none" ]]; then
+if [[ "$debugmode" = "off" ]]; then
   SILENT=1
   unset DEBUGMAX
 elif [[ "$debugmode" = "on" ]]; then
