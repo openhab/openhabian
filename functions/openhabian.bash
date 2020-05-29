@@ -29,7 +29,7 @@ pwd
   local news=$(cat "$newsfile")
 
   if ! diff -q "$newsfile" "$newsstore" >/dev/null 2>&1; then
-    if (whiptail --title "openHABian breaking NEWS" --yes-button "I have read this" --no-button "keep displaying" --defaultno --yesno --scrolltext "$(cat $newsfile)" 16 90); then cp "$newsfile" "$newsstore"; fi
+    if (whiptail --title "openHABian breaking NEWS" --yes-button "I have read this" --no-button "keep displaying" --defaultno --yesno --scrolltext "$(cat $newsfile)" 22 90); then cp "$newsfile" "$newsstore"; fi
   fi
 }
 
