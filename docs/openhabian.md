@@ -173,7 +173,7 @@ The configuration tool is the heart of openHABian.
 It is not only a menu with a set of options, it's also used in a special unattended mode inside the ready to use images.
 
 ⌨ - A quick note on menu navigation.
-Use the cursor keys to navigate, &lt;Enter&gt; to execute, &lt;Space&gt; to select and &lt;Tab&gt; to jump to the actions on the bottom of the screen. Press &lt;Esc&gt; twice to exit the configuration tool.
+Use the cursor keys to navigate, <kbd>Enter</kbd> to execute, <kbd>Space</kbd> to select and <kbd>Tab</kbd> to jump to the actions on the bottom of the screen. Press <kbd>Esc</kbd> twice to exit the configuration tool.
 
 ### Linux Hints
 
