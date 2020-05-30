@@ -3,7 +3,7 @@
 whiptail_check() {
   if ! command -v whiptail &>/dev/null; then
     echo -n "$(timestamp) [openHABian] Installing whiptail... "
-    if cond_redirect apt-get -y install whiptail; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect apt-get install --yes whiptail; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
 }
 
@@ -17,7 +17,7 @@ system_upgrade() {
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
   apt-get remove -y raspi-config &>/dev/null || true
-  if cond_redirect apt-get -y install screen vim nano mc vfu bash-completion htop curl wget multitail git util-linux \
+  if cond_redirect apt-get install --yes screen vim nano mc vfu bash-completion htop curl wget multitail git util-linux \
     bzip2 zip unzip xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping; \
   then echo "OK"; else echo "FAILED"; exit 1; fi
 }
@@ -28,7 +28,7 @@ needed_packages() {
   # Install avahi-daemon - hostname based discovery on local networks
   # Install python/python3-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
-  if cond_redirect apt-get -y install apt-transport-https bc sysstat avahi-daemon python3 python3-pip avahi-autoipd fontconfig; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if cond_redirect apt-get install --yes apt-transport-https bc sysstat avahi-daemon python3 python3-pip avahi-autoipd fontconfig; then echo "OK"; else echo "FAILED"; exit 1; fi
 
   if is_pizerow || is_pithree || is_pithreeplus || is_pifour; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
@@ -39,7 +39,7 @@ needed_packages() {
       BTPKGS="$BTPKGS python3-bluez"
     fi
     # shellcheck disable=SC2086
-    if cond_redirect apt-get -y install $BTPKGS; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes $BTPKGS; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 }
 
@@ -55,7 +55,7 @@ timezone_setting() {
     wait_for_apt_to_finish_update
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
-      cond_redirect apt-get -y install python3-pip python3-wheel python3-setuptools
+      cond_redirect apt-get install --yes python3-pip python3-wheel python3-setuptools
       if ! cond_redirect pip3 install --upgrade tzupdate; then echo "FAILED (pip3)"; return 1; fi
     fi
     cond_redirect pip3 install --upgrade tzupdate
@@ -230,7 +230,7 @@ pine64_platform_scripts() {
 
 pine64_fix_systeminfo_binding() { # This will maybe be fixed upstreams some day. Keep an eye open.
   echo -n "$(timestamp) [openHABian] Enable PINE64 support for systeminfo binding... "
-  cond_redirect apt-get install -y udev:armhf
+  cond_redirect apt-get install --yes udev:armhf
   cond_redirect ln -s /lib/arm-linux-gnueabihf/ /lib/linux-arm
   if cond_redirect ln -s /lib/linux-arm/libudev.so.1 /lib/linux-arm/libudev.so; then echo "OK"; else echo "FAILED"; fi
 }

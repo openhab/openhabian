@@ -151,7 +151,7 @@ if apt-get --yes upgrade &>/dev/null; then echo "OK"; else echo "FAILED"; fail_i
 if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
-if apt-get -y install git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 if [ -d /opt/openhabian/ ]; then cd /opt && rm -rf /opt/openhabian/; fi
 # shellcheck disable=SC2154

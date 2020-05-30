@@ -186,7 +186,7 @@ show_main_menu() {
     "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail) " OFF \
     "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
     "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
-    "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" OFF \
+    "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories (mitigates SD card wear)" OFF \
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspbian filesystem layout)" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi

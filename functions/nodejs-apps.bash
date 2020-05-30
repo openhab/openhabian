@@ -21,7 +21,7 @@ nodejs_setup() {
     cond_redirect wget -O /tmp/nodejs-setup.sh https://deb.nodesource.com/setup_10.x || FAILED=1
     cond_redirect bash /tmp/nodejs-setup.sh || FAILED=1
     if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; exit 1; fi
-    if ! cond_redirect apt-get -y install nodejs; then echo "FAILED (nodejs installation)"; exit 1; fi
+    if ! cond_redirect apt-get install --yes nodejs; then echo "FAILED (nodejs installation)"; exit 1; fi
   fi
   if command -v npm &>/dev/null; then echo "OK"; else echo "FAILED (service)"; exit 1; fi
 }
