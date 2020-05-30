@@ -1,7 +1,5 @@
-# Note RPi3 base (first RPi to have aarch64 available)
-# ATTENTION: Zulu Java on raspberrypi3 images fails to run
-FROM balenalib/raspberrypi3-debian-node:latest-buster
-#FROM balenalib/generic-aarch64-debian-node
+# RPi1, RPi0W (ARMv6hf arch)
+FROM balenalib/raspberry-pi-debian-node:latest-buster
 
 
 ENV container docker

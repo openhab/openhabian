@@ -41,22 +41,28 @@ fi
 # shellcheck disable=SC1090
 source "$CONFIGFILE"
 
-# script will be called with 'unattended' argument by openHABian images
+# script will be called with 'unattended' argument by openHABian images else retrieve values from openhabian.conf
 if [[ "$1" = "unattended" ]]; then
   UNATTENDED=1
   SILENT=1
-elif [[ "$1" = "unattended_debug" ]]; then
-  UNATTENDED=1
-  unset DEBUGMAX
-elif [[ "$1" = "debug_maximum" ]]; then
-  UNATTENDED=1
-  DEBUGMAX=1
 else
   INTERACTIVE=1
 fi
-if [[ -n "$DEBUGMAX" ]]; then
+
+# shellcheck disable=SC2154
+if [[ "$debugmode" = "off" ]]; then
+  SILENT=1
+  unset DEBUGMAX
+elif [[ "$debugmode" = "on" ]]; then
+  unset SILENT
+  unset DEBUGMAX
+elif [[ "$debugmode" = "maximum" ]]; then
+  unset SILENT
+  DEBUGMAX=1
+  
   set -x
 fi
+
 
 export UNATTENDED SILENT DEBUGMAX INTERACTIVE
 
@@ -66,10 +72,14 @@ for shfile in "$BASEDIR"/functions/*.bash; do source "$shfile"; done
 
 # avoid potential crash when deleting directory we started from
 OLDWD=$(pwd) && cd /opt || exit 1
+
+# disable ipv6 if requested in openhabian.conf (eventually reboots)
+choose_ipv6
+
 if [[ -n "$UNATTENDED" ]]; then
   # apt/dpkg commands will not try interactive dialogs
   export DEBIAN_FRONTEND=noninteractive
-  apt-get -qq update 2>/dev/null
+  apt_update
   load_create_config
   timezone_setting
   locale_setting
@@ -98,7 +108,7 @@ if [[ -n "$UNATTENDED" ]]; then
   clean_config_userpw
   frontail_setup
 else
-  apt-get update
+  apt_update
   whiptail_check
   load_create_config
   ua-netinst_check

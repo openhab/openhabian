@@ -16,9 +16,9 @@ show_about() {
 
 show_main_menu() {
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
-  "00 | About openHABian    "    "Information about the openHABian project and this tool" \
+  "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
-  "01 | Update"                  "Fetch the latest revision of the openHABian Configuration Tool" \
+  "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Upgrade all installed software packages to their newest version" \
   "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
   "" "" \
@@ -47,9 +47,11 @@ show_main_menu() {
     openhabian_update
 
   elif [[ "$choice" == "02"* ]]; then
+    wait_for_apt_to_finish_update
     system_upgrade
 
   elif [[ "$choice" == "03"* ]]; then
+    wait_for_apt_to_finish_update
     openhab2_setup
 
   elif [[ "$choice" == "10"* ]]; then
@@ -61,6 +63,7 @@ show_main_menu() {
     "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    wait_for_apt_to_finish_update
     case "$choice2" in
       11\ *) basic_packages && needed_packages ;;
       12\ *) bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme ;;
@@ -86,6 +89,7 @@ show_main_menu() {
     "2C | Mail Transfer Agent"   "Install Exim4 as MTA to relay mails via public services" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    wait_for_apt_to_finish_update
     case "$choice2" in
       21\ *) frontail_setup ;;
       22\ *) miflora_setup ;;
@@ -104,17 +108,18 @@ show_main_menu() {
 
   elif [[ "$choice" == "30"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 16 116 9 --cancel-button Back --ok-button Execute \
-    "31 | Change Hostname     "   "Change the name of this system, currently '$(hostname)'" \
-    "32 | Set System Locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
-    "33 | Set System Timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
-    "34 | Change Passwords"       "Change passwords for Samba, openHAB Console or the system user" \
-    "35 | Serial Port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
-    "36 | Wifi Setup"             "Configure the build-in Raspberry Pi 3 / Pine A64 wifi" \
+    "31 | Change hostname     "   "Change the name of this system, currently '$(hostname)'" \
+    "32 | Set system locale"      "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
+    "33 | Set system timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
+    "34 | Change passwords"       "Change passwords for Samba, openHAB Console or the system user" \
+    "35 | Serial port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
+    "36 | WiFi setup"             "Configure wireless network connection" \
     "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
     "38 | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspbian filesystem layout)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    wait_for_apt_to_finish_update
     case "$choice2" in
       31\ *) hostname_change ;;
       32\ *) locale_setting ;;
@@ -140,6 +145,7 @@ show_main_menu() {
     "   | Default order"     "Reset config load order to default (random)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    wait_for_apt_to_finish_update
     case "$choice2" in
       41\ *) openhab2_setup ;;
       *openHAB\ testing) openhab2_setup testing ;;
@@ -154,15 +160,17 @@ show_main_menu() {
 
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
-    "50 | Amanda Backup documentation "   "Read this before installing the Amanda backup software" \
-    "51 | Amanda Backup"                  "Set up Amanda to backup your openHAB config and openHABian box" \
+    "50 | Backup openHAB config"      "Backup the current active openHAB configuration" \
+    "51 | Restore an openHAB config"  "Restore a previous openHAB configuration from backup" \
+    "52 | Amanda System Backup"       "Set up Amanda to comprehensively backup your complete openHABian box" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
-      50\ *) whiptail --textbox /opt/openhabian/docs/openhabian-amanda.md --scrolltext 25 116 ;;
-      51\ *) amanda_setup ;;
+      50\ *) backup_openhab_config ;;
+      51\ *) restore_openhab_config ;;
+      52\ *) wait_for_apt_to_finish_update && amanda_setup ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "A non supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "60"* ]]; then
@@ -178,10 +186,11 @@ show_main_menu() {
     "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail) " OFF \
     "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
     "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
-    "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" OFF \
+    "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories (mitigates SD card wear)" OFF \
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspbian filesystem layout)" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    wait_for_apt_to_finish_update
     if [[ $choosenComponents == *"62"* ]]; then apt-get upgrade -y && basic_packages && needed_packages; fi
     # shellcheck disable=SC2154
     if [[ $choosenComponents == *"63"* ]]; then update_config_java "32-bit"; java_install_or_update "$java_arch"; fi
@@ -205,5 +214,5 @@ show_main_menu() {
   fi
 
   # shellcheck disable=SC2154,SC2181
-  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or $repositoryurl/docs/openhabian-DEBUG.md how to proceed." 12 60; return 0; fi
+  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md how to proceed." 12 70; return 0; fi
 }

@@ -21,7 +21,7 @@ To that end, the project provides two things:
 * Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations for the Raspberry Pi and the Pine A64
 * The openHABian Configuration Tool to set up and configure openHAB and many related things on any Debian/Ubuntu based system
 
-#### Table of Content
+#### Table of Contents
 
 {::options toc_levels="2..3"/}
 
@@ -32,7 +32,7 @@ To that end, the project provides two things:
 
 The following features are provided by the openHABian images out of the box:
 
-- Hassle-free setup without a display or keyboard, connected via [Ethernet or Wi-Fi](#wifi-setup)
+- Hassle-free setup without a display or keyboard, connected via [Ethernet or WiFi](#wifi-setup)
 - openHAB 2 in the latest stable version
 - Zulu Embedded OpenJDK Java 8
 - [openHABian Configuration Tool](#openhabian-config) including updater functionality
@@ -51,7 +51,7 @@ Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openha
 
 - Switch over to the latest *Milestone* or *Snapshot* release of openHAB 2 [*unstable/SNAPSHOT* build](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 - Install and Setup a [reverse proxy](security.html#nginx-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
-- Set up a Wi-Fi connection
+- Set up a WiFi connection
 - Bind the [openHAB remote console]({{base}}/administration/console.html) to all interfaces
 - Setup [Backup](#backup) for your system
 - Easily install and preconfigure [Optional Components](#optional-components) of your choice
@@ -64,7 +64,7 @@ Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openha
 
 Here you'll find supported and tested installation platforms and instructions.
 
-### Raspberry Pi (Prepackaged SD-Card Image)
+### Raspberry Pi (Prepackaged SD Card Image)
 
 **Flash, plug, wait, enjoy:**
 The provided image is based on the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian) standard system.
@@ -79,7 +79,7 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 
 - [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
 - Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/), able to directly work with *xz* files)
-- Insert the SD card into the Raspberry Pi, connect Ethernet ([Wi-Fi supported](#wi-fi-based-setup-notes)) and power
+- Insert the SD card into the Raspberry Pi, connect Ethernet ([WiFi supported](#wi-fi-based-setup-notes)) and power
 - Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhab).)
 - Enjoy! 🎉
 
@@ -131,19 +131,43 @@ The "Manual/Fresh Setup" submenu entry is the right place for you. Execute all e
 > Please be cautious and have a close look at the console output for errors.
 > Report problems you encounter to the [openHABian Issue Tracker](https://github.com/openhab/openhabian/issues).
 
-{: #wifi-setup}
-### Wi-Fi based Setup Notes
-
-If you own a RPi3, RPi3+, RPi4, a RPi0W, a Pine A64, or a compatible Wi-Fi dongle you can set up and use openHABian purely via Wi-Fi.
-For the setup on Wi-Fi, you'll need to make your SSID and password known to the system before the first boot.
-Additionally to the setup instructions given above, the following steps are needed:
+{: #openhabian.conf}
+You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails.
 
 - Flash the system image to your micro SD card as described, do not remove the SD card yet
-- Access the first SD card partition from the file explorer of your choice (e.g. Windows file explorer)
+- Access the first SD card partition using the file explorer. It's a vfat (Windows) filesystem.
+  (we assume you're using a Windows, Mac or other desktop system to flash the SD)
 - Open the file `openhabian.conf` in a text editor
-- Uncomment and fill in `wifi_ssid="My Wi-Fi SSID"` and `wifi_psk="password123"`
+- Uncomment and complete the lines to contain the parameters you want to set
 - Save, Unmount, Insert, Boot
-- Continue with the instructions for the Raspberry Pi or Pine A64
+- Continue with the instructions for your hardware
+
+{: #wifi-setup}
+### WiFi based Setup Notes
+
+If you own a RPi3, RPi3+, RPi4, a RPi0W, a Pine A64, or a compatible WiFi dongle you can set up and use openHABian purely via WiFi.
+For the setup on WiFi, you'll need to make your SSID and password known to the system before the first boot.
+Additionally to the setup instructions given above, the following steps are needed:
+
+In `openhabian.conf`, uncomment and complete the lines reading `wifi_ssid="My WiFi SSID"` and `wifi_psk="password123"`
+
+{: #fake-hw}
+### Fake hardware mode
+If to install openHABian fails because you have a non-supported hardware or run an unsupported OS release, you can "fake" your hardware and OS to make openHABian behave as if you did own that HW/OS.
+
+In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` and/or `release=` with the hw and os versions you want to attempt installation with.
+
+{: #debug-mode}
+### Debug mode
+See [Troubleshooting](#Troubleshooting) section if you run into trouble installing. If you want to turn on debug mode,
+edit `openhabian.conf` and set the `debugmode=` parameter to either `off`, `on` or `maximum`.
+
+{: #ipv6-notes}
+### IPv6 notes
+
+You might encounter problems when you make use of IPv6 on some networks and systems. openHABian installation may stop or hang forever.
+In that case _or if you are sure that you do not need IPv6 on your openHABian server_, you can disable IPv6.
+Follow the instructions in the previous section and insert a line into `openhabian.conf` reading `ipv6=disable`.
 
 {: #openhabian-config}
 ## openHABian Configuration Tool
@@ -239,20 +263,21 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 - [FIND](https://www.internalpositioning.com/) - the Framework for Internal Navigation and Discovery
 - Tellstick core
 
-## FAQ and Troubleshooting
+## Troubleshooting
 
-For openHABian related questions and further details, please have a look at the main discussion thread in the Community Forum:
+In case you're having problems to get openHABian to install properly, check out the [debug guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md).
+It's also available on your system in `/opt/openhabian/docs/`.
 
 - [https://community.openhab.org/t/13379](https://community.openhab.org/t/13379)
 
-If you want to get involved, you found a bug, or just want to see what's planned for the future, come visit our Issue Tracker:
+If you want to get involved, you found a bug, or just want to see what's planned for the future, visit us on GitHub:
 
-- [https://github.com/openhab/openhabian/issues](https://github.com/openhab/openhabian/issues)
+- [https://github.com/openhab/openhabian/](https://github.com/openhab/openhabian/)
 
 {: #changelog}
 #### Where can I find a changelog for openHABian?
 
-The official changelog announcements are posted [here](https://community.openhab.org/t/13379/1) and [here](https://github.com/openhab/openhabian/releases), be sure to check these out regularly.
+The official changelog announcements are posted [here](https://community.openhab.org/t/13379/1) and [here](https://github.com/openhab/openhabian/releases), be sure to check these out for your version.
 If you want to stay in touch with all the latest code changes under the hood, see the [commit history](https://github.com/openhab/openhabian/commits/master) for openHABian.
 You'll also see added commits when executing the "Update" function within the openHABian Configuration Tool.
 
@@ -263,6 +288,7 @@ You'll also see added commits when executing the "Update" function within the op
 Remember to stay calm.
 The openHABian setup will take 15 up to 45 minutes to complete all steps.
 This time highly depends on your device's performance, your internet connection and sometimes even on the load of external servers.
+
 
 <!--
 ##### LED Indication (RPi only)
@@ -278,16 +304,20 @@ During and after the first boot of your Raspberry Pi, the green on-board LED wil
 The progress indication via the **green Raspberry Pi LED** is currently not possible and hence not part of the openHABian v1.3+ image.
 We will re-add the functionality as soon as the underlying issue is resolved.
 
-##### openHAB Dashboard
+##### Progress Report
 
-After the installation of openHABian was successful, you should be able to access the openHAB dashboard:
+Watch the progress on the console or the web interface at https://<yourip>/ or http://openhab/ if that name has become available.
 
-- Raspberry Pi image setup: [http://openhab:8080](http://openhab:8080)
-- In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP)
+Double-check the address and name with your router while you wait.
 
-##### SSH Progress Report
+If there is absolutely no output for more than 10 minutes, your installation has failed in the first initialization phase. There probably is a problem
+with the way your router or local network are setup.
 
-It is always possible to [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device (after a few minutes of boot up time).
+You might want to try disabling IPv6.
+Read on in the [Troubleshooting] section or move on to the [DEBUG guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md).
+
+
+It is also always possible to [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device (after a few minutes of boot up time).
 During the setup process you'll be redirected to the live progress report of the setup.
 The report can also be checked for errors after the installation finished by executing: `cat /boot/first-boot.log`
 
@@ -306,6 +336,13 @@ If the installation was **not successful** you will see a warning and further in
   <div class="col s12 m5"><img src="images/openHABian-SSH-MotD.png" alt="openHABian installation successful" title="openHABian installation successful"></div>
   <div class="col s12 m5 offset-m2"><img src="images/openHABian-install-failed.png" alt="openHABian installation failed warning and instructions" title="openHABian installation failed warning and instructions"></div>
 </div>
+
+##### openHAB Dashboard
+
+After the installation of openHABian was successful, you should be able to access the openHAB dashboard:
+
+- Raspberry Pi image setup: [http://openhab:8080](http://openhab:8080)
+- In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP)
 
 ##### What Next?
 

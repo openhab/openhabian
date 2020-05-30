@@ -1,7 +1,7 @@
 ---
 layout: documentation
 title: openHABian
-source: https://github.com/openhab/openhabian/blob/master/docs/openhabiab-DEBUG.md
+source: https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md
 ---
 
 <!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source repository -->
@@ -26,13 +26,18 @@ Next, you need your router (or a different device) to provide properly configure
 The DHCP server also has to announce which DNS resolver to use so your box knows how to translate DNS names into IP addresses.
 It also needs to announce which IP address to use as the default gateway to the internet - a typical access router is also the DHCP server will announce it's own address here.
 Finally, the DHCP server should also announce the NTP server(s) to use for proper time services. Lack thereof will not break the installation procedure but can lead to all sorts of long term issues so we recommend to setup DHCP to announce a reachable and working NTP server.
+A note on IPv6: openHABian was reported failing to boot in some environments that make use of IPv6. If basic IP initialization fails (you cannot `ping` your box) or installation gets stuck trying to download software packages, you might want to try disabling IPv6. You can also do that before the very first install attempt if you're sure you don't need any IPv6 connectivity on your openHABian box. See [this section of openhabian.md](openhabian.md#ipv6-notes) how to disable IPv6 on your system.
 Note that this is just a summary to cover the most commonly encountered cases. The full boot procedure and how to obtain IP addresses, DNS resolver, default route and NTP server addresses are highly complex and widely customizable and a comprehensive description on how to properly configure your Internet access and router are out of scope of openHABian. Please Google for how to accomplish that.
 
 
 ## Install
-Etch-Burn-d(isk)d(ump)-Flash-whatever the image to an SD card, insert it and boot from there.
-If you have one available, attach a console (monitor and keyboard) to follow the install process. If you don't have any, try to access the web console at `http://<yourhostip>:8080/first-boot.txt`.
-It will display the contents of `/boot/first-log.boot` at intervals of 2 seconds.
+Etch-Burn-d(isk)d(ump)-Flash-whatever the image to an SD card.
+
+Mind you that at this stage, you can access the openHABian config file to set parameters to affect install. See the description in [openhabian.md](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md) on WiFi boot how to mount your SD card and modify `openhabian.conf`. You can also do that later times via SSH login, but in case your system does not properly obtain any IP address, you would be out of luck.
+
+If you have one available, attach a console (monitor and keyboard) to follow the install process. Now insert the SD card and turn on your system.
+If you don't have any console, try to access the web console at `http://<yourhostip>:80/first-boot.txt`.
+It will display the contents of `/boot/first-log.boot` at intervals of 2 seconds while installing.
 Mind you that if installation fails, network access may or may not be possible so you might need to access the box via console anyway in order to find out what went wrong.
 
 Login to your box using either the console or the network using `ssh openhabian@<hostname>`. The default hostname is `openhab`. The default password is `openhabian` unless you changed it in `openhabian.conf` at installation time.
@@ -51,9 +56,9 @@ As we all cannot be sure everything on your box is 100% the same what an unatten
 
 ### Create a debug log
 If the second install attempt after boot also fails, put openHABian into one of the two more verbose debug levels.
-To do so, edit the config file `nano /etc/openhabian.conf` and change the `mode` parameter to either `unattended_debug` or `debug_maximum` (it should read `unattended` which is the default), then reboot again.
-Use `debug_maximum` to have openHABian show every single command it executes so you or the maintainers you send this to can get an idea which part of the code to look at.
-Your next boot run will exhibit much more verbose logging. Remember the output will be written to `/boot/first-boot.log`.
+To do so, edit the config file `nano /etc/openhabian.conf` and change the `debugmode` parameter to either `on` or `maximum` (it should read `off`), then reboot again.
+Using `on` will generate more verbose output of commands and use of `maximum` will have openHABian show every single command it executes so you or the maintainers you send this to can get an idea which part of the code to look at.
+Your next boot run will exhibit much more verbose logging. Remember output will be written to `/boot/first-boot.log`.
 If installation still fails to finish, please retrieve `/boot/first-log.boot` from your box, open a GitHub issue (see next paragraph), thoroughly describe the environment conditions and your findings so far and upload the log.
 
 ### How to open a Github issue

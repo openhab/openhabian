@@ -29,8 +29,13 @@ sed -i 's/\r$//' /etc/openhabian.conf
 source "$CONFIGFILE"
 echo "OK"
 
-if [ -n "$DEBUGMAX" ]; then
-  echo "$(timestamp) [openHABian] Enable maximum debugging output (DEBUGMAX=${DEBUGMAX})."
+# shellcheck disable=SC2154
+if [[ "$debugmode" == "on" ]]; then
+  unset SILENT
+  unset DEBUGMAX
+elif [[ "$debugmode" == "maximum" ]]; then
+  echo "$(timestamp) [openHABian] Enable maximum debugging output"
+  export DEBUGMAX=1
   set -x
 fi
 
@@ -71,7 +76,7 @@ echo "watch cat /boot/first-boot.log" > "$HOME/.bash_profile"
 # shellcheck disable=SC2154
 if [ -z "${wifi_ssid}" ]; then
   echo "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
-elif grep -q "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf; then
+elif grep -q "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -q "^[[:space:]]*dtoverlay=disable-wifi" /boot/config.txt; then
   echo -n "$(timestamp) [openHABian] Setting up Wi-Fi connection... "
   if iwlist wlan0 scanning 2>&1 | grep -q "Interface doesn't support scanning"; then
     # wifi might be blocked
@@ -151,7 +156,7 @@ if apt-get --yes upgrade &>/dev/null; then echo "OK"; else echo "FAILED"; fail_i
 if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
-if apt-get -y install git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 if [ -d /opt/openhabian/ ]; then cd /opt && rm -rf /opt/openhabian/; fi
 # shellcheck disable=SC2154
@@ -160,8 +165,8 @@ if git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "O
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 # shellcheck disable=SC2154
-echo "$(timestamp) [openHABian] Executing openhabian-setup.sh ${mode}... "
-if (/bin/bash /opt/openhabian/openhabian-setup.sh "$mode"); then
+echo "$(timestamp) [openHABian] Executing openhabian-setup.sh unattended... "
+if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
@@ -182,5 +187,10 @@ sleep 12
 if hash python3 2>/dev/null; then bash /boot/webif.bash inst_done; fi
 sleep 12
 if hash python3 2>/dev/null; then bash /boot/webif.bash cleanup; fi
+
+if [ -z "$SILENT" ]; then
+  echo -e "\\n\\e[36mMemory usage:"
+  free -m && ps -auxq "$(cat /var/lib/openhab2/tmp/karaf.pid)" |awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
+fi
 
 # vim: filetype=sh

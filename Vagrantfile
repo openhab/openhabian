@@ -67,8 +67,8 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
   config.vm.provision "shell", inline: <<-SHELL
     apt-get update
-    apt-get install -y screen vim nano mc vfu bash-completion htop curl wget multitail apt-transport-https
-    apt-get install -y git bzip2 zip unzip xz-utils build-essential binutils software-properties-common gnupg
-    apt-get install -y bc bsdtar kpartx dosfstools qemu-user qemu-user-static shellcheck libarchive-zip-perl dos2unix
+    apt-get install --yes screen vim nano mc vfu bash-completion htop curl wget multitail apt-transport-https
+    apt-get install --yes git bzip2 zip unzip xz-utils build-essential binutils software-properties-common gnupg
+    apt-get install --yes bc bsdtar kpartx dosfstools qemu-user qemu-user-static shellcheck libarchive-zip-perl dos2unix
   SHELL
 end

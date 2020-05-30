@@ -29,23 +29,34 @@ influxdb_grafana_setup() {
   local password_check
   local text_grafana_admin_password
   local text_openHAB_integration
+  local totalmemory
+  local lowmemory
 
   FAILED=0
-  text_intro="This will install and configure InfluxDB and Grafana. For more information please consult this discussion thread:\\nhttps://community.openhab.org/t/13761/1"
+  text_intro="This will install and configure InfluxDB and Grafana. For more information please consult this discussion thread:\\nhttps://community.openhab.org/t/13761/1\\n\\nNOTE for existing installations:\\n - Grafana password will be reset and configuration adapated\\n - If local installation of InfluxDB is choosen, passwords will be reset and config files will be changed"
+  text_lowmem="WARNING: InfluxDB and Grafana tend to use a lot of memory. Your machine reports less than 1 GB memory, and we STRICTLY RECOMMEND NOT TO PROCEED!\\n\\nDISCLAIMER: Proceed at your own risk and do NOT report tickets if you run in problems."
   text_fail="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  text_fail_lowmem="Sadly there was a problem setting up the selected option. Your machine reports less than 1 GB memory, please consider upgrading your hardware for Grafana/InfluxDB."
   text_success="Setup successful. Please continue with the instructions you can find here:\\n\\nhttps://community.openhab.org/t/13761/1"
 
   echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$text_intro" 15 80) then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$text_intro" 15 80); then echo "CANCELED"; return 0; fi
+     # now check if hardware is recommended for Grafana/InfluxDB, Pi0 and Pi1 are not really suited to run it in conjunction with OH
+     totalmemory=$(grep MemTotal /proc/meminfo |awk '{print $2}')
+     lowmemory=false
+     if [ "${totalmemory:-1000000}" -lt 900000 ]; then
+       lowmemory=true
+       if ! (whiptail --title "WARNING, Continue?" --yes-button "Continue" --no-button "Back" --yesno --defaultno "$text_lowmem" 15 80); then echo "CANCELED"; return 0; fi
+     fi
   fi
 
   openhab_integration=false
   if [ -n "$INTERACTIVE" ]; then
-    text_influxDB_intro="A new InfluxDB instance can be installed locally on the openhabian system or an already running InfluxDB instance can be used. Please choose one of the options. "
-    if ! (whiptail --title "InfluxDB" --yes-button "Install locally" --no-button "Use existing instance" --yesno "$text_influxDB_intro" 15 80) then
+    text_influxDB_intro="A new InfluxDB instance can be installed locally on the openHABian system or an already running InfluxDB instance can be used. Please choose one of the options. "
+    if ! (whiptail --title "InfluxDB" --yes-button "Install locally" --no-button "Use existing instance" --yesno "$text_influxDB_intro" 15 80); then
       text_influxDB_configure="Shall a new user and database be configured on the InfluxDB instance automatically or shall existing existing ones be used?"
-      if ! (whiptail --title "InfluxDB" --yes-button "Create new" --no-button "Use existing" --yesno "$text_influxDB_configure" 15 80) then
+      if ! (whiptail --title "InfluxDB" --yes-button "Create new" --no-button "Use existing" --yesno "$text_influxDB_configure" 15 80); then
         # Existing InfluxDB - Manual configuration
         influxdb_database_name=$(whiptail --title "InfluxDB" --inputbox "openHAB need to use a specific InfluxDB database. Please enter a configured InfluxDB database name:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
@@ -123,26 +134,29 @@ influxdb_grafana_setup() {
     fi
 
     # Local Grafana
-    text_grafana_admin_password="The local Grafana installation needs a password for the \"admin\" account. Enter a password:"
+    text_grafana_admin_password="The local Grafana installation needs a password for the \"admin\" account. NOTE: min. 5 characters. Enter a password:"
     matched=false
     while [ "$matched" = false ]; do
       grafana_admin_password=$(whiptail --title "Grafana - Admin Account" --passwordbox "$text_grafana_admin_password" 15 80 3>&1 1>&2 2>&3)
       if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-      password_check=$(whiptail --title "Grafana - Admin Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
-      if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-      if [ "$grafana_admin_password" = "$password_check" ] && [ -n "$grafana_admin_password" ]; then
-        matched=true
-      else
-        whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3
+      if [ ${#grafana_admin_password} -gt 4 ]; then
+        password_check=$(whiptail --title "Grafana - Admin Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
+        if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
+        if [ "$grafana_admin_password" = "$password_check" ] && [ -n "$grafana_admin_password" ]; then
+          matched=true
+        fi
+        if [ "$matched" = false ]; then
+          whiptail --title "Authentication Setup" --msgbox "Password mismatched or too short... Please try again!" 15 80 3>&1 1>&2 2>&3
+        fi
       fi
     done
 
     if openhab_is_running; then
       text_openHAB_integration="openHAB can use InfluxDB for persistant storage. Shall InfluxDB be configured with openHAB?
       (A new config file for openHAB will be created with basic settings.)"
-      if (whiptail --title "openHAB integration, Continue?" --yes-button "Yes" --no-button "No" --yesno "$text_openHAB_integration" 15 80) then openhab_integration=true ; fi
+      if (whiptail --title "openHAB integration, Continue?" --yes-button "Yes" --no-button "No" --yesno "$text_openHAB_integration" 15 80); then openhab_integration=true ; fi
     else
-      cond_echo "openHAB is not running. InfluxDB and grafana openHAB integration is skipped..."
+      cond_echo "openHAB is not running. InfluxDB and Grafana openHAB integration is skipped..."
     fi
   fi
 
@@ -157,7 +171,11 @@ influxdb_grafana_setup() {
     influxdb_database_name="openhab_db"
     curl --user "$influxdb_admin_username:$influxdb_admin_password" --insecure $influxdb_address/query --data-urlencode "q=CREATE DATABASE $influxdb_database_name" || FAILED=1
     curl --user "$influxdb_admin_username:$influxdb_admin_password" --insecure $influxdb_address/query --data-urlencode "q=CREATE USER openhab WITH PASSWORD '$influxdb_openhab_password'" || FAILED=1
+    # set password, create might have failed if user existed before
+    curl --user "$influxdb_admin_username:$influxdb_admin_password" --insecure $influxdb_address/query --data-urlencode "q=SET PASSWORD FOR openhab = '$influxdb_openhab_password'" || FAILED=1
     curl --user "$influxdb_admin_username:$influxdb_admin_password" --insecure $influxdb_address/query --data-urlencode "q=CREATE USER grafana WITH PASSWORD '$influxdb_grafana_password'" || FAILED=1
+    # set password, create might have failed if user existed before
+    curl --user "$influxdb_admin_username:$influxdb_admin_password" --insecure $influxdb_address/query --data-urlencode "q=SET PASSWORD FOR grafana = '$influxdb_grafana_password'" || FAILED=1
     curl --user "$influxdb_admin_username:$influxdb_admin_password" --insecure $influxdb_address/query --data-urlencode "q=GRANT ALL ON openhab_db TO openhab" || FAILED=1
     curl --user "$influxdb_admin_username:$influxdb_admin_password" --insecure $influxdb_address/query --data-urlencode "q=GRANT READ ON openhab_db TO grafana" || FAILED=1
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
@@ -183,12 +201,17 @@ influxdb_grafana_setup() {
     echo "db=$influxdb_database_name"; \
     echo "retentionPolicy=autogen"; } >> /etc/openhab2/services/influxdb.cfg
   fi
+  cond_echo ""
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$text_success" 15 80
     else
-      whiptail --title "Operation Failed!" --msgbox "$text_fail" 10 60
+      if [ $lowmemory = "false" ]; then
+        whiptail --title "Operation Failed!" --msgbox "$text_fail" 10 60
+      else
+        whiptail --title "Operation Failed!" --msgbox "$text_fail_lowmem" 10 60
+      fi
     fi
   fi
 }
@@ -202,7 +225,8 @@ influxdb_grafana_setup() {
 influxdb_install() {
   local influxdb_address
   local influxdb_admin_username
-  local dist codename
+  local dist
+  local codename
 
   cond_echo ""
   echo "Installing InfluxDB..."
@@ -217,34 +241,43 @@ influxdb_install() {
   fi
   influxdb_address="http://localhost:8086"
   influxdb_admin_username="admin"
-  if [ ! -f /etc/influxdb/influxdb.conf ]; then
+#  if [ ! -f /etc/influxdb/influxdb.conf ]; then
     cond_redirect wget -O - https://repos.influxdata.com/influxdb.key | apt-key add - || FAILED=1
-    echo "deb https://repos.influxdata.com/$dist $codename stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
+    echo "deb https://repos.influxdata.com/${dist} ${codename} stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
     cond_redirect apt-get update || FAILED=1
-    cond_redirect apt-get -y install influxdb || FAILED=1
+    cond_redirect apt-get install --yes influxdb || FAILED=1
+
+    # disable authentication, to allow changes in existing installations
+    cond_redirect sed -i 's/auth-enabled = true/# auth-enabled = false/g' /etc/influxdb/influxdb.conf || FAILED=1
+
     cond_redirect systemctl daemon-reload
     sleep 2
     cond_redirect systemctl enable influxdb.service
     sleep 2
     cond_redirect systemctl restart influxdb.service
-    sleep 30
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
     echo -n "Configure InfluxDB admin account... "; echo -n ""
-    curl --insecure $influxdb_address/query --data-urlencode "q=CREATE USER admin WITH PASSWORD '$1' WITH ALL PRIVILEGES" || FAILED=1
+    sleep 2
+    curl --retry 6 --retry-connrefused --insecure $influxdb_address/query --data-urlencode "q=CREATE USER admin WITH PASSWORD '$1' WITH ALL PRIVILEGES" || FAILED=1
+    # if it already existed, setting the password did not succeed
+    curl --insecure $influxdb_address/query --data-urlencode "q=SET PASSWORD FOR admin = '$1'" || FAILED=1
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
     echo -n "Configure listen on localhost only... "; echo -n ""
-    cond_redirect sed -i -e '/# Determines whether HTTP endpoint is enabled./ { n ; s/# enabled = true/enabled = true/ }' /etc/influxdb/influxdb.conf
-    cond_redirect sed -i 's/# bind-address = ":8086"/bind-address = "localhost:8086"/g' /etc/influxdb/influxdb.conf
-    cond_redirect sed -i 's/# auth-enabled = false/auth-enabled = true/g' /etc/influxdb/influxdb.conf
+    cond_redirect sed -i -e '/# Determines whether HTTP endpoint is enabled./ { n ; s/# enabled = true/enabled = true/ }' /etc/influxdb/influxdb.conf || FAILED=1
+    cond_redirect sed -i 's/# bind-address = ":8086"/bind-address = "localhost:8086"/g' /etc/influxdb/influxdb.conf || FAILED=1
+    cond_redirect sed -i 's/# auth-enabled = false/auth-enabled = true/g' /etc/influxdb/influxdb.conf || FAILED=1
     # disable stats collection to save memory, issue #506
-    cond_redirect sed -i 's/# store-enabled = true/store-enabled = false/g' /etc/influxdb/influxdb.conf
+    cond_redirect sed -i 's/# store-enabled = true/store-enabled = false/g' /etc/influxdb/influxdb.conf || FAILED=1
     cond_redirect systemctl restart influxdb.service
-    sleep 30
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
-  else
-    echo "SKIPPED"
-    cond_echo "InfluxDB already installed. Using http://localhost:8086"
-  fi
+    # check if service is running
+    echo -n "Waiting for InfluxDB service... "
+    curl --retry 6 --retry-connrefused -s --insecure --user "admin:$1" $influxdb_address/query >/dev/null || FAILED=1
+    if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
+#  else
+#    echo "SKIPPED"
+#    cond_echo "InfluxDB already installed. Using http://localhost:8086"
+#  fi
   cond_echo ""
 }
 
@@ -254,26 +287,51 @@ influxdb_install() {
 ##
 
 grafana_install(){
-  echo -n "Installing Grafana..."
+  echo -n "Installing Grafana... "
   cond_redirect wget -O - https://packages.grafana.com/gpg.key | apt-key add - || FAILED=2
   echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list || FAILED=2
-  cond_redirect apt-get update || FAILED=2
-  cond_redirect apt-get -y install grafana || FAILED=2
+  cond_redirect apt-get update || FAILED=1
+  cond_redirect apt-get install --yes grafana || FAILED=2
 
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable grafana-server.service
   cond_redirect systemctl start grafana-server.service
-  sleep 20
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
   cond_echo ""
 
-  echo -n "Updating Grafana admin password..."
-  curl --user admin:admin --header "Content-Type: application/json" --request PUT --data "{\"password\":\"$1\"}" http://localhost:3000/api/admin/users/1/password || FAILED=2
+  echo -n "Wait for Grafana to start... "
+  curl --retry 5 --retry-connrefused -s http://localhost:3000 >/dev/null || FAILED=2
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  sleep 10
+  cond_echo ""
 
-  echo -n "Updating Grafana configuration..."
-  cond_redirect sed -i -e '/^# disable user signup \/ registration/ { n ; s/^;allow_sign_up = true/allow_sign_up = false/ }' /etc/grafana/grafana.ini
-  cond_redirect sed -i -e '/^# enable anonymous access/ { n ; s/^;enabled = false/enabled = true/ }' /etc/grafana/grafana.ini
+  # password reset required if Grafana password was already set before (no first-time install)
+  echo -n "Resetting Grafana admin password... "
+  curl --retry 5 --retry-connrefused -s http://localhost:3000 >/dev/null || FAILED=2
+  cond_redirect grafana-cli admin reset-admin-password admin || FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  cond_echo ""
+
+  sleep 2
+  echo -n "Restarting Grafana... "
+  cond_redirect systemctl restart grafana-server.service || FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  sleep 2
+
+  echo -n "Updating Grafana admin password... "
+  curl --retry 7 --retry-connrefused --user admin:admin --header "Content-Type: application/json" --request PUT --data "{\"password\":\"$1\"}" http://localhost:3000/api/admin/users/1/password || FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  cond_echo ""
+
+  echo -n "Updating Grafana configuration... "
+  cond_redirect sed -i -e '/^# disable user signup \/ registration/ { n ; s/^;allow_sign_up = true/allow_sign_up = false/ }' /etc/grafana/grafana.ini || FAILED=2
+  cond_redirect sed -i -e '/^# enable anonymous access/ { n ; s/^;enabled = false/enabled = true/ }' /etc/grafana/grafana.ini || FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
   cond_redirect systemctl restart grafana-server.service
-  sleep 20
+  sleep 2
+  # check if service is running
+  echo -n "Waiting for Grafana service... "
+  curl --retry 7 --retry-connrefused -s http://localhost:3000 >/dev/null || FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  cond_echo ""
 }
