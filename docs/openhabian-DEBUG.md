@@ -26,6 +26,7 @@ Next, you need your router (or a different device) to provide properly configure
 The DHCP server also has to announce which DNS resolver to use so your box knows how to translate DNS names into IP addresses.
 It also needs to announce which IP address to use as the default gateway to the internet - a typical access router is also the DHCP server will announce it's own address here.
 Finally, the DHCP server should also announce the NTP server(s) to use for proper time services. Lack thereof will not break the installation procedure but can lead to all sorts of long term issues so we recommend to setup DHCP to announce a reachable and working NTP server.
+
 A note on IPv6: openHABian was reported failing to boot in some environments that make use of IPv6. If basic IP initialization fails (you cannot `ping` your box) or installation gets stuck trying to download software packages, you might want to try disabling IPv6. You can also do that before the very first install attempt if you're sure you don't need any IPv6 connectivity on your openHABian box. See [this section of openhabian.md](openhabian.md#ipv6-notes) how to disable IPv6 on your system.
 Note that this is just a summary to cover the most commonly encountered cases. The full boot procedure and how to obtain IP addresses, DNS resolver, default route and NTP server addresses are highly complex and widely customizable and a comprehensive description on how to properly configure your Internet access and router are out of scope of openHABian. Please Google for how to accomplish that.
 
@@ -50,7 +51,7 @@ As a first troubleshooting step, you should reboot your box to see if the same p
 ## Debug
 If the problem persists, check `/boot/first-boot.log` to get an indication what went wrong in the install process and where.
 You can avoid openHABian to start reinstalling on future reboots by removing the file, i.e. `rm -f /opt/openHABian-install*`, **but** be aware that your installation is incomplete and that you should **not** run openHAB on a box in that state.
-You can use this state to debug, you can also use the 6X menu options in `openhabian-config` to manually install everything that failed or missing. See `/opt/openhabian/openhabian-setup.sh` and the corresponding code in `/opt/openhabian/functions/*.bash` what usually gets installed on an unattended installation. Note that if you keep or recreate (just "touch") `/opt/openhabian-install-failed`, you can reboot at any time to continue unattended installation. So if say Java install fails (Java being a prerequisite to installation of openHAB), you can do that manually or use `openhabian-config` to do that, then continue installation by rebooting.
+You can use this state to debug, you can also use the 6X menu options in `openhabian-config` to manually install everything that failed or is missing. See `/opt/openhabian/openhabian-setup.sh` and the corresponding code in `/opt/openhabian/functions/*.bash` what usually gets installed on an unattended installation. Note that if you keep or recreate (just "touch") `/opt/openhabian-install-failed`, you can reboot at any time to continue unattended installation. So if say Java install fails (Java being a prerequisite to installation of openHAB), you can do that manually or use `openhabian-config` to do that, then continue installation by rebooting.
 Should you succeed at some point in time - great! Let us know what you did to make it work please by opening a Github issue (see below).
 As we all cannot be sure everything on your box is 100% the same what an unattended install gets you, please also do a complete reinstall before you start running openHAB. If possible start with the flash step. If that does not work, at least delete all the packages that openhabian-setup had installed before you reboot.
 
@@ -71,7 +72,7 @@ Once you opened the issue, copy `/boot/first-boot.log` from your openHABian box 
 If you succeed logging on and get to see a banner with system information, please also copy that as part of your issue.
 
 If you're able to help in producing a fix to problems, we happily take any Pull Request.
-Explaining git and Github unfortunately is out of our scope (Google is your friend).
+Explaining git and Github unfortunately is out of our scope (Google is your friend). See also [CONTRIBUTING.md](https://github.com/openhab/openhabian/blob/master/CONTRIBUTING.md).
 For simple fixes to a single file only, you can click through the source starting at <https://github.com/openhab/openhabian> and edit the file online, GitHub will then offer to create the PR.
 You can also clone the openHABian repository, make your changes locally and use git to check in your changes and upload them to a repo copy of yours, then follow the git-offered link to create the PR.
 Either way, don't forget to sign your work.
@@ -81,9 +82,12 @@ Remember to always let `openhabian-config` update itself on start.
 
 If you want to change anything to work around some not yet fixed bug, you can directly edit the files in and below `/opt/openhabian` on your box. Just do not let openhabian-config update itself on start as that would overwrite your changes.
 
+You can also clone (download) a different openHABian version than the most current one, e.g. if a maintainer or contributor to openHABian offers or asks you to testdrive a development version.
+Set the `repositoryurl` and `clonebranch` parameters in `/etc/openhabian.conf` to do so, then update `openhabian-config` on start.
+
 The main program is in `openhabian-setup.sh`. If the initial unattended install fails again and again at the same step (say Java installation), you may comment that step out. But mind the code in `build-image/first-boot.bash` towards the end starting with `git clone`. This is where openHABian updates itself. If you don't comment that out as well, it'll overwrite your changes on the next install run.
 
 ## Disclaimer
 For obvious reasons, changing openHABian code is not a supported procedure. We just want to give you a hint what you _could_ try doing if your install fails and you're sitting there, desperately looking for a fix.
-Google and learn for yourself what you need to edit in a file, learn to understand shell programming basics, you're on your own here.
+Google and learn for yourself how to edit a file, learn to understand shell programming basics, you're on your own here.
 If you change openHABian code on your box, remember for the time it takes to get openHABian officially fixed, you must not let openhabian-config update itself on start as that would overwrite your changes.
