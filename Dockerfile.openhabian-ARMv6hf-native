@@ -51,4 +51,3 @@ VOLUME ["/sys/fs/cgroup"]
 STOPSIGNAL 37
 
 CMD ["bash", "start.sh"]
-
