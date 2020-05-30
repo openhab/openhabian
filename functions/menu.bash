@@ -2,11 +2,22 @@
 
 show_about() {
   whiptail --title "About openHABian and openhabian-config" --msgbox "openHABian Configuration Tool $(get_git_revision)
-  \\nThis tool provides a few routines to make your openHAB experience as comfortable as possible. The menu options help with the setup and configuration of your system. Please select a menu entry to learn more.
-  \\nVisit the following websites for more information:
+This tool provides a little help to make your openHAB experience as comfortable as possible.
+\\nMake sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
+\\nMenu 01 to select the standard (stable) or the very latest (master) version.
+Menu 40 to select the standard release, milestone or very latest development version of openHAB and
+Menu 03 to install it.
+Menu 02 will upgrade all of your OS and applications the the latest versions, including openHAB.
+Menu 10 provides a number of system tweaks. These are already active after a standard installation while
+Menu 30 allows for changing system configuration to match your hardware.
+Note that the raspi-config tool was intentionally removed to not interfere with openhabian-config.
+Menu 50 provides options to backup and restore either the openHAB configuration or the whole system.
+Note backups are NOT active per default so remember to set them up right at the beginning of your journey.
+Menu 60 finally is a shortcut to offer all option for (un)installation in a single go.
+\\nVisit these sites for more information:
   - Documentation: https://www.openhab.org/docs/installation/openhabian.html
   - Development: http://github.com/openhab/openhabian
-  - Discussion: https://community.openhab.org/t/13379" 17 80
+  - Discussion: https://community.openhab.org/t/13379" 27 110
   RET=$?
   if [ $RET -eq 255 ]; then
     # <Esc> key pressed.
@@ -19,7 +30,7 @@ show_main_menu() {
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
-  "02 | Upgrade System"          "Upgrade all installed software packages to their newest version" \
+  "02 | Upgrade System"          "Upgrade all installed software packages (incl. openHAB) to their latest version" \
   "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
