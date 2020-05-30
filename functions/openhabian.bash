@@ -23,8 +23,8 @@ wait_for_apt_to_finish_update() {
 }
 
 openhabian_announcements() {
-  local newsfile="${BASEDIR}/NEWS"
-  local readnews="${BASEDIR}/docs/LASTNEWS"
+  local newsfile="${BASEDIR}/NEWS.md"
+  local readnews="${BASEDIR}/docs/LASTNEWS.md"
 pwd
   local news=$(cat "$newsfile")
 
