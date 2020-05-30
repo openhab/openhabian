@@ -8,6 +8,7 @@ You can switch branches at any time using the menu option 01.
 
 ### Supported hardware and Operating Systems
 openHABian now fully supports all Raspberry Pi SBCs with our fast-start image. As an add-on package, it is supposed to run on all Debian based OSs.
+
 Check the [README](#README.md) to see what "supported" actually means and what you can do if you want to run on other HW or OS.
 
 ### ZRAM per default
