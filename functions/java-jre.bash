@@ -53,12 +53,12 @@ java_zulu_8_tar(){
 
     if is_aarch64; then
       dpkg --add-architecture armhf
-      cond_redirect apt-get --yes install libc6:armhf libncurses5:armhf libstdc++6:armhf
+      cond_redirect apt-get install --yes libc6:armhf libncurses5:armhf libstdc++6:armhf
     fi
 
     if is_x86_64; then
       dpkg --add-architecture i386
-      cond_redirect apt-get --yes install libc6:i386 libncurses5:i386 libstdc++6:i386
+      cond_redirect apt-get install --yes libc6:i386 libncurses5:i386 libstdc++6:i386
     fi
 
   elif [ "$1" == "64-bit" ]; then
@@ -128,7 +128,7 @@ java_zulu_enterprise_8_apt(){
     if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
     echo "deb http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
     cond_redirect apt-get update
-    if cond_redirect apt-get --yes install zulu-8 && java_zulu_install_crypto_extension; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect apt-get install --yes zulu-8 && java_zulu_install_crypto_extension; then echo "OK"; else echo "FAILED"; exit 1; fi
     cond_redirect systemctl start openhab2.service
   fi
 }

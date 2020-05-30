@@ -173,4 +173,3 @@ disable_ipv6() {
     sed -i "s/^${IPV6_ENABLE}.*/# ${IPV6_ENABLE}/g" "${SYSCTL_INIT}"
   fi
 }
-
