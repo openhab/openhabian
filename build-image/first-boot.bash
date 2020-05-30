@@ -30,11 +30,12 @@ source "$CONFIGFILE"
 echo "OK"
 
 # shellcheck disable=SC2154
-if [[ "$debugmode" == "default" ]]; then
+if [[ "$debugmode" == "on" ]]; then
   unset SILENT
   unset DEBUGMAX
 elif [[ "$debugmode" == "maximum" ]]; then
   echo "$(timestamp) [openHABian] Enable maximum debugging output"
+  DEBUGMAX=1
   set -x
 fi
 
