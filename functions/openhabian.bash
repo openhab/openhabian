@@ -46,7 +46,6 @@ openhabian_update_check() {
   local branch
   local introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
   FAILED=0
-  openhabian_announcements
   echo "$(timestamp) [openHABian] openHABian configuration tool version: $(get_git_revision)"
   branch=${clonebranch:-HEAD}
   echo -n "$(timestamp) [openHABian] Checking for changes in origin branch $branch ... "
