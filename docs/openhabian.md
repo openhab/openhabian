@@ -19,6 +19,12 @@ To that end, the project provides two things:
 * Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations for the Raspberry Pi and the Pine A64
 * The openHABian Configuration Tool to set up and configure openHAB and many related things on any Debian/Ubuntu based system
 
+#### Table of Contents
+
+{::options toc_levels="2..3"/}
+
+- TOC
+{:toc}
 
 ## Features
 
@@ -82,9 +88,8 @@ Learn more about the Raspberry Pi as your platform for openHAB and about the req
 - Connect to the openHAB Log Viewer (frontail): [http://openhab:9001](http://openhab:9001)
 - If you encounter any setup problem, [please continue here](#successful)
 
-You can stop reading now.
-openHABian has installed and configured your openHAB system and you can start to use it right away.
-If you want to get in touch with the system or want to install one of the previously mentioned optional features, you can come back here later.
+You can stop reading now, openHABian has installed and configured your openHAB system and you can start to use it right away.
+If you want to get in touch with the system or want to install one of the previously mentioned optional features, come back here later.
 
 Ready for more?
 [Connect to your Raspberry Pi SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) using the username `openhabian` and password `openhabian`.
@@ -226,18 +231,16 @@ All password can be changed from openHABian menu.
 
 ## Availability and Backup
 openHAB is designed to reliably run 24 hours a day, seven days a week - and so should be your server.
-This is the right time to prepare your system for disasters such as getting hit by the SD card wearout/corruption problem which is quite common on single board computers such as Raspberry Pis. openHABian has a number of features built in to enhance resilience:
+This is the right time to prepare your system for disasters such as getting hit by the SD card wearout/corruption problem which is quite common among users of single board computers such as Raspberry Pis. openHABian has a number of features built in to enhance resilience:
 
-There are a number of measures in openHABian to address data safety today.
+1. the ZRAM feature moves write intensive parts of openHABian into RAM to mitigate the risk of SD card corruption. See [community thread](https://community.openhab.org/t/zram-status/80996) for more up to date information.
+WARNING: power failure will result in some data to get lost (albeit the system should continue to run). Get an UPS.
+ZRAM is enabled by default for swap, logs and persistence data. You can toggle use in [menu option 38].
+2. Move the root filesystem to USB-attached memory. WARNING: USB sticks are as susceptible to flash wearout as SD cards are, making ZRAM the better choice for a standard Pi to run off its internal SD card. But you can use this option to migrate your system to a safe medium such as an SSD or HDD. [menu option 37]
+3. Use the openHAB integrated [backup tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively backup/restore your openHAB **config** [menu option 51/52].
+4. Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, documentation [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md). [menu option 52]
 
-1. the ZRAM feature will move write intensive parts of openHABian (swap, logs, persistence data) into RAM to mitigate the risk of SD card corruption. See [here](https://community.openhab.org/t/zram-status/80996) for more up to date information.
-WARNING: power failure will result in some data to get lost (albeit the system should continue to run). Get an UPS. [menu option 38]
-2. You can also move the root filesystem to USB-attached memory. WARNING: USB sticks are as susceptible to flash wearout as SD cards are, making ZRAM the better choice for a standard Pi to run off its internal SD card. But you can use this option to migrate your system to a safe medium such as an SSD or HDD. [menu option 37]
-3. Use the openHAB integrated [backup tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively backup/restore your openHAB **config**.
-4. Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, documentation [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md). [Menu option: 51]
-
-Standard openHABian install enables ZRAM (#1) by default. Once installed, you can disable ZRAM and choose to install to a safe external medium such as an SSD (#2) instead via menu options in menu 30.
-
+Standard openHABian install enables ZRAM by default (#1). Once you attach a *safe* external medium to your system (such as an SSD), you can disable ZRAM (#1) and move the system over using menu options 37 (#2).
 Finally, we strongly suggest you install Amanda (#4) right after you finish your setup. Amanda is to take care to backup your openHAB config and whole server to be able to quickly restore it when in need.
 This is not done by default because it requires a number of user inputs, but you should not skip it for your own safety !
 
@@ -247,7 +250,7 @@ Delayed rules load will also be enabled by default. This is renaming the rules f
 openHABian comes with a number of additional routines to quickly install and set up home automation related software.
 You'll find all of these in the [openHABian Configuration Tool](#openhabian-config)
 
-- [frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openhab:9001](http://openhab:9001)
+- [Frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openhab:9001](http://openhab:9001)
 - Mi Flora MQTT demon
 - [InfluxDB and Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openhab:3000](http://openhab:3000)
 - [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker

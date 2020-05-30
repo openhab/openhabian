@@ -1,4 +1,4 @@
-FROM balenalib/intel-nuc-debian-node:latest-buster-build
+FROM balenalib/intel-nuc-debian-node:latest-buster
 
 
 ENV container docker

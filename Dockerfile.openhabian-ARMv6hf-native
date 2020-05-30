@@ -1,5 +1,5 @@
 # RPi1, RPi0W (ARMv6hf arch)
-FROM balenalib/raspberry-pi-debian-node:latest-buster-build
+FROM balenalib/raspberry-pi-debian-node:latest-buster
 
 
 ENV container docker

@@ -38,7 +38,7 @@ RUN cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
 ENTRYPOINT ["/usr/bin/entry.sh"]
 
 RUN adduser openhabian --gecos "Openhabian,,," --disabled-password
-RUN echo "openhabian:openhabian" | chpasswd   
+RUN echo "openhabian:openhabian" | chpasswd
 RUN /bin/echo -n "Running on " && /usr/bin/arch
 
 COPY . /opt/openhabian/
@@ -51,4 +51,3 @@ VOLUME ["/sys/fs/cgroup"]
 STOPSIGNAL 37
 
 CMD ["bash", "start.sh"]
-

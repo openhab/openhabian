@@ -1,6 +1,6 @@
 # assumes at least ARMv71 but not ARMv8 (aarch64) yet
-FROM balenalib/raspberry-pi2-debian-node:latest-buster-build
- 
+FROM balenalib/raspberry-pi2-debian-node:latest-buster
+
 RUN [ "cross-build-start" ]
 
 ENV container docker
