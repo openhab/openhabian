@@ -56,9 +56,9 @@ As we all cannot be sure everything on your box is 100% the same what an unatten
 
 ### Create a debug log
 If the second install attempt after boot also fails, put openHABian into one of the two more verbose debug levels.
-To do so, edit the config file `nano /etc/openhabian.conf` and change the `mode` parameter to either `unattended_debug` or `debug_maximum` (it should read `unattended` which is the default), then reboot again.
-Use `debug_maximum` to have openHABian show every single command it executes so you or the maintainers you send this to can get an idea which part of the code to look at.
-Your next boot run will exhibit much more verbose logging. Remember the output will be written to `/boot/first-boot.log`.
+To do so, edit the config file `nano /etc/openhabian.conf` and change the `debugmode` parameter to either `on` or `maximum` (it should read `off`), then reboot again.
+Using `on` will generate more verbose output of commands and use of `maximum` will have openHABian show every single command it executes so you or the maintainers you send this to can get an idea which part of the code to look at.
+Your next boot run will exhibit much more verbose logging. Remember output will be written to `/boot/first-boot.log`.
 If installation still fails to finish, please retrieve `/boot/first-log.boot` from your box, open a GitHub issue (see next paragraph), thoroughly describe the environment conditions and your findings so far and upload the log.
 
 ### How to open a Github issue
