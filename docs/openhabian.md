@@ -4,6 +4,8 @@ title: openHABian
 source: https://github.com/openhab/openhabian/blob/master/docs/openhabian.md
 ---
 
+{% include base.html %}
+
 <!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source repository -->
 
 # openHABian - Hassle-free openHAB Setup
