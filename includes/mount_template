@@ -1,0 +1,13 @@
+[Unit]
+Description=openhab2-%DEST mount
+After=zram-config.service
+
+[Mount]
+What=%SRC
+Where=/srv/openhab2-%DEST
+Type=none
+Options=bind
+
+[Install]
+WantedBy=multi-user.target
+
