@@ -10,17 +10,28 @@ get_git_revision() {
 }
 
 apt_update() {
-  echo -n "$(timestamp) [openHABian] Updating Linux package information ... "
   apt-get -q update >/dev/null 2>&1 &
   PID_APT=$!
 }
 
 wait_for_apt_to_finish_update() {
-  echo -n "$(timestamp) [openHABian] Updating Linux package information ... "
+  echo "$(timestamp) [openHABian] Updating Linux package information ... "
   if [ ! -v PID_APT ]; then
     apt_update
   fi
   wait -f ${PID_APT} 2>/dev/null
+}
+
+openhabian_announcements() {
+  local newsfile="${BASEDIR}/NEWS.md"
+  local readnews="${BASEDIR}/docs/LASTNEWS.md"
+
+  if ! diff -q "$newsfile" "$readnews" >/dev/null 2>&1; then
+    # shellcheck disable=SC2086
+    if (whiptail --title "openHABian breaking NEWS" --yes-button "I have read this" --no-button "keep displaying" --defaultno --yesno --scrolltext "$(cat $newsfile)" 24 90); then
+      cp "$newsfile" "$readnews";
+    fi
+  fi
 }
 
 openhabian_console_check() {
@@ -32,26 +43,53 @@ openhabian_console_check() {
 }
 
 openhabian_update_check() {
+  local branch
+  local introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
   FAILED=0
+  openhabian_announcements
   echo "$(timestamp) [openHABian] openHABian configuration tool version: $(get_git_revision)"
-  echo -n "$(timestamp) [openHABian] Checking for changes in origin... "
+  branch=${clonebranch:-HEAD}
+  echo -n "$(timestamp) [openHABian] Checking for changes in origin branch $branch ... "
   git -C "$BASEDIR" config user.email 'openhabian@openHABian'
   git -C "$BASEDIR" config user.name 'openhabian'
   git -C "$BASEDIR" fetch --quiet origin || FAILED=1
   # shellcheck disable=SC2046
-  if [ $(git -C "$BASEDIR" rev-parse HEAD) == $(git -C "$BASEDIR" rev-parse @\{u\}) ]; then
+  if [ $(git -C "$BASEDIR" rev-parse "$branch") == $(git -C "$BASEDIR" rev-parse @\{u\}) ]; then
     echo "OK"
   else
     echo -n "Updates available... "
-    introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
     if ! (whiptail --title "openHABian Update Available" --yes-button "Continue" --no-button "Skip" --yesno "$introtext" 15 80); then echo "SKIP"; return 0; fi
     echo ""
-    openhabian_update
+    openhabian_update "$branch"
   fi
+  openhabian_announcements
+  echo -n "$(timestamp) [openHABian] Switching to branch $clonebranch ... "
+  # shellcheck disable=SC2015
+  git -C "$BASEDIR" checkout --quiet "$clonebranch" && echo "OK" || (FAILED=1; echo "FAILED"; return 0)
 }
 
 openhabian_update() {
+  local branch shorthash_before
+  current=$(git -C "$BASEDIR" rev-parse --abbrev-ref HEAD)
+  if [ "$current" == "master" ]; then
+    local introtext="You are currently using the very latest (\"master\") version of openHABian.\\nThis is providing you with the latest features but less people have tested it so it is a little more likely that you run into errors.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch at any time by selecting this menu option again or by setting the clonebranch= parameter in /etc/openhabian.conf.\\n"
+  else
+    if [ "$current" == "stable" ]; then
+      local introtext="You are currently using the stable version of openHABian.\\nAccess to the latest features would require you to switch to the latest version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the clonebranch= parameter in /etc/openhabian.conf.\\n"
+    else
+      local introtext="You are currently using neither the stable version nor the latest (\"master\") version of openHABian.\\nAccess to the latest features would require you to switch to master while the default is to use the stable version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the clonebranch= parameter in /etc/openhabian.conf.\\n"
+    fi
+  fi
+
   FAILED=0
+  if [[ -n "$INTERACTIVE" ]]; then
+    if [[ "$current" == "stable" || "$current" == "master" ]]; then
+      if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 2 stable "recommended standard version of openHABian" on master "very latest version of openHABian" off 3>&1 1>&2 2>&3); then return 0; fi
+    else
+      if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 3 stable "recommended standard version of openHABian" off master "very latest version of openHABian" off "$current" "some other version you fetched yourself" on 3>&1 1>&2 2>&3); then return 0; fi
+    fi
+    sed -i "s@^clonebranch=.*@clonebranch=$sel@g" "/etc/openhabian.conf"
+  fi
   echo -n "$(timestamp) [openHABian] Updating myself... "
   read -r -t 1 -n 1 key
   if [ "$key" != "" ]; then
@@ -64,8 +102,9 @@ openhabian_update() {
       return 1
     fi
   else
-    branch="master"
+    branch="${sel:-stable}"
   fi
+
   shorthash_before=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
   git -C "$BASEDIR" fetch --quiet origin || FAILED=1
   git -C "$BASEDIR" reset --quiet --hard "origin/$branch" || FAILED=1
