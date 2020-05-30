@@ -225,7 +225,8 @@ influxdb_grafana_setup() {
 influxdb_install() {
   local influxdb_address
   local influxdb_admin_username
-  local dist codename
+  local dist
+  local codename
 
   cond_echo ""
   echo "Installing InfluxDB..."
@@ -242,9 +243,9 @@ influxdb_install() {
   influxdb_admin_username="admin"
 #  if [ ! -f /etc/influxdb/influxdb.conf ]; then
     cond_redirect wget -O - https://repos.influxdata.com/influxdb.key | apt-key add - || FAILED=1
-    echo "deb https://repos.influxdata.com/$dist $codename stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
+    echo "deb https://repos.influxdata.com/${dist} ${codename} stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
     cond_redirect apt-get update || FAILED=1
-    cond_redirect apt-get -y install influxdb || FAILED=1
+    cond_redirect apt-get install --yes influxdb || FAILED=1
 
     # disable authentication, to allow changes in existing installations
     cond_redirect sed -i 's/auth-enabled = true/# auth-enabled = false/g' /etc/influxdb/influxdb.conf || FAILED=1
@@ -290,7 +291,7 @@ grafana_install(){
   cond_redirect wget -O - https://packages.grafana.com/gpg.key | apt-key add - || FAILED=2
   echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list || FAILED=2
   cond_redirect apt-get update || FAILED=1
-  cond_redirect apt-get -y install grafana || FAILED=2
+  cond_redirect apt-get install --yes grafana || FAILED=2
 
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable grafana-server.service
@@ -301,7 +302,7 @@ grafana_install(){
   echo -n "Wait for Grafana to start... "
   curl --retry 5 --retry-connrefused -s http://localhost:3000 >/dev/null || FAILED=2
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
-  sleep 10 
+  sleep 10
   cond_echo ""
 
   # password reset required if Grafana password was already set before (no first-time install)
