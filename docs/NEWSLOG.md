@@ -26,5 +26,5 @@ Preparing for openHAB 3, new options for the JDK that runs openHAB are now avail
 
 Current openHAB 2.5.X is supposed to work on Java 11 and openHAB 3 will be Java 11 only.
 
-Please participate in beta testing and help creating a smooth transition user experience for all of us. See [announcement thread]https://community.openhab.org/t/Java-testdrive/XXX) on the community forum.
+Please participate in beta testing and help creating a smooth transition user experience for all of us. See [announcement thread](https://community.openhab.org/t/Java-testdrive/XXX) on the community forum.
 
