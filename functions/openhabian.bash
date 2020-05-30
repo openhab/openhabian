@@ -25,11 +25,10 @@ wait_for_apt_to_finish_update() {
 openhabian_announcements() {
   local newsfile="${BASEDIR}/NEWS.md"
   local readnews="${BASEDIR}/docs/LASTNEWS.md"
-pwd
-  local news=$(cat "$newsfile")
 
   if ! diff -q "$newsfile" "$readnews" >/dev/null 2>&1; then
-    if (whiptail --title "openHABian breaking NEWS" --yes-button "I have read this" --no-button "keep displaying" --defaultno --yesno --scrolltext "$(cat $newsfile)" 22 90); then
+    # shellcheck disable=SC2086
+    if (whiptail --title "openHABian breaking NEWS" --yes-button "I have read this" --no-button "keep displaying" --defaultno --yesno --scrolltext "$(cat $newsfile)" 24 90); then
       cp "$newsfile" "$readnews";
     fi
   fi

@@ -35,7 +35,7 @@ if [[ "$debugmode" == "on" ]]; then
   unset DEBUGMAX
 elif [[ "$debugmode" == "maximum" ]]; then
   echo "$(timestamp) [openHABian] Enable maximum debugging output"
-  DEBUGMAX=1
+  export DEBUGMAX=1
   set -x
 fi
 
