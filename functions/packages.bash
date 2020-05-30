@@ -3,7 +3,7 @@
 samba_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
   if ! command -v samba &>/dev/null; then
-  if ! cond_redirect apt-get -y install samba; then echo "FAILED"; exit 1; fi
+  if ! cond_redirect apt-get install --yes samba; then echo "FAILED"; exit 1; fi
   fi
   cond_echo "Copying over custom 'smb.conf'... "
   cp "$BASEDIR"/includes/smb.conf /etc/samba/smb.conf
@@ -20,7 +20,7 @@ samba_setup() {
 firemotd_setup() {
   FAILED=0
   echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
-  cond_redirect apt-get -y install bc sysstat jq moreutils
+  cond_redirect apt-get install --yes bc sysstat jq moreutils
 
   # fetch and install
   cond_redirect curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD -o /tmp/FireMotD || FAILED=1
@@ -80,7 +80,7 @@ ion into small files: Yes\\n"
 }
 
 exim_setup() {
-  if apt-get -y install exim4 dnsutils mailutils &>/dev/null; then
+  if apt-get install --yes exim4 dnsutils mailutils &>/dev/null; then
     echo "OK"
     create_mta_config
   else
@@ -90,7 +90,7 @@ exim_setup() {
 
 etckeeper_setup() {
   echo -n "$(timestamp) [openHABian] Installing etckeeper (git based /etc backup)... "
-  if apt-get -y install etckeeper &>/dev/null; then
+  if apt-get install --yes etckeeper &>/dev/null; then
     cond_redirect sed -i 's/VCS="bzr"/\#VCS="bzr"/g' /etc/etckeeper/etckeeper.conf
     cond_redirect sed -i 's/\#VCS="git"/VCS="git"/g' /etc/etckeeper/etckeeper.conf
     if cond_redirect bash -c "cd /etc && etckeeper init && git config user.email 'etckeeper@localhost' && git config user.name 'openhabian' && git commit -m 'initial checkin' && git gc"; then echo "OK"; else echo "FAILED"; fi
@@ -159,7 +159,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
   esac
 
   if ! cond_redirect apt-get update; then echo "FAILED"; exit 1; fi
-  if ! cond_redirect apt-get -y install homegear homegear-homematicbidcos homegear-homematicwired; then echo "FAILED"; exit 1; fi
+  if ! cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired; then echo "FAILED"; exit 1; fi
   cond_redirect systemctl enable homegear.service
   cond_redirect systemctl start homegear.service
   cond_redirect adduser "${username:-openhabian}" homegear
@@ -192,7 +192,7 @@ To continue your integration in openHAB 2, please follow the instructions under:
     echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
     cond_redirect apt-get update
   fi
-  if ! cond_redirect apt-get -y install mosquitto mosquitto-clients; then echo "FAILED"; exit 1; fi
+  if ! cond_redirect apt-get install --yes mosquitto mosquitto-clients; then echo "FAILED"; exit 1; fi
   if [ "$mqttpasswd" != "" ]; then
     if ! grep -q password_file /etc/mosquitto/passwd /etc/mosquitto/mosquitto.conf; then
       echo -e "\\npassword_file /etc/mosquitto/passwd\\nallow_anonymous false\\n" >> /etc/mosquitto/mosquitto.conf
@@ -277,7 +277,7 @@ find_setup() {
     cond_redirect systemctl restart mosquitto.service || true
   fi
 
-  if ! cond_redirect apt-get -y install libsvm-tools; then echo "FAILED (SVM)"; return 1; fi
+  if ! cond_redirect apt-get install --yes libsvm-tools; then echo "FAILED (SVM)"; return 1; fi
 
   cond_redirect mkdir -p ${FIND_DSTDIR}
   cond_redirect wget -O ${FIND_TMP} ${FIND_SRC}
@@ -364,7 +364,7 @@ and activate one of these most common options (depending on your device):
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect apt-get -y install owserver ow-shell usbutils || FAILED=1
+  cond_redirect apt-get install --yes owserver ow-shell usbutils || FAILED=1
   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
   if [ -n "$INTERACTIVE" ]; then
@@ -392,7 +392,7 @@ The article also contains instructions regarding openHAB integration.
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
   fi
 
-  if ! cond_redirect apt-get -y install git python3 python3-pip bluetooth bluez; then echo "FAILED (prerequisites)"; exit 1; fi
+  if ! cond_redirect apt-get install --yes git python3 python3-pip bluetooth bluez; then echo "FAILED (prerequisites)"; exit 1; fi
   if [ ! -d "$DIRECTORY" ]; then
     cond_echo "Fresh Installation... "
     cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git $DIRECTORY
@@ -651,7 +651,7 @@ or just reboot the system.
   cond_redirect wget -O - https://s3.eu-central-1.amazonaws.com/download.telldus.com/debian/telldus-public.key | apt-key add -
   echo "deb https://s3.eu-central-1.amazonaws.com/download.telldus.com unstable main" > /etc/apt/sources.list.d/telldus-unstable.list
   cond_redirect apt-get update
-  cond_redirect apt-get -y install libjna-java telldus-core || FAILED=1
+  cond_redirect apt-get install --yes libjna-java telldus-core || FAILED=1
   if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
 
   echo -n "$(timestamp) [openHABian] Setting up systemd service for telldusd... "

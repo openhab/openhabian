@@ -62,7 +62,7 @@ inject_build_repo() {
     echo_process "inject_build_repo() invoked without clone_string variable set, exiting...."
     exit 1
   fi
-  sed -i '$a /usr/bin/apt-get -y install figlet &>/dev/null' "$1"
+  sed -i '$a /usr/bin/apt-get install --yes figlet &>/dev/null' "$1"
   sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' "$1"
@@ -220,7 +220,7 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   # Prerequisites
   echo_process "Downloading prerequisites... "
   apt-get update
-  apt-get -y install git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl dos2unix
+  apt-get install --yes git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl dos2unix
 
   echo_process "Cloning \"longsleep/build-pine64-image\" project... "
   git clone -b master https://github.com/longsleep/build-pine64-image.git $buildfolder
