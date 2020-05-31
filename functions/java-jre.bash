@@ -84,17 +84,17 @@ java_zulu_8_tar(){
 
   else
     echo -n "[DEBUG] Invalid argument to function java_zulu_8_tar()"
-    exit 1
+    return 1
   fi
   jdkTempLocation="$(mktemp -d /tmp/openhabian.XXXXX)"
-  if [ -z "$jdkTempLocation" ]; then echo "FAILED"; exit 1; fi
+  if [ -z "$jdkTempLocation" ]; then echo "FAILED"; return 1; fi
   jdkInstallLocation="/opt/jdk"
   mkdir -p $jdkInstallLocation
 
   # Fetch and copy new Java Zulu 8 runtime
   cond_redirect wget -nv -O "$jdkTempLocation"/zulu8.tar.gz "$link"
   tar -xpzf "$jdkTempLocation"/zulu8.tar.gz -C "${jdkTempLocation}"
-  if [ $? -ne 0 ]; then echo "FAILED"; rm -rf "$jdkTempLocation"/zulu8.tar.gz; exit 1; fi
+  if [ $? -ne 0 ]; then echo "FAILED"; rm -rf "$jdkTempLocation"/zulu8.tar.gz; return 1; fi
   rm -rf "$jdkTempLocation"/zulu8.tar.gz "${jdkInstallLocation:?}"/*
   mv "${jdkTempLocation}"/* "${jdkInstallLocation}"/
 
@@ -113,7 +113,7 @@ java_zulu_8_tar(){
 
   cond_redirect java_zulu_install_crypto_extension
 
-  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; return 1; fi
   cond_redirect systemctl start openhab2.service
 }
 
@@ -125,10 +125,10 @@ java_zulu_enterprise_8_apt(){
     cond_redirect systemctl stop openhab2.service
     echo -n "$(timestamp) [openHABian] Installing Zulu Enterprise 64-Bit OpenJDK... "
     cond_redirect apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 219BD9C9
-    if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (keyserver)"; return 1; fi
     echo "deb http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list
     cond_redirect apt-get update
-    if cond_redirect apt-get install --yes zulu-8 && java_zulu_install_crypto_extension; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect apt-get --yes install zulu-8 && java_zulu_install_crypto_extension; then echo "OK"; else echo "FAILED"; return 1; fi
     cond_redirect systemctl start openhab2.service
   fi
 }
@@ -160,7 +160,7 @@ fetch_zulu_tar_url(){
 
   else
     echo -n "[DEBUG] Invalid argument to function fetch_zulu_tar_url()"
-    exit 1
+    return 1
   fi
 
   if [ -z "$downloadlink" ]; then return 1; fi
@@ -203,7 +203,7 @@ java_zulu_tar_update_available(){
     fi
 
   else
-    if [ $? -ne 0 ]; then echo "FAILED (java update available)"; exit 1; fi
+    if [ $? -ne 0 ]; then echo "FAILED (java update available)"; return 1; fi
   fi
 
   if [[ $javaVersion == "$availableVersion" ]]; then
@@ -222,7 +222,7 @@ java_zulu_install_crypto_extension(){
   jdkSecurity="$(dirname "${jdkPath}")/../lib/security"
   mkdir -p "$jdkSecurity"
   policyTempLocation="$(mktemp -d /tmp/openhabian.XXXXX)"
-  if [ -z "$policyTempLocation" ]; then echo "FAILED"; exit 1; fi
+  if [ -z "$policyTempLocation" ]; then echo "FAILED"; return 1; fi
 
   cond_redirect wget -nv -O "$policyTempLocation"/crypto.zip https://cdn.azul.com/zcek/bin/ZuluJCEPolicies.zip
   cond_redirect unzip "$policyTempLocation"/crypto.zip -d "$policyTempLocation"
