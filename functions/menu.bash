@@ -6,8 +6,8 @@ This tool provides a little help to make your openHAB experience as comfortable 
 \\nMake sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
 \\nMenu 01 to select the standard (stable) or the very latest (master) version.
 Menu 40 to select the standard release, milestone or very latest development version of openHAB and
-Menu 03 to install it.
-Menu 02 will upgrade all of your OS and applications the the latest versions, including openHAB.
+Menu 03 to install or upgrade it.
+Menu 02 will upgrade all of your OS and applications to the latest versions, including openHAB.
 Menu 10 provides a number of system tweaks. These are already active after a standard installation while
 Menu 30 allows for changing system configuration to match your hardware.
 Note that the raspi-config tool was intentionally removed to not interfere with openhabian-config.
