@@ -65,7 +65,7 @@ debugmode=off
 #release=buster
 
 # Java architecture mode
-# values: "Zulu32", "Zulu64" or "AdoptOpenJDK"
-java_arch=32-bit
+# Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
+java_opt=Zulu8-32
 
 # vim: filetype=sh
