@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+timestamp() { date +"%F_%T_%Z"; }
+
 nodejs_setup() {
   if command -v npm &>/dev/null; then
     return 0
