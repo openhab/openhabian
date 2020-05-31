@@ -146,17 +146,23 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 14 116 7 --cancel-button Back --ok-button Execute \
-    "41 | openHAB release  " "Install or switch to the latest openHAB release" \
-    "   | openHAB testing"   "Install or switch to the latest openHAB testing build" \
-    "   | openHAB snapshot"  "Install or switch to the latest openHAB SNAPSHOT build" \
-    "42 | Remote Console"    "Bind the openHAB SSH console to all external interfaces" \
-    "43 | Reverse Proxy"     "Setup Nginx with password authentication and/or HTTPS access" \
-    "44 | Delay rules load"  "Delay loading rules to speed up overall startup" \
-    "   | Default order"     "Reset config load order to default (random)" \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Back --ok-button Execute \
+    "41 | openHAB release"        "Install or switch to the latest openHAB release" \
+    "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
+    "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
+    "42 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
+    "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
+    "44 | Delay rules load"       "Delay loading rules to speed up overall startup" \
+    "   | Default order"          "Reset config load order to default (random)" \
+    "45 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" \
+    "   | Zulu 8 OpenJDK 64-bit"  "Install Zulu 8 64-bit OpenJDK as primary Java provider" \
+    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider (beta)" \
+    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider (beta)" \
+    "   | AdoptOpenJDK 11"        "Install AdoptOpenJDK 11 as primary Java provider (beta)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
+    # shellcheck disable=SC2154
     case "$choice2" in
       41\ *) openhab2_setup ;;
       *openHAB\ testing) openhab2_setup testing ;;
@@ -165,6 +171,11 @@ show_main_menu() {
       43\ *) nginx_setup ;;
       *Delay\ rules\ load) delayed_rules yes;;
       *Default\ order) delayed_rules no;;
+      *Zulu\ 8\ OpenJDK\ 32-bit) update_config_java "Zulu8-32" && java_install_or_update "Zulu8-32";;
+      *Zulu\ 8\ OpenJDK\ 64-bit) update_config_java "Zulu8-64" && java_install_or_update "Zulu8-64";;
+      *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
+      *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
+      *AdoptOpenJDK\ 11) update_config_java "Adopt11" && java_install_or_update "Adopt11";;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -185,10 +196,13 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "60"* ]]; then
-    choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 20 116 13 --cancel-button Back --ok-button Execute \
+    choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 23 116 16 --cancel-button Back --ok-button Execute \
     "62 | Packages"               "Install needed and recommended system packages " OFF \
-    "63 | Zulu OpenJDK 32-bit"    "Install Zulu OpenJDK Java 8 32-bit" OFF \
-    "   | Zulu OpenJDK 64-bit"    "Install Zulu OpenJDK Java 8 64-bit" OFF \
+    "63 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" OFF \
+    "   | Zulu 8 OpenJDK 64-bit"  "Install Zulu 8 64-bit OpenJDK as primary Java provider" OFF \
+    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider (beta)" OFF \
+    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider (beta)" OFF \
+    "   | AdoptOpenJDK 11"        "Install AdoptOpenJDK 11 as primary Java provider (beta)" OFF \
     "64 | openHAB stable"         "Install the latest openHAB release" OFF \
     "   | openHAB testing"        "Install the latest openHAB testing (milestone) build" OFF \
     "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
@@ -204,8 +218,11 @@ show_main_menu() {
     wait_for_apt_to_finish_update
     if [[ $choosenComponents == *"62"* ]]; then apt-get upgrade -y && basic_packages && needed_packages; fi
     # shellcheck disable=SC2154
-    if [[ $choosenComponents == *"63"* ]]; then update_config_java "32-bit"; java_install_or_update "$java_arch"; fi
-    if [[ $choosenComponents == *"Zulu OpenJDK 64-bit"* ]]; then update_config_java "64-bit"; java_install_or_update "$java_arch"; fi
+    if [[ $choosenComponents == *"Zulu 8 OpenJDK 32-bit"* ]]; then update_config_java "Zulu8-32" && java_install_or_update "Zulu8-32"; fi
+    if [[ $choosenComponents == *"Zulu 8 OpenJDK 64-bit"* ]]; then update_config_java "Zulu8-64" && java_install_or_update "Zulu8-64"; fi
+    if [[ $choosenComponents == *"Zulu 11 OpenJDK 32-bit"* ]]; then update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32"; fi
+    if [[ $choosenComponents == *"Zulu 11 OpenJDK 64-bit"* ]]; then update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64"; fi
+    if [[ $choosenComponents == *"AdoptOpenJDK 11"* ]]; then update_config_java "Adopt11" && java_install_or_update "Adopt11"; fi
     if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
     if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
     if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi
