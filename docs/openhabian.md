@@ -142,7 +142,6 @@ You can actually set a number of parameters before you try installing from SD ca
 - Continue with the instructions for your hardware
 
 ### WiFi based Setup Notes {#wifi-setup}
-
 If you own a RPi3, RPi3+, RPi4, a RPi0W, a Pine A64, or a compatible WiFi dongle you can set up and use openHABian purely via WiFi.
 For the setup on WiFi, you'll need to make your SSID and password known to the system before the first boot.
 Additionally to the setup instructions given above, the following steps are needed:
@@ -158,7 +157,6 @@ See [Troubleshooting](#Troubleshooting) section if you run into trouble installi
 edit `openhabian.conf` and set the `debugmode=` parameter to either `off`, `on` or `maximum`.
 
 ### IPv6 notes {#ipv6-notes}
-
 You might encounter problems when you make use of IPv6 on some networks and systems. openHABian installation may stop or hang forever.
 In that case _or if you are sure that you do not need IPv6 on your openHABian server_, you can disable IPv6.
 Follow the instructions in the previous section and insert a line into `openhabian.conf` reading `ipv6=disable`.
@@ -264,7 +262,6 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 - Tellstick core
 
 ## Troubleshooting
-
 If you're having problems to get openHABian to install properly, check out the [debug guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md). It's also available on your system as [/opt/openhabian/docs/openhabian-DEBUG.md](openhabian-DEBUG.md).
 
 Do not hesitate to ask for help on the [openHABian community forum](https://community.openhab.org/) ! Remember to [mind the rules](https://community.openhab.org/t/how-to-ask-a-good-question-help-us-help-you/58396) please.
@@ -285,6 +282,7 @@ A note on **patience**: stay calm - the openHABian setup will take 15 up to 45 m
 The amount of time highly depends on your device's performance and a number of extrenal factors such as your internet connection.
 
 
+
 <!--
 #### LED Indication (RPi only)
 
@@ -300,7 +298,6 @@ We will re-add the functionality as soon as the underlying issue is resolved.
 -->
 
 #### Progress Report
-
 Watch the progress on the console or the web interface at https://<yourip>/ or http://openhab/ if that name has become available.
 
 Double-check the address and name with your router while you wait.
@@ -310,7 +307,6 @@ with the way your router or local network are setup.
 
 You might want to try disabling IPv6.
 Read on in the [Troubleshooting] section or move on to the [DEBUG guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md).
-
 
 It is also always possible to [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device (after a few minutes of boot up time).
 During the setup process you'll be redirected to the live progress report of the setup.
@@ -323,7 +319,6 @@ The progress of a successful installation will look similar to the following:
 Wait till the log tells you that the setup was "successful", then reconnect to the device.
 
 #### SSH Login Screen
-
 If the installation was **successful** you will see the normal login screen as shown in the first screenshot.
 If the installation was **not successful** you will see a warning and further instructions as shown in the second screenshot.
 
@@ -333,18 +328,15 @@ If the installation was **not successful** you will see a warning and further in
 </div>
 
 #### openHAB Dashboard
-
 After the installation of openHABian was successful, you should be able to access the openHAB dashboard:
 
 - Raspberry Pi image setup: [http://openhab:8080](http://openhab:8080)
 - In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP)
 
 #### What's next?
-
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem. Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 
 #### Can I switch from openHAB 2 stable to the testing or unstable branch? {#switch-openhab-branch}
-
 openHABian installs the latest stable build of openHAB 2.
 If you want to switch over to the snapshot or milestone release, please do so via the openHABian Configuration Tool.
 Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
@@ -352,7 +344,6 @@ Switching from stable to newer development releases might introduce changes and 
 Check the Linux installation article for all needed details: [Linux: Changing Versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 
 #### Where is the graphical user interface? {#headache}
-
 I've just installed openHABian and now I'm confused.
 No fancy login screen, no windows, no mouse support. What did I get into?
 
@@ -374,7 +365,6 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
 #### Can I use openHABian on ...? {#faq-other-platforms}
-
 See the [README](../README.md) for a list of supported HW and OS.
 openHABian is developed for Debian/Ubuntu based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.

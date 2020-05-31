@@ -50,20 +50,6 @@ debugmode=off
 # trusty, xenial, bionic, focal
 #release=buster
 
-# Hardware
-# pi0, pi0w, pi1, cm1, pi2, pi3, cm3, pi3+, cm3+, pi4
-#hw=pi3
-
-# Hardware architecture
-# x86_64, amd64, armv6l, armv7l, aarch64, arm64
-#hwarch=armv7l
-
-# OS Release
-# ubuntu, raspbian, debian
-# jessie, stretch, buster, bullseye, sid
-# trusty, xenial, bionic, focal
-#release=buster
-
 # Java architecture mode
 # values: "Zulu32", "Zulu64" or "AdoptOpenJDK"
 java_arch=32-bit
