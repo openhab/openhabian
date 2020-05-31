@@ -11,7 +11,7 @@ If there's a problem with the implementation, you will receive feedback on what 
 We might decide against incorporating a new feature that does not match the scope of this project.
 Get in contact early in the development to propose your idea.
 
-### Workflow Making Changes
+### Making Workflow Changes
 
 Fork the repository and make changes on your fork in a feature branch.
 
@@ -145,9 +145,11 @@ Also remember that nobody likes spam.
 
 ## Code Guidelines
 
-*   Use two (2) spaces when indent code.
+*   Use two (2) spaces when indenting code.
 
 *   `local` declarations of variables should be used when possible.
+
+*   Always refuse to allow the running of package setup scripts that require user input in unattended mode.
 
 ### Usage of `apt-get update` command
 

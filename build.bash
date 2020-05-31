@@ -13,12 +13,12 @@ usage() {
 # shellcheck disable=SC1090
 source "$(dirname "$0")"/functions/helpers.bash
 
-## This format timestamp
+# Log with timestamp
 timestamp() { date +"%F_%T_%Z"; }
 
-## This function format log messages
+## This function formats log messages
 ##
-##      echo_process(String message)
+##    echo_process(String message)
 ##
 echo_process() { echo -e "\\e[1;94m$(timestamp) [openHABian] $*\\e[0m"; }
 

@@ -62,7 +62,7 @@ elif [[ "$debugmode" = "on" ]]; then
 elif [[ "$debugmode" = "maximum" ]]; then
   unset SILENT
   DEBUGMAX=1
-  
+
   set -x
 fi
 

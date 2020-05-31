@@ -46,8 +46,8 @@ debugmode=off
 
 # OS Release
 # ubuntu, raspbian, debian
-# jessie, stretch, buster, bullseye, sid
-# trusty, xenial, bionic, focal
+# stretch, buster
+# bionic, focal
 #release=buster
 
 # Java architecture mode
