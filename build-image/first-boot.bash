@@ -30,11 +30,12 @@ source "$CONFIGFILE"
 echo "OK"
 
 # shellcheck disable=SC2154
-if [[ "$debugmode" == "default" ]]; then
+if [[ "$debugmode" == "on" ]]; then
   unset SILENT
   unset DEBUGMAX
 elif [[ "$debugmode" == "maximum" ]]; then
   echo "$(timestamp) [openHABian] Enable maximum debugging output"
+  export DEBUGMAX=1
   set -x
 fi
 
@@ -75,7 +76,7 @@ echo "watch cat /boot/first-boot.log" > "$HOME/.bash_profile"
 # shellcheck disable=SC2154
 if [ -z "${wifi_ssid}" ]; then
   echo "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
-elif grep -q "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf; then
+elif grep -q "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -q "^[[:space:]]*dtoverlay=disable-wifi" /boot/config.txt; then
   echo -n "$(timestamp) [openHABian] Setting up Wi-Fi connection... "
   if iwlist wlan0 scanning 2>&1 | grep -q "Interface doesn't support scanning"; then
     # wifi might be blocked
@@ -155,7 +156,7 @@ if apt-get --yes upgrade &>/dev/null; then echo "OK"; else echo "FAILED"; fail_i
 if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
-if apt-get -y install git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
 if [ -d /opt/openhabian/ ]; then cd /opt && rm -rf /opt/openhabian/; fi
 # shellcheck disable=SC2154
@@ -188,7 +189,7 @@ sleep 12
 if hash python3 2>/dev/null; then bash /boot/webif.bash cleanup; fi
 
 if [ -z "$SILENT" ]; then
-  echo -e "\n\e[36mMemory usage:"
+  echo -e "\\n\\e[36mMemory usage:"
   free -m && ps -auxq "$(cat /var/lib/openhab2/tmp/karaf.pid)" |awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
 fi
 

@@ -32,6 +32,8 @@ cond_echo() {
   fi
 }
 
+# fingerprinting based on
+# https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
 is_pizero() {
   # shellcheck disable=SC2154
   if [[ "$hw" == "pi0" ]]; then return 0; fi
@@ -53,6 +55,12 @@ is_pione() {
     return 1
   fi
 }
+is_cmone() {
+  # shellcheck disable=SC2154
+  if [[ "$hw" == "cm1" ]]; then return 0; fi
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]06[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
 is_pitwo() {
   if [[ "$hw" == "pi2" ]]; then return 0; fi
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]04[0-9a-fA-F]$" /proc/cpuinfo
@@ -63,9 +71,19 @@ is_pithree() {
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]08[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
+is_cmthree() {
+  if [[ "$hw" == "cm3" ]]; then return 0; fi
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[aA][0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
 is_pithreeplus() {
   if [[ "$hw" == "pi3+" ]]; then return 0; fi
-  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0d[0-9a-fA-F]$" /proc/cpuinfo
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[dDeE][0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
+is_cmthreeplus() {
+  if [[ "$hw" == "cm3+" ]]; then return 0; fi
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]10[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pifour() {
@@ -74,7 +92,7 @@ is_pifour() {
   return $?
 }
 is_pi() {
-  if is_pizero || is_pizerow || is_pione || is_pitwo || is_pithree || is_pithreeplus  || is_pifour; then return 0; fi
+  if is_pizero || is_pizerow || is_pione || is_cmone || is_pitwo || is_pithree || is_cmthree || is_pithreeplus || is_cmthreeplus || is_pifour; then return 0; fi
   return 1
 }
 is_pine64() {
@@ -179,16 +197,16 @@ is_xenial() {
   [[ $(cat /etc/*release*) =~ "xenial" ]]
   return $?
 }
-# Ubuntu 18
+# Ubuntu 18.04 LTS
 is_bionic() {
   if [[ "$release" == "bionic" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "bionic" ]]
   return $?
 }
-# Ubuntu 20
-is_disco() {
-  if [[ "$release" == "disco" ]]; then return 0; fi
-  [[ $(cat /etc/*release*) =~ "disco" ]]
+# Ubuntu 20.04 LTS
+is_focal() {
+  if [[ "$release" == "focal" ]]; then return 0; fi
+  [[ $(cat /etc/*release*) =~ "focal" ]]
   return $?
 }
 running_in_docker() {
@@ -207,7 +225,7 @@ tryUntil() {
   local i=$count
   interval=${3:-1}
   until [ "$i" -le 0 ]; do
-    cond_echo "Executing ${cmd}"
+    cond_echo -n "(executing ${cmd})"
     eval "${cmd}"
     ret=$?
     if [ $ret -eq 0 ]; then break; fi

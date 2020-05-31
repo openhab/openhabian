@@ -36,7 +36,7 @@ if [ "$1" == "docker-full" ]; then
     cond_redirect docker build --tag openhabian/openhabian-bats .
     cond_redirect docker run -it openhabian/openhabian-bats bash -c 'bats -r -f "unit-." .'
     cond_redirect docker run --name "install-test" --privileged -d openhabian/openhabian-bats
-    cond_redirect docker exec -it install-test bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local"                                                
+    cond_redirect docker exec -it install-test bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local"
     cond_redirect docker exec -it install-test bash -c 'bats -r -f "installation-." .'
     cond_redirect docker exec -it install-test bash -c 'bats -r -f "destructive-." .'
     echo_process "Test complete, please review result in terminal. Access tested container by executing: \"docker exec -it install-test bash\""

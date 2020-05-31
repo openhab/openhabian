@@ -22,6 +22,18 @@ wait_for_apt_to_finish_update() {
   wait -f ${PID_APT} 2>/dev/null
 }
 
+openhabian_announcements() {
+  local newsfile="${BASEDIR}/NEWS.md"
+  local readnews="${BASEDIR}/docs/LASTNEWS.md"
+
+  if ! diff -q "$newsfile" "$readnews" >/dev/null 2>&1; then
+    # shellcheck disable=SC2086
+    if (whiptail --title "openHABian breaking NEWS" --yes-button "I have read this" --no-button "keep displaying" --defaultno --yesno --scrolltext "$(cat $newsfile)" 24 90); then
+      cp "$newsfile" "$readnews";
+    fi
+  fi
+}
+
 openhabian_console_check() {
   if [ "$(tput cols)" -lt  120 ]; then
     warningtext="We detected that you use a console which is less than 120 columns wide. This tool is designed for a minimum of 120 columns and therefore some menus may not be presented correctly. Please increase the width of your console and rerun this tool.
@@ -32,8 +44,9 @@ openhabian_console_check() {
 
 openhabian_update_check() {
   local branch
-
+  local introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
   FAILED=0
+  openhabian_announcements
   echo "$(timestamp) [openHABian] openHABian configuration tool version: $(get_git_revision)"
   branch=${clonebranch:-HEAD}
   echo -n "$(timestamp) [openHABian] Checking for changes in origin branch $branch ... "
@@ -45,11 +58,11 @@ openhabian_update_check() {
     echo "OK"
   else
     echo -n "Updates available... "
-    introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
-    if ! (whiptail --title "openHABian update available" --yes-button "Continue" --no-button "Skip" --yesno "$introtext" 15 80) then echo "SKIP"; return 0; fi
+    if ! (whiptail --title "openHABian Update Available" --yes-button "Continue" --no-button "Skip" --yesno "$introtext" 15 80); then echo "SKIP"; return 0; fi
     echo ""
     openhabian_update "$branch"
   fi
+  openhabian_announcements
   echo -n "$(timestamp) [openHABian] Switching to branch $clonebranch ... "
   # shellcheck disable=SC2015
   git -C "$BASEDIR" checkout --quiet "$clonebranch" && echo "OK" || (FAILED=1; echo "FAILED"; return 0)
@@ -154,7 +167,7 @@ system_check_default_password() {
 ua-netinst_check() {
   if [ -f "/boot/config-reinstall.txt" ]; then
     introtext="Attention: It was brought to our attention that the old openHABian ua-netinst based image has a problem with a lately updated Linux package.\\nIf you upgrade(d) the package 'raspberrypi-bootloader-nokernel' your Raspberry Pi will run into a Kernel Panic upon reboot!\\nDo not upgrade, do not reboot!\\nA preliminary solution is to not upgrade the system (via the Upgrade menu entry or 'apt-get upgrade') or to modify a configuration file. In the long run we would recommend to switch over to the new openHABian Raspbian based system image! This error message will keep reapearing even after you fixed the issue at hand.\\nPlease find all details regarding the issue and the resolution of it at: https://github.com/openhab/openhabian/issues/147"
-    if ! (whiptail --title "openHABian Raspberry Pi ua-netinst image detected" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 20 80) then return 0; fi
+    if ! (whiptail --title "openHABian Raspberry Pi ua-netinst image detected" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 20 80); then return 0; fi
   fi
 }
 
@@ -199,4 +212,3 @@ disable_ipv6() {
     sed -i "s/^${IPV6_ENABLE}.*/# ${IPV6_ENABLE}/g" "${SYSCTL_INIT}"
   fi
 }
-
