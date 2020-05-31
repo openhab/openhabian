@@ -15,17 +15,17 @@ move_root2usb() {
 
   if [ -f /etc/ztab ]; then
     if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Incompatible selection detected" --msgbox "Move root to USB must not be used together with ZRAM.\\nIf you want to mitigate SD card corruption, don't move root but stay with ZRAM, it is the proper choice. If you want to move for other reasons, uninstall ZRAM first then return here." 10 60
+      whiptail --title "Incompatible selection detected" --msgbox "Move root to USB must not be used together with ZRAM.\\nIf you want to mitigate SD card corruption, don't move root but stay with ZRAM, it is the proper choice.\\nIf you want to move for other reasons, uninstall ZRAM first then return here." 10 65
     fi
     echo "FAILED"; return 1
   fi
   if ! (whiptail --title "Move system root to '$NEWROOTPART'" --yes-button "Continue" --no-button "Back" --yesno "$infotext" 22 116); then echo "CANCELED"; return 0; fi
 
-  # check if system root is on partition 2 of the SD card
-  # since 2017-06, rasbian uses PARTUUID=.... in cmdline.txt and fstab instead of /dev/mmcblk0p2...
+  #check if system root is on partition 2 of the SD card
+  #since 2017-06, rasbian uses PARTUUID=.... in cmdline.txt and fstab instead of /dev/mmcblk0p2...
   rootonsdcard=false
 
-  # extract rootpart
+  #extract rootpart
   rootpart=$(sed "s/.*root=\\([a-zA-Z0-9\\/=-]*\\)\\(.*\\)/\\1/" < /boot/cmdline.txt)
 
   if [[ $rootpart == *"PARTUUID="* ]]; then
@@ -36,15 +36,30 @@ move_root2usb() {
     rootonsdcard=true
   fi
 
-  # exit if root is not on SDCARD
+  #exit if root is not on SDCARD
   if ! [ $rootonsdcard = true ]; then
     infotext="It seems as if your system root is not on the SD card.
        ***Aborting, process cant be started***"
-    whiptail --title "System root not on SD card?" --msgbox "$infotext" 8 78
+    whiptail --title "System root not on SD card ?" --msgbox "$infotext" 8 78
     return 0
   fi
 
-  # check if USB power is already set to 1A, otherwise set it there
+  #exit if destination is not available
+  if ! [[ -b "$NEWROOTPART" ]]; then
+    infotext="Seems there is no external storage medium inserted that we could move openHABian root to.\\n***Aborting, process cant be started***"
+    whiptail --title "No destination SD card ?" --msgbox "$infotext" 8 78
+    return 0
+  fi
+
+  srcsize=$(blockdev --getsize64 /dev/mmcblk0)
+  destsize=$(blockdev --getsize64 "$NEWROOTDEV")
+  if [[ "$srcsize" -gt "$destsize" ]]; then
+    infotext="Your internal storage medium is larger than the external device/medium you want to move your root to. This will very likely break your system.\\n\\nDo you still REALLY want to continue ?"
+    if ! (whiptail --title "Move system root to '$NEWROOTPART'" --yes-button "Continue" --no-button "Stop" --defaultno --yesno "$infotext" 12 78) then echo "CANCELED"; return 0; fi
+  fi
+exit 1
+
+  #check if USB power is already set to 1A, otherwise set it there
   if grep -q -F 'max_usb_current=1' /boot/config.txt; then
      echo "max_usb_current already set, ok"
   else
@@ -52,14 +67,13 @@ move_root2usb() {
 
      echo
      echo "********************************************************************************"
-     # shellcheck disable=SC2086
-     echo "REBOOT, run $(basename $0) again and recall menu item 'Move root to USB'"
+     echo "REBOOT, run openhabian-setup.sh again and recall menu item 'Move root to USB'"
      echo "********************************************************************************"
      whiptail --title "Reboot needed!" --msgbox "USB had to be set to high power (1A) first. Please REBOOT and RECALL this menu item." 15 78
-     exit 0
+     exit
   fi
 
-  # ask user to be patient ...
+  #inform user to be patient ...
   infotext="After confirming with OK, system root will be moved.\\nPlease be patient. This will take 5 to 15 minutes, depending mainly on the speed of your USB device.\\nWhen the process is finished, you will be informed via message box..."
 
   whiptail --title "Moving system root ..." --msgbox "$infotext" 14 78
@@ -67,18 +81,18 @@ move_root2usb() {
   echo "stopping openHAB"
   systemctl stop openhab2
 
-  # delete all old partitions
-  # http://www.cyberciti.biz/faq/linux-remove-all-partitions-data-empty-disk
+  #delete all old partitions
+  #http://www.cyberciti.biz/faq/linux-remove-all-partitions-data-empty-disk
   dd if=/dev/zero of=$NEWROOTDEV  bs=512 count=1
 
-  # https://suntong.github.io/blogs/2015/12/25/use-sfdisk-to-partition-disks
+  #https://suntong.github.io/blogs/2015/12/25/use-sfdisk-to-partition-disks
   echo "partitioning on '$NEWROOTDEV'"
-  # create one big new partition
+  #create one big new partition
   echo ';' | /sbin/sfdisk $NEWROOTDEV
 
 
   echo "creating filesys on '$NEWROOTPART'"
-  # create new filesystem on partion 1
+  #create new filesystem on partion 1
   mkfs.ext4 -F -L oh_usb $NEWROOTPART
 
   echo "mounting new root '$NEWROOTPART'"
@@ -94,13 +108,13 @@ move_root2usb() {
 
   echo
   echo "adjusting fstab on new root"
-  # adjust system root in fstab
+  #adjust system root in fstab
   sed -i "s#$rootpart#$NEWROOTPART#" /mnt/etc/fstab
 
   echo "adjusting system root in kernel bootline"
-  # make a copy of the original cmdline
+  #make a copy of the original cmdline
   cp /boot/cmdline.txt /boot/cmdline.txt.sdcard
-  # adjust system root in kernel bootline
+  #adjust system root in kernel bootline
   sed -i "s#root=$rootpart#root=$NEWROOTPART#" /boot/cmdline.txt
 
   echo
