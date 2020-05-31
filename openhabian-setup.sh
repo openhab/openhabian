@@ -102,11 +102,10 @@ if [[ -n "$UNATTENDED" ]]; then
   srv_bind_mounts
   permissions_corrections
   misc_system_settings
-# not per default for now
-# if is_pione || is_pitwo || is_pithree || is_pithreeplus || is_pifour || is_pine64; then init_zram_mounts install; fi
   samba_setup
   clean_config_userpw
   frontail_setup
+  zram_setup
 else
   apt_update
   whiptail_check
@@ -120,6 +119,7 @@ else
   system_check_default_password
   echo -e "$(timestamp) [openHABian] We hope you got what you came for! See you again soon ;)"
 fi
-cd "$OLDWD" || exit 1
+# shellcheck disable=SC2164
+cd "$OLDWD"
 
 # vim: filetype=sh

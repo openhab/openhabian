@@ -235,3 +235,7 @@ tryUntil() {
   done
   return "$i"
 }
+has_lowmem() {
+  totalmemory=$(grep MemTotal /proc/meminfo |awk '{print $2}')
+  if [ "${totalmemory:-1000000}" -lt 900000 ]; then return 0; else return 1; fi
+}

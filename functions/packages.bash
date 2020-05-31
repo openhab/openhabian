@@ -3,7 +3,7 @@
 samba_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
   if ! command -v samba &>/dev/null; then
-  if ! cond_redirect apt-get install --yes samba; then echo "FAILED"; exit 1; fi
+    if ! cond_redirect apt-get install --yes samba; then echo "FAILED"; return 1; fi
   fi
   cond_echo "Copying over custom 'smb.conf'... "
   cp "$BASEDIR"/includes/smb.conf /etc/samba/smb.conf
@@ -23,9 +23,9 @@ firemotd_setup() {
   cond_redirect apt-get install --yes bc sysstat jq moreutils
 
   # fetch and install
-  cond_redirect curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD -o /tmp/FireMotD || FAILED=1
+  if ! cond_redirect curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD -o /tmp/FireMotD; then echo "FAILED"; return 1; fi
   chmod 755 /tmp/FireMotD
-  cond_redirect /tmp/FireMotD -I || FAILED=1
+  cond_redirect /tmp/FireMotD -I
   # generate theme
   cond_redirect FireMotD -G Gray
   # initial apt updates check
@@ -40,7 +40,7 @@ firemotd_setup() {
   echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /usr/local/bin/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
   # invoke apt updates check after every apt action ('apt-get upgrade', ...)
   echo "DPkg::Post-Invoke { \"if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
-  if [ $FAILED -eq 1 ]; then echo "FAILED "; else echo "OK "; fi
+  echo "OK"
 }
 
 create_mta_config() {
@@ -134,6 +134,12 @@ To continue your integration in openHAB 2, please follow the instructions under:
     Debian-buster)
       echo 'deb https://apt.homegear.eu/Debian/ buster/' > /etc/apt/sources.list.d/homegear.list
       ;;
+    Debian-bullseye)
+      echo 'deb https://apt.homegear.eu/Debian/ bullseye/' > /etc/apt/sources.list.d/homegear.list
+      ;;
+    Debian-sid)
+      echo 'deb https://apt.homegear.eu/Debian/ sid/' > /etc/apt/sources.list.d/homegear.list
+      ;;
     Raspbian-jessie)
       echo 'deb https://apt.homegear.eu/Raspbian/ jessie/' > /etc/apt/sources.list.d/homegear.list
       ;;
@@ -142,6 +148,12 @@ To continue your integration in openHAB 2, please follow the instructions under:
       ;;
     Raspbian-buster)
       echo 'deb https://apt.homegear.eu/Raspbian/ buster/' > /etc/apt/sources.list.d/homegear.list
+      ;;
+    Raspbian-bullseye)
+      echo 'deb https://apt.homegear.eu/Raspbian/ bullseye/' > /etc/apt/sources.list.d/homegear.list
+      ;;
+    Raspbian-sid)
+      echo 'deb https://apt.homegear.eu/Raspbian/ sid/' > /etc/apt/sources.list.d/homegear.list
       ;;
     Ubuntu-trusty)
       echo 'deb https://apt.homegear.eu/Ubuntu/ trusty/' > /etc/apt/sources.list.d/homegear.list
@@ -152,14 +164,17 @@ To continue your integration in openHAB 2, please follow the instructions under:
     Ubuntu-bionic)
       echo 'deb https://apt.homegear.eu/Ubuntu/ bionic/' > /etc/apt/sources.list.d/homegear.list
       ;;
+    Ubuntu-focal)
+      echo 'deb https://apt.homegear.eu/Ubuntu/ focal/' > /etc/apt/sources.list.d/homegear.list
+      ;;
     *)
-      cond_echo "Your OS is not supported"
-      exit 1
+      cond_echo "Sorry, your OS is not supported."
+      return 1
       ;;
   esac
 
-  if ! cond_redirect apt-get update; then echo "FAILED"; exit 1; fi
-  if ! cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired; then echo "FAILED"; exit 1; fi
+  if ! cond_redirect apt-get update; then echo "FAILED"; return 1; fi
+  if ! cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired; then echo "FAILED"; return 1; fi
   cond_redirect systemctl enable homegear.service
   cond_redirect systemctl start homegear.service
   cond_redirect adduser "${username:-openhabian}" homegear
@@ -192,20 +207,20 @@ To continue your integration in openHAB 2, please follow the instructions under:
     echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
     cond_redirect apt-get update
   fi
-  if ! cond_redirect apt-get install --yes mosquitto mosquitto-clients; then echo "FAILED"; exit 1; fi
+  if ! cond_redirect apt-get install --yes mosquitto mosquitto-clients; then echo "FAILED"; return 1; fi
   if [ "$mqttpasswd" != "" ]; then
     if ! grep -q password_file /etc/mosquitto/passwd /etc/mosquitto/mosquitto.conf; then
       echo -e "\\npassword_file /etc/mosquitto/passwd\\nallow_anonymous false\\n" >> /etc/mosquitto/mosquitto.conf
     fi
     echo -n "" > /etc/mosquitto/passwd
-    if ! cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd "$mqttuser" "$mqttpasswd"; then echo "FAILED"; exit 1; fi
+    if ! cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd "$mqttuser" "$mqttpasswd"; then echo "FAILED"; return 1; fi
   else
     cond_redirect sed -i "/password_file/d" /etc/mosquitto/mosquitto.conf
     cond_redirect sed -i "/allow_anonymous/d" /etc/mosquitto/mosquitto.conf
     cond_redirect rm -f /etc/mosquitto/passwd
   fi
   cond_redirect systemctl enable mosquitto.service
-  if cond_redirect systemctl restart mosquitto.service; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if cond_redirect systemctl restart mosquitto.service; then echo "OK"; else echo "FAILED"; return 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
     if [ $FAILED -eq 0 ]; then
@@ -392,23 +407,23 @@ The article also contains instructions regarding openHAB integration.
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
   fi
 
-  if ! cond_redirect apt-get install --yes git python3 python3-pip bluetooth bluez; then echo "FAILED (prerequisites)"; exit 1; fi
+  if ! cond_redirect apt-get install --yes git python3 python3-pip bluetooth bluez; then echo "FAILED (prerequisites)"; return 1; fi
   if [ ! -d "$DIRECTORY" ]; then
     cond_echo "Fresh Installation... "
     cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git $DIRECTORY
-    if ! cond_redirect cp "$DIRECTORY"/config.{ini.dist,ini}; then echo "FAILED (git clone)"; exit 1; fi
+    if ! cond_redirect cp "$DIRECTORY"/config.{ini.dist,ini}; then echo "FAILED (git clone)"; return 1; fi
   else
     cond_echo "Update... "
-    if ! cond_redirect git -C "$DIRECTORY" pull --quiet origin; then echo "FAILED (git pull)"; exit 1; fi
+    if ! cond_redirect git -C "$DIRECTORY" pull --quiet origin; then echo "FAILED (git pull)"; return 1; fi
   fi
   cond_redirect chown -R "openhab:$username" "$DIRECTORY"
   cond_redirect chmod -R ug+wX "$DIRECTORY"
-  if ! cond_redirect pip3 install -r "$DIRECTORY"/requirements.txt; then echo "FAILED (requirements)"; exit 1; fi
+  if ! cond_redirect pip3 install -r "$DIRECTORY"/requirements.txt; then echo "FAILED (requirements)"; return 1; fi
   cond_redirect cp "$DIRECTORY"/template.service /etc/systemd/system/miflora.service
   cond_redirect systemctl daemon-reload
   systemctl start miflora.service || true
   cond_redirect systemctl status miflora.service
-  if cond_redirect systemctl enable miflora.service; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if cond_redirect systemctl enable miflora.service; then echo "OK"; else echo "FAILED"; return 1; fi
   if grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
     cond_echo "Warning! The internal RPi3 Bluetooth module is disabled on your system. You need to enable it before the daemon may use it."
   fi
