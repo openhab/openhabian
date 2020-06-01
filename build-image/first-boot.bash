@@ -158,7 +158,6 @@ if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 echo -n "$(timestamp) [openHABian] Installing git package... "
 if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-set -x
 if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
 # shellcheck disable=SC2154
 echo "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
@@ -168,7 +167,6 @@ ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 # shellcheck disable=SC2154
 echo "$(timestamp) [openHABian] Executing openhabian-setup.sh unattended... "
-set +x
 if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful

@@ -1,7 +1,8 @@
 language: shell
 os: linux
 # using latest Ubuntu (not the travis-ci default) to get latest tool versions in Travis environment
-dist: bionic
+#dist: bionic
+dist: focal
 
 cache: false
 
