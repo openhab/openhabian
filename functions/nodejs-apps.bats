@@ -9,7 +9,7 @@ setup_file() {
 
 @test "installation-Frontail_is_running" {
 run frontail_setup
-if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+#if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
 run frontail -V
 if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
 [ "$status" -eq 0 ]
