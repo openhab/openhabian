@@ -3,6 +3,8 @@
 # shellcheck disable=SC2144
 # shellcheck disable=SC2069
 
+timestamp() { date +"%F_%T_%Z"; }
+
 ## Install appropriate Java version based on current choice.
 ## Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
 ##
@@ -179,7 +181,7 @@ java_zulu_install(){
   cond_redirect java_zulu_install_crypto_extension
 
   if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; return 1; fi
-  cond_redirect systemctl start openhab2.service
+  cond_redirect systemctl start openhab2.service || true
   return 0
 }
 

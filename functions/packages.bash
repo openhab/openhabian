@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+timestamp() { date +"%F_%T_%Z"; }
+
 samba_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
   if ! command -v samba &>/dev/null; then

@@ -3,8 +3,13 @@
 load java-jre
 load helpers
 
-setup() {
-  rm -rf /etc/apt/sources.list.d/*
+@test "installation-java_exist" {
+# TODO: rewrite test, in CI it fails because java is not installed at this point
+skip
+  run java -version
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  [[ $output == *"Zulu"* ]]
 }
 
 @test "destructive-install_zulu8-64bit" {
