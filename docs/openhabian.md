@@ -270,8 +270,7 @@ If you want to get involved, you found a bug, or just want to see what's planned
 
 - [https://github.com/openhab/openhabian/](https://github.com/openhab/openhabian/)
 
-{: #changelog}
-### Where can I find a changelog for openHABian?
+### <a id="changelog"></a>Where can I find a changelog for openHABian?
 
 The official changelog announcements are posted [here](https://community.openhab.org/t/13379/1) and [here](https://github.com/openhab/openhabian/releases), be sure to check these out for your version.
 If you want to stay in touch with all the latest code changes under the hood, see the [commit history](https://github.com/openhab/openhabian/commits/master) for openHABian.
@@ -281,7 +280,6 @@ You'll also see added commits when executing the "Update" function within the op
 
 A note on **patience**: stay calm - the openHABian setup will take 15 up to 45 minutes to complete all steps.
 The amount of time highly depends on your device's performance and a number of extrenal factors such as your internet connection.
-
 
 
 <!--
@@ -307,7 +305,7 @@ If there is absolutely no output for more than 10 minutes, your installation has
 with the way your router or local network are setup.
 
 You might want to try disabling IPv6.
-Read on in the [Troubleshooting] section or move on to the [DEBUG guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md).
+Read on in the [Troubleshooting](#Troubleshooting) section or move on to the [DEBUG guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md).
 
 It is also always possible to [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device (after a few minutes of boot up time).
 During the setup process you'll be redirected to the live progress report of the setup.
@@ -337,8 +335,7 @@ After the installation of openHABian was successful, you should be able to acces
 #### What's next?
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem. Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 
-{: #switch-openhab-branch}
-#### Can I switch from openHAB 2 stable to the testing or unstable branch?
+#### <a id="switch-openhab-branch"></a>Can I switch from openHAB 2 stable to the testing or unstable branch?
 openHABian installs the latest stable build of openHAB 2.
 If you want to switch over to the snapshot or milestone release, please do so via the openHABian Configuration Tool.
 Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
