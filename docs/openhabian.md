@@ -277,7 +277,7 @@ The official changelog announcements are posted [here](https://community.openhab
 If you want to stay in touch with all the latest code changes under the hood, see the [commit history](https://github.com/openhab/openhabian/commits/master) for openHABian.
 You'll also see added commits when executing the "Update" function within the openHABian Configuration Tool.
 
-{: #successful}
+[successful]:
 ### Did my Installation succeed? What to do in case of a problem?
 
 A note on **patience**: stay calm - the openHABian setup will take 15 up to 45 minutes to complete all steps.
