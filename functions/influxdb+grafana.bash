@@ -325,7 +325,7 @@ grafana_install(){
 
   # password reset required if Grafana password was already set before (no first-time install)
   echo -n "Resetting Grafana admin password... "
-  cond_redirect grafana-cli admin reset-admin-password admin || FAILED=2
+  cond_redirect su -s /bin/bash -c "grafana-cli admin reset-admin-password admin" grafana || FAILED=2
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
   cond_echo ""
 
