@@ -20,8 +20,8 @@ services:
   - docker
 
 stages:
-  - Dev & Unit tests
-  - BATS and shellcheck tests
+        #  - Dev & Unit tests
+        #  - BATS and shellcheck tests
   - Run unattended openHABian installation
 
 install:
