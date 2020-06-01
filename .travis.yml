@@ -26,11 +26,11 @@ stages:
 
 install:
   # prepare configuration for tests, select debug level here:
-  - sed -iE 's#mode=.*$#mode=unattended_debug#' build-image/openhabian.conf
-  - #sed -iE 's#mode=.*$#mode=debug_maximum#' build-image/openhabian.conf
+  - sed -iE 's#mode=.*$#debugmode=on#' build-image/openhabian.conf
+  - #sed -iE 's#mode=.*$#debugmode=maximum#' build-image/openhabian.conf
   - echo "Cloning openHABian repo from https://github.com/${TRAVIS_REPO_SLUG}.git"
   - sed -i 's#repositoryurl=https://github.com/openhab/openhabian.git#repositoryurl=https://github.com/'${TRAVIS_REPO_SLUG}'.git#' build-image/openhabian.conf
-  - sed -i 's#clonebranch=master#clonebranch='${TRAVIS_BRANCH}'#' build-image/openhabian.conf
+  - sed -i 's#clonebranch=.*$#clonebranch='${TRAVIS_BRANCH}'#' build-image/openhabian.conf
 
 jobs:
   fast_finish: true
