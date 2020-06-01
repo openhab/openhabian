@@ -23,8 +23,8 @@ We strongly recommend that users choose Raspberry Pi 2, 3 or 4 systems to have 1
 We do not actively prohibit installation on any hardware - including unsupported systems -, but we might skip or deny to install specific extensions such as those memory hungry features named above.
 Supporting hardware means testing every single patch and every release. There are simply too many SBC and HW combinations that maintainers do not have available, or, even if they did, the time to spend on the testing efforts that is required to make openHABian a reliable system.
 Let's make sure you understand the implications of these statements: it means that to run hardware other than RPi 2/3/4 or x86 is **not** _fully_ supported.
-For ARM hardware that we don't support, check out the [fake HW feature](openhabian.md/#fake-hw).
-There's a good chance it'll work out for you. If that still doesn't work for you, give [ARMbian](https://www.armbian.com/) a try.
+For ARM hardware that we don't support, check out the [fake hardware parameters](openhabian.md/#fake-hardware-mode).
+There's a good chance it'll work out for you. If that still doesn't work for you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try.
 But remember if you hit any problem related to memory or hardware, you'll be on your own. You are expected **not** to raise these problems as issues on the community forum or on GitHub, please. Feel encouraged to report any success stories, though.
 
 Going beyond what the RPi image provides, as a manually installed set of scripts, there's a fair chance that openHABian will work on all Debian like Linux distributions such as Ubuntu, on either ARM or x86 hardware, but remember this is not _supported_.
