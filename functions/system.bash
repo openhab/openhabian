@@ -143,6 +143,7 @@ create_mount() {
 
 srv_bind_mounts() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
+set -x
   systemctl is-active --quiet smbd && systemctl stop smbd
   systemctl is-active --quiet zram-config && systemctl stop zram-config
   cond_redirect umount -q /srv/openhab2-{sys,conf,userdata,logs,addons}
