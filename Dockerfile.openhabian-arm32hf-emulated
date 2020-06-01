@@ -1,5 +1,5 @@
 # assumes at least ARMv71 but not ARMv8 (aarch64) yet
-FROM balenalib/raspberry-pi2-debian-node:latest-buster
+FROM balenalib/raspberry-pi2-debian-node:latest-buster-build
 
 RUN [ "cross-build-start" ]
 

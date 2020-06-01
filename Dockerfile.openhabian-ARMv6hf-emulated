@@ -1,5 +1,5 @@
 # RPi1, RPi0W (ARMv6hf arch)
-FROM balenalib/raspberry-pi-debian-node:latest-buster
+FROM balenalib/raspberry-pi-debian-node:latest-buster-build
 
 RUN [ "cross-build-start" ]
 
