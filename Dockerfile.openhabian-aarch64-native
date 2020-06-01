@@ -12,7 +12,7 @@ ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 # bats tests on a minimal install will require additional packages to run properly:
 # - lsb-release (influx, homegear)
 # - psmisc, i.e. killall (homegear)
-# - unzip (jave)
+# - unzip (java)
 # those packages would normally be included in our standard install
 RUN apt-get update -qq \
     && apt-get install --yes -qq --no-install-recommends systemd systemd-sysv git wget python3 python3-pip apt-utils jq virt-what lsb-release unzip psmisc \
