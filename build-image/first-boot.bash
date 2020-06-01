@@ -158,9 +158,9 @@ if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 echo -n "$(timestamp) [openHABian] Installing git package... "
 if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-if [ -d /opt/openhabian/ ]; then cd /opt && rm -rf /opt/openhabian/; fi
-# shellcheck disable=SC2154
 set -x
+if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
+# shellcheck disable=SC2154
 echo "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
 if ! git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "FAILED"; fail_inprogress; fi
 echo "OK"
