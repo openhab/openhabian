@@ -103,8 +103,17 @@ You will see the following welcome screen:
 
 ### Other Linux Systems (add openHABian just like any other software)
 
-openHABian also supports general Debian/Ubuntu based systems on different platforms.
-Starting with a fresh installation of your operating system, install git, then clone the openHABian project and finally execute the openHABian configuration tool:
+openHABian is also supposed to run on generic Debian/Ubuntu based systems on several hardware platforms.
+Start with a fresh installation of your operating system
+
+```shell
+sudo openhabian-config unattended
+```
+
+should get the openHABian installation going.
+
+Please note that we cannot test HW/OS combos upfront so don't be too disappointed if you run into errors but drop us a note on Github.
+You can also try the following install steps and finally execute the openHABian configuration tool:
 
 ```shell
 # install git
@@ -120,15 +129,15 @@ sudo openhabian-config
 ```
 
 You'll see the openHABian configuration menu and can now select all desired actions.
-The "Manual/Fresh Setup" submenu entry is the right place for you. Execute all entries one after the other to get the full openHABian experience:
+Start at least with the menu options 11 and 12, then the "Manual/Fresh Setup" submenu entry is the right place for you. Mark all entries you think to be of value and execute them in one go to get the full openHABian experience:
 
 ![openHABian-config menu fresh setup](images/openHABian-menu-freshsetup.png)
 
 > Attention:
-> openHABian usage on a custom system is supported and should be safe.
-> Still some routines might not work for you.
+> openHABian usage on a custom system should be safe.
+> Some routines might not work for you, however.
 > Please be cautious and have a close look at the console output for errors.
-> Report problems you encounter to the [openHABian Issue Tracker](https://github.com/openhab/openhabian/issues).
+> Should you run into errors, consult the [debug guide](#docs/openhabian-DEBUG.md).
 
 ### `openhabian.conf`
 You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails.
