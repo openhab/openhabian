@@ -434,3 +434,21 @@ java_alternatives_reset(){
   update-alternatives --remove-all jexec
   update-alternatives --remove-all javac # TODO: remove sometime late 2020
 }
+
+nrjavaserial_update() {
+  local pass=habopen
+  local client=${OPENHAB_RUNTIME}/bin/client
+  local url=https://github.com/wborn/nrjavaserial/releases/download/reversioned521/nrjavaserial-3.15.0.OH2.jar
+  local location=/usr/share/openhab2/runtime/system/org/openhab/nrjavaserial/3.15.0.OH2
+  local origbundle=nrjavaserial-3.15.0.OH2.jar
+  local newbundle=nrjavaserial-3.15.0.OH2-wborn.jar
+
+  if [[ "$1" == "backport" ]]; then
+    wget -O "${location}/${newbundle}" "${url}"
+    cmd="bundle:update $id file:${location}/${newbundle}"
+  else
+    cmd="bundle:update $id file:${location}/${origbundle}"
+  fi
+  id=$($client -p "$pass" "bundle:list | grep nrjavaserial" | tail -1|cut -d' ' -f1)
+  $client -p "$pass" "$cmd"
+}
