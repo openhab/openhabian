@@ -50,7 +50,9 @@ frontail_setup() {
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable frontail.service
   if cond_redirect systemctl restart frontail; then echo "OK"; else echo "FAILED (service)"; return 1; fi
-  dashboard_add_tile frontail
+  if ! running_in_docker; then
+    dashboard_add_tile frontail
+  fi
 }
 
 nodered_setup() {
