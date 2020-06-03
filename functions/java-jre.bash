@@ -435,7 +435,10 @@ java_alternatives_reset(){
   update-alternatives --remove-all javac # TODO: remove sometime late 2020
 }
 
-nrjavaserial_update() {
+## switch nrjavaserial lib used in openHAB
+## arguments "backport", "orig"
+##
+select_nrjavaserial() {
   local pass=habopen
   local client=${OPENHAB_RUNTIME}/bin/client
   local url=https://github.com/wborn/nrjavaserial/releases/download/reversioned521/nrjavaserial-3.15.0.OH2.jar
@@ -446,7 +449,7 @@ nrjavaserial_update() {
   if [[ "$1" == "backport" ]]; then
     wget -O "${location}/${newbundle}" "${url}"
     cmd="bundle:update $id file:${location}/${newbundle}"
-  else
+  elif [[ "$1" == "orig" ]]; then
     cmd="bundle:update $id file:${location}/${origbundle}"
   fi
   id=$($client -p "$pass" "bundle:list | grep nrjavaserial" | tail -1|cut -d' ' -f1)
