@@ -51,7 +51,7 @@ On x86 hardware, 64 bit is the standard.
 Please check the [official documentation article](https://www.openhab.org/docs/installation/openhabian.html) to learn about openHABian and please visit and subscribe to our very active [community forum thread](https://community.openhab.org/t/13379).
 
 If you want to install openHABian on non-supported hardware, you can actually fake it to make openHABian treat your box as if it was one of the supported ones. Needless to say that that may work out or not, but it's worth a try.
-See [openhabian](openhabian.md) how to edit openhabian.conf before booting. Set the hw, hwarch and release parameters to match your system best.
+See [openhabian](docs/openhabian.md) how to edit openhabian.conf before booting. Set the hw, hwarch and release parameters to match your system best.
 
 ## Development
 openHABian is foremost a collection of `bash` scripts versioned and deployed using git. In the current state the scripts can only be invoked through the terminal menu system [whiptail](https://en.wikibooks.org/wiki/Bash_Shell_Scripting/Whiptail). There is a longterm need to better separate the UI part from the script code. A work has started to define conventions and further explain the code base in the document [CONTRIBUTING](CONTRIBUTING.md) along with development guidelines in general.
@@ -74,7 +74,7 @@ $ sudo bash build.bash platform dev-url branch url
 ```
 
 ### Testing
-Testing is done continuously with Travis using the test framework [Bats](https://github.com/bats-core/bats-core) and the linter [Shellcheck](https://www.shellcheck.net/).  As the tests focus on installing software, a docker solution is used for easy build-up and teardown. To run the test suite execute the commands below or `"$ ./test.bash docker-full"`. Docker and Shellcheck need to be installed. For more details regarding the tests see [Test Architecture](https://github.com/openhab/openhabian/blob/master/CONTRIBUTING.md#test-architecture) in CONTRIBUTING.
+Testing is done continuously with Travis using the test framework [Bats](https://github.com/bats-core/bats-core) and the linter [Shellcheck](https://www.shellcheck.net/).  As the tests focus on installing software, a docker solution is used for easy build-up and teardown. To run the test suite execute the commands below or `"$ ./test.bash docker-full"`. Docker and Shellcheck need to be installed. For more details regarding the tests see [Test Architecture](https://github.com/openhab/openhabian/blob/master/CONTRIBUTING.md#test-architecture) in [CONTRIBUTING](CONTRIBUTING.md).
 
 ```
 docker build -t openhabian/openhabian-bats .
