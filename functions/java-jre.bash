@@ -444,7 +444,7 @@ select_nrjavaserial() {
   local url=https://github.com/wborn/nrjavaserial/releases/download/reversioned521/nrjavaserial-3.15.0.OH2.jar
   local location=/usr/share/openhab2/runtime/system/org/openhab/nrjavaserial/3.15.0.OH2
   local origbundle=nrjavaserial-3.15.0.OH2.jar
-  local newbundle=nrjavaserial-3.15.0.OH2-wborn.jar
+  local newbundle=nrjavaserial-3.15.0.OH2-reversioned.jar
 
   if [[ "$1" == "backport" ]]; then
     wget -O "${location}/${newbundle}" "${url}"
