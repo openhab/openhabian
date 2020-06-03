@@ -12,7 +12,7 @@ Setting up a fully working Linux system with all needed packages and openHAB rec
 openHABian aims to provide a **self-configuring** Linux system setup specific to the needs of every openHAB user.
 The project provides two things:
 
-*   a set of scripts to set up openHAB on any Debian based system (Raspbian, Ubuntu)
+*   a set of scripts to set up openHAB on any Debian based system (Raspberry Pi OS, Ubuntu)
 *   a complete **SD-card image pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations for all *Raspberry Pi* models.
 
 ## Hardware and OS support
@@ -29,18 +29,16 @@ But remember if you hit any problem related to memory or hardware, you'll be on 
 
 Going beyond what the RPi image provides, as a manually installed set of scripts, there's a fair chance that openHABian will work on all Debian like Linux distributions such as Ubuntu, on either ARM or x86 hardware, but remember this is not _supported_.
 
-Our recommendation is to install Raspbian lite (ARM) or generic Debian (x86). This is what we support and test openHABian against.
-
-If you choose not to use the image, we expect you to use the stable distribution that openHABian testing is based on, 'buster' for Raspbian (ARM) and Debian (x86) that is.
+If you choose not to use the image, we expect you to use the stable distribution that openHABian testing is based on, 'buster' for Raspberry Pi OS (ARM) and Debian (x86) that is.
 To install openHABian on anything older or newer may work or not. If you encounter issues, you may need to upgrade first or to live with the consequences of running an OS on the edge of software development.
 
 Either way, please note that you're on your own when it comes to configuring and installing the HW with the proper OS yourself.
 
-### 64 bit ?
-Although RPi3 and 4 have a 64 bit processor, you cannot run openHAB in 64 bit.
+### 64bit - bigger, better, faster, more ?
+Although RPi 3 and 4 have a 64 bit processor, you cannot run openHAB in 64 bit.
 The Azul Java Virtual Machine we currently use is incompatible with the aarch64 ARM architecture.
 In general you should be aware that to run in 64 bit has a major drawback, increased memory usage, that is not a good idea on a heavily memory constrained platform like a RPi.
-Also remember openHABian makes use of Raspbian which today still is a 32 bit OS.
+Also remember openHABian makes use of Raspberry Pi OS which today still is a 32 bit OS.
 
 We are closely observing development and will adapt openHABian once it will reliably work on 64 bit.
 So things may change in the future, but for the time being, you should not manually enforce to install a 64 bit JVM.
@@ -60,7 +58,7 @@ A good place to look at to start to understand the code is the file `openhabian-
 
 ### Building Hardware Images
 Take a look at the `build.bash` script to get an idea of the process.
-Simply explained run the code below with `platform` being either `rpi` or `pine64`. The RPi image is based on the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian) standard image while the Pine64 image is based on [build-pine64-image](https://github.com/longsleep/build-pine64-image).
+Simply explained run the code below with `platform` being `rpi`. The RPi image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/downloads/raspbian) standard image.
 ```
 $ sudo bash ./build.bash platform
 ```
