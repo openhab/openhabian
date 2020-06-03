@@ -34,14 +34,14 @@ To install openHABian on anything older or newer may work or not. If you encount
 
 Either way, please note that you're on your own when it comes to configuring and installing the HW with the proper OS yourself.
 
-### 64bit - bigger, better, faster, more ?
-Although RPi 3 and 4 have a 64 bit processor, you cannot run openHAB in 64 bit.
-The Azul Java Virtual Machine we currently use is incompatible with the aarch64 ARM architecture.
-In general you should be aware that to run in 64 bit has a major drawback, increased memory usage, that is not a good idea on a heavily memory constrained platform like a RPi.
+### 64 bits - bigger, better, faster, more ?
+Although RPi 3 and 4 have a 64 bit processor, you _could_ but _should not_ run openHAB in 64 bit.
+The Azul Java version 8 Virtual Machine we currently deploy per default is incompatible with the aarch64 ARM architecture.
+We have added options in the 40 menu to use JVMs other than the default, including 64 bit versions, but note these are marked to be BETA for the time being.
+Generally speaking, there is no real advantage in moving to 64 bits while you should be aware that to run in 64 bit has a major drawback, increased memory usage, that is not a good idea on a heavily memory constrained platform like a RPi.
 Also remember openHABian makes use of Raspberry Pi OS which today still is a 32 bit OS.
 
-We are closely observing development and will adapt openHABian once it will reliably work on 64 bit.
-So things may change in the future, but for the time being, you should not manually enforce to install a 64 bit JVM.
+We are closely observing development and will adapt openHABian once it will reliably work on 64 bits so things may change in the future.
 
 On x86 hardware, 64 bit is the standard.
 
