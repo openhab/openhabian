@@ -3,29 +3,36 @@
 load packages
 load helpers
 
+setup_file() {
+  export BASEDIR="${BATS_TEST_DIRNAME}/.."
+}
 
 teardown_file() {
-  echo -e "# \e[36mHomegear test cleanup..." >&3
+  unset BASEDIR
   systemctl stop homegear.service || true
-  # TODO: fix homegear shutdown handling, is does not properly shut down and will cause bats tests to hang
-  #ps aux|grep -i homeg >&3
-  # workaround in place:
-  killall -9 homegear || true
+  systemctl stop mosquitto.service || true
 }
 
 @test "destructive-homegear_install" {
-  echo -e "# \e[36mHomegear installation starting..." >&3
+  echo -e "# \e[36mHomegear installation starting...\e[0m" >&3
   run homegear_setup
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
-  echo -e "# \e[32mHomegear installation successful." >&3
-  # TODO: fix homegear service, currently it does not detect running instance in CI
-  #run systemctl status homegear.service
-  #echo "$output" >&3
-  #run systemctl is-active --quiet homegear.service
-  #if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  # workaround in place: (pgrep would be better, but in doubt that it is installed in CI)
-  run bash -c "ps aux | grep homegear | grep -v grep"
+  echo -e "# \e[32mHomegear installation successful.\e[0m" >&3
+  run systemctl is-active --quiet homegear.service
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
-  echo -e "# \e[32mHomegear service running." >&3
+  echo -e "# \e[32mHomegear service is running.\e[0m" >&3
+}
+
+@test "destructive-mqtt_install" {
+  echo -e "# \e[36mMQTT installation starting...\e[0m" >&3
+  run mqtt_setup
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# \e[32mMQTT installation successful.\e[0m" >&3
+  run systemctl is-active --quiet mosquitto.service
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# \e[32mMQTT service is running.\e[0m" >&3
 }

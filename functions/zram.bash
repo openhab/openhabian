@@ -35,14 +35,14 @@ zram_setup() {
   if is_arm; then
     if ! has_lowmem && ! is_pione && ! is_cmone && ! is_pizero && ! is_pizerow; then
       cond_redirect systemctl stop openhab2
-      echo -n "$(timestamp) [openHABian] Installing ZRAM ..."
-      init_zram_mounts install
+      echo "$(timestamp) [openHABian] Installing ZRAM ..."
+      cond_redirect init_zram_mounts install
       cond_redirect systemctl start openhab2
     else
-      echo -n "$(timestamp) [openHABian] Skipping ZRAM install on ARM hardware without enough memory."
+      echo "$(timestamp) [openHABian] Skipping ZRAM install on ARM hardware without enough memory."
     fi
   else
-    echo -n "$(timestamp) [openHABian] Skipping ZRAM install on non-ARM hardware."
+    echo "$(timestamp) [openHABian] Skipping ZRAM install on non-ARM hardware."
   fi
 }
 
