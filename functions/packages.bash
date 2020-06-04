@@ -137,6 +137,12 @@ homegear_setup() {
     Debian-buster)
       echo 'deb https://apt.homegear.eu/Debian/ buster/' > /etc/apt/sources.list.d/homegear.list
       ;;
+    Debian-bullseye)
+      echo 'deb https://apt.homegear.eu/Debian/ bullseye/' > /etc/apt/sources.list.d/homegear.list
+      ;;
+    Debian-sid)
+      echo 'deb https://apt.homegear.eu/Debian/ sid/' > /etc/apt/sources.list.d/homegear.list
+      ;;
     Raspbian-jessie)
       echo 'deb https://apt.homegear.eu/Raspbian/ jessie/' > /etc/apt/sources.list.d/homegear.list
       ;;
@@ -148,6 +154,9 @@ homegear_setup() {
       ;;
     Raspbian-bullseye)
       echo 'deb https://apt.homegear.eu/Raspbian/ bullseye/' > /etc/apt/sources.list.d/homegear.list
+      ;;
+    Raspbian-sid)
+      echo 'deb https://apt.homegear.eu/Raspbian/ sid/' > /etc/apt/sources.list.d/homegear.list
       ;;
     Ubuntu-trusty)
       echo 'deb https://apt.homegear.eu/Ubuntu/ trusty/' > /etc/apt/sources.list.d/homegear.list
