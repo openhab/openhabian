@@ -143,8 +143,8 @@ create_mount() {
 
 srv_bind_mounts() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
-  systemctl is-active --quiet smbd >/dev/null 2>&1 && systemctl stop smbd
-  systemctl is-active --quiet zram-config >/dev/null 2>&1 && systemctl stop zram-config
+  cond_redirect systemctl is-active --quiet smbd && systemctl stop smbd
+  cond_redirect systemctl is-active --quiet zram-config && systemctl stop zram-config
   cond_redirect umount -q /srv/openhab2-{sys,conf,userdata,logs,addons}
   cond_redirect rm -f /etc/systemd/system/srv*.mount
   cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}

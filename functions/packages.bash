@@ -127,54 +127,9 @@ homegear_setup() {
 
   if ! add_keys "https://apt.homegear.eu/Release.key"; then return 1; fi
 
-  case "$distro" in
-    Debian-jessie)
-      echo 'deb https://apt.homegear.eu/Debian/ jessie/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Debian-stretch)
-      echo 'deb https://apt.homegear.eu/Debian/ stretch/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Debian-buster)
-      echo 'deb https://apt.homegear.eu/Debian/ buster/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Debian-bullseye)
-      echo 'deb https://apt.homegear.eu/Debian/ bullseye/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Debian-sid)
-      echo 'deb https://apt.homegear.eu/Debian/ sid/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Raspbian-jessie)
-      echo 'deb https://apt.homegear.eu/Raspbian/ jessie/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Raspbian-stretch)
-      echo 'deb https://apt.homegear.eu/Raspbian/ stretch/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Raspbian-buster)
-      echo 'deb https://apt.homegear.eu/Raspbian/ buster/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Raspbian-bullseye)
-      echo 'deb https://apt.homegear.eu/Raspbian/ bullseye/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Raspbian-sid)
-      echo 'deb https://apt.homegear.eu/Raspbian/ sid/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Ubuntu-trusty)
-      echo 'deb https://apt.homegear.eu/Ubuntu/ trusty/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Ubuntu-xenial)
-      echo 'deb https://apt.homegear.eu/Ubuntu/ xenial/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Ubuntu-bionic)
-      echo 'deb https://apt.homegear.eu/Ubuntu/ bionic/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Ubuntu-focal)
-      echo 'deb https://apt.homegear.eu/Ubuntu/ focal/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    *)
-      cond_echo "Sorry, your OS is not supported."
-      return 1
-      ;;
-  esac
+  myOS=$(echo $distro | cut -d'-' -f1)
+  myRelease=$(echo $distro | cut -d'-' -f2)
+  echo 'deb https://apt.homegear.eu/${myOS}/ ${myRelease}/' > /etc/apt/sources.list.d/homegear.list
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED"; return 1; fi
