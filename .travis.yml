@@ -46,7 +46,7 @@ jobs:
         - sed -i 's/^java_opt=.*/java_opt=Zulu8-64/' build-image/openhabian.conf
         - docker build -t openhabian/dev-openhabian -f Dockerfile.openhabian-aarch64-native .
         - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "dev-." .'
-        - docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "unit-." .'
+        - travis_wait 15 docker run -i openhabian/dev-openhabian bash -c '/usr/local/bin/bats -r -f "unit-." .'
     - stage: BATS and shellcheck tests
       env: aarch64
       arch: arm64
