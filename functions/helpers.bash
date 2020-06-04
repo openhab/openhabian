@@ -32,6 +32,28 @@ cond_echo() {
   fi
 }
 
+## Add keys to apt for new package sources
+## Valid Arguments: URL
+##
+##    add_keys(String url)
+##
+add_keys() {
+	  local repoKey
+	  
+  repoKey="$(mktemp /tmp/openhabian.XXXXX)"
+  
+  echo -n "$(timestamp) [openHABian] Adding required keys to apt... "
+  cond_redirect wget -qO "$repoKey" "$1"
+  if cond_redirect apt-key add "$repoKey"; then
+    echo "OK"
+    rm -f "$repoKey"
+  else
+    echo "FAILED"
+    rm -f "$repoKey"
+    return 1;
+  fi
+}
+
 # fingerprinting based on
 # https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
 is_pizero() {
