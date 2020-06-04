@@ -143,11 +143,9 @@ create_mount() {
 
 srv_bind_mounts() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under /srv/... "
-  systemctl is-active --quiet smbd && systemctl stop smbd
-  systemctl is-active --quiet zram-config && systemctl stop zram-config
+  cond_redirect systemctl is-active --quiet smbd && systemctl stop smbd
+  cond_redirect systemctl is-active --quiet zram-config && systemctl stop zram-config
   cond_redirect umount -q /srv/openhab2-{sys,conf,userdata,logs,addons}
-  sed -i "\\#[ \\t]/srv/openhab2-#d" /etc/fstab
-  # dummy " to fix vim coloring
   cond_redirect rm -f /etc/systemd/system/srv*.mount
   cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}
   cond_redirect cp "$BASEDIR"/includes/srv_readme.txt /srv/README.txt
@@ -161,6 +159,7 @@ srv_bind_mounts() {
 
   if [ -f /etc/ztab ]; then systemctl start zram-config; fi
   if [ -f /etc/samba/smb.conf ]; then systemctl start smbd; fi
+  echo "OK"
 }
 
 permissions_corrections() {
