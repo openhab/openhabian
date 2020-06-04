@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-timestamp() { date +"%F_%T_%Z"; }
-
 nodejs_setup() {
   if command -v npm &>/dev/null; then
     return 0
@@ -47,7 +45,6 @@ frontail_setup() {
   cp "${BASEDIR}"/includes/frontail-theme.css "$frontail_base"/web/assets/styles/openhab.css
   sed -e "s|%FRONTAILBASE|${frontail_base}|g" "${BASEDIR}"/includes/frontail.service > /etc/systemd/system/frontail.service
   chmod 664 /etc/systemd/system/frontail.service
-  cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable frontail.service
   if cond_redirect systemctl restart frontail; then echo "OK"; else echo "FAILED (service)"; return 1; fi
   if ! running_in_docker; then
