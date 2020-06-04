@@ -233,9 +233,6 @@ show_main_menu() {
     if [[ $choosenComponents == *"6A"* ]]; then init_zram_mounts install; fi
     if [[ $choosenComponents == *"Uninstall ZRAM"* ]]; then init_zram_mounts remove; fi
 
-  elif [[ "$choice" == "99"* ]]; then
-    show_about
-
   else
     whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
   fi
