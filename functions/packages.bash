@@ -102,15 +102,17 @@ etckeeper_setup() {
 }
 
 homegear_setup() {
-  local distro
   local introtext
+  local myOS
+  local myRelease
   local successtext
 
   echo -n "$(timestamp) [openHABian] Installing Homegear required packages... "
   if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
 
-  distro="$(lsb_release -si)-$(lsb_release -sc)"
   introtext="This will install Homegear, the Homematic CCU2 emulation software, using the latest stable release available from the official repository."
+  myOS="$(lsb_release -si)"
+  myRelease="$(lsb_release -sc)"
   successtext="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'sudo homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
@@ -127,9 +129,7 @@ homegear_setup() {
 
   if ! add_keys "https://apt.homegear.eu/Release.key"; then return 1; fi
 
-  myOS=$(echo $distro | cut -d'-' -f1)
-  myRelease=$(echo $distro | cut -d'-' -f2)
-  echo 'deb https://apt.homegear.eu/${myOS}/ ${myRelease}/' > /etc/apt/sources.list.d/homegear.list
+  echo "deb https://apt.homegear.eu/${myOS}/ ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED"; return 1; fi
@@ -148,6 +148,7 @@ homegear_setup() {
     whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
   fi
 }
+
 mqtt_setup() {
   FAILED=0
   introtext="The MQTT broker Eclipse Mosquitto will be installed through the official repository, as desribed in: https://mosquitto.org/2013/01/mosquitto-debian-repository\\nAdditionally you can activate username:password authentication.\\n\\nHEADS UP: Only proceed when you are aware that this will be in conflict with use of the MQTTv2 binding which will also be using the same ports."
