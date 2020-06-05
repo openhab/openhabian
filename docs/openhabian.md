@@ -279,7 +279,7 @@ You'll also see added commits when executing the "Update" function within the op
 ### <a id="successful"></a>Did my Installation succeed? What to do in case of a problem?
 
 A note on **patience**: stay calm - the openHABian setup will take 15 up to 45 minutes to complete all steps.
-The amount of time highly depends on your device's performance and a number of extrenal factors such as your internet connection.
+The amount of time highly depends on your device's performance and a number of external factors such as your internet connection.
 
 
 <!--
@@ -330,7 +330,7 @@ If the installation was **not successful** you will see a warning and further in
 After the installation of openHABian was successful, you should be able to access the openHAB dashboard:
 
 - Raspberry Pi image setup: [http://openhab:8080](http://openhab:8080)
-- In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP)
+- In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP with yours)
 
 #### What's next?
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem. Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
@@ -342,8 +342,7 @@ Switching from stable to newer development releases might introduce changes and 
 
 Check the Linux installation article for all needed details: [Linux: Changing Versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 
-{#headache}
-#### Where is the graphical user interface?
+#### <a id="headache"></a>Where is the graphical user interface?
 I've just installed openHABian and now I'm confused.
 No fancy login screen, no windows, no mouse support. What did I get into?
 
@@ -364,8 +363,7 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 **If** the above didn't convince you, execute the following commands to get the graphical user interface [Pixel](https://www.raspberrypi.org/blog/introducing-pixel) installed.
 You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
-{#faq-other-platforms}
-#### Can I use openHABian on ...?
+#### <a id="faq-other-platforms"></a>Can I use openHABian on ...?
 See the [README](../README.md) for a list of supported HW and OS.
 openHABian is developed for Debian/Ubuntu based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
