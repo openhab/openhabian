@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
 install_zram_code() {
-  mkdir -p "$1"
-  /usr/bin/git clone -q --branch "$TAG" "$ZRAMGIT" "$1"
-
   cond_redirect apt-get install -y -q --no-install-recommends make
+
+  mkdir -p "$1"
+  git clone -q https://github.com/kmxz/overlayfs-tools "$1"
+  cd "$1"/overlayfs-tools
+  make
+  cd -
+
+  git clone -q --branch "$TAG" "$ZRAMGIT" "$1"
+
   cd "$1" || return 1
   /bin/sh ./install.sh
 }
