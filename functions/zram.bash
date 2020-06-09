@@ -30,7 +30,7 @@ init_zram_mounts() {
     ZRamInstallLocation=/opt/zram
 
     install_zram_code "$ZRamInstallLocation"
-    cd "$ZRamInstallLocation"/overlayfs-tools
+    cd "$ZRamInstallLocation"/overlayfs-tools || return 1
     make
     cd "$ZRamInstallLocation" || return 1
     /bin/sh ./install.sh
