@@ -335,14 +335,14 @@ After the installation of openHABian was successful, you should be able to acces
 #### What's next?
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem. Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 
-#### <a id="switch-openhab-branch"></a>Can I switch from openHAB 2 stable to the testing or unstable branch?
+####<a id="switch-openhab-branch"></a>Can I switch from openHAB 2 stable to the testing or unstable branch?
 openHABian installs the latest stable build of openHAB 2.
 If you want to switch over to the snapshot or milestone release, please do so via the openHABian Configuration Tool.
 Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
 
 Check the Linux installation article for all needed details: [Linux: Changing Versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 
-#### <a id="headache"></a>Where is the graphical user interface?
+####<a id="headache"></a>Where is the graphical user interface?
 I've just installed openHABian and now I'm confused.
 No fancy login screen, no windows, no mouse support. What did I get into?
 
@@ -363,7 +363,7 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 **If** the above didn't convince you, execute the following commands to get the graphical user interface [Pixel](https://www.raspberrypi.org/blog/introducing-pixel) installed.
 You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
-#### <a id="faq-other-platforms"></a>Can I use openHABian on ...?
+####<a id="faq-other-platforms"></a>Can I use openHABian on ...?
 See the [README](../README.md) for a list of supported HW and OS.
 openHABian is developed for Debian/Ubuntu based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
