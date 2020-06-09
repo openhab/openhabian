@@ -364,7 +364,7 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
 ####<a id="faq-other-platforms"></a>Can I use openHABian on ...?
-See the [README](../README.md) for a list of supported HW and OS.
+See the [README](#../README.md) for a list of supported HW and OS.
 openHABian is developed for Debian/Ubuntu based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
 Check out the [Manual Setup](#manual-setup) instructions for guidance and consult the [debug guide](openhabian-DEBUG.md) if you run into problems.
