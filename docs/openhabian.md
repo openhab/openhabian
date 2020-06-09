@@ -104,32 +104,34 @@ You will see the following welcome screen:
 ### Other Linux Systems (add openHABian just like any other software)
 
 openHABian is also supposed to run on generic Debian/Ubuntu based systems on several hardware platforms.
-Start with a fresh installation of your operating system
+Start with a fresh installation of your operating system, login and run
 
 ```shell
-sudo openhabian-config unattended
-```
-
-should get the openHABian installation going.
-
-Please note that we cannot test HW/OS combos upfront so don't be too disappointed if you run into errors but drop us a note on Github.
-You can also try the following install steps and finally execute the openHABian configuration tool:
-
-```shell
-# install git
+# install git - you can skip this if it's already installed
 sudo apt-get update
 sudo apt-get install git
 
 # download and link
 sudo git clone -b stable https://github.com/openhab/openhabian.git /opt/openhabian
 sudo ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
+```
 
-# execute
+To get the automated openHABian installation going, use
+
+```shell
+sudo openhabian-config unattended
+```
+
+Please note that we cannot test HW/OS combos upfront so don't be too disappointed if you run into errors but drop us a note on Github.
+If it does not work out, you can also run the openHABian configuration tool in interactive mode:
+
+```
 sudo openhabian-config
 ```
 
 You'll see the openHABian configuration menu and can now select all desired actions.
-Start at least with the menu options 11 and 12, then the "Manual/Fresh Setup" submenu entry is the right place for you. Mark all entries you think to be of value and execute them in one go to get the full openHABian experience:
+Start at least with the menu options 11 and 12, then the "Manual/Fresh Setup" submenu entry is the right place for you.
+Mark all entries you think to be of value and execute them in one go to get the full openHABian experience:
 
 ![openHABian-config menu fresh setup](images/openHABian-menu-freshsetup.png)
 
@@ -375,9 +377,9 @@ You have been warned, if there came any warranty with openHABian to begin with, 
 
 {#faq-other-platforms}
 #### Can I use openHABian on ...?
-See the [README](../README.md) for a list of supported HW and OS.
+See the [README](#../README.md) for a list of supported HW and OS.
 openHABian is developed for Debian/Ubuntu based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
-Check out the [Manual Setup](#manual-setup) instructions for guidance and consult the [debug guide](openhabian-DEBUG.md) if you run into problems.
+Check out the [Manual Setup](#manual-setup) instructions for guidance and consult the [debug guide](#openhabian-DEBUG.md) if you run into problems.
 Do not hesitate to ask for help on the [openHABian community forum](https://community.openhab.org/) !
 
