@@ -107,19 +107,26 @@ openHABian is also supposed to run on generic Debian/Ubuntu based systems on x86
 Start with a fresh installation of your operating system, login and run
 
 ```shell
+# start shell as root user
+sudo bash
+```
+
+then start installation
+
+```shell
 # install git - you can skip this if it's already installed
-sudo apt-get update
-sudo apt-get install git
+apt-get update
+apt-get install git
 
 # download and link
-sudo git clone -b stable https://github.com/openhab/openhabian.git /opt/openhabian
-sudo ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
+git clone -b stable https://github.com/openhab/openhabian.git /opt/openhabian
+ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 ```
 
 To get the automated openHABian installation going, use
 
 ```shell
-sudo openhabian-config unattended
+openhabian-config unattended
 ```
 
 Please note that we cannot test HW/OS combos upfront so as stated in the [README](#../README.md), there is no support.
@@ -127,7 +134,7 @@ Don't be too disappointed if you run into errors. Drop us a note on Github.
 If the `unattended` installation does not work out, you can still try the openHABian configuration tool in interactive mode:
 
 ```
-sudo openhabian-config
+openhabian-config
 ```
 
 You'll get to see the openHABian configuration menu.
