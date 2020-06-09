@@ -101,9 +101,9 @@ You will see the following welcome screen:
 
 ➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
 
-### Other Linux Systems (add openHABian just like any other software)
+### <a id="manual-setup"></a>Other Linux Systems (add openHABian just like any other software)
 
-openHABian is also supposed to run on generic Debian/Ubuntu based systems on several hardware platforms.
+openHABian is also supposed to run on generic Debian/Ubuntu based systems on x86 and some ARM hardware platforms.
 Start with a fresh installation of your operating system, login and run
 
 ```shell
@@ -122,16 +122,17 @@ To get the automated openHABian installation going, use
 sudo openhabian-config unattended
 ```
 
-Please note that we cannot test HW/OS combos upfront so don't be too disappointed if you run into errors but drop us a note on Github.
-If it does not work out, you can also run the openHABian configuration tool in interactive mode:
+Please note that we cannot test HW/OS combos upfront so as stated in the [README](#../README.md), there is no support.
+Don't be too disappointed if you run into errors. Drop us a note on Github.
+If the `unattended` installation does not work out, you can still try the openHABian configuration tool in interactive mode:
 
 ```
 sudo openhabian-config
 ```
 
-You'll see the openHABian configuration menu and can now select all desired actions.
+You'll get to see the openHABian configuration menu.
 Start at least with the menu options 11 and 12, then the "Manual/Fresh Setup" submenu entry is the right place for you.
-Mark all entries you think to be of value and execute them in one go to get the full openHABian experience:
+Mark all components / actions you think to be of value and execute them in one go to get the full openHABian experience:
 
 ![openHABian-config menu fresh setup](images/openHABian-menu-freshsetup.png)
 
@@ -139,10 +140,10 @@ Mark all entries you think to be of value and execute them in one go to get the 
 > openHABian usage on a custom system should be safe.
 > Some routines might not work for you, however.
 > Please be cautious and have a close look at the console output for errors.
-> Should you run into errors, consult the [debug guide](#docs/openhabian-DEBUG.md).
+> Should you run into errors, consult the [debug guide](#openhabian-DEBUG.md).
 
 ### `openhabian.conf`
-You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails.
+You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails:
 
 - Flash the system image to your micro SD card as described, do not remove the SD card yet
 - Access the first SD card partition using the file explorer. It's a vfat (Windows) filesystem.
@@ -210,11 +211,8 @@ It's not complicated and something that doesn't hurt on one's résumé.
 
 After your first setup of openHABian is successful and you are able to access the openHAB dashboard, you should dig into the possibilites.
 Install [Bindings](https://www.openhab.org/addons/), discover your devices, and [configure your smart home](https://www.openhab.org/docs/configuration/).
-You might want to start defining [Items](https://www.openhab.org/docs/configuration/items.html), [Sitemap](https://www.openhab.org/docs/configuration/sitemaps.html) and [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html) dashboard for your home.
-To kickstart that process you may check out the openHAB [Home Builder](https://www.openhab.org/docs/configuration/homebuilder.html).
-
-These are just some first hints.
-Be sure to read up on the [Configuration](https://www.openhab.org/docs/configuration/) section of the documentation page to learn more.
+You might want to start defining [Items](https://www.openhab.org/docs/configuration/items.html), [Sitemap](https://www.openhab.org/docs/configuration/sitemaps.html) and [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html) dashboard for your home, but these are just some first hints.
+Be sure to read up on the [Configuration](https://www.openhab.org/docs/configuration/) section of the documentation pages to learn more.
 
 ### Further Configuration Steps
 
@@ -353,8 +351,7 @@ Switching from stable to newer development releases might introduce changes and 
 
 Check the Linux installation article for all needed details: [Linux: Changing Versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 
-{#headache}
-#### Where is the graphical user interface?
+#### <a id="headache"></a>Where is the graphical user interface?
 I've just installed openHABian and now I'm confused.
 No fancy login screen, no windows, no mouse support. What did I get into?
 
@@ -366,7 +363,7 @@ You already own a **powerful PC or Mac** which you should benefit from.
 It would be a shame to have a powerful computer at your fingertips and then have to **restrict yourself** to a very limited graphical frontend on another device, wouldn't you agree?
 
 Moving on.
-What _we_ actually want openHABian to be is a **dedicated headless system** to **reliably execute openHAB** and to **expose all interfaces** needed to interact and configure it (PaperUI, BasicUI, HABPanel, openHAB LogViewer, Samba Network Shares, openHABian Configuration Tool, SSH, you-name-it).
+What we actually want openHABian to be is a **dedicated headless system** to **reliably execute openHAB** and to **expose all interfaces** needed to interact and configure it (PaperUI, BasicUI, HABPanel, openHAB LogViewer, Samba Network Shares, openHABian Configuration Tool, SSH, you-name-it).
 If you know how to work with these interfaces, you are set for a way better experience than the alternatives.
 The main challenge is to **get used to the Linux command line**, not even a GUI (like Pixel, see below) will relieve you from that in the long run.
 If you are not willing to teach yourself a few fundamental Linux skills you will not become happy with any Linux system and should resort to a e.g. Windows machine.
@@ -375,8 +372,7 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 **If** the above didn't convince you, execute the following commands to get the graphical user interface [Pixel](https://www.raspberrypi.org/blog/introducing-pixel) installed.
 You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
-{#faq-other-platforms}
-#### Can I use openHABian on ...?
+####<a id="faq-other-platforms"></a>Can I use openHABian on ...?
 See the [README](#../README.md) for a list of supported HW and OS.
 openHABian is developed for Debian/Ubuntu based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
