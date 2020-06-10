@@ -284,52 +284,73 @@ influxdb_install() {
 ##    influxdb_install(String admin_password)
 ##
 
+grafana_debug_info() {
+  echo
+  date
+  echo ---
+  cond_redirect tail -n40 /var/log/grafana/grafana.log | sed "s/^/DEBUG  /"
+  echo ---
+  local TMP
+  TMP=$(pgrep -a grafana)
+  # shellcheck disable=SC2001
+  echo "${TMP:-Grafana NOT running!}"| sed "s/^/DEBUG  /"
+  echo ---
+  echo
+}
+
 grafana_install(){
+  local FAILED
+  FAILED=0
   echo -n "Installing Grafana... "
   cond_redirect wget -O - https://packages.grafana.com/gpg.key | apt-key add - || FAILED=2
   echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list || FAILED=2
   cond_redirect apt-get update || FAILED=1
   cond_redirect apt-get install --yes grafana || FAILED=2
 
+  # workaround for strange behavior in CI
+  # shellcheck disable=SC2174
+  mkdir -p -m 750 /var/run/grafana/ && chown grafana:grafana /var/run/grafana/
+
   cond_redirect systemctl daemon-reload
   cond_redirect systemctl enable grafana-server.service
   cond_redirect systemctl start grafana-server.service
-  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
   cond_echo ""
 
   echo -n "Wait for Grafana to start... "
-  curl --retry 5 --retry-connrefused -s http://localhost:3000 >/dev/null || FAILED=2
-  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
-  sleep 10
+  tryUntil "curl -s http://localhost:3000 >/dev/null" 10 10 && FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; curl -s -S http://localhost:3000; grafana_debug_info; return 2; else echo -n "OK "; fi
+  sleep 5
   cond_echo ""
 
   # password reset required if Grafana password was already set before (no first-time install)
   echo -n "Resetting Grafana admin password... "
-  curl --retry 5 --retry-connrefused -s http://localhost:3000 >/dev/null || FAILED=2
-  cond_redirect grafana-cli admin reset-admin-password admin || FAILED=2
-  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  cond_redirect su -s /bin/bash -c "grafana-cli admin reset-admin-password admin" grafana || FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
   cond_echo ""
 
   sleep 2
   echo -n "Restarting Grafana... "
   cond_redirect systemctl restart grafana-server.service || FAILED=2
-  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
+  tryUntil "curl -s http://localhost:3000 >/dev/null" 10 10 && FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
   sleep 2
 
   echo -n "Updating Grafana admin password... "
-  curl --retry 7 --retry-connrefused --user admin:admin --header "Content-Type: application/json" --request PUT --data "{\"password\":\"$1\"}" http://localhost:3000/api/admin/users/1/password || FAILED=2
-  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  cond_redirect curl --user admin:admin --header "Content-Type: application/json" --request PUT --data "{\"password\":\"$1\"}" http://localhost:3000/api/admin/users/1/password || FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
   cond_echo ""
 
   echo -n "Updating Grafana configuration... "
   cond_redirect sed -i -e '/^# disable user signup \/ registration/ { n ; s/^;allow_sign_up = true/allow_sign_up = false/ }' /etc/grafana/grafana.ini || FAILED=2
   cond_redirect sed -i -e '/^# enable anonymous access/ { n ; s/^;enabled = false/enabled = true/ }' /etc/grafana/grafana.ini || FAILED=2
-  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
   cond_redirect systemctl restart grafana-server.service
   sleep 2
   # check if service is running
   echo -n "Waiting for Grafana service... "
-  curl --retry 7 --retry-connrefused -s http://localhost:3000 >/dev/null || FAILED=2
-  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; return 2; else echo -n "OK "; fi
+  tryUntil "curl -s http://localhost:3000 >/dev/null" 10 10 && FAILED=2
+  if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
   cond_echo ""
 }

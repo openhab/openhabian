@@ -15,7 +15,7 @@ move_root2usb() {
 
   if [ -f /etc/ztab ]; then
     if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Incompatible selection detected" --msgbox "Move root to USB must not be used together with ZRAM.\\nIf you want to mitigate SD card corruption, don't move root but stay with ZRAM, it is the proper choice. If you want to move for other reasons, uninstall ZRAM first then return here." 10 60
+      whiptail --title "Incompatible selection detected" --msgbox "Move root to USB must not be used together with ZRAM.\\nIf you want to mitigate SD card corruption, don't move root but stay with ZRAM, it is the proper choice.\\nIf you want to move for other reasons, uninstall ZRAM first then return here." 10 65
     fi
     echo "FAILED"; return 1
   fi
@@ -40,8 +40,22 @@ move_root2usb() {
   if ! [ $rootonsdcard = true ]; then
     infotext="It seems as if your system root is not on the SD card.
        ***Aborting, process cant be started***"
-    whiptail --title "System root not on SD card?" --msgbox "$infotext" 8 78
+    whiptail --title "System root not on SD card ?" --msgbox "$infotext" 8 78
     return 0
+  fi
+
+  # exit if destination is not available
+  if ! [[ -b "$NEWROOTPART" ]]; then
+    infotext="Seems there is no external storage medium inserted that we could move openHABian root to.\\n***Aborting, process cant be started***"
+    whiptail --title "No destination SD card ?" --msgbox "$infotext" 8 78
+    return 0
+  fi
+
+  srcsize=$(blockdev --getsize64 /dev/mmcblk0)
+  destsize=$(blockdev --getsize64 "$NEWROOTDEV")
+  if [[ "$srcsize" -gt "$destsize" ]]; then
+    infotext="Your internal storage medium is larger than the external device/medium you want to move your root to. This will very likely break your system.\\n\\nDo you still REALLY want to continue ?"
+    if ! (whiptail --title "Move system root to '$NEWROOTPART'" --yes-button "Continue" --no-button "Stop" --defaultno --yesno "$infotext" 12 78) then echo "CANCELED"; return 0; fi
   fi
 
   # check if USB power is already set to 1A, otherwise set it there

@@ -29,4 +29,3 @@ Running the current openHAB on Java 11 however has not been tested on a wide sca
 
 Please participate in beta testing to help create a smooth transition user experience for all of us.
 See [announcement thread](https://community.openhab.org/t/Java-testdrive/99827) on the community forum.
-

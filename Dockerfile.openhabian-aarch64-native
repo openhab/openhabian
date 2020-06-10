@@ -1,15 +1,26 @@
 # Note RPi3 base (first RPi to have aarch64 available)
 # ATTENTION: Zulu Java on raspberrypi3 images fails to run
+<<<<<<< HEAD
 FROM balenalib/raspberrypi3-debian-node:latest-buster
 #FROM balenalib/generic-aarch64-debian-node
+=======
+FROM balenalib/raspberrypi3-debian-node:latest-buster-build
+>>>>>>> 3c7d51e2f64dc6963a9b409e8b5b590979b0c1ea
 
 
 ENV container docker
 ENV INITSYSTEM on
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 
+# Currently this config is used for BATS tests.
+# bats tests on a minimal install will require additional packages to run properly:
+# - lsb-release (influx, homegear)
+# - psmisc, i.e. killall (homegear)
+# - unzip (java)
+# those packages would normally be included in our standard install
 RUN apt-get update -qq \
     && apt-get install --yes -qq --no-install-recommends systemd systemd-sysv git wget python3 python3-pip apt-utils jq virt-what \
+       lsb-release unzip apt-transport-https \
     && rm -rf /var/lib/apt/lists/*
 RUN git clone https://github.com/bats-core/bats-core.git && \
     cd bats-core && \
@@ -39,8 +50,10 @@ RUN cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
 
 ENTRYPOINT ["/usr/bin/entry.sh"]
 
-RUN adduser openhabian --gecos "Openhabian,,," --disabled-password
+RUN adduser openhabian --gecos "openHABian,,," --disabled-password
+RUN adduser openhab --gecos "openHABian,,," --disabled-password
 RUN echo "openhabian:openhabian" | chpasswd
+RUN echo "openhab:openhabian" | chpasswd
 RUN /bin/echo -n "Running on " && /usr/bin/arch
 
 COPY . /opt/openhabian/
