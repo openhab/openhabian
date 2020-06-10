@@ -37,7 +37,7 @@ java_install_or_update(){
                 echo -n "$(timestamp) [openHABian] Installing Java Zulu 8 64-Bit OpenJDK... "
                 if ! [ -x "$(command -v java)" ] && [ -d /opt/jdk/* ]; then
                   cond_redirect java_zulu_install
-                elif [ "$branch" == "stable" ]; then
+                elif [ "$branch" == "stable" ] && [[ -z "$UNATTENDED" ]]; then
                   java_zulu_stable Zulu8-64
                 else
                   cond_redirect java_zulu_fetch Zulu8-64
@@ -49,7 +49,7 @@ java_install_or_update(){
                 echo -n "$(timestamp) [openHABian] Installing Java Zulu 11 64-Bit OpenJDK... "
                 if ! [ -x "$(command -v java)" ] && [ -d /opt/jdk/* ]; then
                   cond_redirect java_zulu_install
-                elif [ "$branch" == "stable" ]; then
+                elif [ "$branch" == "stable" ] && [[ -z "$UNATTENDED" ]]; then
                   java_zulu_stable Zulu11-64
                 else
                   cond_redirect java_zulu_fetch Zulu11-64
@@ -67,7 +67,7 @@ java_install_or_update(){
               echo -n "$(timestamp) [openHABian] Installing Java Zulu 8 32-Bit OpenJDK... "
               if ! [ -x "$(command -v java)" ] && [ -d /opt/jdk/* ]; then
                 cond_redirect java_zulu_install
-              elif [ "$branch" == "stable" ]; then
+              elif [ "$branch" == "stable" ] && [[ -z "$UNATTENDED" ]]; then
                 java_zulu_stable Zulu8-32
               else
                 cond_redirect java_zulu_fetch Zulu8-32
@@ -82,7 +82,7 @@ java_install_or_update(){
             echo -n "$(timestamp) [openHABian] Installing Java Zulu 11 32-Bit OpenJDK... "
             if ! [ -x "$(command -v java)" ] && [ -d /opt/jdk/* ]; then
               cond_redirect java_zulu_install
-            elif [ "$branch" == "stable" ]; then
+            elif [ "$branch" == "stable" ] && [[ -z "$UNATTENDED" ]]; then
               java_zulu_stable Zulu11-32
             else
               cond_redirect java_zulu_fetch Zulu11-32
@@ -93,7 +93,7 @@ java_install_or_update(){
           echo -n "$(timestamp) [openHABian] Installing Java Zulu 8 32-Bit OpenJDK... "
           if ! [ -x "$(command -v java)" ] && [ -d /opt/jdk/* ]; then
             cond_redirect java_zulu_install
-          elif [ "$branch" == "stable" ]; then
+          elif [ "$branch" == "stable" ] && [[ -z "$UNATTENDED" ]]; then
             java_zulu_stable Zulu8-32
           else
             cond_redirect java_zulu_fetch Zulu8-32
