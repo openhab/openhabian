@@ -24,7 +24,7 @@ wait_for_apt_to_finish_update() {
 
 install_cleanup() {
   echo "$(timestamp) [openHABian] Cleaning up ... "
-  cond_redirect apt autoremove -q
+  cond_redirect apt --yes autoremove -q
 }
 
 openhabian_announcements() {
