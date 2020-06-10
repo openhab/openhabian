@@ -306,8 +306,9 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" $buildfolder/root/etc/hosts
   echo "$hostname" > $buildfolder/root/etc/hostname
 
-  echo_process "Injecting 'rc.local', 'first-boot.bash' and 'openhabian.conf'... "
-  cp $sourcefolder/rc.local $buildfolder/root/etc/rc.local
+  echo_process "Injecting 'openhabian-installer.service', 'first-boot.bash' and 'openhabian.conf'... "
+  cp $sourcefolder/openhabian-installer.service $buildfolder/root/etc/systemd/system/
+  ln -s $buildfolder/root/etc/systemd/system/openhabian-installer.service $buildfolder/root/etc/systemd/system/multi-user.target.wants/openhabian-installer.service
   touch $buildfolder/root/opt/openHABian-install-inprogress
   # maybe we should use a trap to get this done in case of error
   umount_image_file_root "$imagefile" "$buildfolder"
@@ -325,6 +326,8 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   if [ -n "${clone_string+x}" ]; then
     inject_build_repo $buildfolder/boot/first-boot.bash
   fi
+  # delete line removing the webif, should be done in firs-boot.bash after we removed pine64 support
+  sed -i "s#.*/boot/webif\.bash cleanup.*##" $buildfolder/boot/first-boot.bash
 
   echo_process "Closing up image file... "
   sync

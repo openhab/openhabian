@@ -19,7 +19,11 @@ wait_for_apt_to_finish_update() {
   if [ ! -v PID_APT ]; then
     apt_update
   fi
-  wait -f ${PID_APT} 2>/dev/null
+  if wait -f ${PID_APT} 2>/dev/null ; then
+    echo FAILED
+  else
+    echo OK
+  fi
 }
 
 openhabian_announcements() {
