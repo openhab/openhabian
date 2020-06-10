@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+## install code needed to compile ZRAM tools at installation time
+## can be called standalone from build.bash or during install from init_zram_mounts()
+## argument is destination directory
+##
+##   install_zram_code(String dir)
+##
 install_zram_code() {
   local ZRAMGIT=https://github.com/mstormi/openhabian-zram
   local OVERLAYFSGIT=https://github.com/kmxz/overlayfs-tools
