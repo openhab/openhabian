@@ -4,7 +4,7 @@ install_zram_code() {
   local ZRAMGIT=https://github.com/mstormi/openhabian-zram
   local OVERLAYFSGIT=https://github.com/kmxz/overlayfs-tools
   local TAG=openhabian_v1.6
-  cond_redirect apt-get install -y -q --no-install-recommends make
+  cond_redirect apt-get install -y -q --no-install-recommends make libattr1-dev
 
   mkdir -p "$1"
   cd $1 || return 1;
