@@ -7,9 +7,10 @@ install_zram_code() {
   cond_redirect apt-get install -y -q --no-install-recommends make
 
   mkdir -p "$1"
-  git clone -q "$OVERLAYFSGIT" "$1"
-
-  git clone -q --branch "$TAG" "$ZRAMGIT" "$1"
+  cd $1 || return 1;
+  git clone -q "$OVERLAYFSGIT"
+  git clone -q --branch "$TAG" "$ZRAMGIT"
+  cd -
 }
 
 init_zram_mounts() {
