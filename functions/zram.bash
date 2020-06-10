@@ -10,7 +10,7 @@ install_zram_code() {
   cd $1 || return 1;
   git clone -q "$OVERLAYFSGIT"
   git clone -q --branch "$TAG" "$ZRAMGIT"
-  cd -
+  cd - || return 1;
 }
 
 init_zram_mounts() {
