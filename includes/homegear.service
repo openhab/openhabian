@@ -1,0 +1,11 @@
+[Unit]
+Description=Homegear
+
+[Service]
+Type=simple
+User=homegear
+Group=homegear
+ExecStart=/usr/bin/homegear
+
+[Install]
+WantedBy=multi-user.target

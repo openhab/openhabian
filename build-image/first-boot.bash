@@ -158,10 +158,11 @@ if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 echo -n "$(timestamp) [openHABian] Installing git package... "
 if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 
-if [ -d /opt/openhabian/ ]; then cd /opt && rm -rf /opt/openhabian/; fi
+if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
-if git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+if ! git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "FAILED"; fail_inprogress; fi
+echo "OK"
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 # shellcheck disable=SC2154
@@ -177,8 +178,8 @@ echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' co
 echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready on $HOSTNAME ..."
 
 # this took ~130 seconds on a RPi2
-if tryUntil "wget -S --spider -t 3 --waitretry=4 http://${HOSTNAME}:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 20 10; then echo "failed."; exit 1; fi
-echo " OK"
+if tryUntil "wget -S --spider -t 3 --waitretry=4 http://${HOSTNAME}:8080/start/index 2>&1 | grep -q 'HTTP/1.1 200 OK'" 20 10; then echo "FAILED"; exit 1; fi
+echo "OK"
 
 echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://${HOSTNAME:-openhab}:8080"
 echo "$(timestamp) [openHABian] To gain access to a console, simply reconnect."
@@ -189,8 +190,9 @@ sleep 12
 if hash python3 2>/dev/null; then bash /boot/webif.bash cleanup; fi
 
 if [ -z "$SILENT" ]; then
-  echo -e "\\n\\e[36mMemory usage:"
+  echo -e "\\n${COL_CYAN}Memory usage:"
   free -m && ps -auxq "$(cat /var/lib/openhab2/tmp/karaf.pid)" |awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
+  echo "${COL_DEF}"
 fi
 
 # vim: filetype=sh

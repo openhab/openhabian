@@ -26,7 +26,7 @@ Menu 60 finally is a shortcut to offer all option for (un)installation in a sing
 }
 
 show_main_menu() {
-  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Exit --ok-button Execute \
+  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
@@ -38,9 +38,8 @@ show_main_menu() {
   "30 | System Settings"         "A range of system and hardware related configuration steps ►" \
   "40 | openHAB related"         "Switch the installed openHAB version or apply tweaks ►" \
   "50 | Backup/Restore"          "Manage backups and restore your system ►" \
-  "60 | Manual/Fresh Setup"      "Go through all openHABian setup steps manually ►" \
   "" "" \
-  "99 | Help"                    "Further options and guidance with Linux and openHAB" \
+  "60 | Manual/Fresh Setup"      "Go through all openHABian setup steps manually ►" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then
@@ -233,9 +232,6 @@ show_main_menu() {
     if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
     if [[ $choosenComponents == *"6A"* ]]; then init_zram_mounts install; fi
     if [[ $choosenComponents == *"Uninstall ZRAM"* ]]; then init_zram_mounts remove; fi
-
-  elif [[ "$choice" == "99"* ]]; then
-    show_about
 
   else
     whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60

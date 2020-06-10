@@ -102,93 +102,50 @@ etckeeper_setup() {
 }
 
 homegear_setup() {
-  FAILED=0
-  introtext="This will install Homegear, the Homematic CCU2 emulation software, in the latest stable release from the official repository."
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Setup was successful.
-Homegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'sudo homegear -r'.
-Please read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear
-To continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/
-"
+  local introtext
+  local myOS
+  local myRelease
+  local successtext
 
-  echo -n "$(timestamp) [openHABian] Setting up the Homematic CCU2 emulation software Homegear... "
+  echo -n "$(timestamp) [openHABian] Installing Homegear required packages... "
+  if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
+
+  introtext="This will install Homegear, the Homematic CCU2 emulation software, using the latest stable release available from the official repository."
+  myOS="$(lsb_release -si)"
+  myRelease="$(lsb_release -sc)"
+  successtext="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'sudo homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
+
+  echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
   if is_pine64; then
     if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Incompatible Hardware Detected" --msgbox "We are sorry, Homegear is not yet available for your platform." 10 60
+      whiptail --title "Incompatible Hardware Detected!" --msgbox "We are sorry, Homegear is not available for your platform at this time." 8 60
     fi
-    echo "FAILED (incompatible)"; return 1
+    echo "FAILED (incompatible)"
+    return 1
   fi
-
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "Homegear installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 8 80); then echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect wget -O - http://homegear.eu/packages/Release.key | apt-key add -
+  if ! add_keys "https://apt.homegear.eu/Release.key"; then return 1; fi
 
-  distro="$(lsb_release -si)-$(lsb_release -sc)"
-  case "$distro" in
-    Debian-jessie)
-      echo 'deb https://apt.homegear.eu/Debian/ jessie/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Debian-stretch)
-      echo 'deb https://apt.homegear.eu/Debian/ stretch/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Debian-buster)
-      echo 'deb https://apt.homegear.eu/Debian/ buster/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Debian-bullseye)
-      echo 'deb https://apt.homegear.eu/Debian/ bullseye/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Debian-sid)
-      echo 'deb https://apt.homegear.eu/Debian/ sid/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Raspbian-jessie)
-      echo 'deb https://apt.homegear.eu/Raspbian/ jessie/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Raspbian-stretch)
-      echo 'deb https://apt.homegear.eu/Raspbian/ stretch/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Raspbian-buster)
-      echo 'deb https://apt.homegear.eu/Raspbian/ buster/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Raspbian-bullseye)
-      echo 'deb https://apt.homegear.eu/Raspbian/ bullseye/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Raspbian-sid)
-      echo 'deb https://apt.homegear.eu/Raspbian/ sid/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Ubuntu-trusty)
-      echo 'deb https://apt.homegear.eu/Ubuntu/ trusty/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Ubuntu-xenial)
-      echo 'deb https://apt.homegear.eu/Ubuntu/ xenial/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Ubuntu-bionic)
-      echo 'deb https://apt.homegear.eu/Ubuntu/ bionic/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    Ubuntu-focal)
-      echo 'deb https://apt.homegear.eu/Ubuntu/ focal/' > /etc/apt/sources.list.d/homegear.list
-      ;;
-    *)
-      cond_echo "Sorry, your OS is not supported."
-      return 1
-      ;;
-  esac
+  echo "deb https://apt.homegear.eu/${myOS}/ ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
 
+  echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED"; return 1; fi
-  if ! cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired; then echo "FAILED"; return 1; fi
-  cond_redirect systemctl enable homegear.service
-  cond_redirect systemctl start homegear.service
-  cond_redirect adduser "${username:-openhabian}" homegear
-  cond_redirect adduser openhab homegear
-  echo "OK"
+  if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired; then echo "OK"; else echo "FAILED"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up Homegear user account permisions... "
+  if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
+  if cond_redirect adduser openhab homegear; then echo "OK"; else echo "FAILED"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up Homegear service... "
+  cp "$BASEDIR"/includes/homegear.service /lib/systemd/system/homegear.service
+  if ! systemctl enable homegear.service; then echo "FAILED"; return 1; fi
+  if systemctl restart homegear.service; then echo "OK"; else echo "FAILED"; return 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if [ "$FAILED" -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
-    else
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
-    fi
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
   fi
 }
 
