@@ -30,12 +30,12 @@ To that end, the project provides two things:
 
 ## Features
 
-The following features are provided by the openHABian images out of the box:
+The following features are provided by the openHABian image out of the box:
 
-- Hassle-free setup without a display or keyboard, connected via [Ethernet or WiFi](#wifi-setup)
+- Hassle-free setup without a display or keyboard, connected via Ethernet or [WiFi](#wifi-based-setup-notes)
 - openHAB 2 in the latest stable version
 - Zulu Embedded OpenJDK Java 8
-- [openHABian Configuration Tool](#openhabian-config) including updater functionality
+- [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
 - openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
 - Samba file sharing with [pre-configured to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
 - Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
@@ -45,7 +45,7 @@ The following features are provided by the openHABian images out of the box:
 - Customized nano settings, including [openHAB syntax highlighting](https://github.com/airix1/openhabnano)
 - [Raspberry Pi specific](rasppi.html): Extend to the whole SD card, 16MB GPU memory split
 
-Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openhabian-config) is included and provides the following optional settings and components:
+Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openhabian-configuration-tool) is included and provides the following optional settings and components:
 
 ![openHABian-config menu](images/openHABian-config.png)
 
@@ -101,37 +101,56 @@ You will see the following welcome screen:
 
 ➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
 
-### Other Linux Systems (add openHABian just like any other software)
+### <a id="manual-setup"></a>Other Linux Systems (add openHABian just like any other software)
 
-openHABian also supports general Debian/Ubuntu based systems on different platforms.
-Starting with a fresh installation of your operating system, install git, then clone the openHABian project and finally execute the openHABian configuration tool:
+openHABian is also supposed to run on generic Debian/Ubuntu based systems on x86 and some ARM hardware platforms.
+Start with a fresh installation of your operating system, login and run
 
 ```shell
-# install git
-sudo apt-get update
-sudo apt-get install git
-
-# download and link
-sudo git clone -b stable https://github.com/openhab/openhabian.git /opt/openhabian
-sudo ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
-
-# execute
-sudo openhabian-config
+# start shell as root user
+sudo bash
 ```
 
-You'll see the openHABian configuration menu and can now select all desired actions.
-The "Manual/Fresh Setup" submenu entry is the right place for you. Execute all entries one after the other to get the full openHABian experience:
+then start installation
+
+```shell
+# install git - you can skip this if it's already installed
+apt-get update
+apt-get install git
+
+# download and link
+git clone -b stable https://github.com/openhab/openhabian.git /opt/openhabian
+ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
+```
+
+To get the automated openHABian installation going, use
+
+```shell
+openhabian-config unattended
+```
+
+Please note that we cannot test HW/OS combos upfront so as stated in the [README](#../README.md), there is no support.
+Don't be too disappointed if you run into errors. Drop us a note on Github.
+If the `unattended` installation does not work out, you can still try the openHABian configuration tool in interactive mode:
+
+```
+openhabian-config
+```
+
+You'll get to see the openHABian configuration menu.
+Start at least with the menu options 11 and 12, then the "Manual/Fresh Setup" submenu entry is the right place for you.
+Mark all components / actions you think to be of value and execute them in one go to get the full openHABian experience:
 
 ![openHABian-config menu fresh setup](images/openHABian-menu-freshsetup.png)
 
 > Attention:
-> openHABian usage on a custom system is supported and should be safe.
-> Still some routines might not work for you.
+> openHABian usage on a custom system should be safe.
+> Some routines might not work for you, however.
 > Please be cautious and have a close look at the console output for errors.
-> Report problems you encounter to the [openHABian Issue Tracker](https://github.com/openhab/openhabian/issues).
+> Should you run into errors, consult the [debug guide](#openhabian-DEBUG.md).
 
-### `openhabian.conf` {#openhabian.conf}
-You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails.
+### `openhabian.conf`
+You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails:
 
 - Flash the system image to your micro SD card as described, do not remove the SD card yet
 - Access the first SD card partition using the file explorer. It's a vfat (Windows) filesystem.
@@ -141,27 +160,27 @@ You can actually set a number of parameters before you try installing from SD ca
 - Save, Unmount, Insert, Boot
 - Continue with the instructions for your hardware
 
-### WiFi based Setup Notes {#wifi-setup}
+### WiFi based Setup Notes
 If you own a RPi3, RPi3+, RPi4, a RPi0W, a Pine A64, or a compatible WiFi dongle you can set up and use openHABian purely via WiFi.
 For the setup on WiFi, you'll need to make your SSID and password known to the system before the first boot.
 Additionally to the setup instructions given above, the following steps are needed:
 
 In `openhabian.conf`, uncomment and complete the lines reading `wifi_ssid="My WiFi SSID"` and `wifi_psk="password123"`
 
-### Fake hardware mode {#fake-hw}
+### Fake hardware mode
 If to install openHABian fails because you have a non-supported hardware or run an unsupported OS release, you can "fake" your hardware and OS to make openHABian behave as if you did own that HW/OS.
 In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` and/or `release=` with the hw and os versions you want to attempt installation with.
 
-### Debug mode {#debug-mode}
+### Debug mode
 See [Troubleshooting](#Troubleshooting) section if you run into trouble installing. If you want to turn on debug mode, 
 edit `openhabian.conf` and set the `debugmode=` parameter to either `off`, `on` or `maximum`.
 
-### IPv6 notes {#ipv6-notes}
+### IPv6 notes
 You might encounter problems when you make use of IPv6 on some networks and systems. openHABian installation may stop or hang forever.
 In that case _or if you are sure that you do not need IPv6 on your openHABian server_, you can disable IPv6.
 Follow the instructions in the previous section and insert a line into `openhabian.conf` reading `ipv6=disable`.
 
-## openHABian Configuration Tool {#openhabian-config}
+## openHABian Configuration Tool
 
 The following instructions target a Raspberry Pi openHABian setup but should be applicable to all openHABian environments.
 Once connected to the command line console of your system, please execute the openHABian configuration tool by typing the following command.
@@ -199,13 +218,10 @@ It's not complicated and something that doesn't hurt on one's résumé.
 
 After your first setup of openHABian is successful and you are able to access the openHAB dashboard, you should dig into the possibilites.
 Install [Bindings](https://www.openhab.org/addons/), discover your devices, and [configure your smart home](https://www.openhab.org/docs/configuration/).
-You might want to start defining [Items](https://www.openhab.org/docs/configuration/items.html), [Sitemap](https://www.openhab.org/docs/configuration/sitemaps.html) and [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html) dashboard for your home.
-To kickstart that process you may check out the openHAB [Home Builder](https://www.openhab.org/docs/configuration/homebuilder.html).
+You might want to start defining [Items](https://www.openhab.org/docs/configuration/items.html), [Sitemap](https://www.openhab.org/docs/configuration/sitemaps.html) and [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html) dashboard for your home, but these are just some first hints.
+Be sure to read up on the [Configuration](https://www.openhab.org/docs/configuration/) section of the documentation pages to learn more.
 
-These are just some first hints.
-Be sure to read up on the [Configuration](https://www.openhab.org/docs/configuration/) section of the documentation page to learn more.
-
-### Further Configuration Steps {#further-config}
+### Further Configuration Steps
 
 openHABian is supposed to provide a ready-to-use openHAB base system.
 There are a few things, however, we need you to decide and act on right now at the beginning:
@@ -220,7 +236,7 @@ All of these settings **can easily be changed** via the openHABian Configuration
 Here are the passwords in question with their respective default "username:password" values. 
 All password can be changed from openHABian menu.
 
-### Passwords {#passwords}
+### Passwords
 - User password needed for SSH or sudo (e.g. "openhabian:openhabian")
 - Samba share password (e.g. "openhabian:openhabian")
 - openHAB remote console (e.g. "openhab:habopen")
@@ -237,7 +253,7 @@ This is the right time to prepare your system for disasters such as getting hit 
 WARNING: power failure will result in some data to get lost (albeit the system should continue to run). Get an UPS.
 ZRAM is enabled by default for swap, logs and persistence data. You can toggle use in [menu option 38].
 2. Move the root filesystem to USB-attached memory. WARNING: USB sticks are as susceptible to flash wearout as SD cards are, making ZRAM the better choice for a standard Pi to run off its internal SD card. But you can use this option to migrate your system to a safe medium such as an SSD or HDD. [menu option 37]
-3. Use the openHAB integrated [backup tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively backup/restore your openHAB **config** [menu option 51/52].
+3. Use the openHAB integrated [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively backup/restore your openHAB **config** [menu option 50/51].
 4. Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, documentation [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md). [menu option 52]
 
 Standard openHABian install enables ZRAM by default (#1). Once you attach a *safe* external medium to your system (such as an SSD), you can disable ZRAM (#1) and move the system over using menu options 37 (#2).
@@ -248,7 +264,7 @@ Delayed rules load will also be enabled by default. This is renaming the rules f
 
 ## Optional Components
 openHABian comes with a number of additional routines to quickly install and set up home automation related software.
-You'll find all of these in the [openHABian Configuration Tool](#openhabian-config)
+You'll find all of these in the [openHABian Configuration Tool](#openhabian-configuration-tool)
 
 - [Frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openhab:9001](http://openhab:9001)
 - Mi Flora MQTT demon
@@ -270,17 +286,16 @@ If you want to get involved, you found a bug, or just want to see what's planned
 
 - [https://github.com/openhab/openhabian/](https://github.com/openhab/openhabian/)
 
-### Where can I find a changelog for openHABian? {#changelog}
+### <a id="changelog"></a>Where can I find a changelog for openHABian?
 
 The official changelog announcements are posted [here](https://community.openhab.org/t/13379/1) and [here](https://github.com/openhab/openhabian/releases), be sure to check these out for your version.
 If you want to stay in touch with all the latest code changes under the hood, see the [commit history](https://github.com/openhab/openhabian/commits/master) for openHABian.
 You'll also see added commits when executing the "Update" function within the openHABian Configuration Tool.
 
-### Did my Installation succeed? What to do in case of a problem? {#successful}
+### <a id="successful"></a>Did my Installation succeed? What to do in case of a problem?
 
 A note on **patience**: stay calm - the openHABian setup will take 15 up to 45 minutes to complete all steps.
 The amount of time highly depends on your device's performance and a number of extrenal factors such as your internet connection.
-
 
 
 <!--
@@ -306,7 +321,7 @@ If there is absolutely no output for more than 10 minutes, your installation has
 with the way your router or local network are setup.
 
 You might want to try disabling IPv6.
-Read on in the [Troubleshooting] section or move on to the [DEBUG guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md).
+Read on in the [Troubleshooting](#Troubleshooting) section or move on to the [DEBUG guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md).
 
 It is also always possible to [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device (after a few minutes of boot up time).
 During the setup process you'll be redirected to the live progress report of the setup.
@@ -334,16 +349,17 @@ After the installation of openHABian was successful, you should be able to acces
 - In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP)
 
 #### What's next?
+
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem. Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 
-#### Can I switch from openHAB 2 stable to the testing or unstable branch? {#switch-openhab-branch}
+#### <a id="switch-openhab-branch"></a>Can I switch from openHAB 2 stable to the testing or unstable branch?
 openHABian installs the latest stable build of openHAB 2.
 If you want to switch over to the snapshot or milestone release, please do so via the openHABian Configuration Tool.
 Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
 
 Check the Linux installation article for all needed details: [Linux: Changing Versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 
-#### Where is the graphical user interface? {#headache}
+#### <a id="headache"></a>Where is the graphical user interface?
 I've just installed openHABian and now I'm confused.
 No fancy login screen, no windows, no mouse support. What did I get into?
 
@@ -355,7 +371,7 @@ You already own a **powerful PC or Mac** which you should benefit from.
 It would be a shame to have a powerful computer at your fingertips and then have to **restrict yourself** to a very limited graphical frontend on another device, wouldn't you agree?
 
 Moving on.
-What _we_ actually want openHABian to be is a **dedicated headless system** to **reliably execute openHAB** and to **expose all interfaces** needed to interact and configure it (PaperUI, BasicUI, HABPanel, openHAB LogViewer, Samba Network Shares, openHABian Configuration Tool, SSH, you-name-it).
+What we actually want openHABian to be is a **dedicated headless system** to **reliably execute openHAB** and to **expose all interfaces** needed to interact and configure it (PaperUI, BasicUI, HABPanel, openHAB LogViewer, Samba Network Shares, openHABian Configuration Tool, SSH, you-name-it).
 If you know how to work with these interfaces, you are set for a way better experience than the alternatives.
 The main challenge is to **get used to the Linux command line**, not even a GUI (like Pixel, see below) will relieve you from that in the long run.
 If you are not willing to teach yourself a few fundamental Linux skills you will not become happy with any Linux system and should resort to a e.g. Windows machine.
@@ -364,10 +380,10 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 **If** the above didn't convince you, execute the following commands to get the graphical user interface [Pixel](https://www.raspberrypi.org/blog/introducing-pixel) installed.
 You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
-#### Can I use openHABian on ...? {#faq-other-platforms}
-See the [README](../README.md) for a list of supported HW and OS.
+####<a id="faq-other-platforms"></a>Can I use openHABian on ...?
+See the [README](#../README.md) for a list of supported HW and OS.
 openHABian is developed for Debian/Ubuntu based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
-Check out the [Manual Setup](#manual-setup) instructions for guidance and consult the [debug guide](openhabian-DEBUG.md) if you run into problems.
+Check out the [Manual Setup](#manual-setup) instructions for guidance and consult the [debug guide](#openhabian-DEBUG.md) if you run into problems.
 Do not hesitate to ask for help on the [openHABian community forum](https://community.openhab.org/) !
 

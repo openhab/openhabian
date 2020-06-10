@@ -1,4 +1,4 @@
-#!/usr/bin/env bats 
+#!/usr/bin/env bats
 
 load helpers
 load zram
@@ -70,8 +70,10 @@ check_zram_removal() {
 
   echo -e "# \e[36mZRAM test installation starting..." >&3
   run init_zram_mounts install
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   run check_zram_mounts
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# \e[32mInstallation and availability of zram mounts verified." >&3
 }
@@ -81,21 +83,27 @@ check_zram_removal() {
 
   echo -e "# \e[36mZRAM test installation starting..." >&3
   run init_zram_mounts install
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# \n\e[32mInitial installation of zram mounts succeeded." >&3
   run check_zram_mounts
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# \e[32mAvailability of zram mounts verified." >&3
   run init_zram_mounts uninstall
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# \e[32mUninstall of zram mounts succeeded." >&3
   run check_zram_removal
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# \e[32mUninstall of zram mounts verified - none remaining." >&3
   run init_zram_mounts install
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# \e[32mSecond installation of zram mounts succeeded." >&3
   run check_zram_mounts
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# \e[32mAvailability of 2nd zram mounts verified." >&3
 
