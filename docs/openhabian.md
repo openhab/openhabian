@@ -342,7 +342,7 @@ Switching from stable to newer development releases might introduce changes and 
 
 Check the Linux installation article for all needed details: [Linux: Changing Versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 
-####<a id="headache"></a>Where is the graphical user interface?
+#### <a id="headache"></a>Where is the graphical user interface?
 I've just installed openHABian and now I'm confused.
 No fancy login screen, no windows, no mouse support. What did I get into?
 
