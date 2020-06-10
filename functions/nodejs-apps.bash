@@ -36,8 +36,8 @@ frontail_setup() {
   if [ -d "$frontail_base" ]; then
     cond_redirect npm uninstall -g frontail
   fi
-  if ! cond_redirect npm install -g frontail; then echo "FAILED (frontail)"; return 1; fi
-  cond_redirect npm update -g frontail
+  if ! cond_redirect npm install --force -g frontail; then echo "FAILED (frontail)"; return 1; fi
+  cond_redirect npm update --force -g frontail
   #
   mkdir -p "${frontail_base}"/preset "${frontail_base}"/web/assets/styles
 

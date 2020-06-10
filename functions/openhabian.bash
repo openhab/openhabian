@@ -26,6 +26,11 @@ wait_for_apt_to_finish_update() {
   fi
 }
 
+install_cleanup() {
+  echo "$(timestamp) [openHABian] Cleaning up ... "
+  cond_redirect apt --yes autoremove -q
+}
+
 openhabian_announcements() {
   local newsfile="${BASEDIR}/NEWS.md"
   local readnews="${BASEDIR}/docs/LASTNEWS.md"

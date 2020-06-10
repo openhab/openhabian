@@ -292,7 +292,7 @@ You'll also see added commits when executing the "Update" function within the op
 ### <a id="successful"></a>Did my Installation succeed? What to do in case of a problem?
 
 A note on **patience**: stay calm - the openHABian setup will take 15 up to 45 minutes to complete all steps.
-The amount of time highly depends on your device's performance and a number of extrenal factors such as your internet connection.
+The amount of time highly depends on your device's performance and a number of external factors such as your internet connection.
 
 <!--
 #### LED Indication (RPi only)
@@ -342,12 +342,12 @@ If the installation was **not successful** you will see a warning and further in
 After the installation of openHABian was successful, you should be able to access the openHAB dashboard:
 
 - Raspberry Pi image setup: [http://openhab:8080](http://openhab:8080)
-- In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP)
+- In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP with yours)
 
 #### What's next?
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem. Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 
-#### <a id="switch-openhab-branch"></a>Can I switch from openHAB 2 stable to the testing or unstable branch?
+####<a id="switch-openhab-branch"></a>Can I switch from openHAB 2 stable to the testing or unstable branch?
 openHABian installs the latest stable build of openHAB 2.
 If you want to switch over to the snapshot or milestone release, please do so via the openHABian Configuration Tool.
 Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!

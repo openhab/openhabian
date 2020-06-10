@@ -138,9 +138,10 @@ if tryUntil "ping -c1 9.9.9.9 >/dev/null || wget -S -t 3 --waitretry=4 http://ww
       cat /etc/wpa_supplicant/wpa_supplicant.conf
       rm -f /etc/wpa_supplicant/wpa_supplicant.conf
     else
-      echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your network."
+      echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
+      echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but without proper Internet connectivity this is not guaranteed to work."
     fi
-    fail_inprogress
+    #fail_inprogress
   fi
 echo "OK"
 
@@ -156,7 +157,9 @@ if apt-get --yes upgrade &>/dev/null; then echo "OK"; else echo "FAILED"; fail_i
 if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
-if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+if ! cond_redirect dpkg -s "git" &>/dev/null; then
+  if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+fi
 
 if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
 # shellcheck disable=SC2154
