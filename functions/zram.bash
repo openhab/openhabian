@@ -13,10 +13,8 @@ install_zram_code() {
   cond_redirect apt-get install -y -q --no-install-recommends make libattr1-dev
 
   mkdir -p "$1"
-  cd "$1" || return 1;
-  git clone -q "$OVERLAYFSGIT"
-  git clone -q --branch "$TAG" "$ZRAMGIT"
-  cd - || return 1;
+  git clone -q "$OVERLAYFSGIT" "$1"/overlayfs-tools
+  git clone -q --branch "$TAG" "$ZRAMGIT" "$1"/openhabian-zram
 }
 
 init_zram_mounts() {
