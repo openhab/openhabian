@@ -3,8 +3,8 @@ When you choose 'I have read this' the message will not appear on startup anymor
 All announcements will be stored in /opt/openhabian/docs/NEWSLOG for you to lookup.
 
 ## June 10, 2020
-### new parameters in openhabian.conf
-See /etc/openhabian.conf for a number of new parameters such as fake hardware mode, to disable ipv6, Java to install and the ability to update from some repository other than the default `master` and `stable`.
+### new parameters in `openhabian.conf`
+See `/etc/openhabian.conf` for a number of new parameters such as fake hardware mode, to disable ipv6, Java to install and the ability to update from some repository other than the default `master` and `stable`.
 
 ### New Java options
 Preparing for openHAB 3, new options for the JDK that runs openHAB are now available:
