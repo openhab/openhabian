@@ -4,7 +4,8 @@ All announcements will be stored in /opt/openhabian/docs/NEWSLOG for you to look
 
 ## June 10, 2020
 ### new parameters in `openhabian.conf`
-See `/etc/openhabian.conf` for a number of new parameters such as fake hardware mode, to disable ipv6, Java to install and the ability to update from some repository other than the default `master` and `stable`.
+See `/etc/openhabian.conf` for a number of new parameters such as the useful `debugmode`, a fake hardware mode, to disable ipv6 and the ability to update from some repository other than the default `master` and `stable`.
+In case you are not aware, there is a Debug Guide in the `docs/` directory.
 
 ### New Java options
 Preparing for openHAB 3, new options for the JDK that runs openHAB are now available:
