@@ -146,8 +146,9 @@ if tryUntil "ping -c1 9.9.9.9 >/dev/null || wget -S -t 3 --waitretry=4 http://ww
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
-until apt-get update &>/dev/null; do sleep 1; done
-sleep 10  # Related to: https://github.com/openhab/openhabian/issues/441#issuecomment-448583415
+tryUntil "apt-get update -q &>/dev/null" 10 0
+# still needed?
+#sleep 10  # Related to: https://github.com/openhab/openhabian/issues/441#issuecomment-448583415
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
