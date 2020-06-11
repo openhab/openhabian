@@ -146,7 +146,7 @@ if tryUntil "ping -c1 9.9.9.9 >/dev/null || wget -S -t 3 --waitretry=4 http://ww
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
-tryUntil "apt-get update -q &>/dev/null" 10 0
+tryUntil "apt-get update &>/dev/null" 10 0
 # still needed?
 #sleep 10  # Related to: https://github.com/openhab/openhabian/issues/441#issuecomment-448583415
 echo "OK"
@@ -162,10 +162,11 @@ if ! cond_redirect dpkg -s "git" &>/dev/null; then
   if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
 fi
 
-if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
+# must not remove for offline to work
+#if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
-if ! git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "FAILED"; fail_inprogress; fi
+if ! git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "FAILED"; fi
 echo "OK"
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
