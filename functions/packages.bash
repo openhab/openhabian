@@ -443,7 +443,10 @@ nginx_setup() {
   fi
 
   echo -n "Obtaining public IP address... "
-  wanip=$(dig +short myip.opendns.com @resolver1.opendns.com |tail -1)
+  wanip=$(dig +short myip.opendns.com @resolver1.opendns.com | tail -1)
+  if [[ -z "$wanip" ]]; then
+    wanip=$(dig -4 +short myip.opendns.com @resolver1.opendns.com | tail -1)
+  fi
   echo "$wanip"
 
   domain=$(whiptail --title "Domain Setup" --inputbox "If you have a registered domain enter it now, if you have a static public IP enter \"IP\", otherwise leave blank:" 15 80 3>&1 1>&2 2>&3)
