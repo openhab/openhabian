@@ -123,7 +123,7 @@ To get the automated openHABian installation going, use
 openhabian-config unattended
 ```
 
-Please note that we cannot test HW/OS combos upfront so as stated in the [README](#../README.md), there is no support.
+Please note that we cannot test HW/OS combos upfront so as stated in the [README](../README.md), there is no support.
 Don't be too disappointed if you run into errors. Drop us a note on Github.
 If the `unattended` installation does not work out, you can still try the openHABian configuration tool in interactive mode:
 
@@ -141,7 +141,7 @@ Mark all components / actions you think to be of value and execute them in one g
 > openHABian usage on a custom system should be safe.
 > Some routines might not work for you, however.
 > Please be cautious and have a close look at the console output for errors.
-> Should you run into errors, consult the [debug guide](#openhabian-DEBUG.md).
+> Should you run into errors, consult the [debug guide](openhabian-DEBUG.md).
 
 ### `openhabian.conf`
 You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails:
@@ -367,8 +367,8 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
 #### <a id="faq-other-platforms"></a>Can I use openHABian on ...?
-See the [README](#../README.md) for a list of supported HW and OS.
+See the [README](../README.md) for a list of supported HW and OS.
 openHABian is developed for Debian/Ubuntu based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
-Check out the [Manual Setup](#manual-setup) instructions for guidance and consult the [debug guide](#openhabian-DEBUG.md) if you run into problems.
+Check out the [Manual Setup](#manual-setup) instructions for guidance and consult the [debug guide](openhabian-DEBUG.md) if you run into problems.
 Do not hesitate to ask for help on the [openHABian community forum](https://community.openhab.org/) !
