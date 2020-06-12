@@ -9,7 +9,6 @@ source: https://github.com/openhab/openhabian/blob/master/docs/openhabian.md
 <!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source repository -->
 
 # openHABian - Hassle-free openHAB Setup
-
 The Raspberry Pi and other small single-board computers are quite famous platforms for openHAB.
 However, setting up a fully working Linux system with all recommended packages and openHAB recommendations is a **boring task** taking quite some time and **Linux newcomers** shouldn't worry about these technical details.
 
@@ -22,14 +21,12 @@ To that end, the project provides two things:
 * The openHABian Configuration Tool to set up and configure openHAB and many related things on any Debian/Ubuntu based system
 
 #### Table of Contents
-
 {::options toc_levels="2..3"/}
 
 - TOC
 {:toc}
 
 ## Features
-
 The following features are provided by the openHABian image out of the box:
 
 - Hassle-free setup without a display or keyboard, connected via Ethernet or [WiFi](#wifi-based-setup-notes)
@@ -61,11 +58,9 @@ Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openha
   - Move the system partition to an external USB stick or drive
 
 ## Quick Start
-
 Here you'll find supported and tested installation platforms and instructions.
 
 ### Raspberry Pi (Prepackaged SD Card Image)
-
 **Flash, plug, wait, enjoy:**
 The provided image is based on the [Raspbian Lite](https://www.raspberrypi.org/downloads/raspbian) standard system.
 On first boot the system will set up openHAB and the mentioned settings and tools.
@@ -102,7 +97,6 @@ You will see the following welcome screen:
 ➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
 
 ### <a id="manual-setup"></a>Other Linux Systems (add openHABian just like any other software)
-
 openHABian is also supposed to run on generic Debian/Ubuntu based systems on x86 and some ARM hardware platforms.
 Start with a fresh installation of your operating system, login and run
 
@@ -199,7 +193,6 @@ It is not only a menu with a set of options, it's also used in a special unatten
 Use the cursor keys to navigate, <kbd>Enter</kbd> to execute, <kbd>Space</kbd> to select and <kbd>Tab</kbd> to jump to the actions on the bottom of the screen. Press <kbd>Esc</kbd> twice to exit the configuration tool.
 
 ### Linux Hints
-
 If you are unfamiliar with Linux, SSH and the Linux console or if you want to improve your skills, read up on these important topics.
 A lot of helpful articles can be found on the internet, for example:
 
@@ -214,7 +207,6 @@ Take a few minutes to study the above Tutorials and get to know the most basic c
 It's not complicated and something that doesn't hurt on one's résumé.
 
 ### First Steps with openHAB
-
 After your first setup of openHABian is successful and you are able to access the openHAB dashboard, you should dig into the possibilites.
 Install [Bindings](https://www.openhab.org/addons/), discover your devices, and [configure your smart home](https://www.openhab.org/docs/configuration/).
 You might want to start defining [Items](https://www.openhab.org/docs/configuration/items.html), [Sitemap](https://www.openhab.org/docs/configuration/sitemaps.html) and [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html) dashboard for your home, but these are just some first hints.
@@ -290,7 +282,6 @@ If you want to stay in touch with all the latest code changes under the hood, se
 You'll also see added commits when executing the "Update" function within the openHABian Configuration Tool.
 
 ### <a id="successful"></a>Did my Installation succeed? What to do in case of a problem?
-
 A note on **patience**: stay calm - the openHABian setup will take 15 up to 45 minutes to complete all steps.
 The amount of time highly depends on your device's performance and a number of external factors such as your internet connection.
 
@@ -347,7 +338,7 @@ After the installation of openHABian was successful, you should be able to acces
 #### What's next?
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem. Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 
-####<a id="switch-openhab-branch"></a>Can I switch from openHAB 2 stable to the testing or unstable branch?
+#### <a id="switch-openhab-branch"></a>Can I switch from openHAB 2 stable to the testing or unstable branch?
 openHABian installs the latest stable build of openHAB 2.
 If you want to switch over to the snapshot or milestone release, please do so via the openHABian Configuration Tool.
 Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
@@ -375,7 +366,7 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 **If** the above didn't convince you, execute the following commands to get the graphical user interface [Pixel](https://www.raspberrypi.org/blog/introducing-pixel) installed.
 You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
-####<a id="faq-other-platforms"></a>Can I use openHABian on ...?
+#### <a id="faq-other-platforms"></a>Can I use openHABian on ...?
 See the [README](#../README.md) for a list of supported HW and OS.
 openHABian is developed for Debian/Ubuntu based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
