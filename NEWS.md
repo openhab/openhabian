@@ -12,9 +12,9 @@ Preparing for openHAB 3, new options for the JDK that runs openHAB are now avail
 
  - Java Zulu 8 32-Bit OpenJDK (default on ARM based platforms)
  - Java Zulu 8 64-Bit OpenJDK (default on x86 based platforms)
- - Java Zulu 11 32-Bit OpenJDK (beta testing)
- - Java Zulu 11 64-Bit OpenJDK (beta testing)
- - AdoptOpenJDK 11 OpenJDK (beta replacement for Zulu)
+ - Java Zulu 11 32-Bit OpenJDK
+ - Java Zulu 11 64-Bit OpenJDK
+ - AdoptOpenJDK 11 OpenJDK (replacement for Zulu)
 
 openHAB 3 will be Java 11 only.  2.5.X is supposed to work on both, Java 8 and Java 11.
 Running the current openHAB 2.X on Java 11 however has not been tested on a wide scale.
