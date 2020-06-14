@@ -159,15 +159,17 @@ if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
 if ! cond_redirect dpkg -s "git" &>/dev/null; then
-  if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+  if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fi
 fi
 
 # must not remove for offline to work
 #if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
-if ! git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "FAILED"; fi
-echo "OK"
+if ! openhabian_update; then
+  echo "$(timestamp) [openHABian] The git repository on the public internet is not reachable."
+  echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but this is not guaranteed to work."
+fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 # shellcheck disable=SC2154
