@@ -96,7 +96,8 @@ You will see the following welcome screen:
 
 ➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
 
-### <a id="manual-setup"></a>Other Linux Systems (add openHABian just like any other software)
+<a id="manual-setup"></a>
+### Other Linux Systems (add openHABian just like any other software)
 openHABian is also supposed to run on generic Debian/Ubuntu based systems on x86 and some ARM hardware platforms.
 Start with a fresh installation of your operating system, login and run
 
@@ -112,18 +113,21 @@ then start installation
 apt-get update
 apt-get install git
 
-# download and link
+# download, link and create config file
 git clone -b stable https://github.com/openhab/openhabian.git /opt/openhabian
 ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
+cp /opt/openhabian/openhabian.conf.dist /etc/openhabian.conf
 ```
 
-To get the automated openHABian installation going, use
+Edit `/etc/openhabian.conf` to match your needs, then use
 
 ```shell
 openhabian-config unattended
 ```
 
-Please note that we cannot test HW/OS combos upfront so as stated in the [README](../README.md), there is no support.
+to get the automated openHABian installation going.
+
+Please note that we cannot test HW/OS combos upfront so there is no support / no guarantee for this work as explained in the [README](../README.md).
 Don't be too disappointed if you run into errors. Drop us a note on Github.
 If the `unattended` installation does not work out, you can still try the openHABian configuration tool in interactive mode:
 
@@ -276,12 +280,14 @@ If you want to get involved, you found a bug, or just want to see what's planned
 
 - [https://github.com/openhab/openhabian/](https://github.com/openhab/openhabian/)
 
-### <a id="changelog"></a>Where can I find a changelog for openHABian?
+<a id="changelog"></a>
+### Where can I find a changelog for openHABian?
 The official changelog announcements are posted [here](https://community.openhab.org/t/13379/1) and [here](https://github.com/openhab/openhabian/releases), be sure to check these out for your version.
 If you want to stay in touch with all the latest code changes under the hood, see the [commit history](https://github.com/openhab/openhabian/commits/master) for openHABian.
 You'll also see added commits when executing the "Update" function within the openHABian Configuration Tool.
 
-### <a id="successful"></a>Did my Installation succeed? What to do in case of a problem?
+<a id="successful"></a>
+### Did my Installation succeed? What to do in case of a problem?
 A note on **patience**: stay calm - the openHABian setup will take 15 up to 45 minutes to complete all steps.
 The amount of time highly depends on your device's performance and a number of external factors such as your internet connection.
 
@@ -338,14 +344,16 @@ After the installation of openHABian was successful, you should be able to acces
 #### What's next?
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem. Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 
-#### <a id="switch-openhab-branch"></a>Can I switch from openHAB 2 stable to the testing or unstable branch?
+<a id="switch-openhab-branch"></a>
+#### Can I switch from openHAB 2 stable to the testing or unstable branch?
 openHABian installs the latest stable build of openHAB 2.
 If you want to switch over to the snapshot or milestone release, please do so via the openHABian Configuration Tool.
 Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
 
 Check the Linux installation article for all needed details: [Linux: Changing Versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 
-#### <a id="headache"></a>Where is the graphical user interface?
+<a id="headache"></a>
+#### Where is the graphical user interface?
 I've just installed openHABian and now I'm confused.
 No fancy login screen, no windows, no mouse support. What did I get into?
 
@@ -366,7 +374,8 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 **If** the above didn't convince you, execute the following commands to get the graphical user interface [Pixel](https://www.raspberrypi.org/blog/introducing-pixel) installed.
 You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
-#### <a id="faq-other-platforms"></a>Can I use openHABian on ...?
+<a id="faq-other-platforms"></a>
+#### Can I use openHABian on ...?
 See the [README](../README.md) for a list of supported HW and OS.
 openHABian is developed for Debian/Ubuntu based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.

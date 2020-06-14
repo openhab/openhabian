@@ -1,4 +1,5 @@
-This is the new announcement page to pop up whenever you start openhabian-config and there's significant news we would like to share with you. Hit tab to unselect buttons and scroll through the text using UP/DOWN/PG UP/PG DOWN.
+This is the new announcement page to pop up whenever you start openhabian-config and there's significant news we would like to share with you.
+Hit tab to unselect buttons and scroll through the text using UP/DOWN/PG UP/PG DOWN.
 When you choose 'I have read this' the message will not appear on startup anymore.
 All announcements will be stored in /opt/openhabian/docs/NEWSLOG for you to lookup.
 
@@ -35,7 +36,7 @@ You can switch branches at any time using the menu option 01.
 ### Supported hardware and Operating Systems
 openHABian now fully supports all Raspberry Pi SBCs with our fast-start image. As an add-on package, it is supposed to run on all Debian based OSs.
 
-Check the [README](#README.md) to see what "supported" actually means and what you can do if you want to run on other HW or OS.
+Check the [README](README.md) to see what "supported" actually means and what you can do if you want to run on other HW or OS.
 
 ### ZRAM per default
 Swap, logs and persistence files are now put into ZRAM per default.
