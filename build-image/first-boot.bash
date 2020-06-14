@@ -155,9 +155,12 @@ apt --yes --fix-broken install &>/dev/null
 apt-get --yes upgrade &>/dev/null
 res=$?
 if [[ $res -eq 100 ]]; then 
+  cond_echo "CONTINUING..\c"
   dpkg --configure -a
   apt --yes --fix-broken install &>/dev/null
   if apt-get --yes upgrade &>/dev/null; then echo "OK"; else echo "FAILED"; fi
+else
+  echo "OK"
 fi
 
 if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
