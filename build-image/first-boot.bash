@@ -22,8 +22,8 @@ rm -f /opt/openHABian-install-failed
 touch /opt/openHABian-install-inprogress
 
 echo -n "$(timestamp) [openHABian] Storing configuration... "
-cp /boot/openhabian.conf /etc/openhabian.conf
-sed -i 's/\r$//' /etc/openhabian.conf
+cp /boot/openhabian.conf "$CONFIGFILE"
+sed -i 's/\r$//' "$CONFIGFILE"
 
 # shellcheck disable=SC1090
 source "$CONFIGFILE"

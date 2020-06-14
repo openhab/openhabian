@@ -10,6 +10,9 @@
 #
 
 CONFIGFILE=/etc/openhabian.conf
+if [[ ! -f "$CONFIGFILE" ]]; then
+  cp /opt/openhabian/openhabian.conf.dist "$CONFIGFILE"
+fi
 
 # Find the absolute script location dir (e.g. BASEDIR=/opt/openhabian)
 SOURCE="${BASH_SOURCE[0]}"
