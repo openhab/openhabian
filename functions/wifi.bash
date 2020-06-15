@@ -22,6 +22,8 @@ wifi_setup() {
       if (whiptail --title "WiFi is currently ON" --defaultno --yesno "WiFi is currently enabled on your box.\\n\\nATTENTION:\\nDo you want to disable it ?" 10 50); then
         cond_echo "Adding 'dtoverlay=disable-wifi' to /boot/config.txt (RPi0W/3/4)"
         echo "dtoverlay=disable-wifi" >> /boot/config.txt
+	sed -i '/wlan0/d; /nwpa-roam/d; /iface default inet dhcp/d' /etc/network/interfaces
+
 	whiptail --title "Operation successful!" --msgbox "Please reboot now to have your WiFi hardware disabled." 7 70
         return 0
       fi
