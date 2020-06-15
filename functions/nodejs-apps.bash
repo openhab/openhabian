@@ -79,7 +79,7 @@ nodered_setup() {
     if cond_redirect apt-get install --yes build-essential; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  temp="$(mktemp "${TEMP:-/tmp}"/openhabian.XXXXX)"
+  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo "$(timestamp) [openHABian] Beginning setup of Node-RED... "
 
@@ -104,8 +104,8 @@ nodered_setup() {
   if cond_redirect npm update -g node-red-contrib-bigtimer; then echo "OK"; else echo "FAILED (update bigtimer addon)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up Node-RED service... "
-  if ! systemctl enable nodered.service; then echo "FAILED (enable service)"; return 1; fi
-  if systemctl restart nodered.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  if ! cond_redirect systemctl enable nodered.service; then echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl restart nodered.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
   if [ -z "$BATS_TEST_NAME" ]; then
     dashboard_add_tile nodered

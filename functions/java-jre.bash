@@ -33,7 +33,7 @@ java_install_or_update() {
             if [ "$1" == "Zulu8-64" ]; then
               if cond_redirect java_zulu_update_available "Zulu8-64"; then
                 echo -n "$(timestamp) [openHABian] Installing Java Zulu 8 64-Bit OpenJDK... "
-                cond_redirect java_zulu_prerequsite "Zulu8-64"
+                cond_redirect java_zulu_prerequisite "Zulu8-64"
                 if ! [ -x "$(command -v java)" ] && [ -d /opt/jdk/* ]; then
                   cond_redirect java_zulu_install "Zulu8-64"
                 elif [ "$branch" == "stable" ] && [ -z "$UNATTENDED" ]; then
@@ -46,7 +46,7 @@ java_install_or_update() {
             elif [ "$1" == "Zulu11-64" ]; then
               if cond_redirect java_zulu_update_available "Zulu11-64"; then
                 echo -n "$(timestamp) [openHABian] Installing Java Zulu 11 64-Bit OpenJDK... "
-                cond_redirect java_zulu_prerequsite "Zulu11-64"
+                cond_redirect java_zulu_prerequisite "Zulu11-64"
                 if ! [ -x "$(command -v java)" ] && [ -d /opt/jdk/* ]; then
                   cond_redirect java_zulu_install "Zulu11-64"
                 elif [ "$branch" == "stable" ] && [ -z "$UNATTENDED" ]; then
@@ -65,7 +65,7 @@ java_install_or_update() {
             echo "$(timestamp) [openHABian] Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to Java Zulu 8 32-bit installation."
             if cond_redirect java_zulu_update_available "Zulu8-32"; then
               echo -n "$(timestamp) [openHABian] Installing Java Zulu 8 32-Bit OpenJDK... "
-              cond_redirect java_zulu_prerequsite "Zulu8-32"
+              cond_redirect java_zulu_prerequisite "Zulu8-32"
               if ! [ -x "$(command -v java)" ] && [ -d /opt/jdk/* ]; then
                 cond_redirect java_zulu_install "Zulu8-32"
               elif [ "$branch" == "stable" ] && [ -z "$UNATTENDED" ]; then
@@ -81,7 +81,7 @@ java_install_or_update() {
         if [ "$1" == "Zulu11-32" ]; then
           if cond_redirect java_zulu_update_available "Zulu11-32"; then
             echo -n "$(timestamp) [openHABian] Installing Java Zulu 11 32-Bit OpenJDK... "
-            cond_redirect java_zulu_prerequsite "Zulu11-32"
+            cond_redirect java_zulu_prerequisite "Zulu11-32"
             if ! [ -x "$(command -v java)" ] && [ -d /opt/jdk/* ]; then
               cond_redirect java_zulu_install "Zulu11-32"
             elif [ "$branch" == "stable" ] && [ -z "$UNATTENDED" ]; then
@@ -93,7 +93,7 @@ java_install_or_update() {
           fi
         elif cond_redirect java_zulu_update_available "Zulu8-32"; then
           echo -n "$(timestamp) [openHABian] Installing Java Zulu 8 32-Bit OpenJDK... "
-          cond_redirect java_zulu_prerequsite "Zulu8-32"
+          cond_redirect java_zulu_prerequisite "Zulu8-32"
           if ! [ -x "$(command -v java)" ] && [ -d /opt/jdk/* ]; then
             cond_redirect java_zulu_install "Zulu8-32"
           elif [ "$branch" == "stable" ] && [ -z "$UNATTENDED" ]; then
@@ -109,33 +109,33 @@ java_install_or_update() {
   cond_redirect java -version
 }
 
-## Install Java Zulu prerequsite libc
+## Install Java Zulu prerequisite libc
 ## Valid arguments: "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
 ##
-##    java_zulu_prerequsite(String arch)
+##    java_zulu_prerequisite(String arch)
 ##
-java_zulu_prerequsite() {
-  echo -n "$(timestamp) [openHABian] Installing Java Zulu prerequsites (libc)... "
+java_zulu_prerequisite() {
+  echo -n "$(timestamp) [openHABian] Installing Java Zulu prerequisites (libc)... "
   if [ "$1" == "Zulu8-64" ] || [ "$1" == "Zulu11-64" ]; then
     if is_aarch64 && [ "$(getconf LONG_BIT)" == "64" ]; then
-      if (dpkg -s 'libc6:arm64' > /dev/null 2>&1) && (dpkg -s 'libncurses5:arm64' > /dev/null 2>&1) && (dpkg -s 'libstdc++6:arm64' > /dev/null 2>&1); then echo "OK"; return 0; fi
+      if dpkg -s 'libc6:arm64' 'libncurses5:arm64' 'libstdc++6:arm64' > /dev/null 2>&1; then echo "OK"; return 0; fi
       dpkg --add-architecture arm64
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
       if cond_redirect apt-get install --yes libc6:arm64 libncurses5:arm64 libstdc++6:arm64; then echo "OK"; else echo "FAILED"; return 1; fi
     elif is_x86_64 && [ "$(getconf LONG_BIT)" == "64" ]; then
-      if (dpkg -s 'libc6:amd64' > /dev/null 2>&1) && (dpkg -s 'libncurses5:amd64' > /dev/null 2>&1) && (dpkg -s 'libstdc++6:amd64' > /dev/null 2>&1); then echo "OK"; return 0; fi
+      if dpkg -s 'libc6:amd64' 'libncurses5:amd64' 'libstdc++6:amd64' > /dev/null 2>&1; then echo "OK"; return 0; fi
       dpkg --add-architecture amd64
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
       if cond_redirect apt-get install --yes libc6:amd64 libncurses5:amd64 libstdc++6:amd64; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
   else
     if is_arm; then
-      if (dpkg -s 'libc6:armhf' > /dev/null 2>&1) && (dpkg -s 'libncurses5:armhf' > /dev/null 2>&1) && (dpkg -s 'libstdc++6:armhf' > /dev/null 2>&1); then echo "OK"; return 0; fi
+      if dpkg -s 'libc6:armhf' 'libncurses5:armhf' 'libstdc++6:armhf' > /dev/null 2>&1; then echo "OK"; return 0; fi
       dpkg --add-architecture armhf
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
       if cond_redirect apt-get install --yes libc6:armhf libncurses5:armhf libstdc++6:armhf; then echo "OK"; else echo "FAILED"; return 1; fi
     else
-      if (dpkg -s 'libc6:i386' > /dev/null 2>&1) && (dpkg -s 'libncurses5:i386' > /dev/null 2>&1) && (dpkg -s 'libstdc++6:i386' > /dev/null 2>&1); then echo "OK"; return 0; fi
+      if dpkg -s 'libc6:i386' 'libncurses5:i386' 'libstdc++6:i386' > /dev/null 2>&1; then echo "OK"; return 0; fi
       dpkg --add-architecture i386
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
       if cond_redirect apt-get install --yes libc6:i386 libncurses5:i386 libstdc++6:i386; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -285,7 +285,7 @@ java_zulu_update_available() {
   local requestedArch
 
   if ! [ -x "$(command -v jq)" ]; then
-    echo -n "$(timestamp) [openHABian] Installing Java Zulu prerequsites (jq)... "
+    echo -n "$(timestamp) [openHABian] Installing Java Zulu prerequisites (jq)... "
     if cond_redirect apt-get install --yes jq; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
@@ -380,7 +380,7 @@ java_zulu_install_crypto_extension() {
   local policyTempLocation
 
   jdkSecurity="$(dirname "$(readlink -f "$(command -v java)")")/../lib/security"
-  policyTempLocation="$(mktemp -d "${TEMP:-/tmp}"/openhabian.XXXXX)"
+  policyTempLocation="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo -n "$(timestamp) [openHABian] Installing Java Zulu Cryptography Extension Kit to enable cryptos using more then 128 bits... "
   mkdir -p "$jdkSecurity"
@@ -395,7 +395,7 @@ java_zulu_install_crypto_extension() {
 ##
 adoptopenjdk_fetch_apt() {
   if ! dpkg -s 'software-properties-common' > /dev/null 2>&1; then
-    if ! cond_redirect apt-get install --yes software-properties-common; then echo "FAILED (AdoptOpenJDK prerequsites)"; return 1; fi
+    if ! cond_redirect apt-get install --yes software-properties-common; then echo "FAILED (AdoptOpenJDK prerequisites)"; return 1; fi
   fi
 
   if ! add_keys "https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public"; then return 1; fi

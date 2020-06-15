@@ -1,7 +1,6 @@
 language: shell
 os: linux
 # using latest Ubuntu (not the travis-ci default) to get latest tool versions in Travis environment
-#dist: bionic
 dist: focal
 
 cache: false
@@ -19,25 +18,33 @@ git:
 services:
   - docker
 
-install: ./test.bash travis
+stages:
+  - BATS and ShellCheck tests
+  - openHABian installation tests
+
+install:
+  - ./test.bash travis
 
 jobs:
   fast_finish: true
   allow_failures:
-    - name: BATS and Shellcheck tests on virtual RPi4
+    - stage: BATS and ShellCheck tests
   include:
-    - name: BATS and Shellcheck tests on virtual RPi4
+    - stage: BATS and ShellCheck tests
+      name: BATS and ShellCheck tests on virtual RPi4
       env: HW=rpi4
       arch: arm64
       script:
         # BATS tests on a 64bit rpi4 virtual platform, running in a 64bit OS on Travis Arm64 HW
         - docker build -t openhabian/bats-openhabian -f Dockerfile.raspberrypi4-64 .
         - echo -e "\n\e[36mopenHABian BATS tests running on a\e[31m 64bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
+        - docker run --name "development-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "development-." .'
         - docker run --name "unit-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "unit-." .'
         - docker run --name "installation-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "installation-." .'
         - docker run --name "destructive-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "destructive-." .'
         - shellcheck -x -s bash openhabian-setup.sh functions/*.bash build-image/*.bash build.bash && echo "shellcheck - OK"
-    - name: openHABian installation test with 64bit Azul Java 8 on native amd64
+    - stage: openHABian installation tests
+      name: openHABian installation test with 64bit Azul Java 8 on native amd64
       env: HW=amd64
       arch: amd64
       script:
@@ -57,14 +64,14 @@ jobs:
         - echo -e "\n\e[36mopenHABian test installation using 32bit Azul Embedded Java 8 running on a\e[31m 32bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
         - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian
         - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
-    - name: openHABian installation test with 32bit Azul Java 8 on virtual RPi3
+    - name: openHABian installation test with 32bit Azul Java 11 on virtual RPi3
       env: HW=rpi3
       arch: arm64
       script:
-        # 32bit Azul Java 8 on a 64bit ARMv8 (RPi3) virtual platform, running in a 32bit OS on Travis Arm64 HW
-        - sed -i 's/^java_opt=.*$/java_opt=Zulu8-32/' build-image/openhabian.conf
+        # 32bit Azul Java 11 on a 64bit ARMv8 (RPi3) virtual platform, running in a 32bit OS on Travis Arm64 HW
+        - sed -i 's/^java_opt=.*$/java_opt=Zulu11-32/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.raspberrypi3 .
-        - echo -e "\n\e[36mopenHABian test installation using 32bit Azul Embedded Java 8 running on a\e[31m 32bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
+        - echo -e "\n\e[36mopenHABian test installation using 32bit Azul Embedded Java 11 running on a\e[31m 32bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
         - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
         - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
     - name: openHABian installation test with 64bit Azul Java 8 on virtual RPi3
@@ -75,7 +82,7 @@ jobs:
         - sed -i 's/^java_opt=.*$/java_opt=Zulu8-64/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.raspberrypi3-64 .
         - echo -e "\n\e[36mopenHABian test installation using 64bit Azul Embedded Java 8 running on a\e[31m 64bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
-        - docker run --memory="2G" --memory-reservation="2G" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
+        - docker run --memory="2g" --memory-reservation="2g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
         - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
     - name: openHABian installation test with AdoptOpenJDK Java 11 on virtual RPi2
       env: HW=rpi2

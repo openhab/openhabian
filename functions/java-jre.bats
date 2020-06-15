@@ -9,7 +9,7 @@ load helpers.bash
     aarch64|arm64|x86_64|amd64) ;;
     *) skip ;;
   esac
-  run java_zulu_prerequsite "Zulu8-64" 3>&-
+  run java_zulu_prerequisite "Zulu8-64" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   run java_zulu_fetch "Zulu8-64" 3>&-
@@ -27,7 +27,7 @@ load helpers.bash
     aarch64|arm64|x86_64|amd64) ;;
     *) skip ;;
   esac
-  run java_zulu_prerequsite "Zulu11-64" 3>&-
+  run java_zulu_prerequisite "Zulu11-64" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   run java_zulu_fetch "Zulu11-64" 3>&-
@@ -41,7 +41,7 @@ load helpers.bash
 
 @test "destructive-install_zulu8-32bit" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zulu 8 32-bit Java installation is being (test-)installed...${COL_DEF}" >&3
-  run java_zulu_prerequsite "Zulu8-32" 3>&-
+  run java_zulu_prerequisite "Zulu8-32" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   run java_zulu_fetch "Zulu8-32" 3>&-
@@ -55,7 +55,7 @@ load helpers.bash
 
 @test "destructive-install_zulu11-32bit" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zulu 11 32-bit Java installation is being (test-)installed...${COL_DEF}" >&3
-  run java_zulu_prerequsite "Zulu11-32" 3>&-
+  run java_zulu_prerequisite "Zulu11-32" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   run java_zulu_fetch "Zulu11-32" 3>&-

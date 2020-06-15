@@ -72,7 +72,7 @@ that's something you have to accomplish on your own. Read and understand the Ama
 *   It's helpful to know that Amanda was originally built to use magnetic tape changer libraries as backup storage in professional
 data center installations. It can operate multiple tape drives in parallel, and the tapes used to be commonly stored in what's
 called a 'slot' inside the tape library cabinet.
-*   The default dumpcycle for a openHABian install is 2 weeks. Amanda will run a 'level 0' dump (that means to backup EVERYTHING)
+*   The default dumpcycle for an openHABian installation is 2 weeks. Amanda will run a 'level 0' dump (that means to backup EVERYTHING)
 once in a dumpcycle and will run 'level 1' dumps for the rest of the time (that means to only backup files that have CHANGED
 since the last level 0 dump was done, also called an 'incremental' backup).
 Amanda will combine level 0 of some devices with level 1 or 2 of others, aiming to have the more or less same amount of data

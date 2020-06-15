@@ -10,20 +10,16 @@ get_git_revision() {
 }
 
 apt_update() {
-  apt-get -q update >/dev/null 2>&1 &
+  apt-get -q update > /dev/null 2>&1 &
   PID_APT=$!
 }
 
 wait_for_apt_to_finish_update() {
-  echo "$(timestamp) [openHABian] Updating Linux package information ... "
-  if [ ! -v PID_APT ]; then
+  echo -n "$(timestamp) [openHABian] Updating Linux package information ... "
+  if [ -z "$PID_APT" ]; then
     apt_update
   fi
-  if wait -f ${PID_APT} 2>/dev/null ; then
-    echo FAILED
-  else
-    echo OK
-  fi
+  if timeout 60 tail --pid=$PID_APT -f /dev/null; then echo "OK"; else echo "FAILED"; fi
 }
 
 install_cleanup() {

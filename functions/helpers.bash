@@ -47,7 +47,7 @@ cond_echo() {
 add_keys() {
   local repoKey
 
-  repoKey="$(mktemp "${TEMP:-/tmp}"/openhabian.XXXXX)"
+  repoKey="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo -n "$(timestamp) [openHABian] Adding required keys to apt... "
   cond_redirect wget -qO "$repoKey" "$1"
