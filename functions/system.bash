@@ -52,7 +52,6 @@ timezone_setting() {
     echo -n "$(timestamp) [openHABian] Setting timezone based on openhabian.conf... "
     cond_redirect timedatectl set-timezone "$timezone"
   else
-    wait_for_apt_to_finish_update
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! command -v tzupdate &>/dev/null; then
       cond_redirect apt-get install --yes python3-pip python3-wheel python3-setuptools

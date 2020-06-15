@@ -82,7 +82,7 @@ choose_ipv6
 if [[ -n "$UNATTENDED" ]]; then
   # apt/dpkg commands will not try interactive dialogs
   export DEBIAN_FRONTEND=noninteractive
-  apt_update
+  cond_redirect apt-get update
   load_create_config
   timezone_setting
   locale_setting
