@@ -1,8 +1,8 @@
 [Unit]
 Description=Frontail openHAB instance, reachable at http://%H:9001
 Documentation=https://github.com/mthenw/frontail
-Documentation=https://github.com/openhab/openhabian/issues/28
 After=openhab2.service
+PartOf=openhab2.service
 
 [Service]
 Type=simple
