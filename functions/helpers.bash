@@ -220,13 +220,13 @@ is_sid() {
   [[ $(cat /etc/*release*) =~ "sid" ]]
   return $?
 }
-# Ubuntu 14, to be deprecated
+# Ubuntu 14, deprecated
 is_trusty() {
   if [[ "$release" == "trusty" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "trusty" ]]
   return $?
 }
-# Ubuntu 16
+# Ubuntu 16, deprecated
 is_xenial() {
   if [[ "$release" == "xenial" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "xenial" ]]

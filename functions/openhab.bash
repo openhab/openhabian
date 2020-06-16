@@ -68,12 +68,6 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   openhabVersion="$(apt-cache madison openhab2 | head -n 1 | cut -d'|' -f2 | xargs)"
 
   local APT_INST_OPTS="-y --allow-downgrades"
-  if is_jessie; then
-    # - jessie uses apt 1.0 which does not support --allow-downgrades
-    # - ubuntu should be fine starting with xenial (apt v1.2)
-    # - no support for other older distros
-    APT_INST_OPTS="-y"
-  fi
   if ! cond_redirect apt-get ${APT_INST_OPTS} install "openhab2=${openhabVersion}"; then echo "FAILED (apt)"; return 1; fi
   cond_redirect adduser openhab gpio
   cond_redirect systemctl daemon-reload
