@@ -50,6 +50,16 @@ openhabian_console_check() {
 openhabian_update_check() {
   local branch
   local introtext="Additions, improvements or fixes were added to the openHABian configuration tool. Would you like to update now and benefit from them? The update will not automatically apply changes to your system.\\n\\nUpdating is recommended."
+  local unsupportedhwtext="You are running on old hardware that is no longer officially supported.\\nopenHABian may still work with this or not.\\nWe recommend to replace your hardware with a current SBC such as a RPi4/2GB.\\nDo you really want to continue using openHABian on this system ?"
+  local unsupportedostext="You are running an old Linux release that is no longer officially supported.\\nWe recommend upgrading to the most current stable release of your distribution (or current Long Term Support version for distributions to offer LTS).\\nDo you really want to continue using openHABian on this system ?"
+
+  if is_pine64; then
+    if ! (whiptail --title "Unsupported hardware" --yes-button "Yes, Continue" --no-button "No, Exit" --defaultno --yesno "$unsupportedhwtext" 13 85); then echo "SKIP"; exit 0; fi
+  fi
+  if is_jessie || is_xenial; then
+    if ! (whiptail --title "Unsupported Linux release" --yes-button "Yes, Continue" --no-button "No, Exit" --defaultno --yesno "$unsupportedostext" 13 85); then echo "SKIP"; exit 0; fi
+  fi
+
   FAILED=0
   echo "$(timestamp) [openHABian] openHABian configuration tool version: $(get_git_revision)"
   branch=${clonebranch:-HEAD}
