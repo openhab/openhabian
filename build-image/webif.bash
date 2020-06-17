@@ -26,7 +26,7 @@ if [ "$1" = "start" ]; then
   echo '<body>
 <h1>openHABian Installation Status</h1>
 the log will be refreshed automatically every 10 seconds
-<iframe src=/first-boot.txt"' scrolling="yes" width="100%" height="90%"></iframe>
+<iframe src='"/first-boot.txt"' scrolling="yes" width="100%" height="90%"></iframe>
 </body>
 </html>' >> /tmp/webif/index.html
   (cd /tmp/webif || exit 1; python3 -m http.server $port > /dev/null 2>&1 &)
