@@ -46,7 +46,7 @@ if [ "$1" = "inst_done" ]; then
   # shellcheck disable=SC2016
   echo '<html>
 <head>
-<meta http-equiv="refresh" content="10;url=http://${HOSTNAME:-$hostname}:8080/" />
+<meta http-equiv='"refresh"' content='"10;url=http://${HOSTNAME:-$hostname}:8080/"' />
 <title>openHABian</title>
 </head>' > /tmp/webif/index.html
   echo '<body>

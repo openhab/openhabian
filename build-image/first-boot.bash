@@ -147,7 +147,7 @@ if tryUntil "ping -c1 9.9.9.9 >/dev/null || wget -S -t 3 --waitretry=4 http://ww
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
-if tryUntil "apt-get update &>/dev/null" 10 0; then echo "OK"; else echo "FAILED"; fi
+if tryUntil "apt-get update &>/dev/null" 3 1; then echo "OK"; else echo "FAILED"; fi
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
