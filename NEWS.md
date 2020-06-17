@@ -8,8 +8,8 @@ All announcements will be stored in /opt/openhabian/docs/NEWSLOG for you to look
 openhabian-config will now issue a warning if you start on unsupported hardware or OS releases.
 See [README](README.md) for supported HW and OS.
 In short, PINE A64 is no longer supported and OS releases other than the current `stable` and the previous one are deprecated.
-That's Debian / Raspbian 10 (buster) and 9 (stretch) as well as Ubuntu 20.04 (focal) and 18.04 (bionic).
-Note: Running on any of these may still work or not.
+Running on any of those may still work or not.
+The current and previous Debian / Raspbian releases are 10 ("buster") and 9 ("stretch"). Most current Ubuntu LTS releases are 20.04 ("focal") and 18.04 ("bionic").
 
 ## June 10, 2020
 ### new parameters in `openhabian.conf`
