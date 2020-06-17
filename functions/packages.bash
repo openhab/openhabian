@@ -1,114 +1,166 @@
 #!/usr/bin/env bash
 
-timestamp() { date +"%F_%T_%Z"; }
-
+## Function for installing samba for remote access of folders.
+## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    samba_setup()
+##
 samba_setup() {
-  echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
-  if ! command -v samba &>/dev/null; then
-    if ! cond_redirect apt-get install --yes samba; then echo "FAILED"; return 1; fi
+  if ! [ -x "$(command -v samba)" ]; then
+    echo -n "$(timestamp) [openHABian] Installing Samba... "
+    if cond_redirect apt-get install --yes samba; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
+
+  echo "$(timestamp) [openHABian] Setting up Samba network shares... "
   cond_echo "Copying over custom 'smb.conf'... "
   cp "$BASEDIR"/includes/smb.conf /etc/samba/smb.conf
   cond_echo "Writing authentication data to openHABian default... "
-  if ! /usr/bin/smbpasswd -e "$username" &>/dev/null; then
+  if ! smbpasswd -e "${username:-openhabian}" &> /dev/null; then
     # shellcheck disable=SC2154
-    ( (echo "${userpw}"; echo "${userpw}") | /usr/bin/smbpasswd -s -a "${username}" > /dev/null )
+    ( (echo "$userpw"; echo "$userpw") | smbpasswd -s -a "${username:-openhabian}" > /dev/null )
   fi
-  cond_redirect systemctl enable smbd.service
-  cond_redirect systemctl restart smbd.service
-  echo "OK"
+
+  echo -n "$(timestamp) [openHABian] Setting up Samba service... "
+  if ! cond_redirect systemctl enable smbd.service; then echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl restart smbd.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 }
 
+## Function for installing FireMotD which displays the system overview on login.
+## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    firemotd_setup()
+##
 firemotd_setup() {
-  FAILED=0
-  echo -n "$(timestamp) [openHABian] Downloading and setting up FireMotD... "
-  cond_redirect apt-get install --yes bc sysstat jq moreutils
+  local temp
 
-  # fetch and install
-  if ! cond_redirect curl -s https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD -o /tmp/FireMotD; then echo "FAILED"; return 1; fi
-  chmod 755 /tmp/FireMotD
-  cond_redirect /tmp/FireMotD -I
-  # generate theme
-  cond_redirect FireMotD -G Gray
-  # initial apt updates check
-  cond_redirect FireMotD -S
-  # the following is already in bash_profile by default
-  if ! grep -q "FireMotD" /home/"$username"/.bash_profile; then
-    echo -e "\\necho\\nFireMotD --theme Gray \\necho" >> /home/"$username"/.bash_profile
+  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
+
+  if ! dpkg -s 'bc' 'sysstat' 'jq' 'moreutils' > /dev/null 2>&1; then
+    echo -n "$(timestamp) [openHABian] Installing FireMotD required packages... "
+    if cond_redirect apt-get install --yes bc sysstat jq moreutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  # invoke apt updates check every night
+  echo -n "$(timestamp) [openHABian] Downloading FireMotD... "
+  if cond_redirect wget -qO "$temp" https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD; then
+     echo "OK"
+  else
+    echo "FAILED"
+    rm -f "$temp"
+    return 1
+  fi
+
+  echo -n "$(timestamp) [openHABian] Setting up FireMotD... "
+  chmod 755 "$temp"
+  if cond_redirect "$temp" -I; then echo "OK"; rm -f "$temp"; else echo "FAILED"; rm -f "$temp"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Generating FireMotD theme... "
+  if cond_redirect FireMotD -G Gray; then echo "OK"; else echo "FAILED"; return 1; fi
+
+  if ! grep -q "FireMotD" /home/"${username:-openhabian}"/.bash_profile; then
+    echo -n "$(timestamp) [openHABian] Make FireMotD display on login... "
+    if echo -e "\\necho\\nFireMotD --theme Gray \\necho" >> /home/"${username:-openhabian}"/.bash_profile; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+
+  echo "$(timestamp) [openHABian] Setting up FireMotD apt updates count service... "
+  cond_echo "Make FireMotD check for new updates every night... "
   echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
   echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /usr/local/bin/FireMotD -S &>/dev/null" >> /etc/cron.d/firemotd
-  # invoke apt updates check after every apt action ('apt-get upgrade', ...)
+  cond_echo "Make FireMotD check for new updates after using apt... "
   echo "DPkg::Post-Invoke { \"if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
-  echo "OK"
+  cond_echo "Initial FireMotD updates check"
+  if cond_redirect FireMotD -S; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
-create_mta_config() {
-  TMP="$(mktemp /tmp/openhabian.XXXXX)"
-  HOSTNAME=$(/bin/hostname)
-  INTERFACES="$(/usr/bin/dig +short "$HOSTNAME" | /usr/bin/tr '\n' ';');127.0.0.1;::1"
-  EXIM_CLIENTCONFIG=/etc/exim4/passwd.client
-
-  introtext1="We will guide you through the install of exim4 as the mail transfer agent on your system and configure it to relay mails through a public service such as Google gmail.\\nPlease
-enter the data shown in the next window when being asked for. You will be able to repeat the whole installation if required by selecting the openHABian menu for MTA again."
-  introtext2="Mail server type: mail sent by smarthost; received via SMTP or fetchmail\\nSystem mail name: FQDN (your full hostname including the domain part)\\nIPs should be allowed by the se
-rver: $INTERFACES\\nOther destinations for which mail is accepted: $HOSTNAME\\nMachines to relay mail for: Leave empty\\nIP address or host name of outgoing smarthost: smtp.gmail.com::587\\nHide
- local mail name in outgoing mail: No\\nKeep number of DNS-queries minimal: No\\nDelivery method: Select: Maildir format in home directory\\nMinimize number of DNS queries: No\\nSplit configurat
-ion into small files: Yes\\n"
-  if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Mail Transfer Agent installation" --yes-button "Start" --no-button "don't change MTA" --yesno "$introtext1" 12 78); then echo "CANCELED"; return 0; fi
-    if ! (whiptail --title "Mail Transfer Agent installation" --msgbox "$introtext2" 18 78); then echo "CANCELED"; return 0; fi
-  else
-    echo "Ignoring MTA config creation in unattended install mode."
+## Function for installing and configuring Exim4 as MTA to relay mails via public services.
+## This function can only be invoked in INTERACTIVE with userinterface.
+##
+##    exim_setup()
+##
+exim_setup() {
+  if [ -z "$INTERACTIVE" ]; then
+    echo "$(timestamp) [openHABian] MTA setup must be run in interactive mode! Canceling MTA setup!"
+    echo "CANCELED"
     return 0
   fi
 
-  dpkg-reconfigure exim4-config
-  if ! SMARTHOST=$(whiptail --title "Enter public mail service smarthost to relay your mails to" --inputbox "\\nEnter the list of smarthost(s) to use your account for" 9 78 "*.google.com" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
-  if ! RELAYUSER=$(whiptail --title "Enter your public service mail user" --inputbox "\\nEnter the mail username of the public service to relay all outgoing mail to ${SMARTHOST}" 9 78 "yourname@gmail.com" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
-  if ! RELAYPASS=$(whiptail --title "Enter your public service mail password" --passwordbox "\\nEnter the password used to relay mail as ${RELAYUSER}@${SMARTHOST}" 9 78 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+  local eximConfig
+  local interfaces
+  local introtext1
+  local introtext2
+  local relayPass
+  local relayUser
+  local smartHost
+  local temp
 
-  grep '^#' "${EXIM_CLIENTCONFIG}" > "$TMP"
-  echo "${SMARTHOST}:${RELAYUSER}:${RELAYPASS}" >> "$TMP"
-  cp "$TMP" "${EXIM_CLIENTCONFIG}"
-  /bin/chmod o-rwx "${EXIM_CLIENTCONFIG}"
-  {
-    echo "openhab: ${RELAYUSER}";echo "openhabian: ${RELAYUSER}";
-    echo "root: ${RELAYUSER}";echo "backup: ${RELAYUSER}";
-  } >> /etc/email-addresses
-  rm -f "$TMP"
-}
-
-exim_setup() {
-  if apt-get install --yes exim4 dnsutils mailutils &>/dev/null; then
-    echo "OK"
-    create_mta_config
-  else
-    echo "FAILED"
+  if ! dpkg -s 'mailutils' 'exim4' 'dnsutils' > /dev/null 2>&1; then
+    echo -n "$(timestamp) [openHABian] Installing MTA required packages... "
+    if cond_redirect apt-get install --yes exim4 dnsutils mailutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
+
+  eximConfig="/etc/exim4/passwd.client"
+  interfaces="$(dig +short "$HOSTNAME" | tr '\n' ';');127.0.0.1;::1"
+  introtext1="We will guide you through the install of exim4 as the mail transfer agent on your system and configure it to relay mails through a public service such as Google gmail.\\n\\nPlease enter the data shown in the next window when being asked for. You will be able to repeat the whole installation if required by selecting the openHABian menu for MTA again."
+  introtext2="Mail server type: mail sent by smarthost (received via SMTP or fetchmail)\\n\\nSystem mail name: FQDN (your full hostname including the domain part)\\n\\nIPs that should be allowed by the server: $interfaces\\n\\nOther destinations for which mail is accepted: $HOSTNAME\\n\\nMachines to relay mail for: Leave empty\\n\\nIP address or host name of outgoing smarthost: smtp.gmail.com::587\\n\\nHide local mail name in outgoing mail: No\\n\\nKeep number of DNS-queries minimal: No\\n\\nDelivery method: Select: Maildir format in home directory\\n\\nMinimize number of DNS queries: No\\n\\nSplit configuration into small files: Yes"
+  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
+
+  echo -n "$(timestamp) [openHABian] Beginning Mail Transfer Agent install and setup... "
+  if ! (whiptail --title "Mail Transfer Agent installation" --yes-button "Begin" --no-button "Cancel" --yesno "$introtext1" 13 80); then echo "CANCELED"; return 1; fi
+  if (whiptail --title "Mail Transfer Agent installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext2" 27 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+
+  echo "$(timestamp) [openHABian] Reconfiguring exim4-config... "
+  whiptail --title "exim4 Configuration" --msgbox "exim4-config is about to ask for information, please fill out each line." 7 80 3>&1 1>&2 2>&3
+  if dpkg-reconfigure exim4-config; then echo "OK"; else echo "CANCELED"; return 1; fi
+
+  if ! smartHost=$(whiptail --title "Enter public mail service smarthost to relay your mails to" --inputbox "\\nEnter the list of smarthost(s) to use your account for" 9 80 "*.google.com" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+  if ! relayUser=$(whiptail --title "Enter your public service mail user" --inputbox "\\nEnter the mail username of the public service to relay all outgoing mail to $smartHost" 9 80 "yourname@gmail.com" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+  if ! relayPass=$(whiptail --title "Enter your public service mail password" --passwordbox "\\nEnter the password used to relay mail as ${relayUser}@${smartHost}" 9 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+
+  echo "$(timestamp) [openHABian] Creating MTA config... "
+  if ! grep '^#' "$eximConfig" > "$temp"; then echo "FAILED (configuration)"; rm -f "$temp"; return 1; fi
+  if ! echo "${smartHost}:${relayUser}:${relayPass}" >> "$temp"; then echo "FAILED (configuration)"; rm -f "$temp"; return 1; fi
+  if ! cp "$temp" "$eximConfig"; then echo "FAILED (copy)"; rm -f "$temp"; return 1; fi
+  rm -f "$temp"
+  if chmod o-rwx "$eximConfig"; then echo "OK"; echo "FAILED (permissions)"; return 1; fi
+
+  echo "$(timestamp) [openHABian] Adding to $relayUser email to system accounts... "
+  if {
+    echo "openhab: $relayUser"; echo "openhabian: $relayUser"
+    echo "root: $relayUser"; echo "backup: $relayUser"
+  } >> /etc/email-addresses; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
+## Function for installing etckeeper, a git based /etc backup.
+## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    etckeeper_setup()
+##
 etckeeper_setup() {
-  echo -n "$(timestamp) [openHABian] Installing etckeeper (git based /etc backup)... "
-  if apt-get install --yes etckeeper &>/dev/null; then
-    cond_redirect sed -i 's/VCS="bzr"/\#VCS="bzr"/g' /etc/etckeeper/etckeeper.conf
-    cond_redirect sed -i 's/\#VCS="git"/VCS="git"/g' /etc/etckeeper/etckeeper.conf
-    if cond_redirect bash -c "cd /etc && etckeeper init && git config user.email 'etckeeper@localhost' && git config user.name 'openhabian' && git commit -m 'initial checkin' && git gc"; then echo "OK"; else echo "FAILED"; fi
-  else
-    echo "FAILED";
+  if ! [ -x "$(command -v etckeeper)" ]; then
+    echo -n "$(timestamp) [openHABian] Installing etckeeper (git based /etc backup)... "
+    if cond_redirect apt-get install --yes etckeeper; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
+
+  echo -n "$(timestamp) [openHABian] Configuring etckeeper (git based /etc backup)... "
+  if ! cond_redirect sed -i 's/VCS="bzr"/\#VCS="bzr"/g' /etc/etckeeper/etckeeper.conf; then echo "FAILED"; return 1; fi
+  if ! cond_redirect sed -i 's/\#VCS="git"/VCS="git"/g' /etc/etckeeper/etckeeper.conf; then echo "FAILED"; return 1; fi
+  if cond_redirect bash -c "cd /etc && etckeeper init && git config user.email 'etckeeper@localhost' && git config user.name 'openhabian' && git commit -m 'initial checkin' && git gc"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
+## Function for installing Homegear, the Homematic CCU2 emulation software.
+## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    homegear_setup()
+##
 homegear_setup() {
   local introtext
   local myOS
   local myRelease
   local successtext
 
-  echo -n "$(timestamp) [openHABian] Installing Homegear required packages... "
-  if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
+  if ! [ -x "$(command -v lsb_release)" ]; then
+    echo -n "$(timestamp) [openHABian] Installing Homegear required packages... "
+    if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
 
   introtext="This will install Homegear, the Homematic CCU2 emulation software, using the latest stable release available from the official repository."
   myOS="$(lsb_release -si)"
@@ -124,7 +176,7 @@ homegear_setup() {
     return 1
   fi
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Homegear installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 8 80); then echo "CANCELED"; return 0; fi
+    if (whiptail --title "Homegear installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 8 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   fi
 
   if ! add_keys "https://apt.homegear.eu/Release.key"; then return 1; fi
@@ -132,7 +184,7 @@ homegear_setup() {
   echo "deb https://apt.homegear.eu/${myOS}/ ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
-  if ! cond_redirect apt-get update; then echo "FAILED"; return 1; fi
+  if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permisions... "
@@ -141,514 +193,528 @@ homegear_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up Homegear service... "
   cp "$BASEDIR"/includes/homegear.service /lib/systemd/system/homegear.service
-  if ! systemctl enable homegear.service; then echo "FAILED"; return 1; fi
-  if systemctl restart homegear.service; then echo "OK"; else echo "FAILED"; return 1; fi
+  if ! systemctl enable homegear.service; then echo "FAILED (enable service)"; return 1; fi
+  if systemctl restart homegear.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
   fi
 }
 
+## Function for installing MQTT Eclipse Mosquitto through the official repository.
+## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    mqtt_setup()
+##
 mqtt_setup() {
-  FAILED=0
-  introtext="The MQTT broker Eclipse Mosquitto will be installed through the official repository, as desribed in: https://mosquitto.org/2013/01/mosquitto-debian-repository\\nAdditionally you can activate username:password authentication.\\n\\nHEADS UP: Only proceed when you are aware that this will be in conflict with use of the MQTTv2 binding which will also be using the same ports."
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Setup was successful.\\nEclipse Mosquitto is now up and running in the background. You should be able to make a first connection.
-To continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/mqtt/
-"
-  echo -n "$(timestamp) [openHABian] Setting up the MQTT broker Eclipse Mosquitto... "
+  local introtext
+  local mqttpasswd
+  local mqttuser
+  local questiontext
+  local successtext
 
+  introtext="The MQTT broker Eclipse Mosquitto will be installed through the official repository, as desribed in: https://mosquitto.org/2013/01/mosquitto-debian-repository\\n\\nAdditionally you can activate username:password authentication.\\n\\nHEADS UP: Only proceed when you are aware that this will be in conflict with use of the MQTTv2 binding which will also be using the same ports."
   mqttuser="openhabian"
-  question="Do you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\\nUsername will be '$mqttuser', please provide a password (consisting of ASCII printable characters except space). Leave blank for no authentication, run method again to change."
-  mqttpasswd=$(whiptail --title "MQTT Authentication" --inputbox "$question" 15 80 3>&1 1>&2 2>&3)
-  if is_jessie; then
-    cond_redirect wget -O - http://repo.mosquitto.org/debian/mosquitto-repo.gpg.key | apt-key add -
-    echo "deb http://repo.mosquitto.org/debian jessie main" > /etc/apt/sources.list.d/mosquitto-jessie.list
-    cond_redirect apt-get update
+  questiontext="\\nDo you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\\n\\nUsername will be '$mqttuser', please provide a password (consisting of ASCII printable characters except space). Leave blank for no authentication, run setup again to change."
+  successtext="Setup was successful.\\n\\nEclipse Mosquitto is now up and running in the background. You should be able to make a first connection.\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/mqtt/"
+
+  echo -n "$(timestamp) [openHABian] Beginning the MQTT broker Eclipse Mosquitto installation... "
+  if [ -n "$INTERACTIVE" ]; then
+    if (whiptail --title "MQTT installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 14 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   fi
-  if ! cond_redirect apt-get install --yes mosquitto mosquitto-clients; then echo "FAILED"; return 1; fi
+
+  if ! dpkg -s 'mosquitto' 'mosquitto-clients' > /dev/null 2>&1; then
+    echo -n "$(timestamp) [openHABian] Installing MQTT... "
+    if cond_redirect apt-get install --yes mosquitto mosquitto-clients; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+
+  echo -n "$(timestamp) [openHABian] Configuring MQTT... "
+  if [ -n "$INTERACTIVE" ]; then
+    if ! mqttpasswd=$(whiptail --title "MQTT Authentication?" --inputbox "$questiontext" 14 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+  fi
   if [ "$mqttpasswd" != "" ]; then
     if ! grep -q password_file /etc/mosquitto/passwd /etc/mosquitto/mosquitto.conf; then
       echo -e "\\npassword_file /etc/mosquitto/passwd\\nallow_anonymous false\\n" >> /etc/mosquitto/mosquitto.conf
     fi
     echo -n "" > /etc/mosquitto/passwd
-    if ! cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd "$mqttuser" "$mqttpasswd"; then echo "FAILED"; return 1; fi
+    if cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd "$mqttuser" "$mqttpasswd"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    cond_redirect sed -i "/password_file/d" /etc/mosquitto/mosquitto.conf
-    cond_redirect sed -i "/allow_anonymous/d" /etc/mosquitto/mosquitto.conf
-    cond_redirect rm -f /etc/mosquitto/passwd
+    if ! cond_redirect sed -i "/password_file/d" /etc/mosquitto/mosquitto.conf; then echo "FAILED"; return 1; fi
+    if ! cond_redirect sed -i "/allow_anonymous/d" /etc/mosquitto/mosquitto.conf; then echo "FAILED"; return 1; fi
+    if cond_redirect rm -f /etc/mosquitto/passwd; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  cond_redirect systemctl enable mosquitto.service
-  if cond_redirect systemctl restart mosquitto.service; then echo "OK"; else echo "FAILED"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up MQTT service... "
+  if ! cond_redirect systemctl enable mosquitto.service; then echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl restart mosquitto.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if [ $FAILED -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
-    else
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
-    fi
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 13 80
   fi
 }
 
+## Function for installing FIND to allow for indoor localization of WiFi devices.
+## This function can only be invoked in INTERACTIVE with userinterface.
+##
+##    find_setup()
+##
 find_setup() {
-  introtext="Install and setup the FIND server system to allow for indoor localization of WiFi devices. Please note that FIND will run together with an app that's available on Android ONLY. See further information at http://www.internalpositioning.com"
-  failtext="Sadly there was a problem setting up the selected option.\\nPlease report this problem in the openHAB community forum or as an openHABian GitHub issue."
-  successtext="FIND setup was successful. Settings can be configured in '/etc/default/findserver'. Be sure to restart the service after.\\nObtain the FIND app for Android through the Play Store. Check out your FIND server's dashboard at: http://${HOSTNAME}:8003\\nFor further information: http://www.internalpositioning.com"
-
-  matched=false
-
-  echo -n "$(timestamp) [openHABian] Setting up FIND, the Framework for Internal Navigation and Discovery... "
-  if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
+  if [ -z "$INTERACTIVE" ]; then
+    echo "$(timestamp) [openHABian] FIND setup must be run in interactive mode! Canceling FIND setup!"
+    echo "CANCELED"
+    return 0
   fi
 
-  # Check for updated versions: https://github.com/schollz/find/releases
-  FIND_RELEASE="2.4.1"
-  CLIENT_RELEASE="0.6"
+  local brokertext
+  local FINDADMIN
+  local FINDADMINPASS
+  local findArch
+  local findClient
+  local findDist
+  local findPass1
+  local findPass2
+  local findRelease
+  local introtext
+  local mqttmissingtext
+  local mqttpasswd
+  local MQTTPORT
+  local MQTTSERVER
+  local successtext
+  local temp
+
+  if ! dpkg -s 'libsvm-tools' > /dev/null 2>&1; then
+    echo -n "$(timestamp) [openHABian] Installing FIND required packages... "
+    if cond_redirect apt-get install --yes libsvm-tools; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+
+  brokertext="You've chosen to work with an external MQTT broker.\\n\\nPlease be aware that you might need to add authentication credentials. You can do so after the installation.\\n\\nConsult with the FIND documentation or the openHAB community for details."
   if is_arm; then
-    ARCH="arm"
+    findArch="arm"
   else
-    ARCH="amd64"
+    findArch="amd64"
   fi
-  FIND_SRC="https://github.com/schollz/find/releases/download/v${FIND_RELEASE}/find_${FIND_RELEASE}_linux_${ARCH}.zip"
-  CLIENT_SRC="https://github.com/schollz/find/releases/download/v${CLIENT_RELEASE}client/fingerprint_${CLIENT_RELEASE}_linux_${ARCH}.zip"
+  findRelease="https://github.com/schollz/find/releases/download/v2.4.1/find_2.4.1_linux_${findArch}.zip"
+  findClient="https://github.com/schollz/find/releases/download/v0.6client/fingerprint_0.6_linux_${findArch}.zip"
+  findDist="/var/lib/findserver"
+  introtext="Install and setup the FIND server system to allow for indoor localization of WiFi devices.\\n\\nPlease note that FIND will run together with an app that is only available on Android.\\n\\nThere is no iOS app available, for more information see: https://www.internalpositioning.com/faq/#can-i-use-an-iphone"
+  mqttmissingtext="FIND requires an MQTT broker to run, but Mosquitto could not be found on this system.\\n\\nYou can configure FIND to use any existing MQTT broker (in the next step) or you can go back and install Mosquitto from the openHABian menu.\\n\\nDo you want to continue with the FIND installation?"
+  mqttpasswd="/etc/mosquitto/passwd"
+  successtext="FIND setup was successful.\\n\\nSettings can be configured in '/etc/default/findserver'. Be sure to restart the service after.\\n\\nYou can obtain the FIND app for Android through the Play Store. There is no iOS app available, for more information see: https://www.internalpositioning.com/faq/#can-i-use-an-iphone\\n\\nCheck out your FIND server's dashboard at: http://${HOSTNAME}:8003\\n\\nFor further information: https://www.internalpositioning.com"
+  temp="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
-  FIND_SYSTEMCTL="/etc/systemd/system/findserver.service"
-  FIND_DEFAULT="/etc/default/findserver"
-  FIND_DSTDIR="/var/lib/findserver"
-  MOSQUITTO_CONF="/etc/mosquitto/mosquitto.conf"
-  MOSQUITTO_PASSWD="/etc/mosquitto/passwd"
-  DEFAULTFINDUSER="find"
-  FINDSERVER="localhost"
-  FINDPORT=8003
-  FIND_TMP="/tmp/find-latest.$$"
-  CLIENT_TMP="/tmp/fingerprint-latest.$$"
+  echo "$(timestamp) [openHABian] Beginning setup of FIND, the Framework for Internal Navigation and Discovery... "
 
-  if [ ! -f "${MOSQUITTO_CONF}" ]; then
-    mqttservermessage="FIND requires an MQTT broker to run, but Mosquitto is not installed on this system.\\nYou can configure FIND to use any existing MQTT broker (in the next step) or you can go back and install Mosquitto from the openHABian menu.\\nDo you want to continue with the FIND installation?"
-    if ! (whiptail --title "Mosquitto not installed, continue?" --yes-button "Continue" --no-button "Back" --yesno "$mqttservermessage" 15 80); then echo "CANCELED"; return 0; fi
+  if [ ! -f "/etc/mosquitto/mosquitto.conf" ]; then
+    if ! (whiptail --defaultno --title "Mosquitto not installed, continue?" --yes-button "Continue" --no-button "Cancel" --yesno "$mqttmissingtext" 13 80); then echo "CANCELED"; return 0; fi
   fi
 
-  if ! MQTTSERVER=$(whiptail --title "FIND Setup" --inputbox "Please enter the hostname of the device your MQTT broker is running on:" 15 80 localhost 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
-  if ! MQTTPORT=$(whiptail --title "FIND Setup" --inputbox "Please enter the port number the MQTT broker is listening on:" 15 80 1883 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+  if (whiptail --title "FIND installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 14 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
+  echo -n "$(timestamp) [openHABian] Configuring FIND... "
+  if ! MQTTSERVER=$(whiptail --title "FIND Setup" --inputbox "\\nPlease enter the hostname of the device your MQTT broker is running on:" 9 80 localhost 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
   if [ "$MQTTSERVER" != "localhost" ]; then
-    brokermessage="You've chosen to work with an external MQTT broker. Please be aware that you might need to add authentication credentials. You can do so after the installation. Consult with the FIND documentation or the openHAB community for details."
-    whiptail --title "MQTT Broker Notice" --msgbox "$brokermessage" 15 80
+    if ! (whiptail --title "MQTT Broker Notice" --yes-button "Continue" --no-button "Cancel" --yesno "$brokertext" 12 80); then echo "CANCELED"; return 0; fi
+  fi
+  if ! MQTTPORT=$(whiptail --title "FIND Setup" --inputbox "\\nPlease enter the port number the MQTT broker is listening on:" 9 80 1883 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+  if [ -f "$mqttpasswd" ]; then
+    if ! FINDADMIN=$(whiptail --title "findserver MQTT Setup" --inputbox "\\nEnter a username for FIND to connect with on your MQTT broker:" 9 80 find 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+    while [ "$findPass1" != "$findPass2" ] && [ -z "$findPass1" ] && [ -z "$findPass2" ]; do
+      if ! findPass1=$(whiptail --title "findserver MQTT Setup" --passwordbox "\\nEnter a password for the FIND user on your MQTT broker:" 9 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+      if ! findPass2=$(whiptail --title "findserver MQTT Setup" --passwordbox "\\nPlease confirm the password for the FIND user on your MQTT broker:" 9 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+      if [ "$findPass1" == "$findPass2" ] && [ -n "$findPass1" ]; then
+        FINDADMINPASS="$findPass1"
+      else
+        whiptail --title "findserver MQTT Setup" --msgbox "Password mismatched or blank... Please try again!" 7 80 3>&1 1>&2 2>&3
+      fi
+    done
+    if ! cond_redirect /usr/bin/mosquitto_passwd -b $mqttpasswd "$FINDADMIN" "$FINDADMINPASS"; then echo "FAILED (mosquitto password)"; return 1; fi
+    if ! cond_redirect systemctl restart mosquitto.service; then echo "FAILED  (restart service)"; return 1; fi
+  fi
+  echo "OK"
+
+  echo -n "$(timestamp) [openHABian] Installing FIND... "
+  if ! cond_redirect mkdir -p "$findDist"; then echo "FAILED (create directory)"; return 1; fi
+  if ! cond_redirect wget -qO "${temp}/find.zip" "$findRelease"; then echo "FAILED (fetch FIND)"; return 1; fi
+  if ! cond_redirect wget -qO "${temp}/client.zip" "$findClient"; then echo "FAILED (fetch client)"; return 1; fi
+  if ! cond_redirect unzip -qo "${temp}/find.zip" -d "$findDist"; then echo "FAILED (unzip FIND)"; return 1; fi
+  if ! cond_redirect unzip -qo "${temp}/client.zip" fingerprint -d "$findDist"; then echo "FAILED (unzip client)"; return 1; fi
+  if ! cond_redirect ln -sf "$findDist"/findserver /usr/sbin/findserver; then echo "FAILED (link findserver)"; return 1; fi
+  if ! cond_redirect ln -sf "$findDist"/fingerprint /usr/sbin/fingerprint; then echo "FAILED (link fingerprint)"; return 1; fi
+  if cond_redirect rm -rf "$temp"; then echo "OK"; else echo "FAILED"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up FIND service... "
+  if ! (sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDPORT|8003|g" -e "s|%FINDSERVER|localhost|g" "${BASEDIR}/includes/findserver.service" > /etc/systemd/system/findserver.service); then echo "FAILED (service file creation)"; fi
+  if ! (sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDPORT|8003|g" -e "s|%FINDSERVER|localhost|g" "${BASEDIR}/includes/findserver" > /etc/default/findserver); then echo "FAILED (service configuration creation)"; fi
+  if ! cond_redirect systemctl enable findserver.service; then echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl restart findserver.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+
+  whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+
+  if [ -z "$BATS_TEST_NAME" ]; then
+    dashboard_add_tile find
+  fi
+}
+
+## Function for installing kndx as your EIB/KNX IP gateway and router to support your KNX bus system.
+## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    knxd_setup()
+##
+knxd_setup() {
+  local introtext
+  local successtext
+  local temp
+
+  introtext="This will install and setup kndx (successor to eibd) as your EIB/KNX IP gateway and router to support your KNX bus system.\\n\\nThis routine was provided by 'Michels Tech Blog': https://bit.ly/3dzeoKh"
+  successtext="Setup was successful.\\n\\nPlease edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help'\\n\\nFurther details can be found under: https://bit.ly/3dzeoKh\\n\\nIntegration into openHAB 2 is described here: https://github.com/openhab/openhab/wiki/KNX-Binding"
+  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
+
+  echo -n "$(timestamp) [openHABian] Beginning setup of EIB/KNX IP Gateway and Router with knxd (https://bit.ly/3dzeoKh)... "
+  if [ -n "$INTERACTIVE" ]; then
+    if (whiptail --title "knxd installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 10 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   fi
 
-  if [ -f ${MOSQUITTO_PASSWD} ]; then
-    if ! FINDADMIN=$(whiptail --title "findserver MQTT Setup" --inputbox "Enter a username for FIND to connect with on your MQTT broker:" 15 80 $DEFAULTFINDUSER 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
-    if ! FINDADMINPASS=$(whiptail --title "findserver MQTT Setup" --passwordbox "Enter a password for the FIND user on your MQTT broker:" 15 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
-    if ! secondpassword=$(whiptail --title "findserver MQTT Setup" --passwordbox "Please confirm the password for the FIND user on your MQTT broker:" 15 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
-    if [ "$FINDADMINPASS" = "$secondpassword" ] && [ -n "$FINDADMINPASS" ]; then
-      matched=true
-    else
-      echo "FAILED (password)"
-      return 1
-    fi
-    if ! cond_redirect /usr/bin/mosquitto_passwd -b $MOSQUITTO_PASSWD "$FINDADMIN" "$FINDADMINPASS"; then echo "FAILED (mosquitto)"; return 1; fi
-    cond_redirect systemctl restart mosquitto.service || true
-  fi
-
-  if ! cond_redirect apt-get install --yes libsvm-tools; then echo "FAILED (SVM)"; return 1; fi
-
-  cond_redirect mkdir -p ${FIND_DSTDIR}
-  cond_redirect wget -O ${FIND_TMP} ${FIND_SRC}
-  cond_redirect wget -O ${CLIENT_TMP} ${CLIENT_SRC}
-  cond_redirect unzip -qo ${CLIENT_TMP} fingerprint -d ${FIND_DSTDIR}
-  cond_redirect unzip -qo ${FIND_TMP} -d ${FIND_DSTDIR}
-  cond_redirect ln -sf ${FIND_DSTDIR}/findserver /usr/sbin/findserver
-  cond_redirect ln -sf ${FIND_DSTDIR}/fingerprint /usr/sbin/fingerprint
-
-  cond_echo "Writing service file '$FIND_SYSTEMCTL'"
-  sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" "${BASEDIR}/includes/findserver.service" > $FIND_SYSTEMCTL
-  cond_echo "Writing service config file '$FIND_DEFAULT'"
-  sed -e "s|%MQTTSERVER|$MQTTSERVER|g" -e "s|%MQTTPORT|$MQTTPORT|g" -e "s|%FINDADMINPASS|$FINDADMINPASS|g" -e "s|%FINDADMIN|$FINDADMIN|g" -e "s|%FINDPORT|$FINDPORT|g" -e "s|%FINDSERVER|$FINDSERVER|g" "${BASEDIR}/includes/findserver" > $FIND_DEFAULT
-
-  cond_redirect rm -f ${FIND_TMP} ${CLIENT_TMP}
-  cond_redirect systemctl daemon-reload
-  cond_redirect systemctl restart findserver.service
-  cond_redirect systemctl status findserver.service
-  if ! cond_redirect systemctl enable findserver.service; then echo "FAILED (service)"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Installing knxd... "
+  # TODO: serve file from the repository
+  if ! cond_redirect wget -qO "$temp" https://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh; then echo "FAILED (fetch installer)"; return 1; fi
+  # NOTE: install_knxd_systemd.sh currently does not give proper exit status for errors, so installer claims success...
+  if cond_redirect bash "$temp"; then rm -f "$temp"; echo "OK. Please restart your system now..."; else echo "FAILED (install)"; fi
 
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
-  echo "OK"
-  dashboard_add_tile find
 }
 
-knxd_setup() {
-  FAILED=0
-  introtext="This will install and setup kndx (successor to eibd) as your EIB/KNX IP gateway and router to support your KNX bus system. This routine was provided by 'Michels Tech Blog': https://goo.gl/qN2t0H"
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Setup was successful.
-Please edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help'
-Further details can be found unter: https://goo.gl/qN2t0H
-Integration into openHAB 2 is described here: https://github.com/openhab/openhab/wiki/KNX-Binding
-"
-
-  echo -n "$(timestamp) [openHABian] Setting up EIB/KNX IP Gateway and Router with knxd "
-  echo -n "(http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd)... "
-  if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
-  fi
-
-  #TODO serve file from the repository
-  cond_redirect wget -O /tmp/install_knxd_systemd.sh http://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh || FAILED=1
-
-  #hotfix for #651: switch to newer libfmt
-  cond_redirect sed -i 's#git checkout tags/3.0.0#git checkout tags/5.0.0#' /tmp/install_knxd_systemd.sh || FAILED=1
-  #shellcheck disable=SC2016
-  cond_redirect sed -i 's#cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX fmt/#cmake -DCMAKE_INSTALL_PREFIX=$INSTALL_PREFIX .#' /tmp/install_knxd_systemd.sh || FAILED=1
-  #/hotfix
-
-  #NOTE install_knxd_systemd.sh currently does not give proper exit status for errors, so installer claims success...
-  cond_redirect bash /tmp/install_knxd_systemd.sh || FAILED=1
-  if [ $FAILED -eq 0 ]; then echo "OK. Please restart your system now..."; else echo "FAILED"; fi
-  #systemctl start knxd.service
-  #if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
-
-  if [ -n "$INTERACTIVE" ]; then
-    if [ $FAILED -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
-    else
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
-    fi
-  fi
-}
-
+## Function for installing owserver to support 1wire functionality.
+## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    1wire_setup()
+##
 1wire_setup() {
-  FAILED=0
-  introtext="This will install owserver to support 1wire functionality in general, ow-shell and usbutils are helpfull tools to check USB (lsusb) and 1wire function (owdir, owread). For more details, have a look at http://owfs.org"
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Setup was successful.
-Next, please configure your system in /etc/owfs.conf.
-Use # to comment/deactivate a line. All you should have to change is the following. Deactivate
-  server: FAKE = DS18S20,DS2405
-and activate one of these most common options (depending on your device):
-  #server: usb = all
-  #server: device = /dev/ttyS1
-  #server: device = /dev/ttyUSB0
-"
+  local introtext
+  local successtext
 
-  echo -n "$(timestamp) [openHABian] Installing owserver (1wire)... "
+  introtext="This will install owserver to support 1wire functionality in general.\\n\\nUse the ow-shell and usbutils tools to check USB (lsusb) and 1wire function (owdir, owread).\\n\\nFor more details, have a look at https://owfs.org"
+  successtext="Setup was successful.\\n\\nNext, please configure your system in /etc/owfs.conf.\\nUse # to comment/deactivate a line. All you should have to change is the following:\\nDeactivate\\n  server: FAKE = DS18S20,DS2405\\nand activate one of these most common options (depending on your device):\\n  #server: usb = all\\n  #server: device = /dev/ttyS1\\n  #server: device = /dev/ttyUSB0"
+
+  echo -n "$(timestamp) [openHABian] Beginning setup of owserver (1wire)... "
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
+    if (whiptail --title "1wire installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 12 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect apt-get install --yes owserver ow-shell usbutils || FAILED=1
-  if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  if ! dpkg -s 'owserver' 'ow-shell' 'usbutils' > /dev/null 2>&1; then
+    echo -n "$(timestamp) [openHABian] Installing owserver (1wire)... "
+    if cond_redirect apt-get install --yes owserver ow-shell usbutils; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if [ $FAILED -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
-    else
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
-    fi
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 17 80
   fi
 }
 
+## Function for installing miflora-mqtt-daemon - The Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon.
+## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    miflora_setup()
+##
 miflora_setup() {
-  FAILED=0
-  DIRECTORY="/opt/miflora-mqtt-daemon"
-  introtext="[CURRENTLY BROKEN] This will install or update miflora-mqtt-daemon - The Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon. See for further details:\\n\\n   https://github.com/ThomDietrich/miflora-mqtt-daemon"
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Setup was successful.
-The Daemon was installed and the systemd service was set up just as described in it's README. Please add your MQTT broker settings in '$DIRECTORY/config.ini' and add your Mi Flora sensors. After that be sure to restart the daemon to reload it's configuration.
-\\nAll details can be found under: https://github.com/ThomDietrich/miflora-mqtt-daemon
-The article also contains instructions regarding openHAB integration.
-"
+  local introtext
+  local mifloraDir
+  local successtext
+
+  if ! dpkg -s 'git' 'python3' 'python3-pip' 'bluetooth' 'bluez' > /dev/null 2>&1; then
+    echo -n "$(timestamp) [openHABian] Installing miflora-mqtt-daemon required packages... "
+    if cond_redirect apt-get install --yes git python3 python3-pip bluetooth bluez; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+
+  introtext="[CURRENTLY BROKEN] This will install or update miflora-mqtt-daemon - The Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon.\\n\\nFor further details see:\\nhttps://github.com/ThomDietrich/miflora-mqtt-daemon"
+  mifloraDir="/opt/miflora-mqtt-daemon"
+  successtext="Setup was successful.\\n\\nThe Daemon was installed and the systemd service was set up just as described in it's README. Please add your MQTT broker settings in '$mifloraDir/config.ini' and add your Mi Flora sensors. After that be sure to restart the daemon to reload it's configuration.\\n\\nAll details can be found under: https://github.com/ThomDietrich/miflora-mqtt-daemon\\nThe article also contains instructions regarding openHAB integration."
+
+  echo -n "$(timestamp) [openHABian] Beginning setup of miflora-mqtt-daemon... "
+  if [ -n "$INTERACTIVE" ]; then
+    if (whiptail --title "miflora-mqtt-daemon installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 11 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+  fi
 
   echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon... "
-  if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
+  if ! [ -d "$mifloraDir" ]; then
+    cond_echo "\nFresh Installation... "
+    if ! cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git $mifloraDir; then echo "FAILED (git clone)"; return 1; fi
+    if cond_redirect cp "$mifloraDir"/config.{ini.dist,ini}; then echo "OK"; else echo "FAILED (copy files)"; return 1; fi
+  else
+    cond_echo "\nUpdate... "
+    if cond_redirect git -C "$mifloraDir" pull --quiet origin; then echo "OK"; else echo "FAILED (git pull)"; return 1; fi
   fi
 
-  if ! cond_redirect apt-get install --yes git python3 python3-pip bluetooth bluez; then echo "FAILED (prerequisites)"; return 1; fi
-  if [ ! -d "$DIRECTORY" ]; then
-    cond_echo "Fresh Installation... "
-    cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git $DIRECTORY
-    if ! cond_redirect cp "$DIRECTORY"/config.{ini.dist,ini}; then echo "FAILED (git clone)"; return 1; fi
-  else
-    cond_echo "Update... "
-    if ! cond_redirect git -C "$DIRECTORY" pull --quiet origin; then echo "FAILED (git pull)"; return 1; fi
-  fi
-  cond_redirect chown -R "openhab:$username" "$DIRECTORY"
-  cond_redirect chmod -R ug+wX "$DIRECTORY"
-  if ! cond_redirect pip3 install -r "$DIRECTORY"/requirements.txt; then echo "FAILED (requirements)"; return 1; fi
-  cond_redirect cp "$DIRECTORY"/template.service /etc/systemd/system/miflora.service
-  cond_redirect systemctl daemon-reload
-  systemctl start miflora.service || true
-  cond_redirect systemctl status miflora.service
-  if cond_redirect systemctl enable miflora.service; then echo "OK"; else echo "FAILED"; return 1; fi
-  if grep -q "dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
+  cond_echo "Filesystem permissions corrections... "
+  if ! cond_redirect chown -R "openhab:${username:-openhabian}" "$mifloraDir"; then echo "FAILED (permissons)"; fi
+  if ! cond_redirect chmod -R ug+wX "$mifloraDir"; then echo "FAILED (permissons)"; fi
+
+  cond_echo "Installing required python packages"
+  if ! cond_redirect pip3 install -r "$mifloraDir"/requirements.txt; then echo "OK"; else echo "FAILED (python packages)"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon service... "
+  if ! (cp "$mifloraDir"/template.service /etc/systemd/system/miflora.service); then echo "FAILED (copy service)"; fi
+  if ! cond_redirect systemctl enable miflora.service; then echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl restart miflora.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+
+  if grep -q "^[[:space:]]*dtoverlay=pi3-miniuart-bt" /boot/config.txt; then
     cond_echo "Warning! The internal RPi3 Bluetooth module is disabled on your system. You need to enable it before the daemon may use it."
   fi
+
   if [ -n "$INTERACTIVE" ]; then
-    if [ $FAILED -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
-    else
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
-    fi
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 16 80
   fi
 }
 
+## Function for installing Nginx to allow for secure interaction with openHAB over the network.
+## This function can only be invoked in INTERACTIVE with userinterface.
+##
+##    nginx_setup()
+##
 nginx_setup() {
-  introtext="This will enable you to access the openHAB interface through the normal HTTP/HTTPS ports and optionally secure it with username/password and/or an SSL certificate."
-  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-
-  echo "$(timestamp) [openHABian] Setting up Nginx as reverse proxy with authentication... "
-  if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
+  if [ -z "$INTERACTIVE" ]; then
+    echo "$(timestamp) [openHABian] Nginx setup must be run in interactive mode! Canceling Nginx setup!"
+    echo "CANCELED"
+    return 0
   fi
 
+  local auth
+  local authtext
+  local domain
+  local domainIP
+  local domaintext
+  local httpstext
+  local introtext
+  local nginxPass
+  local nginxPass1
+  local nginxPass2
+  local nginxUsername
+  local portwarning
+  local protocol
+  local pubIP
+  local secure
+  local validDomain
+
+  if ! [ -x "$(command -v dig)" ]; then
+    echo -n "$(timestamp) [openHABian] Installing Nginx required packages (dnsutils)... "
+    if cond_redirect apt-get install --yes dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+
+  auth="false"
+  domaintext="\\nIf you have a registered domain enter it now, if you have a static public IP enter \"IP\", otherwise leave blank:"
+  introtext="This will enable you to access the openHAB interface through the normal HTTP/HTTPS ports and optionally secure it with username/password and/or an SSL certificate."
+  secure="false"
+  validDomain="false"
+
   function comment {
-    sed -e "/[[:space:]]$1/ s/^#*/#/g" -i "$2"
+    if ! sed -e "/[[:space:]]$1/ s/^#*/#/g" -i "$2"; then echo "FAILED (comment)"; fi
   }
   function uncomment {
-    sed -e "/$1/s/^$1//g" -i "$2"
+    if ! sed -e "/$1/s/^$1//g" -i "$2"; then echo "FAILED (uncomment)"; fi
   }
 
-  echo "Installing DNS utilities..."
-  apt-get -y -q install dnsutils
+  echo -n "$(timestamp) [openHABian] Beginning setup of Nginx as reverse proxy with authentication... "
+  if (whiptail --title "Nginx installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 9 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
-  AUTH=false
-  SECURE=false
-  VALIDDOMAIN=false
-  matched=false
-  canceled=false
-  FAILED=false
-
-  if (whiptail --title "Authentication Setup" --yesno "Would you like to secure your openHAB interface with username and password?" 15 80); then
-    if username=$(whiptail --title "Authentication Setup" --inputbox "Enter a username to sign into openHAB:" 15 80 openhab 3>&1 1>&2 2>&3); then
-      while [ "$matched" = false ] && [ "$canceled" = false ]; do
-        password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for $username:" 15 80 3>&1 1>&2 2>&3)
-        secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
-        if [ "$password" = "$secondpassword" ] && [ -n "$password" ]; then
-          matched=true
-          AUTH=true
+  echo "$(timestamp) [openHABian] Configuring Nginx authentication options... "
+  if (whiptail --title "Authentication Setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
+    if nginxUsername=$(whiptail --title "Authentication Setup" --inputbox "\\nEnter a username to sign into openHAB:" 9 80 openhab 3>&1 1>&2 2>&3); then
+      while [ "$nginxPass1" != "$nginxPass2" ] && [ -z "$nginxPass1" ] && [ -z "$nginxPass2" ]; do
+        if ! nginxPass1=$(whiptail --title "Authentication Setup" --passwordbox "\\nEnter a password for ${username}:" 9 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+        if ! nginxPass2=$(whiptail --title "Authentication Setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+        if [ "$nginxPass1" == "$nginxPass2" ] && [ -n "$nginxPass1" ]; then
+          nginxPass="$nginxPass1"
         else
-          password=$(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
+          whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 7 80 3>&1 1>&2 2>&3
         fi
       done
     else
-      canceled=true
+      echo "CANCELED"
+      return 0
     fi
+    auth="true"
   fi
 
-  if (whiptail --title "Secure Certificate Setup" --yesno "Would you like to secure your openHAB interface with HTTPS?" 15 80); then
-    SECURE=true
-  fi
+  if (whiptail --title "Secure Certificate Setup" --yesno "Would you like to secure your openHAB interface with HTTPS?" 7 80); then secure="true"; echo "OK"; else echo "CANCELED"; return 0; fi
 
-  echo -n "Obtaining public IP address... "
-  wanip=$(dig +short myip.opendns.com @resolver1.opendns.com | tail -1)
-  if [[ -z "$wanip" ]]; then
-    wanip=$(dig -4 +short myip.opendns.com @resolver1.opendns.com | tail -1)
-  fi
-  echo "$wanip"
-
-  domain=$(whiptail --title "Domain Setup" --inputbox "If you have a registered domain enter it now, if you have a static public IP enter \"IP\", otherwise leave blank:" 15 80 3>&1 1>&2 2>&3)
-
-  while [ "$VALIDDOMAIN" = false ] && [ -n "$domain" ] && [ "$domain" != "IP" ]; do
-    echo -n "Obtaining domain IP address... "
-    domainip=$(dig +short "$domain" @resolver1.opendns.com |tail -1)
-    echo "$domainip"
-    if [ "$wanip" = "$domainip" ]; then
-      VALIDDOMAIN=true
-      echo "Public and domain IP address match"
-    else
-      echo "Public and domain IP address mismatch!"
-      domain=$(whiptail --title "Domain Setup" --inputbox "Domain does not resolve to your public IP address. Please enter a valid domain, if you have a static public IP enter \"IP\",leave blank to not use a domain name:" 15 80 3>&1 1>&2 2>&3)
-    fi
-  done
-
-  if [ "$VALIDDOMAIN" = false ]; then
-    if [ "$domain" == "IP" ]; then
-      echo "Setting domain to static public IP address $wanip"
-      domain=$wanip
-    else
-      echo "Setting no domain nor static public IP address"
-      domain="localhost"
-    fi
-  fi
-
-  if [ "$AUTH" = true ]; then
-    authtext="Authentication Enabled\\n- Username: $username"
+  if [ "$auth" == "true" ]; then
+    authtext="Authentication Enabled\\n- Username: $nginxUsername"
   else
     authtext="Authentication Disabled"
   fi
 
-  if [ "$SECURE" = true ]; then
+  if [ "$secure" == "true" ]; then
     httpstext="Proxy will be secured by HTTPS"
     protocol="HTTPS"
-    portwarning="Important! Before you continue, please make sure that port 80 (HTTP) of this machine is reachable from the internet (portforwarding, ...). Otherwise the certbot connection test will fail.\\n\\n"
+    portwarning="Important! Before you continue, please make sure that port 80 (HTTP) of this machine is reachable from the internet (portforwarding, etc.). Otherwise the certbot connection test will fail.\\n\\n"
   else
     httpstext="Proxy will not be secured by HTTPS"
     protocol="HTTP"
     portwarning=""
   fi
 
-  confirmtext="The following settings have been chosen:\\n\\n- $authtext\\n- $httpstext\\n- Domain: $domain (Public IP Address: $wanip)
-  \\nYou will be able to connect to openHAB on the default $protocol port.
-  \\n${portwarning}Do you wish to continue and setup an NGINX server now?"
-
-  if (whiptail --title "Confirmation" --yesno "$confirmtext" 22 80); then
-    echo "Installing NGINX..."
-    apt-get -y -q install nginx || FAILED=true
-
-    rm -rf /etc/nginx/sites-enabled/default
-    cp "$BASEDIR"/includes/nginx.conf /etc/nginx/sites-enabled/openhab
-
-    sed -i "s/DOMAINNAME/${domain}/g" /etc/nginx/sites-enabled/openhab
-
-    if [ "$AUTH" = true ]; then
-      echo "Installing password utilities..."
-      apt-get -y -q install apache2-utils || FAILED=true
-      echo "Creating password file..."
-      htpasswd -b -c /etc/nginx/.htpasswd "$username" "$password"
-      uncomment "#AUTH" /etc/nginx/sites-enabled/openhab
-    fi
-
-    if [ "$SECURE" = true ]; then
-      if [ "$VALIDDOMAIN" = true ]; then
-        certbotpackage="python3-certbot-nginx"
-        if is_debian || is_raspbian; then
-          gpg --keyserver pgpkeys.mit.edu --recv-key 8B48AD6246925553
-          gpg -a --export 8B48AD6246925553 | apt-key add -
-          gpg --keyserver pgpkeys.mit.edu --recv-key 7638D0442B90D010
-          gpg -a --export 7638D0442B90D010 | apt-key add -
-          if is_jessie; then
-            certbotrepo="jessie-backports"
-            certbotpackage="certbot"
-          elif is_stretch; then
-            certbotrepo="stretch-backports"
-          fi
-          certbotoption="-t"
-          if [ -n "$certbotrepo" ]; then
-            echo -e "# This file was added by openHABian to install certbot\\ndeb http://ftp.debian.org/debian ${certbotrepo} main" > /etc/apt/sources.list.d/backports.list
-            apt-get update
-          fi
-        elif is_ubuntu; then
-          apt -get -y -q --force-yes install software-properties-common
-          add-apt-repository ppa:certbot/certbot
-        fi
-        echo "Installing certbot..."
-        apt-get -y -q --force-yes install "${certbotpackage}" "${certbotoption}" "${certbotrepo}"
-        mkdir -p /var/www/$domain
-        uncomment "#WEBROOT" /etc/nginx/sites-enabled/openhab
-        nginx -t && service nginx reload
-        echo "Creating Let's Encrypt certificate..."
-        certbot certonly --webroot -w /var/www/$domain -d $domain || FAILED=true #This will cause a prompt
-        if [ "$FAILED" = false ]; then
-          certpath="/etc/letsencrypt/live/$domain/fullchain.pem"
-          keypath="/etc/letsencrypt/live/$domain/privkey.pem"
-        fi
-      else
-        mkdir -p /etc/ssl/certs
-        certpath="/etc/ssl/certs/openhab.crt"
-        keypath="/etc/ssl/certs/openhab.key"
-        password=$(whiptail --title "openSSL Key Generation" --msgbox "openSSL is about to ask for information in the command line, please fill out each line." 15 80 3>&1 1>&2 2>&3)
-        openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout $keypath -out $certpath || FAILED=true #This will cause a prompt
-      fi
-      if [ "$FAILED" = false ]; then
-        uncomment "#CERT" /etc/nginx/sites-enabled/openhab
-        sed -i "s|CERTPATH|${certpath}|g" /etc/nginx/sites-enabled/openhab
-        sed -i "s|KEYPATH|${keypath}|g" /etc/nginx/sites-enabled/openhab
-        uncomment "#REDIR" /etc/nginx/sites-enabled/openhab
-        comment "listen" /etc/nginx/sites-enabled/openhab
-        uncomment "#SSL" /etc/nginx/sites-enabled/openhab
-      fi
-    fi
-
-    nginx -t && systemctl restart nginx.service || FAILED=true
-    if [ "$FAILED" = true ]; then
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 15 80
-    else
-      whiptail --title "Operation Successful!" --msgbox "Setup successful. Please try entering $protocol://$domain in a browser to test your settings." 15 80
-    fi
-  else
-    whiptail --title "Operation Canceled!" --msgbox "Setup was canceled, no changes were made." 15 80
+  echo "$(timestamp) [openHABian] Configuring Nginx network options... "
+  cond_echo "Obtaining public IP address... "
+  if pubIP=$(dig +short myip.opendns.com @resolver1.opendns.com | tail -1); then echo "$pubIP"; fi
+  if [ -z "$pubIP" ]; then
+    if pubIP=$(dig -4 +short myip.opendns.com @resolver1.opendns.com | tail -1); then echo "$pubIP"; else echo "FAILED"; return 1; fi
   fi
+
+  cond_echo "Configuring domain settings... "
+  if ! domain=$(whiptail --title "Domain Setup" --inputbox "$domaintext" 10 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+
+  while [ "$validDomain" == "false" ] && [ -n "$domain" ] && [ "$domain" != "IP" ]; do
+    cond_echo "Obtaining domain IP address... "
+    if domainIP=$(dig +short "$domain" @resolver1.opendns.com | tail -1); then echo "$domainIP"; else echo "FAILED"; return 1; fi
+    if [ "$pubIP" = "$domainIP" ]; then
+      validDomain="true"
+      cond_echo "Public and domain IP address match"
+    else
+      cond_echo "Public and domain IP address mismatch!"
+      domain=$(whiptail --title "Domain Setup" --inputbox "\\nDomain does not resolve to your public IP address. Please enter a valid domain.\\n\\n$domaintext" 14 80 3>&1 1>&2 2>&3)
+    fi
+  done
+
+  if [ "$validDomain" == "false" ]; then
+    if [ "$domain" == "IP" ]; then
+      cond_echo "Setting domain to static public IP address $pubIP"
+      domain="$pubIP"
+    else
+      cond_echo "Setting domain to localhost"
+      domain="localhost"
+    fi
+    validDomain="true"
+  fi
+
+  confirmtext="The following settings have been chosen:\\n\\n- $authtext\\n- $httpstext\\n- Domain: $domain (Public IP Address: $pubIP)\\n\\nYou will be able to connect to openHAB on the default $protocol port.\\n\\n${portwarning}Do you wish to continue and setup an Nginx server now?"
+
+  if ! (whiptail --title "Confirmation" --yesno "$confirmtext" 20 80); then echo "CANCELED"; return 0; fi
+  echo -n "$(timestamp) [openHABian] Installing Nginx... "
+  if cond_redirect apt-get install --yes nginx; then echo "OK"; else echo "FAILED"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up Nginx configuration... "
+  if ! rm -rf /etc/nginx/sites-enabled/default; then echo "FAILED (remove default)"; return 1; fi
+  if ! cp "$BASEDIR"/includes/nginx.conf /etc/nginx/sites-enabled/openhab; then echo "FAILED (copy configuration)"; return 1; fi
+  if sed -i "s/DOMAINNAME/${domain}/g" /etc/nginx/sites-enabled/openhab; then echo "OK"; else echo "FAILED (set domain name)"; fi
+
+  if [ "$auth" == "true" ]; then
+    cond_echo "Setting up Nginx password options..."
+    echo -n "$(timestamp) [openHABian] Installing Nginx password utilities... "
+    if cond_redirect apt-get install --yes install apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect htpasswd -b -c /etc/nginx/.htpasswd "$nginxUsername" "$nginxPass"; then echo "OK"; else echo "FAILED (password file)"; return 1; fi
+    uncomment "#AUTH" /etc/nginx/sites-enabled/openhab
+  fi
+
+  if [ "$secure" == "true" ]; then
+    cond_echo "Setting up Nginx security options..."
+    if [ "$validDomain" == "true" ]; then
+      echo -n "$(timestamp) [openHABian] Installing certbot... "
+      if is_ubuntu; then
+        if ! dpkg -s 'software-properties-common' > /dev/null 2>&1; then
+          if ! cond_redirect apt-get install --yes software-properties-common; then echo "FAILED (Ubuntu prerequsites)"; return 1; fi
+        fi
+        if ! cond_redirect add-apt-repository universe; then echo "FAILED (add universe repo)"; return 1; fi
+        if ! add-apt-repository ppa:certbot/certbot; then echo "FAILED (add certbot repo)"; return 1; fi
+        if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+      fi
+      if cond_redirect apt-get install --yes certbot python3-certbot-nginx; then echo "OK"; else echo "FAILED"; return 1; fi
+
+      echo -n "$(timestamp) [openHABian] Configuring certbot... "
+      mkdir -p /var/www/"$domain"
+      uncomment "#WEBROOT" /etc/nginx/sites-enabled/openhab
+      if ! nginx -t; then echo "FAILED (Nginx configuration test)"; fi
+      if ! cond_redirect systemctl reload nginx; then echo "FAILED (Nginx reload)"; fi
+      if cond_redirect certbot certonly --webroot -w /var/www/"$domain" -d "$domain"; then echo "OK"; else echo "FAILED"; return 1; fi
+      certpath="/etc/letsencrypt/live/${domain}/fullchain.pem"
+      keypath="/etc/letsencrypt/live/${domain}/privkey.pem"
+    else
+      echo -n "$(timestamp) [openHABian] Configuring openSSL... "
+      mkdir -p /etc/ssl/certs
+      certpath="/etc/ssl/certs/openhab.crt"
+      keypath="/etc/ssl/certs/openhab.key"
+      whiptail --title "openSSL Key Generation" --msgbox "openSSL is about to ask for information in the command line, please fill out each line." 8 80 3>&1 1>&2 2>&3
+      if ! openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout $keypath -out $certpath; then echo "FAILED (openSSL configuration)"; fi
+    fi
+    uncomment "#CERT" /etc/nginx/sites-enabled/openhab
+    if ! sed -i "s|CERTPATH|${certpath}|g" /etc/nginx/sites-enabled/openhab; then echo "FAILED (certpath config)"; fi
+    if ! sed -i "s|KEYPATH|${keypath}|g" /etc/nginx/sites-enabled/openhab; then echo "FAILED (keypath config)"; fi
+    uncomment "#REDIR" /etc/nginx/sites-enabled/openhab
+    comment "listen" /etc/nginx/sites-enabled/openhab
+    uncomment "#SSL" /etc/nginx/sites-enabled/openhab
+  fi
+
+  if ! nginx -t; then echo "FAILED (Nginx configuration test)"; fi
+  if ! cond_redirect systemctl restart nginx; then echo "FAILED (Nginx restart)"; fi
+
+  whiptail --title "Operation Successful!" --msgbox "Setup successful. Please try entering $protocol://$domain in a browser to test your settings." 8 80
 }
 
 ## Function for installing Telldus Core service for Tellstick USB devices.
 ## The function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
 ##
-##    tellstick_core_setup()
+##    telldus_core_setup()
 ##
+telldus_core_setup() {
+  local introtext
+  local successtext
+  local telldusDir
 
-tellstick_core_setup() {
-  FAILED=0
-  introtext="This will install tellstick core services to enable support for USB connected Tellstick and Tellstick duo. For more details, have a look at http://developer.telldus.se/"
-  failtext="Sadly there was a problem setting up tellstick core. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
-  successtext="Success, please reboot your system to complete the installation.
+  introtext="This will install Telldus Core services to enable support for USB devices connected Tellstick and Tellstick duo."
+  successtext="Success, please reboot your system to complete the installation.\\n\\nNext, add your devices in /etc/tellstick.conf.\\n\\nTo detect device IDs issue the command:\\n- tdtool-improved --event\\n\\nWhen devices are added, restart telldusd.service by rebooting the system or using:\\n- sudo systemctl restart telldusd.service"
+  telldusDir="/opt/tdtool-improved"
 
-Next, add your devices in /etc/tellstick.conf.
-To detect device IDs use commanline tool: tdtool-improved --event
-When devices are added restart telldusd.service by using: sudo systemctl restart telldusd
-or just reboot the system.
-"
+  echo -n "$(timestamp) [openHABian] Beginning setup of Telldus Core... "
   if [ -n "$INTERACTIVE" ]; then
-    if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
+    if (whiptail --title "Telldus Core installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 8 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   fi
-  echo -n "$(timestamp) [openHABian] Installing tellstick-core... "
 
   if is_aarch64 ; then
     dpkg --add-architecture armhf
   fi
 
   # Maybe add new repository to be able to install libconfuse1
-  if is_xenial ; then
-    echo 'APT::Default-Release "xenial";' > /etc/apt/apt.conf.d/01release
-    echo "deb http://archive.ubuntu.com/ubuntu/ bionic universe" > /etc/apt/sources.list.d/ubuntu-artful.list
-    cond_redirect apt-get update
-    cond_redirect apt-get -y -t=bionic install libconfuse1
-  fi
-  if is_jessie ; then
-    echo 'APT::Default-Release "jessie";' > /etc/apt/apt.conf.d/01release
-    echo "deb http://deb.debian.org/debian stretch main" > /etc/apt/sources.list.d/debian-stretch.list
-    cond_redirect apt-get update
-    cond_redirect apt-get -y -t=stretch install libconfuse1
-  fi
   # libconfuse1 is only available from old stretch repos, but currently still needed
-  if is_buster ; then
+  if is_buster; then
+    echo -n "$(timestamp) [openHABian] Adding libconfuse1 repository to apt... "
     echo 'APT::Default-Release "buster";' > /etc/apt/apt.conf.d/01release
     if is_raspbian ; then
       echo "deb http://raspbian.raspberrypi.org/raspbian/ stretch main" > /etc/apt/sources.list.d/raspbian-stretch.list
     else
       echo "deb http://deb.debian.org/debian stretch main" > /etc/apt/sources.list.d/debian-stretch.list
     fi
-    cond_redirect apt-get update || FAILED=1
-    cond_redirect apt-get -y -t=stretch install libconfuse1 || FAILED=1
-    if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+    echo "OK"
   fi
+  echo -n "$(timestamp) [openHABian] Installing libconfuse1... "
+  if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+  if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; fi
 
-  cond_redirect wget -O - https://s3.eu-central-1.amazonaws.com/download.telldus.com/debian/telldus-public.key | apt-key add -
+  if ! add_keys "https://s3.eu-central-1.amazonaws.com/download.telldus.com/debian/telldus-public.key"; then return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Adding telldus repository to apt... "
   echo "deb https://s3.eu-central-1.amazonaws.com/download.telldus.com unstable main" > /etc/apt/sources.list.d/telldus-unstable.list
-  cond_redirect apt-get update
-  cond_redirect apt-get install --yes libjna-java telldus-core || FAILED=1
-  if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
-  echo -n "$(timestamp) [openHABian] Setting up systemd service for telldusd... "
-  cond_redirect cp "${BASEDIR}"/includes/tellstick-core/telldusd.service /lib/systemd/system/telldusd.service
-  cond_redirect systemctl daemon-reload || FAILED=1
-  cond_redirect systemctl enable telldusd || FAILED=1
-  cond_redirect systemctl start telldusd.service || FAILED=1
-  if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  echo -n "$(timestamp) [openHABian] Installing telldus-core... "
+  if cond_redirect apt-get install --yes libjna-java telldus-core; then echo "OK"; else echo "FAILED"; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up telldus-core service... "
+  cp "$BASEDIR"/includes/telldusd.service /lib/systemd/system/telldusd.service
+  if ! cond_redirect systemctl enable telldusd.service; then echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl restart telldusd.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up tdtool-improved... "
-  cond_redirect git clone https://github.com/EliasGabrielsson/tdtool-improved.py.git /opt/tdtool-improved
-  cond_redirect chmod +x /opt/tdtool-improved/tdtool-improved.py
-  cond_redirect ln -sf /opt/tdtool-improved/tdtool-improved.py /usr/bin/tdtool-improved
-  echo "OK"
+  if ! [ -d "$telldusDir" ]; then
+    cond_echo "\nFresh Installation... "
+    if ! cond_redirect git clone https://github.com/EliasGabrielsson/tdtool-improved.py.git $telldusDir; then echo "FAILED (git clone)"; return 1; fi
+  else
+    cond_echo "\nUpdate... "
+    if ! cond_redirect git -C "$telldusDir" pull --quiet origin; then echo "FAILED (git pull)"; return 1; fi
+  fi
+  chmod +x /opt/tdtool-improved/tdtool-improved.py
+  if cond_redirect ln -sf /opt/tdtool-improved/tdtool-improved.py /usr/bin/tdtool-improved; then echo "OK"; else echo "FAILED (link)"; return 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
-    if [ $FAILED -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
-    else
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
-    fi
+    whiptail --title "Operation Successful!" --msgbox "$successtext" 16 80
   fi
 }

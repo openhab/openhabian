@@ -8,6 +8,7 @@ export DEBIAN_FRONTEND=noninteractive
 # Log everything to file
 exec &> >(tee -a "/boot/first-boot.log")
 
+# Log with timestamp
 timestamp() { date +"%F_%T_%Z"; }
 
 fail_inprogress() {
@@ -154,7 +155,7 @@ echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed
 apt --yes --fix-broken install &>/dev/null
 apt-get --yes upgrade &>/dev/null
 res=$?
-if [[ $res -eq 100 ]]; then 
+if [[ $res -eq 100 ]]; then
   cond_echo "CONTINUING..\c"
   dpkg --configure -a
   apt --yes --fix-broken install &>/dev/null
@@ -168,6 +169,8 @@ if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 echo -n "$(timestamp) [openHABian] Installing git package... "
 if ! cond_redirect dpkg -s "git" &>/dev/null; then
   if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+else
+  echo "OK"
 fi
 
 if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
@@ -203,8 +206,8 @@ if hash python3 2>/dev/null; then bash /boot/webif.bash cleanup; fi
 
 if [ -z "$SILENT" ]; then
   echo -e "\\n${COL_CYAN}Memory usage:"
-  free -m && ps -auxq "$(cat /var/lib/openhab2/tmp/karaf.pid)" |awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
-  echo "${COL_DEF}"
+  free -m && ps -auxq "$(cat /var/lib/openhab2/tmp/karaf.pid)" | awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
+  echo -e "$COL_DEF"
 fi
 
 # vim: filetype=sh

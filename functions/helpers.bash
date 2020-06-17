@@ -15,6 +15,13 @@ COL_LGRAY=$ESC"37;01m"
 COL_DGRAY=$ESC"90;01m"
 export COL_DEF COL_RED COL_GREEN COL_YELLOW COL_BLUE COL_MAGENTA COL_CYAN COL_LGRAY COL_DGRAY
 
+# Log with timestamp
+timestamp() { date +"%F_%T_%Z"; }
+
+## This enables printout of both a executed command and its output
+##
+##    cond_redirect(bash command)
+##
 cond_redirect() {
   if [ -n "$SILENT" ]; then
     "$@" &>/dev/null
@@ -28,7 +35,7 @@ cond_redirect() {
 
 cond_echo() {
   if [ -z "$SILENT" ]; then
-    echo -e "$COL_YELLOW$*$COL_DEF"
+    echo -e "${COL_YELLOW}${*}${COL_DEF}"
   fi
 }
 
@@ -38,10 +45,10 @@ cond_echo() {
 ##    add_keys(String url)
 ##
 add_keys() {
-	  local repoKey
-	  
-  repoKey="$(mktemp /tmp/openhabian.XXXXX)"
-  
+  local repoKey
+
+  repoKey="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
+
   echo -n "$(timestamp) [openHABian] Adding required keys to apt... "
   cond_redirect wget -qO "$repoKey" "$1"
   if cond_redirect apt-key add "$repoKey"; then
@@ -177,6 +184,12 @@ is_raspbian() {
   [[ "$(cat /etc/*release*)" =~ "Raspbian" ]]
   return $?
 }
+# TODO: Not official yet, update when os-release file actually reflects the name change
+is_raspios() {
+  if [[ "$release" == "raspios" ]]; then return 0; fi
+  [[ "$(cat /etc/*release*)" =~ "Raspberry Pi OS" ]]
+  return $?
+}
 # Debian/Raspbian, to be deprecated, LTS ends 2020-06-30
 is_jessie() {
   if [[ "$release" == "jessie" ]]; then return 0; fi
@@ -238,26 +251,46 @@ running_on_github() {
   [[ -n "$GITHUB_RUN_ID" ]]
   return $?
 }
+
+## Attempt a command "$1" for either a default of 10 times or
+## for "$2" times unless "$1" evaulates to 0.
+## Sleeps for 1 second or for "$3" seconds between each attempt.
+## Returns number of command attemps remaining.
+##
+##    tryUntil(String cmd, int attempts, int interval)
+##
 tryUntil() {
-  # tryUntil() executes $1 as command
-  # either $2 times or until cmd evaluates to 0, sleeps $3 seconds inbetween
-  # returns the number of cmd runs that would have been left
+  local cmd
+  local attempts
+  local interval
+  local ret
+
   cmd="$1"
-  count=${2:-10}
-  local i=$count
+  attempts=${2:-10}
   interval=${3:-1}
-  until [ "$i" -le 0 ]; do
-    cond_echo "(executing ${cmd}) ${COL_DEF}\c"
+
+  until [ "$attempts" -le 0 ]; do
+    cond_echo "\nexecuting $cmd \c"
     eval "${cmd}"
     ret=$?
     if [ $ret -eq 0 ]; then break; fi
-    sleep "${interval}"
-    echo -n ".${i}."
-    ((i-=1))
+    sleep "$interval"
+    echo -e "#${attempts}. $COL_DEF"
+    ((attempts-=1))
   done
-  return "$i"
+  echo -e "$COL_DEF"
+
+  return "$attempts"
 }
+
+## Returns 0 / true if device has less than 900MB of total memory
+## Returns 1 / false if device has more than 900MB of total memory
+##
 has_lowmem() {
-  totalmemory=$(grep MemTotal /proc/meminfo |awk '{print $2}')
-  if [ "${totalmemory:-1000000}" -lt 900000 ]; then return 0; else return 1; fi
+  local totalMemory
+
+  totalMemory="$(grep MemTotal /proc/meminfo | awk '{print $2}')"
+
+  if [ -z "$totalMemory" ]; then return 1; fi # assume that device does not have low memory
+  if [ "$totalMemory" -lt 900000 ]; then return 0; else return 1; fi
 }

@@ -1,70 +1,113 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2181
 
 nodejs_setup() {
-  if command -v npm &>/dev/null; then
-    return 0
-  fi
-  FAILED=0
+  if [ -x "$(command -v npm)" ]; then return 0; fi
 
-  if is_armv6l; then f=$(wget -qO- https://nodejs.org/download/release/latest-dubnium/ | grep "armv6l.tar.gz" | cut -d '"' -f 2); fi
-  if is_armv7l; then f=$(wget -qO- https://nodejs.org/download/release/latest-dubnium/ | grep "armv7l.tar.gz" | cut -d '"' -f 2); fi
-  if is_aarch64; then f=$(wget -qO- https://nodejs.org/download/release/latest-dubnium/ | grep "arm64.tar.gz" | cut -d '"' -f 2); fi
+  local myDistro
 
-  if is_arm; then
-    echo -n "$(timestamp) [openHABian] Installing Node.js for arm (prerequisite for other packages)... "
-    cond_redirect wget -O /tmp/nodejs-arm.tar.gz "https://nodejs.org/download/release/latest-dubnium/$f" 2>&1 || FAILED=1
-    if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; return 1; fi
-    cond_redirect tar -zxf /tmp/nodejs-arm.tar.gz --strip-components=1 -C /usr 2>&1
-    cond_redirect rm /tmp/nodejs-arm.tar.gz 2>&1
-  else
-    echo -n "$(timestamp) [openHABian] Installing Node.js (prerequisite for other packages)... "
-    cond_redirect wget -O /tmp/nodejs-setup.sh https://deb.nodesource.com/setup_10.x || FAILED=1
-    cond_redirect bash /tmp/nodejs-setup.sh || FAILED=1
-    if [ $FAILED -eq 1 ]; then echo "FAILED (nodejs preparations)"; return 1; fi
-    if ! cond_redirect apt-get -y install nodejs; then echo "FAILED (nodejs installation)"; return 1; fi
+  if ! [ -x "$(command -v lsb_release)" ]; then
+    echo -n "$(timestamp) [openHABian] Installing NodeJS prerequsites (lsb-release)... "
+    if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  if command -v npm &>/dev/null; then echo "OK"; else echo "FAILED (service)"; return 1; fi
+
+  myDistro="$(lsb_release -sc)"
+
+  if ! add_keys "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"; then return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Adding NodeSource repository to apt... "
+  echo "deb https://deb.nodesource.com/node_12.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
+  echo "deb-src https://deb.nodesource.com/node_12.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
+  if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Installing NodeJS... "
+  if cond_redirect apt-get install --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 frontail_setup() {
-  nodejs_setup
-  # set frontail install directory relative to npm (nodejs) base
-  node_base=$(npm list -g|head -n 1)
-  echo -n "$(timestamp) [openHABian] Installing the openHAB Log Viewer (frontail) relative to nodejs base ${node_base}... "
-  frontail_base="${node_base}/node_modules/frontail"
-  # clear frontail install dir if it exists, otherwise npm install will fail, #647
-  if [ -d "$frontail_base" ]; then
-    cond_redirect npm uninstall -g frontail
-  fi
-  if ! cond_redirect npm install --force -g frontail; then echo "FAILED (frontail)"; return 1; fi
-  cond_redirect npm update --force -g frontail
-  #
-  mkdir -p "${frontail_base}"/preset "${frontail_base}"/web/assets/styles
+  local frontailBase
 
-  cp "${BASEDIR}"/includes/frontail-preset.json "$frontail_base"/preset/openhab.json
-  cp "${BASEDIR}"/includes/frontail-theme.css "$frontail_base"/web/assets/styles/openhab.css
-  sed -e "s|%FRONTAILBASE|${frontail_base}|g" "${BASEDIR}"/includes/frontail.service > /etc/systemd/system/frontail.service
-  chmod 664 /etc/systemd/system/frontail.service
-  cond_redirect systemctl enable frontail.service
-  if cond_redirect systemctl restart frontail; then echo "OK"; else echo "FAILED (service)"; return 1; fi
-  if ! running_in_docker; then
+  if ! [ -x "$(command -v npm)" ]; then
+    echo "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
+    nodejs_setup
+  fi
+
+  frontailBase="$(npm list -g | head -n 1)/node_modules/frontail"
+
+  echo "$(timestamp) [openHABian] Beginning setup of the openHAB Log Viewer (frontail)... "
+
+  if [ -x "$(command -v frontail)" ]; then
+    echo -n "$(timestamp) [openHABian] Updating openHAB Log Viewer (frontail)... "
+    if cond_redirect npm update --force -g frontail; then echo "OK"; else echo "FAILED"; return 1; fi
+  else
+    if [ -d "$frontailBase" ]; then
+      cond_echo "Removing any old installations..."
+      cond_redirect npm uninstall -g frontail
+    fi
+    echo -n "$(timestamp) [openHABian] Installing openHAB Log Viewer (frontail)... "
+    if ! cond_redirect npm install --force -g frontail; then echo "FAILED (install)"; return 1; fi
+    if cond_redirect npm update --force -g frontail; then echo "OK"; else echo "FAILED (update)"; return 1; fi
+  fi
+
+  echo -n "$(timestamp) [openHABian] Configuring openHAB Log Viewer (frontail)... "
+  mkdir -p "$frontailBase"/preset "$frontailBase"/web/assets/styles
+  cp "$BASEDIR"/includes/frontail-preset.json "$frontailBase"/preset/openhab.json
+  cp "$BASEDIR"/includes/frontail-theme.css "$frontailBase"/web/assets/styles/openhab.css
+  if [ $? -eq 0 ]; then echo "OK"; else echo "FAILED"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service... "
+  if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" "$BASEDIR"/includes/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; fi
+  if ! cond_redirect systemctl enable frontail.service; then echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+
+  if [ -z "$BATS_TEST_NAME" ]; then
     dashboard_add_tile frontail
   fi
 }
 
 nodered_setup() {
-  echo -n "$(timestamp) [openHABian] Installing Node-RED... "
-  FAILED=0
-  cond_redirect wget -O /tmp/update-nodejs-and-nodered.sh https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered || FAILED=1
-  cond_redirect chmod +x /tmp/update-nodejs-and-nodered.sh || FAILED=1
-  cond_redirect /usr/bin/sudo -u "${username:-openhabian}" -H sh -c "/tmp/update-nodejs-and-nodered.sh" || FAILED=1
-  if [ $FAILED -eq 1 ]; then echo "FAILED (nodered)"; return 1; fi
-  if ! cond_redirect npm install -g node-red-contrib-bigtimer; then echo "FAILED (nodered bigtimer addon)"; return 1; fi
-  cond_redirect npm update -g node-red-contrib-bigtimer
-  if ! cond_redirect npm install -g node-red-contrib-openhab2; then echo "FAILED (nodered openhab2 addon)"; return 1; fi
-  cond_redirect npm update -g node-red-contrib-openhab2
-  cond_redirect systemctl daemon-reload
-  cond_redirect systemctl enable nodered.service
-  if cond_redirect systemctl restart nodered.service; then echo "OK"; else echo "FAILED (service)"; return 1; fi
-  dashboard_add_tile nodered
+  if [ -z "$INTERACTIVE" ]; then
+    echo "$(timestamp) [openHABian] Node-RED setup must be run in interactive mode! Canceling Node-RED setup!"
+    echo "CANCELED"
+    return 0
+  fi
+
+  local temp
+
+  if ! dpkg -s 'build-essential' > /dev/null 2>&1; then
+    echo -n "$(timestamp) [openHABian] Installing Node-RED required packages (build-essential)... "
+    if cond_redirect apt-get install --yes build-essential; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+
+  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
+
+  echo "$(timestamp) [openHABian] Beginning setup of Node-RED... "
+
+  echo "$(timestamp) [openHABian] Downloading Node-RED setup script... "
+  if cond_redirect wget -qO "$temp" https://raw.githubusercontent.com/node-red/linux-installers/master/deb/update-nodejs-and-nodered; then
+     echo "OK"
+  else
+    echo "FAILED"
+    rm -f "$temp"
+    return 1
+  fi
+
+  echo -n "$(timestamp) [openHABian] Setting up Node-RED... "
+  whiptail --title "Node-RED Setup" --msgbox "The installer is about to ask for information in the command line, please fill out each line." 8 80 3>&1 1>&2 2>&3
+  chmod 755 "$temp"
+  if sudo -u "${username:-openhabian}" -H bash -c "$temp"; then echo "OK"; rm -f "$temp"; else echo "FAILED"; rm -f "$temp"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Installing Node-RED addons... "
+  if ! cond_redirect npm install -g node-red-contrib-bigtimer; then echo "FAILED (install bigtimer addon)"; return 1; fi
+  if ! cond_redirect npm update -g node-red-contrib-bigtimer; then echo "FAILED (update bigtimer addon)"; return 1; fi
+  if ! cond_redirect npm install -g node-red-contrib-openhab2; then echo "FAILED (install openhab2 addon)"; return 1; fi
+  if cond_redirect npm update -g node-red-contrib-bigtimer; then echo "OK"; else echo "FAILED (update bigtimer addon)"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Setting up Node-RED service... "
+  if ! cond_redirect systemctl enable nodered.service; then echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl restart nodered.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+
+  if [ -z "$BATS_TEST_NAME" ]; then
+    dashboard_add_tile nodered
+  fi
 }

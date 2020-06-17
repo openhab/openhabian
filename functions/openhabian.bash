@@ -10,25 +10,21 @@ get_git_revision() {
 }
 
 apt_update() {
-  apt-get -q update >/dev/null 2>&1 &
+  apt-get -q update > /dev/null 2>&1 &
   PID_APT=$!
 }
 
 wait_for_apt_to_finish_update() {
-  echo "$(timestamp) [openHABian] Updating Linux package information ... "
-  if [ ! -v PID_APT ]; then
+  echo -n "$(timestamp) [openHABian] Updating Linux package information ... "
+  if [ -z "$PID_APT" ]; then
     apt_update
   fi
-  if wait -f ${PID_APT} 2>/dev/null ; then
-    echo FAILED
-  else
-    echo OK
-  fi
+  if timeout 60 tail --pid=$PID_APT -f /dev/null; then echo "OK"; else echo "FAILED"; fi
 }
 
 install_cleanup() {
   echo "$(timestamp) [openHABian] Cleaning up ... "
-  cond_redirect apt --yes autoremove -q
+  cond_redirect apt-get autoremove --yes
 }
 
 openhabian_announcements() {
@@ -37,7 +33,7 @@ openhabian_announcements() {
 
   if ! diff -q "$newsfile" "$readnews" >/dev/null 2>&1; then
     # shellcheck disable=SC2086
-    if (whiptail --title "openHABian breaking NEWS" --yes-button "I have read this" --no-button "keep displaying" --defaultno --yesno --scrolltext "$(cat $newsfile)" 24 90); then
+    if (whiptail --title "openHABian announcements" --yes-button "Stop Displaying" --no-button "Keep Displaying" --defaultno --scrolltext --yesno "$(cat $newsfile)" 27 120); then
       cp "$newsfile" "$readnews";
     fi
   fi
@@ -262,4 +258,3 @@ disable_ipv6() {
     sed -i "s/^${IPV6_ENABLE}.*/# ${IPV6_ENABLE}/g" "${SYSCTL_INIT}"
   fi
 }
-

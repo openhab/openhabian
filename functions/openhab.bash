@@ -166,7 +166,7 @@ openhab_is_running() {
   return 0;
 }
 
-# The function has one non-optinal parameter for the application to create a tile for
+# The function has one non-optional parameter for the application to create a tile for
 dashboard_add_tile() {
   tile_name="$1"
   echo -n "$(timestamp) [openHABian] Adding an openHAB dashboard tile for '$tile_name'... "

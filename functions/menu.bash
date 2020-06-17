@@ -95,7 +95,7 @@ show_main_menu() {
     "27 | knxd"                  "KNX specific, the KNX router/gateway daemon knxd" \
     "28 | 1wire"                 "1wire specific, owserver and related packages" \
     "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
-    "2A | Tellstick core"        "Driver and daemon for Tellstick usb devices" \
+    "2A | Telldus Core"          "Telldus Core service for Tellstick USB devices" \
     "2C | Mail Transfer Agent"   "Install Exim4 as MTA to relay mails via public services" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
@@ -110,7 +110,7 @@ show_main_menu() {
       27\ *) knxd_setup ;;
       28\ *) 1wire_setup ;;
       29\ *) find_setup ;;
-      2A\ *) tellstick_core_setup ;;
+      2A\ *) telldus_core_setup ;;
       2C\ *) exim_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
@@ -126,7 +126,7 @@ show_main_menu() {
     "36 | WiFi setup"             "Configure wireless network connection" \
     "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
     "38 | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
-    "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspbian filesystem layout)" \
+    "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -211,7 +211,7 @@ show_main_menu() {
     "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
     "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
     "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories (mitigates SD card wear)" OFF \
-    "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspbian filesystem layout)" OFF \
+    "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -238,5 +238,5 @@ show_main_menu() {
   fi
 
   # shellcheck disable=SC2154,SC2181
-  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md how to proceed." 12 70; return 0; fi
+  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md how to proceed." 12 80; return 0; fi
 }

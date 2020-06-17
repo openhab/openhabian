@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-load helpers
+load helpers.bash
 
 testNonExistingHost() {
   tryUntil "ping -c 1 $1" 10 1
@@ -16,14 +16,14 @@ testAppearingHost() {
   run testAppearingHost thiswillappear
   [ "$status" -eq 7 ]
 
-  echo -e "# \n\e[32mPing to host appearing after 3 seconds succeeded." >&3
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Ping to host appearing after 3 seconds succeeded.${COL_DEF}" >&3
 }
 
 @test "unit-tryNonExistingSite" {
   run testNonExistingHost nothisdoesnotexit
   [ "$status" -eq 0 ]
 
-  echo -e "# \n\e[32mPinging to nonexistingsite failed (correctly so)." >&3
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Pinging to nonexistingsite failed (correctly so).${COL_DEF}" >&3
 }
 
 @test "unit-cond_echo" {
