@@ -15,20 +15,20 @@ if [ "$1" = "start" ]; then
   ln -s /boot/first-boot.log /tmp/webif/first-boot.txt
   # shellcheck disable=SC2016
   echo '<html>
-        <head>
-        <title>openHABian</title>
-        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-        <meta http-equiv="Pragma" content="no-cache" />
-        <meta http-equiv="Expires" content="0" />
-        <meta http-equiv="Refresh" content="10" />
-        </head>' > /tmp/webif/index.html
+<head>
+<title>openHABian</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<meta http-equiv="Refresh" content="10" />
+</head>' > /tmp/webif/index.html
   # shellcheck disable=SC2016
   echo '<body>
-        <h1>openHABian Installation Status</h1>
-        the log will be refreshed automatically every 10 seconds
-        <iframe src='"http://${HOSTNAME:-$hostname}:$port/first-boot.txt"' scrolling="yes" width="100%" height="90%"></iframe>
-        </body>
-        </html>' >> /tmp/webif/index.html
+<h1>openHABian Installation Status</h1>
+the log will be refreshed automatically every 10 seconds
+<iframe src=/first-boot.txt"' scrolling="yes" width="100%" height="90%"></iframe>
+</body>
+</html>' >> /tmp/webif/index.html
   (cd /tmp/webif || exit 1; python3 -m http.server $port > /dev/null 2>&1 &)
 fi
 
