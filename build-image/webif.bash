@@ -48,12 +48,12 @@ if [ "$1" = "inst_done" ]; then
 <head>
 <meta http-equiv="refresh" content="10;url=http://${HOSTNAME:-$hostname}:8080/" />
 <title>openHABian</title>
-</head>' > index.html
+</head>' > /tmp/webif/index.html
   echo '<body>
 <h1>openHABian Installation Status</h1>
 Installation successful. You can now access the openHAB dashboard using <a href='"http://${HOSTNAME:-$hostname}:8080"'>this link</a>
 </body>
-</html>' > /tmp/webif/index.html
+</html>' >> /tmp/webif/index.html
 fi
 
 if [ "$1" = "cleanup" ]; then
