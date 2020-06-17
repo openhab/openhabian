@@ -33,7 +33,7 @@ openhabian_announcements() {
 
   if ! diff -q "$newsfile" "$readnews" >/dev/null 2>&1; then
     # shellcheck disable=SC2086
-    if (whiptail --title "openHABian announcements" --yes-button "Stop Displaying" --no-button "Keep Displaying" --defaultno --scrolltext --yesno "$(cat $newsfile)" 27 120); then
+    if (whiptail --title "openHABian announcements" --yes-button "Stop Displaying" --no-button "Keep Displaying" --defaultno --scrolltext --yesno "$(cat $newsfile)" 27 85); then
       cp "$newsfile" "$readnews";
     fi
   fi
