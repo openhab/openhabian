@@ -37,7 +37,7 @@ init_zram_mounts() {
     install_zram_code "$ZRamInstallLocation"
     cd "$ZRamInstallLocation"/overlayfs-tools || return 1
     make
-    cd "$ZRamInstallLocation" || return 1
+    cd "$ZRamInstallLocation"/openhabian-zram || return 1
     /bin/sh ./install.sh
     /usr/bin/install -m 644 "${BASEDIR:=/opt/openhabian}"/includes/ztab /etc/ztab
 
