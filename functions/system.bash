@@ -168,15 +168,6 @@ permissions_corrections() {
     return 1
   fi
 
-  if is_pine64; then
-    cond_redirect groupadd gpio
-    cond_redirect cp "$BASEDIR"/includes/PINE64-80-gpio-noroot.rules /etc/udev/rules.d/80-gpio-noroot.rules
-    # shellcheck disable=SC2016
-    cond_redirect sed -i -e '$i \chown -R root:gpio /sys/class/gpio \n' /etc/rc.local
-    # shellcheck disable=SC2016
-    cond_redirect sed -i -e '$i \chmod -R ug+rw /sys/class/gpio \n' /etc/rc.local
-  fi
-
   for pGroup in audio bluetooth dialout gpio tty
   do
     if getent group "$pGroup" > /dev/null 2>&1 ; then
@@ -202,7 +193,6 @@ misc_system_settings() {
   echo -n "$(timestamp) [openHABian] Applying miscellaneous system settings... "
   cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' "$(realpath /usr/bin/java)"
   cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping
-  if is_pine64; then cond_redirect dpkg --add-architecture armhf; fi
   # user home note
   echo -e "This is your linux user's \"home\" folder.\\nPlace personal files, programs or scripts here." > "/home/$username/README.txt"
   # prepare SSH key file for the end user
@@ -221,37 +211,6 @@ misc_system_settings() {
   echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent
   #
   echo "OK"
-}
-
-pine64_platform_scripts() {
-  echo -n "$(timestamp) [openHABian] Executing pine64 platform scripts (longsleep)... "
-  if [ -f "/usr/local/sbin/pine64_update_kernel.sh" ]; then
-    cond_redirect /usr/local/sbin/pine64_update_kernel.sh || echo -n "FAILED (kernel) "
-    cond_redirect /usr/local/sbin/pine64_update_uboot.sh || echo -n "FAILED (uboot) "
-    cond_redirect /usr/local/sbin/pine64_fix_whatever.sh || echo -n "FAILED (whatever) "
-    cond_redirect /usr/local/sbin/resize_rootfs.sh || echo -n "FAILED (resize) "
-    echo "OK"
-  else
-    echo "FAILED"
-  fi
-}
-
-pine64_fix_systeminfo_binding() { # This will maybe be fixed upstreams some day. Keep an eye open.
-  echo -n "$(timestamp) [openHABian] Enable PINE64 support for systeminfo binding... "
-  cond_redirect apt-get install --yes udev:armhf
-  cond_redirect ln -s /lib/arm-linux-gnueabihf/ /lib/linux-arm
-  if cond_redirect ln -s /lib/linux-arm/libudev.so.1 /lib/linux-arm/libudev.so; then echo "OK"; else echo "FAILED"; fi
-}
-
-pine64_fixed_mac() {
-  echo -n "$(timestamp) [openHABian] Assigning fixed MAC address to eth0 (longsleep)... "
-  if ! grep -q "mac_addr=" /boot/uEnv.txt; then
-    MAC=$(cat /sys/class/net/eth0/address)
-    sed -i "/^console=/ s/$/ mac_addr=$MAC/" /boot/uEnv.txt
-    echo "OK"
-  else
-    echo "SKIPPED"
-  fi
 }
 
 # RPi specific function

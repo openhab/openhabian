@@ -53,7 +53,7 @@ jobs:
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.amd64 .
         - echo -e "\n\e[36mopenHABian test installation using 64bit Azul Enterprise Java 8 running on a\e[31m 64bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
         - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
-        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash'
     - name: openHABian installation test with 32bit Azul Java 8 on virtual RPi2
       env: HW=rpi2
       arch: arm64
@@ -63,7 +63,7 @@ jobs:
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.raspberry-pi2 .
         - echo -e "\n\e[36mopenHABian test installation using 32bit Azul Embedded Java 8 running on a\e[31m 32bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
         - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian
-        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash'
     - name: openHABian installation test with 32bit Azul Java 11 on virtual RPi3
       env: HW=rpi3
       arch: arm64
@@ -73,7 +73,7 @@ jobs:
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.raspberrypi3 .
         - echo -e "\n\e[36mopenHABian test installation using 32bit Azul Embedded Java 11 running on a\e[31m 32bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
         - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
-        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash'
     - name: openHABian installation test with 64bit Azul Java 8 on virtual RPi3
       env: HW=rpi3
       arch: arm64
@@ -83,7 +83,7 @@ jobs:
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.raspberrypi3-64 .
         - echo -e "\n\e[36mopenHABian test installation using 64bit Azul Embedded Java 8 running on a\e[31m 64bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
         - docker run --memory="2g" --memory-reservation="2g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
-        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash'
     - name: openHABian installation test with AdoptOpenJDK Java 11 on virtual RPi2
       env: HW=rpi2
       arch: arm64
@@ -93,4 +93,4 @@ jobs:
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.raspberry-pi2 .
         - echo -e "\n\e[36mopenHABian test installation using AdoptOpenJDK Java 11 running on a\e[31m 32bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
         - docker run --memory="1g" --memory-reservation="1g" --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
-        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash'

@@ -13,9 +13,6 @@ usage() {
 # shellcheck disable=SC1090
 source "$(dirname "$0")"/functions/helpers.bash
 
-# Log with timestamp
-timestamp() { date +"%F_%T_%Z"; }
-
 ## This function formats log messages
 ##
 ##    echo_process(String message)
@@ -148,25 +145,21 @@ elif [ "$1" == "rpi64" ]; then
   hw_platform="pi-raspios64beta"
   echo_process "Hardware platform: Raspberry Pi (rpi64) - BETA -"
 
-elif [ "$1" == "pine64" ]; then
-  hw_platform="pine64-xenial"
-  echo_process "Hardware platform: Pine A64 (pine64)"
-
 elif [ "$1" == "local-test" ]; then
   echo_process "Preparing local system for installation"
   cp ./build-image/first-boot.bash /boot/first-boot.bash
   cp ./build-image/webif.bash /boot/webif.bash
   cp ./build-image/openhabian.conf /boot/openhabian.conf
-  cp ./build-image/rc.local /etc/rc.local
+  cp ./build-image/openhabian-installer.service /etc/systemd/system/
+  ln -sf /etc/systemd/system/openhabian-installer.service /etc/systemd/system/multi-user.target.wants/openhabian-installer.service
+  rm -f /opt/openHABian-install-successful
+  rm -f /opt/openHABian-install-inprogress
   sed -i -e '1r functions/helpers.bash' /boot/first-boot.bash # Add platform identification
   # Use local filesystem's version of openHABian
-  sed -i 's|if \[ -d /opt/openhabian/ \]; then cd /opt && rm -rf /opt/openhabian/; fi||' /boot/first-boot.bash
-  # shellcheck disable=SC2016
-  sed -i 's|if git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "OK"; else echo "FAILED"; fail_inprogress; fi||' /boot/first-boot.bash
+  sed -i 's|openhabian_update|true|' /boot/first-boot.bash
   chmod +x /boot/first-boot.bash
   chmod +x /boot/webif.bash
-  chmod +x /etc/rc.local
-  echo_process "Local system ready for installation test. Run script /etc/rc.local or reboot to initiate"
+  echo_process "Local system ready for installation test. Run 'systemctl start openhabian-installer' or reboot to initiate"
   exit 0
 else
   usage
@@ -213,63 +206,8 @@ guestunmount --no-retry $buildfolder/root &>/dev/null || true
 rm -rf $buildfolder
 mkdir $buildfolder
 
-# Build PINE64 image
-if [ "$hw_platform" == "pine64-xenial" ]; then
-  # Make sure only root can run our script
-  if [[ $EUID -ne 0 ]]; then
-    echo_process "This script must be run as root" 1>&2
-    exit 1
-  fi
-
-  # Prerequisites
-  echo_process "Downloading prerequisites... "
-  apt-get update
-  apt-get install --yes git wget curl bzip2 zip xz-utils xz-utils build-essential binutils kpartx dosfstools bsdtar qemu-user-static qemu-user libarchive-zip-perl dos2unix
-
-  echo_process "Cloning \"longsleep/build-pine64-image\" project... "
-  git clone -b master https://github.com/longsleep/build-pine64-image.git $buildfolder
-
-  echo_process "Downloading aditional files needed by \"longsleep/build-pine64-image\" project... "
-  wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/simpleimage-pine64-latest.img.xz
-  wget -nv -P $buildfolder/ https://www.stdin.xyz/downloads/people/longsleep/pine64-images/linux/linux-pine64-latest.tar.xz
-
-  echo_process "Copying over 'rc.local' and 'first-boot.bash' for image integration... "
-  cp $sourcefolder/rc.local $buildfolder/simpleimage/openhabianpine64.rc.local
-  cp $sourcefolder/first-boot.bash $buildfolder/simpleimage/openhabianpine64.first-boot.bash
-  sed -i -e '1r functions/helpers.bash' $buildfolder/simpleimage/openhabianpine64.first-boot.bash # Add platform identification
-  cp $sourcefolder/openhabian.$hw_platform.conf $buildfolder/simpleimage/openhabian.conf
-  unix2dos $buildfolder/simpleimage/openhabian.conf
-  cp $sourcefolder/webif.bash $buildfolder/simpleimage/webif.bash
-
-  # Injecting development git repo if clone_string is set and watermark build
-  if [ -n "${clone_string+x}" ]; then
-    inject_build_repo $buildfolder/simpleimage/openhabianpine64.first-boot.bash
-  fi
-
-  echo_process "Hacking \"build-pine64-image\" build and make script... "
-  sed -i "s/date +%Y%m%d_%H%M%S_%Z/date +%Y%m%d%H/" $buildfolder/build-pine64-image.sh
-  makescript=$buildfolder/simpleimage/make_rootfs.sh
-  sed -i "s/^pine64$/openHABianPine64/" $makescript
-  sed -i "s/127.0.1.1 pine64/127.0.1.1 openHABianPine64/" $makescript
-  # shellcheck disable=SC2154
-  sed -i "s/DEBUSER=ubuntu/DEBUSER=$username/" $makescript
-  # shellcheck disable=SC2154
-  sed -i "s/DEBUSERPW=ubuntu/DEBUSERPW=$userpw/" $makescript
-  { echo -e "\\n# Add openHABian modifications"; \
-    echo "touch \$DEST/opt/openHABian-install-inprogress"; \
-    echo "cp ./openhabianpine64.rc.local \$DEST/etc/rc.local"; \
-    echo "cp ./openhabianpine64.first-boot.bash \$BOOT/first-boot.bash"; \
-    echo "touch \$BOOT/first-boot.log"; \
-    echo "cp ./openhabian.conf \$BOOT/openhabian.conf"; \
-    echo "cp ./webif.bash \$BOOT/webif.bash"; \
-    echo "echo \"openHABian preparations finished, /etc/rc.local in place\""
-  } >> $makescript
-  echo_process "Executing \"build-pine64-image\" build script... "
-  if (cd $buildfolder; /bin/bash build-pine64-image.sh simpleimage-pine64-latest.img.xz linux-pine64-latest.tar.xz xenial); then echo "OK"; else echo "FAILED"; fi
-  if mv $buildfolder/xenial-pine64-*.img $imagefile; then echo "OK"; else echo "FAILED"; exit 1; fi
-
 # Build Raspberry Pi image
-elif [ "$hw_platform" == "pi-raspios32" ] || [ "$hw_platform" == "pi-raspios64beta" ]; then
+if [ "$hw_platform" == "pi-raspios32" ] || [ "$hw_platform" == "pi-raspios64beta" ]; then
   if [ "$hw_platform" == "pi-raspios64beta" ]; then
     zipfile=raspios_lite_arm64_latest.zip
     baseurl="https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2020-05-28/2020-05-27-raspios-buster-arm64.zip"
@@ -350,8 +288,6 @@ elif [ "$hw_platform" == "pi-raspios32" ] || [ "$hw_platform" == "pi-raspios64be
   if [ -n "${clone_string+x}" ]; then
     inject_build_repo $buildfolder/boot/first-boot.bash
   fi
-  # delete line removing the webif, should be done in firs-boot.bash after we removed pine64 support
-  sed -i "s#.*/boot/webif\.bash cleanup.*##" $buildfolder/boot/first-boot.bash
 
   echo_process "Closing up image file... "
   sync

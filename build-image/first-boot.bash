@@ -206,7 +206,6 @@ echo "$(timestamp) [openHABian] First time setup successfully finished."
 sleep 12
 if hash python3 2>/dev/null; then bash /boot/webif.bash inst_done; fi
 sleep 12
-if hash python3 2>/dev/null; then bash /boot/webif.bash cleanup; fi
 
 if [ -z "$SILENT" ]; then
   echo -e "\\n${COL_CYAN}Memory usage:"

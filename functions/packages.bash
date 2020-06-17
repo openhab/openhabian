@@ -165,13 +165,6 @@ homegear_setup() {
   successtext="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'sudo homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
-  if is_pine64; then
-    if [ -n "$INTERACTIVE" ]; then
-      whiptail --title "Incompatible Hardware Detected!" --msgbox "We are sorry, Homegear is not available for your platform at this time." 8 60
-    fi
-    echo "FAILED (incompatible)"
-    return 1
-  fi
   if [ -n "$INTERACTIVE" ]; then
     if (whiptail --title "Homegear installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 8 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   fi
