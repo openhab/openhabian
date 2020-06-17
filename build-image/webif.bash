@@ -45,14 +45,15 @@ if [ "$1" = "inst_done" ]; then
   mkdir -p /tmp/webif
   # shellcheck disable=SC2016
   echo '<html>
-        <head>
-        <title>openHABian</title>
-        </head>' > index.html
+<head>
+<title>openHABian</title>
+<meta http-equiv="refresh" content="10;url=http://${HOSTNAME:-$hostname}:8080/" />
+</head>' > index.html
   echo '<body>
-        <h1>openHABian Installation Status</h1>
-        Installation successful. You can now access the openHAB dashboard using <a href='"http://${HOSTNAME:-$hostname}:8080"'>this link</a>
-        </body>
-        </html>' > /tmp/webif/index.html
+<h1>openHABian Installation Status</h1>
+Installation successful. You can now access the openHAB dashboard using <a href='"http://${HOSTNAME:-$hostname}:8080"'>this link</a>
+</body>
+</html>' > /tmp/webif/index.html
 fi
 
 if [ "$1" = "cleanup" ]; then
