@@ -106,7 +106,10 @@ java_install_or_update() {
       fi
     fi
   fi
-  cond_redirect java -version
+  if [ -x "$(command -v java)" ]; then
+    cond_redirect java -version
+    echo "OK"
+  fi
 }
 
 ## Install Java Zulu prerequisite libc
@@ -401,7 +404,7 @@ adoptopenjdk_fetch_apt() {
   if ! add_keys "https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public"; then return 1; fi
 
   echo -n "$(timestamp) [openHABian] Adding AdoptOpenJDK repository to apt... "
-  echo "deb http://adoptopenjdk.jfrog.io/adoptopenjdk/deb buster main" > /etc/apt/sources.list.d/adoptopenjdk.list
+  echo "deb https://adoptopenjdk.jfrog.io/adoptopenjdk/deb buster main" > /etc/apt/sources.list.d/adoptopenjdk.list
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Fetching AdoptOpenJDK... "

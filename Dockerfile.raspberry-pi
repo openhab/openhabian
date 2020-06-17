@@ -8,7 +8,7 @@ ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 
 # bats tests on a minimal install will require additional packages to run properly:
 # - lsb-release (influx, homegear)
-# - apt-transport-https (homegear)
+# - apt-transport-https (homegear, AdoptOpenJDK)
 # - unzip (java)
 # those packages would normally be included in our standard install
 RUN apt-get update -qq \
