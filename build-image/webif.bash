@@ -46,8 +46,8 @@ if [ "$1" = "inst_done" ]; then
   # shellcheck disable=SC2016
   echo '<html>
 <head>
-<title>openHABian</title>
 <meta http-equiv="refresh" content="10;url=http://${HOSTNAME:-$hostname}:8080/" />
+<title>openHABian</title>
 </head>' > index.html
   echo '<body>
 <h1>openHABian Installation Status</h1>
