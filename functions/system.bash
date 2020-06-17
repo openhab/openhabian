@@ -19,7 +19,7 @@ basic_packages() {
   apt-get remove -y raspi-config &>/dev/null || true
   if cond_redirect apt-get install --yes screen vim nano mc vfu bash-completion htop curl wget multitail git util-linux \
     bzip2 zip unzip xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping; \
-  then echo "OK"; else echo "FAILED"; exit 1; fi
+  then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 needed_packages() {
