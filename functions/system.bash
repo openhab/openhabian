@@ -276,8 +276,8 @@ enable_rpi_audio() {
 }
 
 prepare_serial_port() {
-  introtext="Proceeding with this routine, the serial console normally provided by a Raspberry Pi can be disabled for the sake of a usable serial port. The provided port can henceforth be used by devices like Razberry, UZB or Busware SCC.
-On a Raspberry Pi 3 the Bluetooth module can be disabled, ensuring the operation of a RaZberry or other HAT (usage of BT and HATs to use serial is mutually exclusive).
+  introtext="Proceeding with this routine, the serial console normally provided by a Raspberry Pi can be disabled for the sake of a usable serial port. The provided port can henceforth be used by devices like RaZberry, UZB or Busware SCC.
+On a Raspberry Pi 3 and 4 the Bluetooth module should be disabled to ensure the operation of a RaZberry or other HAT. Usage of BT and HATs to use serial is mutually exclusive.
 \\nPlease make your choice:"
 #  failtext="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
   successtext="All done. After a reboot the serial console will be available via /dev/ttyAMA0 or /dev/ttyS0 (depends on your device)."
@@ -293,8 +293,8 @@ On a Raspberry Pi 3 the Bluetooth module can be disabled, ensuring the operation
 
   if [ -n "$INTERACTIVE" ]; then
     if ! selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introtext" 20 78 3 \
-    "1"  "(RPi) Disable serial console           (Razberry, SCC, Enocean)" $sel_1 \
-    "2"  "(RPi3) Disable Bluetooth module        (Razberry)" $sel_2 \
+    "1"  "(RPi) Disable serial console           (RaZberry, SCC, Enocean)" $sel_1 \
+    "2"  "(RPi3/4) Disable Bluetooth module      (RaZberry)" $sel_2 \
     3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
   else
     echo "SKIPPED"

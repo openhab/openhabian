@@ -12,17 +12,17 @@ wifi_setup() {
 
   if [ -n "$INTERACTIVE" ]; then
     if grep -q "^[[:space:]]*dtoverlay=disable-wifi" /boot/config.txt; then
-      if (whiptail --title "WiFi is currently disabled" --yesno "WiFi is currently disabled on your box. Enable ?" 7 55); then
+      if (whiptail --title "WiFi is currently disabled" --yesno "WiFi is currently disabled on your box. Enable and switch over, i.e. disable Ethernet ?" 7 55); then
         cond_echo "Removing 'dtoverlay=disable-wifi' from /boot/config.txt"
         sed -i '/^[[:space:]]*dtoverlay=disable-wifi/d' /boot/config.txt
-	whiptail --title "Operation Successful!" --msgbox "Please reboot now to enable your WiFi hardware.\\nRun openhabian-config and select this menu option again to continue." 8 75
       fi
-      return 0
     else
-      if (whiptail --title "WiFi is currently ON" --defaultno --yesno "WiFi is currently enabled on your box.\\n\\nATTENTION:\\nDo you want to disable it ?" 10 50); then
+      if (whiptail --title "WiFi is currently ON" --defaultno --yesno "WiFi is currently enabled on your box.\\n\\nATTENTION:\\nDo you want to disable it and return to Ethernet ?" 10 50); then
         cond_echo "Adding 'dtoverlay=disable-wifi' to /boot/config.txt (RPi0W/3/4)"
         echo "dtoverlay=disable-wifi" >> /boot/config.txt
-	whiptail --title "Operation successful!" --msgbox "Please reboot now to have your WiFi hardware disabled." 7 70
+	sed -i '/wlan0/d; /wpa-roam/d; /iface default inet dhcp/d' /etc/network/interfaces
+
+	whiptail --title "Operation successful!" --msgbox "Please reboot now to switch back from WiFi to Ethernet." 7 70
         return 0
       fi
     fi
