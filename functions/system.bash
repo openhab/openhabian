@@ -19,7 +19,7 @@ basic_packages() {
   apt-get remove -y raspi-config &>/dev/null || true
   if cond_redirect apt-get install --yes screen vim nano mc vfu bash-completion htop curl wget multitail git util-linux \
     bzip2 zip unzip xz-utils software-properties-common man-db whiptail acl usbutils dirmngr arping; \
-  then echo "OK"; else echo "FAILED"; exit 1; fi
+  then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 needed_packages() {
@@ -28,7 +28,7 @@ needed_packages() {
   # Install avahi-daemon - hostname based discovery on local networks
   # Install python/python3-pip - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
-  if cond_redirect apt-get install --yes apt-transport-https bc sysstat avahi-daemon python3 python3-pip avahi-autoipd fontconfig; then echo "OK"; else echo "FAILED"; exit 1; fi
+  if cond_redirect apt-get install --yes apt-transport-https bc sysstat avahi-daemon python3 python3-pip avahi-autoipd fontconfig; then echo "OK"; else echo "FAILED"; return 1; fi
 
   if is_pizerow || is_pithree || is_pithreeplus || is_pifour; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "

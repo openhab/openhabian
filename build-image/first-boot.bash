@@ -147,8 +147,7 @@ if tryUntil "ping -c1 9.9.9.9 >/dev/null || wget -S -t 3 --waitretry=4 http://ww
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
-until apt-get update &>/dev/null; do sleep 1; done
-sleep 10  # Related to: https://github.com/openhab/openhabian/issues/441#issuecomment-448583415
+if tryUntil "apt-get update &>/dev/null" 3 1; then echo "OK"; else echo "FAILED"; fi
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
@@ -168,16 +167,19 @@ if hash python3 2>/dev/null; then bash /boot/webif.bash reinsure_running; fi
 
 echo -n "$(timestamp) [openHABian] Installing git package... "
 if ! cond_redirect dpkg -s "git" &>/dev/null; then
-  if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fail_inprogress; fi
+  if apt-get install --yes git &>/dev/null; then echo "OK"; else echo "FAILED"; fi
 else
   echo "OK"
 fi
 
-if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
+# must not remove for offline to work
+#if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
-if ! git clone -q -b "$clonebranch" "$repositoryurl" /opt/openhabian; then echo "FAILED"; fail_inprogress; fi
-echo "OK"
+if ! openhabian_update; then
+  echo "$(timestamp) [openHABian] The git repository on the public internet is not reachable."
+  echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but this is not guaranteed to work."
+fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
 # shellcheck disable=SC2154
