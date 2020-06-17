@@ -51,7 +51,17 @@ jobs:
         # 64bit Azul Java 8 on a 64bit amd64 virtual platform, running in a 64bit OS on Travis AMD64 HW
         - sed -i 's/^java_opt=.*$/java_opt=Zulu8-64/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.amd64 .
-        - echo -e "\n\e[36mopenHABian test installation using 64bit Azul Enterprise Java 8 running on a\e[31m 64bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
+        - echo -e "\n\e[36mopenHABian test installation using 64bit Azul Enterprise Java 8 running on a\e[31m 64bit OS\e[36m running on native ${HW}...\e[0m\n"
+        - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
+        - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
+    - name: openHABian installation test with AdoptOpenJDK Java 11 on native amd64 on Ubuntu
+      env: HW=amd64
+      arch: amd64
+      script:
+        # AdoptOpenJDK Java 11 on a 64bit amd64 virtual platform, running in a 64bit => Ubuntu <= OS on Travis AMD64 HW
+        - sed -i 's/^java_opt=.*$/java_opt=Adopt11/' build-image/openhabian.conf
+        - docker build -t openhabian/${HW}-openhabian -f Dockerfile.amd64-ubuntu .
+        - echo -e "\n\e[36mopenHABian test installation using AdoptOpenJDK Java 11 running on a\e[31m 64bit Ubuntu\e[36m running on native ${HW}...\e[0m\n"
         - docker run --name "openhabian-${HW}" -d openhabian/${HW}-openhabian;
         - docker exec -i "openhabian-${HW}" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local'
     - name: openHABian installation test with 32bit Azul Java 8 on virtual RPi2
