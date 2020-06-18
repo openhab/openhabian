@@ -2,6 +2,7 @@
 # shellcheck source=/etc/openhabian.conf disable=SC1091
 
 CONFIGFILE=/etc/openhabian.conf
+PKGCACHEDIR=/opt/openhabian-package-cache
 
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND=noninteractive
@@ -184,6 +185,13 @@ type openhabian_update &> /dev/null && if ! openhabian_update &> /dev/null; then
   echo "FAILED"
   echo "$(timestamp) [openHABian] The git repository on the public internet is not reachable."
   echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but this is not guaranteed to work."
+
+  if ls "$PKGCACHEDIR" >/dev/null 2>&1; then
+    echo "$(timestamp) [openHABian] Trying to install bootstrap packages from cache..."
+    (
+      cd "$PKGCACHEDIR" && dpkg -i -- *.deb
+    )
+  fi
 else
   echo "OK"
 fi

@@ -172,6 +172,12 @@ java_zulu_install() {
 
   jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
   jdkLib="$(find /opt/jdk/*/lib ... -print -quit)"
+  jdkInstallLocation="/opt/jdk"
+
+  echo -n "$(timestamp) [openHABian] Extracting Java to $jdkInstallLocation"
+  if ! cond_redirect tar -xpzf "$jdkInstallLocation"/zulu.tar.gz -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
+  if cond_redirect rm -rf "$jdkInstallLocation"/zulu.tar.gz; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
+
   if [[ $1 == "Zulu8-64" ]] || [[ $1 == "Zulu11-64" ]]; then
     if is_aarch64 && [[ $(getconf LONG_BIT) == 64 ]]; then
       jdkArch="aarch64"
@@ -233,14 +239,14 @@ java_zulu_install() {
 ## Fetch Java Zulu 8 directly from Azul API v1
 ## Valid arguments: "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
 ##
-##    java_zulu_fetch(String type)
+##    java_zulu_fetch(String arch, String folderPrefix)
 ##
 java_zulu_fetch() {
   local downloadLink
   local jdkInstallLocation
   local link
 
-  jdkInstallLocation="/opt/jdk"
+  jdkInstallLocation="$2/opt/jdk"
   link="https://api.azul.com/zulu/download/community/v1.0/bundles/latest/binary/?os=linux&ext=tar.gz&javafx=false"
 
   if [[ $1 == "Zulu8-32" ]]; then
@@ -274,11 +280,9 @@ java_zulu_fetch() {
   fi
   if [[ -z $downloadLink ]]; then echo "FAILED (download link)"; return 1; fi
 
-  if ! mkdir -p $jdkInstallLocation; then echo "FAILED (create directory)"; return 1; fi
+  if ! mkdir -p "${jdkInstallLocation:?}"; then echo "FAILED (create directory)"; return 1; fi
   if ! rm -rf "${jdkInstallLocation:?}"/*; then echo "FAILED (clean directory)"; return 1; fi
-  if ! cond_redirect wget -O "$jdkInstallLocation"/zulu.tar.gz "$downloadLink"; then echo "FAILED (download)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
-  if ! cond_redirect tar -xpzf "$jdkInstallLocation"/zulu.tar.gz -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
-  if cond_redirect rm -rf "$jdkInstallLocation"/zulu.tar.gz; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
+  if ! cond_redirect wget -qO "$jdkInstallLocation"/zulu.tar.gz "$downloadLink"; then echo "FAILED (download)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
 }
 
 ## Check if a newer version of Java Zulu 8 is available.

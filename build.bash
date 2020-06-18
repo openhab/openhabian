@@ -26,6 +26,10 @@ cleanup_build() {
 ##########################
 # shellcheck source=functions/helpers.bash
 source "$(dirname "$0")"/functions/helpers.bash
+# shellcheck source=functions/java-jre.bash
+source "$(dirname "$0")"/functions/java-jre.bash
+# shellcheck source=functions/zram.bash
+source "$(dirname "$0")"/functions/zram.bash
 
 ## This function formats log messages
 ##
@@ -270,9 +274,10 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   zipfile="$(basename "$zipurl")"
 
   # Prerequisites
+  # TODO: transition to curl, remove wget once all helper functions are using curl
   echo_process "Checking prerequisites... "
-  REQ_COMMANDS="git curl unzip crc32 dos2unix xz"
-  REQ_PACKAGES="git curl unzip libarchive-zip-perl dos2unix xz-utils"
+  REQ_COMMANDS="git curl wget unzip crc32 dos2unix xz"
+  REQ_PACKAGES="git curl wget unzip libarchive-zip-perl dos2unix xz-utils"
   if running_in_docker || running_on_github || is_pi; then
     # in docker guestfstools are not used; do not install it and all of its prerequisites
     # -> must be run as root
@@ -294,7 +299,7 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
     echo_process "Using local copy of Raspberry Pi OS ($bits-bit) image... "
     cp "$zipfile" "$buildfolder/$zipfile"
   else
-    echo_process "Downloading latest Raspberry Pi OS ($bits-bit) image (no local copy found)... "
+    echo_process "Downloading latest Raspberry Pi OS ($bits-bit) image (no local copy of $zipfile found)... "
     curl -L "$baseurl" -o "$zipfile"
     cp "$zipfile" "$buildfolder/$zipfile"
   fi
@@ -322,6 +327,7 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   mkdir -p "$buildfolder"/boot "$buildfolder"/root
   mount_image_file_root "$imagefile" "$buildfolder"
 
+  df -h "$buildfolder"/root
   echo_process "Setting hostname... "
   # shellcheck disable=SC2154
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" "$buildfolder"/root/etc/hosts
@@ -341,17 +347,87 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   )
 
   echo_process "Cloning myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-stable} branch... "
-  if ! [[ -d $buildfolder/root/opt/openhabian ]]; then
+  if ! [[ -d "$buildfolder"/root/opt/openhabian ]]; then
     git clone "${repositoryurl:-https://github.com/openhab/openhabian.git}" "$buildfolder"/root/opt/openhabian &> /dev/null
     git -C "$buildfolder"/root/opt/openhabian checkout "${clonebranch:-stable}" &> /dev/null
   fi
   touch "$buildfolder"/root/opt/openHABian-install-inprogress
+
+  # caching essential components for install
+  # 1) ZRAM
+  echo_process "Downloading ZRAM codebase..."
+  install_zram_code "$buildfolder"/root/opt/zram
+
+  df -h "$buildfolder"/root
+
+  # 2) caching essential deb packages for install w/o internet connection
+  mkdir -p "$buildfolder"/root/opt/openhabian-package-cache
+  chmod 777 "$buildfolder"/root/opt/openhabian-package-cache
+  (
+    set -e -x
+    # use apt tool of target system to fetch packages for offline install
+    # apt.conf has been extracted from working install using "apt-config dump"
+    echo_process "Downloading essential packages..."
+    # APT_CONFIG needs to be patched to use settings from mounted tartget system
+    cp "$sourcefolder"/apt.conf "$buildfolder"
+    sed -i "s|###BUILDFOLDER###|$buildfolder/root|" "$buildfolder"/apt.conf
+    if [ "$bits" == "64" ]; then sed -i "s|armhf|arm64|" "$buildfolder"/apt.conf; fi
+    export APT_CONFIG="$buildfolder"/apt.conf
+    # debug
+    #cat "$APT_CONFIG"
+
+    # using own folder since first-boot will install _all_ packages from there when internet is down,
+    # so apt cache folder might not be a good solution in case a few restarts are needed to complete
+    cd "$buildfolder"/root/opt/openhabian-package-cache
+
+    # add openhab repo and key
+    repo="deb https://dl.bintray.com/openhab/apt-repo2 stable main"
+    echo "$repo" > "$buildfolder"/root/etc/apt/sources.list.d/openhab2.list
+    if ! add_keys "https://bintray.com/user/downloadSubjectPublicKey?username=openhab"; then return 1; fi
+
+    #ls -l "$buildfolder"/root/var/lib/apt/lists/
+    apt-get update
+    ls -l "$buildfolder"/root/var/lib/apt/lists/
+    # package list for raspbian lite is provided in .info file, e.g.
+    # https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.info
+    PACKAGES="git libattr1-dev zlib1g libc6 libstdc++6 openhab2"
+    for i in $PACKAGES; do 
+       # aptitude not installed per default on github actions
+       #aptitude versions "$i"
+       #aptitude download "$i"
+       apt-cache policy "$i"
+       apt-get download "$i"
+    done
+    apt-get clean
+  )
+  chmod 755 "$buildfolder"/root/opt/openhabian-package-cache
+
+  df -h "$buildfolder"/root
+
+  # - 3) JAVA
+  (
+     # source config to set java correctly, not it will break when someone uses != Zulu
+     # shellcheck source=build-image/openhabian.pi-raspios32.conf
+     . $sourcefolder/openhabian.$hw_platform.conf
+
+     echo_process "Downloading Java..."
+     # Using variable hwarch intended for CI only to force use of arm packages.
+     # java_zulu_fetch takes version/bits as parameter, but internally uses is_arm
+     # to decide if i686 or arm packages are downloaded. Parameter works for 32 and 64bit.
+     hwarch="armv6l" java_zulu_fetch "${java_opt:-Zulu8-32}" "$buildfolder"/root
+  )
+
+  df -h "$buildfolder"/root
   umount_image_file_root "$imagefile" "$buildfolder"
 
   echo_process "Reactivating SSH... "
   mount_image_file_boot "$imagefile" "$buildfolder"
+  df -h "$buildfolder"/boot
   touch "$buildfolder"/boot/ssh
-  cp "$sourcefolder"/first-boot.bash "$buildfolder"/boot/first-boot.bash
+  cp "$sourcefolder"/first-boot.bash "$buildfolder"/boot/
+  cp functions/helpers.bash "$buildfolder"/boot/
+  cp functions/openhabian.bash "$buildfolder"/boot/
+  #sed -i -e '1r functions/helpers.bash' $buildfolder/boot/first-boot.bash # Add platform identification
   touch "$buildfolder"/boot/first-boot.log
   unix2dos -q -n "$sourcefolder"/openhabian.${hw_platform}.conf "$buildfolder"/boot/openhabian.conf
   cp "$sourcefolder"/webserver.bash "$buildfolder"/boot/webserver.bash
@@ -363,6 +439,7 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
 
   echo_process "Closing up image file... "
   sync
+  df -h "$buildfolder"/boot
   umount_image_file_boot "$imagefile" "$buildfolder"
 fi
 

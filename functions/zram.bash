@@ -13,7 +13,7 @@ install_zram_code() {
   overlayfsGit="https://github.com/kmxz/overlayfs-tools"
   zramGit="https://github.com/mstormi/openhabian-zram"
 
-  echo -n "$(timestamp) [openHABian] Installing ZRAM code... "
+  echo -n "$(timestamp) [openHABian] Installing ZRAM code to ${1}... "
   if ! cond_redirect mkdir -p "$1"; then echo "FAILED (create directory)"; return 1; fi
 
   if [[ -d "${1}/overlayfs-tools" ]]; then
