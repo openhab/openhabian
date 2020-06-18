@@ -4,7 +4,7 @@ set -e
 
 usage() {
   echo -e "Usage: $(basename "$0") <platform> [dev-git|dev-url] <branch> <url>"
-  echo -e "\\nCurrently supported platforms: rpi"
+  echo -e "\\nCurrently supported platforms: rpi, rpi64 (beta)"
 }
 
 ##########################
@@ -141,8 +141,12 @@ echo_process "This script will build the openHABian image file."
 
 # Identify hardware platform
 if [ "$1" == "rpi" ]; then
-  hw_platform="pi-raspbian"
+  hw_platform="pi-raspios32"
   echo_process "Hardware platform: Raspberry Pi (rpi)"
+
+elif [ "$1" == "rpi64" ]; then
+  hw_platform="pi-raspios64beta"
+  echo_process "Hardware platform: Raspberry Pi (rpi64) - BETA -"
 
 elif [ "$1" == "pine64" ]; then
   hw_platform="pine64-xenial"
@@ -265,7 +269,17 @@ if [ "$hw_platform" == "pine64-xenial" ]; then
   if mv $buildfolder/xenial-pine64-*.img $imagefile; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 # Build Raspberry Pi image
-elif [ "$hw_platform" == "pi-raspbian" ]; then
+elif [ "$hw_platform" == "pi-raspios32" ] || [ "$hw_platform" == "pi-raspios64beta" ]; then
+  if [ "$hw_platform" == "pi-raspios64beta" ]; then
+    zipfile=raspios_lite_arm64_latest.zip
+    baseurl="https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2020-05-28/2020-05-27-raspios-buster-arm64.zip"
+    bits=64
+  else
+    zipfile=raspios_lite_armhf_latest.zip
+    baseurl="https://downloads.raspberrypi.org/raspios_lite_armhf_latest"
+    bits=32
+  fi
+
   # Prerequisites
   echo_process "Checking prerequisites... "
   REQ_COMMANDS="git wget unzip crc32 dos2unix xz"
@@ -286,16 +300,16 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   fi
   check_command_availability_and_exit "$REQ_COMMANDS" "$REQ_PACKAGES"
 
-  if [ -f "raspbian.zip" ]; then
-    echo_process "Using local copy of Raspbian Lite image, raspbian.zip... "
-    cp raspbian.zip $buildfolder/raspbian.zip
+  if [ -f "$zipfile" ]; then
+    echo_process "Using local copy of Raspberry Pi OS ($bits-bit) Lite image, $zipfile... "
+    cp $zipfile "$buildfolder/$zipfile"
   else
-    echo_process "Downloading latest Raspbian Lite image (no local copy raspbian.zip found)... "
-    wget -nv -O $buildfolder/raspbian.zip "https://downloads.raspberrypi.org/raspbian_lite_latest"
+    echo_process "Downloading latest Raspberry Pi OS ($bits-bit) Lite image (no local copy of $zipfile found)... "
+    wget -nv -O "$buildfolder/$zipfile" "$baseurl"
   fi
   echo_process "Unpacking image... "
-  unzip $buildfolder/raspbian.zip -d $buildfolder
-  mv $buildfolder/*raspbian*.img $imagefile
+  unzip $buildfolder/$zipfile -d $buildfolder
+  mv $buildfolder/*-rasp*.img $imagefile
 
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
@@ -309,6 +323,16 @@ elif [ "$hw_platform" == "pi-raspbian" ]; then
   echo_process "Injecting 'openhabian-installer.service', 'first-boot.bash' and 'openhabian.conf'... "
   cp $sourcefolder/openhabian-installer.service $buildfolder/root/etc/systemd/system/
   ln -s $buildfolder/root/etc/systemd/system/openhabian-installer.service $buildfolder/root/etc/systemd/system/multi-user.target.wants/openhabian-installer.service
+
+  echo_process "Setting default runlevel multiuser.target... "
+  ( # open a subshell, returns to current dir automatically
+    cd $buildfolder/root/etc/systemd/system/ || exit 1
+    rm -rf default.target
+    ln -s ../../../lib/systemd/system/multi-user.target default.target
+    # disable autologin
+    rm -f $buildfolder/root/etc/systemd/system/getty@tty1.service.d/autologin.conf
+  )
+
   touch $buildfolder/root/opt/openHABian-install-inprogress
   # maybe we should use a trap to get this done in case of error
   umount_image_file_root "$imagefile" "$buildfolder"

@@ -174,11 +174,17 @@ is_ubuntu() {
   [[ $(cat /etc/*release*) =~ "Ubuntu" ]]
   return $?
 }
+# introduction of Raspberry Pi OS:
+# 32 bit returns false (1)
+# 64 bit returns true (0)
 is_debian() {
   if [[ "$release" == "debian" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "Debian" ]]
   return $?
 }
+# introduction of Raspberry Pi OS:
+# 32 bit returns true (0)
+# 64 bit returns false (1)
 is_raspbian() {
   if [[ "$release" == "raspbian" ]]; then return 0; fi
   [[ "$(cat /etc/*release*)" =~ "Raspbian" ]]
