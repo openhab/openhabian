@@ -72,7 +72,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   cond_redirect systemctl daemon-reload
   if cond_redirect systemctl enable --now openhab2; then echo "OK"; else echo "FAILED (service)"; return 1; fi
 
-  if is_pi || is_pine64; then
+  if is_pi; then
     echo -n "$(timestamp) [openHABian] Optimizing Java to run on low memory single board computers... "
     if has_lowmem; then
       sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"#g' /etc/default/openhab2

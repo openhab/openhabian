@@ -157,7 +157,7 @@ system_check_default_password() {
   if is_pi && id -u pi &>/dev/null; then
     USERNAME="pi"
     PASSWORD="raspberry"
-  elif is_pi || is_pine64; then
+  elif is_pi; then
     USERNAME="openhabian"
     PASSWORD="openhabian"
   else

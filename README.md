@@ -110,10 +110,9 @@ A good place to look at to start to understand the code is the file
 
 ### Building Hardware Images
 Take a look at the `build.bash` script to get an idea of the process.
-Simply explained run the code below with `platform` being either `rpi` or
-`pine64`. The RPi image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/downloads/raspberry-pi-os/)
-(previously called Raspbian) standard image while the Pine64 image is based on
-[build-pine64-image](https://github.com/longsleep/build-pine64-image).
+Simply explained run the code below with `platform` being `rpi`.
+The RPi image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/downloads/raspberry-pi-os/)
+(previously called Raspbian) standard image.
 ```
 sudo bash ./build.bash platform
 ```
