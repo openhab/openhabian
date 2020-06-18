@@ -224,15 +224,16 @@ change_swapsize() {
   swap=$((2*totalMemory))
   minfree=$((2*swap))
   free=$(df -hk /)
-  if [[ $free -ge $minfree ]]; then
+  if [ "$free" -ge "$minfree" ]; then
     size=$swap
-  elif [[ $free -ge $swap ]]; then
+  elif [ "$free" -ge "$swap" ]; then
     size=$totalMemory
   else
     return 0
   fi
 
   if is_raspbian; then
+    # shellcheck disable=SC2086
     sed -i 's/^#*.*CONF_SWAPSIZE=.*/CONF_SWAPSIZE='$size'/g' /etc/dphys-swapfile
   fi
 }
