@@ -85,8 +85,7 @@ exim_setup() {
 
   local eximConfig
   local interfaces
-  local introtext1
-  local introtext2
+  local introtext
   local relayPass
   local relayUser
   local smartHost
@@ -99,13 +98,11 @@ exim_setup() {
 
   eximConfig="/etc/exim4/passwd.client"
   interfaces="$(dig +short "$HOSTNAME" | tr '\n' ';');127.0.0.1;::1"
-  introtext1="We will guide you through the install of exim4 as the mail transfer agent on your system and configure it to relay mails through a public service such as Google gmail.\\n\\nPlease enter the data shown in the next window when being asked for. You will be able to repeat the whole installation if required by selecting the openHABian menu for MTA again."
-  introtext2="Mail server type: mail sent by smarthost (received via SMTP or fetchmail)\\n\\nSystem mail name: FQDN (your full hostname including the domain part)\\n\\nIPs that should be allowed by the server: $interfaces\\n\\nOther destinations for which mail is accepted: $HOSTNAME\\n\\nMachines to relay mail for: Leave empty\\n\\nIP address or host name of outgoing smarthost: smtp.gmail.com::587\\n\\nHide local mail name in outgoing mail: No\\n\\nKeep number of DNS-queries minimal: No\\n\\nDelivery method: Select: Maildir format in home directory\\n\\nMinimize number of DNS queries: No\\n\\nSplit configuration into small files: Yes"
+  introtext="We will guide you through the install of exim4 as the mail transfer agent on your system and configure it to relay mails through a public service such as Google gmail.\\n\\nThe values you need to enter after closing this window are documented here:\\n\\nhttps://github.com/openhab/openhabian/tree/master/docs/exim.md\\n\\nOpen that URL in a browser now. Your interface addresses are ${interfaces}.\\nYou will be able to repeat the whole installation if required by selecting the openHABian menu for MTA again."
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo -n "$(timestamp) [openHABian] Beginning Mail Transfer Agent install and setup... "
-  if ! (whiptail --title "Mail Transfer Agent installation" --yes-button "Begin" --no-button "Cancel" --yesno "$introtext1" 13 80); then echo "CANCELED"; return 1; fi
-  if (whiptail --title "Mail Transfer Agent installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext2" 27 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+  if (whiptail --title "Mail Transfer Agent installation" --yes-button "Begin" --no-button "Cancel" --yesno "$introtext" 17 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
   echo "$(timestamp) [openHABian] Reconfiguring exim4-config... "
   whiptail --title "exim4 Configuration" --msgbox "exim4-config is about to ask for information, please fill out each line." 7 80 3>&1 1>&2 2>&3
@@ -120,7 +117,7 @@ exim_setup() {
   if ! echo "${smartHost}:${relayUser}:${relayPass}" >> "$temp"; then echo "FAILED (configuration)"; rm -f "$temp"; return 1; fi
   if ! cp "$temp" "$eximConfig"; then echo "FAILED (copy)"; rm -f "$temp"; return 1; fi
   rm -f "$temp"
-  if chmod o-rwx "$eximConfig"; then echo "OK"; echo "FAILED (permissions)"; return 1; fi
+  if cond_redirect chmod o-rwx "$eximConfig"; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
 
   echo "$(timestamp) [openHABian] Adding to $relayUser email to system accounts... "
   if {

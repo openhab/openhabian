@@ -96,7 +96,7 @@ show_main_menu() {
     "28 | 1wire"                 "1wire specific, owserver and related packages" \
     "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
     "2A | Telldus Core"          "Telldus Core service for Tellstick USB devices" \
-    "2C | Mail Transfer Agent"   "Install Exim4 as MTA to relay mails via public services" \
+    "2B | Mail Transfer Agent"   "Install Exim4 as MTA to relay mails via public services" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -111,7 +111,7 @@ show_main_menu() {
       28\ *) 1wire_setup ;;
       29\ *) find_setup ;;
       2A\ *) telldus_core_setup ;;
-      2C\ *) exim_setup ;;
+      2B\ *) exim_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
