@@ -221,8 +221,8 @@ change_swapsize() {
   totalMemory="$(grep MemTotal /proc/meminfo | awk '{print $2}')"
   if [ -z "$totalMemory" ]; then return 1; fi
 
-  swap=(( 2 * totalMemory ))
-  minfree=(( 2 * swap ))
+  swap=$((2*totalMemory))
+  minfree=$((2*swap))
   free=$(df -hk /)
   if [[ $free -ge $minfree ]]; then
     size=$swap
@@ -232,7 +232,9 @@ change_swapsize() {
     return 0
   fi
 
-  sed -i 's/^#*.*CONF_SWAPSIZE=.*/CONF_SWAPSIZE='$size'/g' /etc/dphys-swapfile
+  if is_raspbian; then
+    sed -i 's/^#*.*CONF_SWAPSIZE=.*/CONF_SWAPSIZE='$size'/g' /etc/dphys-swapfile
+  fi
 }
 
 # RPi specific function
