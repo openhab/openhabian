@@ -103,7 +103,7 @@ exim_setup() {
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo -n "$(timestamp) [openHABian] Beginning Mail Transfer Agent install and setup... "
-  if ! (whiptail --title "Mail Transfer Agent installation" --yes-button "Begin" --no-button "Cancel" --yesno "$introtext" 17 80); then echo "CANCELED"; return 0; fi
+  if (whiptail --title "Mail Transfer Agent installation" --yes-button "Begin" --no-button "Cancel" --yesno "$introtext" 17 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
   echo "$(timestamp) [openHABian] Reconfiguring exim4-config... "
   whiptail --title "exim4 Configuration" --msgbox "exim4-config is about to ask for information, please fill out each line." 7 80 3>&1 1>&2 2>&3
