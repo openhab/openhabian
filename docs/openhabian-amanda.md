@@ -247,8 +247,8 @@ raw device's contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and
 device to be backed up to have that same name.
 You will have two Amanda config directories (located in `/etc/amanda`) called `openhab-dir` and `openhab-AWS` if you choose to
 setup both of them.
-If any of your Amanda backup or recovery runs fails (which might well be the case particularly if you try to use the S3 backup),
-you should try getting it to work following the guides and knowledge base available on the Web at <http://www.amanda.org/>.
+If any of your Amanda backup or recovery runs fails (particularly if you try to use the S3 backup), you should try getting it
+to work following the guides and knowledge base available on the Web at <http://www.amanda.org/>.
 There's online documentation including tutorials and FAQs at <http://wiki.zmanda.com/index.php/User_documentation>.
 In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but
 please don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
@@ -277,7 +277,7 @@ but for the AWS and local/NAS-mounted directory based backup configs, we don't h
 `amcheck` is not a required step.
 
 The `amdump` command will start the backup run itself.
-The result will be mailed to you (if your mail system was properly configured which is currently not the case with openHABian).
+The result will be mailed to you (once your mail system was setup - see openHABian menu option 2C).
 
 You can run `amreport [-l=logfile] <config>` at any time to see a report on the last backup run for that config.
 Use -l with a filename of /var/log/amanda/<config>/log* to get reports of past dumps.
