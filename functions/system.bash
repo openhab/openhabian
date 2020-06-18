@@ -234,7 +234,7 @@ change_swapsize() {
 
   if is_raspbian; then
     # shellcheck disable=SC2086
-    sed -i 's/^#*.*CONF_SWAPSIZE=.*/CONF_SWAPSIZE='$size'/g' /etc/dphys-swapfile
+    sed -i 's/^#*.*CONF_SWAPSIZE=.*/CONF_SWAPSIZE='"$size"'/g' /etc/dphys-swapfile
   fi
 }
 
