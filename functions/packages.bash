@@ -85,8 +85,7 @@ exim_setup() {
 
   local eximConfig
   local interfaces
-  local introtext1
-  local introtext2
+  local introtext
   local relayPass
   local relayUser
   local smartHost
@@ -99,7 +98,7 @@ exim_setup() {
 
   eximConfig="/etc/exim4/passwd.client"
   interfaces="$(dig +short "$HOSTNAME" | tr '\n' ';');127.0.0.1;::1"
-  introtext="We will guide you through the install of exim4 as the mail transfer agent on your system and configure it to relay mails through a public service such as Google gmail.\\n\\nThe values you need to enter after closing this window are documented here:\\n\\nhttps://github.com/openhab/openhabian/tree/master/docs/exim.md\\n\\nOpen that URL in a browser now. You will be able to repeat the whole installation if required by selecting the openHABian menu for MTA again."
+  introtext="We will guide you through the install of exim4 as the mail transfer agent on your system and configure it to relay mails through a public service such as Google gmail.\\n\\nThe values you need to enter after closing this window are documented here:\\n\\nhttps://github.com/openhab/openhabian/tree/master/docs/exim.md\\n\\nOpen that URL in a browser now. Your interface addresses are ${interfaces}.\\nYou will be able to repeat the whole installation if required by selecting the openHABian menu for MTA again."
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo -n "$(timestamp) [openHABian] Beginning Mail Transfer Agent install and setup... "
