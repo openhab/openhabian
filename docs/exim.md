@@ -1,9 +1,7 @@
 ## Mail Transfer Agent configuration
 
-When you choose the "Mail Transfer Agent" install option in openhabian-config menu to install `exim4` as
-the mail transfer agent on your system, you will be presented with a number of questions how to relay mails
-through a public service such as Google gmail.
-In case you enter anything you can re-initiate the installation process from the openHABian menu
+When you choose the "Mail Transfer Agent" install option in openhabian-config menu to install `exim4` as the mail transfer agent on your system, you will be presented with a number of questions on how to relay emails through a public service such as Google gmail.
+In case you enter anything wrong you can re-initiate the installation process from the openHABian menu
 Here's what you will need to enter:
 
 * Mail server type: mail sent by smarthost (received via SMTP or fetchmail)
