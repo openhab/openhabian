@@ -215,6 +215,8 @@ misc_system_settings() {
 
 ### change swap (int size in MB)
 ###
+###    change_swapsize()
+###
 change_swapsize() {
   local totalMemory
 
