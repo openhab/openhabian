@@ -40,12 +40,10 @@ RUN systemctl enable /etc/systemd/system/resin.service
 
 RUN git clone https://github.com/gdraheim/docker-systemctl-replacement
 RUN cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
-RUN pwd
-RUN ls -l
-RUN ls -l includes/runlevel /sbin/runlevel || true
+
+RUN rm -f /sbin/runlevel
 COPY includes/runlevel /sbin/runlevel
-RUN ls -l includes/runlevel /sbin/runlevel || true
-RUN cat /sbin/runlevel
+RUN chmod 755 /sbin/runlevel
 
 ENTRYPOINT ["/usr/bin/entry.sh"]
 
