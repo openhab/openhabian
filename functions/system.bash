@@ -213,10 +213,10 @@ misc_system_settings() {
   echo "OK"
 }
 
-### change swap (int size in MB)
-###
-###    change_swapsize()
-###
+## change swap (int size in MB)
+##
+##    change_swapsize()
+##
 change_swapsize() {
   local totalMemory
 
