@@ -225,7 +225,7 @@ change_swapsize() {
 
   swap=$((2*totalMemory))
   minfree=$((2*swap))
-  free=$(df -hk /)
+  free=$(df -hk / | awk '/dev/ { print $3 }')
   if [ "$free" -ge "$minfree" ]; then
     size=$swap
   elif [ "$free" -ge "$swap" ]; then
