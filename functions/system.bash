@@ -213,9 +213,10 @@ misc_system_settings() {
   echo "OK"
 }
 
-## change swap (int size in MB)
+## change system swap size dependent on free space on /
+## swap on SD (/var/swap per default) only used after ZRAM swap full if that exists
 ##
-##    change_swapsize()
+##    change_swapsize(int size in MB)
 ##
 change_swapsize() {
   local totalMemory
