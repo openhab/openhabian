@@ -33,31 +33,22 @@ amrecover_changer "changer"				# Changer for amrecover
 #    use 1000 Mb
 #}
 
+define application-tool app_amraw {			# how to dump the SD card's raw device /dev/mmcblk0
+        plugin "amraw"					# uses 'dd'
+}
+define application-tool app_amgtar {
+    plugin "amgtar"
+
+    property        "NORMAL" ": socket ignored$"
+    property append "NORMAL" "file changed as we read it$"
+    property append "NORMAL" ": directory is on a different filesystem; not dumped$"
+    property append "NORMAL" ": File removed before we read it$"
+
+}
 define dumptype global {				# The global dump definition
 	maxdumps 2					# maximum number of backups run in parallel
 	holdingdisk no					# Dump to temp disk (holdingdisk) before backup to tape
 	index yes					# Generate index. For restoration usage
-}
-define dumptype root-tar {				# How to dump root's directory
-	global						# Include global (as above)
-	program "GNUTAR"				# Program name for compress
-	estimate server					# Estimate the backup size before dump
-	comment "root partitions dumped with tar"
-	compress none					# No compression
-	index						# Index this dump
-	priority low					# Priority level
-}
-define dumptype user-tar {				# How to dump user's directory
-	root-tar					# Include root-tar (as above)
-	comment "user partitions dumped with tar"
-	priority medium					# Priority level
-}
-define dumptype comp-user-tar {				# How to dump & compress user's directory
-	user-tar					# Include user-tar (as above)
-	compress client fast				# Compress in client side with less CPU (fast)
-}
-define application-tool app_amraw {			# how to dump the SD card's raw device /dev/mmcblk0
-        plugin "amraw"					# uses 'dd'
 }
 define dumptype amraw {
         global
@@ -69,5 +60,33 @@ define dumptype comp-amraw {
         program "APPLICATION"
         application "app_amraw"
 	compress fast
+}
+define dumptype root-tar {				# How to dump root's directory
+	global						# Include global (as above)
+	program "GNUTAR"				# Program name for compress
+	estimate server					# Estimate the backup size before dump
+	comment "root partitions dumped with tar"
+	compress none					# No compression
+	index						# Index this dump
+	priority low					# Priority level
+}
+define dumptype old-user-tar {				# How to dump user's directory
+	root-tar					# Include root-tar (as above)
+	comment "user partitions dumped with tar"
+	priority medium					# Priority level
+}
+define dumptype comp-old-user-tar {			# How to dump & compress user's directory
+	old-user-tar					# Include user-tar (as above)
+	compress client fast				# Compress in client side with less CPU (fast)
+}
+define dumptype user-tar {                              # How to dump & compress user's directory
+        global
+        program "APPLICATION"
+        application "app_amgtar"
+        estimate server                                 # Estimate the backup size before dump
+        comment "directories dumped with amgtar"
+        index                                           # Index this dump
+        priority medium                                 # Priority level
+        compress client fast                            # Compress in client side with less CPU (fast)
 }
 # vim: filetype=conf

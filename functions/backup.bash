@@ -39,6 +39,7 @@ create_backup_config() {
   local S3bucket=$8
   local S3accesskey=$9
   local S3secretkey=${10}
+  local dumptype
 
   TMP="/tmp/.amanda-setup.$$"
 
@@ -96,12 +97,14 @@ create_backup_config() {
       fi
     fi
 
-    echo "${hostname}  /etc/openhab2             user-tar" >>"${confdir}"/disklist
-    echo "${hostname}  /var/lib/openhab2         user-tar" >>"${confdir}"/disklist
+    dumptype=user-tar
   else
-    echo "${hostname}  /etc/openhab2             comp-user-tar" >"${confdir}"/disklist
-    echo "${hostname}  /var/lib/openhab2         comp-user-tar" >>"${confdir}"/disklist
+    dumptype=comp-user-tar
   fi
+  echo "${hostname}  /boot                                 ${dumptype}" >"${confdir}"/disklist
+  echo "${hostname}  /etc/openhab2                         ${dumptype}" >"${confdir}"/disklist
+  echo "${hostname}  /var/lib/openhab2                     ${dumptype}" >>"${confdir}"/disklist
+  echo "${hostname}  /var/lib/openhab2/persistence         ${dumptype}" >>"${confdir}"/disklist
 
   echo "index_server \"localhost\"" >"${confdir}"/amanda-client.conf
   echo "tapedev \"changer\"" >"${confdir}"/amanda-client.conf
