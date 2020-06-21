@@ -221,7 +221,6 @@ misc_system_settings() {
 change_swapsize() {
   local totalMemory
 
-
   if ! is_raspbian; then return 0; fi
 
   totalMemory="$(grep MemTotal /proc/meminfo | awk '{print $2}')"
