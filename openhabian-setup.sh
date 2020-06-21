@@ -84,6 +84,7 @@ if [[ -n "$UNATTENDED" ]]; then
   export DEBIAN_FRONTEND=noninteractive
   cond_redirect apt-get update
   load_create_config
+  change_swapsize
   timezone_setting
   locale_setting
   hostname_change

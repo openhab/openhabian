@@ -213,6 +213,37 @@ misc_system_settings() {
   echo "OK"
 }
 
+## change system swap size dependent on free space on /
+## swap on SD (/var/swap per default) only used after ZRAM swap full if that exists
+##
+##    change_swapsize(int size in MB)
+##
+change_swapsize() {
+  local totalMemory
+
+
+  if ! is_raspbian; then return 0; fi
+
+  totalMemory="$(grep MemTotal /proc/meminfo | awk '{print $2}')"
+  if [ -z "$totalMemory" ]; then return 1; fi
+
+  swap=$((2*totalMemory))
+  minfree=$((2*swap))
+  free=$(df -hk / | awk '/dev/ { print $4 }')
+  if [ "$free" -ge "$minfree" ]; then
+    size=$swap
+  elif [ "$free" -ge "$swap" ]; then
+    size=$totalMemory
+  else
+    return 0
+  fi
+  ((size/=1024))
+  echo "$(timestamp) [openHABian] Adjusting swap size to $size MB ... OK"
+
+  # shellcheck disable=SC2086
+  sed -i 's/^#*.*CONF_SWAPSIZE=.*/CONF_SWAPSIZE='"$size"'/g' /etc/dphys-swapfile
+}
+
 # RPi specific function
 memory_split() {
   echo -n "$(timestamp) [openHABian] Setting the GPU memory split down to 16MB for headless system... "
