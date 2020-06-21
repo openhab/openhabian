@@ -101,8 +101,8 @@ create_backup_config() {
   else
     dumptype=comp-user-tar
   fi
-  echo "${hostname}  /boot                                 ${dumptype}" >"${confdir}"/disklist
-  echo "${hostname}  /etc/openhab2                         ${dumptype}" >"${confdir}"/disklist
+  echo "${hostname}  /boot                                 ${dumptype}" >>"${confdir}"/disklist
+  echo "${hostname}  /etc/openhab2                         ${dumptype}" >>"${confdir}"/disklist
   echo "${hostname}  /var/lib/openhab2                     ${dumptype}" >>"${confdir}"/disklist
   echo "${hostname}  /var/lib/openhab2/persistence         ${dumptype}" >>"${confdir}"/disklist
 
