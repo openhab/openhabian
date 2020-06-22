@@ -30,6 +30,8 @@ sed -i 's/\r$//' "$CONFIGFILE"
 
 # shellcheck disable=SC1090
 source "$CONFIGFILE"
+source "/boot/helpers.bash"
+source "/boot/openhabian.bash"
 echo "OK"
 
 # shellcheck disable=SC2154
