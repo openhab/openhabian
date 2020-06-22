@@ -49,6 +49,7 @@ jobs:
       arch: amd64
       script:
         # 64bit Azul Java 8 on a 64bit amd64 virtual platform, running in a 64bit OS on Travis AMD64 HW
+        - sed -i 's/^debugmode=.*$/debugmode=maximum/' build-image/openhabian.conf
         - sed -i 's/^java_opt=.*$/java_opt=Zulu8-64/' build-image/openhabian.conf
         - docker build -t openhabian/${HW}-openhabian -f Dockerfile.amd64 .
         - echo -e "\n\e[36mopenHABian test installation using 64bit Azul Enterprise Java 8 running on a\e[31m 64bit OS\e[36m running on native ${HW}...\e[0m\n"
