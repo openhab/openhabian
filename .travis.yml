@@ -19,8 +19,8 @@ services:
   - docker
 
 stages:
-  - BATS and ShellCheck tests
   - openHABian installation tests
+  - BATS and ShellCheck tests
 
 install:
   - ./test.bash travis
