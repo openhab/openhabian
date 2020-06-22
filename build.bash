@@ -154,10 +154,11 @@ elif [ "$1" == "local-test" ]; then
   ln -sf /etc/systemd/system/openhabian-installer.service /etc/systemd/system/multi-user.target.wants/openhabian-installer.service
   rm -f /opt/openHABian-install-successful
   rm -f /opt/openHABian-install-inprogress
-  sed -i -e '1r functions/helpers.bash' /boot/first-boot.bash
   cp functions/helpers.bash functions/openhabian.bash /boot/  # add platform identification and update functions
   # Use local filesystem's version of openHABian
-  sed -i 's|openhabian_update|true|' /boot/first-boot.bash
+  if ! running_in_docker; then
+    sed -i 's|openhabian_update|true|' /boot/first-boot.bash
+  fi
   chmod +x /boot/first-boot.bash
   chmod +x /boot/webif.bash
   echo_process "Local system ready for installation test. Run 'systemctl start openhabian-installer' or reboot to initiate"
