@@ -84,7 +84,9 @@ openhabian_update_check() {
 
 openhabian_update() {
   local branch shorthash_before
-  current=$(git -C "${BASEDIR:-/opt/openhabian}" rev-parse --abbrev-ref HEAD)
+
+  export BASEDIR="${BASEDIR:-/opt/openhabian}"
+  current=$(git -C "${BASEDIR}" rev-parse --abbrev-ref HEAD)
   if [ "$current" == "master" ]; then
     local introtext="You are currently using the very latest (\"master\") version of openHABian.\\nThis is providing you with the latest features but less people have tested it so it is a little more likely that you run into errors.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch at any time by selecting this menu option again or by setting the clonebranch= parameter in /etc/openhabian.conf.\\n"
   else
