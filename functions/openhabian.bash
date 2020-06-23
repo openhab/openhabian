@@ -31,6 +31,8 @@ openhabian_announcements() {
   local newsfile="${BASEDIR}/NEWS.md"
   local readnews="${BASEDIR}/docs/LASTNEWS.md"
 
+  if [[ -z "$INTERACTIVE" ]]; then return 1; fi
+
   if ! diff -q "$newsfile" "$readnews" >/dev/null 2>&1; then
     # shellcheck disable=SC2086
     if (whiptail --title "openHABian announcements" --yes-button "Stop Displaying" --no-button "Keep Displaying" --defaultno --scrolltext --yesno "$(cat $newsfile)" 27 85); then
@@ -84,7 +86,9 @@ openhabian_update_check() {
 
 openhabian_update() {
   local branch shorthash_before
-  current=$(git -C "$BASEDIR" rev-parse --abbrev-ref HEAD)
+
+  export BASEDIR="${BASEDIR:-/opt/openhabian}"
+  current=$(git -C "${BASEDIR}" rev-parse --abbrev-ref HEAD)
   if [ "$current" == "master" ]; then
     local introtext="You are currently using the very latest (\"master\") version of openHABian.\\nThis is providing you with the latest features but less people have tested it so it is a little more likely that you run into errors.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch at any time by selecting this menu option again or by setting the clonebranch= parameter in /etc/openhabian.conf.\\n"
   else
@@ -103,20 +107,22 @@ openhabian_update() {
       if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 3 stable "recommended standard version of openHABian" off master "very latest version of openHABian" off "$current" "some other version you fetched yourself" on 3>&1 1>&2 2>&3); then return 0; fi
     fi
     sed -i "s@^clonebranch=.*@clonebranch=$sel@g" "/etc/openhabian.conf"
-  fi
-  echo -n "$(timestamp) [openHABian] Updating myself... "
-  read -r -t 1 -n 1 key
-  if [ "$key" != "" ]; then
-    echo -e "\\nRemote git branches available:"
-    git -C "$BASEDIR" branch -r
-    read -r -e -p "Please enter the branch to checkout: " branch
-    branch="${branch#origin/}"
-    if ! git -C "$BASEDIR" branch -r | grep -q "origin/$branch"; then
-      echo "FAILED - The custom branch does not exist."
-      return 1
+    echo -n "$(timestamp) [openHABian] Updating myself... "
+    read -r -t 1 -n 1 key
+    if [ "$key" != "" ]; then
+      echo -e "\\nRemote git branches available:"
+      git -C "$BASEDIR" branch -r
+      read -r -e -p "Please enter the branch to checkout: " branch
+      branch="${branch#origin/}"
+      if ! git -C "$BASEDIR" branch -r | grep -q "origin/$branch"; then
+        echo "FAILED - The custom branch does not exist."
+        return 1
+      fi
+    else
+      branch="${sel:-stable}"
     fi
   else
-    branch="${sel:-stable}"
+    branch=${clonebranch:-stable}
   fi
 
   shorthash_before=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)

@@ -30,6 +30,10 @@ sed -i 's/\r$//' "$CONFIGFILE"
 
 # shellcheck disable=SC1090
 source "$CONFIGFILE"
+# shellcheck disable=SC1091
+source "/boot/helpers.bash"
+# shellcheck disable=SC1091
+source "/boot/openhabian.bash"
 echo "OK"
 
 # shellcheck disable=SC2154
@@ -174,8 +178,8 @@ else
   echo "OK"
 fi
 
-# must not remove for offline to work
-#if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
+# must not remove /opt/openhabian for offline to work
+if [ -d /opt/openhabian ]; then git clone https://github.com/openhab/openhabian.git /opt/openhabian; fi
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
 if ! openhabian_update; then
@@ -190,7 +194,8 @@ if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
-  fail_inprogress
+  echo "$(timestamp) [openHABian] We tried to get your system installed, but without proper internet connectivity this is not guaranteed to work."
+  #fail_inprogress
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed."
 
