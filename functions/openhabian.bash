@@ -108,7 +108,6 @@ openhabian_update() {
       if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 3 stable "recommended standard version of openHABian" off master "very latest version of openHABian" off "$current" "some other version you fetched yourself" on 3>&1 1>&2 2>&3); then return 0; fi
     fi
     sed -i "s@^clonebranch=.*@clonebranch=$sel@g" "/etc/openhabian.conf"
-#  fi
     echo -n "$(timestamp) [openHABian] Updating myself... "
     read -r -t 1 -n 1 key
     if [ "$key" != "" ]; then
