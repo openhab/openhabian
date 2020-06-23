@@ -182,7 +182,7 @@ fi
 #if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
-git -C /opt/openhabian add origin https://github.com/openhab/openhabian.git
+git -C /opt/openhabian remote add origin https://github.com/openhab/openhabian.git
 if ! openhabian_update; then
   echo "$(timestamp) [openHABian] The git repository on the public internet is not reachable."
   echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but this is not guaranteed to work."
