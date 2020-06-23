@@ -31,6 +31,8 @@ openhabian_announcements() {
   local newsfile="${BASEDIR}/NEWS.md"
   local readnews="${BASEDIR}/docs/LASTNEWS.md"
 
+  if ! [[ -n "$INTERACTIVE" ]]; then return 1; fi
+
   if ! diff -q "$newsfile" "$readnews" >/dev/null 2>&1; then
     # shellcheck disable=SC2086
     if (whiptail --title "openHABian announcements" --yes-button "Stop Displaying" --no-button "Keep Displaying" --defaultno --scrolltext --yesno "$(cat $newsfile)" 27 85); then

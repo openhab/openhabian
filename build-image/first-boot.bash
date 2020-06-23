@@ -178,8 +178,8 @@ else
   echo "OK"
 fi
 
-# must not remove for offline to work
-#if [ -d /opt/openhabian ]; then cd /opt && rm -rf /opt/openhabian; fi
+# must not remove /opt/openhabian for offline to work
+if [ -d /opt/openhabian ]; then git clone https://github.com/openhab/openhabian.git /opt/openhabian; fi
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
 if ! openhabian_update; then
