@@ -109,21 +109,22 @@ HEADS UP: You need to provide your storage BEFORE you install Amanda.
 That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
 Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
 read up on it NOW. Various tutorial can be found on the net such as <https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux> .
-Google is your friend, but it'll give a lot of answers, each to vary slightly depending on the Linux variant or use case.
-Make sure you ask specific questions such as “how to mount a NAS disk on a Raspberry Pi”.
+Google is your friend, but make sure you ask specific questions such as “how to mount a NAS disk on a Raspberry Pi” to match your use case.
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously
 exported (= shared, i.e. made available for mounting) on that directory. This is your mountpoint.
-Let's be clear here: this only works if client AND server side are UNIX machines. And it only works to use NFS.
+
+*For Windows fans: Let's be clear here. This only works if client AND server side are UNIX machines. And it only works to use NFS.
 If you want to use Windows sharing (CIFS), you can try to use the `nounix` mount option in /etc/fstab of your openHAB machine,
-but this is known to not work and cause trouble and you are COMPLETELY on your own. Using CIFS is NOT SUPPORTED.
-Besides it also does not make sense as NFS can do the same but any Windows machine will not run 24x7 as a RPi or NAS will do.
+but this is known to not work in various cases and to cause trouble. You are COMPLETELY on your own here. Using CIFS is NOT SUPPORTED.
+Let alone it also does not make sense as NFS can do the same but any Windows machine will not run 24x7 as a RPi or NAS will do.*
+
 Another specific thing to watch out for when configuring your export share on the NFS server is to add the `no_root_squash`
 option (that's the name on a generic Linux box, depending on your server OS or UI it might have a different name but it'll be
 available, too).
 Its function is to NOT map accesses of userID 0 (root) to some other UID as your server will do by default.
 
 Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 192.168.1.100) and two partitions from an attached
-USB stick identified as `/dev/sda8` (Linux ext4) and `/dev/sda1` and Windows vfat(FAT-32) filesystems).
+USB stick identified as `/dev/sda8` (Linux ext4) and `/dev/sda1` and Windows vfat(FAT-32) filesystems.
 
 HEADS UP: These are just EXAMPLES. Device and directory names will be different on your system.
 Do not deploy these commands unless you are fully aware what they will do to your system, using a command with a wrong device
