@@ -120,6 +120,9 @@ openhabian_update() {
   else
     branch="${sel:-stable}"
   fi
+  if [[ -n "$UNATTENDED" ]]; then
+    branch=${clonebranch:-stable}
+  fi
 
   shorthash_before=$(git -C "$BASEDIR" log --pretty=format:'%h' -n 1)
   git -C "$BASEDIR" fetch --quiet origin || FAILED=1
