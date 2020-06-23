@@ -100,7 +100,6 @@ openhabian_update() {
   fi
 
   FAILED=0
-  echo "unatt = $UNATTENDED"
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ "$current" == "stable" || "$current" == "master" ]]; then
       if ! sel=$(whiptail --title "openHABian version" --radiolist "$introtext" 14 75 2 stable "recommended standard version of openHABian" on master "very latest version of openHABian" off 3>&1 1>&2 2>&3); then return 0; fi

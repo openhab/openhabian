@@ -194,7 +194,8 @@ if (/bin/bash /opt/openhabian/openhabian-setup.sh unattended); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
-  fail_inprogress
+  echo "$(timestamp) [openHABian] We tried to get your system installed, but without proper internet connectivity this is not guaranteed to work."
+  #fail_inprogress
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-setup.sh unattended' completed."
 
