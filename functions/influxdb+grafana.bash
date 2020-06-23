@@ -33,20 +33,26 @@ influxdb_grafana_setup() {
 
   FAILED=0
   text_intro="This will install and configure InfluxDB and Grafana. For more information please consult this discussion thread:\\nhttps://community.openhab.org/t/13761/1\\n\\nNOTE for existing installations:\\n - Grafana password will be reset and configuration adapated\\n - If local installation of InfluxDB is choosen, passwords will be reset and config files will be changed"
-  text_lowmem="WARNING: InfluxDB and Grafana tend to use a lot of memory. Your machine reports less than 1 GB memory, and we STRICTLY RECOMMEND NOT TO PROCEED!\\n\\nDISCLAIMER: Proceed at your own risk and do NOT report tickets if you run in problems."
-  text_fail="Sadly there was a problem setting up the selected option. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  text_unsupported="You are trying to install Grafana on a SBC to have an oldish ARMv6l set instruction set only such as a RPi0W.\\nThis requires you to install a special package.\\n openHABian does not support that. You can still go for a manual install.\\n\\nGrafana software downloads are available at https://grafana.com/grafana/download?platform=arm"
+  text_lowmem="WARNING: InfluxDB and Grafana tend to use a lot of memory. Your machine reports less than 1 GB memory, and we STRICTLY RECOMMEND NOT TO PROCEED!\\n\\nDISCLAIMER: Proceed at your own risk and do NOT report tickets if you run into problems."
+  text_fail="Sadly there was a problem setting up the selected option. Please report this problem on the openHAB community forum or as a openHABian Github issue."
   text_fail_lowmem="Sadly there was a problem setting up the selected option. Your machine reports less than 1 GB memory, please consider upgrading your hardware for Grafana/InfluxDB."
   text_success="Setup successful. Please continue with the instructions you can find here:\\n\\nhttps://community.openhab.org/t/13761/1"
 
   echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
   if [ -n "$INTERACTIVE" ]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$text_intro" 15 80); then echo "CANCELED"; return 0; fi
-     # now check if hardware is recommended for Grafana/InfluxDB, Pi0 and Pi1 are not really suited to run it in conjunction with OH
-     lowmemory=false
-     if has_lowmem; then
-       lowmemory=true
-       if ! (whiptail --title "WARNING, Continue?" --yes-button "Continue" --no-button "Back" --yesno --defaultno "$text_lowmem" 15 80); then echo "CANCELED"; return 0; fi
-     fi
+    if is_armv61; then
+      whiptail --title "Unsupported Hardware" --msgbox "$text_unsupported" 14 80
+      echo "CANCELED"
+      return 0
+    fi
+    # now check if hardware is recommended for Grafana/InfluxDB, SBCs with < 1 GB such as RPi0W and RPi1 are not really suited to run it together with OH
+    lowmemory=false
+    if has_lowmem; then
+      lowmemory=true
+      if ! (whiptail --title "WARNING, Continue?" --yes-button "Continue" --no-button "Back" --yesno --defaultno "$text_lowmem" 15 80); then echo "CANCELED"; return 0; fi
+    fi
   fi
 
   openhab_integration=false
