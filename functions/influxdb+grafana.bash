@@ -11,22 +11,19 @@
 influxdb_grafana_setup() {
   local FAILED
   local textIntro textUnsupported textLowMem textFail textFailLowMem textSuccess
-  local influxDBAddress influxdb_admin_username
-  local influxDBAdminPassword
-  local influxDBopenhabUsername
-  local influxDBopenhabPassword
-  local influxDBGrafanaUsername
-  local influxDBGrafanaPassword
+  local influxDBAddress influxDBAdminUsername influxDBAdminPassword
+  local influxDBopenhabUsername influxDBopenhabPassword
+  local influxDBGrafanaUsername influxDBGrafanaPassword
   local influxDBDatabaseName
   local GrafanaAdminPassword
   local openhabIntegration
   local textInfluxDBintro
   local textInfluxDBconfigure
-  local influxdb_returncode
+  local influxDBReturnCode
   local textInfluxDBAddress
   local textInfluxDBAdminPassword
   local matched
-  local password_check
+  local passwordCheck
   local textGrafanaAdminPassword
   local textOpenhabIntegration
   local lowmemory
@@ -74,32 +71,32 @@ influxdb_grafana_setup() {
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
       else
         # Existing InfluxBD - Automatic configuration
-        influxdb_admin_username=$(whiptail --title "InfluxDB" --inputbox "An InfluxDB admin account must be used for automatical database configuration. Please enter a username: " 15 80 3>&1 1>&2 2>&3)
+        influxDBAdminUsername=$(whiptail --title "InfluxDB" --inputbox "An InfluxDB admin account must be used for automatical database configuration. Please enter a username: " 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-        influxDBAdminPassword=$(whiptail --title "InfluxDB" --passwordbox "Password for InfluxDB account \"$influxdb_admin_username\":" 15 80 3>&1 1>&2 2>&3)
+        influxDBAdminPassword=$(whiptail --title "InfluxDB" --passwordbox "Password for InfluxDB account \"$influxDBAdminUsername\":" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
       fi
       # Influx DB server address
-      influxdb_returncode=0
+      influxDBReturnCode=0
       textInfluxDBAddress="Enter InfluxDB instance adress: [protocol:address:port] \\n eg. https://192.168.1.100:8086"
-      while [ "$influxdb_returncode" != "204" ]
+      while [ "$influxDBReturnCode" != "204" ]
       do
         influxDBAddress=$(whiptail --title "InfluxDB" --inputbox "$textInfluxDBAddress" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-        influxdb_returncode="$(curl -s -o --max-time 6 --insecure /dev/null -w "%{http_code}" "$influxDBAddress"/ping | sed 's/^0*//')"
+        influxDBReturnCode="$(curl -s -o --max-time 6 --insecure /dev/null -w "%{http_code}" "$influxDBAddress"/ping | sed 's/^0*//')"
         textInfluxDBAddress="Can't establish contact to InfluxDB instance. Please retry to enter InfluxDB instance adress: [protocol:address:port] \\n eg. https://192.168.1.100:8086"
       done
     else
       # Local InfluxDB
-      influxdb_admin_username="admin"
+      influxDBAdminUsername="admin"
       textInfluxDBAdminPassword="The local InfluxDB installation needs a password for the \"admin\" account. Enter a password:"
       matched=false
       while [ "$matched" = false ]; do
         influxDBAdminPassword=$(whiptail --title "InfluxDB - Admin Account" --passwordbox "$textInfluxDBAdminPassword" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-        password_check=$(whiptail --title "InfluxDB - Admin Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
+        passwordCheck=$(whiptail --title "InfluxDB - Admin Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-        if [ "$influxDBAdminPassword" = "$password_check" ] && [ -n "$influxDBAdminPassword" ]; then
+        if [ "$influxDBAdminPassword" = "$passwordCheck" ] && [ -n "$influxDBAdminPassword" ]; then
           matched=true
         else
           whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3
@@ -115,9 +112,9 @@ influxdb_grafana_setup() {
       while [ "$matched" = false ]; do
         influxDBopenhabPassword=$(whiptail --title "InfluxDB - openHAB Account" --passwordbox "An openHAB specific InfluxDB user will be created \"openhab\". Please enter a password:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-        password_check=$(whiptail --title "InfluxDB - openHAB Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
+        passwordCheck=$(whiptail --title "InfluxDB - openHAB Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-        if [ "$influxDBopenhabPassword" = "$password_check" ] && [ -n "$influxDBopenhabPassword" ]; then
+        if [ "$influxDBopenhabPassword" = "$passwordCheck" ] && [ -n "$influxDBopenhabPassword" ]; then
           matched=true
         else
           whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3
@@ -127,9 +124,9 @@ influxdb_grafana_setup() {
       while [ "$matched" = false ]; do
         influxDBGrafanaPassword=$(whiptail --title "InfluxDB - Grafana Account" --passwordbox "A Grafana specific InfluxDB user will be created \"grafana\". Please enter a password:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-        password_check=$(whiptail --title "InfluxDB - Grafana Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
+        passwordCheck=$(whiptail --title "InfluxDB - Grafana Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
         if [ $? -eq 1 ]; then echo "CANCELED"; return 0; fi
-        if [ "$influxDBGrafanaPassword" = "$password_check" ] && [ -n "$influxDBGrafanaPassword" ]; then
+        if [ "$influxDBGrafanaPassword" = "$passwordCheck" ] && [ -n "$influxDBGrafanaPassword" ]; then
           matched=true
         else
           whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3
@@ -144,9 +141,9 @@ influxdb_grafana_setup() {
       GrafanaAdminPassword=$(whiptail --title "Grafana - Admin Account" --passwordbox "$textGrafanaAdminPassword" 15 80 3>&1 1>&2 2>&3)
       if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
       if [ ${#GrafanaAdminPassword} -gt 4 ]; then
-        password_check=$(whiptail --title "Grafana - Admin Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
+        passwordCheck=$(whiptail --title "Grafana - Admin Account" --passwordbox "Please confirm the password:" 15 80 3>&1 1>&2 2>&3)
         if [ $? = 1 ]; then echo "CANCELED"; return 0; fi
-        if [ "$GrafanaAdminPassword" = "$password_check" ] && [ -n "$GrafanaAdminPassword" ]; then
+        if [ "$GrafanaAdminPassword" = "$passwordCheck" ] && [ -n "$GrafanaAdminPassword" ]; then
           matched=true
         fi
         if [ "$matched" = false ]; then
@@ -169,19 +166,19 @@ influxdb_grafana_setup() {
     influxDBAddress="http://localhost:8086"
   fi
 
-  if [ -n "$influxdb_admin_username" ]; then # is set, configure database and application users
+  if [ -n "$influxDBAdminUsername" ]; then # is set, configure database and application users
     echo -n "Setup of inital influxdb database and InfluxDB users... "
     echo -n ""
     influxDBDatabaseName="openhab_db"
-    curl --user "$influxdb_admin_username:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=CREATE DATABASE $influxDBDatabaseName" || FAILED=1
-    curl --user "$influxdb_admin_username:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=CREATE USER openhab WITH PASSWORD '$influxDBopenhabPassword'" || FAILED=1
+    curl --user "$influxDBAdminUsername:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=CREATE DATABASE $influxDBDatabaseName" || FAILED=1
+    curl --user "$influxDBAdminUsername:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=CREATE USER openhab WITH PASSWORD '$influxDBopenhabPassword'" || FAILED=1
     # set password, create might have failed if user existed before
-    curl --user "$influxdb_admin_username:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=SET PASSWORD FOR openhab = '$influxDBopenhabPassword'" || FAILED=1
-    curl --user "$influxdb_admin_username:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=CREATE USER grafana WITH PASSWORD '$influxDBGrafanaPassword'" || FAILED=1
+    curl --user "$influxDBAdminUsername:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=SET PASSWORD FOR openhab = '$influxDBopenhabPassword'" || FAILED=1
+    curl --user "$influxDBAdminUsername:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=CREATE USER grafana WITH PASSWORD '$influxDBGrafanaPassword'" || FAILED=1
     # set password, create might have failed if user existed before
-    curl --user "$influxdb_admin_username:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=SET PASSWORD FOR grafana = '$influxDBGrafanaPassword'" || FAILED=1
-    curl --user "$influxdb_admin_username:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=GRANT ALL ON openhab_db TO openhab" || FAILED=1
-    curl --user "$influxdb_admin_username:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=GRANT READ ON openhab_db TO grafana" || FAILED=1
+    curl --user "$influxDBAdminUsername:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=SET PASSWORD FOR grafana = '$influxDBGrafanaPassword'" || FAILED=1
+    curl --user "$influxDBAdminUsername:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=GRANT ALL ON openhab_db TO openhab" || FAILED=1
+    curl --user "$influxDBAdminUsername:$influxDBAdminPassword" --insecure $influxDBAddress/query --data-urlencode "q=GRANT READ ON openhab_db TO grafana" || FAILED=1
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
   fi
 
@@ -228,7 +225,7 @@ influxdb_grafana_setup() {
 
 influxdb_install() {
   local influxDBAddress
-  local influxdb_admin_username
+  local influxDBAdminUsername
   local dist
   local codename
 
@@ -244,7 +241,7 @@ influxdb_install() {
     codename="$(lsb_release -sc)"
   fi
   influxDBAddress="http://localhost:8086"
-  influxdb_admin_username="admin"
+  influxDBAdminUsername="admin"
 #  if [ ! -f /etc/influxdb/influxdb.conf ]; then
     cond_redirect wget -O - https://repos.influxdata.com/influxdb.key | apt-key add - || FAILED=1
     echo "deb https://repos.influxdata.com/${dist} ${codename} stable" > /etc/apt/sources.list.d/influxdb.list || FAILED=1
