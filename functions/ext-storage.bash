@@ -57,7 +57,6 @@ move_root2usb() {
     infotext="Your internal storage medium is larger than the external device/medium you want to move your root to. This will very likely break your system.\\n\\nDo you still REALLY want to continue ?"
     if ! (whiptail --title "Move system root to '$NEWROOTPART'" --yes-button "Continue" --no-button "Stop" --defaultno --yesno "$infotext" 12 78) then echo "CANCELED"; return 0; fi
   fi
-exit 1
 
   # check if USB power is already set to 1A, otherwise set it there
   if grep -q -F 'max_usb_current=1' /boot/config.txt; then
