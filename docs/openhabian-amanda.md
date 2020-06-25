@@ -248,8 +248,8 @@ raw device's contents. `/dev/mmcblk0` is the Pi's internal SD reader device, and
 device to be backed up to have that same name.
 You will have two Amanda config directories (located in `/etc/amanda`) called `openhab-dir` and `openhab-AWS` if you choose to
 setup both of them.
-If any of your Amanda backup or recovery runs fails (particularly if you try to use the S3 backup), you should try getting it
-to work following the guides and knowledge base available on the Web at <http://www.amanda.org/>.
+If any of your Amanda backup or recovery runs fail (particularly if you try to use the S3 backup), you should try getting it
+to work following the guides and knowledge base available on the web at <http://www.amanda.org/>.
 There's online documentation including tutorials and FAQs at <http://wiki.zmanda.com/index.php/User_documentation>.
 In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but
 please don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
