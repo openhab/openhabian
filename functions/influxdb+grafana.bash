@@ -251,7 +251,7 @@ influxdb_install() {
     # disable authentication, to allow changes in existing installations
     cond_redirect sed -i 's/auth-enabled = true/# auth-enabled = false/g' /etc/influxdb/influxdb.conf || FAILED=1
 
-    cond_redirect systemctl daemon-reload
+    cond_redirect systemctl -q daemon-reload
     sleep 2
     cond_redirect systemctl enable influxdb.service
     sleep 2
@@ -314,7 +314,7 @@ grafana_install(){
   # shellcheck disable=SC2174
   mkdir -p -m 750 /var/run/grafana/ && chown grafana:grafana /var/run/grafana/
 
-  cond_redirect systemctl daemon-reload
+  cond_redirect systemctl -q daemon-reload
   cond_redirect systemctl enable grafana-server.service
   cond_redirect systemctl start grafana-server.service
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
