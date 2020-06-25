@@ -76,7 +76,7 @@ called a 'slot' inside the tape library cabinet.
 once in a dumpcycle and will run 'level 1' dumps for the rest of the time (that means to only backup files that have CHANGED
 since the last level 0 dump was done, also called an 'incremental' backup).
 Amanda will combine level 0 of some devices with level 1 or 2 of others, aiming to have the more or less same amount of data
-to be backed up every day (every invocation, actually). No cannot have it do level 0 on weekends and level 1 else,
+to be backed up every day (every invocation, actually). No, you cannot have it do level 0 on weekends and level 1 else,
 [see FAQ](https://wiki.zmanda.com/index.php/FAQ:How_do_I_make_Amanda_do_full_backups_on_weekends_and_incrementals_during_the_week%3F).
 *   Note for *raw* devices to backup such as `/dev/mmcblk0` (which is the internal SD card reader of a RPi), nothing but a level 0
 dump will work because there is no efficient way  to determine what has been changed since the last full dump.
