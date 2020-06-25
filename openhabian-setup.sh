@@ -86,6 +86,7 @@ if [[ -n "$UNATTENDED" ]]; then
   load_create_config
   change_swapsize
   timezone_setting
+  enable_ntp
   locale_setting
   hostname_change
   if is_pi; then memory_split; enable_rpi_audio; fi

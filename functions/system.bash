@@ -64,6 +64,16 @@ timezone_setting() {
   if [ $? -eq 0 ]; then echo -e "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
 }
 
+## enable time synchronization via systemd-timesyncd to NTP servers obtained via DHCP
+## RPis have no RTC (hw clock)
+##
+##    enable_ntp()
+##
+enable_ntp() {
+  cp "$BASEDIR"/includes/50-timesyncd.conf /lib/dhcpcd/dhcpcd-hooks/
+  timedatectl set-ntp true
+}
+
 locale_setting() {
   cond_redirect apt-get -q -y install locales
   if [ -n "$INTERACTIVE" ]; then
