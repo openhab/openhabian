@@ -441,7 +441,7 @@ date                host         disk              lv storage     pool        ta
 
 To restore a file, you need to use the `amrecover` command as the `root` user.
 Note that since Amanda is designed to restore ANY file of the system, you are required to run `amrecover` as the root user to
-have the appropriate file access rights anywhere (neither the `backup` nor your personal user are allowed to write everywhere).
+have the appropriate file access rights everywhere (neither the `backup` nor your personal user are allowed to write everywhere).
 Remember in openHABian you can _execute_ commands as root using `sudo <command>`.
 
 `amrecover` sort of provides a shell-like interface to allow for navigating through the stored files.
