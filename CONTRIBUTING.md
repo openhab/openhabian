@@ -150,8 +150,7 @@ Universally formatted code promotes ease of writing, reading, and maintenance.
     user input in unattended mode.
 
 *   Wrap Markdown code at 80 columns. Links and code examples may cross 80
-    columns when necessary. When editing documents in the `docs/` directory,
-    try to keep to one sentence per line.
+    columns when necessary.
 
 ### Usage of `apt-get update` command
 
