@@ -182,7 +182,7 @@ fi
 if ! [[ -d /opt/openhabian ]]; then git clone https://github.com/openhab/openhabian.git /opt/openhabian; fi
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Cloning myself from ${repositoryurl}, ${clonebranch} branch... "
-if ! openhabian_update; then
+typeset -f openhabian_update &>/dev/null && if ! openhabian_update; then
   echo "$(timestamp) [openHABian] The git repository on the public internet is not reachable."
   echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but this is not guaranteed to work."
 fi
@@ -213,8 +213,13 @@ if hash python3 2>/dev/null; then bash /boot/webif.bash inst_done; fi
 sleep 12
 
 if [ -z "$SILENT" ]; then
-  echo -e "\\n${COL_CYAN}Memory usage:"
-  free -m && ps -auxq "$(cat /var/lib/openhab2/tmp/karaf.pid)" | awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
+  PID=/var/lib/openhab2/tmp/karaf.pid
+  echo -e "\\n${COL_CYAN}Memory usage:" && free -m
+  if [[ -d "$PID" ]]; then
+    ps -auxq "$(cat $PID)" | awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
+  else
+    echo "${COL_RED}Karaf PID missing, openHAB process not (yet ?) running."
+  fi
   echo -e "$COL_DEF"
 fi
 
