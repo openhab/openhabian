@@ -27,9 +27,10 @@ As of openHABian version 1.5 of the image, all Raspberry Pi models are supported
 as hardware. Anything x86 based may work or not. Anything else ARM based such as
 ODroids, OrangePis and the like may work or not. NAS servers such as QNAP and
 Synology boxes will not work. Support for PINEA64 was also dropped in this
-current release. We strongly recommend that users choose Raspberry Pi 2, 3 or 4
-systems to have 1GB of RAM or more. RPi 1 and 0/0W only have a single CPU core
-and 512MB. This can be sufficient to run a smallish openHAB setup, but it will
+current release.
+We strongly recommend that users choose Raspberry Pi 2, 3 or 4 systems to have
+1 GB of RAM or more. RPi 1 and 0/0W only have a single CPU core and 512 MB.
+This can be sufficient to run a smallish openHAB setup, but it will
 not be enough to run a full-blown system with many bindings and memory consuming
 openHABian features/components such as ZRAM, InfluxDB or Grafana.
 
@@ -48,22 +49,20 @@ For ARM hardware that we don't support, check out the [fake hardware parameters]
 There's a good chance it'll work out for you. If that still doesn't work for
 you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/)
 a try. But remember if you hit any problem related to memory or hardware, you'll
-be on your own. You are expected **not** to raise these problems as issues on
+be on your own. You are expected not to raise these problems as issues on
 the community forum or on GitHub, please. Feel encouraged to report any success
 stories, though.
 
 Going beyond what the RPi image provides, as a manually installed set of
-scripts, there's a fair chance that openHABian will work on all Debian like
-Linux distributions such as Ubuntu, on either ARM or x86 hardware, but remember
-this is not *supported*.
+scripts, we support running openHABian on all Debian like Linux distributions
+such as Ubuntu on x86 hardware.
 
-Our recommendation is to install Raspberry Pi OS lite (ARM) or generic
-Debian (x86). This is what we support and test openHABian against.
+Our recommendation is to install Raspberry Pi OS lite on ARM or generic
+Debian or Ubuntu on x86. This is what we support and test openHABian against.
 
 If you choose not to use the image, we expect you to use the stable distribution
 that openHABian testing is based on, 'buster' for Raspberry Pi OS (ARM) and
 Debian (x86) that is.
-
 To install openHABian on anything older or newer may work or not. If you
 encounter issues, you may need to upgrade first or to live with the consequences
 of running an OS on the edge of software development.
