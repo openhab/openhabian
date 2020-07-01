@@ -35,7 +35,7 @@ cond_redirect() {
 
 cond_echo() {
   if [ -z "$SILENT" ]; then
-    echo -e "${COL_YELLOW}${*}${COL_DEF}"
+    echo -e "${COL_YELLOW}${*}${COL_DEF}${COL_DEF}"
   fi
 }
 
