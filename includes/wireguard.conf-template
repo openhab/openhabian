@@ -1,0 +1,12 @@
+ce]
+Address = %VPNSERVER/24
+SaveConfig = true
+PrivateKey = %SERVERPRIVATE
+ListenPort = 51900
+
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o %IFACE -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o %IFACE -j MASQUERADE
+
+[Peer]
+PublicKey = %CLIENTPUBLIC
+AllowedIPs = %CLIENTIP/32
