@@ -16,7 +16,7 @@ install_wireguard() {
   apt_update
   apt-get install --yes wireguard
 
-  cd /etc/wireguard
+  cd /etc/wireguard || return 1
   umask 077
   wg genkey | tee server_private_key | wg pubkey > server_public_key
   wg genkey | tee client_private_key | wg pubkey > client_public_key
@@ -43,7 +43,7 @@ create_wireguard_config() {
   CLIENTPUBLIC=$(cat /etc/wireguard/client_public_key)
 
 
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%CLIENTIP|${CLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" ${INCLUDES}/wireguard.conf > /etc/wireguard/wg0.conf
+  sed -e "s|%IFACE|${IFACE}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%CLIENTIP|${CLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "$BASEDIR"/includes/wireguard.conf > /etc/wireguard/wg0.conf
 
   chmod -R og-rwx /etc/wireguard/*
 }
@@ -64,6 +64,6 @@ setup_wireguard() {
   	iface=$(whiptail --title "VPN interface" --inputbox "Do you want to setup to the VPN ?\\nSpecify the first 3 octets." 10 60 $defaultnetwork 3>&1 1>&2 2>&3)
   	network=$(whiptail --title "VPN network" --inputbox "What's the IP network to be assigned to the VPN ?\\nSpecify the first 3 octets." 10 60 $defaultnetwork 3>&1 1>&2 2>&3)
   fi
-  create_wireguard_config $iface $network
+  create_wireguard_config "$iface" "$network"
 }
 
