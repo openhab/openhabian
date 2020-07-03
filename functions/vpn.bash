@@ -14,8 +14,9 @@ install_wireguard() {
   # prevent RPi from using the Debian distro for normal Raspbian packages
   sh -c 'printf "Package: *\nPin: release a=unstable\nPin-Priority: 90\n" > /etc/apt/preferences.d/limit-unstable'
   apt_update
-  apt-get install --yes wireguard
-
+  apt-get install --yes wireguard raspberrypi-kernel-headers
+  # might niot be needed but should not do harm
+  dpkg-reconfigure wireguard-dkms
   cd /etc/wireguard || return 1
   umask 077
   wg genkey | tee server_private_key | wg pubkey > server_public_key
@@ -33,12 +34,16 @@ install_wireguard() {
 ## argument 2 is VPN network of Allowed Clients in format 10.253.46.10/24
 ## with .1 = IP of the WG server and .10 as the first IP from the VPN range to assign to clients
 ##
-##   create_wireguard_config(String iface, String Network)
+##   create_wireguard_config(String iface, String private network (3 octets), String VPN server public IP (optional))
 ##
 create_wireguard_config() {
+
+  pubIP=$(dig +short myip.opendns.com @resolver1.opendns.com | tail -1)
+
   local IFACE=${1:eth0}
-  local VPNSERVER="${2:-10.253.4}.1"
-  local CLIENTIP="${3:-10.253.4}.2"
+  local WGSERVERIP="${2:-10.253.4}.1"
+  local WGCLIENTIP="${2:-10.253.4}.2"
+  local VPNSERVER="${3:-$pubIP}"
   local PORT=51900
   SERVERPRIVATE=$(cat /etc/wireguard/server_private_key)
   SERVERPUBLIC=$(cat /etc/wireguard/server_public_key)
@@ -46,8 +51,8 @@ create_wireguard_config() {
   CLIENTPUBLIC=$(cat /etc/wireguard/client_public_key)
 
 
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%CLIENTIP|${CLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "$BASEDIR"/includes/wireguard-server.conf > /etc/wireguard/wg0.conf
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%CLIENTIP|${CLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "$BASEDIR"/includes/wireguard-client.conf > /etc/wireguard/wg0-client.conf
+  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "$BASEDIR"/includes/wireguard-server.conf > /etc/wireguard/wg0.conf
+  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "$BASEDIR"/includes/wireguard-client.conf > /etc/wireguard/wg0-client.conf
 
   chmod -R og-rwx /etc/wireguard/*
 }

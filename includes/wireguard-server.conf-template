@@ -1,5 +1,5 @@
 [Interface]
-Address = %VPNSERVER/24
+Address = %WGSERVERIP/24
 SaveConfig = true
 PrivateKey = %SERVERPRIVATE
 ListenPort = %PORT
@@ -9,4 +9,4 @@ PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACC
 
 [Peer]
 PublicKey = %CLIENTPUBLIC
-AllowedIPs = %CLIENTIP/32
+AllowedIPs = %WGCLIENTIP/32
