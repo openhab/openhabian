@@ -39,11 +39,15 @@ create_wireguard_config() {
   local IFACE=${1:eth0}
   local VPNSERVER="${2:-10.253.4}.1"
   local CLIENTIP="${3:-10.253.4}.2"
+  local PORT=51900
   SERVERPRIVATE=$(cat /etc/wireguard/server_private_key)
+  SERVERPUBLIC=$(cat /etc/wireguard/server_public_key)
+  CLIENTPRIVATE=$(cat /etc/wireguard/client_private_key)
   CLIENTPUBLIC=$(cat /etc/wireguard/client_public_key)
 
 
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%CLIENTIP|${CLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "$BASEDIR"/includes/wireguard.conf > /etc/wireguard/wg0.conf
+  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%CLIENTIP|${CLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "$BASEDIR"/includes/wireguard-server.conf > /etc/wireguard/wg0.conf
+  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%CLIENTIP|${CLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "$BASEDIR"/includes/wireguard-client.conf > /etc/wireguard/wg0-client.conf
 
   chmod -R og-rwx /etc/wireguard/*
 }

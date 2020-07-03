@@ -1,0 +1,9 @@
+[Interface]
+Address = %CLIENTIP/32
+PrivateKey = %CLIENTPRIVATE
+DNS = 1.1.1.1
+
+[Peer]
+PublicKey = %SERVERPUBLIC
+AllowedIPs = 0.0.0.0 ::/0
+Endpoint = %VPNSERVER:%PORT
