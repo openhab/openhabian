@@ -1,5 +1,5 @@
 [Interface]
-Address = %VPNSERVER/24
+Address = %WGSERVERIP/24
 SaveConfig = true
 PrivateKey = %SERVERPRIVATE
 ListenPort = %PORT
