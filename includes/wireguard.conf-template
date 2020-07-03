@@ -1,4 +1,4 @@
-ce]
+[Interface]
 Address = %VPNSERVER/24
 SaveConfig = true
 PrivateKey = %SERVERPRIVATE
