@@ -218,7 +218,7 @@ if [ -z "$SILENT" ]; then
   if [[ -d "$PID" ]]; then
     ps -auxq "$(cat "$PID")" | awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
   else
-    echo "\n${COL_MAGENTA}Karaf PID missing, openHAB process not (yet ?) running."
+    printf "\n${COL_MAGENTA}Karaf PID missing, openHAB process not (yet ?) running.\n"
   fi
   echo -e "$COL_DEF"
 fi
