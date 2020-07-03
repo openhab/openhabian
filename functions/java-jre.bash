@@ -73,7 +73,7 @@ java_install_or_update() {
           fi
         fi
       fi
-    else # Default to 32-bit installation
+    elif [[ $1 != "Adopt11" ]]; then # Default to 32-bit installation
       if [[ $1 == "Zulu11-32" ]]; then
         if cond_redirect java_zulu_update_available "Zulu11-32"; then
           java_zulu_prerequisite "Zulu11-32"
