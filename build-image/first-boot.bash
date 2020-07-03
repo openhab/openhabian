@@ -213,12 +213,12 @@ if hash python3 2>/dev/null; then bash /boot/webif.bash inst_done; fi
 sleep 12
 
 if [ -z "$SILENT" ]; then
-  PID=/var/lib/openhab2/tmp/karaf.pid
+  PID="${OPENHAB_USERDATA}"/tmp/karaf.pid
   echo -e "\\n${COL_CYAN}Memory usage:" && free -m
   if [[ -d "$PID" ]]; then
     ps -auxq "$(cat $PID)" | awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
   else
-    echo "${COL_RED}Karaf PID missing, openHAB process not (yet ?) running."
+    echo "\\n${COL_MAGENTA}Karaf PID missing, openHAB process not (yet ?) running."
   fi
   echo -e "$COL_DEF"
 fi
