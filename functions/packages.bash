@@ -318,7 +318,7 @@ find_setup() {
       fi
     done
     if ! cond_redirect /usr/bin/mosquitto_passwd -b $mqttpasswd "$FINDADMIN" "$FINDADMINPASS"; then echo "FAILED (mosquitto password)"; return 1; fi
-    if ! cond_redirect systemctl restart mosquitto.service; then echo "FAILED  (restart service)"; return 1; fi
+    if ! cond_redirect systemctl restart mosquitto.service; then echo "FAILED (restart service)"; return 1; fi
   fi
   echo "OK"
 
@@ -614,7 +614,7 @@ nginx_setup() {
       mkdir -p /var/www/"$domain"
       uncomment "#WEBROOT" /etc/nginx/sites-enabled/openhab
       if ! nginx -t; then echo "FAILED (Nginx configuration test)"; fi
-      if ! cond_redirect systemctl -q reload nginx; then echo "FAILED (Nginx reload)"; fi
+      if ! cond_redirect systemctl -q reload nginx &>/dev/null; then echo "FAILED (nginx reload)"; fi
       if cond_redirect certbot certonly --webroot -w /var/www/"$domain" -d "$domain"; then echo "OK"; else echo "FAILED"; return 1; fi
       certpath="/etc/letsencrypt/live/${domain}/fullchain.pem"
       keypath="/etc/letsencrypt/live/${domain}/privkey.pem"
