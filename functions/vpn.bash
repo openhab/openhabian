@@ -70,6 +70,7 @@ install_wireguard() {
 ##                           String VPN server public IP (optional))
 ##
 create_wireguard_config() {
+  local configdir
   local pubIP
   local IFACE
   local WGSERVERIP WGCLIENTIP VPNSERVER PORT
@@ -82,23 +83,24 @@ create_wireguard_config() {
   fi
   pubIP=$(dig +short myip.opendns.com @resolver1.opendns.com | tail -1)
 
+  configdir=/etc/wireguard
   WGSERVERIP="${2:-10.253.4}.1"
   WGCLIENTIP="${2:-10.253.4}.2"
   VPNSERVER="${3:-$pubIP}"
   PORT=51900
-  SERVERPRIVATE=$(cat /etc/wireguard/server_private_key)
-  SERVERPUBLIC=$(cat /etc/wireguard/server_public_key)
-  CLIENTPRIVATE=$(cat /etc/wireguard/client_private_key)
-  CLIENTPUBLIC=$(cat /etc/wireguard/client_public_key)
+  SERVERPRIVATE=$(cat "$configdir"/server_private_key)
+  SERVERPUBLIC=$(cat "$configdir"/server_public_key)
+  CLIENTPRIVATE=$(cat "$configdir"/client_private_key)
+  CLIENTPUBLIC=$(cat "$configdir"/client_public_key)
 
 
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "$BASEDIR"/includes/wireguard-server.conf > /etc/wireguard/wg0.conf
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "$BASEDIR"/includes/wireguard-client.conf > /etc/wireguard/wg0-client.conf
+  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "$BASEDIR"/includes/wireguard-server.conf > "$configdir"/wg0.conf
+  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "$BASEDIR"/includes/wireguard-client.conf > "$configdir"/wg0-client.conf
 
-  chmod -R og-rwx /etc/wireguard/*
+  chmod -R og-rwx "$configdir"/*
 
   if [[ -n "$INTERACTIVE" ]]; then
-	  whiptail --title "Wireguard VPN setup" --msgbox "We have installed and preconfigured Wireguard to provide remote VPN access to your box.\\nYou need to install the Wireguard client from http://www.wireguard.com/install on your local PC or mobile device that you want to use for access.\\nUse the configuration file /etc/wireguard/wg0-client.conf from this box to load the tunnel.\\nDouble-check the Endpoint parameter to match the public IP of your openHABian box and double-check the Address parameter in config files for both, client (wg0-client.conf) and server (wg0.conf)." 8 80 3>&1 1>&2 2>&3
+	  whiptail --title "Wireguard VPN setup" --msgbox "We have installed and preconfigured Wireguard to provide remote VPN access to your box.\\nYou need to install the Wireguard client from http://www.wireguard.com/install on your local PC or mobile device that you want to use for access.\\nUse the configuration file "$configdir"/wg0-client.conf from this box to load the tunnel.\\nDouble-check the Endpoint parameter to match the public IP of your openHABian box and double-check the Address parameter in config files for both, client (wg0-client.conf) and server (wg0.conf)." 8 80 3>&1 1>&2 2>&3
   fi
 }
 
