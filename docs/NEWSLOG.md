@@ -1,6 +1,6 @@
 ## July 4, 2020
-### Wireguard VPN (BETA)
-Added Wireguard VPN (BETA).
+### Wireguard VPN (ALPHA)
+Added Wireguard VPN (ALPHA).
 Wireguard can be deployed to enable for VPN access to your openHABian box when
 it's located in some remote location.
 You need to install the Wireguard client from http://www.wireguard.com/install
