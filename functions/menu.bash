@@ -127,6 +127,8 @@ show_main_menu() {
     "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
     "38 | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
+    "39 | Setup VPN access"       "Setup Wireguard to enable secure remote access to your openHABian box (ALPHA)" \
+    "   | Uninstall Wireguard"    "Remove Wireguard VPN from your openHABian box" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -140,6 +142,8 @@ show_main_menu() {
       37\ *) move_root2usb ;;
       38\ *) init_zram_mounts install;;
       *Uninstall\ ZRAM) init_zram_mounts remove;;
+      39\ *) install_wireguard install; setup_wireguard;;
+      *Uninstall\ Wireguard) install_wireguard remove;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -155,9 +159,9 @@ show_main_menu() {
     "   | Default order"          "Reset config load order to default (random)" \
     "45 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" \
     "   | Zulu 8 OpenJDK 64-bit"  "Install Zulu 8 64-bit OpenJDK as primary Java provider" \
-    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider (beta)" \
-    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider (beta)" \
-    "   | AdoptOpenJDK 11"        "Install AdoptOpenJDK 11 as primary Java provider (beta)" \
+    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider" \
+    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider" \
+    "   | AdoptOpenJDK 11"        "Install AdoptOpenJDK 11 as primary Java provider" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -212,6 +216,8 @@ show_main_menu() {
     "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
     "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories (mitigates SD card wear)" OFF \
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" OFF \
+    "6B | Setup VPN access"       "Setup Wireguard to enable secure remote access to your openHABian box (ALPHA)" \
+    "   | Uninstall Wireguard"    "Remove Wireguard from your openHABian box" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -232,6 +238,8 @@ show_main_menu() {
     if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
     if [[ $choosenComponents == *"6A"* ]]; then init_zram_mounts install; fi
     if [[ $choosenComponents == *"Uninstall ZRAM"* ]]; then init_zram_mounts remove; fi
+    if [[ $choosenComponents == *"6B"* ]]; then install_wireguard install; setup_wireguard; fi
+    if [[ $choosenComponents == *"Uninstall Wireguard"* ]]; then install_wireguard remove; fi
 
   else
     whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60

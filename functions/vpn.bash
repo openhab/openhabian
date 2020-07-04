@@ -6,6 +6,24 @@
 ##   install_wireguard
 ##
 install_wireguard() {
+  if [[ "$1" == "remove" ]]; then
+
+    apt remove --yes wireguard
+
+    systemctl stop wg-quick@wg0
+    rm -f /lib/systemd/system/wg-quick*
+    systemctl -q daemon-reload &>/dev/null
+
+    rm -f /etc/apt/sources.list.d/wireguard.list
+    apt_update
+    if [ -n "$INTERACTIVE" ]; then
+      whiptail --title "Wireguard VPN removed" --msgbox "We permanently removed the Wireguard installation from your box." 8 80 3>&1 1>&2 2>&3
+    fi
+    return 0
+  fi
+  if [[ "$1" != "install" ]]; then return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Installing Wireguard and enabling VPN remote access... "
   echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
   apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
   apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
@@ -31,6 +49,12 @@ install_wireguard() {
 
   chown -R root:root /etc/wireguard/
   systemctl enable wg-quick@wg0
+
+  if [ -n "$INTERACTIVE" ]; then
+    whiptail --title "Wireguard VPN removed" --msgbox "We permanently removed the Wireguard installation from your box." 8 80 3>&1 1>&2 2>&3
+  else
+    echo "OK"
+  fi
 }
 
 ## create a wireguard config
@@ -38,7 +62,7 @@ install_wireguard() {
 ## argument 2 is VPN network of Allowed Clients in format 10.253.46.10/24
 ## with .1 = IP of the WG server and .10 as the first IP from the VPN range to assign to clients
 ##
-##   create_wireguard_config(String iface, String private network (3 octets), String VPN server public IP (optional))
+##   create_wireguard_config(String iface, String private network (first 3 octets), String VPN server public IP (optional))
 ##
 create_wireguard_config() {
 
@@ -59,6 +83,10 @@ create_wireguard_config() {
   sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "$BASEDIR"/includes/wireguard-client.conf > /etc/wireguard/wg0-client.conf
 
   chmod -R og-rwx /etc/wireguard/*
+
+  if [ -n "$INTERACTIVE" ]; then
+	  whiptail --title "Wireguard VPN setup" --msgbox "We have installed and preconfigured Wireguard to provide remote VPN access to your box.\\nYou need to install the Wireguard client from http://www.wireguard.com/install on your local PC or mobile device that you want to use for access.\\nUse the configuration file /etc/wireguard/wg0-client.conf from this box to load the tunnel.\\nDouble-check the Endpoint parameter to match the public IP of your openHABian box and double-check the Address parameter in config files for both, client (wg0-client.conf) and server (wg0.conf)." 8 80 3>&1 1>&2 2>&3
+  fi
 }
 
 ## setup wireguard for VPN access
@@ -66,11 +94,11 @@ create_wireguard_config() {
 ## argument 2 is VPN network of Allowed Clients in format 10.253.46.10/24
 ## with .1 = WG server and .10 as first IP to assign to clients
 ##
-##   setup_wireguard(String iface)
+##   setup_wireguard(String iface, String network (first 3 octets))
 ##
 setup_wireguard() {
-  local iface="eth0"
-  local defaultnetwork="10.253.4"
+  local iface="${1:-eth0}"
+  local defaultnetwork="$2:-10.253.4}"
 
   # iface=eth0 or wlan0
   if [[ -n "$INTERACTIVE" ]]; then
