@@ -14,9 +14,13 @@ install_wireguard() {
   # prevent RPi from using the Debian distro for normal Raspbian packages
   sh -c 'printf "Package: *\nPin: release a=unstable\nPin-Priority: 90\n" > /etc/apt/preferences.d/limit-unstable'
   apt_update
+
+  # headers required for wireguard-dkms module to be built "live"
   apt-get install --yes wireguard raspberrypi-kernel-headers
-  # might niot be needed but should not do harm
+
+  # unclear if really needed but should not do harm and does not require input so better safe than sorry
   dpkg-reconfigure wireguard-dkms
+
   cd /etc/wireguard || return 1
   umask 077
   wg genkey | tee server_private_key | wg pubkey > server_public_key
