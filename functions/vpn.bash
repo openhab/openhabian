@@ -51,7 +51,7 @@ install_wireguard() {
   systemctl enable wg-quick@wg0
 
   if [ -n "$INTERACTIVE" ]; then
-    whiptail --title "Wireguard VPN removed" --msgbox "We permanently removed the Wireguard installation from your box." 8 80 3>&1 1>&2 2>&3
+    whiptail --title "Wireguard VPN installed" --msgbox "We installed the Wireguard VPN on your box." 8 80 3>&1 1>&2 2>&3
   else
     echo "OK"
   fi
