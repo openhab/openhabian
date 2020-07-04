@@ -4,7 +4,7 @@ load vpn.bash
 load helpers.bash
 
 teardown_file() {
-  systemctl kill wgquick@wg0.service || true
+  systemctl kill wg-quick@wg0.service || true
 }
 
 @test "destructive-wireguard" {
