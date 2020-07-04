@@ -1,5 +1,5 @@
 ## July 4, 2020
-### added Wireguard VPN (ALPHA)
+### Wireguard VPN (ALPHA)
 Wireguard can be deployed to enable for VPN access to your openHABian box when
 it's located in some remote location.
 You need to install the Wireguard client from http://www.wireguard.com/install
@@ -9,7 +9,7 @@ the tunnel.
 Note this is an ALPHA test so don't expect it to work out of the box.
 Any feedback is highly appreciated on the forum.
 
-### new Java providers now out of beta
+### New Java providers now out of beta
 Java 11 has proven to work with 2.5.
 
 
