@@ -5,13 +5,12 @@ lookup.
 
 ## July 4, 2020
 ### Wireguard VPN (ALPHA)
-Added Wireguard VPN (ALPHA).
 Wireguard can be deployed to enable for VPN access to your openHABian box when
 it's located in some remote location.
 You need to install the Wireguard client from http://www.wireguard.com/install
 to your local PC or mobile device that you want to use for access.
-Copy the configuration file /etc/wireguard/wg0-client.conf from this box to
-load the tunnel.
+Copy the configuration file /etc/wireguard/wg0-client.conf from this box to load
+the tunnel.
 Note this is an ALPHA test so don't expect it to work out of the box.
 Any feedback is highly appreciated on the forum.
 

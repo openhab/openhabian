@@ -7,7 +7,7 @@ teardown_file() {
   systemctl kill wg-quick@wg0.service || true
 }
 
-@test "destructive-wireguard" {
+@test "destructive-wireguard_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN installation starting...${COL_DEF}" >&3
   run install_wireguard install 3>&-
   run setup_wireguard
