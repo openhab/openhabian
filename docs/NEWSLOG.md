@@ -1,6 +1,20 @@
-## June 17, 2020
+## July 4, 2020
+### Wireguard VPN (ALPHA)
+Wireguard can be deployed to enable for VPN access to your openHABian box when
+it's located in some remote location.
+You need to install the Wireguard client from http://www.wireguard.com/install
+to your local PC or mobile device that you want to use for access.
+Copy the configuration file /etc/wireguard/wg0-client.conf from this box to load
+the tunnel.
+Note this is an ALPHA test so don't expect it to work out of the box.
+Any feedback is highly appreciated on the forum.
 
-### Removed support for PINE A64(+) and older Linux distributions
+### New Java providers now out of beta
+Java 11 has proven to work with 2.5.
+
+
+## June 17, 2020
+### Ubuntu support and removed support for PINE A64(+) and older Linux distributions
 `openhabian-config` will now issue a warning if you start on unsupported
 hardware or OS releases. See [README](README.md) for supported HW and OS.
 
@@ -12,8 +26,8 @@ The current and previous Debian / Raspberry Pi OS (previously called Raspbian)
 releases are 10 ("buster") and 9 ("stretch"). Most current Ubuntu LTS releases
 are 20.04 ("focal") and 18.04 ("bionic").
 
-## June 10, 2020
 
+## June 10, 2020
 ### New parameters in `openhabian.conf`
 See `/etc/openhabian.conf` for a number of new parameters such as the useful
 `debugmode`, a fake hardware mode, the option to disable ipv6 and the ability to
@@ -44,7 +58,6 @@ on the community forum.
 
 
 ## May 31, 2020
-
 ### Stable branch
 Introducing a new versioning scheme to openHABian. Please welcome the `stable`
 branch.

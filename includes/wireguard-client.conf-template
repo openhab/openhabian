@@ -1,0 +1,9 @@
+[Interface]
+Address = %WGCLIENTIP/32
+PrivateKey = %CLIENTPRIVATE
+DNS = 1.1.1.1
+
+[Peer]
+PublicKey = %SERVERPUBLIC
+Endpoint = %VPNSERVER:%PORT
+AllowedIPs = 0.0.0.0 ::/0

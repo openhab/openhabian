@@ -1,0 +1,12 @@
+[Interface]
+Address = %WGSERVERIP/24
+SaveConfig = true
+PrivateKey = %SERVERPRIVATE
+ListenPort = %PORT
+
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o %IFACE -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o %IFACE -j MASQUERADE
+
+[Peer]
+PublicKey = %CLIENTPUBLIC
+AllowedIPs = %WGCLIENTIP/32
