@@ -100,7 +100,7 @@ create_wireguard_config() {
   chmod -R og-rwx "$configdir"/*
 
   if [[ -n "$INTERACTIVE" ]]; then
-	  whiptail --title "Wireguard VPN setup" --msgbox "We have installed and preconfigured Wireguard to provide remote VPN access to your box.\\nYou need to install the Wireguard client from http://www.wireguard.com/install on your local PC or mobile device that you want to use for access.\\nUse the configuration file "$configdir"/wg0-client.conf from this box to load the tunnel.\\nDouble-check the Endpoint parameter to match the public IP of your openHABian box and double-check the Address parameter in config files for both, client (wg0-client.conf) and server (wg0.conf)." 8 80 3>&1 1>&2 2>&3
+	  whiptail --title "Wireguard VPN setup" --msgbox "We have installed and preconfigured Wireguard to provide remote VPN access to your box.\\nYou need to install the Wireguard client from http://www.wireguard.com/install on your local PC or mobile device that you want to use for access.\\nUse the configuration file $configdir/wg0-client.conf from this box to load the tunnel.\\nDouble-check the Endpoint parameter to match the public IP of your openHABian box and double-check the Address parameter in config files for both, client (wg0-client.conf) and server (wg0.conf)." 8 80 3>&1 1>&2 2>&3
   fi
 }
 
