@@ -117,11 +117,11 @@ setup_wireguard() {
   
   
   iface="${1:-eth0}"
-  defaultnetwork="{$2:-10.253.4}"
+  defaultnetwork="${2:-10.253.4}"
 
   # iface=eth0 or wlan0
   if [[ -n "$INTERACTIVE" ]]; then
-  	iface=$(whiptail --title "VPN interface" --inputbox "Do you want to setup to the VPN ?\\nSpecify the first 3 octets." 10 60 "$iface" 3>&1 1>&2 2>&3)
+  	iface=$(whiptail --title "VPN interface" --inputbox "Which interface do you want to setup the VPN on ?" 10 60 "$iface" 3>&1 1>&2 2>&3)
   	network=$(whiptail --title "VPN network" --inputbox "What's the IP network to be assigned to the VPN ?\\nSpecify the first 3 octets." 10 60 "$defaultnetwork" 3>&1 1>&2 2>&3)
   fi
   create_wireguard_config "$iface" "$network"
