@@ -12,7 +12,7 @@ install_wireguard() {
 
 
   configdir=/etc/wireguard
-  textReady="In order to access your system from the Internet using Wireguard, you need to setup a couple of prerequisites. Do so now if you have not already done so.\\nYou need to have a (dynamically adapting) DNS name point to your router. Get it from any of the free providers such as DuckDNS or selfhost.de.\\nYou also need to forward port a TCP port from the router to your system to allow for establishing the VPN (default 51900/TCP).\\nYou need to have this information available and your router should be setup to forward the VPN port. Are you ready to proceed ?"
+  textReady="In order to access your system from the Internet using Wireguard, you need to setup a couple of prerequisites. Do so now if you have not already done so.\\nYou need to have a (dynamically adapting) DNS name point to your router. Get it from any of the free providers such as DuckDNS or selfhost.de.\\nYou also need to forward an UDP port from the router to your system to allow for establishing the VPN (default 51900/UDP).\\nYou need to have this information available and your router should be setup to forward the VPN port. Are you ready to proceed ?"
   textInstallation="We will now install Wireguard VPN on your system. That'll take some time.\\n\\nMake use of this waiting time to install the client side part.\\nYou need to install the Wireguard client from either http://www.wireguard.com/install to your local PC or from PlayStore/AppStore to your mobile device.\\nopenHABian will display a QR code at the end of this installation to let you easily transfer the configuration."
 
   if [[ "$1" == "remove" ]]; then
