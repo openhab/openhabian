@@ -546,9 +546,9 @@ nginx_setup() {
 
   echo "$(timestamp) [openHABian] Configuring Nginx network options... "
   cond_echo "Obtaining public IP address... "
-  if pubIP=$(dig +short myip.opendns.com @resolver1.opendns.com | tail -1); then echo "$pubIP"; fi
+  if pubIP=$(dig -4 +short myip.opendns.com @resolver1.opendns.com | tail -1); then echo "$pubIP"; fi
   if [ -z "$pubIP" ]; then
-    if pubIP=$(dig -4 +short myip.opendns.com @resolver1.opendns.com | tail -1); then echo "$pubIP"; else echo "FAILED"; return 1; fi
+    if pubIP=$(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com|tr -d '"'); then echo "$pubIP"; else echo "FAILED"; return 1; fi
   fi
 
   cond_echo "Configuring domain settings... "
@@ -556,7 +556,7 @@ nginx_setup() {
 
   while [ "$validDomain" == "false" ] && [ -n "$domain" ] && [ "$domain" != "IP" ]; do
     cond_echo "Obtaining domain IP address... "
-    if domainIP=$(dig +short "$domain" @resolver1.opendns.com | tail -1); then echo "$domainIP"; else echo "FAILED"; return 1; fi
+    if domainIP=$(dig -4 +short "$domain" @resolver1.opendns.com | tail -1); then echo "$domainIP"; else echo "FAILED"; return 1; fi
     if [ "$pubIP" = "$domainIP" ]; then
       validDomain="true"
       cond_echo "Public and domain IP address match"

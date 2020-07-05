@@ -4,8 +4,8 @@ SaveConfig = true
 PrivateKey = %SERVERPRIVATE
 ListenPort = %PORT
 
-PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o %IFACE -j MASQUERADE
-PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o %IFACE -j MASQUERADE
+PostUp = iptables -A FORWARD -i %IFACE -j ACCEPT; iptables -A FORWARD -o %IFACE -j ACCEPT; iptables -t nat -A POSTROUTING -o %IFACE -j MASQUERADE
+PostDown = iptables -D FORWARD -i %IFACE -j ACCEPT; iptables -D FORWARD -o %IFACE -j ACCEPT; iptables -t nat -D POSTROUTING -o %IFACE -j MASQUERADE
 
 [Peer]
 PublicKey = %CLIENTPUBLIC
