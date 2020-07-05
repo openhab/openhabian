@@ -149,7 +149,7 @@ setup_wireguard() {
   # iface=eth0 or wlan0
   if [[ -n "$INTERACTIVE" ]]; then
     if ! iface=$(whiptail --title "VPN interface" --inputbox "Which interface do you want to setup the VPN on ?" 10 60 "$iface" 3>&1 1>&2 2>&3); then return 1; fi
-    if ! network=$(whiptail --title "VPN network" --inputbox "What's the IP network to be assigned to the VPN ?\\nSpecify the first 3 octets." 10 60 "$defaultNetwork" 3>&1 1>&2 2>&3); then return 1; fi
+    if ! defaultNetwork=$(whiptail --title "VPN network" --inputbox "What's the IP network to be assigned to the VPN ?\\nSpecify the first 3 octets." 10 60 "$defaultNetwork" 3>&1 1>&2 2>&3); then return 1; fi
     if ! dynDNS=$(whiptail --title "dynamic domain name" --inputbox "Which dynamic DNS name is your router running found as from the Internet ?" 10 60 3>&1 1>&2 2>&3); then return 1; fi
     if ! port=$(whiptail --title "VPN port" --inputbox "Which port do you want to expose for establishing the VPN ?" 10 60 "$port" 3>&1 1>&2 2>&3); then return 1; fi
   fi
