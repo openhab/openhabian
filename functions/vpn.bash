@@ -42,7 +42,6 @@ set -x
   fi
 
   echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
-set -x
   if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
   else
@@ -135,6 +134,7 @@ create_wireguard_config() {
 ##   setup_wireguard(String iface, String port, String network (first 3 octets))
 ##
 setup_wireguard() {
+set -x
   local iface
   local defaultNetwork
   local dynDNS
