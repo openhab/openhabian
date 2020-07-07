@@ -6,6 +6,7 @@
 ##   install_wireguard()
 ##
 install_wireguard() {
+set -x
   local configdir
   local textReady
   local textInstallation
@@ -41,7 +42,7 @@ install_wireguard() {
   fi
 
   echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
-
+set -x
   if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
   else
