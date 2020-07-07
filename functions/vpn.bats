@@ -39,3 +39,4 @@ teardown_file() {
   [ "$status" -ne 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Wireguard service is not running...${COL_DEF}" >&3
 }
+

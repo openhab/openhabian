@@ -6,6 +6,7 @@
 ##   install_wireguard(String action)
 ##
 install_wireguard() {
+set -x
   local configdir
   local textReady
   local textInstallation
