@@ -210,12 +210,11 @@ config_ipv6() {
       echo -e "\\n# Disable all IPv6 functionality\\nnet.ipv6.conf.all.disable_ipv6=1\\nnet.ipv6.conf.default.disable_ipv6=1\\nnet.ipv6.conf.lo.disable_ipv6=1" >> "$sysctlConf"
     fi
     cp "${BASEDIR:-/opt/openhabian}"/includes/S90force-ipv4 "$aptConf"
-  elif [[ "${ipv6:-enable}" == "enable" ]]; then
+    if cond_redirect sysctl --load; then echo "OK"; else echo "FAILED"; return 1; fi
+  elif [[ "${ipv6:-enable}" == "enable" ]] && grep -qs "^[[:space:]]*# Disable all IPv6 functionality" "$sysctlConf"; then
     echo -n "$(timestamp) [openHABian] Enabling IPv6... "
-    if grep -qs "^[[:space:]]*# Disable all IPv6 functionality" "$sysctlConf"; then
-      sed -i '/# Disable all IPv6 functionality/d; /net.ipv6.conf.all.disable_ipv6=1/d; /net.ipv6.conf.default.disable_ipv6=1/d; /net.ipv6.conf.lo.disable_ipv6=1/d' "$sysctlConf"
-    fi
+    sed -i '/# Disable all IPv6 functionality/d; /net.ipv6.conf.all.disable_ipv6=1/d; /net.ipv6.conf.default.disable_ipv6=1/d; /net.ipv6.conf.lo.disable_ipv6=1/d' "$sysctlConf"
     rm -f "$aptConf"
+    if cond_redirect sysctl --load; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  if cond_redirect sysctl --load; then echo "OK"; else echo "FAILED"; return 1; fi
 }
