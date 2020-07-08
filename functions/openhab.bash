@@ -67,7 +67,7 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   cond_redirect apt-get update
   openhabVersion="$(apt-cache madison openhab2 | head -n 1 | cut -d'|' -f2 | xargs)"
 
-  if ! cond_redirect apt-get -y --allow-downgrades install "openhab2=${openhabVersion}"; then echo "FAILED (apt)"; return 1; fi
+  if ! cond_redirect apt-get -y --allow-downgrades install "openhab2=${openhabVersion}" "openhab2-addons=${openhabVersion}"; then echo "FAILED (apt)"; return 1; fi
   cond_redirect systemctl -q daemon-reload &>/dev/null
   if cond_redirect systemctl enable --now openhab2; then echo "OK"; else echo "FAILED (service)"; return 1; fi
 
