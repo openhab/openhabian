@@ -74,7 +74,7 @@ nodered_setup() {
 
   local temp
 
-  if ! dpkg -s 'build-essential' > /dev/null 2>&1; then
+  if ! dpkg -s 'build-essential' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing Node-RED required packages (build-essential)... "
     if cond_redirect apt-get install --yes build-essential; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -101,7 +101,7 @@ nodered_setup() {
   if ! cond_redirect npm install -g node-red-contrib-bigtimer; then echo "FAILED (install bigtimer addon)"; return 1; fi
   if ! cond_redirect npm update -g node-red-contrib-bigtimer; then echo "FAILED (update bigtimer addon)"; return 1; fi
   if ! cond_redirect npm install -g node-red-contrib-openhab2; then echo "FAILED (install openhab2 addon)"; return 1; fi
-  if cond_redirect npm update -g node-red-contrib-bigtimer; then echo "OK"; else echo "FAILED (update bigtimer addon)"; return 1; fi
+  if cond_redirect npm update -g node-red-contrib-openhab2; then echo "OK"; else echo "FAILED (update openhab2 addon)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up Node-RED service... "
   if ! cond_redirect systemctl enable nodered.service; then echo "FAILED (enable service)"; return 1; fi
