@@ -224,6 +224,8 @@ java_zulu_install() {
   fi
   if ldconfig; then echo "OK"; else echo "FAILED"; return 1; fi
 
+  java_zulu_install_crypto_extension
+
   if [[ -z $UNATTENDED ]] && [[ -z $BATS_TEST_NAME ]]; then
     cond_redirect systemctl start openhab2.service
   fi
@@ -290,7 +292,8 @@ java_zulu_update_available() {
   if ! [[ -x $(command -v java) ]]; then return 0; fi
 
   local availableVersion
-  local filter
+  local filter8
+  local filter11
   local javaArch
   local javaVersion
   local jdkBin
@@ -302,45 +305,46 @@ java_zulu_update_available() {
     if cond_redirect apt-get install --yes jq; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  filter='[.zulu_version[] | tostring] | join(".")'
+  filter8='[.zulu_version[] | tostring] | join(".")'
+  filter11='[.jdk_version[] | tostring] | join(".")'
   jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
-  javaVersion="$("${jdkBin}"/java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}")"
+  javaVersion="$("${jdkBin}"/java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1 | sed 's|+|.|g')"
   link="https://api.azul.com/zulu/download/community/v1.0/bundles/latest/?os=linux&ext=tar.gz&javafx=false"
 
   if [[ $1 == "Zulu8-32" ]]; then
     if is_arm; then
       requestedArch="aarch32hf"
-      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter")
+      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter8")
     else
       requestedArch="i686"
-      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter")
+      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter8")
     fi
   elif [[ $1 == "Zulu11-32" ]]; then
     if is_arm; then
       requestedArch="aarch32hf"
-      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter")
+      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter11")
     else
       requestedArch="i686"
-      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter")
+      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter11")
     fi
   elif [[ $1 == "Zulu8-64" ]]; then
     if is_arm; then
       requestedArch="aarch64"
-      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=arm&hw_bitness=64" | jq -r "$filter")
+      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=arm&hw_bitness=64" | jq -r "$filter8")
     else
       requestedArch="x64"
-      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter")
+      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter8")
     fi
   elif [[ $1 == "Zulu11-64" ]]; then
     if is_arm; then
       requestedArch="aarch64"
-      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=arm&hw_bitness=64" | jq -r "$filter")
+      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=arm&hw_bitness=64" | jq -r "$filter11")
     else
       requestedArch="x64"
-      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter")
+      availableVersion=$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter11")
     fi
   fi
-  if [[ -z $requestedArch ]] && [[ -z $availableVersion ]]; then echo "FAILED (java update available)"; return 1; fi
+  if [[ -z $requestedArch ]] || [[ -z $availableVersion ]]; then echo "FAILED (java update available)"; return 1; fi
 
   if [[ "$("${jdkBin}"/java -version 2>&1 > /dev/null)" == *"aarch32hf"* ]]; then javaArch="aarch32hf"; fi
   if [[ "$("${jdkBin}"/java -version 2>&1 > /dev/null)" == *"i686"* ]]; then javaArch="i686"; fi
