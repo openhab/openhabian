@@ -346,10 +346,10 @@ java_zulu_update_available() {
   fi
   if [[ -z $requestedArch ]] || [[ -z $availableVersion ]]; then echo "FAILED (java update available)"; return 1; fi
 
-  if [[ "$("${jdkBin}"/java -version 2>&1 > /dev/null)" == *"aarch32hf"* ]]; then javaArch="aarch32hf"; fi
-  if [[ "$("${jdkBin}"/java -version 2>&1 > /dev/null)" == *"i686"* ]]; then javaArch="i686"; fi
-  if [[ "$("${jdkBin}"/java -version 2>&1 > /dev/null)" == *"aarch64"* ]]; then javaArch="aarch64"; fi
-  if [[ "$("${jdkBin}"/java -version 2>&1 > /dev/null)" == *"x64"* ]]; then javaArch="x64"; fi
+  if [[ $jdkBin == *"aarch32hf"* ]]; then javaArch="aarch32hf"; fi
+  if [[ $jdkBin == *"i686"* ]]; then javaArch="i686"; fi
+  if [[ $jdkBin == *"aarch64"* ]]; then javaArch="aarch64"; fi
+  if [[ $jdkBin == *"x64"* ]]; then javaArch="x64"; fi
 
   if [[ $javaVersion == "$availableVersion" ]] && [[ $javaArch == "$requestedArch" ]]; then
     return 1 # Java is up-to-date
