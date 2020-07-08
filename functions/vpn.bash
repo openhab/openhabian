@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-## Install wireguard from unstable Debian
-## as long as it is not in the Raspbian repo
+## Install wireguard from unstable Debian as long as it is not in the Raspbian repo
+## Valid arguments: "install" or "remove"
 ##
-##   install_wireguard()
+##   install_wireguard(String install)
 ##
 install_wireguard() {
 set -x
@@ -108,10 +108,10 @@ create_wireguard_config() {
 
   configdir=/etc/wireguard
   IFACE=${1:-eth0}
-  WGSERVERIP="${2:-10.253.4}.1"
-  WGCLIENTIP="${2:-10.253.4}.2"
-  VPNSERVER="${3:-$pubIP}"
-  PORT="${4:-51900}"
+  PORT="${2:-51900}"
+  WGSERVERIP="${3:-10.253.4}.1"
+  WGCLIENTIP="${3:-10.253.4}.2"
+  VPNSERVER="${4:-$pubIP}"
   SERVERPRIVATE=$(cat "$configdir"/server_private_key)
   SERVERPUBLIC=$(cat "$configdir"/server_public_key)
   CLIENTPRIVATE=$(cat "$configdir"/client_private_key)
@@ -137,9 +137,9 @@ create_wireguard_config() {
 setup_wireguard() {
 set -x
   local iface
+  local port
   local defaultNetwork
   local dynDNS
-  local port
   local textConfigured
 
 
@@ -155,7 +155,7 @@ set -x
     if ! dynDNS=$(whiptail --title "dynamic domain name" --inputbox "Which dynamic DNS name is your router running found as from the Internet ?" 10 60 3>&1 1>&2 2>&3); then return 1; fi
     if ! port=$(whiptail --title "VPN port" --inputbox "Which port do you want to expose for establishing the VPN ?" 10 60 "$port" 3>&1 1>&2 2>&3); then return 1; fi
   fi
-  create_wireguard_config "$iface" "$defaultNetwork" "$dynDNS" "$port"
+  create_wireguard_config "$iface" "$port" "$defaultNetwork" "$dynDNS"
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Wireguard VPN setup" --msgbox "$textConfigured" 20 85
   fi
