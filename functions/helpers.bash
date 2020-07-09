@@ -23,8 +23,8 @@ timestamp() { date +"%F_%T_%Z"; }
 ##    cond_redirect(bash command)
 ##
 cond_redirect() {
-  if [ -n "$SILENT" ]; then
-    "$@" &>/dev/null
+  if [[ -n $SILENT ]]; then
+    "$@" &> /dev/null
     return $?
   else
     echo -e "\\n$COL_DGRAY\$ $* $COL_DEF"
@@ -34,8 +34,8 @@ cond_redirect() {
 }
 
 cond_echo() {
-  if [ -z "$SILENT" ]; then
-    echo -e "${COL_YELLOW}${*}${COL_DEF}${COL_DEF}"
+  if [[ -z $SILENT ]]; then
+    echo -e "${COL_YELLOW}${*}${COL_DEF}"
   fi
 }
 
@@ -269,22 +269,23 @@ tryUntil() {
   local cmd
   local attempts
   local interval
-  local ret
 
   cmd="$1"
   attempts=${2:-10}
   interval=${3:-1}
 
-  until [ "$attempts" -le 0 ]; do
+  until [[ $attempts -le 0 ]]; do
     cond_echo "\nexecuting $cmd \c"
-    eval "${cmd}"
-    ret=$?
-    if [ $ret -eq 0 ]; then break; fi
+    if [[ $(eval "$cmd") -eq 0 ]]; then break; fi
     sleep "$interval"
-    echo -e "#${attempts}. $COL_DEF"
+    if [[ -z $SILENT ]]; then
+      echo -e "#${attempts}. $COL_DEF"
+    fi
     ((attempts-=1))
   done
-  echo -e "$COL_DEF"
+  if [[ -z $SILENT ]]; then
+    echo -e "$COL_DEF"
+  fi
 
   return "$attempts"
 }
@@ -292,11 +293,58 @@ tryUntil() {
 ## Returns 0 / true if device has less than 900MB of total memory
 ## Returns 1 / false if device has more than 900MB of total memory
 ##
+##    has_lowmem()
+##
 has_lowmem() {
   local totalMemory
 
   totalMemory="$(grep MemTotal /proc/meminfo | awk '{print $2}')"
 
-  if [ -z "$totalMemory" ]; then return 1; fi # assume that device does not have low memory
-  if [ "$totalMemory" -lt 900000 ]; then return 0; else return 1; fi
+  if [[ -z $totalMemory ]]; then return 1; fi # assume that device does not have low memory
+  if [[ $totalMemory -lt 900000 ]]; then return 0; else return 1; fi
+}
+
+## Attempt to update apt package lists 10 times
+## unless 'apt-get update' evaulates to 0.
+## Sleeps for 1 second between each attempt.
+##
+##    wait_for_apt_to_be_ready()
+##
+wait_for_apt_to_be_ready() {
+  local attempts
+  local interval
+  local pid
+
+  attempts=10
+  interval=1
+
+  until [[ $attempts -le 0 ]]; do
+    apt-get update &> /dev/null & pid=$!
+    if [[ $(eval "$(timeout 60 tail --pid=$pid -f /dev/null)") -eq 0 ]]; then return 0; fi
+    sleep "$interval"
+    ((attempts-=1))
+  done
+
+  return 1
+}
+
+## Start 'apt-get update' in the background.
+##
+##    apt_update()
+##
+apt_update() {
+  apt-get update &> /dev/null & PID_APT=$!
+}
+
+## Wait for background 'apt-get update' process to finish or
+## start a new process if it was not already completed.
+##
+##    wait_for_apt_to_finish_update()
+##
+wait_for_apt_to_finish_update() {
+  echo -n "$(timestamp) [openHABian] Updating Linux package information... "
+  if [[ -z $PID_APT ]]; then
+    apt_update
+  fi
+  if timeout 60 tail --pid=$PID_APT -f /dev/null; then echo "OK"; else echo "FAILED"; fi
 }

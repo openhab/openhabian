@@ -1,4 +1,4 @@
-FROM balenalib/intel-nuc-ubuntu:focal-build
+FROM balenalib/amd64-ubuntu:focal-build
 
 
 ENV container docker

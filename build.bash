@@ -17,33 +17,38 @@ source "$(dirname "$0")"/functions/helpers.bash
 ##
 ##    echo_process(String message)
 ##
-echo_process() { echo -e "\\e[1;94m$(timestamp) [openHABian] $*\\e[0m"; }
+echo_process() {
+  echo -e "${COL_CYAN}$(timestamp) [openHABian] ${*}${COL_DEF}"
+}
 
 ## Function for identify and returning current active git repository and branch
 ##
-## Return answer in global variable $clone_string
+## Returns global variable $clone_string
+##
+##    get_git_repo()
 ##
 get_git_repo() {
   local repo_url repo_branch user_name repo_name
-  repo_url=$(git remote get-url origin)
-  repo_branch=$(git branch | grep "\\*" | cut -d ' ' -f2)
-  if [[ ! $repo_url = *"https"* ]]; then
+
+  repo_url="$(git remote get-url origin)"
+  repo_branch="$(git rev-parse --abbrev-ref HEAD)"
+
+  if ! [[ $repo_url == "https"* ]]; then
     # Convert URL from SSH to HTTPS
-    user_name=$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\1#p')
-    if [[ -z "$user_name" ]]; then
+    user_name="$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\1#p')"
+    if [[ -z $user_name ]]; then
       echo_process "Could not identify git user while converting to SSH URL. Exiting."
       exit 1
     fi
-    repo_name=$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\2#p')
-    if [[ -z "$repo_name" ]]; then
+    repo_name="$(echo "$repo_url" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\2#p')"
+    if [[ -z $repo_name ]]; then
       echo_process "Could not identify git repo while converting to SSH URL. Exiting."
       exit 1
     fi
     repo_url="https://github.com/${user_name}/${repo_name}.git"
   fi
-  clone_string=$repo_branch
-  clone_string+=" "
-  clone_string+=$repo_url
+
+  clone_string="${repo_branch} ${repo_url}"
 }
 
 ## Function for injecting custom development branch when building images.
@@ -55,16 +60,16 @@ get_git_repo() {
 ##    inject_build_repo(String path)
 ##
 inject_build_repo() {
-  if [ -z "${clone_string+x}" ]; then
+  if [[ -z "${clone_string+x}" ]]; then
     echo_process "inject_build_repo() invoked without clone_string variable set, exiting...."
     exit 1
   fi
-  sed -i '$a /usr/bin/apt-get install --yes figlet &>/dev/null' "$1"
+  sed -i '$a /usr/bin/apt-get install --yes figlet &> /dev/null' "$1"
   sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' "$1"
-  sed -i "s@^clonebranch=.*@clonebranch=$clonebranch@g" "/etc/openhabian.conf"
-  sed -i "s@^repositoryurl=.*@repositoryurl=$repositoryurl@g" "/etc/openhabian.conf"
+  sed -i 's|^clonebranch=.*$|clonebranch='"${clonebranch:-stable}"'|g' "/etc/openhabian.conf"
+  sed -i 's|^repositoryurl=.*$|repositoryurl='"${repositoryurl:-https://github.com/openhab/openhabian.git}"'|g' "/etc/openhabian.conf"
 }
 
 ## Function for checking if a command is available.
@@ -73,7 +78,10 @@ inject_build_repo() {
 ## Second parameter: list of packets (may be omitted if all packages are named similar as the commands)
 ##
 ## Checks if all commands in $1 are available. If not, it proposes to install the packages
-## listet in $2 and exits with exit code 1.
+## listed in $2 and exits with exit code 1.
+##
+##    check_command_availability_and_exit()
+##
 check_command_availability_and_exit() {
   read -ra CMD <<< "$1"
   for i in "${CMD[@]}"; do
@@ -109,21 +117,21 @@ mount_image_file_root() { # imagefile buildfolder
 
 # umount rpi image
 umount_image_file_boot() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github &&  ! is_pi; then
+  if ! running_in_docker && ! running_on_github && ! is_pi; then
     guestunmount "$2/boot"
   else
     umount "$2/boot"
-    kpartx -dv "$1"
+    kpartx -d "$1"
   fi
 }
 
 # umount rpi image
 umount_image_file_root() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github &&  ! is_pi; then
+  if ! running_in_docker && ! running_on_github && ! is_pi; then
     guestunmount "$2/root"
   else
     umount "$2/root"
-    kpartx -dv "$1"
+    kpartx -d "$1"
   fi
 }
 
@@ -154,14 +162,13 @@ elif [ "$1" == "local-test" ]; then
   ln -sf /etc/systemd/system/openhabian-installer.service /etc/systemd/system/multi-user.target.wants/openhabian-installer.service
   rm -f /opt/openHABian-install-successful
   rm -f /opt/openHABian-install-inprogress
-  cp functions/helpers.bash functions/openhabian.bash /boot/  # add platform identification and update functions
   # Use local filesystem's version of openHABian
   if ! running_in_docker; then
-    sed -i 's|openhabian_update|true|' /boot/first-boot.bash
+    sed -i 's|! openhabian_update &> /dev/null|true|' /boot/first-boot.bash
   fi
   chmod +x /boot/first-boot.bash
   chmod +x /boot/webif.bash
-  echo_process "Local system ready for installation test. Run 'systemctl start openhabian-installer' or reboot to initiate"
+  echo_process "Local system ready for installation test. Run 'systemctl start openhabian-installer' or reboot to initiate!"
   exit 0
 else
   usage
@@ -170,18 +177,16 @@ fi
 
 # Check if a specific repository shall be included
 if [ "$2" == "dev-git" ]; then # Use current git repo and branch as a development image
-  file_tag=custom
+  file_tag="custom"
   get_git_repo
   echo_process "Injecting current branch and git repo when building this image, make sure to push local content to:"
   echo_process "$clone_string"
 
 elif [ "$2" == "dev-url" ]; then # Use custom git server as a development image
-  file_tag=custom
-  clone_string=$3
-  clonebranch=$3
-  clone_string+=" "
-  clone_string+=$4
-  repositoryurl=$4
+  file_tag="custom"
+  clone_string="$3 $4"
+  clonebranch="$3"
+  repositoryurl="$4"
   echo_process "Injecting given git repo when building this image, make sure to push local content to:"
   echo_process "$clone_string"
 elif [ -n "$2" ]; then
@@ -196,11 +201,11 @@ cd "$(dirname "$0")" || (echo "$(dirname "$0") cannot be accessed."; exit 1)
 exec &> >(tee -a "openhabian-build-$timestamp.log")
 
 # Load config, create temporary build folder, cleanup
-sourcefolder=build-image
+sourcefolder="build-image"
 # shellcheck disable=SC1090
-source $sourcefolder/openhabian.$hw_platform.conf
-buildfolder=/tmp/build-$hw_platform-image
-imagefile=$buildfolder/$hw_platform.img
+source "${sourcefolder}/openhabian.${hw_platform}.conf"
+buildfolder="/tmp/build-${hw_platform}-image"
+imagefile="${buildfolder}/${hw_platform}.img"
 umount $buildfolder/boot &>/dev/null || true
 umount $buildfolder/root &>/dev/null || true
 guestunmount --no-retry $buildfolder/boot &>/dev/null || true
@@ -209,21 +214,20 @@ rm -rf $buildfolder
 mkdir $buildfolder
 
 # Build Raspberry Pi image
-if [ "$hw_platform" == "pi-raspios32" ] || [ "$hw_platform" == "pi-raspios64beta" ]; then
+if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta" ]]; then
   if [ "$hw_platform" == "pi-raspios64beta" ]; then
-    zipfile=raspios_lite_arm64_latest.zip
-    baseurl="https://downloads.raspberrypi.org/raspios_arm64/images/raspios_arm64-2020-05-28/2020-05-27-raspios-buster-arm64.zip"
-    bits=64
+    baseurl="https://downloads.raspberrypi.org/raspios_arm64_latest"
+    bits="64"
   else
-    zipfile=raspios_lite_armhf_latest.zip
     baseurl="https://downloads.raspberrypi.org/raspios_lite_armhf_latest"
-    bits=32
+    bits="32"
   fi
+  zipfile="$(basename "$(curl "$baseurl" -s -L -I  -o /dev/null -w '%{url_effective}')")"
 
   # Prerequisites
   echo_process "Checking prerequisites... "
-  REQ_COMMANDS="git wget unzip crc32 dos2unix xz"
-  REQ_PACKAGES="git wget unzip libarchive-zip-perl dos2unix xz-utils"
+  REQ_COMMANDS="git curl unzip crc32 dos2unix xz"
+  REQ_PACKAGES="git curl unzip libarchive-zip-perl dos2unix xz-utils"
   if running_in_docker || running_on_github || is_pi; then
     # in docker guestfstools are not used; do not install it and all of its prerequisites
     # -> must be run as root
@@ -240,16 +244,18 @@ if [ "$hw_platform" == "pi-raspios32" ] || [ "$hw_platform" == "pi-raspios64beta
   fi
   check_command_availability_and_exit "$REQ_COMMANDS" "$REQ_PACKAGES"
 
-  if [ -f "$zipfile" ]; then
-    echo_process "Using local copy of Raspberry Pi OS ($bits-bit) Lite image, $zipfile... "
-    cp $zipfile "$buildfolder/$zipfile"
+
+  if [[ -f $zipfile ]]; then
+    echo_process "Using local copy of Raspberry Pi OS ($bits-bit) Lite image... "
+    cp "$zipfile" "$buildfolder/$zipfile"
   else
-    echo_process "Downloading latest Raspberry Pi OS ($bits-bit) Lite image (no local copy of $zipfile found)... "
-    wget -nv -O "$buildfolder/$zipfile" "$baseurl"
+    echo_process "Downloading latest Raspberry Pi OS ($bits-bit) Lite image (no local copy found)... "
+    curl -L "$baseurl" -o "$zipfile"
+    cp "$zipfile" "$buildfolder/$zipfile"
   fi
   echo_process "Unpacking image... "
-  unzip $buildfolder/$zipfile -d $buildfolder
-  mv $buildfolder/*-rasp*.img $imagefile
+  unzip -q "$buildfolder/$zipfile" -d $buildfolder
+  mv $buildfolder/*-raspios-*.img $imagefile
 
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
@@ -264,15 +270,20 @@ if [ "$hw_platform" == "pi-raspios32" ] || [ "$hw_platform" == "pi-raspios64beta
   cp $sourcefolder/openhabian-installer.service $buildfolder/root/etc/systemd/system/
   ln -s $buildfolder/root/etc/systemd/system/openhabian-installer.service $buildfolder/root/etc/systemd/system/multi-user.target.wants/openhabian-installer.service
 
-  echo_process "Setting default runlevel multiuser.target... "
-  ( # open a subshell, returns to current dir automatically
+  # Open subshell to make sure we don't hurt the host system if for some reason $buildfolder is not properly set
+  echo_process "Setting default runlevel multiuser.target and disabling autologin... "
+  (
     cd $buildfolder/root/etc/systemd/system/ || exit 1
     rm -rf default.target
     ln -s ../../../lib/systemd/system/multi-user.target default.target
-    # disable autologin
-    rm -f $buildfolder/root/etc/systemd/system/getty@tty1.service.d/autologin.conf
+    rm -f getty@tty1.service.d/autologin.conf
   )
 
+  echo_process "Cloning myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-stable} branch... "
+  if ! [[ -d $buildfolder/root/opt/openhabian ]]; then
+    git clone "${repositoryurl:-https://github.com/openhab/openhabian.git}" $buildfolder/root/opt/openhabian &> /dev/null
+    git -C $buildfolder/root/opt/openhabian checkout "${clonebranch:-stable}" &> /dev/null
+  fi
   touch $buildfolder/root/opt/openHABian-install-inprogress
   # maybe we should use a trap to get this done in case of error
   umount_image_file_root "$imagefile" "$buildfolder"
@@ -281,13 +292,12 @@ if [ "$hw_platform" == "pi-raspios32" ] || [ "$hw_platform" == "pi-raspios64beta
   mount_image_file_boot "$imagefile" "$buildfolder"
   touch $buildfolder/boot/ssh
   cp $sourcefolder/first-boot.bash $buildfolder/boot/first-boot.bash
-  sed -i -e '1r functions/helpers.bash' $buildfolder/boot/first-boot.bash # Add platform identification
   touch $buildfolder/boot/first-boot.log
-  unix2dos -n $sourcefolder/openhabian.$hw_platform.conf $buildfolder/boot/openhabian.conf
+  unix2dos -q -n $sourcefolder/openhabian.${hw_platform}.conf $buildfolder/boot/openhabian.conf
   cp $sourcefolder/webif.bash $buildfolder/boot/webif.bash
 
   # Injecting development git repo if clone_string is set and watermark build
-  if [ -n "${clone_string+x}" ]; then
+  if [[ -n "${clone_string+x}" ]]; then
     inject_build_repo $buildfolder/boot/first-boot.bash
   fi
 
@@ -298,17 +308,17 @@ if [ "$hw_platform" == "pi-raspios32" ] || [ "$hw_platform" == "pi-raspios64beta
 fi
 
 echo_process "Moving image and cleaning up... "
-shorthash=$(git log --pretty=format:'%h' -n 1)
-crc32checksum=$(crc32 $imagefile)
-destination="openhabian-$hw_platform-$timestamp-git$file_tag$shorthash-crc$crc32checksum.img"
+shorthash="$(git log --pretty=format:'%h' -n 1)"
+crc32checksum="$(crc32 $imagefile)"
+destination="openhabian-${hw_platform}-${timestamp}-git${file_tag}${shorthash}-crc${crc32checksum}.img"
 mv -v $imagefile "$destination"
 rm -rf $buildfolder
 
 echo_process "Compressing image... "
 # speedup compression, T0 will use all cores and should be supported by reasonably new versions of xz
 xz --verbose --compress --keep -T0 "$destination"
-crc32checksum=$(crc32 "$destination.xz")
-mv "$destination.xz" "openhabian-$hw_platform-$timestamp-git$file_tag$shorthash-crc$crc32checksum.img.xz"
+crc32checksum="$(crc32 "$destination.xz")"
+mv "${destination}.xz" "openhabian-${hw_platform}-${timestamp}-git${file_tag}${shorthash}-crc${crc32checksum}.img.xz"
 
 echo_process "Finished! The results:"
 ls -alh "openhabian-$hw_platform-$timestamp"*

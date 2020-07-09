@@ -9,19 +9,6 @@ get_git_revision() {
   echo "[$branch]$latesttag-$revcount($shorthash)"
 }
 
-apt_update() {
-  apt-get -q update > /dev/null 2>&1 &
-  PID_APT=$!
-}
-
-wait_for_apt_to_finish_update() {
-  echo -n "$(timestamp) [openHABian] Updating Linux package information ... "
-  if [ -z "$PID_APT" ]; then
-    apt_update
-  fi
-  if timeout 60 tail --pid=$PID_APT -f /dev/null; then echo "OK"; else echo "FAILED"; fi
-}
-
 install_cleanup() {
   echo "$(timestamp) [openHABian] Cleaning up ... "
   cond_redirect apt-get autoremove --yes

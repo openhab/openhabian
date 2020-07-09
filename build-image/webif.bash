@@ -1,10 +1,9 @@
 #!/bin/bash
-# start:     	starts a minimalistic web server
-# 	    	shows the status of OpenHABianPi installation
-# restart:   	checks if webserver is running
-# inst_done: 	create finish message and link to http://$hostname:8080
-# cleanup:	stops the webserver
-#	     	removes all no longer needed files
+## start:  Starts a minimalistic web server that shows the status of the
+##       openHABian installation.
+## restart:  Checks if webserver is running.
+## inst_done:  Create finish message and link to http://$hostname:8080.
+## cleanup:  Stops the webserver and removes all no longer needed files.
 
 port=80 # Port the webserver is listing to
 # shellcheck source=/etc/openhabian.conf disable=SC1091
@@ -29,14 +28,14 @@ the log will be refreshed automatically every 10 seconds
 <iframe src='"/first-boot.txt"' scrolling="yes" width="100%" height="90%"></iframe>
 </body>
 </html>' >> /tmp/webif/index.html
-  (cd /tmp/webif || exit 1; python3 -m http.server $port > /dev/null 2>&1 &)
+  (cd /tmp/webif || exit 1; python3 -m http.server $port &> /dev/null &)
 fi
 
 # changed to python3 due to issues in automated testing
 if [ "$1" = "reinsure_running" ]; then
   webifrunning=$(ps -ef | pgrep python3)
   if [ -z "$webifrunning" ]; then
-    python3 -m http.server $port > /dev/null 2>&1 &
+    python3 -m http.server $port &> /dev/null &
   fi
 fi
 
