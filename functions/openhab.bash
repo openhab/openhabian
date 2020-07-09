@@ -74,9 +74,9 @@ Check the \"openHAB Release Notes\" and the official announcements to learn abou
   if is_pi; then
     echo -n "$(timestamp) [openHABian] Optimizing Java to run on low memory single board computers... "
     if has_lowmem; then
-      sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"#g' /etc/default/openhab2
+      if cond_redirect sed -i 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
     else
-      sed -i 's#^EXTRA_JAVA_OPTS=.*#EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"#g' /etc/default/openhab2
+      if cond_redirect sed -i 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
   fi
   if [ -n "$INTERACTIVE" ]; then
