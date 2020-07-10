@@ -6,7 +6,6 @@
 ##   install_wireguard(String action)
 ##
 install_wireguard() {
-set -x
   local configdir
   local textReady
   local textInstallation
@@ -142,7 +141,6 @@ create_wireguard_config() {
 ##   setup_wireguard(String iface, String port, String network (first 3 octets))
 ##
 setup_wireguard() {
-set -x
   local iface
   local port
   local defaultNetwork
