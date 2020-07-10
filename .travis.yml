@@ -15,8 +15,6 @@ services:
 stages:
   - BATS tests
   - openHABian installation tests
-  - BATS and ShellCheck tests
-        #  - openHABian installation tests
 
 install:
   - ./ci-setup.bash travis
