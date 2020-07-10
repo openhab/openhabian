@@ -41,21 +41,25 @@ set -x
     whiptail --title "Wireguard VPN installed" --msgbox "$textInstallation" 15 85
   fi
 
-  echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
   if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
   else
-    apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-    apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+    echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
 
-    # important to avoid release mixing:
-    # prevent RPi from using the Debian distro for normal Raspbian packages
-    echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
-    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+    if is_raspbian || is_raspios; then
+      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
 
-    # headers required for wireguard-dkms module to be built "live"
-    apt-get install --yes raspberrypi-kernel-headers wireguard qrencode
+      # important to avoid release mixing:
+      # prevent RPi from using the Debian distro for normal Raspbian packages
+      echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
+      if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+
+      # headers required for wireguard-dkms module to be built "live"
+      apt-get install --yes raspberrypi-kernel-headers
+    fi
   fi
+  apt-get install --yes wireguard wireguard-dmks wireguard-tools qrencode
 
   # unclear if really needed but should not do harm and does not require input so better safe than sorry
   dpkg-reconfigure wireguard-dkms
@@ -67,6 +71,9 @@ set -x
 
   # enable IP forwarding
   sed -i 's/net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+  sed -i 's/net.ipv6.conf.all.forwarding.*/net.ipv6.conf.all.forwarding=1/g' /etc/sysctl.conf
+  sysctl net.ipv4.ip_forward=1
+  sysctl net.ipv6.conf.all.forwarding=1
 
   chown -R root:root "$configdir"
   systemctl enable --now wg-quick@wg0
