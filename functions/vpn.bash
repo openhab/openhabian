@@ -11,7 +11,7 @@ install_wireguard() {
   local textInstallation
 
 
-  configdir=/etc/wireguard
+  configdir="/etc/wireguard"
   textReady="In order to access your system from the Internet using Wireguard, you need to setup a couple of prerequisites. Do so now if you have not already done so.\\nYou need to have a (dynamically adapting) DNS name point to your router. Get it from any of the free providers such as DuckDNS or selfhost.de.\\nYou also need to forward an UDP port from the router to your system to allow for establishing the VPN (default 51900/UDP).\\nYou need to have this information available and your router should be setup to forward the VPN port. Are you ready to proceed ?"
   textInstallation="We will now install Wireguard VPN on your system. That'll take some time.\\n\\nMake use of this waiting time to install the client side part.\\nYou need to install the Wireguard client from either http://www.wireguard.com/install to your local PC or from PlayStore/AppStore to your mobile device.\\nopenHABian will display a QR code at the end of this installation to let you easily transfer the configuration."
 
@@ -27,19 +27,19 @@ install_wireguard() {
     rm -f /etc/apt/sources.list.d/wireguard.list
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     if [[ -n "$INTERACTIVE" ]]; then
-      whiptail --title "Wireguard VPN removed" --msgbox "We permanently removed the Wireguard installation from your system." 8 80 3>&1 1>&2 2>&3
+      whiptail --title "Wireguard VPN removed" --msgbox "We permanently removed the Wireguard installation from your system." 8 80
     fi
     echo "OK"
     return 0
   fi
-  if [[ "$1" != "install" ]]; then return 1; fi
+  if [[ $1 != "install" ]]; then return 1; fi
 
   echo -n "$(timestamp) [openHABian] Installing Wireguard and enabling VPN remote access... "
   if [[ -n "$INTERACTIVE" ]]; then
-    if ! whiptail --title "DynDNS hostname" --yesno --defaultno "$textReady" 15 85 3>&1 1>&2 2>&3; then return 1; fi
-    whiptail --title "Wireguard VPN installed" --msgbox "$textInstallation" 15 85 3>&1 1>&2 2>&3
+    if ! whiptail --title "DynDNS hostname" --yesno --defaultno "$textReady" 15 85; then return 1; fi
+    whiptail --title "Wireguard VPN installed" --msgbox "$textInstallation" 15 85
   fi
-  
+
   echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
 
   if is_ubuntu; then
@@ -48,8 +48,8 @@ install_wireguard() {
     apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
     apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
 
-  # important to avoid release mixing:
-  # prevent RPi from using the Debian distro for normal Raspbian packages
+    # important to avoid release mixing:
+    # prevent RPi from using the Debian distro for normal Raspbian packages
     echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
 
@@ -72,7 +72,7 @@ install_wireguard() {
   systemctl enable --now wg-quick@wg0
 
   if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "Wireguard VPN installed" --msgbox "Wireguard VPN was successfully installed on your system. We will now move to to configure it for remote access." 8 80 3>&1 1>&2 2>&3
+    whiptail --title "Wireguard VPN installed" --msgbox "Wireguard VPN was successfully installed on your system. We will now move to to configure it for remote access." 8 80
   else
     echo "OK"
   fi
@@ -94,7 +94,7 @@ create_wireguard_config() {
   local pubIP
   local IFACE
   local WGSERVERIP WGCLIENTIP VPNSERVER PORT
-  local SERVERPRIVATE SERVERPUBLIC CLIENTPRIVATE CLIENTPUBLIC 
+  local SERVERPRIVATE SERVERPUBLIC CLIENTPRIVATE CLIENTPUBLIC
 
 
   if ! [[ -x $(command -v dig) ]]; then
@@ -139,8 +139,8 @@ setup_wireguard() {
   local dynDNS
   local port
   local textConfigured
-  
-  
+
+
   iface="${1:-eth0}"
   port="${2:-51900}"
   defaultNetwork="${3:-10.253.4}"
@@ -155,10 +155,9 @@ setup_wireguard() {
   fi
   create_wireguard_config "$iface" "$defaultNetwork" "$dynDNS" "$port"
   if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "Wireguard VPN setup" --msgbox "$textConfigured" 20 85 3>&1 1>&2 2>&3
+    whiptail --title "Wireguard VPN setup" --msgbox "$textConfigured" 20 85
   fi
 
   echo -n "$(timestamp) [openHABian] Generating QR to load config on the client side (download Wireguard app from PlayStore or AppStore)... "
   qrencode -t ansiutf8 </etc/wireguard/wg0-client.conf
 }
-
