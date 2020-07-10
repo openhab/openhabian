@@ -3,10 +3,9 @@
 ## Install wireguard from unstable Debian as long as it is not in the Raspbian repo
 ## Valid arguments: "install" or "remove"
 ##
-##   install_wireguard(String install)
+##   install_wireguard(String action)
 ##
 install_wireguard() {
-set -x
   local configdir
   local textReady
   local textInstallation
@@ -142,7 +141,6 @@ create_wireguard_config() {
 ##   setup_wireguard(String iface, String port, String network (first 3 octets))
 ##
 setup_wireguard() {
-set -x
   local iface
   local port
   local defaultNetwork
