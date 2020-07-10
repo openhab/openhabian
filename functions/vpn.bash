@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-## Install wireguard from unstable Debian
-## as long as it is not in the Raspbian repo
+## Install wireguard from unstable Debian as long as it is not in the Raspbian repo
+## Valid arguments: "install" or "remove"
 ##
-##   install_wireguard()
+##   install_wireguard(String action)
 ##
 install_wireguard() {
   local configdir
@@ -40,22 +40,25 @@ install_wireguard() {
     whiptail --title "Wireguard VPN installed" --msgbox "$textInstallation" 15 85
   fi
 
-  echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
-
   if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
   else
-    apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-    apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+    echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
 
-    # important to avoid release mixing:
-    # prevent RPi from using the Debian distro for normal Raspbian packages
-    echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
-    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+    if is_raspbian || is_raspios; then
+      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
 
-    # headers required for wireguard-dkms module to be built "live"
-    apt-get install --yes raspberrypi-kernel-headers wireguard qrencode
+      # important to avoid release mixing:
+      # prevent RPi from using the Debian distro for normal Raspbian packages
+      echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
+      if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+
+      # headers required for wireguard-dkms module to be built "live"
+      apt-get install --yes raspberrypi-kernel-headers
+    fi
   fi
+  apt-get install --yes wireguard wireguard-dmks wireguard-tools qrencode
 
   # unclear if really needed but should not do harm and does not require input so better safe than sorry
   dpkg-reconfigure wireguard-dkms
@@ -67,6 +70,9 @@ install_wireguard() {
 
   # enable IP forwarding
   sed -i 's/net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
+  sed -i 's/net.ipv6.conf.all.forwarding.*/net.ipv6.conf.all.forwarding=1/g' /etc/sysctl.conf
+  sysctl net.ipv4.ip_forward=1
+  sysctl net.ipv6.conf.all.forwarding=1
 
   chown -R root:root "$configdir"
   systemctl enable --now wg-quick@wg0
@@ -108,16 +114,17 @@ create_wireguard_config() {
 
   configdir=/etc/wireguard
   IFACE=${1:-eth0}
-  WGSERVERIP="${2:-10.253.4}.1"
-  WGCLIENTIP="${2:-10.253.4}.2"
-  VPNSERVER="${3:-$pubIP}"
-  PORT="${4:-51900}"
+  PORT="${2:-51900}"
+  WGSERVERIP="${3:-10.253.4}.1"
+  WGCLIENTIP="${3:-10.253.4}.2"
+  VPNSERVER="${4:-$pubIP}"
   SERVERPRIVATE=$(cat "$configdir"/server_private_key)
   SERVERPUBLIC=$(cat "$configdir"/server_public_key)
   CLIENTPRIVATE=$(cat "$configdir"/client_private_key)
   CLIENTPUBLIC=$(cat "$configdir"/client_public_key)
 
 
+  mkdir -p "$configdir"
   sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "$BASEDIR"/includes/wireguard-server.conf-template > "$configdir"/wg0.conf
   sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "$BASEDIR"/includes/wireguard-client.conf-template > "$configdir"/wg0-client.conf
 
@@ -135,9 +142,9 @@ create_wireguard_config() {
 ##
 setup_wireguard() {
   local iface
+  local port
   local defaultNetwork
   local dynDNS
-  local port
   local textConfigured
 
 
@@ -153,7 +160,7 @@ setup_wireguard() {
     if ! dynDNS=$(whiptail --title "dynamic domain name" --inputbox "Which dynamic DNS name is your router running found as from the Internet ?" 10 60 3>&1 1>&2 2>&3); then return 1; fi
     if ! port=$(whiptail --title "VPN port" --inputbox "Which port do you want to expose for establishing the VPN ?" 10 60 "$port" 3>&1 1>&2 2>&3); then return 1; fi
   fi
-  create_wireguard_config "$iface" "$defaultNetwork" "$dynDNS" "$port"
+  create_wireguard_config "$iface" "$port" "$defaultNetwork" "$dynDNS"
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Wireguard VPN setup" --msgbox "$textConfigured" 20 85
   fi
