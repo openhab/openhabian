@@ -76,8 +76,8 @@ install_wireguard() {
   # enable IP forwarding
   sed -i 's/net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
   sed -i 's/net.ipv6.conf.all.forwarding.*/net.ipv6.conf.all.forwarding=1/g' /etc/sysctl.conf
-  sysctl net.ipv4.ip_forward=1
-  sysctl net.ipv6.conf.all.forwarding=1
+  sysctl -q net.ipv4.ip_forward=1 &>/dev/null
+  sysctl -q net.ipv6.conf.all.forwarding=1 &>/dev/null
 
   chown -R root:root "$configdir"
   systemctl enable --now wg-quick@wg0
@@ -107,10 +107,9 @@ create_wireguard_config() {
   local WGSERVERIP WGCLIENTIP VPNSERVER PORT
   local SERVERPRIVATE SERVERPUBLIC CLIENTPRIVATE CLIENTPUBLIC
 
-set -x
   if ! [[ -x $(command -v dig) ]]; then
     echo -n "$(timestamp) [openHABian] Installing Wireguard required packages (dnsutils)... "
-    if cond_redirect apt-get install --yes dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes dnsutils &>/dev/null; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   pubIP=$(dig -4 +short myip.opendns.com @resolver1.opendns.com | tail -1)
   if [ -z "$pubIP" ]; then
