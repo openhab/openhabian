@@ -14,7 +14,7 @@ teardown_file() {
 @test "development-wireguard_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN installation starting...${COL_DEF}" >&3
   setup_file
-  un install_wireguard install 3>&-
+  run install_wireguard install 3>&-
   #if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   echo "$output" >&3
   [ "$status" -eq 0 ]
