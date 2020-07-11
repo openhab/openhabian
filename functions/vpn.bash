@@ -40,6 +40,11 @@ install_wireguard() {
     whiptail --title "Wireguard VPN installed" --msgbox "$textInstallation" 15 85
   fi
 
+  set -x
+  echo "Ubuntu() = $(is_ubuntu)" 
+  echo "Raspbian() = $(is_raspbian)" 
+  echo "RaspiOS() = $(is_raspios)" 
+
   if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
   else
