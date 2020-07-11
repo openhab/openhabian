@@ -50,8 +50,9 @@ install_wireguard() {
 
   if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
-  elif is_debian; then
-    echo 'deb http://deb.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/wireguard.list
+  else
+    if is_debian; then
+      echo 'deb http://deb.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/wireguard.list
     else
       if running_in_docker || is_raspbian || is_raspios; then
         echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
