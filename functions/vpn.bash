@@ -40,18 +40,11 @@ install_wireguard() {
     whiptail --title "Wireguard VPN installed" --msgbox "$textInstallation" 15 85
   fi
 
-  set -x
-#  if is_debian; then echo "Debian!"; fi
-#  if is_ubuntu; then echo "Ubuntu!"; fi
-#  if is_raspbian; then echo "Raspbian!"; fi
-#  if is_raspios; then echo "RaspiOS!"; fi
-#  ls -l /etc/apt/sources.list /etc/apt/sources.list.d/*.list
-#  apt policy
-
-  if is_ubuntu; then
+set -x
+if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
   else
-    if running_in_docker || is_pi || is_raspbian || is_raspios; then
+    if is_pi || is_raspbian || is_raspios; then
       echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
       apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
       apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
