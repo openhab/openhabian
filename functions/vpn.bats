@@ -15,24 +15,22 @@ teardown_file() {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN installation starting...${COL_DEF}" >&3
   setup_file
   run install_wireguard install 3>&-
-  #if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  echo "$output" >&3
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Wireguard VPN installation successful.${COL_DEF}" >&3
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN setup starting...${COL_DEF}" >&3
   run setup_wireguard 3>&-
-  #if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   echo "$output" >&3
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Wireguard VPN setup successful.${COL_DEF}" >&3
 
-  # pretty sure that will not work in Docker ...
-  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Wireguard service is running...${COL_DEF}" >&3
-  run systemctl is-active wg-quick@wg0.service 3>&-
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Wireguard service is running.${COL_DEF}" >&3
+  # that will not work inside Docker ...
+  #echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Wireguard service is running...${COL_DEF}" >&3
+  #run systemctl is-active wg-quick@wg0.service 3>&-
+  #if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  #[ "$status" -eq 0 ]
+  #echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Wireguard service is running.${COL_DEF}" >&3
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN removal starting...${COL_DEF}" >&3
   run install_wireguard remove 3>&-
