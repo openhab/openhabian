@@ -107,7 +107,7 @@ create_wireguard_config() {
   local WGSERVERIP WGCLIENTIP VPNSERVER PORT
   local SERVERPRIVATE SERVERPUBLIC CLIENTPRIVATE CLIENTPUBLIC
 
-
+set -x
   if ! [[ -x $(command -v dig) ]]; then
     echo -n "$(timestamp) [openHABian] Installing Wireguard required packages (dnsutils)... "
     if cond_redirect apt-get install --yes dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -130,8 +130,8 @@ create_wireguard_config() {
 
 
   mkdir -p "$configdir"
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "$BASEDIR"/includes/wireguard-server.conf-template > "$configdir"/wg0.conf
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "$BASEDIR"/includes/wireguard-client.conf-template > "$configdir"/wg0-client.conf
+  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "${BASEDIR:-/opt/openhabian}"/includes/wireguard-server.conf-template > "$configdir"/wg0.conf
+  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "${BASEDIR:-/opt/openhabian}"/includes/wireguard-client.conf-template > "$configdir"/wg0-client.conf
 
   chmod -R og-rwx "$configdir"/*
 }
@@ -152,7 +152,6 @@ setup_wireguard() {
   local dynDNS
   local textConfigured
 
-set -x
   iface="${1:-eth0}"
   port="${2:-51900}"
   defaultNetwork="${3:-10.253.4}"
