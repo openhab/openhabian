@@ -41,6 +41,7 @@ install_wireguard() {
   fi
 
   set -x
+  if is_debian; then echo "Debian!"; fi
   if is_ubuntu; then echo "Ubuntu!"; fi
   if is_raspbian; then echo "Raspbian!"; fi
   if is_raspios; then echo "RaspiOS!"; fi
@@ -49,24 +50,26 @@ install_wireguard() {
 
   if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
-  else
-    echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
+  elif is_debian; then
+    echo 'deb http://deb.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/wireguard.list
+    else
+      if running_in_docker || is_raspbian || is_raspios; then
+        echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
+        apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+        apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
 
-    if running_in_docker || is_raspbian || is_raspios; then
-      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-    fi
-    # important to avoid release mixing:
-    # prevent RPi from using the Debian distro for normal Raspbian packages
-    echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
-    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+        # important to avoid release mixing:
+        # prevent RPi from using the Debian distro for normal Raspbian packages
+        echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
 
-    if running_in_docker || is_raspbian || is_raspios; then
-      # headers required for wireguard-dkms module to be built "live"
-      apt-get install --yes raspberrypi-kernel-headers
+        # headers required for wireguard-dkms module to be built "live"
+        apt-get install --yes raspberrypi-kernel-headers
+      fi
+      if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     fi
   fi
-  apt-get install --yes wireguard wireguard-dmks wireguard-tools qrencode
+#  apt-get install --yes wireguard wireguard-dmks wireguard-tools qrencode
+  apt-get install --yes wireguard qrencode
 
   # unclear if really needed but should not do harm and does not require input so better safe than sorry
   dpkg-reconfigure wireguard-dkms
