@@ -152,7 +152,7 @@ setup_wireguard() {
   local dynDNS
   local textConfigured
 
-
+set -x
   iface="${1:-eth0}"
   port="${2:-51900}"
   defaultNetwork="${3:-10.253.4}"
