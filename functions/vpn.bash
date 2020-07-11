@@ -41,31 +41,31 @@ install_wireguard() {
   fi
 
   set -x
-  if is_debian; then echo "Debian!"; fi
-  if is_ubuntu; then echo "Ubuntu!"; fi
-  if is_raspbian; then echo "Raspbian!"; fi
-  if is_raspios; then echo "RaspiOS!"; fi
-  ls -l /etc/apt/sources.list /etc/apt/sources.list.d/*.list
-  apt policy
+#  if is_debian; then echo "Debian!"; fi
+#  if is_ubuntu; then echo "Ubuntu!"; fi
+#  if is_raspbian; then echo "Raspbian!"; fi
+#  if is_raspios; then echo "RaspiOS!"; fi
+#  ls -l /etc/apt/sources.list /etc/apt/sources.list.d/*.list
+#  apt policy
 
   if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
   else
-    if is_debian; then
+    if running_in_docker || is_pi || is_raspbian || is_raspios; then
+      echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
+      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+
+      # important to avoid release mixing:
+      # prevent RPi from using the Debian distro for normal Raspbian packages
+      echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
+
+      # headers required for wireguard-dkms module to be built "live"
+      apt-get install --yes raspberrypi-kernel-headers
+    elif is_debian; then
       echo 'deb http://deb.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/wireguard.list
     else
-      if running_in_docker || is_raspbian || is_raspios; then
-        echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
-        apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-        apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-
-        # important to avoid release mixing:
-        # prevent RPi from using the Debian distro for normal Raspbian packages
-        echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
-
-        # headers required for wireguard-dkms module to be built "live"
-        apt-get install --yes raspberrypi-kernel-headers
-      fi
+      echo "FAILED (unsupported OS)"; return 1; fi
     fi
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   fi
