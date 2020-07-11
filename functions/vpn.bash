@@ -40,21 +40,20 @@ install_wireguard() {
     whiptail --title "Wireguard VPN installed" --msgbox "$textInstallation" 15 85
   fi
 
-set -x
-if is_ubuntu; then
+  if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
   else
     if is_pi || is_raspbian || is_raspios; then
       echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
-      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+      cond_redirect apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+      cond_redirect apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
 
       # important to avoid release mixing:
       # prevent RPi from using the Debian distro for normal Raspbian packages
       echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
 
       # headers required for wireguard-dkms module to be built "live"
-      apt-get install --yes raspberrypi-kernel-headers
+      cond_redirect apt-get install --yes raspberrypi-kernel-headers
     else
       if is_debian; then
         echo 'deb http://deb.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/wireguard.list
@@ -64,8 +63,7 @@ if is_ubuntu; then
     fi
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   fi
-#  apt-get install --yes wireguard wireguard-dmks wireguard-tools qrencode
-  apt-get install --yes wireguard qrencode
+  cond_redirect apt-get install --yes wireguard qrencode
 
   # unclear if really needed but should not do harm and does not require input so better safe than sorry
   dpkg-reconfigure wireguard-dkms
