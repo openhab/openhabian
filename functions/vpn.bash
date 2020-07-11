@@ -25,7 +25,7 @@ install_wireguard() {
     rmmod wireguard
 
     rm -f /etc/apt/sources.list.d/wireguard.list
-    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+    if ! cond_redirect apt-get update &>/dev/null; then echo "FAILED (update apt lists)"; return 1; fi
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Wireguard VPN removed" --msgbox "We permanently removed the Wireguard installation from your system." 8 80
     fi
@@ -61,7 +61,7 @@ install_wireguard() {
         echo "FAILED (unsupported OS)"; return 1
       fi
     fi
-    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+    if ! cond_redirect apt-get update &>/dev/null; then echo "FAILED (update apt lists)"; return 1; fi
   fi
   cond_redirect apt-get install --yes wireguard qrencode
 
