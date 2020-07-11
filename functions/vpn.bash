@@ -66,8 +66,8 @@ install_wireguard() {
         # headers required for wireguard-dkms module to be built "live"
         apt-get install --yes raspberrypi-kernel-headers
       fi
-      if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     fi
+    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   fi
 #  apt-get install --yes wireguard wireguard-dmks wireguard-tools qrencode
   apt-get install --yes wireguard qrencode
