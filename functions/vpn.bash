@@ -63,11 +63,11 @@ install_wireguard() {
     fi
     if ! cond_redirect apt-get update &>/dev/null; then echo "FAILED (update apt lists)"; return 1; fi
   fi
-  cond_redirect apt-get install --yes wireguard qrencode
+  cond_redirect apt-get install --yes wireguard qrencode &>/dev/null
 
   # unclear if really needed but should not do harm and does not require input so better safe than sorry
-  dpkg-reconfigure wireguard-dkms
-  modprobe wireguard
+  cond_redirect dpkg-reconfigure wireguard-dkms &>/dev/null
+  cond_redirect modprobe wireguard &>/dev/null
 
   umask 077
   wg genkey | tee "$configdir"/server_private_key | wg pubkey > "$configdir"/server_public_key
