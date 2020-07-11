@@ -44,6 +44,8 @@ install_wireguard() {
   echo "Ubuntu() = $(is_ubuntu)" 
   echo "Raspbian() = $(is_raspbian)" 
   echo "RaspiOS() = $(is_raspios)" 
+  ls -l /etc/apt/sources.list /etc/apt/sources.list.d/*.list
+  apt policy
 
   if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
