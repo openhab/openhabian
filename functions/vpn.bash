@@ -25,7 +25,7 @@ install_wireguard() {
     rmmod wireguard
 
     rm -f /etc/apt/sources.list.d/wireguard.list
-    if ! cond_redirect apt-get update &>/dev/null; then echo "FAILED (update apt lists)"; return 1; fi
+    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Wireguard VPN removed" --msgbox "We permanently removed the Wireguard installation from your system." 8 80
     fi
@@ -61,14 +61,15 @@ install_wireguard() {
         echo "FAILED (unsupported OS)"; return 1
       fi
     fi
-    if ! cond_redirect apt-get update &>/dev/null; then echo "FAILED (update apt lists)"; return 1; fi
+    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   fi
-  cond_redirect apt-get install --yes wireguard qrencode &>/dev/null
+  cond_redirect apt-get install --yes wireguard qrencode
 
   # unclear if really needed but should not do harm and does not require input so better safe than sorry
-  cond_redirect dpkg-reconfigure wireguard-dkms &>/dev/null
-  cond_redirect modprobe wireguard &>/dev/null
-
+  if ! running_in_docker; then
+    cond_redirect dpkg-reconfigure wireguard-dkms
+    cond_redirect modprobe wireguard
+  fi
   umask 077
   wg genkey | tee "$configdir"/server_private_key | wg pubkey > "$configdir"/server_public_key
   wg genkey | tee "$configdir"/client_private_key | wg pubkey > "$configdir"/client_public_key
@@ -76,8 +77,10 @@ install_wireguard() {
   # enable IP forwarding
   sed -i 's/net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
   sed -i 's/net.ipv6.conf.all.forwarding.*/net.ipv6.conf.all.forwarding=1/g' /etc/sysctl.conf
-  sysctl -q net.ipv4.ip_forward=1 &>/dev/null
-  sysctl -q net.ipv6.conf.all.forwarding=1 &>/dev/null
+  if ! running_in_docker; then
+    sysctl net.ipv4.ip_forward=1
+    sysctl net.ipv6.conf.all.forwarding=1
+  fi
 
   chown -R root:root "$configdir"
   systemctl enable --now wg-quick@wg0
