@@ -74,16 +74,16 @@ install_wireguard() {
   wg genkey | tee "$configdir"/server_private_key | wg pubkey > "$configdir"/server_public_key
   wg genkey | tee "$configdir"/client_private_key | wg pubkey > "$configdir"/client_public_key
 
+  chown -R root:root "$configdir"
+
   # enable IP forwarding
   sed -i 's/net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
   sed -i 's/net.ipv6.conf.all.forwarding.*/net.ipv6.conf.all.forwarding=1/g' /etc/sysctl.conf
   if ! running_in_docker; then
     sysctl net.ipv4.ip_forward=1
     sysctl net.ipv6.conf.all.forwarding=1
+    systemctl enable --now wg-quick@wg0
   fi
-
-  chown -R root:root "$configdir"
-  systemctl enable --now wg-quick@wg0
 
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Wireguard VPN installed" --msgbox "Wireguard VPN was successfully installed on your system. We will now move to to configure it for remote access." 8 80
