@@ -43,39 +43,47 @@ install_wireguard() {
   if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
   else
-    echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
-
-    if is_raspbian || is_raspios; then
-      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-      apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+    if is_pi || is_raspbian || is_raspios; then
+      echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
+      cond_redirect apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+      cond_redirect apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
 
       # important to avoid release mixing:
       # prevent RPi from using the Debian distro for normal Raspbian packages
       echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
-      if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
 
       # headers required for wireguard-dkms module to be built "live"
-      apt-get install --yes raspberrypi-kernel-headers
+      cond_redirect apt-get install --yes raspberrypi-kernel-headers
+    else
+      if is_debian; then
+        echo 'deb http://deb.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/wireguard.list
+      else
+        echo "FAILED (unsupported OS)"; return 1
+      fi
     fi
+    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   fi
-  apt-get install --yes wireguard wireguard-dmks wireguard-tools qrencode
+  cond_redirect apt-get install --yes wireguard qrencode
 
   # unclear if really needed but should not do harm and does not require input so better safe than sorry
-  dpkg-reconfigure wireguard-dkms
-  modprobe wireguard
-
+  if ! running_in_docker; then
+    cond_redirect dpkg-reconfigure wireguard-dkms
+    cond_redirect modprobe wireguard
+  fi
   umask 077
   wg genkey | tee "$configdir"/server_private_key | wg pubkey > "$configdir"/server_public_key
   wg genkey | tee "$configdir"/client_private_key | wg pubkey > "$configdir"/client_public_key
 
+  chown -R root:root "$configdir"
+
   # enable IP forwarding
   sed -i 's/net.ipv4.ip_forward.*/net.ipv4.ip_forward=1/g' /etc/sysctl.conf
   sed -i 's/net.ipv6.conf.all.forwarding.*/net.ipv6.conf.all.forwarding=1/g' /etc/sysctl.conf
-  sysctl net.ipv4.ip_forward=1
-  sysctl net.ipv6.conf.all.forwarding=1
-
-  chown -R root:root "$configdir"
-  systemctl enable --now wg-quick@wg0
+  if ! running_in_docker; then
+    sysctl net.ipv4.ip_forward=1
+    sysctl net.ipv6.conf.all.forwarding=1
+    systemctl enable --now wg-quick@wg0
+  fi
 
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Wireguard VPN installed" --msgbox "Wireguard VPN was successfully installed on your system. We will now move to to configure it for remote access." 8 80
@@ -102,7 +110,6 @@ create_wireguard_config() {
   local WGSERVERIP WGCLIENTIP VPNSERVER PORT
   local SERVERPRIVATE SERVERPUBLIC CLIENTPRIVATE CLIENTPUBLIC
 
-
   if ! [[ -x $(command -v dig) ]]; then
     echo -n "$(timestamp) [openHABian] Installing Wireguard required packages (dnsutils)... "
     if cond_redirect apt-get install --yes dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -125,8 +132,8 @@ create_wireguard_config() {
 
 
   mkdir -p "$configdir"
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "$BASEDIR"/includes/wireguard-server.conf-template > "$configdir"/wg0.conf
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "$BASEDIR"/includes/wireguard-client.conf-template > "$configdir"/wg0-client.conf
+  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "${BASEDIR:-/opt/openhabian}"/includes/wireguard-server.conf-template > "$configdir"/wg0.conf
+  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "${BASEDIR:-/opt/openhabian}"/includes/wireguard-client.conf-template > "$configdir"/wg0-client.conf
 
   chmod -R og-rwx "$configdir"/*
 }
@@ -146,7 +153,6 @@ setup_wireguard() {
   local defaultNetwork
   local dynDNS
   local textConfigured
-
 
   iface="${1:-eth0}"
   port="${2:-51900}"
