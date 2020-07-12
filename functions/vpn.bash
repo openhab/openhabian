@@ -112,7 +112,7 @@ create_wireguard_config() {
 
   if ! [[ -x $(command -v dig) ]]; then
     echo -n "$(timestamp) [openHABian] Installing Wireguard required packages (dnsutils)... "
-    if cond_redirect apt-get install --yes dnsutils &>/dev/null; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   pubIP=$(dig -4 +short myip.opendns.com @resolver1.opendns.com | tail -1)
   if [ -z "$pubIP" ]; then
