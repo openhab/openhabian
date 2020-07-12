@@ -10,11 +10,11 @@ install_zram_code() {
   local ZRAMGIT=https://github.com/mstormi/openhabian-zram
   local OVERLAYFSGIT=https://github.com/kmxz/overlayfs-tools
   local TAG=openhabian_v1.6
-  cond_redirect apt-get install -y -q --no-install-recommends make libattr1-dev
+  #cond_redirect apt-get install -y -q --no-install-recommends make libattr1-dev
 
   mkdir -p "$1"
   git clone -q "$OVERLAYFSGIT" "$1"/overlayfs-tools
-  git clone -q --branch "$TAG" "$ZRAMGIT" "$1"/openhabian-zram
+  git clone -c advice.detachedHead=false -q --branch "$TAG" "$ZRAMGIT" "$1"/openhabian-zram
 }
 
 init_zram_mounts() {
@@ -33,6 +33,7 @@ init_zram_mounts() {
     fi
 
     ZRamInstallLocation=/opt/zram
+    cond_redirect apt-get install -y -q --no-install-recommends make libattr1-dev
 
     install_zram_code "$ZRamInstallLocation"
     cd "$ZRamInstallLocation"/overlayfs-tools || return 1

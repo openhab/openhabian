@@ -10,7 +10,7 @@ usage() {
 ##########################
 #### Load help method ####
 ##########################
-# shellcheck disable=SC1090
+# shellcheck source=functions/helpers.bash
 source "$(dirname "$0")"/functions/helpers.bash
 
 ## This function formats log messages
@@ -103,6 +103,7 @@ mount_image_file_boot() { # imagefile buildfolder
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
     mount -o rw -t vfat "/dev/mapper/${loop_prefix}p1" "$buildfolder/boot"
   fi
+  df -h "$buildfolder/boot"
 }
 
 mount_image_file_root() { # imagefile buildfolder
@@ -112,6 +113,7 @@ mount_image_file_root() { # imagefile buildfolder
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
     mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
   fi
+  df -h "$buildfolder/root"
 }
 
 
@@ -222,7 +224,8 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
     baseurl="https://downloads.raspberrypi.org/raspios_lite_armhf_latest"
     bits="32"
   fi
-  zipfile="$(basename "$(curl "$baseurl" -s -L -I  -o /dev/null -w '%{url_effective}')")"
+  zipurl="$(curl "$baseurl" -s -L -I  -o /dev/null -w '%{url_effective}')"
+  zipfile="$(basename "$zipurl")"
 
   # Prerequisites
   echo_process "Checking prerequisites... "
@@ -246,13 +249,22 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
 
 
   if [[ -f $zipfile ]]; then
-    echo_process "Using local copy of Raspberry Pi OS ($bits-bit) Lite image... "
+    echo_process "Using local copy of Raspberry Pi OS ($bits-bit) image... "
     cp "$zipfile" "$buildfolder/$zipfile"
   else
-    echo_process "Downloading latest Raspberry Pi OS ($bits-bit) Lite image (no local copy found)... "
+    echo_process "Downloading latest Raspberry Pi OS ($bits-bit) image (no local copy found)... "
     curl -L "$baseurl" -o "$zipfile"
     cp "$zipfile" "$buildfolder/$zipfile"
   fi
+
+  echo_process "Verifying signature of downloaded image... "
+  curl -s "$zipurl".sig -o "$buildfolder"/"$zipfile".sig 
+  # verify signature with key from website - this is probably not the safest way to obtain the key,
+  # but at least it is on a different download site
+  curl -s -o "$buildfolder"/raspberrypi_downloads.gpg.key https://www.raspberrypi.org/raspberrypi_downloads.gpg.key
+  gpg -q --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --import "$buildfolder"/raspberrypi_downloads.gpg.key 2>/dev/null || true
+  gpg -q --trust-model always --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile" || exit 1
+
   echo_process "Unpacking image... "
   unzip -q "$buildfolder/$zipfile" -d $buildfolder
   mv $buildfolder/*-raspios-*.img $imagefile
