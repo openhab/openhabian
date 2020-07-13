@@ -5,6 +5,9 @@ Description=Homegear
 Type=simple
 User=homegear
 Group=homegear
+RuntimeDirectory=homegear
+PIDFile=/run/homegear/homegear.pid
+LimitRTPRIO=100
 ExecStart=/usr/bin/homegear
 
 [Install]
