@@ -186,6 +186,7 @@ homegear_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Homegear service... "
   cp "$BASEDIR"/includes/homegear.service /lib/systemd/system/homegear.service
   mkdir -p $rundir && chown homegear:homegear $rundir
+  cond_redirect systemctl -q daemon-reload &>/dev/null
   if ! systemctl enable homegear.service; then echo "FAILED (enable service)"; return 1; fi
   if systemctl restart homegear.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
