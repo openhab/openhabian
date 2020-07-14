@@ -182,7 +182,7 @@ homegear_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permisions... "
   if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
   if cond_redirect adduser openhab homegear; then echo "OK"; else echo "FAILED"; return 1; fi
-
+set -x
   echo -n "$(timestamp) [openHABian] Setting up Homegear service... "
   cp "$BASEDIR"/includes/homegear.service /lib/systemd/system/homegear.service
   mkdir -p $rundir && chown homegear:homegear $rundir
