@@ -153,6 +153,7 @@ homegear_setup() {
   local myOS
   local myRelease
   local successtext
+  local rundir
 
   if ! [ -x "$(command -v lsb_release)" ]; then
     echo -n "$(timestamp) [openHABian] Installing Homegear required packages... "
@@ -163,6 +164,7 @@ homegear_setup() {
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
   successtext="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'sudo homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
+  rundir=/run/homegear
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
   if [ -n "$INTERACTIVE" ]; then
@@ -183,6 +185,7 @@ homegear_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up Homegear service... "
   cp "$BASEDIR"/includes/homegear.service /lib/systemd/system/homegear.service
+  mkdir -p $rundir && chown homegear:homegear $rundir
   if ! systemctl enable homegear.service; then echo "FAILED (enable service)"; return 1; fi
   if systemctl restart homegear.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
