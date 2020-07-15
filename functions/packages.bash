@@ -182,12 +182,13 @@ homegear_setup() {
   if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
   if cond_redirect adduser openhab homegear; then echo "OK"; else echo "FAILED"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up Homegear service... "
+set -x
   cp "$BASEDIR"/includes/homegear*.service /lib/systemd/system/
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /lib/systemd/system/homegear*; fi
   cond_redirect systemctl -q daemon-reload &>/dev/null
   if ! systemctl enable --now homegear homegear-management; then echo "FAILED (enable service)"; return 1; fi
 
-  if [ -n "$INTERACTIVE" ]; then
+  if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
   fi
 }
