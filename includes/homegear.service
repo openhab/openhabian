@@ -6,8 +6,8 @@ Type=simple
 User=homegear
 Group=homegear
 RuntimeDirectory=/run/homegear
-PIDFile=/run/homegear/homegear.pid
-#PIDFile=homegear.pid
+#PIDFile=/run/homegear/homegear.pid
+PIDFile=homegear.pid
 LimitRTPRIO=100
 ExecStart=/usr/bin/homegear
 
