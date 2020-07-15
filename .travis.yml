@@ -43,7 +43,8 @@ jobs:
         - docker run --name "development-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "development-." .'
         - docker run --name "unit-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "unit-." .'
         - docker run --name "installation-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "installation-." .'
-        - docker run --name "destructive-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "destructive-." .'
+          #        - docker run --name "destructive-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "destructive-." .'
+        - docker run --name "destructive-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "destructive-homegear_install" .'
     - stage: openHABian installation tests
       name: openHABian installation test with 64bit Azul Java 8 on native amd64
       env: HW=amd64
