@@ -1,0 +1,21 @@
+[Unit]
+Description=Homegear Management
+After=homegear.service
+
+[Install]
+WantedBy=multi-user.target
+
+[Service]
+Type=simple
+RuntimeDirectory=homegear
+#PIDFile=/run/homegear/homegear-management.pid
+PIDFile=homegear-management.pid
+TimeoutSec=300
+LimitRTPRIO=100
+ExecStart=/usr/bin/homegear-management -p /var/run/homegear/homegear-management.pid
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+TasksMax=infinity
+LimitCORE=infinity
+KillMode=process
+
