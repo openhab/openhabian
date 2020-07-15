@@ -16,8 +16,8 @@ echo_process() {
 
 if [[ $1 == "travis" ]]; then
   # prepare configuration for tests, select debug level here:
-  #sed -i 's#debugmode=.*$#debugmode=on#' build-image/openhabian.conf
-  sed -i 's#debugmode=.*$#debugmode=maximum#' build-image/openhabian.conf
+  sed -i 's#debugmode=.*$#debugmode=on#' build-image/openhabian.conf
+  #sed -i 's#debugmode=.*$#debugmode=maximum#' build-image/openhabian.conf
   if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
     echo "Cloning openHABian repo from https://github.com/${TRAVIS_PULL_REQUEST_SLUG}.git"
     sed -i 's|repositoryurl=.*$|repositoryurl=https://github.com/'"${TRAVIS_PULL_REQUEST_SLUG}"'.git|' build-image/openhabian.conf
