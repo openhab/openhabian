@@ -191,6 +191,8 @@ set -x
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
   fi
+
+  return 0
 }
 
 ## Function for installing MQTT Eclipse Mosquitto through the official repository.
