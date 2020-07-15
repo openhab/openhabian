@@ -8,7 +8,9 @@ Group=homegear
 RuntimeDirectory=/run/homegear
 #PIDFile=/run/homegear/homegear.pid
 PIDFile=homegear.pid
-LimitRTPRIO=100
+#LimitRTPRIO=100
+TasksMax=infinity
+LimitCORE=infinity
 ExecStart=/usr/bin/homegear
 
 [Install]
