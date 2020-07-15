@@ -177,7 +177,7 @@ homegear_setup() {
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
 set -x
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permisions... "
   if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
