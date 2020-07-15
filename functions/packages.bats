@@ -14,7 +14,8 @@ teardown_file() {
   systemctl kill telldusd.service || true
 }
 
-@test "destructive-homegear_install" {
+#@test "destructive-homegear_install" {
+@test "development-homegear_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Homegear installation starting...${COL_DEF}" >&3
   run homegear_setup 3>&-
   echo "status = $status" >&3
