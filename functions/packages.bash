@@ -187,10 +187,9 @@ set -x
 #  if running_in_docker; then sed -i '/RuntimeDirectory/d' /lib/systemd/system/homegear*; fi
   cond_redirect systemctl -q daemon-reload &>/dev/null
   if ! systemctl enable --now homegear homegear-management; then echo "FAILED (enable service)"; return 1; fi
-  ls -l /run /var/run /lib/systemd/system/homegear*
-  mount
+  ls -l /run /var/run /run/homegear
   systemctl status homegear\*
-#  if systemctl restart homegear homegear-management; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  if systemctl restart homegear homegear-management; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
