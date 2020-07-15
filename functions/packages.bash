@@ -178,7 +178,6 @@ homegear_setup() {
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
-set -x
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permisions... "
   if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
   if cond_redirect adduser openhab homegear; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -189,8 +188,7 @@ set -x
   if ! systemctl enable --now homegear homegear-management; then echo "FAILED (enable service)"; return 1; fi
   #if ! systemctl enable --now homegear-management; then echo "FAILED (enable service)"; return 1; fi
   #if systemctl restart homegear homegear-management; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
-  if systemctl restart homegear; then echo "OK"; else echo "FAILED (restart service)";  fi
-  if systemctl restart homegear-management; then echo "OK"; else echo "FAILED (restart service)"; fi
+  if systemctl status homegear homegear-management; then echo "OK"; else echo "FAILED (start service)"; fi
 
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
