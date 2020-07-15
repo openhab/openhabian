@@ -14,14 +14,12 @@ teardown_file() {
   systemctl kill telldusd.service || true
 }
 
-#@test "destructive-homegear_install" {
-@test "development-homegear_install" {
+@test "destructive-homegear_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Homegear installation starting...${COL_DEF}" >&3
   run homegear_setup 3>&-
-  echo "$output" >&3
-  run systemctl is-active homegear.service
-#  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-#  [ "$status" -eq 0 ]
+  echo "status = $status" >&3
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Homegear installation successful.${COL_DEF}" >&3
   run systemctl is-active --quiet homegear.service
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
