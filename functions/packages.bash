@@ -186,7 +186,8 @@ set -x
   cp "$BASEDIR"/includes/homegear*.service /lib/systemd/system/
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /lib/systemd/system/homegear*; fi
   cond_redirect systemctl -q daemon-reload &>/dev/null
-  if ! systemctl enable --now homegear.service; then echo "FAILED (enable service)"; return 1; fi
+  if ! systemctl enable homegear homegear-management; then echo "FAILED (enable service)"; return 1; fi
+  if systemctl restart homegear homegear-management; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
   systemctl status homegear\*
 
