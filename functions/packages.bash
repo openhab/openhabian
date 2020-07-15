@@ -178,7 +178,7 @@ homegear_setup() {
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max; then echo "OK"; else echo "FAILED"; return 1; fi
-
+set -x
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permisions... "
   if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
   if cond_redirect adduser openhab homegear; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -187,6 +187,8 @@ homegear_setup() {
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /lib/systemd/system/homegear*; fi
   cond_redirect systemctl -q daemon-reload &>/dev/null
   if ! systemctl enable --now homegear.service; then echo "FAILED (enable service)"; return 1; fi
+
+  systemctl status homegear\*
 
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
