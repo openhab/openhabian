@@ -190,8 +190,9 @@ set -x
   if ! systemctl enable --now homegear-management; then echo "FAILED (enable service)"; return 1; fi
   ls -l /run /var/run /run/homegear
   systemctl status homegear\*
-  if systemctl restart homegear; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
-  if systemctl restart homegear-management; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  #if systemctl restart homegear homegear-management; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  if systemctl restart homegear; then echo "OK"; else echo "FAILED (restart service)";  fi
+  if systemctl restart homegear-management; then echo "OK"; else echo "FAILED (restart service)"; fi
 
   if [ -n "$INTERACTIVE" ]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
