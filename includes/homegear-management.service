@@ -7,7 +7,7 @@ WantedBy=multi-user.target
 
 [Service]
 Type=simple
-RuntimeDirectory=homegear
+RuntimeDirectory=/run/homegear
 #PIDFile=/run/homegear/homegear-management.pid
 PIDFile=homegear-management.pid
 TimeoutSec=300
