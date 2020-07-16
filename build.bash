@@ -145,7 +145,6 @@ umount_image_file_root() { # imagefile buildfolder
 ##    grow_image(String image, int extraSize)
 ##
 grow_image() {
-  local extraSize
   local partStart
   local partition
   local sectorSize
@@ -153,9 +152,8 @@ grow_image() {
   # root partition is assumed to be #2 and sector size to be 512 byte
   partition=2
   sectorSize=512
-  extraSize=$2
 
-  dd if=/dev/zero bs=1M count="$extraSize" >> "$1"
+  dd if=/dev/zero bs=1M count="$2" >> "$1"
   partStart=$(parted "$1" -ms unit s p | grep "^2" | cut -f 2 -d: | tr -d s)
 
   fdisk "$1" <<EOF
