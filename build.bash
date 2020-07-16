@@ -170,7 +170,6 @@ $partStart
 p
 w
 EOF
-  ((partStart *= sectorSize))
 }
 
 
