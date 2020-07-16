@@ -116,6 +116,17 @@ mount_image_file_root() { # imagefile buildfolder
   df -h "$buildfolder/root"
 }
 
+mount_resize_image_file_root() { # imagefile buildfolder
+  if ! running_in_docker && ! running_on_github && ! is_pi; then
+    guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
+  else
+    loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
+    resize2fs "/dev/mapper/${loop_prefix}p2"
+    mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
+  fi
+  df -h "$buildfolder/root"
+}
+
 
 # umount rpi image
 umount_image_file_boot() { # imagefile buildfolder
@@ -320,8 +331,7 @@ set -x
 
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
-  mount_image_file_root "$imagefile" "$buildfolder"
-  resize2fs /dev/sda2
+  mount_resize_image_file_root "$imagefile" "$buildfolder"
 
   echo_process "Setting hostname... "
   # shellcheck disable=SC2154
