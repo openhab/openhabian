@@ -111,8 +111,8 @@ mount_image_file_root() { # imagefile buildfolder
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
-    e2fsck -y -f "/dev/mapper/${loop_prefix}p2" # &> /dev/null
-    resize2fs "/dev/mapper/${loop_prefix}p2" # &> /dev/null
+    e2fsck -y -f "/dev/mapper/${loop_prefix}p2" &> /dev/null
+    resize2fs "/dev/mapper/${loop_prefix}p2" &> /dev/null
     mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
   fi
   df -h "$buildfolder/root"
@@ -296,7 +296,7 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   # but at least it is on a different download site
   curl -s -o "$buildfolder"/raspberrypi_downloads.gpg.key https://www.raspberrypi.org/raspberrypi_downloads.gpg.key
   gpg -q --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --import "$buildfolder"/raspberrypi_downloads.gpg.key 2> /dev/null || true
-  gpg -q --trust-model always --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile" || exit 1
+  gpg -q --trust-model always --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile" 2> /dev/null || exit 1
 
   echo_process "Unpacking image... "
   unzip -q "$buildfolder/$zipfile" -d $buildfolder
