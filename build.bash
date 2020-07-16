@@ -111,6 +111,7 @@ mount_image_file_root() { # imagefile buildfolder
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
+    e2fsck -f "/dev/mapper/${loop_prefix}p2"
     resize2fs "/dev/mapper/${loop_prefix}p2"
     mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
   fi
