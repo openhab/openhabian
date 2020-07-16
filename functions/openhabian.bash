@@ -11,6 +11,7 @@ get_git_revision() {
 
 install_cleanup() {
   echo "$(timestamp) [openHABian] Cleaning up ... "
+  cond_redirect systemctl -q daemon-reload &>/dev/null
   cond_redirect apt-get autoremove --yes
 }
 
