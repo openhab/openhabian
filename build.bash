@@ -156,10 +156,10 @@ enlarge_image() {
   loopbackDevice=/dev/loop0
   enlargeBy=$2
 
-  dd if=/dev/zero bs=1M count=$enlargeBy >> $1
-  partStart=$(parted $1 -ms unit s p | grep "^2" | cut -f 2 -d: | tr -d s)
+  dd if=/dev/zero bs=1M count="$enlargeBy" >> "$1"
+  partStart=$(parted "$1" -ms unit s p | grep "^2" | cut -f 2 -d: | tr -d s)
 
-  fdisk $1 <<EOF
+  fdisk "$1" <<EOF
 p
 d
 $partition
@@ -171,8 +171,8 @@ $partStart
 p
 w
 EOF
-  ((partStart *= $sectorSize))
-  losetup -o $partStart $loopbackDevice $1
+  ((partStart *= sectorSize))
+  losetup -o $partStart $loopbackDevice "$1"
   e2fsck -f $loopbackDevice
   resize2fs $loopbackDevice
   if [[ -z $SILENT ]]; then
@@ -253,7 +253,7 @@ sourcefolder="build-image"
 source "${sourcefolder}/openhabian.${hw_platform}.conf"
 buildfolder="/tmp/build-${hw_platform}-image"
 imagefile="${buildfolder}/${hw_platform}.img"
-enlargement=300			# enlarge image / by this number of MB
+enlargement=300			# enlarge image root by this number of MB
 umount $buildfolder/boot &>/dev/null || true
 umount $buildfolder/root &>/dev/null || true
 guestunmount --no-retry $buildfolder/boot &>/dev/null || true
@@ -316,7 +316,7 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   mv $buildfolder/*-raspios-*.img $imagefile
 
   echo_process "Enlarging root partition of the image by $enlargement MB... "
-  enlarge_image $imagefile $enlargement
+  enlarge_image "$imagefile" "$enlargement"
 
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
