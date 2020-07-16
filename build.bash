@@ -149,7 +149,7 @@ grow_image() {
   local partition
   local sectorSize
 
-  # root partition is assumed to be #2 and sector size to be 512 byte
+  # root partition is #2 and sector size is 512 byte for the Raspi OS image
   partition=2
   sectorSize=512
 
