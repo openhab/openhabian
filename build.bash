@@ -111,16 +111,6 @@ mount_image_file_root() { # imagefile buildfolder
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
-    mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
-  fi
-  df -h "$buildfolder/root"
-}
-
-mount_resize_image_file_root() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github && ! is_pi; then
-    guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
-  else
-    loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
     resize2fs "/dev/mapper/${loop_prefix}p2"
     mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
   fi
@@ -156,7 +146,6 @@ umount_image_file_root() { # imagefile buildfolder
 ##
 grow_image() {
   local extraSize
-#  local loopbackDevice
   local partStart
   local partition
   local sectorSize
@@ -164,7 +153,6 @@ grow_image() {
   # root partition is assumed to be #2 and sector size to be 512 byte
   partition=2
   sectorSize=512
-#  loopbackDevice=/dev/loop0
   extraSize=$2
 
   dd if=/dev/zero bs=1M count="$extraSize" >> "$1"
@@ -183,14 +171,6 @@ p
 w
 EOF
   ((partStart *= sectorSize))
-#  losetup -o $partStart $loopbackDevice "$1"
-#  e2fsck -f $loopbackDevice
-#  resize2fs $loopbackDevice
-#  if [[ -z $SILENT ]]; then
-#    mount $loopbackDevice /mnt
-#    df -h /mnt
-#    umount $loopbackDevice
-#  fi
 }
 
 
@@ -326,12 +306,14 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   unzip -q "$buildfolder/$zipfile" -d $buildfolder
   mv $buildfolder/*-raspios-*.img $imagefile
 
-  echo_process "Growing root partition of the image by $extrasize MB... "
-  grow_image "$imagefile" "$extrasize"
+  if [[ $extrasize -gt 0 ]]; then
+	  echo_process "Growing root partition of the image by $extrasize MB... "
+  	grow_image "$imagefile" "$extrasize"
+  fi
 
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
-  mount_resize_image_file_root "$imagefile" "$buildfolder"
+  mount_image_file_root "$imagefile" "$buildfolder"
 
   echo_process "Setting hostname... "
   # shellcheck disable=SC2154
