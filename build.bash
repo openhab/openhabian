@@ -139,11 +139,11 @@ umount_image_file_root() { # imagefile buildfolder
 
 ## Enlarge root partition and file system of a downloaded Raspi OS image
 ## Arguments: $1 = filename of image
-##            $2 = number of MBs to enlarge image by
+##            $2 = number of MBs to grow image by
 ##
-##    enlarge_image(String image, int enlargeBy)
+##    grow_image(String image, int enlargeBy)
 ##
-enlarge_image() {
+grow_image() {
   local enlargeBy
   local loopbackDevice
   local partStart
@@ -172,14 +172,14 @@ p
 w
 EOF
   ((partStart *= sectorSize))
-  losetup -o $partStart $loopbackDevice "$1"
-  e2fsck -f $loopbackDevice
-  resize2fs $loopbackDevice
-  if [[ -z $SILENT ]]; then
-    mount $loopbackDevice /mnt
-    df -h /mnt
-    umount $loopbackDevice
-  fi
+#  losetup -o $partStart $loopbackDevice "$1"
+#  e2fsck -f $loopbackDevice
+#  resize2fs $loopbackDevice
+#  if [[ -z $SILENT ]]; then
+#    mount $loopbackDevice /mnt
+#    df -h /mnt
+#    umount $loopbackDevice
+#  fi
 }
 
 
@@ -314,14 +314,15 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   echo_process "Unpacking image... "
   unzip -q "$buildfolder/$zipfile" -d $buildfolder
   mv $buildfolder/*-raspios-*.img $imagefile
-
-  echo_process "Enlarging root partition of the image by $enlargement MB... "
-  enlarge_image "$imagefile" "$enlargement"
+set -x
+  echo_process "Enlarging root partition of the image by $extrasize MB... "
+  grow_image "$imagefile" "$extrasize"
 
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
-
   mount_image_file_root "$imagefile" "$buildfolder"
+  resize2fs /dev/sda2
+
   echo_process "Setting hostname... "
   # shellcheck disable=SC2154
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" $buildfolder/root/etc/hosts
