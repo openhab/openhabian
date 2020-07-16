@@ -147,11 +147,9 @@ umount_image_file_root() { # imagefile buildfolder
 grow_image() {
   local partStart
   local partition
-  local sectorSize
 
   # root partition is #2 and sector size is 512 byte for the Raspi OS image
   partition=2
-  sectorSize=512
 
   dd if=/dev/zero bs=1M count="$2" >> "$1"
   partStart=$(parted "$1" -ms unit s p | grep "^2" | cut -f 2 -d: | tr -d s)
