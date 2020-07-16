@@ -137,15 +137,15 @@ umount_image_file_root() { # imagefile buildfolder
   fi
 }
 
-## Enlarge root partition and file system of a downloaded Raspi OS image
+## Grow root partition and file system of a downloaded Raspi OS image
 ## Arguments: $1 = filename of image
 ##            $2 = number of MBs to grow image by
 ##
-##    grow_image(String image, int enlargeBy)
+##    grow_image(String image, int extraSize)
 ##
 grow_image() {
-  local enlargeBy
-  local loopbackDevice
+  local extraSize
+#  local loopbackDevice
   local partStart
   local partition
   local sectorSize
@@ -153,10 +153,10 @@ grow_image() {
   # root partition is assumed to be #2 and sector size to be 512 byte
   partition=2
   sectorSize=512
-  loopbackDevice=/dev/loop0
-  enlargeBy=$2
+#  loopbackDevice=/dev/loop0
+  extraSize=$2
 
-  dd if=/dev/zero bs=1M count="$enlargeBy" >> "$1"
+  dd if=/dev/zero bs=1M count="$extraSize" >> "$1"
   partStart=$(parted "$1" -ms unit s p | grep "^2" | cut -f 2 -d: | tr -d s)
 
   fdisk "$1" <<EOF
@@ -253,7 +253,7 @@ sourcefolder="build-image"
 source "${sourcefolder}/openhabian.${hw_platform}.conf"
 buildfolder="/tmp/build-${hw_platform}-image"
 imagefile="${buildfolder}/${hw_platform}.img"
-enlargement=300			# enlarge image root by this number of MB
+extrasize=300			# grow image root by this number of MB
 umount $buildfolder/boot &>/dev/null || true
 umount $buildfolder/root &>/dev/null || true
 guestunmount --no-retry $buildfolder/boot &>/dev/null || true
@@ -315,7 +315,7 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   unzip -q "$buildfolder/$zipfile" -d $buildfolder
   mv $buildfolder/*-raspios-*.img $imagefile
 set -x
-  echo_process "Enlarging root partition of the image by $extrasize MB... "
+  echo_process "Growing root partition of the image by $extrasize MB... "
   grow_image "$imagefile" "$extrasize"
 
   echo_process "Mounting the image for modifications... "
