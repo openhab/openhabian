@@ -111,8 +111,8 @@ mount_image_file_root() { # imagefile buildfolder
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
-    e2fsck -f "/dev/mapper/${loop_prefix}p2" &> /dev/null
-    resize2fs "/dev/mapper/${loop_prefix}p2" &> /dev/null
+    e2fsck -f "/dev/mapper/${loop_prefix}p2" # &> /dev/null
+    resize2fs "/dev/mapper/${loop_prefix}p2" # &> /dev/null
     mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
   fi
   df -h "$buildfolder/root"
@@ -152,10 +152,10 @@ grow_image() {
   # root partition is #2 and sector size is 512 byte for the Raspi OS image
   partition=2
 
-  dd if=/dev/zero bs=1M count="$2" >> "$1"
+  dd if=/dev/zero bs=1M count="$2" >> "$1" &> /dev/null
   partStart=$(parted "$1" -ms unit s p | grep "^2" | cut -f 2 -d: | tr -d s)
 
-  fdisk "$1" <<EOF
+  fdisk "$1" &> /dev/null <<EOF
 p
 d
 $partition
