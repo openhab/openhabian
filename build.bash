@@ -325,7 +325,7 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   echo_process "Unpacking image... "
   unzip -q "$buildfolder/$zipfile" -d $buildfolder
   mv $buildfolder/*-raspios-*.img $imagefile
-set -x
+
   echo_process "Growing root partition of the image by $extrasize MB... "
   grow_image "$imagefile" "$extrasize"
 
