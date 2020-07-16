@@ -64,7 +64,7 @@ inject_build_repo() {
     echo_process "inject_build_repo() invoked without clone_string variable set, exiting...."
     exit 1
   fi
-  sed -i '$a /usr/bin/apt-get install --yes figlet &> /dev/null' "$1"
+  sed -i '$a /usr/bin/apt-get install --yes figlet &>/dev/null' "$1"
   sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' "$1"
@@ -111,6 +111,8 @@ mount_image_file_root() { # imagefile buildfolder
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
+    e2fsck -y -f "/dev/mapper/${loop_prefix}p2" &> /dev/null
+    resize2fs "/dev/mapper/${loop_prefix}p2" &> /dev/null
     mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
   fi
   df -h "$buildfolder/root"
@@ -135,6 +137,36 @@ umount_image_file_root() { # imagefile buildfolder
     umount "$2/root"
     kpartx -d "$1"
   fi
+}
+
+## Grow root partition and file system of a downloaded Raspi OS image
+## Arguments: $1 = filename of image
+##            $2 = number of MBs to grow image by
+##
+##    grow_image(String image, int extraSize)
+##
+grow_image() {
+  local partStart
+  local partition
+
+  # root partition is #2 and sector size is 512 byte for the Raspi OS image
+  partition=2
+
+  dd if=/dev/zero bs=1M count="$2" >> "$1" &> /dev/null
+  partStart=$(parted "$1" -ms unit s p | grep "^2" | cut -f 2 -d: | tr -d s)
+
+  fdisk "$1" &> /dev/null <<EOF
+p
+d
+$partition
+n
+p
+$partition
+$partStart
+
+p
+w
+EOF
 }
 
 
@@ -208,10 +240,11 @@ sourcefolder="build-image"
 source "${sourcefolder}/openhabian.${hw_platform}.conf"
 buildfolder="/tmp/build-${hw_platform}-image"
 imagefile="${buildfolder}/${hw_platform}.img"
-umount $buildfolder/boot &>/dev/null || true
-umount $buildfolder/root &>/dev/null || true
-guestunmount --no-retry $buildfolder/boot &>/dev/null || true
-guestunmount --no-retry $buildfolder/root &>/dev/null || true
+extrasize=300			# grow image root by this number of MB
+umount $buildfolder/boot &> /dev/null || true
+umount $buildfolder/root &> /dev/null || true
+guestunmount --no-retry $buildfolder/boot &> /dev/null || true
+guestunmount --no-retry $buildfolder/root &> /dev/null || true
 rm -rf $buildfolder
 mkdir $buildfolder
 
@@ -262,17 +295,22 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   # verify signature with key from website - this is probably not the safest way to obtain the key,
   # but at least it is on a different download site
   curl -s -o "$buildfolder"/raspberrypi_downloads.gpg.key https://www.raspberrypi.org/raspberrypi_downloads.gpg.key
-  gpg -q --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --import "$buildfolder"/raspberrypi_downloads.gpg.key 2>/dev/null || true
-  gpg -q --trust-model always --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile" || exit 1
+  gpg -q --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --import "$buildfolder"/raspberrypi_downloads.gpg.key 2> /dev/null || true
+  gpg -q --trust-model always --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile" 2> /dev/null || exit 1
 
   echo_process "Unpacking image... "
   unzip -q "$buildfolder/$zipfile" -d $buildfolder
   mv $buildfolder/*-raspios-*.img $imagefile
 
+  if [[ $extrasize -gt 0 ]]; then
+	  echo_process "Growing root partition of the image by $extrasize MB... "
+  	grow_image "$imagefile" "$extrasize"
+  fi
+
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
-
   mount_image_file_root "$imagefile" "$buildfolder"
+
   echo_process "Setting hostname... "
   # shellcheck disable=SC2154
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" $buildfolder/root/etc/hosts
