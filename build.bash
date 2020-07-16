@@ -137,6 +137,51 @@ umount_image_file_root() { # imagefile buildfolder
   fi
 }
 
+## Enlarge root partition and file system of a downloaded Raspi OS image
+## Arguments: $1 = filename of image
+##            $2 = number of MBs to enlarge image by
+##
+##    enlarge_image(String image, int enlargeBy)
+##
+enlarge_image() {
+  local enlargeBy
+  local loopbackDevice
+  local partStart
+  local partition
+  local sectorSize
+
+  # root partition is assumed to be #2 and sector size to be 512 byte
+  partition=2
+  sectorSize=512
+  loopbackDevice=/dev/loop0
+  enlargeBy=$2
+
+  dd if=/dev/zero bs=1M count=$enlargeBy >> $1
+  partStart=$(parted $1 -ms unit s p | grep "^2" | cut -f 2 -d: | tr -d s)
+
+  fdisk $1 <<EOF
+p
+d
+$partition
+n
+p
+$partition
+$partStart
+
+p
+w
+EOF
+  ((partStart *= $sectorSize))
+  losetup -o $partStart $loopbackDevice $1
+  e2fsck -f $loopbackDevice
+  resize2fs $loopbackDevice
+  if [[ -z $SILENT ]]; then
+    mount $loopbackDevice /mnt
+    df -h /mnt
+    umount $loopbackDevice
+  fi
+}
+
 
 ############################
 #### Build script start ####
@@ -208,6 +253,7 @@ sourcefolder="build-image"
 source "${sourcefolder}/openhabian.${hw_platform}.conf"
 buildfolder="/tmp/build-${hw_platform}-image"
 imagefile="${buildfolder}/${hw_platform}.img"
+enlargement=300			# enlarge image / by this number of MB
 umount $buildfolder/boot &>/dev/null || true
 umount $buildfolder/root &>/dev/null || true
 guestunmount --no-retry $buildfolder/boot &>/dev/null || true
@@ -268,6 +314,9 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   echo_process "Unpacking image... "
   unzip -q "$buildfolder/$zipfile" -d $buildfolder
   mv $buildfolder/*-raspios-*.img $imagefile
+
+  echo_process "Enlarging root partition of the image by $enlargement MB... "
+  enlarge_image $imagefile $enlargement
 
   echo_process "Mounting the image for modifications... "
   mkdir -p $buildfolder/boot $buildfolder/root
