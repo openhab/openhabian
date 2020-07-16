@@ -111,8 +111,8 @@ mount_image_file_root() { # imagefile buildfolder
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
-    e2fsck -f "/dev/mapper/${loop_prefix}p2"
-    resize2fs "/dev/mapper/${loop_prefix}p2"
+    e2fsck -f "/dev/mapper/${loop_prefix}p2" &> /dev/null
+    resize2fs "/dev/mapper/${loop_prefix}p2" &> /dev/null
     mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
   fi
   df -h "$buildfolder/root"
@@ -241,10 +241,10 @@ source "${sourcefolder}/openhabian.${hw_platform}.conf"
 buildfolder="/tmp/build-${hw_platform}-image"
 imagefile="${buildfolder}/${hw_platform}.img"
 extrasize=300			# grow image root by this number of MB
-umount $buildfolder/boot &>/dev/null || true
-umount $buildfolder/root &>/dev/null || true
-guestunmount --no-retry $buildfolder/boot &>/dev/null || true
-guestunmount --no-retry $buildfolder/root &>/dev/null || true
+umount $buildfolder/boot &> /dev/null || true
+umount $buildfolder/root &> /dev/null || true
+guestunmount --no-retry $buildfolder/boot &> /dev/null || true
+guestunmount --no-retry $buildfolder/root &> /dev/null || true
 rm -rf $buildfolder
 mkdir $buildfolder
 
@@ -295,7 +295,7 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   # verify signature with key from website - this is probably not the safest way to obtain the key,
   # but at least it is on a different download site
   curl -s -o "$buildfolder"/raspberrypi_downloads.gpg.key https://www.raspberrypi.org/raspberrypi_downloads.gpg.key
-  gpg -q --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --import "$buildfolder"/raspberrypi_downloads.gpg.key 2>/dev/null || true
+  gpg -q --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --import "$buildfolder"/raspberrypi_downloads.gpg.key 2> /dev/null || true
   gpg -q --trust-model always --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile" || exit 1
 
   echo_process "Unpacking image... "
