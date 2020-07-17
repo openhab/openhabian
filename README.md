@@ -150,7 +150,7 @@ docker run --rm --name "destructive-tests" -i openhabian/bats-openhabian bash -c
 
 docker build --tag openhabian/install-openhabian -f Dockerfile.amd64 .
 docker run --name "install-test" --privileged -d openhabian/bats-openhabian
-docker exec -i "install-test" bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profile && /etc/rc.local"
+docker exec -i "install-test" bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash"
 
 docker stop install-test
 docker rm install-test
