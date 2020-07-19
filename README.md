@@ -157,11 +157,12 @@ docker rm install-test
 ```
 
 The [ShellCheck](https://www.shellcheck.net/) linter can be run by using the
-following three commands:
+following commands:
 ```
 shellcheck -x -s bash openhabian-setup.sh
 shellcheck -x -s bash functions/*.bash
 shellcheck -x -s bash build-image/*.bash
+shellcheck -x -s bash build.bash ci-setup.bash
 ```
 
 
