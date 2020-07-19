@@ -1,27 +1,42 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2181
 
+## Function for installing NodeJS for frontail and other addons.
+##
+##    nodejs_setup()
+##
 nodejs_setup() {
-  if [ -x "$(command -v npm)" ]; then return 0; fi
+  if [[ -x $(command -v npm) ]]; then return 0; fi
 
+  local link
   local myDistro
+  local temp
 
-  if ! [ -x "$(command -v lsb_release)" ]; then
+  if ! [[ -x $(command -v lsb_release) ]]; then
     echo -n "$(timestamp) [openHABian] Installing NodeJS prerequsites (lsb-release)... "
     if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
+  link="https://unofficial-builds.nodejs.org/download/release/v12.18.2/node-v12.18.2-linux-armv6l.tar.xz"
   myDistro="$(lsb_release -sc)"
+  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
-  if ! add_keys "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"; then return 1; fi
+  if is_armv6l; then
+    echo -n "$(timestamp) [openHABian] Installing NodeJS... "
+    if ! cond_redirect wget -qO "$temp" $link; then echo "FAILED (download)"; rm -f "$temp"; return 1; fi
+    if ! cond_redirect tar -Jxf "$temp" --strip-components=1 -C /usr; then echo "FAILED (extract)"; rm -f "$temp"; return 1; fi
+    if cond_redirect rm -f "$temp"; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
+  else
+    if ! add_keys "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"; then return 1; fi
 
-  echo -n "$(timestamp) [openHABian] Adding NodeSource repository to apt... "
-  echo "deb https://deb.nodesource.com/node_12.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
-  echo "deb-src https://deb.nodesource.com/node_12.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
-  if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
+    echo -n "$(timestamp) [openHABian] Adding NodeSource repository to apt... "
+    echo "deb https://deb.nodesource.com/node_12.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
+    echo "deb-src https://deb.nodesource.com/node_12.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
+    if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
-  echo -n "$(timestamp) [openHABian] Installing NodeJS... "
-  if cond_redirect apt-get install --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
+    echo -n "$(timestamp) [openHABian] Installing NodeJS... "
+    if cond_redirect apt-get install --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
 }
 
 frontail_setup() {
