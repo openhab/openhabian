@@ -81,7 +81,7 @@ to be backed up every day (every invocation, actually). No, you cannot have it d
 *   Note for *raw* devices to backup such as `/dev/mmcblk0` (which is the internal SD card reader of a RPi), nothing but a level 0
 dump will work because there is no efficient way  to determine what has been changed since the last full dump.
 So if you include `/dev/mmcblk0` in your disklist, it'll be backed up on EACH run. If you don't want that (as it'll likely consume
-the by far largest part of your backup run time and capacity then remove it from the disklist. You can create a second Amanda
+the by far largest part of your backup run time and capacity) then remove it from the disklist. You can create a second Amanda
 configuration to only include that raw device and run it say just once every month. Essentially you need to create a copy of the
 /etc/amanda.conf/openhab-dir directory and contents, but a full explanation is out of scope for these docs.
 *   Typically, for a backup system to use this methodology, you need the amount of storage to be 2-3 times as large as the amount
