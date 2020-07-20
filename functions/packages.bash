@@ -153,6 +153,8 @@ homegear_setup() {
   local myOS
   local myRelease
   local successtext
+  local disklistFile
+
 #  local rundir
 
   if ! [ -x "$(command -v lsb_release)" ]; then
@@ -187,6 +189,11 @@ homegear_setup() {
   cond_redirect systemctl -q daemon-reload &>/dev/null
   if ! systemctl enable --now homegear homegear-management; then echo "FAILED (enable service)"; return 1; fi
 
+  disklistFile=/etc/amanda/openhab-dir/disklist
+  if [[ -f "$disklistFile" ]]; then
+    sed -i '/homegear/d' $disklistFile
+    grep -E "/var/lib/openhab2[[:space:]]" $disklistFile | sed -e 's#openhab2#homegear#g' >> $disklistFile
+  fi
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
   fi

@@ -102,9 +102,13 @@ create_backup_config() {
     dumptype=comp-user-tar
   fi
   { echo "${hostname}  /boot                                 ${dumptype}";\
-    echo "${hostname}  /etc/openhab2                         ${dumptype}";\
+    echo "${hostname}  /etc                                  ${dumptype}";\
     echo "${hostname}  /var/lib/openhab2                     ${dumptype}";\
-    echo "${hostname}  /var/lib/openhab2/persistence         ${dumptype}"; } >>"${confdir}"/disklist 
+    echo "${hostname}  /opt/zram/persistence.bind            ${dumptype}"; } >>"${confdir}"/disklist 
+  
+  if [[ -d /var/lib/homegear ]]; then
+    echo "${hostname}  /var/lib/homegear                     ${dumptype}" >>"${confdir}"/disklist 
+  fi
 
   echo "index_server \"localhost\"" >"${confdir}"/amanda-client.conf
   echo "tapedev \"changer\"" >"${confdir}"/amanda-client.conf
