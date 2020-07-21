@@ -191,7 +191,8 @@ homegear_setup() {
   disklistFile=/etc/amanda/openhab-dir/disklist
   if [[ -f "$disklistFile" ]]; then
     sed -i '/homegear/d' $disklistFile
-    grep -E '/var/lib/openhab2[[:space:]]' $disklistFile | sed -e 's#openhab2#homegear#g' >> $disklistFile
+    grep -E '/var/lib/openhab2[[:space:]]' $disklistFile | sed -e 's#openhab2#homegear#g' > ${disklistFile}.tmp
+    cond_redirect cat ${disklistFile}.tmp >> $disklistFile && rm -f ${disklistFile}.tmp
   fi
 
   if [[ -n "$INTERACTIVE" ]]; then
