@@ -34,7 +34,7 @@ if [[ $1 == "docker-full" ]]; then
   cond_redirect docker run --rm --name "unit-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "unit-." .'
   cond_redirect docker run --rm --name "installation-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "installation-." .'
   cond_redirect docker run --rm --name "destructive-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "destructive-." .'
-  cond_redirect echo_process "Test complete, please review result in terminal."
+  cond_redirect echo_process "Tests complete, please review results in terminal."
   exit 0
 elif [[ $1 == "shellcheck" ]]; then
   shellcheck -x -s bash openhabian-setup.sh

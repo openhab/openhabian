@@ -8,118 +8,93 @@
 ##
 ##    change_password(String password)
 ##
-
 change_password() {
-  introtext="Choose which services to change passwords for:"
-  failtext="Something went wrong in the password change process. Please report this problem in the openHAB community forum or as a openHABian GitHub issue."
+  local accounts
+  local chosenAccounts
+  local nginxUsername
+  local pass
+  local pass1
+  local pass2
+  local whipParams
 
-  matched=false
-  canceled=false
-  allAccounts=("Linux system" "openHAB Console" "Samba" "Amanda backup")
-  FAILED=0
-
+  accounts=("Linux system" "openHAB Console" "Samba" "Amanda backup")
   # BUILD LIST WITH INSTALLED SERVICES
-  whipParams=( --title "Change password function" --ok-button "Execute" --cancel-button "Back" --checklist "$introtext" 14 90 6)
-  whipParams+=("Linux system" "Account; \"$username\" used for login to this computer" off )
-  whipParams+=("openHAB Console" "Remote console account; \"openhab\" for manage openHAB" off )
-  whipParams+=("Samba" "Fileshare account; \"$username\" for configuration files" off )
-  whipParams+=("Amanda backup" "User account; \"backup\" to handle openHAB backups" off )
-
-  if [ -f /etc/nginx/.htpasswd ]; then
-    nginxuser="$(cut -d: -f1 /etc/nginx/.htpasswd | head -1)"
-    whipParams+=("Ngnix HTTP/HTTPS" "User; \"$nginxuser\" used for logon to openHAB web services" off )
-    allAccounts+=( "Ngnix HTTP/HTTPS" )
+  whipParams=("Linux system"    "Account: \"${username:-openhabian}\" used for login to this computer" OFF)
+  whipParams+=("openHAB Console" "Remote console account: \"openhab\" used for managing openHAB" OFF)
+  whipParams+=("Samba"           "Fileshare account: \"${username:-openhabian}\" used for remote openHAB configuration" OFF)
+  whipParams+=("Amanda backup"   "User account: \"backup\" used for managing backup configuration" OFF)
+  if [[ -f /etc/nginx/.htpasswd ]]; then
+    nginxUsername="$(cut -d: -f1 /etc/nginx/.htpasswd | head -1)"
+    accounts+=("Ngnix proxy")
+    whipParams+=("Ngnix proxy"     "Nginx user: \"${nginxUsername}\" used for logging into openHAB web services" OFF)
+  fi
+  if [[ -f /etc/influxdb/influxdb.conf ]]; then
+    accounts+=("InfluxDB")
+    whipParams+=("InfluxDB"        "InfluxDB user: \"admin\" used for database configuration" OFF)
+  fi
+  if [[ -f /etc/grafana/grafana.ini ]]; then
+    accounts+=("Grafana")
+    whipParams+=("Grafana"         "Grafana user: \"admin\" used for managing graphs and the server" OFF)
   fi
 
-  if [ -f /etc/influxdb/influxdb.conf ]; then
-    whipParams+=("InfluxDB" "User; \"admin\" used for database configuration " off )
-    allAccounts+=( "InfluxDB" )
-  fi
-
-  if [ -f /etc/grafana/grafana.ini ]; then
-    whipParams+=("Grafana" "User; \"admin\" used for manage graphs and the server " off )
-    allAccounts+=( "Grafana" )
-  fi
-
-  if [ -n "$INTERACTIVE" ]; then
-    accounts="$(whiptail "${whipParams[@]}" 3>&1 1>&2 2>&3)"
-    exitstatus=$?
+  if [[ -n $INTERACTIVE ]]; then
+    if ! chosenAccounts="$(whiptail --title "Change password function" --checklist "\\nChoose which services to change passwords for:" 15 100 7 --ok-button "Continue" --cancel-button "Cancel" "${whipParams[@]}" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
 
     # COLLECT NEW PASSWORD
-    if [ $exitstatus = 0 ]; then
-      while [ "$matched" = false ] && [ "$canceled" = false ]; do
-        passwordChange="$(whiptail --title "Authentication Setup" --passwordbox "Enter a new password: " 15 80 3>&1 1>&2 2>&3)"
-        if [[ "$?" == 1 ]]; then return 0; fi
-        if [ ! ${#passwordChange} -ge 10 ]; then
-          whiptail --title "Authentication Setup" --msgbox "Password must at least be 10 characters long... Please try again!" 15 80 3>&1 1>&2 2>&3
-        else
-          secondpasswordChange="$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the new password:" 15 80 3>&1 1>&2 2>&3)"
-          if [[ "$?" == 1 ]]; then return 0; fi
-          if [ "$passwordChange" = "$secondpasswordChange" ] && [ -n "$passwordChange" ]; then
-            matched=true
-          else
-            whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3
-          fi
-        fi
-      done
-    else
-      return 0
-    fi
+    while [[ -z $pass ]]; do
+      if ! pass1=$(whiptail --title "Authentication Setup" --passwordbox "\\nEnter a new password:" 9 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+      if ! pass2=$(whiptail --title "Authentication Setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+      if [[ $pass1 == "$pass2" ]] && [[ ${#pass1} -ge 10 ]] && [[ ${#pass2} -ge 10 ]]; then
+        pass="$pass1"
+      else
+        whiptail --title "Authentication Setup" --msgbox "Password mismatched, blank, or less than 10 characters... Please try again!" 7 80
+      fi
+    done
   else
     # NON INTERACTIVE FUNCTION INVOKED
-    passwordChange=$1
-    accounts=allAccounts
+    if [[ ${#1} -le 9 ]]; then echo "FAILED (invalid password, password must be greater than 10 characters)"; return 1; fi
+    pass="$1"
+    chosenAccounts="${accounts[*]}"
   fi
 
   # CHANGE CHOOSEN PASSWORDS
-  if [[ $accounts == *"Linux system"* ]]; then
-    echo -n "$(timestamp) [openHABian] Changing password for linux account \"$username\"... "
-    echo "$username:$passwordChange" | chpasswd
-    if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  if [[ $chosenAccounts == *"Linux system"* ]]; then
+    echo -n "$(timestamp) [openHABian] Changing password for Linux account \"${username:-openhabian}\"... "
+    if echo "${username:-openhabian}:$pass" | chpasswd; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  if [[ $accounts == *"Samba"* ]]; then
-    echo -n "$(timestamp) [openHABian] Changing password for samba (fileshare) account \"$username\"... "
-    (echo "$passwordChange"; echo "$passwordChange") | /usr/bin/smbpasswd -s -a "$username"
-    if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  if [[ $chosenAccounts == *"Samba"* ]]; then
+    echo -n "$(timestamp) [openHABian] Changing password for Samba (fileshare) account \"${username:-openhabian}\"... "
+    if (echo "$pass"; echo "$pass") | smbpasswd -s -a "${username:-openhabian}" &> /dev/null; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  if [[ $accounts == *"openHAB Console"* ]]; then
+  if [[ $chosenAccounts == *"openHAB Console"* ]]; then
     echo -n "$(timestamp) [openHABian] Changing password for openHAB console account \"openhab\"... "
-    sed -i "s/openhab = .*,/openhab = $passwordChange,/g" /var/lib/openhab2/etc/users.properties
+    if sed -i 's|openhab = .*,|openhab = '"${pass}"',|g' /var/lib/openhab2/etc/users.properties; then echo "OK"; else echo "FAILED"; return 1; fi
+    cond_redirect systemctl -q daemon-reload &> /dev/null
     cond_redirect systemctl restart openhab2.service
-    if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
   fi
-  if [[ $accounts == *"Amanda backup"* ]]; then
-    echo -n "$(timestamp) [openHABian] Changing password for linux account \"backup\"... "
-    echo "backup:$passwordChange" | chpasswd
-    if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  if [[ $chosenAccounts == *"Amanda backup"* ]]; then
+    echo -n "$(timestamp) [openHABian] Changing password for Linux account \"backup\"... "
+    if echo "backup:$pass" | chpasswd; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  if [[ $accounts == *"Ngnix HTTP/HTTPS"* ]]; then
-    echo -n "$(timestamp) [openHABian] Changing password for nginx web authentication account \"$nginxuser\"... "
-    echo "$passwordChange" | htpasswd -i /etc/nginx/.htpasswd "$nginxuser"
-    if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+  if [[ $chosenAccounts == *"Ngnix proxy"* ]]; then
+    echo -n "$(timestamp) [openHABian] Changing password for Nginx web authentication account \"${nginxUsername}\"... "
+    if echo "$pass" | htpasswd -i /etc/nginx/.htpasswd "${nginxUsername}"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  if [[ $accounts == *"InfluxDB"* ]]; then
+  if [[ $chosenAccounts == *"InfluxDB"* ]]; then
     echo -n "$(timestamp) [openHABian] Changing password for InfluxDB administration account \"admin\"... "
     sed -i "s/.*auth-enabled = .*/  auth-enabled = false/g" /etc/influxdb/influxdb.conf
-    cond_redirect systemctl restart influxdb.service
+    if ! cond_redirect systemctl restart influxdb.service; then echo "FAILED (InfluxDB restart)"; return 1; fi
     sleep 1
-    influx -execute "SET PASSWORD FOR admin = '$passwordChange'"
+    influx -execute "SET PASSWORD FOR admin = '$pass'"
     sed -i "s/.*auth-enabled = .*/  auth-enabled = true/g" /etc/influxdb/influxdb.conf
-    cond_redirect systemctl restart influxdb.service
-    if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+    if cond_redirect systemctl restart influxdb.service; then echo "OK"; else echo "FAILED (InfluxDB restart)"; return 1; fi
   fi
-  if [[ $accounts == *"Grafana"* ]]; then
+  if [[ $chosenAccounts == *"Grafana"* ]]; then
     echo -n "$(timestamp) [openHABian] Changing password for Grafana admininistration account \"admin\"... "
-    grafana-cli admin reset-admin-password --homepath "/usr/share/grafana" --config "/etc/grafana/grafana.ini" "$passwordChange"
-    if [ $FAILED -eq 0 ]; then echo "OK"; else echo "FAILED"; fi
+    if grafana-cli admin reset-admin-password --homepath "/usr/share/grafana" --config "/etc/grafana/grafana.ini" "$pass"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-
-  if [ -n "$INTERACTIVE" ]; then
-    if [ $FAILED -eq 0 ]; then
-      whiptail --title "Operation Successful!" --msgbox "Password successfully set for: $accounts" 15 80
-    else
-      whiptail --title "Operation Failed!" --msgbox "$failtext" 10 60
-    fi
+  if [[ -n $INTERACTIVE ]]; then
+    whiptail --title "Operation Successful!" --msgbox "Password(s) successfully changed for: $chosenAccounts" 8 80
   fi
 }

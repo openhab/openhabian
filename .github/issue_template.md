@@ -8,8 +8,7 @@ Please be as detailed as possible to help us help you. Also, please be sure to
 check that your issue has not already been observed and reported to the GitHub
 issue tracker (you should remove the `is:open` filter from the search
 bar to let you see closed issues). Please follow the guidelines outlined in the
-[openHAB community](https://community.openhab.org/t/how-to-ask-a-good-question-help-us-help-you/58396)
-on how to help us help you.
+[openHAB community](https://community.openhab.org/t/how-to-ask-a-good-question-help-us-help-you/58396) on how to help us help you.
 
 ## Debug information:
 Please provide all of the output provided by utilizing the `debugmode=maximum`

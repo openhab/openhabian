@@ -19,7 +19,7 @@ SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do
   BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
   SOURCE="$(readlink "$SOURCE")"
-  [[ $SOURCE != /* ]] && SOURCE="$BASEDIR/$SOURCE"
+  [[ $SOURCE != /* ]] && SOURCE="${BASEDIR:-/opt/openhabian}/$SOURCE"
 done
 BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 SCRIPTNAME="$(basename "$SOURCE")"
@@ -71,7 +71,7 @@ export UNATTENDED SILENT DEBUGMAX INTERACTIVE
 
 # Include all subscripts
 # shellcheck source=/dev/null
-for shfile in "$BASEDIR"/functions/*.bash; do source "$shfile"; done
+for shfile in "${BASEDIR:-/opt/openhabian}"/functions/*.bash; do source "$shfile"; done
 
 # avoid potential crash when deleting directory we started from
 OLDWD=$(pwd) && cd /opt || exit 1
@@ -82,22 +82,22 @@ config_ipv6
 if [[ -n "$UNATTENDED" ]]; then
   # apt/dpkg commands will not try interactive dialogs
   export DEBIAN_FRONTEND=noninteractive
-  cond_redirect apt-get update
+  wait_for_apt_to_finish_update
   load_create_config
   change_swapsize
   timezone_setting
-  enable_ntp
+  setup_ntp "enable"
   locale_setting
   hostname_change
-  if is_pi; then memory_split; enable_rpi_audio; fi
+  memory_split
+  enable_rpi_audio
   basic_packages
   needed_packages
   bashrc_copy
   vimrc_copy
   firemotd_setup
-  # shellcheck disable=SC2154
-  java_install_or_update "$java_opt"
-  openhab2_setup
+  java_install_or_update "${java_opt:-Zulu8-32}"
+  openhab2_setup "stable"
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme
@@ -113,7 +113,6 @@ else
   apt_update
   whiptail_check
   load_create_config
-  ua-netinst_check
   openhabian_console_check
   openhabian_update_check
   while show_main_menu; do

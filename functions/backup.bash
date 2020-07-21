@@ -3,7 +3,7 @@
 filebrowser() {
   bkppath=/var/lib/openhab2/backups
   # shellcheck disable=SC2164,SC2012
-  bkpfile=$(cd ${bkppath}; ls -lthp openhab2-backup-* 2>/dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }')
+  bkpfile=$(cd ${bkppath}; ls -lthp openhab2-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }')
 }
 
 backup_openhab_config() {
@@ -76,7 +76,7 @@ create_backup_config() {
 #    fi
   fi
 
-  /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" "${BASEDIR}"/includes/amanda.conf_template >"${confdir}"/amanda.conf
+  /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" "${BASEDIR:-/opt/openhabian}"/includes/amanda.conf_template >"${confdir}"/amanda.conf
 
   if [ "${config}" = "openhab-AWS" ]; then
     { echo "device_property \"S3_BUCKET_LOCATION\" \"${S3site}\"                                # Your S3 bucket location (site)"; \
@@ -91,7 +91,7 @@ create_backup_config() {
     /bin/rm -f "${confdir}"/disklist
 
     # don't backup SD by default as this can cause problems for large cards
-    if [ -n "$INTERACTIVE" ]; then
+    if [[ -n $INTERACTIVE ]]; then
       if (whiptail --title "Backup raw SD card, too ?" --yes-button "Backup SD" --no-button "Do not backup SD." --yesno "Do you want to create raw disk backups of your SD card ? Only recommended if it's 16GB or less, otherwise this can take too long. You can change this at any time by editing ${confdir}/disklist." 15 80); then
         echo "${hostname}  /dev/mmcblk0              comp-amraw" >>"${confdir}"/disklist
       fi
@@ -104,7 +104,7 @@ create_backup_config() {
   { echo "${hostname}  /boot                                 ${dumptype}";\
     echo "${hostname}  /etc/openhab2                         ${dumptype}";\
     echo "${hostname}  /var/lib/openhab2                     ${dumptype}";\
-    echo "${hostname}  /var/lib/openhab2/persistence         ${dumptype}"; } >>"${confdir}"/disklist 
+    echo "${hostname}  /var/lib/openhab2/persistence         ${dumptype}"; } >>"${confdir}"/disklist
 
   echo "index_server \"localhost\"" >"${confdir}"/amanda-client.conf
   echo "tapedev \"changer\"" >"${confdir}"/amanda-client.conf
@@ -115,7 +115,7 @@ create_backup_config() {
   else
     introtext="${introtext}\\nFor permanent storage such as USB or NAS mounted storage, as well as for cloud based storage, we will create ${tapes} virtual containers."
   fi
-  if [ -n "$INTERACTIVE" ]; then
+  if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
   fi
 
@@ -128,7 +128,7 @@ create_backup_config() {
     else
       if [ "${config}" = "openhab-local-SD" ]; then
         introtext="Please insert your removable storage medium number ${counter}."
-        if [ -n "$INTERACTIVE" ]; then
+        if [[ -n $INTERACTIVE ]]; then
           if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
           /bin/su - "${backupuser}" -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
         fi
@@ -140,12 +140,12 @@ create_backup_config() {
   done
 
   # create cronjob to save copies of the Amanda database
-  echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} >/dev/null 2>&1" > /etc/cron.d/amanda
-  echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} >/dev/null 2>&1" >> /etc/cron.d/amanda
+  echo "0 1 * * * ${backupuser} /usr/sbin/amdump ${config} &> /dev/null" > /etc/cron.d/amanda
+  echo "0 18 * * * ${backupuser} /usr/sbin/amcheck -m ${config} &> /dev/null" >> /etc/cron.d/amanda
   if [ "${tapetype}" = "DIRECTORY" ]; then
     mkdir -p "${storage}"/amanda-backups
     chown "${backupuser}":backup "${storage}"/amanda-backups
-    echo "0 2 * * * root (cd /; /bin/tar czf ${storage}/amanda-backups/amanda_data_\$(date +\\%Y\\%m\\%d\\%H\\%M\\%S).tar.gz etc/amanda var/lib/amanda var/log/amanda; find ${storage} -name amanda_data_\\* -mtime +30 -delete) >/dev/null 2>&1" >> /etc/cron.d/amanda
+    echo "0 2 * * * root (cd /; /bin/tar czf ${storage}/amanda-backups/amanda_data_\$(date +\\%Y\\%m\\%d\\%H\\%M\\%S).tar.gz etc/amanda var/lib/amanda var/log/amanda; find ${storage} -name amanda_data_\\* -mtime +30 -delete) &> /dev/null" >> /etc/cron.d/amanda
   fi
 }
 
@@ -154,12 +154,12 @@ amanda_setup() {
   local introtext="This will setup a backup mechanism to allow for saving your openHAB setup and modifications to either USB attached or Amazon cloud storage.\\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an all-ready replacement in case of card failures."
   local successtext="Setup was successful. Amanda backup tool is now taking backups at 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
 
-  if [ -n "$INTERACTIVE" ]; then
+  if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Amanda backup installation" --yes-button "Yes" --no-button "No, I'll go read it" --defaultno --yesno "$querytext" 10 80); then return 0; fi
   fi
 
-  if ! exim --version >&/dev/null; then
-     if [ -n "$INTERACTIVE" ]; then
+  if ! [[ -x $(command -v exim) ]]; then
+     if [[ -n $INTERACTIVE ]]; then
         if (whiptail --title "No exim mail transfer agent" --yes-button "Install EXIM4" --no-button "MTA already exist, ignore installation" --defaultyes --yesno "Seems exim is not installed as a mail transfer agent.\\nAmanda needs one to be able to send emails.\\nOnly choose to ignore if you know there's a working mail transfer agent other than exim on your system.\\nDo you want to continue with EXIM4 installation ?" 15 80); then
            exim_setup
         fi
@@ -176,7 +176,7 @@ amanda_setup() {
 
   local matched=false
   local canceled=false
-  if [ -n "$INTERACTIVE" ]; then
+  if [[ -n $INTERACTIVE ]]; then
       while [ "$matched" = false ] && [ "$canceled" = false ]; do
             password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for user ${backupuser}.\\nRemember to select a safe password as you (and others) can use this to login to your openHABian box." 15 80 3>&1 1>&2 2>&3)
             secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password" 15 80 3>&1 1>&2 2>&3)
@@ -197,7 +197,7 @@ amanda_setup() {
   /bin/rm -f /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
 
 # no SD set based config for now, requires latest Amanda which is not available as a package yet
-#  if [ -n "$INTERACTIVE" ]; then
+#  if [[ -n $INTERACTIVE ]]; then
 #    if (whiptail --title "Create SD card set based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on a locally attached SD card writer and a set of SD cards. You can also use USB sticks, BUT you must ensure that the device name to access ALWAYS is the same. This is not guaranteed if you use different USB ports." 15 80); then
 #        config=openhab-local-SD
 #        sddev=$(whiptail --title "Card writer device" --inputbox "What's the device name of your SD card writer?" 10 60 3>&1 1>&2 2>&3)
@@ -207,7 +207,7 @@ amanda_setup() {
 #    fi
 #  fi
 
-  if [ -n "$INTERACTIVE" ]; then
+  if [[ -n $INTERACTIVE ]]; then
     if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on locally attached or NAS mounted storage." 15 80); then
         config=openhab-dir
         dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
@@ -220,7 +220,7 @@ amanda_setup() {
     fi
   fi
 
-  if [ -n "$INTERACTIVE" ]; then
+  if [[ -n $INTERACTIVE ]]; then
     if (whiptail --title "Create Amazon S3 based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on Amazon Web Services. You can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. For hints see http://markelov.org/wiki/index.php?title=Backup_with_Amanda:_tape,_NAS,_Amazon_S3#Amazon_S3\\n\\nPlease setup your S3 bucket on Amazon Web Services NOW if you have not done so. Remember the name has to be unique in AWS namespace.\\nContinue with Amanda installation ?" 15 80); then
       config=openhab-AWS
       S3site=$(whiptail --title "S3 bucket location site" --inputbox "Enter the S3 site (e.g. \"eu-central-1\") you want to use:" 10 60 3>&1 1>&2 2>&3)
@@ -235,7 +235,7 @@ amanda_setup() {
     fi
   fi
 
-  if [ -n "$INTERACTIVE" ]; then
+  if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
 }

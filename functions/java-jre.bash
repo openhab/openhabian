@@ -199,7 +199,7 @@ java_zulu_install() {
     return 1
   fi
 
-  if [[ -z $UNATTENDED ]] && [[ -z $BATS_TEST_NAME ]]; then
+  if dpkg -s 'openhab2' &> /dev/null; then
     cond_redirect systemctl stop openhab2.service
   fi
   cond_redirect java_alternatives_reset
@@ -225,7 +225,7 @@ java_zulu_install() {
 
   java_zulu_install_crypto_extension
 
-  if [[ -z $UNATTENDED ]] && [[ -z $BATS_TEST_NAME ]]; then
+  if dpkg -s 'openhab2' &> /dev/null; then
     cond_redirect systemctl start openhab2.service
   fi
 }
@@ -276,9 +276,9 @@ java_zulu_fetch() {
 
   if ! mkdir -p $jdkInstallLocation; then echo "FAILED (create directory)"; return 1; fi
   if ! rm -rf "${jdkInstallLocation:?}"/*; then echo "FAILED (clean directory)"; return 1; fi
-  if ! cond_redirect wget -qO "$jdkInstallLocation"/zulu.tar.gz "$downloadLink"; then echo "FAILED (download)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
-  if ! tar -xpzf "$jdkInstallLocation"/zulu.tar.gz -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
-  if rm -rf "$jdkInstallLocation"/zulu.tar.gz; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
+  if ! cond_redirect wget -O "$jdkInstallLocation"/zulu.tar.gz "$downloadLink"; then echo "FAILED (download)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
+  if ! cond_redirect tar -xpzf "$jdkInstallLocation"/zulu.tar.gz -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
+  if cond_redirect rm -rf "$jdkInstallLocation"/zulu.tar.gz; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
 }
 
 ## Check if a newer version of Java Zulu 8 is available.
@@ -397,13 +397,13 @@ java_zulu_install_crypto_extension() {
   policyTempLocation="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo -n "$(timestamp) [openHABian] Installing Java Zulu CEK to enable unlimited cipher strength... "
-  if ! mkdir -p "$jdkSecurity"; then echo "FAILED (create directory)"; return 1; fi
-  if ! rm -rf "${jdkSecurity:?}"/*; then echo "FAILED (clean directory)"; return 1; fi
+  if ! cond_redirect mkdir -p "$jdkSecurity"; then echo "FAILED (create directory)"; return 1; fi
+  if ! cond_redirect rm -rf "${jdkSecurity:?}"/*; then echo "FAILED (clean directory)"; return 1; fi
   if ! cond_redirect wget -qO "$policyTempLocation"/crypto.zip https://cdn.azul.com/zcek/bin/ZuluJCEPolicies.zip; then echo "FAILED (download)"; return 1; fi
   if ! cond_redirect unzip "$policyTempLocation"/crypto.zip -d "$policyTempLocation"; then echo "FAILED (unzip)"; return 1; fi
   if cond_redirect cp "$policyTempLocation"/ZuluJCEPolicies/*.jar "$jdkSecurity"; then echo "OK"; else echo "FAILED (copy)"; return 1; fi
 
-  rm -rf "$policyTempLocation"
+  cond_redirect rm -rf "$policyTempLocation"
 }
 
 ## Fetch AdoptOpenJDK using APT repository.

@@ -17,7 +17,7 @@ Menu 60 finally is a shortcut to offer all option for (un)installation in a sing
 \\nVisit these sites for more information:
   - Documentation: https://www.openhab.org/docs/installation/openhabian.html
   - Development: http://github.com/openhab/openhabian
-  - Discussion: https://community.openhab.org/t/13379" 27 110
+  - Discussion: https://community.openhab.org/t/13379" 27 116
   RET=$?
   if [ $RET -eq 255 ]; then
     # <Esc> key pressed.
@@ -62,11 +62,11 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
-    openhab2_setup
+    openhab2_setup "stable"
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 12 116 5 --cancel-button Back --ok-button Execute \
-    "11 | Packages          "     "Install needed and recommended system packages" \
+    "11 | Packages"               "Install needed and recommended system packages" \
     "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
     "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
@@ -86,11 +86,11 @@ show_main_menu() {
 
   elif [[ "$choice" == "20"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Back --ok-button Execute \
-    "21 | Log Viewer          "  "openHAB Log Viewer webapp (frontail)" \
+    "21 | Log Viewer"            "openHAB Log Viewer webapp (frontail)" \
     "22 | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     "23 | Mosquitto"             "MQTT broker Eclipse Mosquitto" \
     "24 | InfluxDB+Grafana"      "A powerful persistence and graphing solution" \
-    "25 | NodeRED"               "Flow-based programming for the Internet of Things" \
+    "25 | Node-RED"              "Flow-based programming for the Internet of Things" \
     "26 | Homegear"              "Homematic specific, the CCU2 emulation software Homegear" \
     "27 | knxd"                  "KNX specific, the KNX router/gateway daemon knxd" \
     "28 | 1wire"                 "1wire specific, owserver and related packages" \
@@ -117,18 +117,21 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 117 11 --cancel-button Back --ok-button Execute \
-    "31 | Change hostname     "    "Change the name of this system, currently '$(hostname)'" \
-    "32 | Set system locale"       "Change system language, currently '$(env | grep "LANG=" | sed 's/LANG=//')'" \
-    "33 | Set system timezone"     "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
-    "34 | Change passwords"        "Change passwords for Samba, openHAB Console or the system user" \
-    "35 | Serial port"             "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
-    "36 | WiFi setup"              "Configure wireless network connection" \
-    "37 | Move root to USB"        "Move the system root from the SD card to a USB device (SSD or stick)" \
-    "38 | Use ZRAM"                "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
-    "   | Uninstall ZRAM"          "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
-    "39 | Setup VPN access"        "Setup Wireguard to enable secure remote access to your openHABian box (ALPHA)" \
-    "   | Uninstall Wireguard VPN" "Remove Wireguard VPN from your openHABian box" \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Back --ok-button Execute \
+    "31 | Change hostname"      "Change the name of this system, currently '$(hostname)'" \
+    "32 | Set system locale"    "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
+    "33 | Set system timezone"  "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
+    "   | Enable NTP"           "Enable time synchronization via systemd-timesyncd to NTP servers" \
+    "   | Disable NTP"          "Disable time synchronization via systemd-timesyncd to NTP servers" \
+    "34 | Change passwords"     "Change passwords for Samba, openHAB Console or the system user" \
+    "35 | Serial port"          "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
+    "36 | WiFi setup"           "Configure wireless network connection" \
+    "   | Disable WiFi"         "Disable wireless network connection" \
+    "37 | Move root to USB"     "Move the system root from the SD card to a USB device (SSD or stick)" \
+    "38 | Use ZRAM"             "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
+    "   | Uninstall ZRAM"       "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
+    "39 | Setup VPN access"     "Setup Wireguard to enable secure remote access to openHABian (ALPHA)" \
+    "   | Remove Wireguard VPN" "Remove Wireguard VPN from openHABian" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -136,12 +139,15 @@ show_main_menu() {
       31\ *) hostname_change ;;
       32\ *) locale_setting ;;
       33\ *) timezone_setting ;;
+      *Enable\ NTP) setup_ntp "enable" ;;
+      *Disable\ NTP) setup_ntp "disable" ;;
       34\ *) change_password ;;
       35\ *) prepare_serial_port ;;
-      36\ *) wifi_setup ;;
+      36\ *) configure_wifi setup;;
+      *Disable\ WiFi) configure_wifi disable ;;
       37\ *) move_root2usb ;;
-      38\ *) init_zram_mounts install;;
-      *Uninstall\ ZRAM) init_zram_mounts remove;;
+      38\ *) init_zram_mounts "install" ;;
+      *Uninstall\ ZRAM) init_zram_mounts "uninstall" ;;
       39\ *) if install_wireguard install; then setup_wireguard; fi;;
       *Uninstall\ Wireguard) install_wireguard remove;;
       "") return 0 ;;
@@ -149,7 +155,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 19 116 12 --cancel-button Back --ok-button Execute \
     "41 | openHAB release"        "Install or switch to the latest openHAB release" \
     "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
     "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
@@ -167,9 +173,9 @@ show_main_menu() {
     wait_for_apt_to_finish_update
     # shellcheck disable=SC2154
     case "$choice2" in
-      41\ *) openhab2_setup ;;
-      *openHAB\ testing) openhab2_setup testing ;;
-      *openHAB\ snapshot) openhab2_setup unstable ;;
+      41\ *) openhab2_setup "stable" ;;
+      *openHAB\ testing) openhab2_setup "testing" ;;
+      *openHAB\ snapshot) openhab2_setup "unstable" ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
       *Delay\ rules\ load) delayed_rules yes;;
@@ -199,25 +205,25 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "60"* ]]; then
-    choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 23 117 16 --cancel-button Back --ok-button Execute \
-    "62 | Packages"                "Install needed and recommended system packages " OFF \
-    "63 | Zulu 8 OpenJDK 32-bit"   "Install Zulu 8 32-bit OpenJDK as primary Java provider" OFF \
-    "   | Zulu 8 OpenJDK 64-bit"   "Install Zulu 8 64-bit OpenJDK as primary Java provider" OFF \
-    "   | Zulu 11 OpenJDK 32-bit"  "Install Zulu 11 32-bit OpenJDK as primary Java provider (beta)" OFF \
-    "   | Zulu 11 OpenJDK 64-bit"  "Install Zulu 11 64-bit OpenJDK as primary Java provider (beta)" OFF \
-    "   | AdoptOpenJDK 11"         "Install AdoptOpenJDK 11 as primary Java provider (beta)" OFF \
-    "64 | openHAB stable"          "Install the latest openHAB release" OFF \
-    "   | openHAB testing"         "Install the latest openHAB testing (milestone) build" OFF \
-    "   | openHAB unstable"        "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
-    "65 | System Tweaks"           "Configure system permissions and settings typical for openHAB " OFF \
-    "66 | Samba"                   "Install the Samba file sharing service and set up openHAB 2 shares " OFF \
-    "67 | Log Viewer"              "The openHAB Log Viewer webapp (frontail) " OFF \
-    "68 | FireMotD"                "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
-    "69 | Bash&Vim Settings"       "Apply openHABian settings for bash, vim and nano (optional) " OFF \
-    "6A | Use ZRAM"                "Use compressed RAM/disk sync for active directories (mitigates SD card wear)" OFF \
-    "   | Uninstall ZRAM"          "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" OFF \
-    "6B | Setup VPN access"        "Setup Wireguard to enable secure remote access to your openHABian box (ALPHA)" OFF \
-    "   | Uninstall Wireguard VPN" "Remove Wireguard from your openHABian box" OFF \
+    choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 23 116 16 --cancel-button Back --ok-button Execute \
+    "62 | Packages"               "Install needed and recommended system packages " OFF \
+    "63 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" OFF \
+    "   | Zulu 8 OpenJDK 64-bit"  "Install Zulu 8 64-bit OpenJDK as primary Java provider" OFF \
+    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider (beta)" OFF \
+    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider (beta)" OFF \
+    "   | AdoptOpenJDK 11"        "Install AdoptOpenJDK 11 as primary Java provider (beta)" OFF \
+    "64 | openHAB stable"         "Install the latest openHAB release" OFF \
+    "   | openHAB testing"        "Install the latest openHAB testing (milestone) build" OFF \
+    "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
+    "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB " OFF \
+    "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares " OFF \
+    "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail) " OFF \
+    "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
+    "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
+    "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories (mitigates SD card wear)" OFF \
+    "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" OFF \
+    "6B | Setup VPN access"       "Setup Wireguard to enable secure remote access openHABian (ALPHA)" OFF \
+    "   | Remove Wireguard VPN"   "Remove Wireguard VPN from openHABian" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -228,16 +234,16 @@ show_main_menu() {
     if [[ $choosenComponents == *"Zulu 11 OpenJDK 32-bit"* ]]; then update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32"; fi
     if [[ $choosenComponents == *"Zulu 11 OpenJDK 64-bit"* ]]; then update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64"; fi
     if [[ $choosenComponents == *"AdoptOpenJDK 11"* ]]; then update_config_java "Adopt11" && java_install_or_update "Adopt11"; fi
-    if [[ $choosenComponents == *"64"* ]]; then openhab2_setup; fi
-    if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup testing; fi
-    if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup unstable; fi
+    if [[ $choosenComponents == *"64"* ]]; then openhab2_setup "stable"; fi
+    if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup "testing"; fi
+    if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup "unstable"; fi
     if [[ $choosenComponents == *"65"* ]]; then srv_bind_mounts && permissions_corrections && misc_system_settings; fi
     if [[ $choosenComponents == *"66"* ]]; then samba_setup; fi
     if [[ $choosenComponents == *"67"* ]]; then frontail_setup; fi
     if [[ $choosenComponents == *"68"* ]]; then firemotd_setup; fi
     if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
-    if [[ $choosenComponents == *"6A"* ]]; then init_zram_mounts install; fi
-    if [[ $choosenComponents == *"Uninstall ZRAM"* ]]; then init_zram_mounts remove; fi
+    if [[ $choosenComponents == *"6A"* ]]; then init_zram_mounts "install"; fi
+    if [[ $choosenComponents == *"Uninstall ZRAM"* ]]; then init_zram_mounts "uninstall"; fi
     if [[ $choosenComponents == *"6B"* ]]; then install_wireguard install; setup_wireguard; fi
     if [[ $choosenComponents == *"Uninstall Wireguard"* ]]; then install_wireguard remove; fi
 

@@ -10,26 +10,25 @@ install_wireguard() {
   local textReady
   local textInstallation
 
-
   configdir="/etc/wireguard"
   textReady="In order to access your system from the Internet using Wireguard, you need to setup a couple of prerequisites. Do so now if you have not already done so.\\nYou need to have a (dynamically adapting) DNS name point to your router. Get it from any of the free providers such as DuckDNS or selfhost.de.\\nYou also need to forward an UDP port from the router to your system to allow for establishing the VPN (default 51900/UDP).\\nYou need to have this information available and your router should be setup to forward the VPN port. Are you ready to proceed ?"
   textInstallation="We will now install Wireguard VPN on your system. That'll take some time.\\n\\nMake use of this waiting time to install the client side part.\\nYou need to install the Wireguard client from either http://www.wireguard.com/install to your local PC or from PlayStore/AppStore to your mobile device.\\nopenHABian will display a QR code at the end of this installation to let you easily transfer the configuration."
 
-  if [[ "$1" == "remove" ]]; then
-    echo -n "$(timestamp) [openHABian] Removing Wireguard and VPN access... "
-    apt remove --yes wireguard wireguard-dkms wireguard-tools
+  if [[ $1 == "remove" ]]; then
+    echo -n "$(timestamp) [openHABian] Removing Wireguard service... "
+    if ! cond_redirect systemctl stop wg-quick@wg0.service; then echo "FAILED (stop service)"; return 1; fi
+    if ! rm -f /lib/systemd/system/wg-quick*; then echo "OK"; else echo "FAILED (remove service)"; return 1; fi
+    cond_redirect systemctl -q daemon-reload &> /dev/null
 
-    systemctl stop wg-quick@wg0
-    rm -f /lib/systemd/system/wg-quick*
-    systemctl -q daemon-reload &>/dev/null
-    rmmod wireguard
+    echo -n "$(timestamp) [openHABian] Uninstalling Wireguard... "
+    if ! cond_redirect apt-get remove --yes wireguard wireguard-dkms wireguard-tools; then echo "FAILED"; return 1; fi
+    if ! rm -f /etc/apt/sources.list.d/wireguard.list; then echo "FAILED (remove apt list)"; return 1; fi
+    if ! cond_redirect rmmod wireguard; then echo "FAILED (remove module)"; return 1; fi
+    if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
-    rm -f /etc/apt/sources.list.d/wireguard.list
-    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     if [[ -n "$INTERACTIVE" ]]; then
-      whiptail --title "Wireguard VPN removed" --msgbox "We permanently removed the Wireguard installation from your system." 8 80
+      whiptail --title "Wireguard VPN removed" --msgbox "We permanently removed the Wireguard installation from your system." 7 80
     fi
-    echo "OK"
     return 0
   fi
   if [[ $1 != "install" ]]; then return 1; fi
@@ -45,8 +44,8 @@ install_wireguard() {
   else
     if is_pi || is_raspbian || is_raspios; then
       echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
-      cond_redirect apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-      cond_redirect apt-key adv --keyserver   keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+      cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+      cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
 
       # important to avoid release mixing:
       # prevent RPi from using the Debian distro for normal Raspbian packages
@@ -114,11 +113,8 @@ create_wireguard_config() {
     echo -n "$(timestamp) [openHABian] Installing Wireguard required packages (dnsutils)... "
     if cond_redirect apt-get install --yes dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  pubIP=$(dig -4 +short myip.opendns.com @resolver1.opendns.com | tail -1)
-  if [ -z "$pubIP" ]; then
-    if pubIP=$(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com|tr -d '"'); then echo "$pubIP"; else echo "FAILED"; return 1; fi
-  fi
 
+  if ! pubIP="$(get_public_ip)"; then echo "FAILED (public ip)"; return 1; fi
   configdir=/etc/wireguard
   IFACE=${1:-eth0}
   PORT="${2:-51900}"
@@ -129,7 +125,6 @@ create_wireguard_config() {
   SERVERPUBLIC=$(cat "$configdir"/server_public_key)
   CLIENTPRIVATE=$(cat "$configdir"/client_private_key)
   CLIENTPUBLIC=$(cat "$configdir"/client_public_key)
-
 
   mkdir -p "$configdir"
   sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "${BASEDIR:-/opt/openhabian}"/includes/wireguard-server.conf-template > "$configdir"/wg0.conf

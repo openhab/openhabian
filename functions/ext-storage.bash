@@ -7,14 +7,14 @@ move_root2usb() {
   infotext="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will move your system root from your SD card to a USB device like an SSD or a USB stick.\\nATTENTION: this is NOT the recommended method to reduce wearout and failure of the SD card. If that is your intention, stop here and go for ZRAM (menu option 38).\\n\\nIf you still want to proceed,\\n1.) Ensure your RPi model can boot from a device other than the internal SD card reader.\\n2.) Make a backup of your SD card\\n3.) Remove all USB mass storage devices from your Pi\\n4.) Insert the USB device to be used for the new system root.\\n\\nTHIS DEVICE WILL BE COMPLETELY DELETED\\n\\nDo you want to continue at your own risk?"
 
   if ! is_pi; then
-    if [ -n "$INTERACTIVE" ]; then
+    if [[ -n $INTERACTIVE ]]; then
       whiptail --title "Incompatible hardware detected" --msgbox "Move root to USB: this option is for the Raspberry Pi only." 10 60
     fi
     echo "FAILED"; return 1
   fi
 
   if [ -f /etc/ztab ]; then
-    if [ -n "$INTERACTIVE" ]; then
+    if [[ -n $INTERACTIVE ]]; then
       whiptail --title "Incompatible selection detected" --msgbox "Move root to USB must not be used together with ZRAM.\\nIf you want to mitigate SD card corruption, don't move root but stay with ZRAM, it is the proper choice.\\nIf you want to move for other reasons, uninstall ZRAM first then return here." 10 65
     fi
     echo "FAILED"; return 1

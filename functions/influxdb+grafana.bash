@@ -37,7 +37,7 @@ influxdb_grafana_setup() {
   textSuccess="Setup successful. Please continue with the instructions you can find here:\\n\\nhttps://community.openhab.org/t/13761/1"
 
   echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
-  if [ -n "$INTERACTIVE" ]; then
+  if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$textIntro" 15 80); then echo "CANCELED"; return 0; fi
     if is_armv61; then
       whiptail --title "Unsupported Hardware" --msgbox "$textUnsupported" 14 80
@@ -204,7 +204,7 @@ influxdb_grafana_setup() {
   fi
   cond_echo ""
 
-  if [ -n "$INTERACTIVE" ]; then
+  if [[ -n $INTERACTIVE ]]; then
     if [ $FAILED -eq 0 ]; then
       whiptail --title "Operation Successful!" --msgbox "$textSuccess" 15 80
     else
@@ -251,7 +251,7 @@ influxdb_install() {
     # disable authentication, to allow changes in existing installations
     cond_redirect sed -i 's/auth-enabled = true/# auth-enabled = false/g' /etc/influxdb/influxdb.conf || FAILED=1
 
-    cond_redirect systemctl -q daemon-reload &>/dev/null
+    cond_redirect systemctl -q daemon-reload &> /dev/null
     sleep 2
     cond_redirect systemctl enable influxdb.service
     sleep 2
@@ -273,7 +273,7 @@ influxdb_install() {
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
     # check if service is running
     echo -n "Waiting for InfluxDB service... "
-    curl --retry 6 --retry-connrefused -s --insecure --user "admin:$1" $influxDBAddress/query >/dev/null || FAILED=1
+    curl --retry 6 --retry-connrefused -s --insecure --user "admin:$1" $influxDBAddress/query > /dev/null || FAILED=1
     if [ $FAILED -eq 1 ]; then echo -n "FAILED "; else echo -n "OK "; fi
 #  else
 #    echo "SKIPPED"
@@ -314,14 +314,14 @@ grafana_install(){
   # shellcheck disable=SC2174
   mkdir -p -m 750 /var/run/grafana/ && chown grafana:grafana /var/run/grafana/
 
-  cond_redirect systemctl -q daemon-reload &>/dev/null
+  cond_redirect systemctl -q daemon-reload &> /dev/null
   cond_redirect systemctl enable grafana-server.service
   cond_redirect systemctl start grafana-server.service
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
   cond_echo ""
 
   echo -n "Wait for Grafana to start... "
-  tryUntil "curl -s http://localhost:3000 >/dev/null" 10 10 && FAILED=2
+  tryUntil "curl -s http://localhost:3000 > /dev/null" 10 10 && FAILED=2
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; curl -s -S http://localhost:3000; grafana_debug_info; return 2; else echo -n "OK "; fi
   sleep 5
   cond_echo ""
@@ -336,7 +336,7 @@ grafana_install(){
   echo -n "Restarting Grafana... "
   cond_redirect systemctl restart grafana-server.service || FAILED=2
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
-  tryUntil "curl -s http://localhost:3000 >/dev/null" 10 10 && FAILED=2
+  tryUntil "curl -s http://localhost:3000 > /dev/null" 10 10 && FAILED=2
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
   sleep 2
 
@@ -353,7 +353,7 @@ grafana_install(){
   sleep 2
   # check if service is running
   echo -n "Waiting for Grafana service... "
-  tryUntil "curl -s http://localhost:3000 >/dev/null" 10 10 && FAILED=2
+  tryUntil "curl -s http://localhost:3000 > /dev/null" 10 10 && FAILED=2
   if [ $FAILED -eq 2 ]; then echo -n "FAILED "; grafana_debug_info; return 2; else echo -n "OK "; fi
   cond_echo ""
 }
