@@ -325,13 +325,16 @@ misc_system_settings() {
   if ! cond_redirect chmod 600 /home/"${username:-openhabian}"/.ssh/authorized_keys; then echo "FAILED (set authorized_keys permissions)"; return 1; fi
   if ! cond_redirect chown -R "${username:-openhabian}:${username:-openhabian}" /home/"${username:-openhabian}"/.ssh; then echo "FAILED (chown .ssh)"; return 1; fi
 
-  # By default, systemd logs are kept in volatile memory. Relocate to persistent memory to allow log rotation and archiving
-  cond_echo "Creating persistent systemd journal folder location: /var/log/journal"
-  if ! cond_redirect mkdir -p /var/log/journal; then echo "FAILED (create /var/log/journal)"; return 1; fi
-  if ! cond_redirect systemd-tmpfiles --create --prefix /var/log/journal; then echo "FAILED (systemd-tmpfiles)"; return 1; fi
-  cond_echo "Keeping at most 30 days of systemd journal entries"
-  if ! cond_redirect journalctl --vacuum-time=30d; then echo "FAILED (journalctl)"; return 1; fi
-
+  if is_raspbian || is_raspios; then
+    # By default, systemd logs are kept in volatile memory. Relocate to persistent memory to allow log rotation and archiving
+    sed -i '/SystemMax/d' /etc/systemd/journald.conf
+    echo -e "SystemMaxUse=50M\\nSystemMaxFileSize=10M\\nSystemMaxFiles=5" >> /etc/systemd/journald.conf
+    cond_echo "Creating persistent systemd journal folder location: /var/log/journal"
+    if ! cond_redirect mkdir -p /var/log/journal; then echo "FAILED (create /var/log/journal)"; return 1; fi
+    if ! cond_redirect systemd-tmpfiles --create --prefix /var/log/journal; then echo "FAILED (systemd-tmpfiles)"; return 1; fi
+    cond_echo "Keeping at most 30 days of systemd journal entries"
+    if ! cond_redirect journalctl --vacuum-time=30d; then echo "FAILED (journalctl)"; return 1; fi
+  fi
   # A distinguishable apt User-Agent
   cond_echo "Setting a distinguishable apt User-Agent"
   if echo "Acquire { http::User-Agent \"Debian APT-HTTP/1.3 openHABian\"; };" > /etc/apt/apt.conf.d/02useragent; then echo "OK"; else echo "FAILED (apt User-Agent)"; return 1; fi
