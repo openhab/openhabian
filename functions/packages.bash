@@ -154,6 +154,7 @@ homegear_setup() {
   local myOS
   local myRelease
   local successtext
+  local disklistFile
 
   if ! [[ -x $(command -v lsb_release) ]]; then
     echo -n "$(timestamp) [openHABian] Installing Homegear required packages (lsb-release)... "
@@ -185,10 +186,16 @@ homegear_setup() {
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/homegear-management.service /etc/systemd/system/homegear-management.service; then echo "FAILED (copy service)"; return 1; fi
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /etc/systemd/system/homegear*; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
-  if ! cond_redirect systemctl enable homegear.service; then echo "FAILED (enable service)"; return 1; fi
-  if cond_redirect systemctl restart homegear.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  if ! cond_redirect systemctl enable --now homegear homegear-management; then echo "FAILED (enable service)"; return 1; fi
 
-  if [[ -n $INTERACTIVE ]]; then
+  disklistFile=/etc/amanda/openhab-dir/disklist
+  if [[ -f "$disklistFile" ]]; then
+    sed -i '/homegear/d' $disklistFile
+    grep -E '/var/lib/openhab2[[:space:]]' $disklistFile | sed -e 's#openhab2#homegear#g' > ${disklistFile}.tmp
+    cond_redirect cat ${disklistFile}.tmp >> $disklistFile && rm -f ${disklistFile}.tmp
+  fi
+
+  if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
   fi
 }
