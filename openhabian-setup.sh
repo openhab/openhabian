@@ -102,9 +102,9 @@ if [[ -n "$UNATTENDED" ]]; then
   nano_openhab_syntax
   multitail_openhab_scheme
   srv_bind_mounts
-  permissions_corrections
   misc_system_settings
   samba_setup
+  permissions_corrections
   clean_config_userpw
   frontail_setup
   zram_setup
