@@ -301,7 +301,7 @@ permissions_corrections() {
   if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; return 1; fi
   if cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "OK"; else echo "FAILED"; return 1; fi
 
-  if ! cond_redirect chgrp root /var/log/samba /var/log/unattended_upgrades; then echo "FAILED (3rd party logdir)"; return 1; fi
+  if ! cond_redirect chgrp root /var/log/samba /var/log/unattended-upgrades; then echo "FAILED (3rd party logdir)"; return 1; fi
 }
 
 ## Function for applying miscellaneous system settings.
