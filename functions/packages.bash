@@ -91,6 +91,7 @@ exim_setup() {
   local relayUser
   local smartHost
   local temp
+  local logrotateFile
 
   if ! dpkg -s 'mailutils' 'exim4' 'dnsutils' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing MTA required packages (mailutils, exim4, dnsutils,)... "
@@ -112,6 +113,7 @@ exim_setup() {
   if ! smartHost=$(whiptail --title "Enter public mail service smarthost to relay your mails to" --inputbox "\\nEnter the list of smarthost(s) to use your account for" 9 80 "*.google.com" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
   if ! relayUser=$(whiptail --title "Enter your public service mail user" --inputbox "\\nEnter the mail username of the public service to relay all outgoing mail to $smartHost" 9 80 "yourname@gmail.com" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
   if ! relayPass=$(whiptail --title "Enter your public service mail password" --passwordbox "\\nEnter the password used to relay mail as ${relayUser}@${smartHost}" 9 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+  logrotateFile=/etc/logrotate.d/exim4
 
   echo "$(timestamp) [openHABian] Creating MTA config... "
   if ! grep '^#' "$eximConfig" > "$temp"; then echo "FAILED (configuration)"; rm -f "$temp"; return 1; fi
@@ -119,6 +121,11 @@ exim_setup() {
   if ! cond_redirect cp "$temp" "$eximConfig"; then echo "FAILED (copy)"; rm -f "$temp"; return 1; fi
   cond_redirect rm -f "$temp"
   if cond_redirect chmod o-rwx "$eximConfig"; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
+  for s in base paniclog; do
+    if [[ -f "$logrotateFile-$s" ]]; then
+      sed -i 's#Create 640 Debian-exim adm#Create 640 Debian-exim adm\n\tsu Debian-exim adm#g' "$logrotateFile-s$s"
+    fi
+  done
 
   echo "$(timestamp) [openHABian] Adding to $relayUser email to system accounts... "
   if {
@@ -186,16 +193,14 @@ homegear_setup() {
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/homegear-management.service /etc/systemd/system/homegear-management.service; then echo "FAILED (copy service)"; return 1; fi
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /etc/systemd/system/homegear*; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
-  if ! cond_redirect systemctl enable --now homegear homegear-management; then echo "FAILED (enable service)"; return 1; fi
-
+  if ! cond_redirect systemctl enable --now homegear.service homegear-management.service; then echo "FAILED (enable service)"; return 1; fi
   disklistFile=/etc/amanda/openhab-dir/disklist
   if [[ -f "$disklistFile" ]]; then
     sed -i '/homegear/d' $disklistFile
     grep -E '/var/lib/openhab2[[:space:]]' $disklistFile | sed -e 's#openhab2#homegear#g' > ${disklistFile}.tmp
     cond_redirect cat ${disklistFile}.tmp >> $disklistFile && rm -f ${disklistFile}.tmp
   fi
-
-  if [[ -n "$INTERACTIVE" ]]; then
+  if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 14 80
   fi
 }
@@ -480,14 +485,14 @@ miflora_setup() {
   fi
 }
 
-## Function for installing Nginx to allow for secure interaction with openHAB over the network.
+## Function for installing nginx to allow for secure interaction with openHAB over the network.
 ## This function can only be invoked in INTERACTIVE with userinterface.
 ##
 ##    nginx_setup()
 ##
 nginx_setup() {
   if [[ -z $INTERACTIVE ]]; then
-    echo "$(timestamp) [openHABian] Nginx setup must be run in interactive mode! Canceling Nginx setup!"
+    echo "$(timestamp) [openHABian] nginx setup must be run in interactive mode! Canceling nginx setup!"
     return 0
   fi
 
@@ -507,9 +512,10 @@ nginx_setup() {
   local pubIP
   local secure
   local validDomain
+  local logrotateFile
 
   if ! [[ -x $(command -v dig) ]]; then
-    echo -n "$(timestamp) [openHABian] Installing Nginx required packages (dnsutils)... "
+    echo -n "$(timestamp) [openHABian] Installing nginx required packages (dnsutils)... "
     if cond_redirect apt-get install --yes dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
@@ -518,6 +524,7 @@ nginx_setup() {
   introtext="This will enable you to access the openHAB interface through the normal HTTP/HTTPS ports and optionally secure it with username/password and/or an SSL certificate."
   secure="false"
   validDomain="false"
+  logrotateFile=/etc/logrotate.d/nginx
 
   function comment {
     if ! sed -e "/[[:space:]]$1/ s/^#*/#/g" -i "$2"; then echo "FAILED (comment)"; return 1; fi
@@ -526,10 +533,10 @@ nginx_setup() {
     if ! sed -e "/$1/s/^$1//g" -i "$2"; then echo "FAILED (uncomment)"; return 1; fi
   }
 
-  echo -n "$(timestamp) [openHABian] Beginning setup of Nginx as reverse proxy with authentication... "
-  if (whiptail --title "Nginx installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 9 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+  echo -n "$(timestamp) [openHABian] Beginning setup of nginx as reverse proxy with authentication... "
+  if (whiptail --title "nginx installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introtext" 9 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
-  echo "$(timestamp) [openHABian] Configuring Nginx authentication options... "
+  echo "$(timestamp) [openHABian] Configuring nginx authentication options... "
   if (whiptail --title "Authentication Setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
     if nginxUsername=$(whiptail --title "Authentication Setup" --inputbox "\\nEnter a username to sign into openHAB:" 9 80 openhab 3>&1 1>&2 2>&3); then
       while [[ -z $nginxPass ]]; do
@@ -566,7 +573,7 @@ nginx_setup() {
     portwarning=""
   fi
 
-  echo "$(timestamp) [openHABian] Configuring Nginx network options... "
+  echo "$(timestamp) [openHABian] Configuring nginx network options... "
   cond_echo "Obtaining public IP address... "
   if ! pubIP="$(get_public_ip)"; then echo "FAILED (public ip)"; return 1; fi
 
@@ -596,27 +603,27 @@ nginx_setup() {
     validDomain="true"
   fi
 
-  confirmtext="The following settings have been chosen:\\n\\n- $authtext\\n- $httpstext\\n- Domain: $domain (Public IP Address: $pubIP)\\n\\nYou will be able to connect to openHAB on the default $protocol port.\\n\\n${portwarning}Do you wish to continue and setup an Nginx server now?"
+  confirmtext="The following settings have been chosen:\\n\\n- $authtext\\n- $httpstext\\n- Domain: $domain (Public IP Address: $pubIP)\\n\\nYou will be able to connect to openHAB on the default $protocol port.\\n\\n${portwarning}Do you wish to continue and setup an nginx server now?"
 
   if ! (whiptail --title "Confirmation" --yesno "$confirmtext" 20 80); then echo "CANCELED"; return 0; fi
-  echo -n "$(timestamp) [openHABian] Installing Nginx... "
+  echo -n "$(timestamp) [openHABian] Installing nginx... "
   if cond_redirect apt-get install --yes nginx; then echo "OK"; else echo "FAILED"; return 1; fi
 
-  echo -n "$(timestamp) [openHABian] Setting up Nginx configuration... "
+  echo -n "$(timestamp) [openHABian] Setting up nginx configuration... "
   if ! cond_redirect rm -rf /etc/nginx/sites-enabled/default; then echo "FAILED (remove default)"; return 1; fi
   if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/nginx.conf /etc/nginx/sites-enabled/openhab; then echo "FAILED (copy configuration)"; return 1; fi
   if cond_redirect sed -i 's|DOMAINNAME|'"${domain}"'|g' /etc/nginx/sites-enabled/openhab; then echo "OK"; else echo "FAILED (set domain name)"; return 1; fi
 
   if [[ $auth == "true" ]]; then
-    cond_echo "Setting up Nginx password options..."
-    echo -n "$(timestamp) [openHABian] Installing Nginx password utilities... "
+    cond_echo "Setting up nginx password options..."
+    echo -n "$(timestamp) [openHABian] Installing nginx password utilities... "
     if cond_redirect apt-get install --yes apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
     if cond_redirect htpasswd -b -c /etc/nginx/.htpasswd "$nginxUsername" "$nginxPass"; then echo "OK"; else echo "FAILED (password file)"; return 1; fi
     uncomment "#AUTH" /etc/nginx/sites-enabled/openhab
   fi
 
   if [[ $secure == "true" ]]; then
-    cond_echo "Setting up Nginx security options..."
+    cond_echo "Setting up nginx security options..."
     if [[ $validDomain == "true" ]]; then
       echo -n "$(timestamp) [openHABian] Installing certbot... "
       if is_ubuntu; then
@@ -653,6 +660,9 @@ nginx_setup() {
     uncomment "#SSL" /etc/nginx/sites-enabled/openhab
   fi
 
+  if [[ -f "$logrotateFile" ]]; then
+    sed -i 's#daily#daily\n\tsu www-data adm#g' "$logrotateFile"
+  fi
   if ! nginx -t; then echo "FAILED (nginx configuration test)"; return 1; fi
   if ! cond_redirect systemctl restart nginx.service; then echo "FAILED (nginx restart)"; return 1; fi
 
