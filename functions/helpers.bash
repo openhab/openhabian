@@ -27,7 +27,7 @@ cond_redirect() {
     "$@" &> /dev/null
     return $?
   else
-    echo -e "\\n$COL_DGRAY\$ $* $COL_DEF"
+    echo -e "\\n${COL_DGRAY}\$ ${*} ${COL_DEF}"
     "$@"
     return $?
   fi
@@ -58,6 +58,44 @@ add_keys() {
     echo "FAILED"
     rm -f "$repoKey"
     return 1;
+  fi
+}
+
+## Update given git repo and switch to specfied branch / tag
+##
+##    update_git_repo(String path, String branch)
+##
+update_git_repo() {
+  local branch
+  local path
+
+  branch="$2"
+  path="$1"
+
+  echo -n "$(timestamp) [openHABian] Updating $(basename "$path"), ${branch} branch from git... "
+
+  if ! cond_redirect git -C "$path" fetch origin; then echo "FAILED (fetch origin)"; return 1; fi
+  if ! cond_redirect git -C "$path" reset --hard "origin/${branch}"; then echo "FAILED (reset to origin)"; return 1; fi
+  if ! cond_redirect git -C "$path" clean --force -x -d; then echo "FAILED (clean)"; return 1; fi
+  if cond_redirect git -C "$path" checkout "${branch}"; then echo "OK"; else echo "FAILED (checkout ${branch})"; return 1; fi
+}
+
+## Function to get public IP
+##
+##    get_public_ip()
+##
+get_public_ip() {
+  local pubIP
+
+  if pubIP="$(dig +short myip.opendns.com @resolver1.opendns.com | tail -1)"; then echo "$pubIP"; return 0; else return 1; fi
+  if [[ -z $pubIP ]]; then
+    if pubIP="$(dig -4 +short myip.opendns.com @resolver1.opendns.com | tail -1)"; then echo "$pubIP"; return 0; else return 1; fi
+  fi
+  if [[ -z $pubIP ]]; then
+    if pubIP="$(dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | tr -d '"')"; then echo "$pubIP"; return 0; else return 1; fi
+    if [[ -z $pubIP ]]; then
+      if pubIP="$(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com | tr -d '"')"; then echo "$pubIP"; return 0; else return 1; fi
+    fi
   fi
 }
 
@@ -320,7 +358,7 @@ wait_for_apt_to_be_ready() {
 
   until [[ $attempts -le 0 ]]; do
     apt-get update &> /dev/null & pid=$!
-    if [[ $(eval "$(timeout 60 tail --pid=$pid -f /dev/null)") -eq 0 ]]; then return 0; fi
+    if [[ $(eval "$(tail --pid=$pid -f /dev/null)") -eq 0 ]]; then return 0; fi
     sleep "$interval"
     ((attempts-=1))
   done
@@ -346,5 +384,5 @@ wait_for_apt_to_finish_update() {
   if [[ -z $PID_APT ]]; then
     apt_update
   fi
-  if timeout 60 tail --pid=$PID_APT -f /dev/null; then echo "OK"; else echo "FAILED"; fi
+  if tail --pid=$PID_APT -f /dev/null; then echo "OK"; else echo "FAILED"; return 1; fi
 }

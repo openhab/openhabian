@@ -7,15 +7,15 @@ lookup.
 ### Wireguard VPN (ALPHA)
 Wireguard can be deployed to enable for VPN access to your openHABian box when
 it's located in some remote location.
-You need to install the Wireguard client from http://www.wireguard.com/install
+You need to install the Wireguard client from <http://www.wireguard.com/install>
 to your local PC or mobile device that you want to use for access.
-Copy the configuration file /etc/wireguard/wg0-client.conf from this box to load
-the tunnel.
+Copy the configuration file '/etc/wireguard/wg0-client.conf' from this box or
+transmit QR code to load the tunnel.
 Note this is an ALPHA test so don't expect it to work out of the box.
 Any feedback is highly appreciated on the forum.
 
 ### New Java providers now out of beta
-Java 11 has proven to work with 2.5
+Java 11 has been proven to work with openHAB 2.5.
 
 
 ## June 17, 2020
@@ -28,6 +28,5 @@ In short, PINE A64 is no longer supported and OS releases other than the current
 work or not.
 
 The current and previous Debian / Raspberry Pi OS (previously called Raspbian)
-releases are 10 ("buster") and 9 ("stretch"). Most current Ubuntu LTS releases
-are 20.04 ("focal") and 18.04 ("bionic").
-
+releases are 10 ("buster") and 9 ("stretch"). The most current Ubuntu LTS
+releases are 20.04 ("focal") and 18.04 ("bionic").

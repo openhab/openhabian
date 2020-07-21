@@ -18,7 +18,7 @@ teardown_file() {
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] InfluxDB service running.${COL_DEF}" >&3
-  run curl --retry 5 --retry-connrefused -s --insecure --user "admin:Password1234" "http://localhost:8086/query" >/dev/null
+  run curl --retry 5 --retry-connrefused -s --insecure --user "admin:Password1234" "http://localhost:8086/query" > /dev/null
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] InfluxDB service is responding.${COL_DEF}" >&3

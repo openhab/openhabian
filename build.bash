@@ -209,7 +209,7 @@ else
   exit 0
 fi
 
-# Check if a specific repository shall be included
+# Check if a specific repository should be included
 if [ "$2" == "dev-git" ]; then # Use current git repo and branch as a development image
   file_tag="custom"
   get_git_repo
@@ -291,12 +291,9 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   fi
 
   echo_process "Verifying signature of downloaded image... "
-  curl -s "$zipurl".sig -o "$buildfolder"/"$zipfile".sig 
-  # verify signature with key from website - this is probably not the safest way to obtain the key,
-  # but at least it is on a different download site
-  curl -s -o "$buildfolder"/raspberrypi_downloads.gpg.key https://www.raspberrypi.org/raspberrypi_downloads.gpg.key
-  gpg -q --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --import "$buildfolder"/raspberrypi_downloads.gpg.key 2> /dev/null || true
-  gpg -q --trust-model always --no-default-keyring --keyring "$buildfolder"/raspberrypiorg_downloads.keyring --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile" 2> /dev/null || exit 1
+  curl -s "$zipurl".sig -o "$buildfolder"/"$zipfile".sig
+  if ! gpg -q --keyserver keyserver.ubuntu.com --recv-key 0x8738CD6B956F460C; then echo "FAILED (download public key)"; exit 1; fi
+  if gpg -q --trust-model always --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile"; then echo "OK"; else echo "FAILED (signature)"; exit 1; fi
 
   echo_process "Unpacking image... "
   unzip -q "$buildfolder/$zipfile" -d $buildfolder

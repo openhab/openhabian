@@ -35,7 +35,7 @@ function start_udev()
 	if [ "$UDEV" == "on" ]; then
 		if $PRIVILEGED; then
 			mount_dev
-			if command -v udevd &>/dev/null; then
+			if command -v udevd &> /dev/null; then
 				unshare --net udevd --daemon &> /dev/null
 			else
 				unshare --net /lib/systemd/systemd-udevd --daemon &> /dev/null
@@ -50,7 +50,7 @@ function start_udev()
 function init()
 {
 	# echo error message, when executable file doesn't exist.
-	if CMD=$(command -v "$1" 2>/dev/null); then
+	if CMD=$(command -v "$1" 2> /dev/null); then
 		shift
 		exec "$CMD" "$@"
 	else

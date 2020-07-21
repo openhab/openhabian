@@ -146,6 +146,12 @@ Universally formatted code promotes ease of writing, reading, and maintenance.
 *   When a function is used across many files, include it in the `helpers.bash`
     file.
 
+*   Functions should be named using underscores. For example, `new_function`, or
+    `openhabian_update`.
+
+*   Variables should be named using camelCase. For example, `newVariable`, or
+    `requestedArch`.
+
 *   Always refuse to allow the running of package setup scripts that require
     user input in unattended mode.
 
