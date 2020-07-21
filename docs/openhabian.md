@@ -151,10 +151,10 @@ Mark all components / actions you think to be of value and execute them in one g
 You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails:
 
 -   Flash the system image to your micro SD card as described, do not remove the SD card yet
--   Access the first SD card partition using the file explorer. It's a vfat (Windows) filesystem. (we assume you're using a Windows, macOS or some other desktop system to flash the SD)
+-   Access the first SD card partition. It's a vfat/FAT-32 (Windows) filesystem so just use the file explorer of your client PC.
 -   Open the file `openhabian.conf` in a text editor
 -   Uncomment and complete the lines to contain the parameters you want to set
--   Save, Unmount, Insert, Boot
+-   Save, unmount/eject, remove and insert into the RPi and boot it
 -   Continue with the instructions for your hardware
 
 ### WiFi based Setup Notes
