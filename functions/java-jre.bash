@@ -226,7 +226,7 @@ java_zulu_install() {
   java_zulu_install_crypto_extension
 
   if dpkg -s 'openhab2' &> /dev/null; then
-    cond_redirect systemctl start openhab2.service
+    cond_redirect systemctl restart openhab2.service
   fi
 }
 
@@ -368,7 +368,7 @@ java_zulu_enterprise_apt() {
     if ! echo "deb http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list; then echo "FAILED"; return 1; fi
     if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
-    if [[ -z $UNATTENDED ]] && [[ -z $BATS_TEST_NAME ]]; then
+    if dpkg -s 'openhab2' &> /dev/null; then
       cond_redirect systemctl stop openhab2.service
     fi
     if [[ $1 == "8" ]] && ! dpkg -s 'zulu-8' &> /dev/null; then
@@ -378,8 +378,8 @@ java_zulu_enterprise_apt() {
       echo -n "$(timestamp) [openHABian] Installing Zulu 11 Enterprise 64-Bit OpenJDK... "
       if cond_redirect apt-get install --yes zulu-11; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
-    if [[ -z $UNATTENDED ]] && [[ -z $BATS_TEST_NAME ]]; then
-      cond_redirect systemctl start openhab2.service
+    if dpkg -s 'openhab2' &> /dev/null; then
+      cond_redirect systemctl restart openhab2.service
     fi
 
     java_zulu_install_crypto_extension
@@ -431,7 +431,7 @@ adoptopenjdk_fetch_apt() {
 ##    adoptopenjdk_install_apt()
 ##
 adoptopenjdk_install_apt() {
-  if [[ -z $UNATTENDED ]] && [[ -z $BATS_TEST_NAME ]]; then
+  if dpkg -s 'openhab2' &> /dev/null; then
     cond_redirect systemctl stop openhab2.service
   fi
   if ! dpkg -s 'adoptopenjdk-11-hotspot-jre' &> /dev/null; then # Check if already is installed
@@ -444,8 +444,8 @@ adoptopenjdk_install_apt() {
     cond_redirect java_alternatives_reset
     if cond_redirect dpkg-reconfigure adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  if [[ -z $UNATTENDED ]] && [[ -z $BATS_TEST_NAME ]]; then
-    cond_redirect systemctl start openhab2.service
+  if dpkg -s 'openhab2' &> /dev/null; then
+    cond_redirect systemctl restart openhab2.service
   fi
 }
 
