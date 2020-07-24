@@ -39,7 +39,7 @@ influxdb_grafana_setup() {
   echo "$(timestamp) [openHABian] Setting up InfluxDB and Grafana... "
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Description, Continue?" --yes-button "Continue" --no-button "Back" --yesno "$textIntro" 15 80); then echo "CANCELED"; return 0; fi
-    if is_armv61; then
+    if is_armv6l; then
       whiptail --title "Unsupported Hardware" --msgbox "$textUnsupported" 14 80
       echo "CANCELED"
       return 0
