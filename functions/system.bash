@@ -105,8 +105,8 @@ timezone_setting() {
 ##    setup_ntp(String option)
 ##
 setup_ntp() {
-  if running_in_docker || is_ubuntu; then echo "$(timestamp) [openHABian] Enabling time synchronization using NTP... SKIPPED"; return 0; fi
-
+  if running_in_docker || !is_raspbian; then echo "$(timestamp) [openHABian] Enabling time synchronization using NTP... SKIPPED"; return 0; fi
+  
   if [[ $1 == "enable" ]]; then
     echo -n "$(timestamp) [openHABian] Enabling time synchronization using NTP... "
     if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/50-timesyncd.conf /lib/dhcpcd/dhcpcd-hooks/; then echo "FAILED (copy)"; return 1; fi
