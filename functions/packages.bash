@@ -123,7 +123,7 @@ exim_setup() {
   if cond_redirect chmod o-rwx "$eximConfig"; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
   for s in base paniclog; do
     if [[ -f "$logrotateFile-$s" ]]; then
-      sed -i 's#Create 640 Debian-exim adm#Create 640 Debian-exim adm\n\tsu Debian-exim adm#g' "$logrotateFile-s$s"
+      sed -i 's#Create 640 Debian-exim adm#Create 640 Debian-exim adm\n\tsu Debian-exim adm#g' "$logrotateFile-$s"
     fi
   done
 
