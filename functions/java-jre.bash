@@ -398,10 +398,9 @@ java_zulu_install_crypto_extension() {
 
   echo -n "$(timestamp) [openHABian] Installing Java Zulu CEK to enable unlimited cipher strength... "
   if ! cond_redirect mkdir -p "$jdkSecurity"; then echo "FAILED (create directory)"; return 1; fi
-  if ! cond_redirect rm -rf "${jdkSecurity:?}"/*; then echo "FAILED (clean directory)"; return 1; fi
-  if ! cond_redirect wget -qO "$policyTempLocation"/crypto.zip https://cdn.azul.com/zcek/bin/ZuluJCEPolicies.zip; then echo "FAILED (download)"; return 1; fi
-  if ! cond_redirect unzip "$policyTempLocation"/crypto.zip -d "$policyTempLocation"; then echo "FAILED (unzip)"; return 1; fi
-  if cond_redirect cp "$policyTempLocation"/ZuluJCEPolicies/*.jar "$jdkSecurity"; then echo "OK"; else echo "FAILED (copy)"; return 1; fi
+  if ! cond_redirect wget -qO "$policyTempLocation"/crypto.zip https://cdn.azul.com/zcek/bin/ZuluJCEPolicies.zip; then echo "FAILED (download)"; rm -rf "$policyTempLocation"; return 1; fi
+  if ! cond_redirect unzip "$policyTempLocation"/crypto.zip -d "$policyTempLocation"; then echo "FAILED (unzip)"; rm -rf "$policyTempLocation"; return 1; fi
+  if cond_redirect cp -u "$policyTempLocation"/ZuluJCEPolicies/*.jar "$jdkSecurity"; then echo "OK"; else echo "FAILED (copy)"; rm -rf "$policyTempLocation"; return 1; fi
 
   cond_redirect rm -rf "$policyTempLocation"
 }
