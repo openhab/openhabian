@@ -18,7 +18,7 @@ enable_disable_wifi() {
   elif [[ $1 == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Disabling WiFi... "
     if ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
-      if echo "dtoverlay=disable-wifi" >> boot/config.txt; then echo "OK (Reboot needed)"; else echo "FAILED"; return 1; fi
+      if echo "dtoverlay=disable-wifi" >> /boot/config.txt; then echo "OK (Reboot needed)"; else echo "FAILED"; return 1; fi
     else
       echo "OK"
     fi
