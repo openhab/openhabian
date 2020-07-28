@@ -99,6 +99,31 @@ get_public_ip() {
   fi
 }
 
+## Enable or disable the RPi WiFi module
+## Valid arguments: "enable" or "disable"
+##
+##    enable_disable_wifi(String option)
+##
+enable_disable_wifi() {
+  if ! is_pi; then return 0; fi
+
+  if [[ $1 == "enable" ]]; then
+    echo -n "$(timestamp) [openHABian] Enabling WiFi... "
+    if grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
+      if sed -i -E '/^[[:space:]]*dtoverlay=(pi3-)?disable-wifi/d' /boot/config.txt; then echo "OK (Reboot needed)"; else echo "FAILED"; return 1; fi
+    else
+      echo "OK"
+    fi
+  elif [[ $1 == "disable" ]]; then
+    echo -n "$(timestamp) [openHABian] Disabling WiFi... "
+    if ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
+      if echo "dtoverlay=disable-wifi" >> /boot/config.txt; then echo "OK (Reboot needed)"; else echo "FAILED"; return 1; fi
+    else
+      echo "OK"
+    fi
+  fi
+}
+
 # fingerprinting based on
 # https://www.raspberrypi.org/documentation/hardware/raspberrypi/revision-codes/README.md
 is_pizero() {

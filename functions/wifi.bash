@@ -1,30 +1,5 @@
 #!/usr/bin/env bash
 
-## Enable or disable the RPi WiFi module
-## Valid arguments: "enable" or "disable"
-##
-##    enable_disable_wifi(String option)
-##
-enable_disable_wifi() {
-  if ! is_pi; then return 0; fi
-
-  if [[ $1 == "enable" ]]; then
-    echo -n "$(timestamp) [openHABian] Enabling WiFi... "
-    if grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
-      if sed -i -E '/^[[:space:]]*dtoverlay=(pi3-)?disable-wifi/d' /boot/config.txt; then echo "OK (Reboot needed)"; else echo "FAILED"; return 1; fi
-    else
-      echo "OK"
-    fi
-  elif [[ $1 == "disable" ]]; then
-    echo -n "$(timestamp) [openHABian] Disabling WiFi... "
-    if ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
-      if echo "dtoverlay=disable-wifi" >> /boot/config.txt; then echo "OK (Reboot needed)"; else echo "FAILED"; return 1; fi
-    else
-      echo "OK"
-    fi
-  fi
-}
-
 ## Configure WiFi setup on current system
 ## Valid arguments: "setup" or "disable"
 ##
@@ -83,12 +58,12 @@ configure_wifi() {
     if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
       # WiFi might be blocked
       rfkill unblock wifi
-      ifconfig wlan0 up
+      ip link set wlan0 up
       if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
         echo "FAILED"
         echo -e "\\nI was not able to turn on the WiFi\\nHere is some more information:\\n"
         rfkill list all
-        ifconfig
+        ip a
         return 1
       else
         echo "OK"
@@ -123,8 +98,8 @@ configure_wifi() {
       echo -e "\\nallow-hotplug wlan0\\niface wlan0 inet manual\\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\\niface default inet dhcp" >> /etc/network/interfaces
     fi
     if ! cond_redirect wpa_cli reconfigure; then echo "FAILED (reconfigure)"; return 1; fi
-    if ! cond_redirect ifconfig wlan0 down; then echo "FAILED (down)"; return 1; fi
-    if cond_redirect ifconfig wlan0 up; then echo "OK (reboot now)"; else echo "FAILED (up)"; return 1; fi
+    if ! cond_redirect ip link set wlan0 down; then echo "FAILED (down)"; return 1; fi
+    if cond_redirect ip link set wlan0 up; then echo "OK (reboot now)"; else echo "FAILED (up)"; return 1; fi
 
     whiptail --title "Operation Successful!" --msgbox "Setup was successful. The credentials provided were not tested. Please reboot now." 7 80
   elif [[ $1 == "disable" ]]; then

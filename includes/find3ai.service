@@ -1,0 +1,14 @@
+[Unit]
+Description=Framework for Internal Navigation and Discovery AI
+Documentation=https://www.internalpositioning.com/doc/
+After=mosquitto.service
+
+[Service]
+WorkingDirectory=/opt/find3/server/ai
+User=find3
+Group=find3
+ExecStart=/usr/bin/make --always-make --directory=/opt/find3/server/ai production
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
