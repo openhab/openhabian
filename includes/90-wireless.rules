@@ -1,0 +1,1 @@
+SUBSYSTEM=="ieee80211", ACTION=="add", KERNEL=="%KERNEL", RUN+="/sbin/iw phy %k interface add mon0 type monitor", RUN+="/sbin/ip link set mon0 up"

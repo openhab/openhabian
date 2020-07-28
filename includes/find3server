@@ -1,0 +1,6 @@
+# FIND server service configuration
+# see https://www.internalpositioning.com/server/
+#
+MQTT_SERVER=%MQTT_SERVER
+MQTT_ADMIN=%MQTT_ADMIN
+MQTT_PASS=%MQTT_PASS

@@ -1,0 +1,17 @@
+[Unit]
+Description=Framework for Internal Navigation and Discovery server
+Documentation=https://www.internalpositioning.com/doc/
+After=mosquitto.service find3ai.service
+
+[Service]
+EnvironmentFile=-/etc/default/find3server
+WorkingDirectory=/opt/find3/server/main
+RuntimeDirectory=/var/lib/find3server
+RuntimeDirectoryMode=0775
+User=find3
+Group=openhabian
+ExecStart=/usr/sbin/find3server -mqtt-server %MQTT_SERVER -mqtt-admin %MQTT_ADMIN -mqtt-pass %MQTT_PASS -port %FIND3_PORT
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

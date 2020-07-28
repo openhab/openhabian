@@ -268,6 +268,10 @@ find_setup() {
     echo "$(timestamp) [openHABian] FIND setup must be run in interactive mode! Canceling FIND setup!"
     return 0
   fi
+  if [[ -f /etc/systemd/system/find3server.service ]]; then
+    echo "$(timestamp) [openHABian] FIND cannot be used with FIND3! Canceling FIND setup!"
+    return 0
+  fi
 
   local brokertext
   local FINDADMIN
