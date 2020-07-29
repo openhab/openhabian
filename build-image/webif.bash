@@ -45,12 +45,12 @@ if [ "$1" = "inst_done" ]; then
   # shellcheck disable=SC2016
   echo '<html>
 <head>
-<meta http-equiv='"refresh"' content='"10;url=http://${HOSTNAME:-$hostname}:8080/"' />
+<meta http-equiv='"refresh"' content='"120;url=http://${HOSTNAME:-openhab}:8080/"' />
 <title>openHABian</title>
 </head>' > /tmp/webif/index.html
   echo '<body>
 <h1>openHABian Installation Status</h1>
-Installation successful. You can now access the openHAB dashboard using <a href='"http://${HOSTNAME:-$hostname}:8080"'>this link</a>
+Installation successful! The system will now reboot. After rebooting the openHAB dashboard will be available using <a href='"http://${HOSTNAME:-openhab}:8080"'>this link</a>
 </body>
 </html>' >> /tmp/webif/index.html
 fi
