@@ -157,9 +157,25 @@ if [[ $(eval "$(apt-get --yes upgrade &> /dev/null)") -eq 100 ]]; then
   echo -n "CONTINUING... "
   dpkg --configure --pending &> /dev/null
   apt-get install --fix-broken --yes &> /dev/null
-  if apt-get upgrade --yes &> /dev/null; then echo "OK"; else echo "FAILED"; fi
+  if apt-get upgrade --yes &> /dev/null; then
+    if is_pi; then
+      # Fix for issues with updating kernel during install
+      echo "OK (rebooting)"
+      reboot
+    else
+      echo "OK"
+    fi
+  else
+    echo "FAILED"
+  fi
 else
-  echo "OK"
+  if is_pi; then
+    # Fix for issues with updating kernel during install
+    echo "OK (rebooting)"
+    reboot
+  else
+    echo "OK"
+  fi
 fi
 
 if [[ -x $(command -v python3) ]]; then bash /boot/webif.bash reinsure_running; fi
