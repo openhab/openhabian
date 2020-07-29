@@ -386,3 +386,21 @@ wait_for_apt_to_finish_update() {
   fi
   if tail --pid=$PID_APT -f /dev/null; then echo "OK"; else echo "FAILED"; return 1; fi
 }
+
+## reboot to reconfigure kernel
+##
+##    check-reboot
+##
+check-reboot() {
+  local lockFile
+
+  lockFile=/opt/openHABian-reconfiguration-reboot-done
+
+  if ! [[ -f $lockFile ]]; then
+    touch $lockFile
+    echo "Rebooting to reconfigure kernel ... "
+    reboot
+  fi
+  
+  rm -f $lockFile
+}

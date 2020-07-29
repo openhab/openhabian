@@ -160,8 +160,7 @@ if [[ $(eval "$(apt-get --yes upgrade &> /dev/null)") -eq 100 ]]; then
   if apt-get upgrade --yes &> /dev/null; then
     if is_pi; then
       # Fix for issues with updating kernel during install
-      echo "OK (rebooting)"
-      reboot
+      check-reboot
     else
       echo "OK"
     fi
@@ -171,8 +170,7 @@ if [[ $(eval "$(apt-get --yes upgrade &> /dev/null)") -eq 100 ]]; then
 else
   if is_pi; then
     # Fix for issues with updating kernel during install
-    echo "OK (rebooting)"
-    reboot
+    check-reboot
   else
     echo "OK"
   fi
