@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-###########################################################
-#### dummy: change this line to force another image build
-###########################################################
+####################################################################
+#### dummy: changed this line 2 times to force another image build
+####################################################################
 
 usage() {
   echo -e "Usage: $(basename "$0") <platform> [dev-git|dev-url] <branch> <url>"
