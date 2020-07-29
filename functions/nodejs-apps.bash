@@ -6,7 +6,7 @@
 ##    nodejs_setup()
 ##
 nodejs_setup() {
-  if [[ -x $(command -v npm) ]]; then return 0; fi
+  if [[ -x $(command -v npm) ]] && [[ $(node --version) == "v12"* ]] && ! is_armv6l; then return 0; fi
 
   local link
   local myDistro
@@ -17,7 +17,7 @@ nodejs_setup() {
     if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  link="https://unofficial-builds.nodejs.org/download/release/v12.18.2/node-v12.18.2-linux-armv6l.tar.xz"
+  link="https://unofficial-builds.nodejs.org/download/release/v12.18.3/node-v12.18.3-linux-armv6l.tar.xz"
   myDistro="$(lsb_release -sc)"
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
@@ -46,7 +46,7 @@ nodejs_setup() {
 frontail_setup() {
   local frontailBase
 
-  if ! [[ -x $(command -v npm) ]]; then
+  if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v12"* ]] || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -97,7 +97,7 @@ nodered_setup() {
 
   local temp
 
-  if ! [[ -x $(command -v npm) ]]; then
+  if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v12"* ]] || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
