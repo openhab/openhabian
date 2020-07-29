@@ -121,7 +121,7 @@ else
     sed -i "s/REGDOMAIN=.*/REGDOMAIN=${wifi_country}/g" /etc/default/crda
 
     if is_pi; then
-      echo "OK, rebooting ... "
+      echo "OK, rebooting... "
       reboot
     else
       wpa_cli reconfigure &> /dev/null

@@ -389,7 +389,6 @@ wait_for_apt_to_finish_update() {
 
 ## reboot to reconfigure kernel
 ##
-##
 ##    check-reboot
 ##
 check-reboot() {
