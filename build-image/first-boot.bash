@@ -210,12 +210,11 @@ echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready on ${HOST
 # this took ~130 seconds on a RPi2
 if ! tryUntil "curl --silent --head http://${HOSTNAME:-openhab}:8080/start/index |& grep -qs 'HTTP/1.1 200 OK'" 20 10; then echo "OK"; else echo "FAILED"; exit 1; fi
 
-echo "$(timestamp) [openHABian] Visit the openHAB dashboard now: http://${HOSTNAME:-openhab}:8080"
-echo "$(timestamp) [openHABian] To gain access to a console, simply reconnect."
-echo "$(timestamp) [openHABian] First time setup successfully finished."
+echo "$(timestamp) [openHABian] First time setup successfully finished. Rebooting your system!"
+echo "$(timestamp) [openHABian] After rebooting the openHAB dashboard will be available at: http://${HOSTNAME:-openhab}:8080"
+echo "$(timestamp) [openHABian] After rebooting to gain access to a console, simply reconnect using ssh."
 sleep 12
 if [[ -x $(command -v python3) ]]; then bash /boot/webif.bash inst_done; fi
-sleep 12
 
 if running_in_docker; then
   PID="/var/lib/openhab2/tmp/karaf.pid"
@@ -227,5 +226,7 @@ if running_in_docker; then
   fi
   echo -e "$COL_DEF"
 fi
+
+reboot
 
 # vim: filetype=sh
