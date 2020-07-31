@@ -171,7 +171,7 @@ homegear_setup() {
   introtext="This will install Homegear, the Homematic CCU2 emulation software, using the latest stable release available from the official repository."
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
-  successtext="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'sudo homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
+  successtext="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
   if [[ -n $INTERACTIVE ]]; then
@@ -191,6 +191,7 @@ homegear_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Homegear service... "
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/homegear.service /etc/systemd/system/homegear.service; then echo "FAILED (copy service)"; return 1; fi
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/homegear-management.service /etc/systemd/system/homegear-management.service; then echo "FAILED (copy service)"; return 1; fi
+  rm -f /lib/systemd/system/homegear*
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /etc/systemd/system/homegear*; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
   if ! cond_redirect systemctl enable --now homegear.service homegear-management.service; then echo "FAILED (enable service)"; return 1; fi
