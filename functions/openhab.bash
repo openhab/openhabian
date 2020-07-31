@@ -1,6 +1,22 @@
 #!/usr/bin/env bash
 
-## Function to quicky rename openHAB rules back and forth after two minutes to
+## Generate systemd dependencies for ZRAM, Frontail and others to start together with OH2
+## This is done using /etc/systemd/system/openhab2.service.d/override.conf
+##
+##    create_sys_dependencies()
+##
+create_sys_dependencies() {
+  local targetDir
+
+  targetDir="/etc/systemd/system/openhab2.service.d"
+
+  if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare directory)"; return 1; fi
+  if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean directory)"; return 1; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/openhab2-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
+}
+
+
+## Function to quickly rename openHAB rules back and forth after two minutes to
 ## speed up startup of openHAB.
 ## This is done using /etc/systemd/system/openhab2.service.d/override.conf
 ## Valid arguments: "yes" or "no"
@@ -14,14 +30,12 @@ delayed_rules() {
 
   targetDir="/etc/systemd/system/openhab2.service.d"
 
+  create_sys_dependencies
   if [[ $1 == "yes" ]]; then
     echo -n "$(timestamp) [openHABian] Adding delay on loading openHAB rules... "
-    if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare  directory)"; return 1; fi
-    if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean directory)"; return 1; fi
-    if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/systemd-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
+    if cond_redirect cat "${BASEDIR:-/opt/openhabian}"/includes/delayed-rules.conf >>"${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
   elif [[ $1 == "no" ]]; then
     echo -n "$(timestamp) [openHABian] Removing delay on loading openHAB rules... "
-    if cond_redirect rm -f "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (remove configuration)"; return 1; fi
   fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
   cond_redirect systemctl restart openhab2.service
