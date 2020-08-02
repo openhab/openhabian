@@ -154,7 +154,7 @@ locale_setting() {
   fi
 
   if ! locale="$(grep "^[[:space:]]*LANG=" /etc/default/locale | sed 's|LANG=||g')"; then echo "FAILED"; return 1; fi
-  if cond_redirect update-locale LANG="${locale:-${system_default_locale:-en_US.UTF-8}}" LC_ALL="${locale:-${system_default_locale:-en_US.UTF-8}}" LC_CTYPE="${locale:-${system_default_locale:-en_US.UTF-8}}" LANGUAGE="${locale:-${system_default_locale:-en_US.UTF-8}}"; then echo "OK (Reboot needed)"; else echo "FAILED"; return 1; fi
+  if cond_redirect update-locale LANG="${locale:-${system_default_locale:-en_US.UTF-8}}" LC_ALL="${locale:-${system_default_locale:-en_US.UTF-8}}" LC_CTYPE="${locale:-${system_default_locale:-en_US.UTF-8}}" LANGUAGE="${locale:-${system_default_locale:-en_US.UTF-8}}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Change Locale" --msgbox "For the locale change to take effect, please reboot your system now." 7 80
@@ -375,7 +375,7 @@ change_swapsize() {
   echo -n "$(timestamp) [openHABian] Adjusting swap size to $size MB... "
   if ! cond_redirect dphys-swapfile swapoff; then echo "FAILED (swapoff)"; return 1; fi
   if ! cond_redirect sed -i 's|^#*.*CONF_SWAPSIZE=.*$|CONF_SWAPSIZE='"${size}"'|g' /etc/dphys-swapfile; then echo "FAILED (swapfile)"; return 1; fi
-  if cond_redirect dphys-swapfile swapon; then echo "OK (Reboot needed)"; else echo "FAILED (swapon)"; return 1; fi
+  if cond_redirect dphys-swapfile swapon; then echo "OK (reboot required)"; else echo "FAILED (swapon)"; return 1; fi
 }
 
 ## Reduce the RPi GPU memory to the minimum to allow for the system to utilize
@@ -462,7 +462,7 @@ prepare_serial_port() {
     if ! cond_redirect systemctl stop serial-getty@serial0.service; then echo "FAILED (stop serial-getty@serial0.service)"; return 1; fi
     if ! cond_redirect systemctl disable serial-getty@serial0.service; then echo "FAILED (disable serial-getty@serial0.service)"; return 1; fi
     if ! cond_redirect systemctl stop serial-getty@ttyS0.service; then echo "FAILED (stop serial-getty@ttyS0.service)"; return 1; fi
-    if cond_redirect systemctl disable serial-getty@ttyS0.service; then echo "OK (Reboot needed)"; else echo "FAILED (disable serial-getty@ttyS0.service)"; return 1; fi
+    if cond_redirect systemctl disable serial-getty@ttyS0.service; then echo "OK (reboot required)"; else echo "FAILED (disable serial-getty@ttyS0.service)"; return 1; fi
   else
     if [[ -f /boot/cmdline.txt.bak ]]; then
       echo -n "$(timestamp) [openHABian] Disabling serial port and enabling serial console... "
@@ -475,7 +475,7 @@ prepare_serial_port() {
       if ! cond_redirect systemctl enable serial-getty@serial0.service; then echo "FAILED (enable serial-getty@serial0.service)"; return 1; fi
       if ! cond_redirect systemctl restart serial-getty@serial0.service; then echo "FAILED (restart serial-getty@serial0.service)"; return 1; fi
       if ! cond_redirect systemctl enable serial-getty@ttyS0.service; then echo "FAILED (enable serial-getty@ttyS0.service)"; return 1; fi
-      if cond_redirect systemctl restart serial-getty@ttyS0.service; then echo "OK (Reboot needed)"; else echo "FAILED (restart serial-getty@ttyS0.service)"; return 1; fi
+      if cond_redirect systemctl restart serial-getty@ttyS0.service; then echo "OK (reboot required)"; else echo "FAILED (restart serial-getty@ttyS0.service)"; return 1; fi
     fi
   fi
 
@@ -483,7 +483,7 @@ prepare_serial_port() {
     if is_pithree || is_pithreeplus || is_pifour; then
       echo -n "$(timestamp) [openHABian] Making Bluetooth use mini-UART... "
       if ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" /boot/config.txt; then
-        if echo "dtoverlay=miniuart-bt" >> /boot/config.txt; then echo "OK (Reboot needed)"; else echo "FAILED"; return 1; fi
+        if echo "dtoverlay=miniuart-bt" >> /boot/config.txt; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
       else
         echo "OK"
       fi
@@ -494,7 +494,7 @@ prepare_serial_port() {
   else
     if is_pithree || is_pithreeplus || is_pifour && grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" /boot/config.txt; then
       echo -n "$(timestamp) [openHABian] Making Bluetooth use UART... "
-      if cond_redirect sed -i -E '/^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt/d' /boot/config.txt; then echo "OK (Reboot needed)"; else echo "FAILED"; return 1; fi
+      if cond_redirect sed -i -E '/^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt/d' /boot/config.txt; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
     fi
   fi
 
