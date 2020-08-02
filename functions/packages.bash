@@ -269,6 +269,10 @@ find_setup() {
     echo "$(timestamp) [openHABian] FIND setup must be run in interactive mode! Canceling FIND setup!"
     return 0
   fi
+  if [[ -f /etc/systemd/system/find3server.service ]]; then
+    echo "$(timestamp) [openHABian] FIND cannot be used with FIND3! Canceling FIND setup!"
+    return 0
+  fi
 
   local brokertext
   local FINDADMIN
@@ -387,7 +391,7 @@ knxd_setup() {
   # TODO: serve file from the repository
   if ! cond_redirect wget -O "$temp" https://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh; then echo "FAILED (fetch installer)"; return 1; fi
   # NOTE: install_knxd_systemd.sh currently does not give proper exit status for errors, so installer claims success...
-  if cond_redirect bash "$temp"; then rm -f "$temp"; echo "OK (Reboot needed)"; else echo "FAILED (install)"; return 1; fi
+  if cond_redirect bash "$temp"; then rm -f "$temp"; echo "OK (reboot required)"; else echo "FAILED (install)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
