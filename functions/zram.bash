@@ -74,6 +74,10 @@ init_zram_mounts() {
     if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/ro-root.sh /usr/local/share/zram-config/ro-root.sh; then echo "FAILED (ro-root)"; return 1; fi
     if cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
 
+    if [[ -f /etc/systemd/system/find3server.service ]]; then
+      echo -n "$(timestamp) [openHABian] Adding FIND3 to ZRAM... "
+      if ! cond_redirect sed -i '/^.*persistence.bind$/a dir	lz4	100M		350M		/opt/find3/server/main		/find3.bind' /etc/ztab; then echo "FAILED (sed)"; return 1; fi
+    fi
     if ! dpkg -s 'openhab2' &> /dev/null; then
       sed -i 's|dir	lz4	150M		500M		/var/lib/openhab2/persistence	/persistence.bind||g' /etc/ztab
     fi

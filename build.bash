@@ -193,7 +193,7 @@ elif [ "$1" == "rpi64" ]; then
 elif [ "$1" == "local-test" ]; then
   echo_process "Preparing local system for installation"
   cp ./build-image/first-boot.bash /boot/first-boot.bash
-  cp ./build-image/webif.bash /boot/webif.bash
+  cp ./build-image/webserver.bash /boot/webserver.bash
   cp ./build-image/openhabian.conf /boot/openhabian.conf
   cp ./build-image/openhabian-installer.service /etc/systemd/system/
   ln -sf /etc/systemd/system/openhabian-installer.service /etc/systemd/system/multi-user.target.wants/openhabian-installer.service
@@ -204,7 +204,7 @@ elif [ "$1" == "local-test" ]; then
     sed -i 's|! openhabian_update &> /dev/null|true|' /boot/first-boot.bash
   fi
   chmod +x /boot/first-boot.bash
-  chmod +x /boot/webif.bash
+  chmod +x /boot/webserver.bash
   echo_process "Local system ready for installation test. Run 'systemctl start openhabian-installer' or reboot to initiate!"
   exit 0
 else
@@ -344,7 +344,7 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   cp $sourcefolder/first-boot.bash $buildfolder/boot/first-boot.bash
   touch $buildfolder/boot/first-boot.log
   unix2dos -q -n $sourcefolder/openhabian.${hw_platform}.conf $buildfolder/boot/openhabian.conf
-  cp $sourcefolder/webif.bash $buildfolder/boot/webif.bash
+  cp $sourcefolder/webserver.bash $buildfolder/boot/webserver.bash
 
   # Injecting development git repo if clone_string is set and watermark build
   if [[ -n "${clone_string+x}" ]]; then
