@@ -33,9 +33,9 @@ delayed_rules() {
   create_sys_dependencies
   if [[ $1 == "yes" ]]; then
     echo -n "$(timestamp) [openHABian] Adding delay on loading openHAB rules... "
-    if cond_redirect cat "${BASEDIR:-/opt/openhabian}"/includes/delayed-rules.conf >>"${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
+    if (cat "${BASEDIR:-/opt/openhabian}"/includes/delayed-rules.conf >> "${targetDir}"/override.conf); then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
   elif [[ $1 == "no" ]]; then
-    echo -n "$(timestamp) [openHABian] Removing delay on loading openHAB rules... "
+    echo "$(timestamp) [openHABian] Removing delay on loading openHAB rules... OK"
   fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
   cond_redirect systemctl restart openhab2.service
