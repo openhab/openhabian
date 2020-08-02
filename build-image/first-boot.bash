@@ -33,7 +33,6 @@ if ! source "$CONFIGFILE"; then echo "FAILED (source config)"; fail_inprogress; 
 if ! source "/opt/openhabian/functions/helpers.bash"; then echo "FAILED (source helpers)"; fail_inprogress; fi
 if source "/opt/openhabian/functions/openhabian.bash"; then echo "OK"; else echo "FAILED (source openhabian)"; fail_inprogress; fi
 
-
 if [[ "${debugmode:-on}" == "on" ]]; then
   unset SILENT
   unset DEBUGMAX
@@ -130,7 +129,6 @@ else
   fi
 fi
 
-
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
 if tryUntil "ping -c1 www.example.com &> /dev/null || curl --silent --head http://www.example.com |& grep -qs 'HTTP/1.1 200 OK'" 30 1; then
     echo "FAILED"
@@ -151,6 +149,7 @@ echo "OK"
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
 if wait_for_apt_to_be_ready; then echo "OK"; else echo "FAILED"; fi
 
+firmwareBefore="$(dpkg -s raspberrypi-kernel | grep "Version:[[:space:]]")"
 echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
 apt-get install --fix-broken --yes &> /dev/null
 if [[ $(eval "$(apt-get --yes upgrade &> /dev/null)") -eq 100 ]]; then
@@ -158,9 +157,10 @@ if [[ $(eval "$(apt-get --yes upgrade &> /dev/null)") -eq 100 ]]; then
   dpkg --configure --pending &> /dev/null
   apt-get install --fix-broken --yes &> /dev/null
   if apt-get upgrade --yes &> /dev/null; then
-    if is_pi; then
+    if [[ $firmwareBefore != "$(dpkg -s raspberrypi-kernel | grep "Version:[[:space:]]")" ]]; then
       # Fix for issues with updating kernel during install
-      check-reboot
+      echo "OK (rebooting)"
+      reboot
     else
       echo "OK"
     fi
@@ -168,12 +168,14 @@ if [[ $(eval "$(apt-get --yes upgrade &> /dev/null)") -eq 100 ]]; then
     echo "FAILED"
   fi
 else
-  if is_pi; then
+  if [[ $firmwareBefore != "$(dpkg -s raspberrypi-kernel | grep "Version:[[:space:]]")" ]]; then
     # Fix for issues with updating kernel during install
-    check-reboot
+    echo "OK (rebooting)"
+    reboot
+  else
+    echo "OK"
   fi
 fi
-echo "OK"
 
 if [[ -x $(command -v python3) ]]; then bash /boot/webif.bash reinsure_running; fi
 
