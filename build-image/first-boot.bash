@@ -171,10 +171,9 @@ else
   if is_pi; then
     # Fix for issues with updating kernel during install
     check-reboot
-  else
-    echo "OK"
   fi
 fi
+echo "OK"
 
 if [[ -x $(command -v python3) ]]; then bash /boot/webif.bash reinsure_running; fi
 
