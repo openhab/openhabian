@@ -1,4 +1,4 @@
-@import "bootstrap.min.css";
+@import url('//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css');
 
 body {
   padding-top: 7em;
@@ -24,6 +24,12 @@ body {
   content: "openHAB 2 Log Viewer (frontail)";
   font-size: 150%;
   padding-right: 30px;
+}
+
+.navbar .text-right::before {
+  color: white;
+  content: "Pause/Play Log";
+  font-size: 100%;
 }
 
 .form-control {
