@@ -6,10 +6,9 @@
 ##    create_sys_dependencies()
 ##
 create_sys_dependencies() {
-  local targetDir
+  local targetDir="/etc/systemd/system/openhab2.service.d"
 
-  targetDir="/etc/systemd/system/openhab2.service.d"
-
+  echo -n "$(timestamp) [openHABian] Creating dependencies to jointly start services to depend on each other... "
   if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare directory)"; return 1; fi
   if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean directory)"; return 1; fi
   if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/openhab2-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
@@ -30,7 +29,6 @@ delayed_rules() {
 
   targetDir="/etc/systemd/system/openhab2.service.d"
 
-  create_sys_dependencies
   if [[ $1 == "yes" ]]; then
     echo -n "$(timestamp) [openHABian] Adding delay on loading openHAB rules... "
     if (cat "${BASEDIR:-/opt/openhabian}"/includes/delayed-rules.conf >> "${targetDir}"/override.conf); then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
@@ -94,6 +92,7 @@ openhab2_setup() {
   if cond_redirect systemctl enable openhab2.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   openhab_java_optimize
+  create_sys_dependencies
   delayed_rules "yes"
   dashboard_add_tile "openhabiandocs"
 
