@@ -3,9 +3,9 @@
 ## Generate systemd dependencies for ZRAM, Frontail and others to start together with OH2
 ## This is done using /etc/systemd/system/openhab2.service.d/override.conf
 ##
-##    create_sys_dependencies()
+##    create_systemd_dependencies()
 ##
-create_sys_dependencies() {
+create_systemd_dependencies() {
   local targetDir="/etc/systemd/system/openhab2.service.d"
 
   echo -n "$(timestamp) [openHABian] Creating dependencies to jointly start services that depend on each other... "
@@ -92,7 +92,7 @@ openhab2_setup() {
   if cond_redirect systemctl enable openhab2.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   openhab_java_optimize
-  create_sys_dependencies
+  create_systemd_dependencies
   delayed_rules "yes"
   dashboard_add_tile "openhabiandocs"
 
