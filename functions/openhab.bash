@@ -3,13 +3,12 @@
 ## Generate systemd dependencies for ZRAM, Frontail and others to start together with OH2
 ## This is done using /etc/systemd/system/openhab2.service.d/override.conf
 ##
-##    create_sys_dependencies()
+##    create_systemd_dependencies()
 ##
-create_sys_dependencies() {
-  local targetDir
+create_systemd_dependencies() {
+  local targetDir="/etc/systemd/system/openhab2.service.d"
 
-  targetDir="/etc/systemd/system/openhab2.service.d"
-
+  echo -n "$(timestamp) [openHABian] Creating dependencies to jointly start services that depend on each other... "
   if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare directory)"; return 1; fi
   if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean directory)"; return 1; fi
   if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/openhab2-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
@@ -30,7 +29,6 @@ delayed_rules() {
 
   targetDir="/etc/systemd/system/openhab2.service.d"
 
-  create_sys_dependencies
   if [[ $1 == "yes" ]]; then
     echo -n "$(timestamp) [openHABian] Adding delay on loading openHAB rules... "
     if (cat "${BASEDIR:-/opt/openhabian}"/includes/delayed-rules.conf >> "${targetDir}"/override.conf); then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
@@ -94,6 +92,7 @@ openhab2_setup() {
   if cond_redirect systemctl enable openhab2.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   openhab_java_optimize
+  create_systemd_dependencies
   delayed_rules "yes"
   dashboard_add_tile "openhabiandocs"
 
