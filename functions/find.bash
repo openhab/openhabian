@@ -45,8 +45,7 @@ find3_setup() {
   if ! MQTT_SERVER="$(whiptail --title "FIND3 Setup" --inputbox "\\nPlease enter the hostname and port of the device your MQTT broker is running on:" 10 80 localhost:1883 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   if [[ $MQTT_SERVER != "localhost:1883" ]]; then
     if ! (whiptail --title "MQTT Broker Notice" --yes-button "Continue" --no-button "Cancel" --yesno "$brokerText" 12 80); then echo "CANCELED"; return 0; fi
-  fi
-  if [[ -f $mqttPass ]]; then
+  elif [[ -f $mqttPass ]]; then
     if ! MQTT_ADMIN=$(whiptail --title "FIND3 MQTT Setup" --inputbox "\\nEnter a username for FIND3 to connect to your MQTT broker with:" 9 80 find 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
     while [[ -z $MQTT_PASS ]]; do
       if ! findPass1=$(whiptail --title "FIND3 MQTT Setup" --passwordbox "\\nEnter a password for the FIND3 user on your MQTT broker:" 9 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
