@@ -84,8 +84,9 @@ init_zram_mounts() {
 
     echo -n "$(timestamp) [openHABian] Setting up ZRAM service... "
     if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (copy zram-config service)"; return 1; fi
-    if ! cond_redirect systemctl enable --now zram-config.service; then echo "FAILED (enable zram-config service)"; return 1; fi
     if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zram-sync.service /etc/systemd/system/zram-sync.service; then echo "FAILED (copy zram-sync service)"; return 1; fi
+    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+    if ! cond_redirect systemctl enable --now zram-config.service; then echo "FAILED (enable zram-config service)"; return 1; fi
     if ! cond_redirect systemctl enable --now zram-sync.service; then echo "FAILED (enable zram-sync service)"; return 1; fi
   elif [[ $1 == "uninstall" ]]; then
     echo -n "$(timestamp) [openHABian] Removing ZRAM service... "
