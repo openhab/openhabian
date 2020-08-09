@@ -83,23 +83,22 @@ init_zram_mounts() {
     fi
 
     echo -n "$(timestamp) [openHABian] Setting up ZRAM service... "
-    if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (copy zram-config service)"; return 1; fi
-    if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zram-sync.service /etc/systemd/system/zram-sync.service; then echo "FAILED (copy zram-sync service)"; return 1; fi
+    if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (copy service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-    if ! cond_redirect systemctl enable --now zram-config.service; then echo "FAILED (enable zram-config service)"; return 1; fi
-    if ! cond_redirect systemctl enable --now zram-sync.service; then echo "FAILED (enable zram-sync service)"; return 1; fi
+    if ! cond_redirect systemctl enable --now zram-config.service; then echo "FAILED (enable service)"; return 1; fi
+    if cond_redirect systemctl restart zram-config.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
   elif [[ $1 == "uninstall" ]]; then
     echo -n "$(timestamp) [openHABian] Removing ZRAM service... "
-    if ! cond_redirect systemctl stop zram-config.service zram-sync.service; then echo "FAILED (stop services)"; return 1; fi
-    if ! cond_redirect systemctl disable zram-config.service zram-sync.service; then echo "FAILED (disable services)"; return 1; fi
-    if rm -f /etc/systemd/system/zram-config.service /etc/systemd/system/zram-sync.service; then echo "OK"; else echo "FAILED (remove unit files)"; fi
+    if ! cond_redirect systemctl stop zram-config.service; then echo "FAILED (stop service)"; return 1; fi
+    if ! cond_redirect systemctl disable zram-config.service; then echo "FAILED (disable service)"; return 1; fi
+    if cond_redirect rm -f /etc/systemd/system/zram-config.service; then echo "OK"; else echo "FAILED (remove service)"; fi
 
     echo -n "$(timestamp) [openHABian] Removing ZRAM... "
-    if ! rm -f /usr/local/bin/zram-config; then echo "FAILED (zram-config)"; return 1; fi
-    if ! rm -f /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
-    if ! rm -rf /usr/local/share/zram-config; then echo "FAILED (zram-config share)"; return 1; fi
-	  if ! rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
-    if rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
+    if ! cond_redirect rm -f /usr/local/bin/zram-config; then echo "FAILED (zram-config)"; return 1; fi
+    if ! cond_redirect rm -f /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
+    if ! cond_redirect rm -rf /usr/local/share/zram-config; then echo "FAILED (zram-config share)"; return 1; fi
+	  if ! cond_redirect rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
+    if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
   else
     echo "$(timestamp) [openHABian] Refusing to install ZRAM as it is already installed, please uninstall and then try again... EXITING"
     return 1
