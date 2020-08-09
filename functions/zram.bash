@@ -97,7 +97,7 @@ init_zram_mounts() {
     if ! cond_redirect rm -f /usr/local/bin/zram-config; then echo "FAILED (zram-config)"; return 1; fi
     if ! cond_redirect rm -f /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/share/zram-config; then echo "FAILED (zram-config share)"; return 1; fi
-	  if ! cond_redirect rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
+    if ! cond_redirect rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
     if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
   else
     echo "$(timestamp) [openHABian] Refusing to install ZRAM as it is already installed, please uninstall and then try again... EXITING"
