@@ -16,8 +16,7 @@ cleanup_build() {
   guestunmount --no-retry "$buildfolder/boot" &> /dev/null || true
   guestunmount --no-retry "$buildfolder/root" &> /dev/null || true
 
-  ls -l "$buildfolder"
-  #rm -rf "$buildfolder"
+  rm -rf "$buildfolder"
 }
 
 ##########################
@@ -187,7 +186,7 @@ EOF
 #### Build script start ####
 ############################
 
-#trap cleanup_build EXIT ERR
+trap cleanup_build EXIT ERR
 timestamp=$(date +%Y%m%d%H%M)
 file_tag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
@@ -305,7 +304,6 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
 
   echo_process "Unpacking image... "
   unzip -q "$buildfolder/$zipfile" -d "$buildfolder"
-  ls -la "$buildfolder"
   mv "$buildfolder"/*-raspios-*.img "$imagefile" || true
 
   if [[ $extrasize -gt 0 ]]; then
