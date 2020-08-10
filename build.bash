@@ -189,7 +189,7 @@ EOF
 #### Build script start ####
 ############################
 
-trap cleanup_build EXIT ERR
+trap cleanup_build EXIT
 timestamp=$(date +%Y%m%d%H%M)
 file_tag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
