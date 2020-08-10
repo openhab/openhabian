@@ -189,7 +189,7 @@ EOF
 #### Build script start ####
 ############################
 
-trap cleanup_build EXIT
+trap cleanup_build EXIT ERR
 timestamp=$(date +%Y%m%d%H%M)
 file_tag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
@@ -254,7 +254,7 @@ exec &> >(tee -a "openhabian-build-$timestamp.log")
 sourcefolder="build-image"
 # shellcheck disable=SC1090
 source "${sourcefolder}/openhabian.${hw_platform}.conf"
-buildfolder="$(mktemp "${TMPDIR:-/tmp}"/openhabian-build-${hw_platform}-image.XXXXX)"
+buildfolder="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian-build-${hw_platform}-image.XXXXX)"
 imagefile="${buildfolder}/${hw_platform}.img"
 extrasize=300			# grow image root by this number of MB
 
