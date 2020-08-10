@@ -250,6 +250,7 @@ mqtt_setup() {
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up MQTT service... "
+  usermod -aG mosquitto "${username:-openhabian}"
   cond_redirect systemctl -q daemon-reload &> /dev/null
   if ! cond_redirect systemctl enable mosquitto.service; then echo "FAILED (enable service)"; return 1; fi
   if cond_redirect systemctl restart mosquitto.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
