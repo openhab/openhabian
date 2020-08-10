@@ -12,10 +12,10 @@ usage() {
 }
 
 cleanup_build() {
-  umount $buildfolder/boot &> /dev/null || true
-  umount $buildfolder/root &> /dev/null || true
-  guestunmount --no-retry $buildfolder/boot &> /dev/null || true
-  guestunmount --no-retry $buildfolder/root &> /dev/null || true
+  umount "$buildfolder/boot" &> /dev/null || true
+  umount "$buildfolder/root" &> /dev/null || true
+  guestunmount --no-retry "$buildfolder/boot" &> /dev/null || true
+  guestunmount --no-retry "$buildfolder/root" &> /dev/null || true
 
   rm -rf "$buildfolder"
 }
@@ -306,8 +306,8 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   if gpg -q --trust-model always --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile"; then echo "OK"; else echo "FAILED (signature)"; exit 1; fi
 
   echo_process "Unpacking image... "
-  unzip -q "$buildfolder/$zipfile" -d $buildfolder
-  mv $buildfolder/*-raspios-*.img $imagefile
+  unzip -q "$buildfolder/$zipfile" -d "$buildfolder"
+  mv "$buildfolder/*-raspios-*.img" "$imagefile"
 
   if [[ $extrasize -gt 0 ]]; then
     echo_process "Growing root partition of the image by $extrasize MB... "
@@ -320,22 +320,22 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   fi
 
   echo_process "Mounting the image for modifications... "
-  mkdir -p $buildfolder/boot $buildfolder/root
+  mkdir -p "$buildfolder"/boot "$buildfolder"/root
   mount_image_file_root "$imagefile" "$buildfolder"
 
   echo_process "Setting hostname... "
   # shellcheck disable=SC2154
-  sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" $buildfolder/root/etc/hosts
-  echo "$hostname" > $buildfolder/root/etc/hostname
+  sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" "$buildfolder"/root/etc/hosts
+  echo "$hostname" > "$buildfolder"/root/etc/hostname
 
   echo_process "Injecting 'openhabian-installer.service', 'first-boot.bash' and 'openhabian.conf'... "
-  cp $sourcefolder/openhabian-installer.service $buildfolder/root/etc/systemd/system/
-  ln -s $buildfolder/root/etc/systemd/system/openhabian-installer.service $buildfolder/root/etc/systemd/system/multi-user.target.wants/openhabian-installer.service
+  cp "$sourcefolder"/openhabian-installer.service "$buildfolder"/root/etc/systemd/system/
+  ln -s "$buildfolder"/root/etc/systemd/system/openhabian-installer.service "$buildfolder"/root/etc/systemd/system/multi-user.target.wants/openhabian-installer.service
 
   # Open subshell to make sure we don't hurt the host system if for some reason $buildfolder is not properly set
   echo_process "Setting default runlevel multiuser.target and disabling autologin... "
   (
-    cd $buildfolder/root/etc/systemd/system/ || exit 1
+    cd "$buildfolder"/root/etc/systemd/system/ || exit 1
     rm -rf default.target
     ln -s ../../../lib/systemd/system/multi-user.target default.target
     rm -f getty@tty1.service.d/autologin.conf
@@ -343,23 +343,23 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
 
   echo_process "Cloning myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-stable} branch... "
   if ! [[ -d $buildfolder/root/opt/openhabian ]]; then
-    git clone "${repositoryurl:-https://github.com/openhab/openhabian.git}" $buildfolder/root/opt/openhabian &> /dev/null
-    git -C $buildfolder/root/opt/openhabian checkout "${clonebranch:-stable}" &> /dev/null
+    git clone "${repositoryurl:-https://github.com/openhab/openhabian.git}" "$buildfolder"/root/opt/openhabian &> /dev/null
+    git -C "$buildfolder"/root/opt/openhabian checkout "${clonebranch:-stable}" &> /dev/null
   fi
-  touch $buildfolder/root/opt/openHABian-install-inprogress
+  touch "$buildfolder"/root/opt/openHABian-install-inprogress
   umount_image_file_root "$imagefile" "$buildfolder"
 
   echo_process "Reactivating SSH... "
   mount_image_file_boot "$imagefile" "$buildfolder"
-  touch $buildfolder/boot/ssh
-  cp $sourcefolder/first-boot.bash $buildfolder/boot/first-boot.bash
-  touch $buildfolder/boot/first-boot.log
-  unix2dos -q -n $sourcefolder/openhabian.${hw_platform}.conf $buildfolder/boot/openhabian.conf
-  cp $sourcefolder/webserver.bash $buildfolder/boot/webserver.bash
+  touch "$buildfolder"/boot/ssh
+  cp "$sourcefolder"/first-boot.bash "$buildfolder"/boot/first-boot.bash
+  touch "$buildfolder"/boot/first-boot.log
+  unix2dos -q -n "$sourcefolder"/openhabian.${hw_platform}.conf "$buildfolder"/boot/openhabian.conf
+  cp "$sourcefolder"/webserver.bash "$buildfolder"/boot/webserver.bash
 
   # Injecting development git repo if clone_string is set and watermark build
   if [[ -n "${clone_string+x}" ]]; then
-    inject_build_repo $buildfolder/boot/first-boot.bash
+    inject_build_repo "$buildfolder"/boot/first-boot.bash
   fi
 
   echo_process "Closing up image file... "
@@ -369,10 +369,10 @@ fi
 
 echo_process "Moving image and cleaning up... "
 shorthash="$(git log --pretty=format:'%h' -n 1)"
-crc32checksum="$(crc32 $imagefile)"
+crc32checksum=$(crc32 "$imagefile")
 destination="openhabian-${hw_platform}-${timestamp}-git${file_tag}${shorthash}-crc${crc32checksum}.img"
-mv -v $imagefile "$destination"
-rm -rf $buildfolder
+mv -v "$imagefile" "$destination"
+rm -rf "$buildfolder"
 
 echo_process "Compressing image... "
 # speedup compression, T0 will use all cores and should be supported by reasonably new versions of xz
