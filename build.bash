@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 set -e
-set -x
 
 ####################################################################
 #### dummy: changed this line 4 times to force another image build
@@ -17,7 +16,8 @@ cleanup_build() {
   guestunmount --no-retry "$buildfolder/boot" &> /dev/null || true
   guestunmount --no-retry "$buildfolder/root" &> /dev/null || true
 
-  rm -rf "$buildfolder"
+  ls -l "$buildfolder"
+  #rm -rf "$buildfolder"
 }
 
 ##########################
@@ -124,10 +124,8 @@ mount_image_file_root() { # imagefile buildfolder
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
-#    e2fsck -y -f "/dev/mapper/${loop_prefix}p2" &> /dev/null
-#    resize2fs "/dev/mapper/${loop_prefix}p2" &> /dev/null
-    e2fsck -y -f "/dev/mapper/${loop_prefix}p2"
-    resize2fs "/dev/mapper/${loop_prefix}p2"
+    e2fsck -y -f "/dev/mapper/${loop_prefix}p2" &> /dev/null
+    resize2fs "/dev/mapper/${loop_prefix}p2" &> /dev/null
     mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
   fi
   df -h "$buildfolder/root"
@@ -189,7 +187,7 @@ EOF
 #### Build script start ####
 ############################
 
-trap cleanup_build EXIT
+#trap cleanup_build EXIT ERR
 timestamp=$(date +%Y%m%d%H%M)
 file_tag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
@@ -306,8 +304,7 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   if gpg -q --trust-model always --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile"; then echo "OK"; else echo "FAILED (signature)"; exit 1; fi
 
   echo_process "Unpacking image... "
-  #unzip -q "$buildfolder/$zipfile" -d "$buildfolder"
-  unzip "$buildfolder/$zipfile" -d "$buildfolder"
+  unzip -q "$buildfolder/$zipfile" -d "$buildfolder"
   ls -la "$buildfolder"
   mv "$buildfolder"/*-raspios-*.img "$imagefile" || true
 
