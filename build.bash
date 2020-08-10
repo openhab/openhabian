@@ -11,9 +11,12 @@ usage() {
   echo -e "\\nCurrently supported platforms: rpi, rpi64 (beta)"
 }
 
-cleanup() {
-  umount_image_file_root "$imagefile" "$buildfolder" &>/dev/null
-  umount_image_file_boot "$imagefile" "$buildfolder" &>/dev/null
+cleanup_build() {
+  umount $buildfolder/boot &> /dev/null || true
+  umount $buildfolder/root &> /dev/null || true
+  guestunmount --no-retry $buildfolder/boot &> /dev/null || true
+  guestunmount --no-retry $buildfolder/root &> /dev/null || true
+
   rm -rf "$buildfolder"
 }
 
@@ -186,7 +189,7 @@ EOF
 #### Build script start ####
 ############################
 
-trap cleanup 0 1 2 15
+trap cleanup_build EXIT ERR
 timestamp=$(date +%Y%m%d%H%M)
 file_tag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
@@ -254,12 +257,6 @@ source "${sourcefolder}/openhabian.${hw_platform}.conf"
 buildfolder="$(mktemp "${TMPDIR:-/tmp}"/openhabian-build-${hw_platform}-image.XXXXX)"
 imagefile="${buildfolder}/${hw_platform}.img"
 extrasize=300			# grow image root by this number of MB
-umount $buildfolder/boot &> /dev/null || true
-umount $buildfolder/root &> /dev/null || true
-guestunmount --no-retry $buildfolder/boot &> /dev/null || true
-guestunmount --no-retry $buildfolder/root &> /dev/null || true
-rm -rf $buildfolder
-mkdir -p $buildfolder
 
 # Build Raspberry Pi image
 if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta" ]]; then
