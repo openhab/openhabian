@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 set -e
+set -x
 
 ####################################################################
 #### dummy: changed this line 4 times to force another image build
@@ -8,6 +9,12 @@ set -e
 usage() {
   echo -e "Usage: $(basename "$0") <platform> [dev-git|dev-url] <branch> <url>"
   echo -e "\\nCurrently supported platforms: rpi, rpi64 (beta)"
+}
+
+cleanup() {
+  umount_image_file_root "$imagefile" "$buildfolder" &>/dev/null
+  umount_image_file_boot "$imagefile" "$buildfolder" &>/dev/null
+  rm -rf "$buildfolder"
 }
 
 ##########################
@@ -100,7 +107,7 @@ check_command_availability_and_exit() {
 
 # mount rpi image using userspace tools, in docker use privileged mount via kpartx
 mount_image_file_boot() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github && ! is_pi; then
+  if ! running_in_docker && ! running_on_github; then
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda1 "$2/boot"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
@@ -110,12 +117,14 @@ mount_image_file_boot() { # imagefile buildfolder
 }
 
 mount_image_file_root() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github && ! is_pi; then
+  if ! running_in_docker && ! running_on_github; then
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
-    e2fsck -y -f "/dev/mapper/${loop_prefix}p2" &> /dev/null
-    resize2fs "/dev/mapper/${loop_prefix}p2" &> /dev/null
+#    e2fsck -y -f "/dev/mapper/${loop_prefix}p2" &> /dev/null
+#    resize2fs "/dev/mapper/${loop_prefix}p2" &> /dev/null
+    e2fsck -y -f "/dev/mapper/${loop_prefix}p2"
+    resize2fs "/dev/mapper/${loop_prefix}p2"
     mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
   fi
   df -h "$buildfolder/root"
@@ -124,7 +133,7 @@ mount_image_file_root() { # imagefile buildfolder
 
 # umount rpi image
 umount_image_file_boot() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github && ! is_pi; then
+  if ! running_in_docker && ! running_on_github; then
     guestunmount "$2/boot"
   else
     umount "$2/boot"
@@ -134,7 +143,7 @@ umount_image_file_boot() { # imagefile buildfolder
 
 # umount rpi image
 umount_image_file_root() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github && ! is_pi; then
+  if ! running_in_docker && ! running_on_github; then
     guestunmount "$2/root"
   else
     umount "$2/root"
@@ -177,6 +186,7 @@ EOF
 #### Build script start ####
 ############################
 
+trap cleanup 0 1 2 15
 timestamp=$(date +%Y%m%d%H%M)
 file_tag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
@@ -241,7 +251,7 @@ exec &> >(tee -a "openhabian-build-$timestamp.log")
 sourcefolder="build-image"
 # shellcheck disable=SC1090
 source "${sourcefolder}/openhabian.${hw_platform}.conf"
-buildfolder="/tmp/build-${hw_platform}-image"
+buildfolder="$(mktemp "${TMPDIR:-/tmp}"/openhabian-build-${hw_platform}-image.XXXXX)"
 imagefile="${buildfolder}/${hw_platform}.img"
 extrasize=300			# grow image root by this number of MB
 umount $buildfolder/boot &> /dev/null || true
@@ -249,7 +259,7 @@ umount $buildfolder/root &> /dev/null || true
 guestunmount --no-retry $buildfolder/boot &> /dev/null || true
 guestunmount --no-retry $buildfolder/root &> /dev/null || true
 rm -rf $buildfolder
-mkdir $buildfolder
+mkdir -p $buildfolder
 
 # Build Raspberry Pi image
 if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta" ]]; then
@@ -267,7 +277,7 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   echo_process "Checking prerequisites... "
   REQ_COMMANDS="git curl unzip crc32 dos2unix xz"
   REQ_PACKAGES="git curl unzip libarchive-zip-perl dos2unix xz-utils"
-  if running_in_docker || running_on_github || is_pi; then
+  if running_in_docker || running_on_github; then
     # in docker guestfstools are not used; do not install it and all of its prerequisites
     # -> must be run as root
     if [[ $EUID -ne 0 ]]; then
@@ -340,7 +350,6 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
     git -C $buildfolder/root/opt/openhabian checkout "${clonebranch:-stable}" &> /dev/null
   fi
   touch $buildfolder/root/opt/openHABian-install-inprogress
-  # maybe we should use a trap to get this done in case of error
   umount_image_file_root "$imagefile" "$buildfolder"
 
   echo_process "Reactivating SSH... "
@@ -358,7 +367,6 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
 
   echo_process "Closing up image file... "
   sync
-  # maybe we should use a trap to get this done in case of error
   umount_image_file_boot "$imagefile" "$buildfolder"
 fi
 
