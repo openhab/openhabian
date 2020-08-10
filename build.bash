@@ -189,7 +189,7 @@ EOF
 #### Build script start ####
 ############################
 
-trap cleanup_build EXIT ERR
+trap cleanup_build EXIT
 timestamp=$(date +%Y%m%d%H%M)
 file_tag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
@@ -306,8 +306,10 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   if gpg -q --trust-model always --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile"; then echo "OK"; else echo "FAILED (signature)"; exit 1; fi
 
   echo_process "Unpacking image... "
-  unzip -q "$buildfolder/$zipfile" -d "$buildfolder"
-  mv "$buildfolder/*-raspios-*.img" "$imagefile"
+  #unzip -q "$buildfolder/$zipfile" -d "$buildfolder"
+  unzip "$buildfolder/$zipfile" -d "$buildfolder"
+  ls -la "$buildfolder"
+  mv "$buildfolder"/*-raspios-*.img "$imagefile" || true
 
   if [[ $extrasize -gt 0 ]]; then
     echo_process "Growing root partition of the image by $extrasize MB... "
