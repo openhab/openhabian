@@ -111,7 +111,7 @@ check_command_availability_and_exit() {
 
 # mount rpi image using userspace tools, in docker use privileged mount via kpartx
 mount_image_file_boot() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github; then
+  if ! running_in_docker && ! running_on_github || is_pi; then
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda1 "$2/boot"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
@@ -121,7 +121,7 @@ mount_image_file_boot() { # imagefile buildfolder
 }
 
 mount_image_file_root() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github; then
+  if ! running_in_docker && ! running_on_github || is_pi; then
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
@@ -135,7 +135,7 @@ mount_image_file_root() { # imagefile buildfolder
 
 # umount rpi image
 umount_image_file_boot() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github; then
+  if ! running_in_docker && ! running_on_github || is_pi; then
     guestunmount "$2/boot"
   else
     umount "$2/boot"
@@ -145,7 +145,7 @@ umount_image_file_boot() { # imagefile buildfolder
 
 # umount rpi image
 umount_image_file_root() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github; then
+  if ! running_in_docker && ! running_on_github || is_pi; then
     guestunmount "$2/root"
   else
     umount "$2/root"
@@ -273,11 +273,11 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   echo_process "Checking prerequisites... "
   REQ_COMMANDS="git curl unzip crc32 dos2unix xz"
   REQ_PACKAGES="git curl unzip libarchive-zip-perl dos2unix xz-utils"
-  if running_in_docker || running_on_github; then
+  if running_in_docker || running_on_github || is_pi; then
     # in docker guestfstools are not used; do not install it and all of its prerequisites
     # -> must be run as root
     if [[ $EUID -ne 0 ]]; then
-      echo_process "For use with Docker, this script must be run as root" 1>&2
+      echo_process "For use with Docker or on RPi, this script must be run as root" 1>&2
       exit 1
     fi
     REQ_COMMANDS+=" kpartx"
