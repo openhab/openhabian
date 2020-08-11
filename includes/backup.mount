@@ -1,0 +1,13 @@
+[Unit]
+Description=%BKPDIR mount
+After=local-fs.target
+
+[Mount]
+What=%DEVICE
+Where=%BKPDIR
+Type=none
+Options=bind
+
+[Install]
+WantedBy=multi-user.target
+
