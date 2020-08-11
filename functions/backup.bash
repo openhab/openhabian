@@ -280,6 +280,7 @@ setup_mirror_SD() {
     echo "FAILED"; return 1
   fi
 
+  # shellcheck disable=SC2154
   if [[ -n "$UNATTENDED" ]] && [[ -z "$mirrordrive" ]]; then return 0; fi
 
   if [[ -n "$INTERACTIVE" ]]; then
