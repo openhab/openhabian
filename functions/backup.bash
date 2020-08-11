@@ -280,6 +280,8 @@ setup_mirror_SD() {
     echo "FAILED"; return 1
   fi
 
+  if [[ -n "$UNATTENDED" ]] && [[ -z "$mirrordrive" ]]; then return 0; fi
+
   if [[ -n "$INTERACTIVE" ]]; then
     declare -a array=()
     while read -r id foo{,} size foo{,,}; do
