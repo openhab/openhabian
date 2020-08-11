@@ -106,6 +106,7 @@ if [[ -n "$UNATTENDED" ]]; then
   samba_setup
   permissions_corrections
   clean_config_userpw
+  setup_mirror_SD "install"
   frontail_setup
   zram_setup
   install_cleanup
