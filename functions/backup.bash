@@ -279,12 +279,12 @@ setup_mirror_SD() {
     while read -r id foo{,} size foo{,,}; do
       array+=("$id"     "$size" )
     done < <(lsblk | egrep "^sd")
-    dest=$(whiptail --title "Setup SD mirroring" --cancel-button Cancel --ok-button Select --menu 'Select USB device to copy the internal SD card data to' 15 76 7 "${array[@]}" 3>&1 1>&2 2>&3)
+    dest=$(whiptail --title "Setup SD mirroring" --cancel-button Cancel --ok-button Select --menu 'Select USB device to copy the internal SD card data to' 12 76 4 "${array[@]}" 3>&1 1>&2 2>&3)
     if [[ -z "$dest" ]]; then return 0; fi
+    dest="/dev/$dest"
   else
-    dest=sda
+    dest=$mirrordrive
   fi
-  dest="/dev/$dest"
 
   # TODO? check for accessibility of SD card in first external card reader (/dev/sda ?)
   size=$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f3)	# in GBytes

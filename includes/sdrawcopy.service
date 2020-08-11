@@ -1,0 +1,10 @@
+[Unit]
+Description=SD card raw device copy to external card reader device
+
+[Service]
+Type=oneshot
+#User=root
+#Group=root
+ExecStart=source /opt/openhabian/functions/backup.bash; mirror_SD %DEST "raw"
+#RemainAfterExit=yes
+
