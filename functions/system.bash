@@ -305,6 +305,17 @@ permissions_corrections() {
   if cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "OK"; else echo "FAILED"; return 1; fi
 
   if ! cond_redirect chgrp root /var/log/samba /var/log/unattended-upgrades; then echo "FAILED (3rd party logdir)"; return 1; fi
+
+  if [[ -d /etc/homegear ]]; then
+    chown -R root:root /etc/homegear
+    find /etc/homegear -type d -print0 | xargs -0 chmod 755
+    find /etc/homegear -type f -print0 | xargs -0 chmod 644
+    find /etc/homegear -name "*.key" -print0 | xargs -0 chmod 644
+    find /etc/homegear -name "*.key" -print0 | xargs -0 chown homegear:homegear
+    chown homegear:homegear /etc/homegear/rpcclients.conf
+    chmod 400 /etc/homegear/rpcclients.conf
+    chown homegear:homegear -R /var/log/homegear
+  fi
 }
 
 ## Function for applying miscellaneous system settings.
