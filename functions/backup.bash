@@ -243,3 +243,116 @@ amanda_setup() {
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
 }
+
+## setup mirror/sync of boot and / partitions
+##
+##   setup_mirror_SD()
+##
+setup_mirror_SD() {
+  local dest
+  local srcSize
+  local destSize
+  local minSize
+  local targetDir="/etc/systemd/system/"
+  local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
+  local infoText1="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will *copy* your system root from your SD card to a USB attached card writer device. Are you sure"
+  local infoText2="is an SD card writer device equipped with a dispensible SD card ? Are you this will destroy all data on that card and you want to proceed writing to this device ?"
+
+
+  if [[ "$1" == "remove" ]]; then
+    rm -f ${targetDir}/sdr*.{service,timer}
+    cond_redirect systemctl -q daemon-reload &> /dev/null
+    return 0
+  fi
+  if [[ "$1" != "install" ]]; then echo "FAILED"; return 1; fi
+
+  if ! is_pi; then
+    if [[ -n "$INTERACTIVE" ]]; then
+      whiptail --title "Incompatible hardware detected" --msgbox "Mirror SD: this option is for the Raspberry Pi only." 10 60
+    fi
+    echo "FAILED"; return 1
+  fi
+
+  # TODO: testing of selection
+  if [[ -n "$INTERACTIVE" ]]; then
+    declare -a array=()
+    while read -r id foo{,} size foo{,,}; do
+      array+=("$id"     "$size" )
+    done < <(lsblk | egrep "^sd")
+    dest=$(whiptail --title "Setup SD mirroring" --cancel-button Cancel --ok-button Select --menu 'Select USB device to copy the internal SD card data to' 15 76 7 "${array[@]}" 3>&1 1>&2 2>&3)
+    if [[ -z "$dest" ]]; then return 0; fi
+  else
+    dest=sda
+  fi
+  dest="/dev/$dest"
+
+  # TODO? check for accessibility of SD card in first external card reader (/dev/sda ?)
+  size=$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f3)	# in GBytes
+  infoText="$infoText1 $dest $infoText2"
+  srcSize=$(blockdev --getsize64 /dev/mmcblk0)
+  minSize="$((2*srcSize))"
+  destSize=$(blockdev --getsize64 "$dest")
+  if [[ "$destSize" -gt "$minSize" ]]; then
+    if [[ -n "$INTERACTIVE" ]]; then
+      whiptail --title "insufficient space" --msgbox "$sizeError" 9 80
+    fi
+    echo "FAILED"; return 1;
+  fi
+
+  # copy partition table and create storage partition for the rest
+  sfdisk -d /dev/mmcblk0 | sfdisk "$dest"
+  start=$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)
+  fdisk "$dest" &> /dev/null <<EOF
+n
+p
+3
+$start
+
+w
+EOF
+  mke2fs -t ext4 ${dest}3
+  # TODO: retrieve partition 3 size and  install Amanda with default parameters in there
+  size=$(fdisk -l /dev/sda3 | head -1 | cut -d' ' -f3)
+
+  if ! (whiptail --title "Copy system root to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
+
+  return 0;	# for testing only
+
+  /bin/sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template >"${targetDir}"/sdrawcopy.service
+  /bin/sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template >"${targetDir}"/sdrsync.service
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${targetDir}"/; then echo "OK"; else rm -f "${targetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
+  cond_redirect systemctl -q daemon-reload &> /dev/null
+}
+
+## "raw" copy partition using dd or mount and use rsync to sync "diff"
+## Valid arguments: "raw", "diff"
+## Periodically activated by systemd timer units (raw copy on 1st of month, rsync else)
+##
+##    mirror_SD(String method)
+##
+mirror_SD() {
+  local src
+  local dest
+  local start
+  local mount
+  local infotext=""
+
+
+  src=/dev/mmcblk0
+  dest="$1"
+  mount="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
+  if [[ $2 == "raw" ]]; then
+    echo "Creating a raw partition copy, be prepared this will take long such as 20-30 minutes for a 16 GB SD card"
+
+    dd if="$src"1 bs=512 of="${dest}1"
+    dd if="$src"2 bs=512 of="${dest}2"
+  fi
+  # yes, intentionally do this also when $1="raw"
+  if [[ $2 == "diff" ]]; then
+    mount "$dest" "$mount"
+    rsync -avh "/" "$mount"
+    umount "$mount"
+    rmdir "$mount"
+  fi
+}
+
