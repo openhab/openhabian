@@ -320,7 +320,7 @@ EOF
   mke2fs -t ext4 "${dest}3"
   if ! sed -e "s|%DEVICE|${mirrordevice:-/dev/sda}3|g" -e "s|%BKPDIR|${backupDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/backup.mount >${targetDir}/backup.mount; then echo "FAILED (create mount unit)"; fi
   # TODO: check if mount works
-  size=$(fdisk -l ${dest}3 | head -1 | cut -d' ' -f3)
+  size=$(fdisk -l "${dest}3" | head -1 | cut -d' ' -f3)
   # TODO: install Amanda with default parameters during unattended install - !!check size!!
   # adminmail empty => fix in amanda_setup to have no address in amanda.conf ?
   #create_backup_config "openhab-dir" "backup" "" "15" "${size}" "${backupDir}"
