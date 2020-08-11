@@ -278,11 +278,12 @@ setup_mirror_SD() {
     declare -a array=()
     while read -r id foo{,} size foo{,,}; do
       array+=("$id"     "$size" )
-    done < <(lsblk | egrep "^sd")
+    done < <(lsblk | grep -E "^sd")
     dest=$(whiptail --title "Setup SD mirroring" --cancel-button Cancel --ok-button Select --menu 'Select USB device to copy the internal SD card data to' 12 76 4 "${array[@]}" 3>&1 1>&2 2>&3)
     if [[ -z "$dest" ]]; then return 0; fi
     dest="/dev/$dest"
   else
+    # shellcheck disable=SC2154
     dest=$mirrordrive
   fi
 
@@ -310,7 +311,7 @@ $start
 
 w
 EOF
-  mke2fs -t ext4 ${dest}3
+  mke2fs -t ext4 "${dest}3"
   # TODO: retrieve partition 3 size and  install Amanda with default parameters in there
   size=$(fdisk -l /dev/sda3 | head -1 | cut -d' ' -f3)
 
