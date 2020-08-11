@@ -41,42 +41,38 @@ create_backup_config() {
   local S3secretkey=${10}
   local dumptype
 
+
   TMP="/tmp/.amanda-setup.$$"
 
   local introtext="We need to prepare (to \"label\") your removable storage media."
 
-  /bin/grep -v "${config}" /etc/cron.d/amanda > $TMP; mv $TMP /etc/cron.d/amanda
+  grep -v "${config}" /etc/cron.d/amanda > $TMP; mv $TMP /etc/cron.d/amanda
 
   mkdir -p "${confdir}"
   touch "${confdir}"/tapelist
-  hostname=$(/bin/hostname)
+  hostname=$(hostname)
   { echo "${hostname} ${backupuser}"; echo "${hostname} root amindexd amidxtaped"; echo "localhost ${backupuser}"; echo "localhost root amindexd amidxtaped"; } >> /var/backups/.amandahosts
 
   infofile="/var/lib/amanda/${config}/curinfo"       # Database directory
   logdir="/var/log/amanda/${config}"                 # Log directory
   indexdir="/var/lib/amanda/${config}/index"         # Index directory
-  /bin/mkdir -p "${infofile}" "${logdir}" "${indexdir}"
-  /bin/chown -R "${backupuser}":backup /var/backups/.amandahosts "${confdir}" "${infofile}" "${logdir}" "${indexdir}"
+  mkdir -p "${infofile}" "${logdir}" "${indexdir}"
+  chown -R "${backupuser}":backup /var/backups/.amandahosts "${confdir}" "${infofile}" "${logdir}" "${indexdir}"
   if [ "${config}" = "openhab-dir" ]; then
-    /bin/chown -R "${backupuser}":backup /var/backups/.amandahosts "${storage}"
-    /bin/chmod -R g+rwx "${storage}"
+    chown -R "${backupuser}":backup /var/backups/.amandahosts "${storage}"
+    chmod -R g+rwx "${storage}"
     mkdir "${storage}"/slots # folder needed for following symlinks
-    /bin/chown "${backupuser}":backup "${storage}"/slots
+    chown "${backupuser}":backup "${storage}"/slots
     ln -s "${storage}"/slots "${storage}"/slots/drive0
     ln -s "${storage}"/slots "${storage}"/slots/drive1    # taper-parallel-write 2 so we need 2 virtual drives
     tpchanger="\"chg-disk:${storage}/slots\"    # The tape-changer glue script"
     tapetype="DIRECTORY"
   else
-#    if [ "${config}" = "openhab-local-SD" ]; then
-#      tpchanger="\"chg-single:${sddev}\""
-#      tapetype="SD"
-#    else
-      tpchanger="\"chg-multi:s3:${S3bucket}/openhab-AWS/slot-{$(seq -s, 1 "${tapes}")}\" # Number of virtual containers in your tapecycle"
-      tapetype="AWS"
-#    fi
+    tpchanger="\"chg-multi:s3:${S3bucket}/openhab-AWS/slot-{$(seq -s, 1 "${tapes}")}\" # Number of virtual containers in your tapecycle"
+    tapetype="AWS"
   fi
 
-  /bin/sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" "${BASEDIR:-/opt/openhabian}"/includes/amanda.conf_template >"${confdir}"/amanda.conf
+  sed -e "s|%CONFIG|${config}|g" -e "s|%CONFDIR|${confdir}|g" -e "s|%ADMIN|${adminmail}|g" -e "s|%TAPES|${tapes}|g" -e "s|%SIZE|${size}|g" -e "s|%TAPETYPE|${tapetype}|g" -e "s|%TPCHANGER|${tpchanger}|g" "${BASEDIR:-/opt/openhabian}"/includes/amanda.conf_template >"${confdir}"/amanda.conf
 
   if [ "${config}" = "openhab-AWS" ]; then
     { echo "device_property \"S3_BUCKET_LOCATION\" \"${S3site}\"                                # Your S3 bucket location (site)"; \
@@ -88,7 +84,7 @@ create_backup_config() {
   fi
 
   if [ "${config}" = "openhab-local-SD" ] || [ "${config}" = "openhab-dir" ]; then
-    /bin/rm -f "${confdir}"/disklist
+    rm -f "${confdir}"/disklist
 
     # don't backup SD by default as this can cause problems for large cards
     if [[ -n $INTERACTIVE ]]; then
@@ -114,11 +110,7 @@ create_backup_config() {
   echo "tapedev \"changer\"" >"${confdir}"/amanda-client.conf
   echo "auth \"local\"" >"${confdir}"/amanda-client.conf
 
-  if [ "${config}" = "openhab-local-SD" ]; then
-    introtext="${introtext}\\nWe will ask you to insert a specific SD card number (or USB stick) into the device ${storage} and prompt you to confirm it's plugged in. This procedure will be repeated ${tapes} times as that is the number of media you specified to be in rotational use for backup purposes."
-  else
-    introtext="${introtext}\\nFor permanent storage such as USB or NAS mounted storage, as well as for cloud based storage, we will create ${tapes} virtual containers."
-  fi
+  introtext="${introtext}\\nFor permanent storage such as USB or NAS mounted storage, as well as for cloud based storage, we will create ${tapes} virtual containers."
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
   fi
@@ -130,15 +122,7 @@ create_backup_config() {
       mkdir -p "${storage}"/slots/slot${counter}
       chown "${backupuser}":backup "${storage}"/slots/slot${counter}
     else
-      if [ "${config}" = "openhab-local-SD" ]; then
-        introtext="Please insert your removable storage medium number ${counter}."
-        if [[ -n $INTERACTIVE ]]; then
-          if ! (whiptail --title "Correct SD card inserted?" --yes-button "Continue" --no-button "Back" --yesno "$introtext" 15 80); then echo "CANCELED"; return 0; fi
-          /bin/su - "${backupuser}" -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
-        fi
-      else  # AWS
-        /bin/su - "${backupuser}" -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
-      fi
+      su - "${backupuser}" -c "/usr/sbin/amlabel ${config} ${config}-${counter} slot ${counter}"
     fi
     ((counter += 1))
   done
@@ -171,7 +155,7 @@ amanda_setup() {
   fi
   adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the email address to send backup reports to." 10 60 3>&1 1>&2 2>&3)
   if [ -z "$adminmail" ]; then
-     adminmail="root@$(/bin/hostname)"
+     adminmail="root@$(hostname)"
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up the Amanda backup system ... "
@@ -193,23 +177,12 @@ amanda_setup() {
   fi
 
   if getent passwd openhabian; then
-  	/usr/sbin/usermod -a -G backup openhabian
+  	usermod -a -G backup openhabian
   fi
-  /usr/sbin/chpasswd <<< "${backupuser}:${password}"
-  /usr/bin/chsh -s /bin/bash ${backupuser}
+  chpasswd <<< "${backupuser}:${password}"
+  chsh -s /bin/bash ${backupuser}
 
-  /bin/rm -f /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
-
-# no SD set based config for now, requires latest Amanda which is not available as a package yet
-#  if [[ -n $INTERACTIVE ]]; then
-#    if (whiptail --title "Create SD card set based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on a locally attached SD card writer and a set of SD cards. You can also use USB sticks, BUT you must ensure that the device name to access ALWAYS is the same. This is not guaranteed if you use different USB ports." 15 80); then
-#        config=openhab-local-SD
-#        sddev=$(whiptail --title "Card writer device" --inputbox "What's the device name of your SD card writer?" 10 60 3>&1 1>&2 2>&3)
-#        tapes=$(whiptail --title "Number of SD cards in rotation" --inputbox "How many SD cards will you have available in rotation for backup purposes ?" 10 60 3>&1 1>&2 2>&3)
-#        size=$(whiptail --title "SD card capacity" --inputbox "What's your backup SD card capacity in megabytes? If you use different sizes, specify the smallest one. The remaining capacity will remain unused." 10 60 3>&1 1>&2 2>&3)
-#        create_backup_config "${config}" "${backupuser}" "${adminmail}" "${tapes}" "${size}" "${sddev}"
-#    fi
-#  fi
+  rm -f /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
 
   if [[ -n $INTERACTIVE ]]; then
     if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on locally attached or NAS mounted storage." 15 80); then
@@ -220,7 +193,6 @@ amanda_setup() {
 	((size=capacity/tapes))
 
         create_backup_config "${config}" "${backupuser}" "${adminmail}" "${tapes}" "${size}" "${dir}"
-
     fi
   fi
 
@@ -244,6 +216,40 @@ amanda_setup() {
   fi
 }
 
+
+## "raw" copy partition using dd or mount and use rsync to sync "diff"
+## Valid arguments: "raw", "diff"
+## Periodically activated by systemd timer units (raw copy on 1st of month, rsync else)
+##
+##    mirror_SD(String method)
+##
+mirror_SD() {
+  local src
+  local dest
+  local start
+  local mount
+  local infotext=""
+
+
+  src=/dev/mmcblk0
+  dest="$1"
+  mount="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
+  if [[ $2 == "raw" ]]; then
+    echo "Creating a raw partition copy, be prepared this will take long such as 20-30 minutes for a 16 GB SD card"
+
+    dd if="$src"1 bs=512 of="${dest}1"
+    dd if="$src"2 bs=512 of="${dest}2"
+  fi
+  # yes, intentionally do this also when $1="raw"
+  if [[ $2 == "diff" ]]; then
+    mount "$dest" "$mount"
+    rsync -avh "/" "$mount"
+    umount "$mount"
+    rmdir "$mount"
+  fi
+}
+
+
 ## setup mirror/sync of boot and / partitions
 ##
 ##   setup_mirror_SD()
@@ -254,6 +260,7 @@ setup_mirror_SD() {
   local destSize
   local minSize
   local targetDir="/etc/systemd/system/"
+  local backupDir=/backup		# make configurable via openhabian.conf ?
   local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
   local infoText1="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will *copy* your system root from your SD card to a USB attached card writer device. Are you sure"
   local infoText2="is an SD card writer device equipped with a dispensible SD card ? Are you this will destroy all data on that card and you want to proceed writing to this device ?"
@@ -273,7 +280,6 @@ setup_mirror_SD() {
     echo "FAILED"; return 1
   fi
 
-  # TODO: testing of selection
   if [[ -n "$INTERACTIVE" ]]; then
     declare -a array=()
     while read -r id foo{,} size foo{,,}; do
@@ -312,48 +318,19 @@ $start
 w
 EOF
   mke2fs -t ext4 "${dest}3"
-  # TODO: retrieve partition 3 size and  install Amanda with default parameters in there
-  size=$(fdisk -l /dev/sda3 | head -1 | cut -d' ' -f3)
-
+  if ! sed -e "s|%DEVICE|${mirrordevice:-/dev/sda}3|g" -e "s|%BKPDIR|${backupDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/backup.mount >${targetDir}/backup.mount; then echo "FAILED (create mount unit)"; fi
+  # TODO: check if mount works
+  size=$(fdisk -l ${dest}3 | head -1 | cut -d' ' -f3)
+  # TODO: install Amanda with default parameters during unattended install - !!check size!!
+  # adminmail empty => fix in amanda_setup to have no address in amanda.conf ?
+  #create_backup_config "openhab-dir" "backup" "" "15" "${size}" "${backupDir}"
   if ! (whiptail --title "Copy system root to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
 
   return 0;	# for testing only
 
-  /bin/sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template >"${targetDir}"/sdrawcopy.service
-  /bin/sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template >"${targetDir}"/sdrsync.service
+  sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template >"${targetDir}"/sdrawcopy.service
+  sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template >"${targetDir}"/sdrsync.service
   if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${targetDir}"/; then echo "OK"; else rm -f "${targetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
-}
-
-## "raw" copy partition using dd or mount and use rsync to sync "diff"
-## Valid arguments: "raw", "diff"
-## Periodically activated by systemd timer units (raw copy on 1st of month, rsync else)
-##
-##    mirror_SD(String method)
-##
-mirror_SD() {
-  local src
-  local dest
-  local start
-  local mount
-  local infotext=""
-
-
-  src=/dev/mmcblk0
-  dest="$1"
-  mount="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
-  if [[ $2 == "raw" ]]; then
-    echo "Creating a raw partition copy, be prepared this will take long such as 20-30 minutes for a 16 GB SD card"
-
-    dd if="$src"1 bs=512 of="${dest}1"
-    dd if="$src"2 bs=512 of="${dest}2"
-  fi
-  # yes, intentionally do this also when $1="raw"
-  if [[ $2 == "diff" ]]; then
-    mount "$dest" "$mount"
-    rsync -avh "/" "$mount"
-    umount "$mount"
-    rmdir "$mount"
-  fi
 }
 
