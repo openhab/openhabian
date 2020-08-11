@@ -159,7 +159,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 19 116 12 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHAB Setup Options" --menu "Setup Options" 19 116 12 --cancel-button Back --ok-button Execute \
     "41 | openHAB release"        "Install or switch to the latest openHAB release" \
     "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
     "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
@@ -182,8 +182,8 @@ show_main_menu() {
       *openHAB\ snapshot) openhab2_setup "unstable" ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
-      *Delay\ rules\ load) create_systemd_dependencies && delayed_rules "yes";;
-      *Default\ order) create_systemd_dependencies && delayed_rules "no";;
+      *Delay\ rules\ load) delayed_rules yes;;
+      *Default\ order) delayed_rules no;;
       *Zulu\ 8\ OpenJDK\ 32-bit) update_config_java "Zulu8-32" && java_install_or_update "Zulu8-32";;
       *Zulu\ 8\ OpenJDK\ 64-bit) update_config_java "Zulu8-64" && java_install_or_update "Zulu8-64";;
       *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
@@ -194,16 +194,20 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "50"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Backup options" --menu "Backup options" 12 116 5 --cancel-button Back --ok-button Execute \
     "50 | Backup openHAB config"      "Backup the current active openHAB configuration" \
     "51 | Restore an openHAB config"  "Restore a previous openHAB configuration from backup" \
     "52 | Amanda System Backup"       "Set up Amanda to comprehensively backup your complete openHABian box" \
+    "53 | Setup SD mirroring"         "Setup mirroring of internal to external SD card" \
+    "   | Remove SD mirroring"        "Disable mirroring of SD cards" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       50\ *) backup_openhab_config ;;
       51\ *) restore_openhab_config ;;
       52\ *) wait_for_apt_to_finish_update && amanda_setup ;;
+      53\ *) setup_mirror_SD "install" ;;
+      *Remove\ SD\ mirroring*) setup_mirror_SD "remove" ;;
       "") return 0 ;;
       *) whiptail --msgbox "A non supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
