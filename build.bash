@@ -11,6 +11,8 @@ usage() {
 }
 
 cleanup_build() {
+  if [[ -z "$buildfolder" ]]; then exit 1; fi
+
   umount "$buildfolder/boot" &> /dev/null || true
   umount "$buildfolder/root" &> /dev/null || true
   guestunmount --no-retry "$buildfolder/boot" &> /dev/null || true
