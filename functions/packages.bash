@@ -6,6 +6,8 @@
 ##    samba_setup()
 ##
 samba_setup() {
+  local serviceFile=/lib/systemd/system/smbd.service
+
   if ! [[ -x $(command -v samba) ]]; then
     echo -n "$(timestamp) [openHABian] Installing Samba... "
     if cond_redirect apt-get install --yes samba; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -22,6 +24,7 @@ samba_setup() {
   echo "OK"
 
   echo -n "$(timestamp) [openHABian] Setting up Samba service... "
+  sed -iE '/PIDFile/d; /NotifyAccess/ a PIDFile=smbd.pid\nRuntimeDirectory=samba' $serviceFile
   cond_redirect systemctl -q daemon-reload &> /dev/null
   if ! cond_redirect systemctl enable smbd.service; then echo "FAILED (enable service)"; return 1; fi
   if cond_redirect systemctl restart smbd.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
