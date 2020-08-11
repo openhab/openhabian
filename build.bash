@@ -155,10 +155,10 @@ grow_image() {
   # root partition is #2 and sector size is 512 byte for the Raspi OS image
   partition=2
 
-  dd if=/dev/zero bs=1M count="$2" >> "$1" &> /dev/null
-  partStart=$(parted "$1" -ms unit s p | grep "^2" | cut -f 2 -d: | tr -d s)
+  dd if=/dev/zero bs=1M count="$2" oflag=append conv=notrunc of="$1" &> /dev/null
+  partStart=$(echo p|/sbin/fdisk "$1" | grep "$1"2 | awk '{print $2}')
 
-  fdisk "$1" &> /dev/null <<EOF
+  /sbin/fdisk "$1" &> /dev/null <<EOF
 p
 d
 $partition
@@ -303,8 +303,13 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   mv $buildfolder/*-raspios-*.img $imagefile
 
   if [[ $extrasize -gt 0 ]]; then
-	  echo_process "Growing root partition of the image by $extrasize MB... "
-  	grow_image "$imagefile" "$extrasize"
+    echo_process "Growing root partition of the image by $extrasize MB... "
+    # shellcheck disable=SC2012
+    SIZEBEFORE=$(ls -sh "$imagefile"|awk '{print $1}') 
+    grow_image "$imagefile" "$extrasize"
+    # shellcheck disable=SC2012
+    SIZEAFTER=$(ls -sh "$imagefile"|awk '{print $1}') 
+    echo_process "Growing image form $SIZEBEFORE to $SIZEAFTER completed."
   fi
 
   echo_process "Mounting the image for modifications... "
