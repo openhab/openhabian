@@ -111,7 +111,7 @@ check_command_availability_and_exit() {
 
 # mount rpi image using userspace tools, in docker use privileged mount via kpartx
 mount_image_file_boot() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github || is_pi; then
+  if ! running_in_docker && ! running_on_github && ! is_pi; then
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda1 "$2/boot"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
@@ -121,7 +121,7 @@ mount_image_file_boot() { # imagefile buildfolder
 }
 
 mount_image_file_root() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github || is_pi; then
+  if ! running_in_docker && ! running_on_github && ! is_pi; then
     guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
   else
     loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
@@ -135,7 +135,7 @@ mount_image_file_root() { # imagefile buildfolder
 
 # umount rpi image
 umount_image_file_boot() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github || is_pi; then
+  if ! running_in_docker && ! running_on_github && ! is_pi; then
     guestunmount "$2/boot"
   else
     umount "$2/boot"
@@ -145,7 +145,7 @@ umount_image_file_boot() { # imagefile buildfolder
 
 # umount rpi image
 umount_image_file_root() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github || is_pi; then
+  if ! running_in_docker && ! running_on_github && ! is_pi; then
     guestunmount "$2/root"
   else
     umount "$2/root"
