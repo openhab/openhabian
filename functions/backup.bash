@@ -335,7 +335,7 @@ EOF
 
   partprobe
   cond_redirect mke2fs -F -t ext4 "${dest}3"
-  mkdir -p "${storageDir}"
+  mkdir -p "${storageDir}" "${syncMount:-/syncmnt}"
   mount "${dest}3" "${storageDir}"
 
   # TODO: mount ${dest}2 as /syncmnt #       Restore on boot
@@ -343,7 +343,7 @@ EOF
   # TODO: install Amanda with default parameters during unattended install
   # adminmail empty => fix in amanda_setup to have no address in amanda.conf ?
   capacity=${storagecapacity:-1024} # in MB
-  types=15
+  tapes=15
   ((size=capacity/tapes))
   #create_backup_config "openhab-dir" "backup" "" "${tapes}" "${size}" "${storageDir}"
   if ! (whiptail --title "Copy system root to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
