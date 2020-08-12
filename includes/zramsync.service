@@ -1,12 +1,12 @@
 [Unit]
 Description=zram sync to/from external SD on shutdown/boot
-Requires=local-fs.target storage.mount
-Before=zram-config.service
+After=local-fs.target storage.mount zram-config.service
+Requires=storage.mount
 
 [Service]
 Type=oneshot
-ExecStart=-/usr/local/bin/zramsync "%SYNCMOUNT" "/"
-ExecStop=-/usr/local/bin/zramsync "/" "%SYNCMOUNT"
+ExecStart=-/usr/local/bin/zramsync recover "%SYNCMOUNT"
+ExecStop=-/usr/local/bin/zramsync sync "%SYNCMOUNT"
 TimeoutSec=300
 RemainAfterExit=yes
 

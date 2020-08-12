@@ -244,8 +244,7 @@ mirror_SD() {
   if [[ $1 == "raw" ]]; then
     echo "Creating a raw partition copy, be prepared this will take long such as 20-30 minutes for a 16 GB SD card"
 
-    cond_redirect dd if="${src}p1" bs=512 of="${dest}1"
-    cond_redirect dd if="${src}p2" bs=512 of="${dest}2"
+    cond_redirect dd if="${src}" bs=1M of="${dest}"
   fi
 
   # yes, intentionally do this also when $1="raw"
@@ -337,6 +336,7 @@ EOF
   cond_redirect mke2fs -F -t ext4 "${dest}3"
   mkdir -p "${storageDir}" "${syncMount:-/syncmnt}"
   mount "${dest}3" "${storageDir}"
+  #systemctl enable --now storage.mount
 
   # TODO: mount ${dest}2 as /syncmnt #       Restore on boot
   size=$(fdisk -l "${dest}3" | head -1 | cut -d' ' -f3)

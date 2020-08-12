@@ -186,6 +186,7 @@ The first attached disk type device is usually called `/dev/sda`.
 openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space to a storage partition.
 Use `storagecapacity=xxx` to override how much space to consume at most for backup storage (in MB).
 The install routine will also setup Amanda to take daily backups and store them to that third partition.
+In case your card gets broken and you need to switch to run on backup, get a another new SD card to match the size of the broken card (note most are not "exactly" 16 or 32 GB so your new one mustn't have less bytes than the old one. Use menu option 54 to copy your active backup card back to the new one and switch back soon. Remember you have no backup during unless you do.
 
 ## openHABian Configuration Tool
 The following instructions target a Raspberry Pi openHABian setup but should be applicable to all openHABian environments.
