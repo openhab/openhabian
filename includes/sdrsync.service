@@ -5,5 +5,5 @@ Description=mount external card reader device and rsync / over there
 Type=oneshot
 #User=root
 #Group=root
-ExecStart=source /opt/openhabian/functions/backup.bash; mirror_SD %DEST "diff"
+ExecStart=source /opt/openhabian/functions/backup.bash; mirror_SD "diff" %DEST
 #RemainAfterExit=yes
