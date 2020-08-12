@@ -235,6 +235,7 @@ mirror_SD() {
   src=/dev/mmcblk0
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "sd" "$blkTitle" "$blkQuestion"
+    # shellcheck disable=SC2154
     if [[ -z "$retval" ]]; then return 0; fi
     dest="/dev/$retval"
   else
