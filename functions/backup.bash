@@ -247,11 +247,11 @@ mirror_SD() {
     cond_redirect dd if="${src}" bs=1M of="${dest}"
   fi
 
-  # yes, intentionally do this also when $1="raw"
+  # TODO: validate rsync
   if [[ "$1" == "diff" ]]; then
     mount="${storagedir:-/storage}"
     mount "$dest" "$mount"
-    rsync -avh "/" "$mount"
+    rsync -avRh "/" "$mount"
     if ! umount "$mount" &> /dev/null; then
       sleep 1
       umount -l "$mount" &> /dev/null
@@ -334,27 +334,23 @@ EOF
 
   partprobe
   cond_redirect mke2fs -F -t ext4 "${dest}3"
-  mkdir -p "${storageDir}" "${syncMount:-/syncmnt}"
-  mount "${dest}3" "${storageDir}"
-  #systemctl enable --now storage.mount
+  mkdir -p "${storageDir}"
+  if ! sed -e "s|%DEVICE|${backupdrive:-/dev/sda}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create storage mount)"; fi
+  if ! cond_redirect systemctl enable --now storage.mount; then echo FAILED (enable storage mount); return 1; fi
 
-  # TODO: mount ${dest}2 as /syncmnt #       Restore on boot
   size=$(fdisk -l "${dest}3" | head -1 | cut -d' ' -f3)
-  # TODO: install Amanda with default parameters during unattended install
-  # adminmail empty => fix in amanda_setup to have no address in amanda.conf ?
   capacity=${storagecapacity:-1024} # in MB
   tapes=15
   ((size=capacity/tapes))
-  #create_backup_config "openhab-dir" "backup" "" "${tapes}" "${size}" "${storageDir}"
+  
+  create_backup_config "openhab-dir" "backup" "" "${tapes}" "${size}" "${storageDir}"
   if ! (whiptail --title "Copy system root to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
 
   return 0;	# safeguard for testing only
 
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template >"${targetDir}"/sdrawcopy.service; then echo "FAILED (create sync service)"; fi
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template >"${targetDir}"/sdrsync.service; then echo "FAILED (create sync service)"; fi
-  if ! sed -e "s|%DEVICE|${backupdrive:-/dev/sda}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create mount unit)"; fi
-  if ! sed -e "s|%DEVICE|${backupdrive:-/dev/sda}3|g" -e "s|%SYNCMOUNT|${syncMount:-/syncmnt}|g" "${BASEDIR:-/opt/openhabian}"/includes/zramsync >/usr/local/bin/zramsync; chmod 755 /usr/local/bin/zramsync; then echo "FAILED (create mount unit)"; fi
-  if ! sed -e "s|%SYNCMOUNT|${syncMount:-/syncmnt}|g" "${BASEDIR:-/opt/openhabian}"/includes/zramsync >"${targetDir}"/zramsync.service; then echo "FAILED (create mount unit)"; fi
+  if ! install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/zramsync /usr/local/bin/zramsync; then echo "FAILED (install zramsync)"; fi
 
   if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${targetDir}"/; then echo "OK"; else rm -f "${targetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
