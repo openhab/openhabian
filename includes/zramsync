@@ -4,10 +4,10 @@ source /opt/openhabian/functions/backup.bash
 
 
 syncZdir() {
-	src=$(echo "${src}${1}" | sed -e 's#//#/#g')
-	dest=$(echo "${dest}${1}" | sed -e 's#//#/#g')
-echo	rsync -navh "${src}" "${dest}"
-	rsync -navh "${src}" "${dest}"
+	s=$(echo "${src}${1}" | sed -e 's#//#/#g')
+	d=$(echo "${dest}${1}" | sed -e 's#//#/#g')
+echo	rsync -navh "${s}" "${d}"
+	rsync -navh "${s}" "${d}"
 }
 
 
