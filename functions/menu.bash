@@ -182,8 +182,8 @@ show_main_menu() {
       *openHAB\ snapshot) openhab2_setup "unstable" ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
-      *Delay\ rules\ load) create_systemd_dependencies && delayed_rules yes;;
-      *Default\ order) create_systemd_dependencies && delayed_rules no;;
+      *Delay\ rules\ load) create_systemd_dependencies && delayed_rules "yes";;
+      *Default\ order) create_systemd_dependencies && delayed_rules "no";;
       *Zulu\ 8\ OpenJDK\ 32-bit) update_config_java "Zulu8-32" && java_install_or_update "Zulu8-32";;
       *Zulu\ 8\ OpenJDK\ 64-bit) update_config_java "Zulu8-64" && java_install_or_update "Zulu8-64";;
       *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
