@@ -184,6 +184,7 @@ You need to deploy external storage / another SD card that has at least twice th
 Define backupdevice=`/dev/sdX` to enable this functionality right during unattended installation. Eventually define `storagedir=/storage` or any other name, too.
 The first attached disk type device is usually called `/dev/sda`.
 openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space to a storage partition.
+Use `storagecapacity=xxx` to override how much space to consume at most for backup storage (in MB).
 The install routine will also setup Amanda to take daily backups and store them to that third partition.
 
 ## openHABian Configuration Tool
