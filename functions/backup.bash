@@ -317,7 +317,6 @@ setup_mirror_SD() {
     dest=$backupdrive
   fi
 
-  # TODO? check for accessibility of SD card in first external card reader (/dev/sda ?)
   size=$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f3)	# in GBytes
   infoText="$infoText1 $dest $infoText2"
   srcSize=$(blockdev --getsize64 /dev/mmcblk0)
@@ -353,12 +352,15 @@ EOF
   # TODO: rsync all "dir" entries in /etc/ztab on final.target to sync ZRAM changes
   #       Restore on boot
   size=$(fdisk -l "${dest}3" | head -1 | cut -d' ' -f3)
-  # TODO: install Amanda with default parameters during unattended install - !!check size!!
+  # TODO: install Amanda with default parameters during unattended install
   # adminmail empty => fix in amanda_setup to have no address in amanda.conf ?
-  #create_backup_config "openhab-dir" "backup" "" "15" "${size}" "${storageDir}"
+  capacity=${storagecapacity:-1024} # in MB
+  types=15
+  ((size=capacity/tapes))
+  #create_backup_config "openhab-dir" "backup" "" "${tapes}" "${size}" "${storageDir}"
   if ! (whiptail --title "Copy system root to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
 
-  return 0;	# for testing only
+  return 0;	# safeguard for testing only
 
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template >"${targetDir}"/sdrawcopy.service; then echo "FAILED (create sync service)"; fi
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template >"${targetDir}"/sdrsync.service; then echo "FAILED (create sync service)"; fi
