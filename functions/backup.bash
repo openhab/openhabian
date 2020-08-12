@@ -262,17 +262,6 @@ mirror_SD() {
 }
 
 
-## sync zram dirs on shutdown / restore on boot
-## valid arguments: ## $2 = src dir, $3 = dest dir
-##
-##   zram_sync()
-##
-zram_sync() {
-  # UNVALIDATED, only prototyped !!
-  rsync -avh "$2" "$3"
-}
-
-
 ## setup mirror/sync of boot and / partitions
 ##
 ##   setup_mirror_SD()
@@ -349,8 +338,7 @@ EOF
   mkdir -p "${storageDir}"
   mount "${dest}3" "${storageDir}"
 
-  # TODO: rsync all "dir" entries in /etc/ztab on final.target to sync ZRAM changes
-  #       Restore on boot
+  # TODO: mount ${dest}2 as /syncmnt #       Restore on boot
   size=$(fdisk -l "${dest}3" | head -1 | cut -d' ' -f3)
   # TODO: install Amanda with default parameters during unattended install
   # adminmail empty => fix in amanda_setup to have no address in amanda.conf ?
@@ -365,7 +353,8 @@ EOF
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template >"${targetDir}"/sdrawcopy.service; then echo "FAILED (create sync service)"; fi
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template >"${targetDir}"/sdrsync.service; then echo "FAILED (create sync service)"; fi
   if ! sed -e "s|%DEVICE|${backupdrive:-/dev/sda}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create mount unit)"; fi
-  if ! sed -e "s|%DEVICE|${backupdrive:-/dev/sda}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/zramsync.service >${targetDir}/zramsync.service; then echo "FAILED (create mount unit)"; fi
+  if ! sed -e "s|%DEVICE|${backupdrive:-/dev/sda}3|g" -e "s|%SYNCMOUNT|${syncMount:-/syncmnt}|g" "${BASEDIR:-/opt/openhabian}"/includes/zramsync >/usr/local/bin/zramsync; chmod 755 /usr/local/bin/zramsync; then echo "FAILED (create mount unit)"; fi
+  if ! sed -e "s|%SYNCMOUNT|${syncMount:-/syncmnt}|g" "${BASEDIR:-/opt/openhabian}"/includes/zramsync >"${targetDir}"/zramsync.service; then echo "FAILED (create mount unit)"; fi
 
   if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${targetDir}"/; then echo "OK"; else rm -f "${targetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null

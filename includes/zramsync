@@ -1,0 +1,43 @@
+#!/bin/bash
+
+source /opt/openhabian/functions/backup.bash
+
+
+syncZdir() {
+	src=$(echo "${src}${1}" | sed -e 's#//#/#g')
+	dest=$(echo "${dest}${1}" | sed -e 's#//#/#g')
+echo	rsync -navh "${src}" "${dest}"
+	rsync -navh "${src}" "${dest}"
+}
+
+
+if [[ $# -ne 2 ]]; then echo "wrong usage !"; exit 1; fi
+
+src=$1
+dest=$2
+dev=/dev/%DEVICE2
+mnt=%SYNCMOUNT
+
+mount $dev $mnt
+
+if [[ -z /etc/ztab ]]; then echo "FAILED"; exit 1; fi
+	while read -r line; do
+		case "$line" in
+			"#"*)
+				# Skip comment line
+				continue
+				;;
+			"")
+				# Skip empty line
+				continue
+				;;
+			*)
+				set -- $line
+				if [[ "$1" = "dir" ]]; then
+					syncZdir "$5"
+				fi
+				;;
+		esac
+done < /etc/ztab
+
+umount $mnt
