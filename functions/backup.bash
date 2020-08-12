@@ -228,23 +228,34 @@ mirror_SD() {
   local dest
   local start
   local mount
-  local infotext=""
+  local blkTitle="Setup SD mirroring"
+  local blkQuestion="Select USB device to copy the internal SD card data to"
 
 
   src=/dev/mmcblk0
-  dest="$1"
-  mount="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
-  if [[ $2 == "raw" ]]; then
+  if [[ -n "$INTERACTIVE" ]]; then
+    select_blkdev "sd" "$blkTitle" "$blkQuestion"
+    if [[ -z "$retval" ]]; then return 0; fi
+    dest="/dev/$retval"
+  else
+    dest="${backupdrive:-/dev/sda}"
+  fi
+  if [[ $1 == "raw" ]]; then
     echo "Creating a raw partition copy, be prepared this will take long such as 20-30 minutes for a 16 GB SD card"
 
-    dd if="$src"1 bs=512 of="${dest}1"
-    dd if="$src"2 bs=512 of="${dest}2"
+    cond_redirect dd if="${src}p1" bs=512 of="${dest}1"
+    cond_redirect dd if="${src}p2" bs=512 of="${dest}2"
   fi
+
   # yes, intentionally do this also when $1="raw"
-  if [[ $2 == "diff" ]]; then
+  if [[ "$1" == "diff" ]]; then
+    mount="${storagedir:-/storage}"
     mount "$dest" "$mount"
     rsync -avh "/" "$mount"
-    umount "$mount"
+    if ! umount "$mount" &> /dev/null; then
+      sleep 1
+      umount -l "$mount" &> /dev/null
+    fi
     rmdir "$mount"
   fi
 }
@@ -257,7 +268,7 @@ mirror_SD() {
 ##
 zram_sync() {
   # UNVALIDATED, only prototyped !!
-  #rsync -avh "$2 "$3"
+  rsync -avh "$2" "$3"
 }
 
 
@@ -271,7 +282,9 @@ setup_mirror_SD() {
   local destSize
   local minSize
   local targetDir="/etc/systemd/system/"
-  local backupDir=/storage		# make configurable via openhabian.conf ?
+  local storageDir=${storagedir:-/storage}
+  local blkTitle="Setup SD mirroring"
+  local blkQuestion="Select USB device to copy the internal SD card data to"
   local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
   local infoText1="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will *copy* your system root from your SD card to a USB attached card writer device. Are you sure"
   local infoText2="is an SD card writer device equipped with a dispensible SD card ? Are you this will destroy all data on that card and you want to proceed writing to this device ?"
@@ -295,13 +308,9 @@ setup_mirror_SD() {
   if [[ -n "$UNATTENDED" ]] && [[ -z "$backupdrive" ]]; then return 0; fi
 
   if [[ -n "$INTERACTIVE" ]]; then
-    declare -a array=()
-    while read -r id foo{,} size foo{,,}; do
-      array+=("$id"     "$size" )
-    done < <(lsblk | grep -E "^sd")
-    dest=$(whiptail --title "Setup SD mirroring" --cancel-button Cancel --ok-button Select --menu 'Select USB device to copy the internal SD card data to' 12 76 4 "${array[@]}" 3>&1 1>&2 2>&3)
-    if [[ -z "$dest" ]]; then return 0; fi
-    dest="/dev/$dest"
+    select_blkdev "sd" "$blkTitle" "$blkQuestion"
+    if [[ -z "$retval" ]]; then return 0; fi
+    dest="/dev/$retval"
   else
     # shellcheck disable=SC2154
     dest=$backupdrive
@@ -313,7 +322,7 @@ setup_mirror_SD() {
   srcSize=$(blockdev --getsize64 /dev/mmcblk0)
   minSize="$((20 * srcSize / 11))"	# to accomodate for slight differences in SD sizes
   destSize=$(blockdev --getsize64 "$dest")
-  if [[ "$destSize" -gt "$minSize" ]]; then
+  if [[ "$destSize" -lt "$minSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "insufficient space" --msgbox "$sizeError" 9 80
     fi
@@ -329,24 +338,32 @@ p
 3
 $start
 
+t
+3
+83
 w
 EOF
-  mke2fs -t ext4 "${dest}3"
-  if ! sed -e "s|%DEVICE|${backupdevice:-/dev/sda}3|g" -e "s|%BKPDIR|${backupDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create mount unit)"; fi
-  if ! sed -e "s|%DEVICE|${backupdevice:-/dev/sda}3|g" -e "s|%BKPDIR|${backupDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/zramsync.service >${targetDir}/zramsync.service; then echo "FAILED (create mount unit)"; fi
+
+  partprobe
+  cond_redirect mke2fs -F -t ext4 "${dest}3"
+  mkdir -p "${storageDir}"
+  mount "${dest}3" "${storageDir}"
 
   # TODO: rsync all "dir" entries in /etc/ztab on final.target to sync ZRAM changes
-  #       Restore on boot ?
+  #       Restore on boot
   size=$(fdisk -l "${dest}3" | head -1 | cut -d' ' -f3)
   # TODO: install Amanda with default parameters during unattended install - !!check size!!
   # adminmail empty => fix in amanda_setup to have no address in amanda.conf ?
-  #create_backup_config "openhab-dir" "backup" "" "15" "${size}" "${backupDir}"
+  #create_backup_config "openhab-dir" "backup" "" "15" "${size}" "${storageDir}"
   if ! (whiptail --title "Copy system root to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
 
   return 0;	# for testing only
 
-  sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template >"${targetDir}"/sdrawcopy.service
-  sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template >"${targetDir}"/sdrsync.service
+  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template >"${targetDir}"/sdrawcopy.service; then echo "FAILED (create sync service)"; fi
+  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template >"${targetDir}"/sdrsync.service; then echo "FAILED (create sync service)"; fi
+  if ! sed -e "s|%DEVICE|${backupdrive:-/dev/sda}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create mount unit)"; fi
+  if ! sed -e "s|%DEVICE|${backupdrive:-/dev/sda}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/zramsync.service >${targetDir}/zramsync.service; then echo "FAILED (create mount unit)"; fi
+
   if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${targetDir}"/; then echo "OK"; else rm -f "${targetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
 }
