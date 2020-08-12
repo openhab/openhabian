@@ -336,7 +336,7 @@ EOF
   cond_redirect mke2fs -F -t ext4 "${dest}3"
   mkdir -p "${storageDir}"
   if ! sed -e "s|%DEVICE|${backupdrive:-/dev/sda}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create storage mount)"; fi
-  if ! cond_redirect systemctl enable --now storage.mount; then echo FAILED (enable storage mount); return 1; fi
+  if ! cond_redirect systemctl enable --now storage.mount; then echo "FAILED (enable storage mount)"; return 1; fi
 
   size=$(fdisk -l "${dest}3" | head -1 | cut -d' ' -f3)
   capacity=${storagecapacity:-1024} # in MB
