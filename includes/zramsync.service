@@ -6,8 +6,8 @@ Before=zram-config.service
 [Service]
 Type=oneshot
 # UNTESTED !!
-ExecStart=-source /opt/openhabian/functions/backup.bash && zram-sync "restore" "%BKPDIR" "/"
-ExecStop=-source /opt/openhabian/functions/backup.bash && zram-sync "sync" "/" "%BKPDIR"
+ExecStart=-source /opt/openhabian/functions/backup.bash && zram_sync "%BKPDIR" "/"
+ExecStop=-source /opt/openhabian/functions/backup.bash && zram_sync "/" "%BKPDIR"
 TimeoutSec=300
 RemainAfterExit=yes
 
