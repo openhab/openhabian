@@ -250,6 +250,17 @@ mirror_SD() {
 }
 
 
+## sync zram dirs on shutdown / restore on boot
+## valid arguments: ## $2 = src dir, $3 = dest dir
+##
+##   zram_sync()
+##
+zram_sync() {
+  # UNVALIDATED, only prototyped !!
+  #rsync -avh "$2 "$3"
+}
+
+
 ## setup mirror/sync of boot and / partitions
 ##
 ##   setup_mirror_SD()
