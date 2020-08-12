@@ -178,10 +178,11 @@ In that case *or if you are sure that you do not need IPv6 on your openHABian se
 Follow the instructions in the previous section and insert a line into `openhabian.conf` reading `ipv6=disable`.
 
 ### "Auto"-backup
-You might want to setup openHABian to automatically mirror your internal SD card to another SD card in an external card writer device.
-You need to deply another SD card to have at least twice the size of your internal card.
-Define mirrordevice=/dev/sdX to enable this functionality right during unattended installation.
-Usually the first attached disk type device is called /dev/sda.
+You might want to setup openHABian to automatically backup and mirror your internal SD card to an external disk.
+The recommendation is to use another SD card in an external card writer device so that in case your internal SD card breaks or becomes corrupted, you can switch SD cards to get the system back up running fast.
+You need to deploy external storage / another SD card that has at least twice the size of your internal card.
+Define backupdevice=`/dev/sdX` to enable this functionality right during unattended installation.
+The first attached disk type device is usually called `/dev/sda`.
 openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space to a storage partition.
 The install routine will also setup Amanda to take daily backups and store them to that third partition.
 

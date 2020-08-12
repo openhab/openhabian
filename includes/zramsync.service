@@ -1,0 +1,17 @@
+[Unit]
+Description=zram sync to/from external SD on shutdown/boot
+Requires=local-fs.target storage.mount
+Before=zram-config.service
+
+[Service]
+Type=oneshot
+# UNTESTED !!
+ExecStart=-source /opt/openhabian/functions/backup.bash && zram-sync "restore" "%BKPDIR" "/"
+ExecStop=-source /opt/openhabian/functions/backup.bash && zram-sync "sync" "/" "%BKPDIR"
+TimeoutSec=300
+RemainAfterExit=yes
+
+[Install]
+# final.target by definition onflicts (any service) -> "(any service) stop" will be executed on shutdown/reboot/halt
+WantedBy=zram-service.target
+
