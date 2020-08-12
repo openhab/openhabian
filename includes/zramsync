@@ -1,15 +1,9 @@
 #!/bin/bash -x
 
-source /opt/openhabian/functions/backup.bash
-
 
 if [[ $# -ne 2 ]]; then echo "wrong usage !"; exit 1; fi
 
 dir=$2
-dev=/dev/sda2
-mnt=/syncmnt
-
-mount $dev $mnt
 
 if [[ "$1" = "recover" ]]; then
 	rsync -avrh ${dir}/ /
@@ -34,5 +28,3 @@ else
 		esac
 	done < /etc/ztab
 fi
-
-umount $mnt
