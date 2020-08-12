@@ -1,12 +1,11 @@
 [Unit]
 Description=%BKPDIR mount
-After=local-fs.target
+Before=zram-config.service
 
 [Mount]
 What=%DEVICE
 Where=%BKPDIR
-Type=none
-Options=bind
+Type=ext4
 
 [Install]
 WantedBy=multi-user.target

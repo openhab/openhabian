@@ -1,26 +1,20 @@
-#!/bin/bash
+#!/bin/bash -x
 
 source /opt/openhabian/functions/backup.bash
 
 
-syncZdir() {
-	s=$(echo "${src}${1}" | sed -e 's#//#/#g')
-	d=$(echo "${dest}${1}" | sed -e 's#//#/#g')
-echo	rsync -navh "${s}" "${d}"
-	rsync -navh "${s}" "${d}"
-}
-
-
 if [[ $# -ne 2 ]]; then echo "wrong usage !"; exit 1; fi
 
-src=$1
-dest=$2
-dev=/dev/%DEVICE2
-mnt=%SYNCMOUNT
+dir=$2
+dev=/dev/sda2
+mnt=/syncmnt
 
 mount $dev $mnt
 
-if [[ -z /etc/ztab ]]; then echo "FAILED"; exit 1; fi
+if [[ "$1" = "recover" ]]; then
+	rsync -avrh ${dir}/ /
+else
+	if [[ -z /etc/ztab ]] || [[ "$1" != "sync" ]]; then echo "FAILED"; exit 1; fi
 	while read -r line; do
 		case "$line" in
 			"#"*)
@@ -34,10 +28,11 @@ if [[ -z /etc/ztab ]]; then echo "FAILED"; exit 1; fi
 			*)
 				set -- $line
 				if [[ "$1" = "dir" ]]; then
-					syncZdir "$5"
+					rsync -avRh "$5" "${dir}"
 				fi
 				;;
 		esac
-done < /etc/ztab
+	done < /etc/ztab
+fi
 
 umount $mnt
