@@ -260,7 +260,7 @@ setup_mirror_SD() {
   local destSize
   local minSize
   local targetDir="/etc/systemd/system/"
-  local backupDir=/backup		# make configurable via openhabian.conf ?
+  local backupDir=/storage		# make configurable via openhabian.conf ?
   local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
   local infoText1="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will *copy* your system root from your SD card to a USB attached card writer device. Are you sure"
   local infoText2="is an SD card writer device equipped with a dispensible SD card ? Are you this will destroy all data on that card and you want to proceed writing to this device ?"
@@ -281,7 +281,7 @@ setup_mirror_SD() {
   fi
 
   # shellcheck disable=SC2154
-  if [[ -n "$UNATTENDED" ]] && [[ -z "$mirrordrive" ]]; then return 0; fi
+  if [[ -n "$UNATTENDED" ]] && [[ -z "$backupdrive" ]]; then return 0; fi
 
   if [[ -n "$INTERACTIVE" ]]; then
     declare -a array=()
@@ -293,14 +293,14 @@ setup_mirror_SD() {
     dest="/dev/$dest"
   else
     # shellcheck disable=SC2154
-    dest=$mirrordrive
+    dest=$backupdrive
   fi
 
   # TODO? check for accessibility of SD card in first external card reader (/dev/sda ?)
   size=$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f3)	# in GBytes
   infoText="$infoText1 $dest $infoText2"
   srcSize=$(blockdev --getsize64 /dev/mmcblk0)
-  minSize="$((2*srcSize))"
+  minSize="$((20 * srcSize / 11))"	# to accomodate for slight differences in SD sizes
   destSize=$(blockdev --getsize64 "$dest")
   if [[ "$destSize" -gt "$minSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
@@ -321,8 +321,11 @@ $start
 w
 EOF
   mke2fs -t ext4 "${dest}3"
-  if ! sed -e "s|%DEVICE|${mirrordevice:-/dev/sda}3|g" -e "s|%BKPDIR|${backupDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/backup.mount >${targetDir}/backup.mount; then echo "FAILED (create mount unit)"; fi
-  # TODO: check if mount works
+  if ! sed -e "s|%DEVICE|${backupdevice:-/dev/sda}3|g" -e "s|%BKPDIR|${backupDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create mount unit)"; fi
+  if ! sed -e "s|%DEVICE|${backupdevice:-/dev/sda}3|g" -e "s|%BKPDIR|${backupDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/zramsync.service >${targetDir}/zramsync.service; then echo "FAILED (create mount unit)"; fi
+
+  # TODO: rsync all "dir" entries in /etc/ztab on final.target to sync ZRAM changes
+  #       Restore on boot ?
   size=$(fdisk -l "${dest}3" | head -1 | cut -d' ' -f3)
   # TODO: install Amanda with default parameters during unattended install - !!check size!!
   # adminmail empty => fix in amanda_setup to have no address in amanda.conf ?
