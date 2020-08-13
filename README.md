@@ -12,8 +12,8 @@ recommendations is a **boring task** taking quite some time and
 
 ***A home automation enthusiast doesn't have to be a Linux enthusiast!***
 
-openHABian aims to provide a **self-configuring** Linux system setup specific
-to the needs of every openHAB user.
+openHABian aims to provide a **self-configuring** Linux system setup to meet the
+the needs of every openHAB user.
 
 The project provides two things:
 
@@ -21,6 +21,12 @@ The project provides two things:
     (Raspberry Pi OS, Ubuntu)
 *   a complete **SD-card image pre-configured with openHAB** and many other
     openHAB- and Hardware-specific preparations for all *Raspberry Pi* models.
+
+## Hardware recommendation
+Let's put this first: our current recommendation is to get a RPi 4 with 2 GB,
+a 3A power supply and a 16 GB SD card.
+Also get another 32 GB SD card and a USB card reader to make use of the
+["auto backup" feature](openhabian.md/#Auto-Backup).
 
 ## Hardware and OS support
 As of openHABian version 1.6, all Raspberry Pi models are supported as hardware.
@@ -107,7 +113,7 @@ A good place to look at to start to understand the code is the file
 
 ### Building Hardware Images
 Take a look at the `build.bash` script to get an idea of the process.
-Simply explained run the code below with `platform` being `rpi`.
+Run the code below with `platform` being `rpi`.
 The RPi image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/downloads/raspberry-pi-os/)
 (previously called Raspbian) standard image.
 ```
