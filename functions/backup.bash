@@ -302,7 +302,7 @@ setup_mirror_SD() {
     dest="/dev/$retval"
   else
     # shellcheck disable=SC2154
-    dest=$backupdrive
+    dest=${backupdrive:-/dev/sda}
   fi
 
   size=$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f3)	# in GBytes
