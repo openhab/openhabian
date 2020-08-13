@@ -188,7 +188,6 @@ EOF
 #### Build script start ####
 ############################
 
-trap cleanup_build EXIT ERR
 timestamp=$(date +%Y%m%d%H%M)
 file_tag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
@@ -242,6 +241,8 @@ elif [ -n "$2" ]; then
   usage
   exit 1
 fi
+
+trap cleanup_build EXIT ERR
 
 # Switch to the script folder
 cd "$(dirname "$0")" || (echo "$(dirname "$0") cannot be accessed."; exit 1)
@@ -311,10 +312,10 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   if [[ $extrasize -gt 0 ]]; then
     echo_process "Growing root partition of the image by $extrasize MB... "
     # shellcheck disable=SC2012
-    SIZEBEFORE=$(ls -sh "$imagefile"|awk '{print $1}') 
+    SIZEBEFORE=$(ls -sh "$imagefile"|awk '{print $1}')
     grow_image "$imagefile" "$extrasize"
     # shellcheck disable=SC2012
-    SIZEAFTER=$(ls -sh "$imagefile"|awk '{print $1}') 
+    SIZEAFTER=$(ls -sh "$imagefile"|awk '{print $1}')
     echo_process "Growing image form $SIZEBEFORE to $SIZEAFTER completed."
   fi
 
