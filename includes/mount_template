@@ -1,5 +1,6 @@
 [Unit]
 Description=openhab2-%DEST mount
+Before=smbd.service
 After=zram-config.service
 
 [Mount]
