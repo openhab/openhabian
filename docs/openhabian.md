@@ -177,7 +177,7 @@ You might encounter problems when you make use of IPv6 on some networks and syst
 In that case *or if you are sure that you do not need IPv6 on your openHABian server*, you can disable IPv6.
 Follow the instructions in the previous section and insert a line into `openhabian.conf` reading `ipv6=disable`.
 
-### "Auto"-backup
+### Auto-backup
 You might want to setup openHABian to automatically backup and mirror your internal SD card to an external disk.
 The recommendation is to use another SD card in an external card writer device so that in case your internal SD card breaks or becomes corrupted, you can switch SD cards to get the system back up running fast.
 You need to deploy external storage / another SD card that has at least twice the size of your internal card.

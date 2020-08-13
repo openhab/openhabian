@@ -19,5 +19,5 @@ RemainAfterExit=yes
 
 [Install]
 #WantedBy=basic.target reboot.target shutdown.target poweroff.target halt.target openhab2.service
-WantedBy=basic.target openhab2.service
+WantedBy=openhab2.service
 
