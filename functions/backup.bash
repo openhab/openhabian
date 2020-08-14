@@ -150,6 +150,7 @@ amanda_setup() {
   local successtext="Setup was successful. Amanda backup tool is now taking backups at 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
 
 
+  # shellcheck disable=SC2154
   if [[ -z $INTERACTIVE ]] && [[ -z "$backupdrive" ]]; then return 0; fi
 
   if [[ -n $INTERACTIVE ]]; then
