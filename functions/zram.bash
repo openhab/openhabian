@@ -87,8 +87,7 @@ init_zram_mounts() {
     fi
 
     echo -n "$(timestamp) [openHABian] Setting up ZRAM service... "
-# done via openhabian-zram repo install
-#    if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (copy service)"; return 1; fi
+    if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (copy service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! cond_redirect systemctl enable --now zram-config.service; then echo "FAILED (enable service)"; return 1; fi
     if cond_redirect systemctl restart zram-config.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
