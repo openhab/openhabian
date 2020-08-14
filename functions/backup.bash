@@ -138,63 +138,66 @@ create_backup_config() {
 }
 
 amanda_setup() {
+  local matched
+  local canceled
+  local backupuser="backup"
+  local config=${storageconfig:-openhab-dir}
+  local tapes=${storagetapes:-15}
+  local size=${storagecapacity:-1024}
+  local dir=${storagedir:-1024}
   local querytext="So you are about to install the Amanda backup solution.\\nDocumentation is available at the previous openHABian menu point,\\nat /opt/openhabian/docs/openhabian-amanda.md or at https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md\\nHave you read this document ?"
   local introtext="This will setup a backup mechanism to allow for saving your openHAB setup and modifications to either USB attached or Amazon cloud storage.\\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an all-ready replacement in case of card failures."
   local successtext="Setup was successful. Amanda backup tool is now taking backups at 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
 
+
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Amanda backup installation" --yes-button "Yes" --no-button "No, I'll go read it" --defaultno --yesno "$querytext" 10 80); then return 0; fi
-  fi
 
-  if ! [[ -x $(command -v exim) ]]; then
-     if [[ -n $INTERACTIVE ]]; then
-        if (whiptail --title "No exim mail transfer agent" --yes-button "Install EXIM4" --no-button "MTA already exist, ignore installation" --defaultyes --yesno "Seems exim is not installed as a mail transfer agent.\\nAmanda needs one to be able to send emails.\\nOnly choose to ignore if you know there's a working mail transfer agent other than exim on your system.\\nDo you want to continue with EXIM4 installation ?" 15 80); then
-           exim_setup
-        fi
-     fi
-  fi
-  adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the email address to send backup reports to." 10 60 3>&1 1>&2 2>&3)
-  if [ -z "$adminmail" ]; then
-     adminmail="root@$(hostname)"
+    if ! [[ -x $(command -v exim) ]]; then
+      if (whiptail --title "No exim mail transfer agent" --yes-button "Install EXIM4" --no-button "MTA already exist, ignore installation" --defaultyes --yesno "Seems exim is not installed as a mail transfer agent.\\nAmanda needs one to be able to send emails.\\nOnly choose to ignore if you know there's a working mail transfer agent other than exim on your system.\\nDo you want to continue with EXIM4 installation ?" 15 80); then
+         exim_setup
+      fi
+    fi
+    adminmail=$(whiptail --title "Admin reports" --inputbox "Enter the email address to send backup reports to." 10 60 3>&1 1>&2 2>&3)
+    if [ -z "$adminmail" ]; then
+       adminmail="root@$(hostname)"
+    fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up the Amanda backup system ... "
-  local backupuser="backup"
   cond_redirect apt-get -q -y install amanda-common amanda-server amanda-client
 
-  local matched=false
-  local canceled=false
+  matched=false
+  canceled=false
   if [[ -n $INTERACTIVE ]]; then
-      while [ "$matched" = false ] && [ "$canceled" = false ]; do
-            password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for user ${backupuser}.\\nRemember to select a safe password as you (and others) can use this to login to your openHABian box." 15 80 3>&1 1>&2 2>&3)
-            secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password" 15 80 3>&1 1>&2 2>&3)
-            if [ "$password" = "$secondpassword" ] && [ -n "$password" ]; then
-                matched=true
-            else
-                password=$(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
-            fi
-      done
+    while [ "$matched" = false ] && [ "$canceled" = false ]; do
+      password=$(whiptail --title "Authentication Setup" --passwordbox "Enter a password for user ${backupuser}.\\nRemember to select a safe password as you (and others) can use this to login to your openHABian box." 15 80 3>&1 1>&2 2>&3)
+      secondpassword=$(whiptail --title "Authentication Setup" --passwordbox "Please confirm the password" 15 80 3>&1 1>&2 2>&3)
+      if [ "$password" = "$secondpassword" ] && [ -n "$password" ]; then
+        matched=true
+      else
+        password=$(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
+      fi
+    done
+    chpasswd <<< "${backupuser}:${password}"
+    chsh -s /bin/bash ${backupuser}
   fi
 
   if getent passwd openhabian; then
-  	usermod -a -G backup openhabian
+    usermod -a -G backup openhabian
   fi
-  chpasswd <<< "${backupuser}:${password}"
-  chsh -s /bin/bash ${backupuser}
 
   rm -f /etc/cron.d/amanda; /usr/bin/touch /etc/cron.d/amanda
 
   if [[ -n $INTERACTIVE ]]; then
     if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on locally attached or NAS mounted storage." 15 80); then
-        config=openhab-dir
-        dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 3>&1 1>&2 2>&3)
-        tapes=15
-        capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 3>&1 1>&2 2>&3)
-	((size=capacity/tapes))
+      dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 "$dir" 3>&1 1>&2 2>&3)
+      capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 "$capacity" 3>&1 1>&2 2>&3)
+      ((size=capacity/tapes))
 
-        create_backup_config "${config}" "${backupuser}" "${adminmail}" "${tapes}" "${size}" "${dir}"
     fi
   fi
+  create_backup_config "${config}" "${backupuser}" "${adminmail}" "${tapes}" "${size}" "${dir}"
 
   if [[ -n $INTERACTIVE ]]; then
     if (whiptail --title "Create Amazon S3 based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on Amazon Web Services. You can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. For hints see http://markelov.org/wiki/index.php?title=Backup_with_Amanda:_tape,_NAS,_Amazon_S3#Amazon_S3\\n\\nPlease setup your S3 bucket on Amazon Web Services NOW if you have not done so. Remember the name has to be unique in AWS namespace.\\nContinue with Amanda installation ?" 15 80); then
@@ -209,11 +212,11 @@ amanda_setup() {
 
       create_backup_config "${config}" "${backupuser}" "${adminmail}" "${tapes}" "${size}" AWS "${S3site}" "${S3bucket}" "${S3accesskey}" "${S3secretkey}"
     fi
-  fi
 
-  if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
   fi
+
+  echo "OK"
 }
 
 
@@ -350,7 +353,6 @@ EOF
 
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template >"${targetDir}"/sdrawcopy.service; then echo "FAILED (create sync service)"; fi
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template >"${targetDir}"/sdrsync.service; then echo "FAILED (create sync service)"; fi
-  if ! install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/zramsync /usr/local/bin/zramsync; then echo "FAILED (install zramsync)"; fi
 
   if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${targetDir}"/; then echo "OK"; else rm -f "${targetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
