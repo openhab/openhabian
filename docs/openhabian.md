@@ -181,7 +181,7 @@ Follow the instructions in the previous section and insert a line into `openhabi
 You might want to setup openHABian to automatically backup and mirror your internal SD card to an external disk.
 The recommendation is to use another SD card in an external card writer device so that in case your internal SD card breaks or becomes corrupted, you can switch SD cards to get the system back up running fast.
 You need to deploy external storage / another SD card that has at least twice the size of your internal card.
-Define backupdevice=`/dev/sdX` to enable this functionality right during unattended installation. Eventually define `storagedir=/storage` or any other name, too.
+Define backupdrive=`/dev/sdX` to enable this functionality right during unattended installation. Eventually define `storagedir=/storage` or any other name, too.
 The first attached disk type device is usually called `/dev/sda`.
 openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space to a storage partition.
 Use `storagecapacity=xxx` to override how much space to consume at most for backup storage (in MB).
