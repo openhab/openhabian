@@ -182,9 +182,10 @@ amanda_setup() {
         password=$(whiptail --title "Authentication Setup" --msgbox "Password mismatched or blank... Please try again!" 15 80 3>&1 1>&2 2>&3)
       fi
     done
-    chpasswd <<< "${backupuser}:${password}"
-    chsh -s /bin/bash ${backupuser}
   fi
+
+  chpasswd <<< "${backupuser}:${password:-backup}"
+  chsh -s /bin/bash ${backupuser}
 
   if getent passwd openhabian; then
     usermod -a -G backup openhabian
