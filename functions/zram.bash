@@ -69,7 +69,7 @@ init_zram_mounts() {
 
     echo -n "$(timestamp) [openHABian] Setting up ZRAM... "
     if ! cond_redirect install -m 755 "$zramInstallLocation"/openhabian-zram/zram-config /usr/local/sbin/; then echo "FAILED (zram-config)"; return 1; fi
-    if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zramsync /usr/local/sbin; then echo "FAILED (zramsync)"; return 1; fi
+    if ! cond_redirect install -m 755 "$zramInstallLocation"/openhabian-zram/zramsync /usr/local/sbin; then echo "FAILED (zramsync)"; return 1; fi
     if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/ztab /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     if ! mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
     if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/ro-root.sh /usr/local/share/zram-config/ro-root.sh; then echo "FAILED (ro-root)"; return 1; fi
