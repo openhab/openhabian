@@ -221,7 +221,7 @@ mqtt_setup() {
   local questiontext
   local successtext
 
-  introtext="The MQTT broker Eclipse Mosquitto will be installed through the official repository, as desribed in: https://mosquitto.org/2013/01/mosquitto-debian-repository\\n\\nAdditionally you can activate username:password authentication.\\n\\nHEADS UP: Only proceed when you are aware that this will be in conflict with use of the MQTTv2 binding which will also be using the same ports."
+  introtext="The MQTT broker Eclipse Mosquitto will be installed from the official repository.\\n\\nIn addition, you can activate username:password authentication."
   mqttuser="openhabian"
   questiontext="\\nDo you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\\n\\nUsername will be '$mqttuser', please provide a password (consisting of ASCII printable characters except space). Leave blank for no authentication, run setup again to change."
   successtext="Setup was successful.\\n\\nEclipse Mosquitto is now up and running in the background. You should be able to make a first connection.\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/mqtt/"
