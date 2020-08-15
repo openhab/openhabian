@@ -233,7 +233,6 @@ mirror_SD() {
   local src
   local dest
   local start
-  local mount
   local syncMount="/storage/syncmount"
 
 
