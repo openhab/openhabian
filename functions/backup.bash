@@ -234,35 +234,49 @@ mirror_SD() {
   local dest
   local start
   local mount
-  local blkTitle="Setup SD mirroring"
-  local blkQuestion="Select USB device to copy the internal SD card data to"
+  local rawTitle="Setup SD mirroring"
+  local rawQuestion="Select the USB attached disk device to copy the internal SD card data to"
+  local diffTitle="Setup SD mirroring"
+  local diffQuestion="Select the partition to copy the internal SD card data to"
+  local syncMount="/storage/syncmount"
 
 
   src=/dev/mmcblk0
   if [[ -n "$INTERACTIVE" ]]; then
-    select_blkdev "sd" "$blkTitle" "$blkQuestion"
+    select_blkdev "^sd" "$rawTitle" "$rawQuestion"
     # shellcheck disable=SC2154
     if [[ -z "$retval" ]]; then return 0; fi
     dest="/dev/$retval"
   else
     dest="${backupdrive:-/dev/sda}"
   fi
-  if [[ $1 == "raw" ]]; then
-    echo "Creating a raw partition copy, be prepared this will take long such as 20-30 minutes for a 16 GB SD card"
-
-    cond_redirect dd if="${src}" bs=1M of="${dest}"
+  if [[ "$1" == "raw" ]]; then
+    echo "Creating a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
+    if ! cond_redirect dd if="${src}" bs=1M of="${dest}"; then echo "FAILED (raw device copy)"; return 1; fi
+    echo "OK"
+    return 0;
   fi
 
   # TODO: validate rsync
   if [[ "$1" == "diff" ]]; then
-    mount="${storagedir:-/storage}"
-    mount "$dest" "$mount"
-    rsync -avRh "/" "$mount"
-    if ! umount "$mount" &> /dev/null; then
-      sleep 1
-      umount -l "$mount" &> /dev/null
+    if [[ ! -d $syncMount ]]; then
+      mkdir -p "$syncMount"
     fi
-    rmdir "$mount"
+    if [[ -n "$INTERACTIVE" ]]; then
+      select_blkdev "^-sd" "select partition" "$diffQuestion"
+      dest="/dev/$retval"
+    else
+      dest=${dest}2
+    fi
+    # Auswahl des src dir nötig ?? nein immer "/"
+    # Auswahl des dest dir nötig ?? nein immer syncmount und dest wird oben ausgewählt
+    #if [[ -n "$INTERACTIVE" ]]; then
+    mount "$dest" "${syncMount:-/storage/syncmount}"
+    rsync -navRh "/" "$syncMount"
+    if ! umount "$syncMount" &> /dev/null; then
+      sleep 1
+      umount -l "$syncMount" &> /dev/null
+    fi
   fi
 }
 
@@ -303,7 +317,7 @@ setup_mirror_SD() {
   if [[ -n "$UNATTENDED" ]] && [[ -z "$backupdrive" ]]; then return 0; fi
 
   if [[ -n "$INTERACTIVE" ]]; then
-    select_blkdev "sd" "$blkTitle" "$blkQuestion"
+    select_blkdev "^sd" "$blkTitle" "$blkQuestion"
     if [[ -z "$retval" ]]; then return 0; fi
     dest="/dev/$retval"
   else
@@ -314,7 +328,7 @@ setup_mirror_SD() {
   size=$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f3)	# in GBytes
   infoText="$infoText1 $dest $infoText2"
   srcSize=$(blockdev --getsize64 /dev/mmcblk0)
-  minSize="$((20 * srcSize / 11))"	# to accomodate for slight differences in SD sizes
+  minSize="$((19 * srcSize / 10))"	# to accomodate for slight differences in SD sizes
   destSize=$(blockdev --getsize64 "$dest")
   if [[ "$destSize" -lt "$minSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then

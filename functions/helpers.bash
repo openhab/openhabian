@@ -422,7 +422,7 @@ select_blkdev() {
     declare -a array=()
     while read -r id foo{,} size foo{,,}; do
       array+=("$id"     "$size" )
-    done < <(lsblk | grep -E "^${1}")
+    done < <(lsblk -i | tr -d '`\\|' | grep -E "${1}" | tr -d '\\-')
 
     # shellcheck disable=SC2034
     retval=$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "$3" 12 76 4 "${array[@]}" 3>&1 1>&2 2>&3)
