@@ -234,16 +234,12 @@ mirror_SD() {
   local dest
   local start
   local mount
-  local rawTitle="Setup SD mirroring"
-  local rawQuestion="Select the USB attached disk device to copy the internal SD card data to"
-  local diffTitle="Setup SD mirroring"
-  local diffQuestion="Select the partition to copy the internal SD card data to"
   local syncMount="/storage/syncmount"
 
 
   src=/dev/mmcblk0
   if [[ -n "$INTERACTIVE" ]]; then
-    select_blkdev "^sd" "$rawTitle" "$rawQuestion"
+    select_blkdev "^sd" "Setup SD mirroring" "Select the USB attached disk device to copy the internal SD card data to"
     # shellcheck disable=SC2154
     if [[ -z "$retval" ]]; then return 0; fi
     dest="/dev/$retval"
@@ -257,13 +253,12 @@ mirror_SD() {
     return 0;
   fi
 
-  # TODO: validate rsync
   if [[ "$1" == "diff" ]]; then
     if [[ ! -d $syncMount ]]; then
       mkdir -p "$syncMount"
     fi
     if [[ -n "$INTERACTIVE" ]]; then
-      select_blkdev "^-sd" "select partition" "$diffQuestion"
+      select_blkdev "^-sd" "select partition" "Select the partition to copy the internal SD card data to"
       dest="/dev/$retval"
     else
       dest=${dest}2
@@ -272,7 +267,7 @@ mirror_SD() {
     # Auswahl des dest dir nötig ?? nein immer syncmount und dest wird oben ausgewählt
     #if [[ -n "$INTERACTIVE" ]]; then
     mount "$dest" "${syncMount:-/storage/syncmount}"
-    rsync -navRh "/" "$syncMount"
+    rsync --one-file-system -avRh "/" "$syncMount"
     if ! umount "$syncMount" &> /dev/null; then
       sleep 1
       umount -l "$syncMount" &> /dev/null
