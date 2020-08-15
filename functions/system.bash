@@ -236,9 +236,7 @@ create_mount() {
 
   echo -n "$(timestamp) [openHABian] Creating mount $source in '/srv/openhab2-${destination}'... "
   if ! sed -e 's|%SRC|'"${source}"'|g; s|%DEST|'"${destination}"'|g' "${BASEDIR:-/opt/openhabian}"/includes/mount_template > /etc/systemd/system/"$mountPoint"; then echo "FAILED (sed)"; return 1; fi
-  cond_redirect systemctl -q daemon-reload &> /dev/null
-  if ! cond_redirect systemctl enable "$mountPoint"; then echo "FAILED (enable service)"; return 1; fi
-  if cond_redirect systemctl restart "$mountPoint"; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  if ! cond_redirect systemctl enable --now "$mountPoint"; then echo "FAILED (enable service)"; return 1; fi
 }
 
 ## Function for adding openHAB folder mountpoints to the /srv/ folder.
@@ -265,6 +263,8 @@ srv_bind_mounts() {
   if ! cond_redirect create_mount "/var/lib/openhab2" "userdata"; then echo "FAILED (userdata)"; return 1; fi
   if ! cond_redirect create_mount "/var/log/openhab2" "logs"; then echo "FAILED (logs)"; return 1; fi
   if cond_redirect create_mount "/usr/share/openhab2/addons" "addons"; then echo "OK"; else echo "FAILED (addons)"; return 1; fi
+
+  cond_redirect systemctl -q daemon-reload &> /dev/null
 
   if [[ -f /etc/ztab ]]; then systemctl restart zram-config; fi
   if [[ -f /etc/samba/smb.conf ]]; then systemctl restart smbd; fi
