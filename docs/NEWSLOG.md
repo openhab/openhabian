@@ -1,5 +1,12 @@
+## August 15, 2020
+## Auto-backup (ALPHA)
+Have openHABian automatically take daily syncs of your internal SD card to
+another card in an external card reader. In case your card breaks down, you
+can switch cards to get back online fast.
+Will also use this card for Amanda backup storage. 
+
 ## July 4, 2020
-### Wireguard VPN (ALPHA)
+### Wireguard VPN (BETA)
 Wireguard can be deployed to enable for VPN access to your openHABian box when
 it's located in some remote location.
 You need to install the Wireguard client from <http://www.wireguard.com/install>
