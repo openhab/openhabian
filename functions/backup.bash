@@ -286,8 +286,6 @@ setup_mirror_SD() {
   local minSize
   local targetDir="/etc/systemd/system/"
   local storageDir=${storagedir:-/storage}
-  local blkTitle="Setup SD mirroring"
-  local blkQuestion="Select USB device to copy the internal SD card data to"
   local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
   local infoText1="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will *copy* your system root from your SD card to a USB attached card writer device. Are you sure"
   local infoText2="is an SD card writer device equipped with a dispensible SD card ? Are you this will destroy all data on that card and you want to proceed writing to this device ?"
@@ -311,7 +309,7 @@ setup_mirror_SD() {
   if [[ -n "$UNATTENDED" ]] && [[ -z "$backupdrive" ]]; then return 0; fi
 
   if [[ -n "$INTERACTIVE" ]]; then
-    select_blkdev "^sd" "$blkTitle" "$blkQuestion"
+    select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
     if [[ -z "$retval" ]]; then return 0; fi
     dest="/dev/$retval"
   else
