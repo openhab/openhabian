@@ -236,7 +236,7 @@ mirror_SD() {
   local syncMount="/storage/syncmount"
 
 
-  src=/dev/mmcblk0
+  src="/dev/mmcblk0"
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select the USB attached disk device to copy the internal SD card data to"
     # shellcheck disable=SC2154
@@ -260,11 +260,9 @@ mirror_SD() {
       select_blkdev "^-sd" "select partition" "Select the partition to copy the internal SD card data to"
       dest="/dev/$retval"
     else
-      dest=${dest}2
+      dest="${dest}2"
     fi
-    # Auswahl des src dir nötig ?? nein immer "/"
-    # Auswahl des dest dir nötig ?? nein immer syncmount und dest wird oben ausgewählt
-    #if [[ -n "$INTERACTIVE" ]]; then
+    
     mount "$dest" "${syncMount:-/storage/syncmount}"
     rsync --one-file-system -avRh "/" "$syncMount"
     if ! umount "$syncMount" &> /dev/null; then
@@ -285,12 +283,13 @@ setup_mirror_SD() {
   local destSize
   local minSize
   local targetDir="/etc/systemd/system/"
-  local storageDir=${storagedir:-/storage}
+  local storageDir="${storagedir:-/storage}"
   local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
   local infoText1="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will *copy* your system root from your SD card to a USB attached card writer device. Are you sure"
   local infoText2="is an SD card writer device equipped with a dispensible SD card ? Are you this will destroy all data on that card and you want to proceed writing to this device ?"
 
 
+  echo -n "$(timestamp) [openHABian] Setting up automated SD mirroring and backup ... "
   if [[ "$1" == "remove" ]]; then
     rm -f ${targetDir}/sdr*.{service,timer}
     cond_redirect systemctl -q daemon-reload &> /dev/null
@@ -314,14 +313,14 @@ setup_mirror_SD() {
     dest="/dev/$retval"
   else
     # shellcheck disable=SC2154
-    dest=${backupdrive:-/dev/sda}
+    dest="${backupdrive:-/dev/sda}"
   fi
 
   size=$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f3)	# in GBytes
   infoText="$infoText1 $dest $infoText2"
-  srcSize=$(blockdev --getsize64 /dev/mmcblk0)
+  srcSize="$(blockdev --getsize64 /dev/mmcblk0)"
   minSize="$((19 * srcSize / 10))"	# to accomodate for slight differences in SD sizes
-  destSize=$(blockdev --getsize64 "$dest")
+  destSize="$(blockdev --getsize64 $dest)"
   if [[ "$destSize" -lt "$minSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "insufficient space" --msgbox "$sizeError" 9 80
@@ -366,5 +365,8 @@ EOF
 
   if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${targetDir}"/; then echo "OK"; else rm -f "${targetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
+
+  echo "OK"
 }
+
 

@@ -419,11 +419,15 @@ wait_for_apt_to_finish_update() {
 ##    select_blkdev(String, String, String)
 ##
 select_blkdev() {
-    declare -a array=()
-    while read -r id foo{,} size foo{,,}; do
-      array+=("$id"     "$size" )
-    done < <(lsblk -i | tr -d '`\\|' | grep -E "${1}" | tr -d '\\-')
+  if [[ -z "$INTERACTIVE" ]]; then
+    return 0;
+  fi
+  declare -a array=()
+  while read -r id foo{,} size foo{,,}; do
+    array+=("$id"     "$size" )
+  done < <(lsblk -i | tr -d '`\\|' | grep -E "${1}" | tr -d '\\-')
 
-    # shellcheck disable=SC2034
-    retval=$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "$3" 12 76 4 "${array[@]}" 3>&1 1>&2 2>&3)
+  # shellcheck disable=SC2034
+  retval=$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "$3" 12 76 4 "${array[@]}" 3>&1 1>&2 2>&3)
 }
+

@@ -5,10 +5,10 @@ lookup.
 
 ## August 15, 2020
 ## Auto-backup (ALPHA)
-Have openHABian automatically take daily syncs of your internal SD card to
-another card in an external card reader. In case your card breaks down, you
-can switch cards to get back online fast.
-Will also use this card for Amanda backup storage.
+openHABian can automatically take daily syncs of your internal SD card to
+another card in an external port. This allows for fast swapping of cards
+to reduce impact of a failed SD card.
+The external device will also be used to setup an Amanda backup system.
 
 
 ## July 4, 2020
