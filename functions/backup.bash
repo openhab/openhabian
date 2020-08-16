@@ -310,7 +310,7 @@ setup_mirror_SD() {
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
     if [[ -z "$retval" ]]; then return 0; fi
-    dest="/dev/$retval"
+    dest="/dev/${retval}"
   else
     # shellcheck disable=SC2154
     dest="${backupdrive:-/dev/sda}"
@@ -320,7 +320,7 @@ setup_mirror_SD() {
   infoText="$infoText1 $dest $infoText2"
   srcSize="$(blockdev --getsize64 /dev/mmcblk0)"
   minSize="$((19 * srcSize / 10))"	# to accomodate for slight differences in SD sizes
-  destSize="$(blockdev --getsize64 $dest)"
+  destSize="$(blockdev --getsize64 "$dest")"
   if [[ "$destSize" -lt "$minSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "insufficient space" --msgbox "$sizeError" 9 80
@@ -328,9 +328,11 @@ setup_mirror_SD() {
     echo "FAILED"; return 1;
   fi
 
-  # copy partition table and create storage partition for the rest
+  # copy partition table
   sfdisk -d /dev/mmcblk0 | sfdisk "$dest"
   start=$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)
+  # pipe input to fdisk as if used "interactively"
+  # create Linux partition for /storage on the remaining space
   fdisk "$dest" &> /dev/null <<EOF
 n
 p
