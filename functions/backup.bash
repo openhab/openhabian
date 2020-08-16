@@ -149,7 +149,7 @@ amanda_setup() {
   local introtext="This will setup a backup mechanism to allow for saving your openHAB setup and modifications to either USB attached or Amazon cloud storage.\\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an all-ready replacement in case of card failures."
   local successtext="Setup was successful. Amanda backup tool is now taking backups at 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
 
-
+ 
   # shellcheck disable=SC2154
   if [[ -z $INTERACTIVE ]] && [[ -z "$backupdrive" ]]; then return 0; fi
 
@@ -196,10 +196,10 @@ amanda_setup() {
     if (whiptail --title "Create file storage area based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on locally attached or NAS mounted storage." 15 80); then
       dir=$(whiptail --title "Storage directory" --inputbox "What's the directory to store backups into?\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick or HDD, or a NFS or CIFS share mounted off a NAS or other server in the network." 10 60 "$dir" 3>&1 1>&2 2>&3)
       capacity=$(whiptail --title "Storage capacity" --inputbox "How much storage do you want to dedicate to your backup in megabytes ? Recommendation: 2-3 times the amount of data to be backed up." 10 60 "$capacity" 3>&1 1>&2 2>&3)
-      ((size=capacity/tapes))
 
     fi
   fi
+  ((size=capacity/tapes))
   create_backup_config "${config}" "${backupuser}" "${adminmail}" "${tapes}" "${size}" "${dir}"
 
   if [[ -n $INTERACTIVE ]]; then
@@ -265,7 +265,7 @@ mirror_SD() {
     
     mount "$dest" "${syncMount:-/storage/syncmount}"
     rsync --one-file-system -avRh "/" "$syncMount"
-    if ! umount "$syncMount" &> /dev/null; then
+    if ! (umount "$syncMount" &> /dev/null); then
       sleep 1
       umount -l "$syncMount" &> /dev/null
     fi
@@ -351,12 +351,6 @@ EOF
   if ! sed -e "s|%DEVICE|${backupdrive:-/dev/sda}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create storage mount)"; fi
   if ! cond_redirect systemctl enable --now storage.mount; then echo "FAILED (enable storage mount)"; return 1; fi
 
-  size=$(fdisk -l "${dest}3" | head -1 | cut -d' ' -f3)
-  capacity=${storagecapacity:-1024} # in MB
-  tapes=15
-  ((size=capacity/tapes))
-  
-  create_backup_config "openhab-dir" "backup" "" "${tapes}" "${size}" "${storageDir}"
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Copy system root to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
   fi
