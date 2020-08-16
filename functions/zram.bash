@@ -37,10 +37,14 @@ install_zram_code() {
 init_zram_mounts() {
   if ! is_arm; then return 0; fi
 
+  local disklistFileAWS
+  local disklistFileDir
   local introText
   local lowMemText
   local zramInstallLocation
 
+  disklistFileAWS="/etc/amanda/openhab-aws/disklist"
+  disklistFileDir="/etc/amanda/openhab-dir/disklist"
   introText="You are about to activate the ZRAM feature.\\nBe aware you do this at your own risk of data loss.\\nPlease check out the \"ZRAM status\" thread at https://community.openhab.org/t/zram-status/80996 before proceeding."
   lowMemText="Your system has less than 1 GB of RAM. It is definitely NOT recommended to run ZRAM (AND openHAB) on your box. If you proceed now you will do so at your own risk!"
   zramInstallLocation="/opt/zram"
@@ -68,8 +72,8 @@ init_zram_mounts() {
     if cond_redirect install -m 755 "$zramInstallLocation"/overlayfs-tools/overlay /usr/local/lib/zram-config/overlay; then echo "OK"; else echo "FAILED (install overlayfs)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Setting up ZRAM... "
-    if ! cond_redirect install -m 755 "$zramInstallLocation"/openhabian-zram/zram-config /usr/local/bin/; then echo "FAILED (zram-config)"; return 1; fi
-    if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zramsync /usr/local/sbin; then echo "FAILED (zramsync)"; return 1; fi
+    if ! cond_redirect install -m 755 "$zramInstallLocation"/openhabian-zram/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
+    if ! cond_redirect install -m 755 "$zramInstallLocation"/openhabian-zram/zramsync /usr/local/sbin; then echo "FAILED (zramsync)"; return 1; fi
     if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/ztab /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     if ! mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
     if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/ro-root.sh /usr/local/share/zram-config/ro-root.sh; then echo "FAILED (ro-root)"; return 1; fi
@@ -77,10 +81,11 @@ init_zram_mounts() {
 
     if [[ -f /etc/systemd/system/find3server.service ]]; then
       echo -n "$(timestamp) [openHABian] Adding FIND3 to ZRAM... "
-      if ! cond_redirect sed -i '/^.*persistence.bind$/a dir	lz4	100M		350M		/opt/find3/server/main		/find3.bind' /etc/ztab; then echo "FAILED (sed)"; return 1; fi
+      if cond_redirect sed -i '/^.*persistence.bind$/a dir	lz4	100M		350M		/opt/find3/server/main		/find3.bind' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
     fi
     if ! dpkg -s 'openhab2' &> /dev/null; then
-      sed -i 's|dir	lz4	150M		500M		/var/lib/openhab2/persistence	/persistence.bind||g' /etc/ztab
+      echo -n "$(timestamp) [openHABian] Removing openHAB persistence from ZRAM... "
+      if cond_redirect sed -i '/persistence.bind/d' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
     fi
 
     echo -n "$(timestamp) [openHABian] Setting up ZRAM service... "
@@ -95,7 +100,7 @@ init_zram_mounts() {
     if cond_redirect rm -f /etc/systemd/system/zram-config.service; then echo "OK"; else echo "FAILED (remove service)"; fi
 
     echo -n "$(timestamp) [openHABian] Removing ZRAM... "
-    if ! cond_redirect rm -f /usr/local/bin/zram-config; then echo "FAILED (zram-config)"; return 1; fi
+    if ! cond_redirect rm -f /usr/local/sbin/zram-config; then echo "FAILED (zram-config)"; return 1; fi
     if ! cond_redirect rm -f /usr/local/sbin/zramsync; then echo "FAILED (zramsync)"; return 1; fi
     if ! cond_redirect rm -f /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/share/zram-config; then echo "FAILED (zram-config share)"; return 1; fi
