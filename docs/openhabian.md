@@ -178,15 +178,18 @@ In that case *or if you are sure that you do not need IPv6 on your openHABian se
 Follow the instructions in the previous section and insert a line into `openhabian.conf` reading `ipv6=disable`.
 
 ### Auto-backup
-You might want to setup openHABian to automatically backup and mirror your internal SD card to an external disk.
-The recommendation is to use another SD card in an external card writer device so that in case your internal SD card breaks or becomes corrupted, you can switch SD cards to get the system back up running fast.
-You need to deploy external storage / another SD card that has at least twice the size of your internal card.
-Define backupdrive=`/dev/sdX` to enable this functionality right during unattended installation. Eventually define `storagedir=/storage` or any other name, too.
+You might want to setup openHABian to automatically backup and mirror your internal SD card to an external unit.
+We suggest to use another SD card in an external card writer device so that in case your internal SD card fails, you can switch SD cards to get the system back up running fast.
+The second card needs at least twice the size of your internal card.
+Define backupdrive=`/dev/sdX` to enable this functionality right during unattended installation.
+Eventually define `storagedir=/storage` or any other name, too.
 The first attached disk type device is usually called `/dev/sda`.
 openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space to a storage partition.
 Use `storagecapacity=xxx` to override how much space to consume at most for backup storage (in MB).
 The install routine will also setup Amanda to take daily backups and store them to that third partition.
-In case your card gets broken and you need to switch to run on backup, get a another new SD card to match the size of the broken card (note most are not "exactly" 16 or 32 GB so your new one mustn't have less bytes than the old one. Use menu option 54 to copy your active backup card back to the new one and switch back soon. Remember you have no backup left unless you do.
+When you need to switch to run on backup, get a another new SD card to match the size of the broken card.
+Note most are not "exactly" 16 or 32 GB so your new one mustn't have less bytes than the old one.
+Use menu option 54 to copy your active backup card back to the new one and switch back as soon as possible.
 
 ## openHABian Configuration Tool
 The following instructions target a Raspberry Pi openHABian setup but should be applicable to all openHABian environments.
