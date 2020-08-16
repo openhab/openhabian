@@ -37,8 +37,6 @@ install_zram_code() {
 init_zram_mounts() {
   if ! is_arm; then return 0; fi
 
-  local disklistFileAWS
-  local disklistFileDir
   local introText
   local lowMemText
   local zramInstallLocation
