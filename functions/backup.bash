@@ -245,21 +245,24 @@ mirror_SD() {
   else
     dest="${backupdrive}"
   fi
-  if [[ ${src} == ${dest} ]]; then
+  if [[ "${src}" == "${dest}" ]]; then
     echo "FAILED (source = destination)"
     return 1
   fi
-  if [[ ! $(blockdev --getsize64 ${dest}) ]]; then
+  if [[ ! $(blockdev --getsize64 "${dest}") ]]; then
     echo "FAILED (bad destination)"
     return 1
   fi
-  if [[ $(mount | grep ${dest} &>/dev/null) ]]; then
+  # shellcheck disable=SC2143
+  if [[ $(mount | grep "${dest}" &>/dev/null) ]]; then
     echo "FAILED (destination mounted)"
     return 1
   fi
   if [[ "$1" == "raw" ]]; then
     echo "Creating a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
     if ! cond_redirect dd if="${src}" bs=1M of="${dest}"; then echo "FAILED (raw device copy)"; return 1; fi
+    if ! cond_redirect fsck -y -t vfat "${dest}1"; then echo "FAILED (fsck /boot)"; return 1; fi
+    if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "FAILED (fsck root)"; return 1; fi
     echo "OK"
     return 0;
   fi
@@ -327,7 +330,7 @@ setup_mirror_SD() {
     # shellcheck disable=SC2154
     dest="${backupdrive}"
   fi
-  if [[ ! $(blockdev --getsize64 ${dest}) ]]; then
+  if [[ ! $(blockdev --getsize64 "${dest}") ]]; then
     echo "FAILED (bad destination)"
     return 1
   fi
