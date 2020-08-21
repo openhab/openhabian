@@ -243,7 +243,19 @@ mirror_SD() {
     if [[ -z "$retval" ]]; then return 0; fi
     dest="/dev/$retval"
   else
-    dest="${backupdrive:-/dev/sda}"
+    dest="${backupdrive}"
+  fi
+  if [[ ${src} == ${dest} ]]; then
+    echo "FAILED (source = destination)"
+    return 1
+  fi
+  if [[ ! $(blockdev --getsize64 ${dest}) ]]; then
+    echo "FAILED (bad destination)"
+    return 1
+  fi
+  if [[ $(mount | grep ${dest} &>/dev/null) ]]; then
+    echo "FAILED (destination mounted)"
+    return 1
   fi
   if [[ "$1" == "raw" ]]; then
     echo "Creating a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
@@ -313,7 +325,11 @@ setup_mirror_SD() {
     dest="/dev/${retval}"
   else
     # shellcheck disable=SC2154
-    dest="${backupdrive:-/dev/sda}"
+    dest="${backupdrive}"
+  fi
+  if [[ ! $(blockdev --getsize64 ${dest}) ]]; then
+    echo "FAILED (bad destination)"
+    return 1
   fi
 
   size=$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f3)	# in GBytes
@@ -348,7 +364,7 @@ EOF
   partprobe
   cond_redirect mke2fs -F -t ext4 "${dest}3"
   mkdir -p "${storageDir}"
-  if ! sed -e "s|%DEVICE|${backupdrive:-/dev/sda}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create storage mount)"; fi
+  if ! sed -e "s|%DEVICE|${backupdrive}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create storage mount)"; fi
   if ! cond_redirect systemctl enable --now storage.mount; then echo "FAILED (enable storage mount)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
