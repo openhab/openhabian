@@ -637,7 +637,7 @@ nginx_setup() {
       echo -n "$(timestamp) [openHABian] Installing certbot... "
       if is_ubuntu; then
         if ! dpkg -s 'software-properties-common' &> /dev/null; then
-          if ! cond_redirect apt-get install --yes software-properties-common; then echo "FAILED (Ubuntu prerequsites)"; return 1; fi
+          if ! cond_redirect apt-get install --yes software-properties-common; then echo "FAILED (Ubuntu prerequisites)"; return 1; fi
         fi
         if ! cond_redirect add-apt-repository universe; then echo "FAILED (add universe repo)"; return 1; fi
         if ! add-apt-repository ppa:certbot/certbot; then echo "FAILED (add certbot repo)"; return 1; fi
