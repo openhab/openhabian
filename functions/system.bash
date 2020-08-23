@@ -275,10 +275,9 @@ srv_bind_mounts() {
 ##    permissions_corrections()
 ##
 permissions_corrections() {
-  local openhabFolders
+  local openhabFolders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2)
   local openhabHome=/var/lib/openhab2
-
-  openhabFolders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2)
+  local gpioDir=/sys/devices/platform/soc
 
   echo -n "$(timestamp) [openHABian] Applying file permissions recommendations... "
   if ! id -u openhab &> /dev/null; then
@@ -320,6 +319,16 @@ permissions_corrections() {
     chown homegear:homegear /etc/homegear/rpcclients.conf
     chmod 400 /etc/homegear/rpcclients.conf
     chown homegear:homegear -R /var/log/homegear
+
+    # homeMatic/homegear controller HM-MOD-RPI-PCB uses GPIO 18 to reset HW
+    if [[ ! -d "${gpioDir}/gpio18" ]]; then
+      echo "18" > /sys/class/gpio/export
+      echo "out" > /sys/class/gpio/gpio/direction
+      echo "0" > /sys/class/gpio/gpio/value
+    fi
+    if [[ ! -d "${gpioDir}/gpio18" ]]; then echo "FAILED (set GPIO 18 access)"; return 1; fi
+    chgrp gpio ${gpioDir}/gpio18/*
+    chmod g+rw ${gpioDir}/gpio18/*
   fi
 }
 
