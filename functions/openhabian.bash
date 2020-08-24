@@ -134,24 +134,24 @@ openhabian_update() {
 
   if [[ -n $INTERACTIVE ]]; then
     if [[ $current == "stable" || $current == "master" ]]; then
-      if ! selection=$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 2 stable "recommended standard version of openHABian" on master "very latest version of openHABian" off 3>&1 1>&2 2>&3); then return 0; fi
+      if ! selection=$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 2 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF 3>&1 1>&2 2>&3); then return 0; fi
     else
-      if ! selection=$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" off master "very latest version of openHABian" off "$current" "some other version you fetched yourself" on 3>&1 1>&2 2>&3); then return 0; fi
+      if ! selection=$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3); then return 0; fi
     fi
-    if ! sed -i 's|^clonebranch=.*$|clonebranch='"${selection}"'|g' "$CONFIGFILE"; then echo "FAILED (configure clonebranch)"; exit 1; fi
     read -r -t 1 -n 1 key
     if [[ -n $key ]]; then
       echo -e "\\nRemote git branches available:"
       git -C "${BASEDIR:-/opt/openhabian}" branch -r
       read -r -e -p "Please enter the branch to checkout: " branch
       branch="${branch#origin/}"
-      if ! git -C "${BASEDIR:-/opt/openhabian}" branch -r | grep -q "origin/$branch"; then
+      if ! git -C "${BASEDIR:-/opt/openhabian}" branch -r | grep -qs "origin/$branch"; then
         echo "FAILED (custom branch does not exist)"
         return 1
       fi
     else
       branch="${selection:-stable}"
     fi
+    if ! sed -i 's|^clonebranch=.*$|clonebranch='"${branch}"'|g' "$CONFIGFILE"; then echo "FAILED (configure clonebranch)"; exit 1; fi
   else
     branch="${clonebranch:-stable}"
   fi
