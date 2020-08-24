@@ -276,6 +276,7 @@ srv_bind_mounts() {
 ##
 permissions_corrections() {
   local openhabFolders
+  local openhabHome=/var/lib/openhab2
 
   openhabFolders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2)
 
@@ -298,6 +299,10 @@ permissions_corrections() {
   if ! cond_redirect chmod ugo+w /srv /srv/README.txt; then echo "FAILED (server mounts)"; return 1; fi
   if ! cond_redirect chown -R openhab:openhab "${openhabFolders[@]}"; then echo "FAILED (openhab folders)"; return 1; fi
   if ! cond_redirect chmod -R ug+wX /opt "${openhabFolders[@]}"; then echo "FAILED (folders)"; return 1; fi
+  if [[ -d "$openhabHome"/.ssh ]]; then
+    if ! cond_redirect chmod -R go-rwx "$openhabHome"/.ssh; then echo "FAILED (set .ssh access)"; return 1; fi
+  fi
+
   if ! cond_redirect chown -R "${username:-openhabian}:${username:-openhabian}" "/home/${username:-openhabian}"; then echo "FAILED (${username:-openhabian} own $HOME)"; return 1; fi
 
   if ! cond_redirect setfacl -R --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access)"; return 1; fi
