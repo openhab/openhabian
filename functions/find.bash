@@ -93,6 +93,8 @@ find3_setup() {
 
   if [[ -f /etc/ztab ]] && ! grep -qs "/find3.bind" /etc/ztab; then
     echo -n "$(timestamp) [openHABian] Adding FIND3 to ZRAM... "
+    if ! cond_redirect sed -i -e '/^RequiresMountsFor=/ s/$/ /opt/zram/zram3/upper/' /etc/systemd/system/zramsync.service; then echo "FAILED (zramsync service)"; return 1; fi
+    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! cond_redirect mv /etc/ztab "${TMPDIR:-/tmp}"; then echo "FAILED (move old configuration)"; return 1; fi
     if ! (echo "dir	lz4	100M		350M		/opt/find3/server/main		/find3.bind" > /etc/ztab); then echo "FAILED (temporary configuration creation)"; return 1; fi
     if ! cond_redirect zram-config "start"; then echo "FAILED (start temporary configuration)"; return 1; fi

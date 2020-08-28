@@ -86,18 +86,20 @@ init_zram_mounts() {
 
     echo -n "$(timestamp) [openHABian] Setting up ZRAM service... "
     if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (copy service)"; return 1; fi
+    if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zramsync.service /etc/systemd/system/zramsync.service; then echo "FAILED (copy service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-    if cond_redirect systemctl enable --now zram-config.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
+    if cond_redirect systemctl enable --now zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
   elif [[ $1 == "uninstall" ]]; then
     echo -n "$(timestamp) [openHABian] Removing ZRAM service... "
-    if ! cond_redirect systemctl disable --now zram-config.service; then echo "FAILED (disable service)"; return 1; fi
-    if cond_redirect rm -f /etc/systemd/system/zram-config.service; then echo "OK"; else echo "FAILED (remove service)"; fi
-    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi    
+    if ! cond_redirect systemctl disable --now zram-config.service zramsync.service; then echo "FAILED (disable service)"; return 1; fi
+    if ! cond_redirect rm -f /etc/systemd/system/zram-config.service /etc/systemd/system/zramsync.service; then echo "FAILED (remove service)"; return 1; fi
+    if cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "OK"; else echo "FAILED (daemon-reload)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Removing ZRAM... "
     if ! cond_redirect rm -f /usr/local/sbin/zram-config; then echo "FAILED (zram-config)"; return 1; fi
     if ! cond_redirect rm -f /usr/local/sbin/zramsync; then echo "FAILED (zramsync)"; return 1; fi
     if ! cond_redirect rm -f /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
+    if ! cond_redirect rm -rf /storage/zram; then echo "FAILED (zramsync temp)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/share/zram-config; then echo "FAILED (zram-config share)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
     if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi

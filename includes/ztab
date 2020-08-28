@@ -17,10 +17,8 @@
 # swap	alg	mem_limit	disk_size	swap_priority	page-cluster	swappiness
 swap	lz4	200M		600M		75		0		90
 
-# dir	alg	mem_limit	disk_size	target_dir			bind_dir
-dir	lz4	150M		500M		/var/lib/openhab2/persistence	/persistence.bind
-# do not enable as long as you make substantial config changes
-#dir	lz4	30M		100M		/var/lib/openhab2/jsondb	/jsondb.bind
-
 # log	alg	mem_limit	disk_size	target_dir			bind_dir		oldlog_dir
 log	lzo	150M		500M		/var/log			/log.bind
+
+# dir	alg	mem_limit	disk_size	target_dir			bind_dir
+dir	lz4	150M		500M		/var/lib/openhab2/persistence	/persistence.bind
