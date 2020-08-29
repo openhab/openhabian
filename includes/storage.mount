@@ -3,7 +3,7 @@ Description=/storage mount
 Before=zram-config.service
 
 [Mount]
-What=/dev/sda3
+What=%DEVICE
 Where=/storage
 Type=ext4
 
