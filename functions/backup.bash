@@ -381,7 +381,7 @@ EOF
 
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template >"${targetDir}"/sdrawcopy.service; then echo "FAILED (create sync service)"; fi
   if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/{sdrsync.service,sd*.timer} "${targetDir}"/; then echo "OK"; else rm -f "${targetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
-  if ! cond_redirect install -m 755 ${BASEDIR:-/opt/openhabian}"/includes/mirror_SD /usr/local/sbin; then echo "FAILED (install mirror_SD)"; return 1; fi
+  if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/mirror_SD /usr/local/sbin; then echo "FAILED (install mirror_SD)"; return 1; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
   if ! cond_redirect systemctl enable --now sdrawcopy.timer sdrsync.timer; then echo "FAILED (enable timed SD sync start)"; return 1; fi
 
