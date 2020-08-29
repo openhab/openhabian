@@ -278,7 +278,7 @@ mirror_SD() {
       dest="${dest}2"
     fi
     
-    mount "$dest" "${syncMount:-/storage/syncmount}"
+    mount "$dest" "$syncMount"
     rsync --one-file-system -avRh "/" "$syncMount"
     if ! (umount "$syncMount" &> /dev/null); then
       sleep 1
@@ -334,6 +334,11 @@ setup_mirror_SD() {
     echo "FAILED (bad destination)"
     return 1
   fi
+  # shellcheck disable=SC2143
+  if [[ $(mount | grep "${dest}" &>/dev/null) ]]; then
+    echo "FAILED (destination mounted)"
+    return 1
+  fi
 
   size=$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f3)	# in GBytes
   infoText="$infoText1 $dest $infoText2"
@@ -344,7 +349,7 @@ setup_mirror_SD() {
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "insufficient space" --msgbox "$sizeError" 9 80
     fi
-    echo "FAILED"; return 1;
+    echo "FAILED (insufficient space)"; return 1;
   fi
 
   # copy partition table
@@ -375,10 +380,10 @@ EOF
   fi
 
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template >"${targetDir}"/sdrawcopy.service; then echo "FAILED (create sync service)"; fi
-  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template >"${targetDir}"/sdrsync.service; then echo "FAILED (create sync service)"; fi
-
-  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${targetDir}"/; then echo "OK"; else rm -f "${targetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/{sdrsync.service,sd*.timer} "${targetDir}"/; then echo "OK"; else rm -f "${targetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
+  if ! cond_redirect install -m 755 ${BASEDIR:-/opt/openhabian}"/includes/mirror_SD /usr/local/sbin; then echo "FAILED (install mirror_SD)"; return 1; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
+  if ! cond_redirect systemctl enable --now sdrawcopy.timer sdrsync.timer; then echo "FAILED (enable timed SD sync start)"; return 1; fi
 
   echo "OK"
 }
