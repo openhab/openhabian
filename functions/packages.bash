@@ -609,7 +609,6 @@ nginx_setup() {
       cond_echo "Setting domain to localhost"
       domain="localhost"
     fi
-    validDomain="true"
   fi
 
   confirmtext="The following settings have been chosen:\\n\\n- $authtext\\n- $httpstext\\n- Domain: $domain (Public IP Address: $pubIP)\\n\\nYou will be able to connect to openHAB on the default $protocol port.\\n\\n${portwarning}Do you wish to continue and setup an nginx server now?"
