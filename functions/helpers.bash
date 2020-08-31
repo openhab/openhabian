@@ -338,7 +338,7 @@ tryUntil() {
   interval=${3:-1}
 
   until [[ $attempts -le 0 ]]; do
-    cond_echo "\nexecuting $cmd \c"
+    cond_echo "\\nexecuting $cmd \\c"
     if [[ $(eval "$cmd") -eq 0 ]]; then break; fi
     sleep "$interval"
     if [[ -z $SILENT ]]; then
@@ -411,3 +411,23 @@ wait_for_apt_to_finish_update() {
   fi
   if tail --pid=$PID_APT -f /dev/null; then echo "OK"; else echo "FAILED"; return 1; fi
 }
+
+## Select destination block device
+## Argument 1 is a block device name prefix string
+## Argument 2 are title and display contents of selection box
+##
+##    select_blkdev(String, String, String)
+##
+select_blkdev() {
+  if [[ -z "$INTERACTIVE" ]]; then
+    return 0;
+  fi
+  declare -a array=()
+  while read -r id foo{,} size foo{,,}; do
+    array+=("$id"     "$size" )
+  done < <(lsblk -i | tr -d '`\\|' | grep -E "${1}" | tr -d '\\-')
+
+  # shellcheck disable=SC2034
+  retval=$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "$3" 12 76 4 "${array[@]}" 3>&1 1>&2 2>&3)
+}
+

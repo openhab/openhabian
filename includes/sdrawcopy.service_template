@@ -1,0 +1,9 @@
+[Unit]
+Description=SD card raw device copy to external card reader device
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/sbin/mirror_SD "raw" %DEST
+

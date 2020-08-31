@@ -159,7 +159,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 19 116 12 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHAB Setup Options" --menu "Setup Options" 19 116 12 --cancel-button Back --ok-button Execute \
     "41 | openHAB release"        "Install or switch to the latest openHAB release" \
     "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
     "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
@@ -194,16 +194,24 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "50"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 10 116 3 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Backup options" --menu "Backup options" 14 116 7 --cancel-button Back --ok-button Execute \
     "50 | Backup openHAB config"      "Backup the current active openHAB configuration" \
     "51 | Restore an openHAB config"  "Restore a previous openHAB configuration from backup" \
     "52 | Amanda System Backup"       "Set up Amanda to comprehensively backup your complete openHABian box" \
+    "53 | Setup SD mirroring"         "Setup mirroring of internal to external SD card" \
+    "   | Remove SD mirroring"        "Disable mirroring of SD cards" \
+    "54 | Raw copy SD"                "Raw copy internal SD to external disk / SD card" \
+    "55 | Sync SD"                    "Rsync internal SD to external disk / SD card" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     case "$choice2" in
       50\ *) backup_openhab_config ;;
       51\ *) restore_openhab_config ;;
       52\ *) wait_for_apt_to_finish_update && amanda_setup ;;
+      53\ *) setup_mirror_SD "install" ;;
+      *Remove\ SD\ mirroring*) setup_mirror_SD "remove" ;;
+      54\ *) mirror_SD "raw" ;;
+      55\ *) mirror_SD "diff" ;;
       "") return 0 ;;
       *) whiptail --msgbox "A non supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac

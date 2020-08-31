@@ -1,0 +1,9 @@
+[Unit]
+Description=Run SD raw dump 1st of month
+
+[Timer]
+OnCalendar=*-*-01 02:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target

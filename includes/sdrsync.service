@@ -1,0 +1,8 @@
+[Unit]
+Description=mount external card reader device and rsync / over there
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/sbin/mirror_SD "diff"

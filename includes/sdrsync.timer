@@ -1,0 +1,9 @@
+[Unit]
+Description=Run SD sync daily except on 1st of month (when a raw dump is made)
+
+[Timer]
+OnCalendar=*-*-02..31 02:00:00
+Persistent=true
+
+[Install]
+WantedBy=timers.target
