@@ -14,11 +14,11 @@ information.
 **Attention:**
 This guide is written for users of the RPi image where you really are at a loss
 if you don't have a logfile.
-If you do NOT use the image but install openHABian manually - be it by running
-`openhabian-config unattended` or interactive use -, there is no logfile.
+If you do not use the image but install openHABian manually - be it by running
+`openhabian-config unattended` or by interactive use -, **there is no logfile**.
 You then need to configure your terminal client to record the command line output.
 In PuTTy there's a field called 'Lines of scrollback' under the 'Window' option in
-settings that you should to at least some thousand lines.
+settings that you should increase to at least some thousand lines.
 
 Keep in mind that parts of the following information such as for example WiFi and
 IPv6 setup don't apply to manually installed systems because they happen at or
