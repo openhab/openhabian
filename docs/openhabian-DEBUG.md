@@ -119,7 +119,7 @@ If the problem persists after a boot, check `/boot/first-boot.log` to get an
 indication what went wrong in the install process and at what stage.
 You can avoid openHABian to start reinstalling on future reboots by removing the
 file, i.e. `rm -f /opt/openHABian-install*`, **but** be aware that your
-installation is incomplete and that you should **not** run openHAB on a box in
+installation is incomplete and that you should **not run** openHAB on a box in
 that state.
 You can use this state to debug, you can also use the 6X menu options in
 `openhabian-config` to manually install everything that failed or is missing.
@@ -196,9 +196,11 @@ changes.
 
 You can also clone (download) a different openHABian version than the most
 current one, e.g. if a maintainer or contributor to openHABian offers or asks
-you to test-drive a development version. Set the `repositoryurl` and
-`clonebranch` parameters in `/etc/openhabian.conf` to do so, then update
-`openhabian-config` on start.
+you to test-drive a development version. Set the `clonebranch` parameters in
+`/etc/openhabian.conf` to do so, then update `openhabian-config` on start.
+**Note**: You must not modify `repositoryurl` to point elsewhere than the
+official repo. openHABian will only ever update from there so you can only
+testdrive test branch that a ddeveloper has provided you on the official site.
 
 The main program is in `openhabian-setup.sh`.
 If the initial unattended install fails again and again at the same step (say
