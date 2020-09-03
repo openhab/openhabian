@@ -11,6 +11,19 @@ install fails in the first place.
 Read on to find out how to improve debug verbosity and how to proceed with that
 information.
 
+**Attention:**
+This guide is written for users of the RPi image where you really are at a loss
+if you don't have a logfile.
+If you do NOT use the image but install openHABian manually - be it by running
+`openhabian-config unattended` or interactive use -, there is no logfile.
+You then need to configure your terminal client to record the command line output.
+In PuTTy there's a field called 'Lines of scrollback' under the 'Window' option in
+settings that you should to at least some thousand lines.
+
+Keep in mind that parts of the following information such as for example WiFi and
+IPv6 setup don't apply to manually installed systems because they happen at or
+before boot time.
+
 ## Prerequisites
 First, please make sure you use the proper host hardware that is supported as
 per [README](https://github.com/openhab/openhabian/blob/master/README.md).
@@ -24,16 +37,15 @@ It may work to install and run openHABian on unsupported hardware. If it does
 not work, you are welcome to find out what's missing and contribute it back to
 the community with a Pull Request. It is sometimes simple things like a naming
 string. We'll be happy to include that in openHABian so you can use your box
-with openHABian.
-We'll keep that code in unless there's a valid reason to change or remove it.
+with openHABian unless there's a valid reason to change or remove it.
 However, that does not make your box a "supported" one as we don't have it
 available for our further development and testing. So there remains a risk that
 future openHABian releases will fail to work on your SBC because we changed a
-thing that broke support for your HW - unintentionally however inevitably.
+thing that broke support for your HW - unintentionally so however inevitable.
 
 openHABian requires you to provide direct Internet access. Using private IP
-addresses is fine as long as your router properly provides NAT
-(Network Address Translation) services.
+addresses is fine as long as your router properly provides NAT (Network Address
+Translation) services.
 Either Ethernet or WiFi is supported at install time, however, Ethernet tends to
 be more reliable and WiFi requires user configuration prior to the first boot of
 openHABian. To configure WiFi, simply edit the `wifi_psk=` and `wifi_ssid=`
@@ -103,8 +115,8 @@ As a first troubleshooting step, you should reboot your box to see if the same
 problems occurs on a second attempt.
 
 ## Debug
-If the problem persists, check `/boot/first-boot.log` to get an indication what
-went wrong in the install process and where.
+If the problem persists after a boot, check `/boot/first-boot.log` to get an
+indication what went wrong in the install process and at what stage.
 You can avoid openHABian to start reinstalling on future reboots by removing the
 file, i.e. `rm -f /opt/openHABian-install*`, **but** be aware that your
 installation is incomplete and that you should **not** run openHAB on a box in
