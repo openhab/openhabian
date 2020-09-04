@@ -95,7 +95,7 @@ show_main_menu() {
     "27 | knxd"                  "KNX specific, the KNX router/gateway daemon knxd" \
     "28 | 1wire"                 "1wire specific, owserver and related packages" \
     "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
-    "   | FIND3"                 "Framework for Internal Navigation and Discovery (ALPHA)" \
+    "   | FIND3"                 "Framework for Internal Navigation and Discovery (BETA)" \
     "   | Monitor Mode"          "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
     "2A | Telldus Core"          "Telldus Core service for Tellstick USB devices" \
     "2B | Mail Transfer Agent"   "Install Exim4 as MTA to relay mails via public services" \
@@ -134,7 +134,7 @@ show_main_menu() {
     "37 | Move root to USB"     "Move the system root from the SD card to a USB device (SSD or stick)" \
     "38 | Use ZRAM"             "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
     "   | Uninstall ZRAM"       "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
-    "39 | Setup VPN access"     "Setup Wireguard to enable secure remote access to openHABian (ALPHA)" \
+    "39 | Setup VPN access"     "Setup Wireguard to enable secure remote access to openHABian (BETA)" \
     "   | Remove Wireguard VPN" "Remove Wireguard VPN from openHABian" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
@@ -234,7 +234,7 @@ show_main_menu() {
     "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
     "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories (mitigates SD card wear)" OFF \
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" OFF \
-    "6B | Setup VPN access"       "Setup Wireguard to enable secure remote access openHABian (ALPHA)" OFF \
+    "6B | Setup VPN access"       "Setup Wireguard to enable secure remote access openHABian (BETA)" OFF \
     "   | Remove Wireguard VPN"   "Remove Wireguard VPN from openHABian" OFF \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
