@@ -127,7 +127,7 @@ openhabian-config unattended
 
 to get the automated openHABian installation going.
 
-Please note that we cannot test HW/OS combos upfront so there is no support / no guarantee for this work as explained in the [README](../README.md).
+Please note that we cannot test HW/OS combos upfront so there is no support / no guarantee for this work as explained in the [README](https://github.com/openhab/openhabian/blob/master/README.md).
 Don't be too disappointed if you run into errors. Drop us a note on Github.
 If the `unattended` installation does not work out, you can still try the openHABian configuration tool in interactive mode:
 
@@ -389,7 +389,7 @@ You have been warned, if there came any warranty with openHABian to begin with, 
 
 <a id="faq-other-platforms"></a>
 #### Can I use openHABian on ...?
-See the [README](../README.md) for a list of supported HW and OS.
+See the [README](https://github.com/openhab/openhabian/blob/master/README.md) for a list of supported HW and OS.
 openHABian is developed for Debian/Ubuntu based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
 Check out the [Manual Setup](#manual-setup) instructions for guidance and consult the [debug guide](openhabian-DEBUG.md) if you run into problems.
