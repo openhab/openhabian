@@ -45,4 +45,4 @@ swap	lz4	200M		600M		75		0		90
 log	lzo	150M		500M		/var/log			/log.bind
 
 # dir	alg	mem_limit	disk_size	target_dir			bind_dir
-dir	lz4	150M		500M		/var/lib/openhab2/persistence	/persistence.bind
+dir	lz4	150M		500M		/var/lib/openhab/persistence	/persistence.bind
