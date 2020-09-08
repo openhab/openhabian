@@ -196,15 +196,16 @@ changes.
 
 You can also clone (download) a different openHABian version than the most
 current one, e.g. if a maintainer or contributor to openHABian offers or asks
-you to test-drive a development version. Set the `clonebranch` parameters in
-`/etc/openhabian.conf` to do so, then update `openhabian-config` on start.
+you to test-drive a development version. Set the `clonebranch` parameter in
+`/etc/openhabian.conf` to the branch name to load, then update `openhabian-config`
+on start.
 **Note**: You must not modify `repositoryurl` to point elsewhere than the
 official repo. openHABian will only ever update from there so you can only
-testdrive test branch that a ddeveloper has provided you on the official site.
+test drive a test branch that a developer has provided you on the official site.
 
 The main program is in `openhabian-setup.sh`.
 If the initial unattended install fails again and again at the same step (say
-Java installation), you may comment that step out. But mind the code in
+Java installation), you may try to comment that step out. But mind the code in
 `build-image/first-boot.bash` towards the end starting with `git clone`.
 This is where openHABian updates itself. If you don't comment that out as well,
 it'll overwrite your changes on the next install run.
