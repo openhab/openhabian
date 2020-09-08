@@ -15,8 +15,8 @@
     "received command": "color: black;"
   },
   "lines": {
-    "/var/log/openhab2/openhab.log": "text-align: right; font-size: 0.8em; border-top: 2px solid #F8F8F8;",
-    "/var/log/openhab2/events.log": "text-align: right; font-size: 0.8em; border-top: 2px solid #F8F8F8;",
+    "/var/log/openhab/openhab.log": "text-align: right; font-size: 0.8em; border-top: 2px solid #F8F8F8;",
+    "/var/log/openhab/events.log": "text-align: right; font-size: 0.8em; border-top: 2px solid #F8F8F8;",
     "ERROR": "background-color: #F3BFBF;",
     "model.script": "background-color: #A6CFFD; font-weight: bold;"
   }
