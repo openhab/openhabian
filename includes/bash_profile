@@ -30,8 +30,8 @@ fi
 echo
 FireMotD --theme Gray
 
-OHVERSION=$(dpkg-query --showformat='${Version}' --show openhab2)
-OHBUILD=$(sed -n 's/build-no\s*: //p' /var/lib/openhab2/etc/version.properties)
+OHVERSION=$(dpkg-query --showformat='${Version}' --show openhab)
+OHBUILD=$(sed -n 's/build-no\s*: //p' /var/lib/openhab/etc/version.properties)
 if [ "$OHBUILD" == "- release build -" ]; then OHBUILD="Release Build"; fi
 
 cat << 'EOF'
