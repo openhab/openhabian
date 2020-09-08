@@ -1,12 +1,12 @@
 [Unit]
-Description=openhab2-%DEST mount
+Description=openhab-%DEST mount
 DefaultDependencies=no
 Before=smbd.service
 After=network.target zram-config.service
 
 [Mount]
 What=%SRC
-Where=/srv/openhab2-%DEST
+Where=/srv/openhab-%DEST
 Type=none
 Options=bind,rw
 
