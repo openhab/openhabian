@@ -1,12 +1,12 @@
 [Unit]
 Description=Frontail openHAB instance, reachable at http://%H:9001
 Documentation=https://github.com/mthenw/frontail
-After=openhab2.service
-PartOf=openhab2.service
+After=openhab.service
+PartOf=openhab.service
 
 [Service]
 Type=simple
-ExecStart=%FRONTAILBASE/bin/frontail --ui-highlight --ui-highlight-preset %FRONTAILBASE/preset/openhab.json -t openhab -l 2000 -n 200 /var/log/openhab2/openhab.log /var/log/openhab2/events.log
+ExecStart=%FRONTAILBASE/bin/frontail --ui-highlight --ui-highlight-preset %FRONTAILBASE/preset/openhab.json -t openhab -l 2000 -n 200 /var/log/openhab/openhab.log /var/log/openhab/events.log
 Restart=always
 User=frontail
 Group=openhab
