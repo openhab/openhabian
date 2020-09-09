@@ -69,7 +69,7 @@ firemotd_setup() {
   echo -n "$(timestamp) [openHABian] Setting up FireMotD apt updates count service... "
   cond_echo "\nMake FireMotD check for new updates every night... "
   echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
-  echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /usr/local/bin/FireMotD -S -D all -G all &> /dev/null" >> /etc/cron.d/firemotd
+  echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /usr/local/bin/FireMotD -S -D all &> /dev/null" >> /etc/cron.d/firemotd
   cond_echo "\nMake FireMotD check for new updates after using apt... "
   echo "DPkg::Post-Invoke { \"if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
   cond_echo "\nInitial FireMotD updates check"
