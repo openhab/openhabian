@@ -43,24 +43,24 @@ systems, but we might skip or deny to install specific extensions such as those
 memory hungry applications named above.
 
 Supporting hardware means testing every single patch and every release. There
-are simply too many SBC and HW combinations that maintainers do not have
-available, or, even if they did, the time to spend on the testing efforts that
-is required to make openHABian a reliable system. Let's make sure you understand
-the implications of these statements: it means that to run hardware other than
-RPi 2/3/4 or x86 is **not** *fully* supported.
+are simply too many combinations of SBCs, peripherals and OS flavors that
+maintainers do not have available, or, even if they did, the time to spend on
+the testing efforts that is required to make openHABian a reliable system.
+Let's make sure you understand the implications of these statements: it means
+that to run on hardware other than RPi 2/3/4 or x86 may work but this is
+**not** supported.
 
 For ARM hardware that we don't support, check out the [fake hardware parameters](openhabian.md/#fake-hardware-mode).
 There's a good chance it'll work out for you. If that still doesn't work for
 you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/)
-a try. But remember if you hit any problem related to memory or hardware, you'll
-be on your own. You are expected not to raise these problems as issues on
-the community forum or on GitHub, please. Feel encouraged to report any success
-stories, though.
+a try. But remember if you hit any problem related to memory sizing, peripherals
+or the OS, you'll be on your own. You are expected not to raise these problems
+as issues on the community forum or on GitHub, please. Feel encouraged to report
+any success stories, though.
 
 Going beyond what the RPi image provides, as a manually installed set of
 scripts, we support running openHABian on all Debian like Linux distributions
 such as Ubuntu on x86 hardware.
-
 Our recommendation is to install Raspberry Pi OS lite on ARM or generic
 Debian or Ubuntu on x86. This is what we support and test openHABian against.
 
@@ -81,7 +81,6 @@ ARM architecture. In general you should be aware that to run in 64 bit has a
 major drawback, increased memory usage, that is not a good idea on a heavily
 memory constrained platform like a RPi. Also remember openHABian makes use of
 Raspberry Pi OS which today still is a 32 bit OS.
-
 We are closely observing development and will adapt openHABian once it will
 reliably work on 64 bit. So things may change in the future, but for the time
 being, you should not manually enforce to install a 64 bit JVM.
