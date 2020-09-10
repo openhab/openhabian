@@ -10,8 +10,8 @@ So you have your smart home working thanks to openHAB(ian).... but what if a com
 First thing is: you need spare hardware of EVERY component that needs to work for your smart home to work.
 Think of EVERY relevant component and not just the obvious ones. Think of your Internet router, switch, server, NAS and required
 addons such as a ZWave or 433MHz radio or WiFi USB stick, proper power supplies and the SD card writer.
-Now think of a recovery concept for each of these components: what do you have to do if it fails ?
 
+Now think of a recovery concept for each of these components: what do you have to do if it fails ?
 If the SD card in your Pi fails because of SD corruption (a very common problem), you need to have a PREinstalled, at least
 somewhat current clone SD card to contain all your current OS packages, including all helper programs you might be using (such
 as say mosquitto or any scripts you might have installed yourself), and your matching CURRENT openHAB config, and more.
@@ -23,7 +23,7 @@ network and smart home ? If you're honest to yourself, the answer will often be 
 Yes, you can get your smart home back up working somehow, but it will take several hours, and it will not be a complete
 restoration of all features and setups you used to have in operation before the crash.
 
-**One specific word of WARNING:**
+**A specific word of WARNING:**
 If you run a ZWave network like many openHAB users do, think what you need to do if the controller breaks and you need to
 replace it. A new controller has a different Home ID, so all of your devices will not talk to it unless you re-include all of them (and
 to physically access devices in quite a number of cases means you need to open your walls !!) And even if you have easy access,
@@ -39,10 +39,12 @@ is broken. So dive into and ensure you have a working restore procedure and don'
 repeat every now and then.
 
 ### SD card issues
-As there's many many ways of operating a server, we can obviously only support a specific subset of all possible modes.
 The most common setup for a openHAB smart home server is to run a Raspberry Pi off its internal SD card, so we provide a backup
 concept for that one. But it will also work on most other SBCs (single board computers) and modified configurations (such as if
 you moved your OS or parts thereof).
+Pay special attention to SD card size: different models slightly differ in size. Any replacement gear must have *at least*
+the size of the original card so best is to get two identical cards right in the first place. If you don't, ensure at least
+you use the smaller one as your main and the larger one as the replacement card.
 
 **Another word of WARNING:**
 To move your system off the internal SD card does NOT solve SD corruption problems or increase reliability in any other way.
@@ -102,9 +104,11 @@ user. Any ordinary user (such as your personal one) can execute commands on beha
 prepending "sudo " to the command. As yourself, prepend "sudo -u backup" to execute the following command as the "backup" user.
 
 # Installation
+These notes were written for an interactive installation run. Note the new ["auto backup" feature](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#auto-backup) that these instructions do not cover. It essentially mirrors your internal SD card to another (bigger) card in an
+external card reader. It also includes an automated Amanda installation, using the excess space as the Amanda storage area.
+
 ## Storage preparation
-Now once you read up on all of this and feel you have understood this stuff, the next step will NOT be hit that 'Amanda install'
-menu option in openHABian (no, we're not there yet) but to prepare your storage.
+Now once you read up on all of this and feel you have understood this stuff, the next step will be to prepare your storage.
 HEADS UP: You need to provide your storage BEFORE you install Amanda.
 That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
 Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
