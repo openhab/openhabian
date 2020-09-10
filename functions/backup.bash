@@ -203,7 +203,7 @@ amanda_setup() {
   create_backup_config "${config}" "${backupuser}" "${adminmail}" "${tapes}" "${size}" "${dir}"
 
   if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "Create Amazon S3 based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on Amazon Web Services. You can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. For hints see http://markelov.org/wiki/index.php?title=Backup_with_Amanda:_tape,_NAS,_Amazon_S3#Amazon_S3\\n\\nPlease setup your S3 bucket on Amazon Web Services NOW if you have not done so. Remember the name has to be unique in AWS namespace.\\nContinue with Amanda installation ?" 15 80); then
+    if (whiptail --title "Create Amazon S3 based backup" --yes-button "Yes" --no-button "No" --yesno "Setup a backup mechanism based on Amazon Web Services. You can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. For hints see http://markelov.org/wiki/index.php?title=Backup_with_Amanda:_tape,_NAS,_Amazon_S3#Amazon_S3\\n\\nPlease setup your S3 bucket on Amazon Web Services NOW if you have not done so. Remember the name has to be unique in AWS namespace.\\nSetup Amanda on AWS ?" 15 80); then
       config=openhab-AWS
       S3site=$(whiptail --title "S3 bucket location site" --inputbox "Enter the S3 site (e.g. \"eu-central-1\") you want to use:" 10 60 3>&1 1>&2 2>&3)
       S3bucket=$(whiptail --title "S3 bucket" --inputbox "Enter the bucket name you created on S3 to use (only the part after last : of the ARN):" 10 60 3>&1 1>&2 2>&3)
@@ -216,7 +216,7 @@ amanda_setup() {
       create_backup_config "${config}" "${backupuser}" "${adminmail}" "${tapes}" "${size}" AWS "${S3site}" "${S3bucket}" "${S3accesskey}" "${S3secretkey}"
     fi
 
-    whiptail --title "Operation Successful!" --msgbox "$successtext" 15 80
+    whiptail --title "Amanda setup completed" --msgbox "$successtext" 15 80
   fi
 
   echo "OK"
