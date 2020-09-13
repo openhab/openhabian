@@ -2,8 +2,9 @@
 
 load java-jre.bash
 load helpers.bash
+load openhab.bash
 
-@test "java-install_zulu8-64bit" {
+@test "installation-java_install_zulu8-64bit" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zulu 8 64-bit Java installation is being (test-)installed...${COL_DEF}" >&3
   case "$(uname -m)" in
     aarch64|arm64|x86_64|amd64) ;;
@@ -21,7 +22,7 @@ load helpers.bash
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Zulu 8 64-bit Java installation successful.${COL_DEF}" >&3
 }
 
-@test "java-install_zulu11-64bit" {
+@test "installation-java_install_zulu11-64bit" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zulu 11 64-bit Java installation is being (test-)installed...${COL_DEF}" >&3
   case "$(uname -m)" in
     aarch64|arm64|x86_64|amd64) ;;
@@ -39,7 +40,7 @@ load helpers.bash
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Zulu 11 64-bit Java installation successful.${COL_DEF}" >&3
 }
 
-@test "java-install_zulu8-32bit" {
+@test "installation-java_install_zulu8-32bit" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zulu 8 32-bit Java installation is being (test-)installed...${COL_DEF}" >&3
   run java_zulu_prerequisite "Zulu8-32" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
@@ -53,7 +54,7 @@ load helpers.bash
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Zulu 8 32-bit Java installation successful.${COL_DEF}" >&3
 }
 
-@test "java-install_zulu11-32bit" {
+@test "installation-java_install_zulu11-32bit" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zulu 11 32-bit Java installation is being (test-)installed...${COL_DEF}" >&3
   run java_zulu_prerequisite "Zulu11-32" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
@@ -67,7 +68,7 @@ load helpers.bash
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Zulu 11 32-bit Java installation successful.${COL_DEF}" >&3
 }
 
-@test "java-install_adopt" {
+@test "installation-java_install_adopt" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] AdoptOpenJDK 11 Java installation is being (test-)installed...${COL_DEF}" >&3
   run adoptopenjdk_install_apt 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi

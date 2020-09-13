@@ -2,6 +2,7 @@
 
 load packages.bash
 load helpers.bash
+load openhab.bash
 
 setup_file() {
   export BASEDIR="${BATS_TEST_DIRNAME}/.."
@@ -20,6 +21,8 @@ teardown_file() {
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Homegear installation successful.${COL_DEF}" >&3
+
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Homegear service is running...${COL_DEF}" >&3
   run systemctl is-active --quiet homegear.service
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
@@ -32,6 +35,8 @@ teardown_file() {
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] MQTT installation successful.${COL_DEF}" >&3
+
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if MQTT service is running...${COL_DEF}" >&3
   run systemctl is-active --quiet mosquitto.service
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
