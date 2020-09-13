@@ -72,7 +72,7 @@ firemotd_setup() {
   echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /usr/local/bin/FireMotD -S -D all &> /dev/null" >> /etc/cron.d/firemotd
   cond_echo "\\nMake FireMotD check for new updates after using apt... "
   echo "DPkg::Post-Invoke { \"if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
-  cond_echo "\\nInitial FireMotD updates check"
+  cond_echo "\nInitial FireMotD updates check"
   if cond_redirect FireMotD -S; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
