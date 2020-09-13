@@ -89,12 +89,16 @@ init_zram_mounts() {
     if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zramsync.service /etc/systemd/system/zramsync.service; then echo "FAILED (copy service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if cond_redirect systemctl enable --now zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
-    if cond_redirect systemctl mask unattended-upgrades.service; then echo "OK"; else echo "FAILED (mask unattended upgrades service)"; return 1; fi
+    if ! running_in_docker && ! running_on_github; then
+      if cond_redirect systemctl mask unattended-upgrades.service; then echo "OK"; else echo "FAILED (mask unattended upgrades service)"; return 1; fi
+    fi
   elif [[ $1 == "uninstall" ]]; then
     echo -n "$(timestamp) [openHABian] Removing ZRAM service... "
     if ! cond_redirect systemctl disable --now zram-config.service zramsync.service; then echo "FAILED (disable service)"; return 1; fi
     if ! cond_redirect rm -f /etc/systemd/system/zram-config.service /etc/systemd/system/zramsync.service; then echo "FAILED (remove service)"; return 1; fi
-    if cond_redirect systemctl unmask unattended-upgrades.service; then echo "OK"; else echo "FAILED (unmask unattended upgrades service)"; return 1; fi
+    if ! running_in_docker && ! running_on_github; then
+      if cond_redirect systemctl unmask unattended-upgrades.service; then echo "OK"; else echo "FAILED (unmask unattended upgrades service)"; return 1; fi
+    fi
     if cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "OK"; else echo "FAILED (daemon-reload)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Removing ZRAM... "
