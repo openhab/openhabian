@@ -256,7 +256,7 @@ sourcefolder="build-image"
 source "${sourcefolder}/openhabian.${hw_platform}.conf"
 buildfolder="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian-build-${hw_platform}-image.XXXXX)"
 imagefile="${buildfolder}/${hw_platform}.img"
-extrasize=300			# grow image root by this number of MB
+extrasize="300"			# grow image root by this number of MB
 
 # Build Raspberry Pi image
 if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta" ]]; then

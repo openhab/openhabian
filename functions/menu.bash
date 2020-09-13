@@ -239,8 +239,7 @@ show_main_menu() {
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
-    if [[ $choosenComponents == *"62"* ]]; then apt-get upgrade -y && basic_packages && needed_packages; fi
-    # shellcheck disable=SC2154
+    if [[ $choosenComponents == *"62"* ]]; then system_upgrade && basic_packages && needed_packages; fi
     if [[ $choosenComponents == *"Zulu 8 OpenJDK 32-bit"* ]]; then update_config_java "Zulu8-32" && java_install_or_update "Zulu8-32"; fi
     if [[ $choosenComponents == *"Zulu 8 OpenJDK 64-bit"* ]]; then update_config_java "Zulu8-64" && java_install_or_update "Zulu8-64"; fi
     if [[ $choosenComponents == *"Zulu 11 OpenJDK 32-bit"* ]]; then update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32"; fi
@@ -256,8 +255,8 @@ show_main_menu() {
     if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
     if [[ $choosenComponents == *"6A"* ]]; then init_zram_mounts "install"; fi
     if [[ $choosenComponents == *"Uninstall ZRAM"* ]]; then init_zram_mounts "uninstall"; fi
-    if [[ $choosenComponents == *"6B"* ]]; then install_wireguard install; setup_wireguard; fi
-    if [[ $choosenComponents == *"Uninstall Wireguard"* ]]; then install_wireguard remove; fi
+    if [[ $choosenComponents == *"6B"* ]]; then install_wireguard "install"; setup_wireguard; fi
+    if [[ $choosenComponents == *"Uninstall Wireguard"* ]]; then install_wireguard "remove"; fi
 
   else
     whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60

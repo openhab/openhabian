@@ -25,9 +25,7 @@ create_systemd_dependencies() {
 delayed_rules() {
   if ! openhab_is_installed; then return 0; fi
 
-  local targetDir
-
-  targetDir="/etc/systemd/system/openhab2.service.d"
+  local targetDir="/etc/systemd/system/openhab2.service.d"
 
   if [[ $1 == "yes" ]]; then
     echo -n "$(timestamp) [openHABian] Adding delay on loading openHAB rules... "
@@ -35,8 +33,8 @@ delayed_rules() {
   elif [[ $1 == "no" ]]; then
     echo "$(timestamp) [openHABian] Removing delay on loading openHAB rules... OK"
   fi
-  cond_redirect systemctl -q daemon-reload &> /dev/null
-  cond_redirect systemctl restart openhab2.service
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then return 1; fi
+  if ! cond_redirect systemctl restart openhab2.service; then return 1; fi
 }
 
 ## Function to install / upgrade / downgrade the installed openHAB version
@@ -51,16 +49,16 @@ openhab2_setup() {
   local openhabVersion
 
   if [[ $1 == "unstable" ]]; then
-    introText="Proceed with caution!\\nYou are about to switch over to the latest openHAB 2 unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
-    successText="The latest unstable snapshot build of openHAB 2 is now running on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\nIf you find any problems or bugs, please report them and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (using menu option 02) regularly."
+    introText="Proceed with caution!\\n\\nYou are about to switch over to the latest openHAB 2 unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
+    successText="The latest unstable snapshot build of openHAB 2 is now running on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\n\\nIf you find any problems or bugs, please report them and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (using menu option 02) regularly."
     repo="deb https://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main"
   elif [[ $1 == "stable" ]]; then
     introText="You are about to install or upgrade to the latest stable openHAB release.\\n\\nPlease be aware that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
-    successText="The stable release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
+    successText="The stable release of openHAB is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb https://dl.bintray.com/openhab/apt-repo2 stable main"
   elif [[ $1 == "testing" ]]; then
-    introText="You are about to install or upgrade to the latest milestone (testing) openHAB build. It contains the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue.\\n\\nPlease be aware that downgrading from a newer build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
-    successText="The testing release of openHAB is now installed on your system. Please test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
+    introText="You are about to install or upgrade to the latest milestone (testing) openHAB build. It contains the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue.\\n\\nPlease be aware that downgrading from a newer build is not officially supported.\\n\\nPlease consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
+    successText="The testing release of openHAB is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb https://openhab.jfrog.io/openhab/openhab-linuxpkg testing main"
   fi
 
@@ -88,10 +86,10 @@ openhab2_setup() {
   if cond_redirect apt-get install --allow-downgrades --yes "openhab2=${openhabVersion}" "openhab2-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up openHAB service... "
-  cond_redirect systemctl -q daemon-reload &> /dev/null
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable openhab2.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
-  openhab_java_optimize
+  openhab_misc
   create_systemd_dependencies
   delayed_rules "yes"
   dashboard_add_tile "openhabiandocs"
@@ -119,8 +117,8 @@ openhab_shell_interfaces() {
 
   if [[ -n $INTERACTIVE ]]; then
     while [[ -z $sshPass ]]; do
-      if ! sshPass1=$(whiptail --title "Authentication Setup" --passwordbox "$introText" 15 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
-      if ! sshPass2=$(whiptail --title "Authentication Setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+      if ! sshPass1="$(whiptail --title "Authentication Setup" --passwordbox "$introText" 15 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! sshPass2="$(whiptail --title "Authentication Setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
       if [[ $sshPass1 == "$sshPass2" ]] && [[ ${#sshPass1} -ge 8 ]] && [[ ${#sshPass2} -ge 8 ]]; then
         sshPass="$sshPass1"
       else
@@ -132,8 +130,8 @@ openhab_shell_interfaces() {
     sshPass="habopen"
   fi
 
-  if ! cond_redirect sed -i 's|^sshHost = 127.0.0.1.*$|sshHost = 0.0.0.0|g' /var/lib/openhab2/etc/org.apache.karaf.shell.cfg; then echo "FAILED (sshHost)"; return 1; fi
-  if cond_redirect sed -i 's|openhab = .*,|openhab = '"${sshPass}"',|g' /var/lib/openhab2/etc/users.properties; then echo "OK"; else echo "FAILED (sshPass)"; return 1; fi
+  if ! cond_redirect sed -i -e 's|^sshHost = 127.0.0.1.*$|sshHost = 0.0.0.0|g' /var/lib/openhab2/etc/org.apache.karaf.shell.cfg; then echo "FAILED (sshHost)"; return 1; fi
+  if cond_redirect sed -i -e 's|openhab = .*,|openhab = '"${sshPass}"',|g' /var/lib/openhab2/etc/users.properties; then echo "OK"; else echo "FAILED (sshPass)"; return 1; fi
   cond_redirect systemctl restart openhab2.service
 
   if [[ -n $INTERACTIVE ]]; then
@@ -170,17 +168,17 @@ nano_openhab_syntax() {
 multitail_openhab_scheme() {
   echo -n "$(timestamp) [openHABian] Adding openHAB scheme to multitail... "
   if ! cp "${BASEDIR:-/opt/openhabian}"/includes/multitail.openhab.conf /etc/multitail.openhab.conf; then echo "FAILED (copy)"; return 1; fi
-  if ! cond_redirect sed -i '/^.*multitail.*openhab.*$/d' /etc/multitail.conf; then echo "FAILED (remove default configuration)"; return 1; fi
-  if cond_redirect sed -i 's|^# misc.*$|# openHAB logs\\ninclude:/etc/multitail.openhab.conf\\n#\\n# misc|g' /etc/multitail.conf; then echo "OK"; else echo "FAILED (include)"; return 1; fi
+  if ! cond_redirect sed -i -e '/^.*multitail.*openhab.*$/d' /etc/multitail.conf; then echo "FAILED (remove default configuration)"; return 1; fi
+  if cond_redirect sed -i -e 's|^# misc.*$|# openHAB logs\\ninclude:/etc/multitail.openhab.conf\\n#\\n# misc|g' /etc/multitail.conf; then echo "OK"; else echo "FAILED (include)"; return 1; fi
 }
 
-## Function to check if openHAB has been installed on the current system. Returns
+## Function to check if openHAB is installed on the current system. Returns
 ## 0 / true if openHAB is installed and 1 / false if not.
 ##
 ##    openhab_is_installed()
 ##
 openhab_is_installed() {
-  if dpkg -s 'openhab2' &> /dev/null; then return 0; else return 1; fi
+  if [[ $(dpkg -s 'openhab2') ]]; then return 0; else return 1; fi
 }
 
 ## Function to check if openHAB is running on the current system. Returns
@@ -189,26 +187,26 @@ openhab_is_installed() {
 ##    openhab_is_running()
 ##
 openhab_is_running() {
-  if [[ $(systemctl is-active openhab2) != "active" ]]; then return 1; fi
-
-  echo -n "$(timestamp) [openHABian] Setting openHAB HTTP/HTTPS ports... "
-  if ! cond_redirect sed -i 's|^#*.*OPENHAB_HTTP_PORT=.*$|OPENHAB_HTTP_PORT=8080|g' /etc/default/openhab2; then echo "FAILED"; return 1; fi
-  if cond_redirect sed -i 's|^#*.*OPENHAB_HTTPS_PORT=.*$|OPENHAB_HTTPS_PORT=8443|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
+  if openhab_is_installed && [[ $(systemctl is-active openhab2) == "active" ]]; then return 0; else return 1; fi
 }
 
-## Optimize openHAB Java for low memory SBC's
+## Optimize openHAB Java for low memory SBC's and set HTTP/HTTPS ports
 ##
-##    openhab_java_optimize()
+##    openhab_misc()
 ##
-openhab_java_optimize() {
+openhab_misc() {
   if ! is_arm; then return 0; fi
 
   echo -n "$(timestamp) [openHABian] Optimizing openHAB to run on low memory single board computers... "
   if has_lowmem; then
-    if cond_redirect sed -i 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^#*.*EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    if cond_redirect sed -i 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^#*.*EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
+
+  echo -n "$(timestamp) [openHABian] Setting openHAB HTTP/HTTPS ports... "
+  if ! cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTP_PORT=.*$|OPENHAB_HTTP_PORT=8080|g' /etc/default/openhab2; then echo "FAILED"; return 1; fi
+  if cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTPS_PORT=.*$|OPENHAB_HTTPS_PORT=8443|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Create a openHAB dashboard title and image for the input application.
@@ -247,7 +245,7 @@ dashboard_add_tile() {
   touch $dashboardConfig
   if grep -qs "${application}.link" $dashboardConfig; then
     echo -n "Replacing... "
-    cond_redirect sed -i '/^'"${application}"'.link.*$/d' $dashboardConfig
+    cond_redirect sed -i -e '/^'"${application}"'.link.*$/d' $dashboardConfig
   fi
 
   if [[ -z $tileDesc ]] || [[ -z $tileURL ]] || [[ -z $tileImg ]]; then

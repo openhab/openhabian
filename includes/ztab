@@ -1,18 +1,42 @@
-# To comment out any line Add new drives with the first column providing the drive type and then drive details separated by tab
-# All algorithm in /proc/crypto are supported but only lzo/lz4 have zramctl text strings.
-# lz4 is the fastest whilst deflate(zlib) has much better text compression.
-# mem_limit is compressed memory limit and will set a hard memory limit for sys admin.
-# disk_size is virtual uncompressed size approx 220-450% of mem allocated depending on algorithm and input file.
-# Much higher than the compression alg is capable will waste mem as there is an approx 0.1% mem overhead even when empty.
-# swap_priority set zram over alternative swap devices.
-# page-cluster 0 means tuning to singular pages rather than default 3 which caches 8 for HDD tuning, which can lower latency.
-# swappiness 80 due to improved performance of zram allows more usage without effect of raising from default 60.
-# Can be up to 100 but will increase process queue on intense load such as boot.
-# zram_dir is the directory you wish to hold in zram, the original is moved to a bind mount bind_dir and is synchronised on start/stop and write commands.
-# bind_dir is a directory where the original dir will be mounted for sync purposes. Usually in /opt or /var, name optional.
-# oldlog_dir will enable logrotation to an off device directory whilst retaining only live logs in zram. Usually in /opt or /var, name optional.
-# If you need multiple zram swaps or zram dirs just create another entry in /ect/ztab.
-# Stop the service sudo service zram-config stop edit /etc/ztab sudo nano /etc/ztab start the service sudo service zram-config start
+# Use '#' to comment out any line, add new drives with the first column
+# providing the drive type and then drive details separated by tab characters.
+#
+# All algorithms in '/proc/crypto' are supported but only lzo and lz4 have
+# zramctl text strings; lz4 is the fastest with deflate(zlib) having much better
+# text compression.
+#
+# mem_limit is the compressed memory limit and will set a hard memory limit for
+# the system admin.
+#
+# disk_size is the virtual uncompressed size approx. 220-450% of memory
+# allocated depending on the algorithm and input file. Don't make it much higher
+# than the compression algorithm is capable of as it will waste memory because
+# there is a ~0.1% memory overhead when empty
+#
+# swap_priority will set ZRAM over alternative swap devices.
+#
+# page-cluster 0 means tuning to singular pages rather than the default 3 which
+# caches 8 for HDD tuning, which can lower latency.
+#
+# swappiness 80 because the improved performance of ZRAM allows more usage
+# without any adverse affects from the default of 60. It can be raised up to 100
+# but that will increase process queue on intense loads such as boot time.
+#
+# target_dir is the directory you wish to hold in ZRAM, and the original will be
+# moved to a bind mount 'bind_dir' and is synchronized on start, stop, and write
+# commands.
+#
+# bind_dir is the directory where the original directory will be mounted for
+# sync purposes. Usually in '/opt' or '/var', name optional.
+#
+# oldlog_dir will enable log-rotation to an off device directory while retaining
+# only live logs in ZRAM. Usually in '/opt' or '/var', name optional.
+#
+# If you need multiple ZRAM swaps or ZRAM directories, just create another entry
+# in this file.
+# To do this safely, first stop ZRAM using 'systemctl stop zram-config.service',
+# then edit this file.
+# Once finished, restart ZRAM using 'systemctl restart zram-config.service'.
 
 # swap	alg	mem_limit	disk_size	swap_priority	page-cluster	swappiness
 swap	lz4	200M		600M		75		0		90

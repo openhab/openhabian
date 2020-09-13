@@ -2,6 +2,7 @@
 
 load nodejs-apps.bash
 load helpers.bash
+load openhab.bash
 
 setup_file() {
   export BASEDIR="${BATS_TEST_DIRNAME}/.."
@@ -18,6 +19,8 @@ teardown_file() {
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Frontail installation successful.${COL_DEF}" >&3
+
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Frontail service is running...${COL_DEF}" >&3
   run systemctl is-active --quiet frontail.service
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]

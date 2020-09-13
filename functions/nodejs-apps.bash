@@ -8,7 +8,7 @@
 nodejs_setup() {
   if [[ -x $(command -v npm) ]] && [[ $(node --version) == "v12"* ]] && ! is_armv6l; then return 0; fi
 
-  local link
+  local link="https://unofficial-builds.nodejs.org/download/release/v12.18.3/node-v12.18.3-linux-armv6l.tar.xz"
   local myDistro
   local temp
 
@@ -17,13 +17,12 @@ nodejs_setup() {
     if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  link="https://unofficial-builds.nodejs.org/download/release/v12.18.3/node-v12.18.3-linux-armv6l.tar.xz"
   myDistro="$(lsb_release -sc)"
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   if is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing NodeJS... "
-    if ! cond_redirect wget -qO "$temp" $link; then echo "FAILED (download)"; rm -f "$temp"; return 1; fi
+    if ! cond_redirect wget -qO "$temp" "$link"; then echo "FAILED (download)"; rm -f "$temp"; return 1; fi
     if ! cond_redirect tar -Jxf "$temp" --strip-components=1 -C /usr; then echo "FAILED (extract)"; rm -f "$temp"; return 1; fi
     if cond_redirect rm -f "$temp"; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
   else
@@ -75,12 +74,11 @@ frontail_setup() {
   echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service... "
   if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi
   if ! cond_redirect chmod 644 /etc/systemd/system/frontail.service; then echo "FAILED (permissions)"; return 1; fi
-  cond_redirect systemctl -q daemon-reload &> /dev/null
-  if ! cond_redirect systemctl enable frontail.service; then echo "FAILED (enable service)"; return 1; fi
-  if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if cond_redirect systemctl enable --now frontail.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
-  if dpkg -s 'openhab2' &> /dev/null; then
-    dashboard_add_tile frontail
+  if openhab_is_installed; then
+    dashboard_add_tile "frontail"
   fi
 }
 
@@ -101,7 +99,7 @@ nodered_setup() {
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  if ! dpkg -s 'build-essential' &> /dev/null; then
+  if ! [[ $(dpkg -s 'build-essential') ]]; then
     echo -n "$(timestamp) [openHABian] Installing Node-RED required packages (build-essential)... "
     if cond_redirect apt-get install --yes build-essential; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -129,11 +127,10 @@ nodered_setup() {
   if cond_redirect npm update -g node-red-contrib-openhab2; then echo "OK"; else echo "FAILED (update openhab2 addon)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up Node-RED service... "
-  cond_redirect systemctl -q daemon-reload &> /dev/null
-  if ! cond_redirect systemctl enable nodered.service; then echo "FAILED (enable service)"; return 1; fi
-  if cond_redirect systemctl restart nodered.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if cond_redirect systemctl enable --now nodered.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
-  if dpkg -s 'openhab2' &> /dev/null; then
-    dashboard_add_tile nodered
+  if openhab_is_installed; then
+    dashboard_add_tile "nodered"
   fi
 }
