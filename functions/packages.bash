@@ -14,9 +14,9 @@ samba_setup() {
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
-  cond_echo "\nCopying over custom 'smb.conf'... "
+  cond_echo "\\nCopying over custom 'smb.conf'... "
   cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/smb.conf /etc/samba/smb.conf
-  cond_echo "\nWriting authentication data to openHABian default... "
+  cond_echo "\\nWriting authentication data to openHABian default... "
   if ! smbpasswd -e "${username:-openhabian}" &> /dev/null; then
     # shellcheck disable=SC2154
     (echo "$userpw"; echo "$userpw") | smbpasswd -s -a "${username:-openhabian}" &> /dev/null
@@ -67,10 +67,10 @@ firemotd_setup() {
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up FireMotD apt updates count service... "
-  cond_echo "\nMake FireMotD check for new updates every night... "
+  cond_echo "\\nMake FireMotD check for new updates every night... "
   echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
   echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /usr/local/bin/FireMotD -S -D all &> /dev/null" >> /etc/cron.d/firemotd
-  cond_echo "\nMake FireMotD check for new updates after using apt... "
+  cond_echo "\\nMake FireMotD check for new updates after using apt... "
   echo "DPkg::Post-Invoke { \"if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
   cond_echo "\nInitial FireMotD updates check"
   if cond_redirect FireMotD -S; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -82,59 +82,61 @@ firemotd_setup() {
 ##    exim_setup()
 ##
 exim_setup() {
-  if [[ -z $INTERACTIVE ]]; then
-    echo "$(timestamp) [openHABian] MTA setup must be run in interactive mode! Canceling MTA setup!"
-    return 0
-  fi
-
-  local eximConfig
+  local updateEximTemplate="${BASEDIR:-/opt/openhabian}/includes/update-exim4.conf.conf-template"
+  local eximConfig="/etc/exim4/update-exim4.conf.conf"
+  local eximPasswd="/etc/exim4/passwd.client"
   local interfaces
-  local introtext
-  local relayPass
-  local relayUser
-  local smartHost
+  local relaynets
+  local addresses="/etc/email-addresses"
   local temp
-  local logrotateFile
+  local logrotateFile="/etc/logrotate.d/exim4"
+  local introtext
 
   if ! dpkg -s 'mailutils' 'exim4' 'dnsutils' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing MTA required packages (mailutils, exim4, dnsutils,)... "
     if cond_redirect apt-get install --yes exim4 dnsutils mailutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  eximConfig="/etc/exim4/passwd.client"
-  interfaces="$(dig +short "$HOSTNAME" | tr '\n' ';');127.0.0.1;::1"
+  # shellcheck disable=SC2154
+  interfaces="$(dig +short "$hostname" | tr '\n' ';')127.0.0.1;::1"
+  relaynets="$(dig +short "$hostname" | cut -d'.' -f1-3).0/24"
   introtext="We will guide you through the install of exim4 as the mail transfer agent on your system and configure it to relay mails through a public service such as Google gmail.\\n\\nThe values you need to enter after closing this window are documented here:\\n\\nhttps://github.com/openhab/openhabian/tree/master/docs/exim.md\\n\\nOpen that URL in a browser now. Your interface addresses are ${interfaces}.\\nYou will be able to repeat the whole installation if required by selecting the openHABian menu for MTA again."
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo -n "$(timestamp) [openHABian] Beginning Mail Transfer Agent install and setup... "
-  if (whiptail --title "Mail Transfer Agent installation" --yes-button "Begin" --no-button "Cancel" --yesno "$introtext" 17 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+  if [[ -n $INTERACTIVE ]]; then
+    if (whiptail --title "Mail Transfer Agent installation" --yes-button "Begin" --no-button "Cancel" --yesno "$introtext" 17 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if dpkg-reconfigure exim4-config; then echo "OK"; else echo "CANCELED"; return 0; fi
 
-  echo "$(timestamp) [openHABian] Reconfiguring exim4-config... "
-  whiptail --title "exim4 Configuration" --msgbox "exim4-config is about to ask for information, please fill out each line." 7 80
-  if dpkg-reconfigure exim4-config; then echo "OK"; else echo "CANCELED"; return 0; fi
-
-  if ! smartHost=$(whiptail --title "Enter public mail service smarthost to relay your mails to" --inputbox "\\nEnter the list of smarthost(s) to use your account for" 9 80 "*.google.com" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
-  if ! relayUser=$(whiptail --title "Enter your public service mail user" --inputbox "\\nEnter the mail username of the public service to relay all outgoing mail to $smartHost" 9 80 "yourname@gmail.com" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
-  if ! relayPass=$(whiptail --title "Enter your public service mail password" --passwordbox "\\nEnter the password used to relay mail as ${relayUser}@${smartHost}" 9 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
-  logrotateFile=/etc/logrotate.d/exim4
+    if ! smarthost=$(whiptail --title "Enter public mail service smarthost to relay your mails to" --inputbox "\\nEnter the list of smarthost(s) to use your account for" 9 80 "*.google.com" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+    if ! smartport=$(whiptail --title "port number of the smarthost to relay your mails to" --inputbox "\\nEnter the port number of the smarthost to use" 9 80 "587" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+    if ! relayuser=$(whiptail --title "Enter your public service mail user" --inputbox "\\nEnter the mail username of the public service to relay all outgoing mail to $smarthost" 9 80 "$relayuser" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+    if ! relaypass=$(whiptail --title "Enter your public service mail password" --passwordbox "\\nEnter the password used to relay mail as ${relayuser}@${smarthost}" 9 80 i"$relaypass" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+    if ! adminmail=$(whiptail --title "Enter your administration user's mail address" --passwordbox "\\nEnter the address to send system reports to" 9 80 3 "$adminmail" >&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+  else
+    sed -e "s|%INTERFACES|${interfaces}|g" -e "s|%SMARTHOST|${smarthost}|g" -e "s|%SMARTPORT|${smartport}|g" -e "s|%RELAYNETS|${relaynets}|g" "$updateEximTemplate" > "$eximConfig"
+    update-exim4.conf
+  fi
 
   echo "$(timestamp) [openHABian] Creating MTA config... "
-  if ! grep '^#' "$eximConfig" > "$temp"; then echo "FAILED (configuration)"; rm -f "$temp"; return 1; fi
-  if ! echo "${smartHost}:${relayUser}:${relayPass}" >> "$temp"; then echo "FAILED (configuration)"; rm -f "$temp"; return 1; fi
-  if ! cond_redirect cp "$temp" "$eximConfig"; then echo "FAILED (copy)"; rm -f "$temp"; return 1; fi
+  if ! grep '^#' "$eximPasswd" > "$temp"; then echo "FAILED (configuration)"; rm -f "$temp"; return 1; fi
+  if ! echo "*:${relayuser}:${relaypass}" >> "$temp"; then echo "FAILED (configuration)"; rm -f "$temp"; return 1; fi
+  if ! cond_redirect cp "$temp" "$eximPasswd"; then echo "FAILED (copy)"; rm -f "$temp"; return 1; fi
   cond_redirect rm -f "$temp"
-  if cond_redirect chmod o-rwx "$eximConfig"; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
+  if cond_redirect chmod o-rwx "$eximPasswd"; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
   for s in base paniclog; do
     if [[ -f "$logrotateFile-$s" ]]; then
       sed -i 's#Create 640 Debian-exim adm#Create 640 Debian-exim adm\n\tsu Debian-exim adm#g' "$logrotateFile-$s"
     fi
   done
 
-  echo "$(timestamp) [openHABian] Adding to $relayUser email to system accounts... "
+  echo "$(timestamp) [openHABian] Adding to $relayuser email to system accounts... "
+  sed -i '/^[^#]/d' ${addresses}
   if {
-    echo "openhab: $relayUser"; echo "openhabian: $relayUser"
-    echo "root: $relayUser"; echo "backup: $relayUser"
-  } >> /etc/email-addresses; then echo "OK"; else echo "FAILED"; return 1; fi
+    # shellcheck disable=SC2154
+    echo "openhab: $adminmail"; echo "openhabian: $adminmail"
+    echo "root: $adminmail"; echo "backup: $adminmail"
+  } >> "${addresses}"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Function for installing etckeeper, a git based /etc backup.
@@ -464,10 +466,10 @@ miflora_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon... "
   if ! [[ -d $mifloraDir ]]; then
-    cond_echo "\nFresh Installation... "
+    cond_echo "\\nFresh Installation... "
     if ! cond_redirect git clone https://github.com/ThomDietrich/miflora-mqtt-daemon.git $mifloraDir; then echo "FAILED (git clone)"; return 1; fi
   else
-    cond_echo "\nUpdate... "
+    cond_echo "\\nUpdate... "
     if ! cond_redirect update_git_repo "$mifloraDir" "master"; then echo "FAILED (update git repo)"; return 1; fi
   fi
   if cond_redirect cp "$mifloraDir"/config.{ini.dist,ini}; then echo "OK"; else echo "FAILED (copy files)"; return 1; fi
@@ -735,10 +737,10 @@ telldus_core_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up tdtool-improved... "
   if ! [[ -d $telldusDir ]]; then
-    cond_echo "\nFresh Installation... "
+    cond_echo "\\nFresh Installation... "
     if ! cond_redirect git clone https://github.com/EliasGabrielsson/tdtool-improved.py.git $telldusDir; then echo "FAILED (git clone)"; return 1; fi
   else
-    cond_echo "\nUpdate... "
+    cond_echo "\\nUpdate... "
     if ! cond_redirect update_git_repo "$telldusDir" "master"; then echo "FAILED (update git repo)"; return 1; fi
   fi
   cond_redirect chmod +x /opt/tdtool-improved/tdtool-improved.py

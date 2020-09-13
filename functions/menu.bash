@@ -85,7 +85,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 19 116 12 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer"            "openHAB Log Viewer webapp (frontail)" \
     "22 | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     "23 | Mosquitto"             "MQTT broker Eclipse Mosquitto" \
@@ -98,7 +98,6 @@ show_main_menu() {
     "   | FIND3"                 "Framework for Internal Navigation and Discovery (BETA)" \
     "   | Monitor Mode"          "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
     "2A | Telldus Core"          "Telldus Core service for Tellstick USB devices" \
-    "2B | Mail Transfer Agent"   "Install Exim4 as MTA to relay mails via public services" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -115,27 +114,27 @@ show_main_menu() {
       *FIND3) find3_setup ;;
       *Monitor\ Mode) setup_monitor_mode ;;
       2A\ *) telldus_core_setup ;;
-      2B\ *) exim_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 21 116 14 --cancel-button Back --ok-button Execute \
-    "31 | Change hostname"      "Change the name of this system, currently '$(hostname)'" \
-    "32 | Set system locale"    "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
-    "33 | Set system timezone"  "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
-    "   | Enable NTP"           "Enable time synchronization via systemd-timesyncd to NTP servers" \
-    "   | Disable NTP"          "Disable time synchronization via systemd-timesyncd to NTP servers" \
-    "34 | Change passwords"     "Change passwords for Samba, openHAB Console or the system user" \
-    "35 | Serial port"          "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
-    "36 | WiFi setup"           "Configure wireless network connection" \
-    "   | Disable WiFi"         "Disable wireless network connection" \
-    "37 | Move root to USB"     "Move the system root from the SD card to a USB device (SSD or stick)" \
-    "38 | Use ZRAM"             "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
-    "   | Uninstall ZRAM"       "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
-    "39 | Setup VPN access"     "Setup Wireguard to enable secure remote access to openHABian (BETA)" \
-    "   | Remove Wireguard VPN" "Remove Wireguard VPN from openHABian" \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 22 118 15 --cancel-button Back --ok-button Execute \
+    "31 | Change hostname"        "Change the name of this system, currently '$(hostname)'" \
+    "32 | Set system locale"      "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
+    "33 | Set system timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
+    "   | Enable NTP"             "Enable time synchronization via systemd-timesyncd to NTP servers" \
+    "   | Disable NTP"            "Disable time synchronization via systemd-timesyncd to NTP servers" \
+    "34 | Change passwords"       "Change passwords for Samba, openHAB Console or the system user" \
+    "35 | Serial port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
+    "36 | WiFi setup"             "Configure wireless network connection" \
+    "   | Disable WiFi"           "Disable wireless network connection" \
+    "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
+    "38 | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
+    "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
+    "39 | Setup VPN access"       "Setup Wireguard to enable secure remote access to openHABian (BETA)" \
+    "   | Remove Wireguard VPN"   "Remove Wireguard VPN from openHABian" \
+    "3A | Setup Exim Mail Relay"  "Install Exim4 to relay mails via public email provider" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -154,6 +153,7 @@ show_main_menu() {
       *Uninstall\ ZRAM) init_zram_mounts "uninstall" ;;
       39\ *) if install_wireguard install; then setup_wireguard; fi;;
       *Uninstall\ Wireguard) install_wireguard remove;;
+      3A\ *) exim_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
