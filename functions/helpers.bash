@@ -87,6 +87,8 @@ update_git_repo() {
 get_public_ip() {
   local pubIP
 
+  if ! [[ -x $(command -v dig) ]]; then return 1; fi
+
   if pubIP="$(dig +short myip.opendns.com @resolver1.opendns.com | tail -1)"; then echo "$pubIP"; return 0; else return 1; fi
   if [[ -z $pubIP ]]; then
     if pubIP="$(dig -4 +short myip.opendns.com @resolver1.opendns.com | tail -1)"; then echo "$pubIP"; return 0; else return 1; fi
@@ -334,8 +336,8 @@ tryUntil() {
   local interval
 
   cmd="$1"
-  attempts=${2:-10}
-  interval=${3:-1}
+  attempts="${2:-10}"
+  interval="${3:-1}"
 
   until [[ $attempts -le 0 ]]; do
     cond_echo "\\nexecuting $cmd \\c"
@@ -361,7 +363,7 @@ tryUntil() {
 has_lowmem() {
   local totalMemory
 
-  totalMemory="$(grep MemTotal /proc/meminfo | awk '{print $2}')"
+  totalMemory="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
 
   if [[ -z $totalMemory ]]; then return 1; fi # assume that device does not have low memory
   if [[ $totalMemory -lt 900000 ]]; then return 0; else return 1; fi
@@ -378,8 +380,8 @@ wait_for_apt_to_be_ready() {
   local interval
   local pid
 
-  attempts=10
-  interval=1
+  attempts="10"
+  interval="1"
 
   until [[ $attempts -le 0 ]]; do
     apt-get update &> /dev/null & pid=$!
@@ -430,4 +432,3 @@ select_blkdev() {
   # shellcheck disable=SC2034
   retval=$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "$3" 12 76 4 "${array[@]}" 3>&1 1>&2 2>&3)
 }
-

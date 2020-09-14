@@ -15,23 +15,19 @@ find3_setup() {
     return 0
   fi
 
-  local brokerText
-  local find3Dir
+  local brokerText="You've chosen to work with an external MQTT broker.\\n\\nPlease be aware that you might need to add authentication credentials. You can do so after the installation.\\n\\nConsult with the FIND3 documentation or the openHAB community for details."
+  local disklistFileAWS="/etc/amanda/openhab-aws/disklist"
+  local disklistFileDir="/etc/amanda/openhab-dir/disklist"
+  local find3Dir="/opt/find3"
   local findPass1
   local findPass2
-  local introText
+  local introText="Framework for Internal Navigation and Discovery (FIND) version 3 will be installed to allow for the indoor localization of Bluetooth and WiFi devices.\\n\\nThis will install the FIND3 server and 'find3-cli-scanner' which allows for fingerprint collection.\\n\\nYou must manually activate 'find3-cli-scanner', for more information see:\\nhttps://www.internalpositioning.com/doc/cli-scanner.md\\n\\nThere is also an Android app for collecting fingerprints. There is no iOS app for fingerprint collection, for details on why see:\\nhttps://www.internalpositioning.com/doc/faq.md#iphone\\n\\nFor more information see:\\nhttps://www.internalpositioning.com/doc/"
   local MQTT_ADMIN
   local MQTT_PASS
   local MQTT_SERVER
-  local mqttMissingText
-  local mqttPass
-
-  brokerText="You've chosen to work with an external MQTT broker.\\n\\nPlease be aware that you might need to add authentication credentials. You can do so after the installation.\\n\\nConsult with the FIND3 documentation or the openHAB community for details."
-  find3Dir="/opt/find3"
-  introText="Framework for Internal Navigation and Discovery (FIND) version 3 will be installed to allow for the indoor localization of Bluetooth and WiFi devices.\\n\\nThis will install the FIND3 server and 'find3-cli-scanner' which allows for fingerprint collection.\\n\\nYou must manually activate 'find3-cli-scanner', for more information see:\\nhttps://www.internalpositioning.com/doc/cli-scanner.md\\n\\nThere is also an Android app for collecting fingerprints. There is no iOS app for fingerprint collection, for details on why see:\\nhttps://www.internalpositioning.com/doc/faq.md#iphone\\n\\nFor more information see:\\nhttps://www.internalpositioning.com/doc/"
-  mqttMissingText="FIND3 requires an MQTT broker to run, but Mosquitto could not be found on this system.\\n\\nYou can configure FIND to use any existing MQTT broker (in the next step) or you can go back and install Mosquitto from the openHABian menu.\\n\\nDo you want to continue with the FIND3 installation?"
-  mqttPass="/etc/mosquitto/passwd"
-  successText="FIND3 setup was successful.\\n\\nSettings can be configured in '/etc/default/find3server'. Be sure to restart the service after.\\n\\nYou must manually activate 'find3-cli-scanner', for more information see:\\nhttps://www.internalpositioning.com/doc/cli-scanner.md\\n\\nThere is also an Android app for collecting fingerprints. There is no iOS app for fingerprint collection, for details on why see:\\nhttps://www.internalpositioning.com/doc/faq.md#iphone\\n\\nCheck out your FIND3 server's dashboard at: http://${HOSTNAME}:8003\\n\\nFor more information see:\\nhttps://www.internalpositioning.com/doc/"
+  local mqttMissingText="FIND3 requires an MQTT broker to run, but Mosquitto could not be found on this system.\\n\\nYou can configure FIND to use any existing MQTT broker (in the next step) or you can go back and install Mosquitto from the openHABian menu.\\n\\nDo you want to continue with the FIND3 installation?"
+  local mqttPass="/etc/mosquitto/passwd"
+  local successText="FIND3 setup was successful.\\n\\nSettings can be configured in '/etc/default/find3server'. Be sure to restart the service after.\\n\\nYou must manually activate 'find3-cli-scanner', for more information see:\\nhttps://www.internalpositioning.com/doc/cli-scanner.md\\n\\nThere is also an Android app for collecting fingerprints. There is no iOS app for fingerprint collection, for details on why see:\\nhttps://www.internalpositioning.com/doc/faq.md#iphone\\n\\nCheck out your FIND3 server's dashboard at: http://${HOSTNAME}:8003\\n\\nFor more information see:\\nhttps://www.internalpositioning.com/doc/"
 
   echo -n "$(timestamp) [openHABian] Beginning setup of FIND3, the Framework for Internal Navigation and Discovery... "
 
@@ -102,18 +98,27 @@ find3_setup() {
     if cond_redirect mv "${TMPDIR:-/tmp}"/ztab /etc; then echo "OK"; else echo "FAILED (move new configuration)"; return 1; fi
   fi
 
+  if [[ -f $disklistFileDir ]]; then
+    echo -n "$(timestamp) [openHABian] Adding FIND3 to Amanda local backup... "
+    if ! cond_redirect sed -i -e '/find3/d' "$disklistFileDir"; then echo "FAILED (old config)"; return 1; fi
+    if (echo "${HOSTNAME}  /opt/find3/server/main        comp-user-tar" >> "$disklistFileDir"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
+  fi
+  if [[ -f $disklistFileAWS ]]; then
+    echo -n "$(timestamp) [openHABian] Adding FIND3 to Amanda AWS backup... "
+    if ! cond_redirect sed -i -e '/find3/d' "$disklistFileAWS"; then echo "FAILED (old config)"; return 1; fi
+    if (echo "${HOSTNAME}  /opt/find3/server/main        comp-user-tar" >> "$disklistFileAWS"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
+  fi
+
   echo -n "$(timestamp) [openHABian] Setting up FIND3 service... "
-  if ! (id -u find3 &>/dev/null || cond_redirect useradd --groups openhabian find3); then echo "FAILED (adduser)"; return 1; fi
+  if ! (id -u find3 &> /dev/null || cond_redirect useradd --groups openhabian find3); then echo "FAILED (adduser)"; return 1; fi
   if ! cond_redirect chown -R find3:openhabian /opt/find3; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/find3ai.service /etc/systemd/system/find3ai.service; then echo "FAILED (copy service)"; return 1; fi
   if ! (sed -e 's|%MQTT_SERVER|'"${MQTT_SERVER}"'|g; s|%MQTT_ADMIN|'"${MQTT_ADMIN}"'|g; s|%MQTT_PASS|'"${MQTT_PASS}"'|g; s|%FIND3_PORT|8003|g' "${BASEDIR:-/opt/openhabian}"/includes/find3server.service > /etc/systemd/system/find3server.service); then echo "FAILED (service file creation)"; return 1; fi
   if ! cond_redirect chmod 644 /etc/systemd/system/find3server.service; then echo "FAILED (permissions)"; return 1; fi
   if ! (sed -e 's|%MQTT_SERVER|'"${MQTT_SERVER}"'|g; s|%MQTT_ADMIN|'"${MQTT_ADMIN}"'|g; s|%MQTT_PASS|'"${MQTT_PASS}"'|g' "${BASEDIR:-/opt/openhabian}"/includes/find3server > /etc/default/find3server); then echo "FAILED (service configuration creation)"; return 1; fi
-  cond_redirect systemctl -q daemon-reload &> /dev/null
-  if ! cond_redirect systemctl enable find3ai.service; then echo "FAILED (enable service)"; return 1; fi
-  if ! cond_redirect systemctl enable find3server.service; then echo "FAILED (enable service)"; return 1; fi
-  if ! cond_redirect systemctl restart find3ai.service; then echo "FAILED (enable service)"; return 1; fi
-  if cond_redirect systemctl restart find3server.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! cond_redirect systemctl enable --now find3ai.service; then echo "FAILED (enable find3ai)"; return 1; fi
+  if cond_redirect systemctl enable --now find3server.service; then echo "OK"; else echo "FAILED (enable find3server)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Installing FIND3 fingerprinting client... "
   GO111MODULE="on"
@@ -122,8 +127,8 @@ find3_setup() {
   if ! cond_redirect go get -v github.com/schollz/find3-cli-scanner/v3; then echo "FAILED (get)"; return 1; fi
   if cond_redirect install -m 755 "$GOPATH"/bin/find3-cli-scanner /usr/local/bin/find3-cli-scanner; then echo "OK"; else echo "FAILED"; return 1; fi
 
-  if dpkg -s 'openhab2' &> /dev/null; then
-    dashboard_add_tile find3
+  if openhab_is_installed; then
+    dashboard_add_tile "find3"
   fi
 
   whiptail --title "Operation Successful!" --msgbox "$successText" 22 80
@@ -172,6 +177,7 @@ setup_monitor_mode() {
 
   local disabledText
   local firmwarePath
+  local firmwareVersion
   local introText
   local KERNEL
   local nexmonDir
@@ -185,15 +191,28 @@ setup_monitor_mode() {
   nexmonDir="/opt/nexmon"
   successText="Setup completed successfully, however this does not mean it worked correctly.\\n\\nPlease reboot and the Monitor Mode should be available and ready for use on interface 'mon0'!"
   if [[ $(uname -r) == 5.4* ]]; then
-    echo "$(timestamp) [openHABian] Monitor Mode patch has not been updated for kernel version 5.4 yet... CANCELED"
-    return 0
-    #version="brcmfmac_5.4.y-nexmon"
+    version="brcmfmac_5.4.y-nexmon"
+    if is_pizerow || is_pithree; then
+      echo "$(timestamp) [openHABian] Monitor Mode patch has not been updated for kernel version 5.4 on your RPi... CANCELED"
+      return 0
+    elif is_pithreeplus || is_pifour; then
+      firmwareVersion="bcm43455c0/7_45_189"
+    fi
   elif [[ $(uname -r) == 4.19* ]]; then
     version="brcmfmac_4.19.y-nexmon"
+    if is_pizerow || is_pithree; then
+      echo "$(timestamp) [openHABian] Monitor Mode patch has not been updated for kernel version 4.19 on your RPi... CANCELED"
+      return 0
+    elif is_pithreeplus || is_pifour; then
+      firmwareVersion="bcm43455c0/7_45_189"
+    fi
   elif [[ $(uname -r) == 4.14* ]]; then
     version="brcmfmac_4.14.y-nexmon"
-  elif [[ $(uname -r) == 4.9* ]]; then
-    version="brcmfmac_4.9.y-nexmon"
+    if is_pizerow || is_pithree; then
+      firmwareVersion="bcm43430a1/7_45_41_46"
+    elif is_pithreeplus || is_pifour; then
+      firmwareVersion="bcm43455c0/7_45_189"
+    fi
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning setup of Monitor Mode... "
@@ -207,7 +226,7 @@ setup_monitor_mode() {
   fi
   if (whiptail --title "Monitor Mode setup" --yes-button "Begin" --no-button "Cancel" --defaultno --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
-  if ! dpkg -s 'firmware-brcm80211' &> /dev/null; then
+  if ! [[ $(dpkg -s 'firmware-brcm80211') ]]; then
     echo -n "$(timestamp) [openHABian] Installing WiFi firmware... "
     if cond_redirect apt-get install --yes firmware-brcm80211; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -251,24 +270,13 @@ setup_monitor_mode() {
   if cond_redirect make --directory="$nexmonDir"; then echo "OK"; else echo "FAILED (make)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Creating firmware patches... "
-  if is_pizerow || is_pithree; then
-    if ! cond_redirect cd "${nexmonDir}/patches/bcm43430a1/7_45_41_46/nexmon"; then echo "FAILED (cd)"; return 1; fi
-    if ! cond_redirect make --directory="${nexmonDir}/patches/bcm43430a1/7_45_41_46/nexmon"; then echo "FAILED (make)"; return 1; fi
-    if ! cond_redirect make --directory="${nexmonDir}/patches/bcm43430a1/7_45_41_46/nexmon" backup-firmware; then echo "FAILED (backup-firmware)"; return 1; fi
-    if ! cond_redirect make --directory="${nexmonDir}/patches/bcm43430a1/7_45_41_46/nexmon" install-firmware; then echo "FAILED (install-firmware)"; return 1; fi
-    if ! cond_redirect mv "${firmwarePath}/brcmfmac.ko" "${firmwarePath}/brcmfmac.ko.orig"; then echo "FAILED (backup)"; return 1; fi
-    if cond_redirect cp "${nexmonDir}/patches/bcm43430a1/7_45_41_46/nexmon/${version}/brcmfmac.ko" "${firmwarePath}/"; then echo "OK"; else echo "FAILED (copy)"; return 1; fi
-  elif is_pithreeplus || is_pifour; then
-    if ! cond_redirect cd "${nexmonDir}/patches/bcm43455c0/7_45_154/nexmon"; then echo "FAILED (cd)"; return 1; fi
-    if ! cond_redirect make --directory="${nexmonDir}/patches/bcm43455c0/7_45_154/nexmon"; then echo "FAILED (make)"; return 1; fi
-    if ! cond_redirect make --directory="${nexmonDir}/patches/bcm43455c0/7_45_154/nexmon" backup-firmware; then echo "FAILED (backup-firmware)"; return 1; fi
-    if ! cond_redirect make --directory="${nexmonDir}/patches/bcm43455c0/7_45_154/nexmon" install-firmware; then echo "FAILED (install-firmware)"; return 1; fi
-    if ! cond_redirect mv "${firmwarePath}/brcmfmac.ko" "${firmwarePath}/brcmfmac.ko.orig"; then echo "FAILED (backup)"; return 1; fi
-    if cond_redirect cp "${nexmonDir}/patches/bcm43455c0/7_45_154/nexmon/${version}/brcmfmac.ko" "${firmwarePath}/"; then echo "OK"; else echo "FAILED (copy)"; return 1; fi
-  else
-    echo "FAILED (unsupported platform)"
-    return 1
-  fi
+  if ! cond_redirect cd "${nexmonDir}/patches/${firmwareVersion}/nexmon"; then echo "FAILED (cd)"; return 1; fi
+  if ! cond_redirect make --directory="${nexmonDir}/patches/${firmwareVersion}/nexmon"; then echo "FAILED (make)"; return 1; fi
+  if ! cond_redirect make --directory="${nexmonDir}/patches/${firmwareVersion}/nexmon" backup-firmware; then echo "FAILED (backup-firmware)"; return 1; fi
+  if ! cond_redirect make --directory="${nexmonDir}/patches/${firmwareVersion}/nexmon" install-firmware; then echo "FAILED (install-firmware)"; return 1; fi
+  if ! cond_redirect mv "${firmwarePath}/brcmfmac.ko" "${firmwarePath}/brcmfmac.ko.orig"; then echo "FAILED (backup)"; return 1; fi
+  if cond_redirect cp "${nexmonDir}/patches/${firmwareVersion}/nexmon/${version}/brcmfmac.ko" "${firmwarePath}/"; then echo "OK"; else echo "FAILED (copy)"; return 1; fi
+
 
   echo -n "$(timestamp) [openHABian] Making firmware patches persistent... "
   if ! cond_redirect depmod --all; then echo "FAILED (depmod)"; return 1; fi

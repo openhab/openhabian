@@ -24,7 +24,7 @@ get_git_revision() {
 ##
 install_cleanup() {
   echo -n "$(timestamp) [openHABian] Cleaning up... "
-  cond_redirect systemctl -q daemon-reload &> /dev/null
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect apt-get autoremove --yes; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
@@ -134,9 +134,9 @@ openhabian_update() {
 
   if [[ -n $INTERACTIVE ]]; then
     if [[ $current == "stable" || $current == "master" ]]; then
-      if ! selection=$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 2 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF 3>&1 1>&2 2>&3); then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 2 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF 3>&1 1>&2 2>&3)"; then return 0; fi
     else
-      if ! selection=$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3); then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
     fi
     read -r -t 1 -n 1 key
     if [[ -n $key ]]; then
@@ -207,7 +207,7 @@ system_check_default_password() {
   generatedPassword="$(perl -le 'print crypt("$ENV{defaultPassword}","\$$ENV{algo}\$$ENV{salt}\$")')"
 
   echo -n "$(timestamp) [openHABian] Checking for default openHABian username:password combination... "
-  if ! id -u $defaultUser &> /dev/null; then echo "OK (unknown user)"; return 0; fi
+  if ! [[ $(id -u $defaultUser) ]]; then echo "OK (unknown user)"; return 0; fi
   if [[ $generatedPassword == "$originalPassword" ]]; then
     if [[ -n $INTERACTIVE ]]; then
       whiptail --title "Default Password Detected!" --msgbox "$introText" 11 80
@@ -223,11 +223,8 @@ system_check_default_password() {
 ##    config_ipv6()
 ##
 config_ipv6() {
-  local aptConf
-  local sysctlConf
-
-  aptConf="/etc/apt/apt.conf/S90force-ipv4"
-  sysctlConf="/etc/sysctl.d/99-sysctl.conf"
+  local aptConf="/etc/apt/apt.conf/S90force-ipv4"
+  local sysctlConf="/etc/sysctl.d/99-sysctl.conf"
 
   if [[ "${ipv6:-enable}" == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Disabling IPv6... "
