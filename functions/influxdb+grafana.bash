@@ -202,7 +202,7 @@ influxdb_install() {
   fi
   myRelease="$(lsb_release -sc)"
 
-  if ! [[ $(dpkg -s 'influxdb') ]]; then
+  if ! dpkg -s 'influxdb' &> /dev/null; then
     if ! add_keys "https://repos.influxdata.com/influxdb.key"; then return 1; fi
 
     echo "deb https://repos.influxdata.com/${myOS,,} ${myRelease,,} stable" > /etc/apt/sources.list.d/influxdb.list
@@ -245,7 +245,7 @@ grafana_install(){
 
   adminPassword="$1"
 
-  if ! [[ $(dpkg -s 'grafana') ]]; then
+  if ! dpkg -s 'grafana' &> /dev/null; then
     if ! add_keys "https://packages.grafana.com/gpg.key"; then return 1; fi
 
     echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list

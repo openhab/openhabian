@@ -43,13 +43,13 @@ configure_wifi() {
     fi
 
     if is_pifour || is_pithree || is_pithreeplus || is_pizerow; then
-      if ! [[ $(dpkg -s 'firmware-brcm80211') ]]; then
+      if ! dpkg -s 'firmware-brcm80211' &> /dev/null; then
         echo -n "$(timestamp) [openHABian] Installing WiFi firmware... "
         if cond_redirect apt-get install --yes firmware-brcm80211; then echo "OK"; else echo "FAILED"; return 1; fi
       fi
     fi
 
-    if ! [[ $(dpkg -s 'wpasupplicant' 'wireless-tools') ]]; then
+    if ! dpkg -s 'wpasupplicant' 'wireless-tools' &> /dev/null; then
       echo -n "$(timestamp) [openHABian] Installing WiFi prerequisites (wpasupplicant, wireless-tools)... "
       if cond_redirect apt-get install --yes wpasupplicant wireless-tools; then echo "OK"; else echo "FAILED"; return 1; fi
     fi

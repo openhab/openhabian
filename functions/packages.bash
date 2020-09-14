@@ -91,7 +91,7 @@ exim_setup() {
   local logrotateFile="/etc/logrotate.d/exim4"
   local introText
 
-  if ! [[ $(dpkg -s 'mailutils' 'exim4' 'dnsutils') ]]; then
+  if ! dpkg -s 'mailutils' 'exim4' 'dnsutils' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing MTA required packages (mailutils, exim4, dnsutils,)... "
     if cond_redirect apt-get install --yes exim4 dnsutils mailutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -237,7 +237,7 @@ mqtt_setup() {
     if (whiptail --title "MQTT installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   fi
 
-  if ! [[ $(dpkg -s 'mosquitto' 'mosquitto-clients') ]]; then
+  if ! dpkg -s 'mosquitto' 'mosquitto-clients' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing MQTT... "
     if cond_redirect apt-get install --yes mosquitto mosquitto-clients; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -300,7 +300,7 @@ find_setup() {
   local successText="FIND setup was successful.\\n\\nSettings can be configured in '/etc/default/findserver'. Be sure to restart the service after.\\n\\nYou can obtain the FIND app for Android through the Play Store. There is no iOS app available, for more information see: https://www.internalpositioning.com/faq/#can-i-use-an-iphone\\n\\nCheck out your FIND server's dashboard at: http://${HOSTNAME}:8003\\n\\nFor further information: https://www.internalpositioning.com"
   local temp
 
-  if ! [[ $(dpkg -s 'libsvm-tools') ]]; then
+  if ! dpkg -s 'libsvm-tools' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing FIND required packages... "
     if cond_redirect apt-get install --yes libsvm-tools; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -414,7 +414,7 @@ knxd_setup() {
     echo "OK"
   fi
 
-  if ! [[ $(dpkg -s 'owserver' 'ow-shell' 'usbutils') ]]; then
+  if ! dpkg -s 'owserver' 'ow-shell' 'usbutils' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing owserver (1wire)... "
     if cond_redirect apt-get install --yes owserver ow-shell usbutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -439,7 +439,7 @@ miflora_setup() {
   local mifloraDir="/opt/miflora-mqtt-daemon"
   local successText="Setup was successful.\\n\\nThe Daemon was installed and the systemd service was set up just as described in it's README. Please add your MQTT broker settings in '${mifloraDir}/config.ini' and add your Mi Flora sensors. After that be sure to restart the daemon to reload it's configuration.\\n\\nAll details can be found under: https://github.com/ThomDietrich/miflora-mqtt-daemon\\nThe article also contains instructions regarding openHAB integration."
 
-  if ! [[ $(dpkg -s 'git' 'python3' 'python3-pip' 'bluetooth' 'bluez') ]]; then
+  if ! dpkg -s 'git' 'python3' 'python3-pip' 'bluetooth' 'bluez' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing miflora-mqtt-daemon required packages... "
     if cond_redirect apt-get install --yes git python3 python3-pip bluetooth bluez; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -619,7 +619,7 @@ nginx_setup() {
     if [[ $validDomain == "true" ]]; then
       echo -n "$(timestamp) [openHABian] Installing certbot... "
       if is_ubuntu; then
-        if ! [[ $(dpkg -s 'software-properties-common') ]]; then
+        if ! dpkg -s 'software-properties-common' &> /dev/null; then
           if ! cond_redirect apt-get install --yes software-properties-common; then echo "FAILED (Ubuntu prerequsites)"; return 1; fi
         fi
         if ! cond_redirect add-apt-repository universe; then echo "FAILED (add universe repo)"; return 1; fi

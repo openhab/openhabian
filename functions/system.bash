@@ -43,9 +43,7 @@ basic_packages() {
 ##    needed_packages()
 ##
 needed_packages() {
-  local bluetoothPackages
-
-  bluetoothPackages="bluez python3-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth"
+  local bluetoothPackages="bluez python3-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth"
 
   # Install apt-transport-https - update packages through https repository
   # Install bc + sysstat - needed for FireMotD
@@ -131,7 +129,7 @@ setup_ntp() {
 locale_setting() {
   local locale
 
-  if ! [[ $(dpkg -s 'locales') ]]; then
+  if ! dpkg -s 'locales' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing locales from apt... "
     if cond_redirect apt-get install --yes locales; then echo "OK"; else echo "FAILED"; return 1; fi
   fi

@@ -226,7 +226,7 @@ setup_monitor_mode() {
   fi
   if (whiptail --title "Monitor Mode setup" --yes-button "Begin" --no-button "Cancel" --defaultno --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
-  if ! [[ $(dpkg -s 'firmware-brcm80211') ]]; then
+  if ! dpkg -s 'firmware-brcm80211' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing WiFi firmware... "
     if cond_redirect apt-get install --yes firmware-brcm80211; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
