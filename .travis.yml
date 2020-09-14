@@ -25,21 +25,13 @@ jobs:
     - stage: BATS tests
   include:
     - stage: BATS tests
-      name: BATS java tests on virtual 64bit RPi4
-      env: HW=rpi4
-      arch: arm64
-      script:
-        # BATS tests on a 64bit rpi4 virtual platform, running in a 64bit OS on Travis Arm64 HW
-        - docker build -t openhabian/bats-openhabian -f Dockerfile.raspberrypi4-64 .
-        - echo -e "\n\e[36mopenHABian BATS java tests running on a\e[31m 64bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
-        - docker run --name "java-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "java-." .'
-    - name: BATS tests on virtual 32bit RPi3
+      name: BATS tests on virtual 64bit RPi4
       env: HW=rpi3
       arch: arm64
       script:
-        # BATS tests on a 32bit rpi3 virtual platform, running in a 32bit OS on Travis Arm64 HW
-        - docker build -t openhabian/bats-openhabian -f Dockerfile.raspberrypi3 .
-        - echo -e "\n\e[36mopenHABian BATS tests running on a\e[31m 32bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
+        # BATS tests on a 64bit ARMv8 (RPi4) virtual platform, running in a 64bit OS on Travis Arm64 HW
+        - docker build -t openhabian/bats-openhabian -f Dockerfile.raspberrypi4-64 .
+        - echo -e "\n\e[36mopenHABian BATS tests running on a\e[31m 64bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
         - docker run --name "development-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "development-." .'
         - docker run --name "unit-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "unit-." .'
         - docker run --name "installation-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "installation-." .'

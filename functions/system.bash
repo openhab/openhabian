@@ -131,7 +131,7 @@ setup_ntp() {
 locale_setting() {
   local locale
 
-  if ! dpkg -s 'locales' &> /dev/null; then
+  if ! [[ $(dpkg -s 'locales') ]]; then
     echo -n "$(timestamp) [openHABian] Installing locales from apt... "
     if cond_redirect apt-get install --yes locales; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -175,7 +175,7 @@ hostname_change() {
 
   if [[ -n $INTERACTIVE ]]; then
     echo -n "$(timestamp) [openHABian] Setting hostname of the base system based on user choice... "
-    if ! newHostname=$(whiptail --title "Change Hostname" --inputbox "\\nPlease enter the new system hostname (no special characters, no spaces):" 9 80 3>&1 1>&2 2>&3); then echo "FAILED"; return 1; fi
+    if ! newHostname="$(whiptail --title "Change Hostname" --inputbox "\\nPlease enter the new system hostname (no special characters, no spaces):" 9 80 3>&1 1>&2 2>&3)"; then echo "FAILED"; return 1; fi
     if [[ -z $newHostname ]] || ( echo "$newHostname" | grep -q ' ' ); then
       whiptail --title "Change Hostname" --msgbox "The hostname you have entered is not a valid hostname. Please try again." 7 80
       echo "FAILED"
@@ -236,7 +236,8 @@ create_mount() {
 
   echo -n "$(timestamp) [openHABian] Creating mount $source in '/srv/openhab2-${destination}'... "
   if ! sed -e 's|%SRC|'"${source}"'|g; s|%DEST|'"${destination}"'|g' "${BASEDIR:-/opt/openhabian}"/includes/mount_template > /etc/systemd/system/"$mountPoint"; then echo "FAILED (sed)"; return 1; fi
-  if ! cond_redirect systemctl enable --now "$mountPoint"; then echo "FAILED (enable service)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if cond_redirect systemctl enable --now "$mountPoint"; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 }
 
 ## Function for adding openHAB folder mountpoints to the /srv/ folder.
@@ -244,14 +245,16 @@ create_mount() {
 ##    srv_bind_mounts()
 ##
 srv_bind_mounts() {
-  echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under '/srv/openhab2-*'... "
-  if [[ -f /etc/samba/smb.conf ]] && [[ $(systemctl is-active --quiet smbd) ]]; then
-    cond_redirect systemctl stop smbd
+  if [[ -f /etc/samba/smb.conf ]] && [[ $(systemctl is-active smbd) ]]; then
+    echo -n "$(timestamp) [openHABian] Stopping Samba service... "
+    if cond_redirect systemctl stop smbd.service; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  if [[ -f /etc/ztab ]] && [[ $(systemctl is-active --quiet zram-config) ]]; then
-    cond_redirect systemctl stop zram-config
+  if [[ -f /etc/ztab ]] && [[ $(systemctl is-active zram-config) ]]; then
+    echo -n "$(timestamp) [openHABian] Stopping ZRAM service... "
+    if cond_redirect systemctl stop zram-config.service; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
+  echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under '/srv/openhab2-*'... "
   cond_redirect umount -q /srv/openhab2-{sys,conf,userdata,logs,addons}
   if ! cond_redirect rm -f /etc/systemd/system/srv*.mount; then echo "FAILED (clean mounts)"; return 1; fi
   if ! cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}; then echo "FAILED (prepare dirs)"; return 1; fi
@@ -264,10 +267,14 @@ srv_bind_mounts() {
   if ! cond_redirect create_mount "/var/log/openhab2" "logs"; then echo "FAILED (logs)"; return 1; fi
   if cond_redirect create_mount "/usr/share/openhab2/addons" "addons"; then echo "OK"; else echo "FAILED (addons)"; return 1; fi
 
-  cond_redirect systemctl -q daemon-reload &> /dev/null
-
-  if [[ -f /etc/ztab ]]; then systemctl restart zram-config; fi
-  if [[ -f /etc/samba/smb.conf ]]; then systemctl restart smbd; fi
+  if [[ -f /etc/ztab ]]; then
+    echo -n "$(timestamp) [openHABian] Restarting ZRAM service... "
+    if cond_redirect systemctl restart zram-config.service; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+  if [[ -f /etc/samba/smb.conf ]]; then
+    echo -n "$(timestamp) [openHABian] Restarting Samba service... "
+    if cond_redirect systemctl restart smbd.service; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
 }
 
 ## Function for applying common user account permission settings to system folders.
@@ -275,60 +282,60 @@ srv_bind_mounts() {
 ##    permissions_corrections()
 ##
 permissions_corrections() {
-  local openhabFolders=(/etc/openhab2 /var/lib/openhab2 /var/log/openhab2 /usr/share/openhab2)
-  local openhabHome="/var/lib/openhab2"
   local gpioDir="/sys/devices/platform/soc"
+  local groups=("audio" "bluetooth" "dialout" "gpio" "tty")
+  local openhabFolders=("/etc/openhab2" "/var/lib/openhab2" "/var/log/openhab2" "/usr/share/openhab2")
+  local openhabHome="/var/lib/openhab2"
 
   echo -n "$(timestamp) [openHABian] Applying file permissions recommendations... "
-  if ! id -u openhab &> /dev/null; then
+  if ! openhab_is_installed; then
     echo "FAILED (please execute after openHAB is installed)"
     return 1
   fi
 
-  for pGroup in audio bluetooth dialout gpio tty
-  do
-    if getent group "$pGroup" &> /dev/null ; then
-      if ! cond_redirect adduser --quiet openhab "$pGroup"; then echo "FAILED (openhab ${pGroup})"; return 1; fi
-      if ! cond_redirect adduser --quiet "${username:-openhabian}" "$pGroup"; then echo "FAILED (${username:-openhabian} ${pGroup})"; return 1; fi
+  for pGroup in "${groups[@]}"; do
+    if grep -qs "^[[:space:]]*${pGroup}:" /etc/group; then
+      if ! cond_redirect usermod --append --groups "$pGroup" openhab ; then echo "FAILED (openhab ${pGroup})"; return 1; fi
+      if ! cond_redirect usermod --append --groups "$pGroup" "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} ${pGroup})"; return 1; fi
     fi
   done
-  if ! cond_redirect adduser --quiet "${username:-openhabian}" openhab; then echo "FAILED (${username:-openhabian} openhab)"; return 1; fi
+  if ! cond_redirect usermod --append --groups openhab "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} openhab)"; return 1; fi
 
   if ! cond_redirect chown openhab:openhab /srv /srv/README.txt /opt; then echo "FAILED (openhab server mounts)"; return 1; fi
   if ! cond_redirect chmod ugo+w /srv /srv/README.txt; then echo "FAILED (server mounts)"; return 1; fi
-  if ! cond_redirect chown -R openhab:openhab "${openhabFolders[@]}"; then echo "FAILED (openhab folders)"; return 1; fi
-  if ! cond_redirect chmod -R ug+wX /opt "${openhabFolders[@]}"; then echo "FAILED (folders)"; return 1; fi
+  if ! cond_redirect chown --recursive openhab:openhab "${openhabFolders[@]}"; then echo "FAILED (openhab folders)"; return 1; fi
+  if ! cond_redirect chmod --recursive ug+wX /opt "${openhabFolders[@]}"; then echo "FAILED (folders)"; return 1; fi
   if [[ -d "$openhabHome"/.ssh ]]; then
-    if ! cond_redirect chmod -R go-rwx "$openhabHome"/.ssh; then echo "FAILED (set .ssh access)"; return 1; fi
+    if ! cond_redirect chmod --recursive go-rwx "$openhabHome"/.ssh; then echo "FAILED (set .ssh access)"; return 1; fi
   fi
 
-  if ! cond_redirect chown -R "${username:-openhabian}:${username:-openhabian}" "/home/${username:-openhabian}"; then echo "FAILED (${username:-openhabian} own $HOME)"; return 1; fi
+  if ! cond_redirect chown --recursive "${username:-openhabian}:${username:-openhabian}" "/home/${username:-openhabian}"; then echo "FAILED (${username:-openhabian} own $HOME)"; return 1; fi
 
   if ! cond_redirect setfacl -R --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access)"; return 1; fi
   if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; return 1; fi
-  if cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "OK"; else echo "FAILED"; return 1; fi
+  if ! cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "FAILED"; return 1; fi
 
-  if ! cond_redirect chgrp root /var/log/samba /var/log/unattended-upgrades; then echo "FAILED (3rd party logdir)"; return 1; fi
+  if cond_redirect chgrp root /var/log/samba /var/log/unattended-upgrades; then echo "OK"; else echo "FAILED (3rd party logdir)"; return 1; fi
 
   if [[ -d /etc/homegear ]]; then
-    chown -R root:root /etc/homegear
-    find /etc/homegear -type d -print0 | xargs -0 chmod 755
-    find /etc/homegear -type f -print0 | xargs -0 chmod 644
-    find /etc/homegear -name "*.key" -print0 | xargs -0 chmod 644
-    find /etc/homegear -name "*.key" -print0 | xargs -0 chown homegear:homegear
-    chown homegear:homegear /etc/homegear/rpcclients.conf
-    chmod 400 /etc/homegear/rpcclients.conf
-    chown homegear:homegear -R /var/log/homegear
+    echo -n "$(timestamp) [openHABian] Applying additional file permissions recommendations for Homegear... "
+    if ! cond_redirect chown --recursive root:root /etc/homegear; then echo "FAILED (chown)"; return 1; fi
+    if ! (find /etc/homegear -type d -print0 | xargs -0 chmod 755); then echo "FAILED (chmod directories)"; return 1; fi
+    if ! (find /etc/homegear -type f -print0 | xargs -0 chmod 644); then echo "FAILED (chmod files)"; return 1; fi
+    if ! (find /etc/homegear -name "*.key" -print0 | xargs -0 chmod 644); then echo "FAILED (chmod *.key)"; return 1; fi
+    if ! (find /etc/homegear -name "*.key" -print0 | xargs -0 chown homegear:homegear); then echo "FAILED (chown *.key)"; return 1; fi
+    if ! cond_redirect chown homegear:homegear /etc/homegear/rpcclients.conf; then echo "FAILED (chown rpcclients)"; return 1; fi
+    if ! cond_redirect chmod 400 /etc/homegear/rpcclients.conf; then echo "FAILED (chmod rpcclients)"; return 1; fi
+    if ! cond_redirect chown --recursive homegear:homegear /var/log/homegear; then echo "FAILED (chown logs)"; return 1; fi
 
     # homeMatic/homegear controller HM-MOD-RPI-PCB uses GPIO 18 to reset HW
-    if ! [[ -d "${gpioDir}/gpio18" ]]; then
+    if ! [[ -d ${gpioDir}/gpio18 ]]; then
       echo "18" > /sys/class/gpio/export
       echo "out" > /sys/class/gpio/gpio/direction
       echo "0" > /sys/class/gpio/gpio/value
     fi
-    if ! [[ -d "${gpioDir}/gpio18" ]]; then echo "FAILED (set GPIO 18 access)"; return 1; fi
-    chgrp gpio ${gpioDir}/gpio18/*
-    chmod g+rw ${gpioDir}/gpio18/*
+    if ! cond_redirect chgrp --recursive gpio "${gpioDir}/gpio18"; then echo "FAILED (set GPIO 18 group)"; return 1; fi
+    if cond_redirect chmod g+rw --recursive "${gpioDir}/gpio18"; then echo "OK"; else echo "FAILED (set GPIO 18 access)"; return 1; fi
   fi
 }
 
@@ -373,7 +380,7 @@ misc_system_settings() {
 ## Change system swap size dependent on free space on '/swap' on SD
 ## ('/var/swap' per default) only used after ZRAM swap is full if ZRAM is enabled.
 ##
-##    change_swapsize(int size in MB)
+##    change_swapsize()
 ##
 change_swapsize() {
   if ! is_pi; then return 0; fi
@@ -383,15 +390,15 @@ change_swapsize() {
   local swap
   local totalMemory
 
-  totalMemory="$(grep MemTotal /proc/meminfo | awk '{print $2}')"
+  totalMemory="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
   if [[ -z $totalMemory ]]; then return 1; fi
   swap="$((2*totalMemory))"
   minFree="$((2*swap))"
   free="$(df -hk / | awk '/dev/ { print $4 }')"
   if [[ $free -ge "$minFree" ]]; then
-    size=$swap
+    size="$swap"
   elif [[ $free -ge "$swap" ]]; then
-    size=$totalMemory
+    size="$totalMemory"
   else
     return 0
   fi
@@ -474,33 +481,27 @@ prepare_serial_port() {
   if [[ $selection == *"1"* ]]; then
     echo -n "$(timestamp) [openHABian] Enabling serial port and disabling serial console... "
     if grep -qs "^[[:space:]]*enable_uart" /boot/config.txt; then
-      if ! cond_redirect sed -i 's|^#*.*enable_uart=.*$|enable_uart=1|g' /boot/config.txt; then echo "FAILED (uart)"; return 1; fi
+      if ! cond_redirect sed -i -e 's|^#*.*enable_uart=.*$|enable_uart=1|g' /boot/config.txt; then echo "FAILED (uart)"; return 1; fi
     else
-      if ! echo "enable_uart=1" >> /boot/config.txt; then echo "FAILED (uart)"; return 1; fi
+      if ! (echo "enable_uart=1" >> /boot/config.txt); then echo "FAILED (uart)"; return 1; fi
     fi
     if ! cond_redirect cp /boot/cmdline.txt /boot/cmdline.txt.bak; then echo "FAILED (backup cmdline.txt)"; return 1; fi
-    if ! cond_redirect sed -i 's|console=tty.*console=tty1|console=tty1|g' /boot/cmdline.txt; then echo "FAILED (console)"; return 1; fi
-    if ! cond_redirect sed -i 's|console=serial.*console=tty1|console=tty1|g' /boot/cmdline.txt; then echo "FAILED (serial)"; return 1; fi
+    if ! cond_redirect sed -i -e 's|console=tty.*console=tty1|console=tty1|g' /boot/cmdline.txt; then echo "FAILED (console)"; return 1; fi
+    if ! cond_redirect sed -i -e 's|console=serial.*console=tty1|console=tty1|g' /boot/cmdline.txt; then echo "FAILED (serial)"; return 1; fi
     cond_echo "Disabling serial-getty service"
-    if ! cond_redirect systemctl stop serial-getty@ttyAMA0.service; then echo "FAILED (stop serial-getty@ttyAMA0.service)"; return 1; fi
-    if ! cond_redirect systemctl disable serial-getty@ttyAMA0.service; then echo "FAILED (disable serial-getty@ttyAMA0.service)"; return 1; fi
-    if ! cond_redirect systemctl stop serial-getty@serial0.service; then echo "FAILED (stop serial-getty@serial0.service)"; return 1; fi
-    if ! cond_redirect systemctl disable serial-getty@serial0.service; then echo "FAILED (disable serial-getty@serial0.service)"; return 1; fi
-    if ! cond_redirect systemctl stop serial-getty@ttyS0.service; then echo "FAILED (stop serial-getty@ttyS0.service)"; return 1; fi
-    if cond_redirect systemctl disable serial-getty@ttyS0.service; then echo "OK (reboot required)"; else echo "FAILED (disable serial-getty@ttyS0.service)"; return 1; fi
+    if ! cond_redirect systemctl disable --now serial-getty@ttyAMA0.service; then echo "FAILED (disable serial-getty@ttyAMA0.service)"; return 1; fi
+    if ! cond_redirect systemctl disable --now serial-getty@serial0.service; then echo "FAILED (disable serial-getty@serial0.service)"; return 1; fi
+    if cond_redirect systemctl disable --now serial-getty@ttyS0.service; then echo "OK (reboot required)"; else echo "FAILED (disable serial-getty@ttyS0.service)"; return 1; fi
   else
     if [[ -f /boot/cmdline.txt.bak ]]; then
       echo -n "$(timestamp) [openHABian] Disabling serial port and enabling serial console... "
-      if ! cond_redirect sed -i '/^#*.*enable_uart=.*$/d' /boot/config.txt; then echo "FAILED (uart)"; return 1; fi
+      if ! cond_redirect sed -i -e '/^#*.*enable_uart=.*$/d' /boot/config.txt; then echo "FAILED (uart)"; return 1; fi
       if ! cond_redirect cp /boot/cmdline.txt.bak /boot/cmdline.txt; then echo "FAILED (restore cmdline.txt)"; return 1; fi
       if ! cond_redirect rm -f /boot/cmdline.txt.bak; then echo "FAILED (remove backup)"; return 1; fi
       cond_echo "Enabling serial-getty service"
-      if ! cond_redirect systemctl enable serial-getty@ttyAMA0.service; then echo "FAILED (enable serial-getty@ttyAMA0.service)"; return 1; fi
-      if ! cond_redirect systemctl restart serial-getty@ttyAMA0.service; then echo "FAILED (restart serial-getty@ttyAMA0.service)"; return 1; fi
-      if ! cond_redirect systemctl enable serial-getty@serial0.service; then echo "FAILED (enable serial-getty@serial0.service)"; return 1; fi
-      if ! cond_redirect systemctl restart serial-getty@serial0.service; then echo "FAILED (restart serial-getty@serial0.service)"; return 1; fi
-      if ! cond_redirect systemctl enable serial-getty@ttyS0.service; then echo "FAILED (enable serial-getty@ttyS0.service)"; return 1; fi
-      if cond_redirect systemctl restart serial-getty@ttyS0.service; then echo "OK (reboot required)"; else echo "FAILED (restart serial-getty@ttyS0.service)"; return 1; fi
+      if ! cond_redirect systemctl enable --now serial-getty@ttyAMA0.service; then echo "FAILED (enable serial-getty@ttyAMA0.service)"; return 1; fi
+      if ! cond_redirect systemctl enable --now serial-getty@serial0.service; then echo "FAILED (enable serial-getty@serial0.service)"; return 1; fi
+      if ! cond_redirect systemctl enable --now serial-getty@ttyS0.service; then echo "OK (reboot required)"; else echo "FAILED (enable serial-getty@ttyS0.service)"; return 1; fi
     fi
   fi
 
@@ -508,7 +509,7 @@ prepare_serial_port() {
     if is_pithree || is_pithreeplus || is_pifour; then
       echo -n "$(timestamp) [openHABian] Making Bluetooth use mini-UART... "
       if ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" /boot/config.txt; then
-        if echo "dtoverlay=miniuart-bt" >> /boot/config.txt; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
+        if (echo "dtoverlay=miniuart-bt" >> /boot/config.txt); then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
       else
         echo "OK"
       fi

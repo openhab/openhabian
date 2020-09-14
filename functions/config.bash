@@ -6,6 +6,9 @@
 ##    load_create_config()
 ##
 load_create_config() {
+  local questionText="\\nWelcome to openHABian!\\n\\nPlease provide the name of your Linux user i.e. the account you normally log in with.\\n\\nTypical user names are 'pi' or 'ubuntu'."
+  local input
+
   if [[ -f $CONFIGFILE ]]; then
     echo -n "$(timestamp) [openHABian] Loading configuration file '${CONFIGFILE}'... "
   elif ! [[ -f $CONFIGFILE ]] && [[ -f /boot/installer-config.txt ]]; then
@@ -15,15 +18,10 @@ load_create_config() {
     echo "$(timestamp) [openHABian] Error in unattended mode: Configuration file '${CONFIGFILE}' not found... FAILED" 1>&2
     exit 1
   else
-    local question
-    local input
-
-    question="\\nWelcome to openHABian!\\n\\nPlease provide the name of your Linux user i.e. the account you normally log in with.\\n\\nTypical user names are 'pi' or 'ubuntu'."
-
     echo -n "$(timestamp) [openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup... "
-    if input=$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$question" 14 80 3>&1 1>&2 2>&3) && id -u "$input" &> /dev/null; then
+    if input="$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$questionText" 14 80 3>&1 1>&2 2>&3)" && id -u "$input" &> /dev/null; then
       if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/openhabian.conf.dist "$CONFIGFILE"; then echo "FAILED (copy configuration)"; exit 1; fi
-      if ! cond_redirect sed -i 's|username=.*$|username='"${input}"'|g' "$CONFIGFILE"; then echo "FAILED (configure username)"; exit 1; fi
+      if ! cond_redirect sed -i -e 's|^username=.*$|username='"${input}"'|g' "$CONFIGFILE"; then echo "FAILED (configure username)"; exit 1; fi
     else
       echo "FAILED"
       echo "$(timestamp) [openHABian] Error: The provided user name is not a valid system user. Please try again. Exiting..." 1>&2
@@ -40,7 +38,7 @@ load_create_config() {
 ##    clean_config_userpw()
 ##
 clean_config_userpw() {
-  cond_redirect sed -i 's|^userpw=.*$|\#userpw=xxxxxx|g' "$CONFIGFILE"
+  if ! cond_redirect sed -i -e 's|^userpw=.*$|\#userpw=xxxxxx|g' "$CONFIGFILE"; then return 1; fi
 }
 
 ## Update requested version of Java in '$CONFIGFILE'.
@@ -56,10 +54,10 @@ update_config_java() {
       else
         echo "Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to Java Zulu 8 32-bit installation."
       fi
-      cond_redirect sed -i 's|^java_opt.*$|java_opt=Zulu8-32|' "$CONFIGFILE"
+      if ! cond_redirect sed -i -e 's|^java_opt.*$|java_opt=Zulu8-32|' "$CONFIGFILE"; then return 1; fi
     fi
   else
-    cond_redirect sed -i 's|^java_opt.*$|java_opt='"${1}"'|' "$CONFIGFILE"
+    if ! cond_redirect sed -i -e 's|^java_opt.*$|java_opt='"${1}"'|' "$CONFIGFILE"; then return 1; fi
   fi
   source "$CONFIGFILE"
 }
