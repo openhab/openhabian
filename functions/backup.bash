@@ -96,7 +96,7 @@ amanda_install() {
 
   if cond_redirect chsh --shell /bin/bash "$backupUser"; then echo "OK"; else echo "FAILED (chsh ${backupUser})"; return 1; fi
 
-  if ! [[ $(dpkg -s 'amanda-common' 'amanda-server' 'amanda-client') ]]; then
+  if ! dpkg -s 'amanda-common' 'amanda-server' 'amanda-client' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing Amanda backup system... "
     if cond_redirect apt-get install --yes amanda-common amanda-server amanda-client; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -141,7 +141,7 @@ amanda_setup() {
   if ! (whiptail --title "Amanda backup installation" --yes-button "Begin" --no-button "Cancel" --yesno "$introText" 14 80); then echo "CANCELED"; return 0; fi
   if (whiptail --title "Amanda backup installation" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "$queryText" 14 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
-  if ! [[ $(dpkg -s 'exim4') ]]; then
+  if ! dpkg -s 'exim4' &> /dev/null; then
     if (whiptail --title "MTA missing?" --yes-button "Install EXIM4" --no-button "Ignore" --yesno "$eximText" 12 80); then
       if ! exim_setup; then return 1; fi
     fi

@@ -50,7 +50,7 @@ init_zram_mounts() {
       fi
     fi
 
-    if ! [[ $(dpkg -s 'make' 'libattr1-dev') ]]; then
+    if ! dpkg -s 'make' 'libattr1-dev' &> /dev/null; then
       echo -n "$(timestamp) [openHABian] Installing ZRAM required packages (make, libattr1-dev)... "
       if cond_redirect apt-get install --yes make libattr1-dev; then echo "OK"; else echo "FAILED"; return 1; fi
     fi

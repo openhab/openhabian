@@ -114,24 +114,24 @@ java_zulu_prerequisite() {
   echo -n "$(timestamp) [openHABian] Installing Java Zulu prerequisites (libc, libstdc++, zlib1g)... "
   if [[ $1 == "Zulu8-64" ]] || [[ $1 == "Zulu11-64" ]]; then
     if is_aarch64 && [[ $(getconf LONG_BIT) == 64 ]]; then
-      if [[ $(dpkg -s 'libc6:arm64' 'libstdc++6:arm64' 'zlib1g:arm64') ]]; then echo "OK"; return 0; fi
+      if dpkg -s 'libc6:arm64' 'libstdc++6:arm64' 'zlib1g:arm64' &> /dev/null; then echo "OK"; return 0; fi
       dpkg --add-architecture arm64
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
       if cond_redirect apt-get install --yes libc6:arm64 libstdc++6:arm64 zlib1g:arm64; then echo "OK"; else echo "FAILED"; return 1; fi
     elif is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
-      if [[ $(dpkg -s 'libc6:amd64' 'libstdc++6:amd64' 'zlib1g:amd64') ]]; then echo "OK"; return 0; fi
+      if dpkg -s 'libc6:amd64' 'libstdc++6:amd64' 'zlib1g:amd64' &> /dev/null; then echo "OK"; return 0; fi
       dpkg --add-architecture amd64
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
       if cond_redirect apt-get install --yes libc6:amd64 libstdc++6:amd64 zlib1g:amd64; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
   else
     if is_arm; then
-      if [[ $(dpkg -s 'libc6:armhf' 'libstdc++6:armhf' 'zlib1g:armhf') ]]; then echo "OK"; return 0; fi
+      if dpkg -s 'libc6:armhf' 'libstdc++6:armhf' 'zlib1g:armhf' &> /dev/null; then echo "OK"; return 0; fi
       dpkg --add-architecture armhf
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
       if cond_redirect apt-get install --yes libc6:armhf libstdc++6:armhf zlib1g:armhf; then echo "OK"; else echo "FAILED"; return 1; fi
     else
-      if [[ $(dpkg -s 'libc6:i386' 'libstdc++6:i386' 'zlib1g:i386') ]]; then echo "OK"; return 0; fi
+      if dpkg -s 'libc6:i386' 'libstdc++6:i386' 'zlib1g:i386' &> /dev/null; then echo "OK"; return 0; fi
       dpkg --add-architecture i386
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
       if cond_redirect apt-get install --yes libc6:i386 libstdc++6:i386 zlib1g:i386; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -410,7 +410,7 @@ java_zulu_install_crypto_extension() {
 ##    adoptopenjdk_fetch_apt()
 ##
 adoptopenjdk_fetch_apt() {
-  if ! [[ $(dpkg -s 'software-properties-common') ]]; then
+  if ! dpkg -s 'software-properties-common' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK prerequisites (software-properties-common)... "
     if ! cond_redirect apt-get install --yes software-properties-common; then echo "FAILED"; return 1; fi
   fi
@@ -433,12 +433,12 @@ adoptopenjdk_install_apt() {
   if openhab_is_running; then
     cond_redirect systemctl stop openhab2.service
   fi
-  if ! [[ $(dpkg -s 'adoptopenjdk-11-hotspot-jre') ]]; then # Check if already is installed
+  if ! dpkg -s 'adoptopenjdk-11-hotspot-jre' &> /dev/null; then # Check if already is installed
     adoptopenjdk_fetch_apt
     echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK 11... "
     cond_redirect java_alternatives_reset
     if cond_redirect apt-get install --yes adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
-  elif [[ $(dpkg -s 'adoptopenjdk-11-hotspot-jre') ]]; then
+  elif dpkg -s 'adoptopenjdk-11-hotspot-jre' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Reconfiguring AdoptOpenJDK 11... "
     cond_redirect java_alternatives_reset
     if cond_redirect dpkg-reconfigure adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi

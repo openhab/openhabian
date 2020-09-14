@@ -99,7 +99,7 @@ nodered_setup() {
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  if ! [[ $(dpkg -s 'build-essential') ]]; then
+  if ! dpkg -s 'build-essential' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing Node-RED required packages (build-essential)... "
     if cond_redirect apt-get install --yes build-essential; then echo "OK"; else echo "FAILED"; return 1; fi
   fi

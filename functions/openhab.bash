@@ -178,7 +178,7 @@ multitail_openhab_scheme() {
 ##    openhab_is_installed()
 ##
 openhab_is_installed() {
-  if [[ $(dpkg -s 'openhab2') ]]; then return 0; else return 1; fi
+  if dpkg -s 'openhab2' &> /dev/null; then return 0; else return 1; fi
 }
 
 ## Function to check if openHAB is running on the current system. Returns
