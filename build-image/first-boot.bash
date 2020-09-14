@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # shellcheck source=/etc/openhabian.conf disable=SC1091
 
-CONFIGFILE=/etc/openhabian.conf
+CONFIGFILE="/etc/openhabian.conf"
 
 # apt/dpkg commands will not try interactive dialogs
-export DEBIAN_FRONTEND=noninteractive
-export SILENT=1
+export DEBIAN_FRONTEND="noninteractive"
+export SILENT="1"
 
 # Log everything to file
 exec &> >(tee -a "/boot/first-boot.log")
@@ -65,7 +65,7 @@ else
   usermod -l "$username" "$userdef"
   usermod -m -d "/home/$username" "$username"
   groupmod -n "$username" "$userdef"
-  chpasswd <<< "$username:${userpw:-$username}"
+  echo "${username}:${userpw:-$username}" | chpasswd
   echo "OK"
 fi
 

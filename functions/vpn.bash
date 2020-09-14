@@ -18,7 +18,7 @@ install_wireguard() {
     echo -n "$(timestamp) [openHABian] Removing Wireguard service... "
     if ! cond_redirect systemctl stop wg-quick@wg0.service; then echo "FAILED (stop service)"; return 1; fi
     if ! rm -f /lib/systemd/system/wg-quick*; then echo "OK"; else echo "FAILED (remove service)"; return 1; fi
-    cond_redirect systemctl -q daemon-reload &> /dev/null
+    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Uninstalling Wireguard... "
     if ! cond_redirect apt-get remove --yes wireguard wireguard-dkms wireguard-tools; then echo "FAILED"; return 1; fi

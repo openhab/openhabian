@@ -9,14 +9,14 @@
 # Discussion: https://community.openhab.org/t/13379
 #
 
-CONFIGFILE=/etc/openhabian.conf
-if [[ ! -f "$CONFIGFILE" ]]; then
+CONFIGFILE="/etc/openhabian.conf"
+if ! [[ -f $CONFIGFILE ]]; then
   cp /opt/openhabian/openhabian.conf.dist "$CONFIGFILE"
 fi
 
 # Find the absolute script location dir (e.g. BASEDIR=/opt/openhabian)
 SOURCE="${BASH_SOURCE[0]}"
-while [ -h "$SOURCE" ]; do
+while [[ -h $SOURCE ]]; do
   BASEDIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
   SOURCE="$(readlink "$SOURCE")"
   [[ $SOURCE != /* ]] && SOURCE="${BASEDIR:-/opt/openhabian}/$SOURCE"
@@ -45,21 +45,21 @@ fi
 source "$CONFIGFILE"
 
 # script will be called with 'unattended' argument by openHABian images else retrieve values from openhabian.conf
-if [[ "$1" = "unattended" ]]; then
-  UNATTENDED=1
-  SILENT=1
+if [[ $1 = "unattended" ]]; then
+  UNATTENDED="1"
+  SILENT="1"
 else
-  INTERACTIVE=1
+  INTERACTIVE="1"
 fi
 
 # shellcheck disable=SC2154
-if [[ "$debugmode" = "off" ]]; then
+if [[ $debugmode == "off" ]]; then
   SILENT=1
   unset DEBUGMAX
-elif [[ "$debugmode" = "on" ]]; then
+elif [[ $debugmode == "on" ]]; then
   unset SILENT
   unset DEBUGMAX
-elif [[ "$debugmode" = "maximum" ]]; then
+elif [[ $debugmode == "maximum" ]]; then
   unset SILENT
   DEBUGMAX=1
 
@@ -74,7 +74,8 @@ export UNATTENDED SILENT DEBUGMAX INTERACTIVE
 for shfile in "${BASEDIR:-/opt/openhabian}"/functions/*.bash; do source "$shfile"; done
 
 # avoid potential crash when deleting directory we started from
-OLDWD=$(pwd) && cd /opt || exit 1
+OLDWD="$(pwd)"
+cd /opt || exit 1
 
 # disable ipv6 if requested in openhabian.conf (eventually reboots)
 config_ipv6
@@ -109,7 +110,6 @@ if [[ -n "$UNATTENDED" ]]; then
   frontail_setup
   zram_setup
   setup_mirror_SD "install"
-  amanda_setup
   install_cleanup
 else
   apt_update

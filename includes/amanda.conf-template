@@ -1,0 +1,69 @@
+org "openHABian %CONFIG"                      # Organization name for reports
+mailto "%ADMINMAIL"                           # Email address to receive reports
+dumpuser "%BACKUPUSER"                        # User to run dumps under
+netusage 90000 Kbps                           # Bandwidth limit, 90M
+dumpcycle 14                                  # Backup cycle is 14 days
+runspercycle 14                               # Run 14 times within dumpcycle of 2 weeks
+tapecycle %TAPES tapes                        # Dump to this number of different tapes during the cycle
+runtapes 10                                   # Number of virtual containers to use at most per backup run
+tpchanger %TAPECHANGER
+taper-parallel-write 2
+autolabel "openHABian-%CONFIG-%%%" empty
+tapelist "%CONFIGDIR/tapelist"                # The tapelist file
+tapetype %TAPETYPE
+infofile "/var/lib/amanda/%CONFIG/curinfo"    # Database directory
+logdir "/var/log/amanda/%CONFIG"              # Log directory
+indexdir "/var/lib/amanda/%CONFIG/index"      # Index directory
+amrecover_changer "changer"				      # Changer for amrecover
+mailer "/usr/bin/mail"
+
+define tapetype DIRECTORY {
+    comment "Backup Directory"
+    length %TAPESIZE mbytes    # TAPESIZE of every virtual container (= max. usage per directory)
+}
+define tapetype AWS {
+    comment "S3 Bucket"
+    length %TAPESIZE mbytes    # actual bucket TAPESIZE 5GB (Amazon default for free S3)
+}
+
+define application-tool app_amraw {
+    plugin "amraw"    # Uses 'dd' to dump raw device
+}
+define application-tool app_amgtar {
+    plugin "amgtar"
+
+    property        "NORMAL" ": socket ignored$"
+    property append "NORMAL" "file changed as we read it$"
+    property append "NORMAL" ": directory is on a different filesystem; not dumped$"
+    property append "NORMAL" ": File removed before we read it$"
+}
+
+define dumptype global {
+    maxdumps 2                                      # Maximum number of backups run in parallel
+    holdingdisk no                                  # Don't dump to temp disk (holdingdisk) before backup to tape
+    index yes                                       # Generate index. For restoration usage
+}
+define dumptype amraw {
+    global
+    program "APPLICATION"
+    application "app_amraw"
+    estimate server                                 # Estimate the backup TAPESIZE before dump
+    comment "raw device dumped with amraw"
+    priority medium                                 # Priority level
+}
+define dumptype comp-amraw {
+    amraw
+    compress client fast                            # Compress in client side with less CPU (fast)
+}
+define dumptype user-tar {
+    global
+    program "APPLICATION"
+    application "app_amgtar"
+    estimate server                                 # Estimate the backup TAPESIZE before dump
+    comment "directories dumped with amgtar"
+    priority medium                                 # Priority level
+}
+define dumptype comp-user-tar {
+    user-tar
+    compress client fast                            # Compress in client side with less CPU (fast)
+}
