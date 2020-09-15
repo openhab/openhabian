@@ -1,0 +1,12 @@
+[Unit]
+Description=nightly Amanda backup
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+# gehen mehrere Befehle hintereinander wirklich nicht?
+ExecStart=(cd /; /bin/tar czf ${storage}/amanda-backups/amanda_data_\$(date +\\%Y\\%m\\%d\\%H\\%M\\%S).tar.gz etc/amanda var/lib/amanda var/log/amanda; find ${storage} -name amanda_data_\\* -mtime +30 -delete) &> /dev/null
+
+[Install]
+WantedBy=multi-user.target

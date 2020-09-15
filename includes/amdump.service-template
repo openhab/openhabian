@@ -1,0 +1,11 @@
+[Unit]
+Description=nightly Amanda backup
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/bin/amdump %CONFIG &> /dev/null
+
+[Install]
+WantedBy=multi-user.target

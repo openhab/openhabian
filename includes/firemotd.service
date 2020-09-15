@@ -1,0 +1,11 @@
+[Unit]
+Description=periodic FireMotD stats regeneration
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/bin/FireMotD -S -D all &> /dev/null
+
+[Install]
+WantedBy=multi-user.target

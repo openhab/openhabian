@@ -1,0 +1,10 @@
+[Unit]
+Description=Make backup of Amanda database
+
+[Timer]
+OnCalendar=*-*-* 02:00
+RandomizedDelaySec=10m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -325,11 +325,8 @@ create_amanda_config() {
   done
   echo "OK"
 
-  echo -n "$(timestamp) [openHABian] Creating Amanda backup cronjob... "
-  {
-    echo "0 1 * * * ${backupUser} /usr/sbin/amdump ${config} &> /dev/null"; \
-    echo "0 18 * * * ${backupUser} /usr/sbin/amcheck -m ${config} &> /dev/null"
-  } > "$amandaCron"
+  if ! sed -e "s|%CONFIG|${config}|g" ${BASEDIR:-/opt/openhabian}"/includes/amdump.service-template >"${targetDir}"/amdump-${config}.service; then echo "FAILED (create Amanda ${config} backup service)"; return 1; fi
+  if ! cp ${BASEDIR:-/opt/openhabian}"/includes/amdump.timer "${targetDir}"/amdump-${config}.timer; then echo "FAILED (create Amanda ${config} backup timer)"; return 1; fi
   if [[ $tapeType == "DIRECTORY" ]]; then
     if ! cond_redirect mkdir -p "$storageLoc"/amanda-backups; then echo "FAILED (create amanda-backups)"; return 1; fi
     if ! cond_redirect chown --recursive "$backupUser":backup "$storageLoc"/amanda-backups; then echo "FAILED (chown amanda-backups)"; return 1; fi
