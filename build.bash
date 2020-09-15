@@ -261,7 +261,7 @@ extrasize="300"			# grow image root by this number of MB
 # Build Raspberry Pi image
 if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta" ]]; then
   if [ "$hw_platform" == "pi-raspios64beta" ]; then
-    baseurl="https://downloads.raspberrypi.org/raspios_arm64_latest"
+    baseurl="https://downloads.raspberrypi.org/raspios_lite_arm64_latest"
     bits="64"
   else
     baseurl="https://downloads.raspberrypi.org/raspios_lite_armhf_latest"

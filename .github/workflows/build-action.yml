@@ -14,7 +14,7 @@ on:
     inputs:
       comments:
         description: 'Build comments'
-        default: 'Build for testing purposes' 
+        default: 'Build for testing purposes'
 
 jobs:
   build32:
@@ -69,7 +69,7 @@ jobs:
        - name: getimagename
          id: getimagename
          run: |
-           echo "::set-output name=image::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
+           echo "::set-output name=image::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
        - name: Cache Raspberry Pi OS image
          uses: actions/cache@v2
          with:
