@@ -429,9 +429,9 @@ select_blkdev() {
     array+=("$id"     "$size" )
   done < <(lsblk -i | tr -d '`\\|' | grep -E "${1}" | tr -d '\\-')
 
-  if [[ -z $array ]]; then
+  if [[ ${#array[@]} -eq 0 ]]; then
     retval=0
-    whiptail --title "$2" --msgbox "No block device to match pattern \"${1}\" found." 7 80 3>&1 1>&2 2>&3
+    whiptail --title "$2" --msgbox "No block device to match pattern \"${1}\" found." 7 75 3>&1 1>&2 2>&3
   else
     # shellcheck disable=SC2034
     retval="$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "$3" 12 76 4 "${array[@]}" 3>&1 1>&2 2>&3)"
