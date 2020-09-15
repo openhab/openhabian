@@ -26,7 +26,7 @@ samba_setup() {
   if ! cond_redirect mkdir -p /var/log/samba /var/run/samba; then echo "FAILED (create directories)"; return 1; fi
   if ! cond_redirect sed -i -E -e '/PIDFile/d; /NotifyAccess/ a PIDFile=smbd.pid\nRuntimeDirectory=samba' "$serviceFile"; then echo "FAILED"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-  if cond_redirect systemctl enable --now smbd.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl enable --now smbd.service &> /dev/null; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 }
 
 ## Function for installing FireMotD which displays the system overview on login.
