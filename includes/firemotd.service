@@ -5,6 +5,7 @@ Description=periodic FireMotD stats regeneration
 Type=oneshot
 User=root
 Group=root
+RemainAfterExit=yes
 ExecStart=/usr/local/bin/FireMotD -S -D all &> /dev/null
 
 [Install]

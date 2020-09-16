@@ -2,7 +2,7 @@
 Description=Make backup of Amanda database
 
 [Timer]
-OnCalendar=*-*-* 02:00
+OnCalendar=*-*-* 01:55
 RandomizedDelaySec=10m
 Persistent=true
 

@@ -2,7 +2,7 @@
 Description=Daily generation of FireMotD stats
 
 [Timer]
-OnCalendar=*-*-* 01:00
+OnCalendar=*-*-* 00:55
 RandomizedDelaySec=10m
 Persistent=true
 
