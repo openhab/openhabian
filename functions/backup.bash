@@ -465,21 +465,9 @@ setup_mirror_SD() {
   fi
 
   # copy partition table
-  sfdisk -d /dev/mmcblk0 | sfdisk "$dest"
   start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)"
-  # pipe input to fdisk as if used "interactively"
-  # create Linux partition for /storage on the remaining space
-  fdisk "$dest" &> /dev/null <<EOF
-n
-p
-3
-$start
-t
-3
-83
-w
-EOF
-
+  ((destSize-=start))
+  (sfdisk -d /dev/mmcblk0;  echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk "$dest"
   partprobe
   cond_redirect mke2fs -F -t ext4 "${dest}3"
   mkdir -p "${storageDir}"
