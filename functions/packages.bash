@@ -73,7 +73,7 @@ firemotd_setup() {
   if ! cond_redirect systemctl enable firemotd.service &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
   cond_echo "\\nMake FireMotD check for new updates after using apt... "
   echo "DPkg::Post-Invoke { \"if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
-  cond_echo "\nInitial FireMotD updates check"
+  cond_echo "\\nInitial FireMotD updates check"
   if cond_redirect FireMotD -S; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 

@@ -121,7 +121,6 @@ create_amanda_config() {
   local awsBucket
   local awsAccessKey
   local awsSecretKey
-  local amandaCron
   local amandaHosts
   local configDir
   local databaseDir
@@ -143,7 +142,6 @@ create_amanda_config() {
   awsBucket="$8"
   awsAccessKey="$9"
   awsSecretKey="${10}"
-  amandaCron="/etc/cron.d/amanda"
   amandaHosts="/var/backups/.amandahosts"
   configDir="/etc/amanda/${config}"
   databaseDir="/var/lib/amanda/${config}/curinfo"
@@ -240,22 +238,21 @@ create_amanda_config() {
   done
   echo "OK"
 
-  if ! sed -e "s|%CONFIG|${config}|g" "${BASEDIR:-/opt/openhabian}"/includes/amdump.service-template >"${serviceTargetDir}"/amdump-${config}.service; then echo "FAILED (create Amanda ${config} backup service)"; return 1; fi
-  if ! cp "${BASEDIR:-/opt/openhabian}"/includes/amdump.timer "${serviceTargetDir}"/amdump-${config}.timer; then echo "FAILED (create Amanda ${config} timer)"; return 1; fi
+  if ! sed -e "s|%CONFIG|${config}|g" "${BASEDIR:-/opt/openhabian}"/includes/amdump.service-template >"${serviceTargetDir}/amdump-${config}.service"; then echo "FAILED (create Amanda ${config} backup service)"; return 1; fi
+  if ! cp "${BASEDIR:-/opt/openhabian}"/includes/amdump.timer "${serviceTargetDir}/amdump-${config}.timer"; then echo "FAILED (create Amanda ${config} timer)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-  if ! cond_redirect systemctl enable "amdump-${config}.service" &> /dev/null; then echo "FAILED (amdump-${config} service enable)"; return 1; fi
-  if ! cond_redirect systemctl enable "amdump-${config}.timer" &> /dev/null; then echo "FAILED (amdump-${config} timer enable)"; return 1; fi
+  if ! cond_redirect systemctl enable "amdump-${config}.service"; then echo "FAILED (amdump-${config} service enable)"; return 1; fi
+  if ! cond_redirect systemctl enable "amdump-${config}.timer"; then echo "FAILED (amdump-${config} timer enable)"; return 1; fi
   if [[ $tapeType == "DIRECTORY" ]]; then
+    # shellcheck disable=SC2154
     if ! sed -e "s|%STORAGE|${storage}|g" "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.service-template >"${serviceTargetDir}"/amandaBackupDB.service; then echo "FAILED (create Amanda DB backup service)"; return 1; fi
     if ! cp "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.timer "${serviceTargetDir}"/; then echo "FAILED (create Amanda DB timer)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! cond_redirect mkdir -p "$storageLoc"/amanda-backups; then echo "FAILED (create amanda-backups)"; return 1; fi
     if ! cond_redirect chown --recursive "$backupUser":backup "$storageLoc"/amanda-backups; then echo "FAILED (chown amanda-backups)"; return 1; fi
-    if ! cond_redirect systemctl enable "amandaBackupDB.service" &> /dev/null; then echo "FAILED (Amanda DB backup service enable)"; return 1; fi
-    if ! cond_redirect systemctl enable "amandaBackupDB.timer" &> /dev/null; then echo "FAILED (Amanda DB backup timer enable)"; return 1; fi
-    #echo "0 2 * * * root (cd /; /bin/tar czf ${storageLoc}/amanda-backups/amanda_data_\$(date +\\%Y\\%m\\%d\\%H\\%M\\%S).tar.gz etc/amanda var/lib/amanda var/log/amanda; find ${storageLoc} -name amanda_data_\\* -mtime +30 -delete) &> /dev/null" >> "$amandaCron"
+    if ! cond_redirect systemctl enable "amandaBackupDB.service"; then echo "FAILED (Amanda DB backup service enable)"; return 1; fi
+    if ! cond_redirect systemctl enable "amandaBackupDB.timer"; then echo "FAILED (Amanda DB backup timer enable)"; return 1; fi
   fi
-  #if cond_redirect chmod 644 "$amandaCron"; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
 }
 
 
@@ -473,12 +470,12 @@ setup_mirror_SD() {
   # copy partition table
   start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)"
   ((destSize-=start))
-  (sfdisk -d /dev/mmcblk0;  echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk "$dest"
+  (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk "$dest"
   partprobe
   cond_redirect mke2fs -F -t ext4 "${dest}3"
   mkdir -p "${storageDir}"
   # shellcheck disable=SC2154
-  if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${targetDir}"/storage.mount; then echo "FAILED (create storage mount)"; fi
+  if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${serviceTargetDir}"/storage.mount; then echo "FAILED (create storage mount)"; fi
   if ! cond_redirect systemctl enable --now storage.mount; then echo "FAILED (enable storage mount)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
