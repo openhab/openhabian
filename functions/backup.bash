@@ -419,6 +419,7 @@ setup_mirror_SD() {
 
   echo -n "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... "
   if [[ "$1" == "remove" ]]; then
+    cond_redirect systemctl disable sdrsync.service sdrawcopy.service sdrsync.timer sdrawcopy.timer
     rm -f ${targetDir}/sdr*.{service,timer}
     cond_redirect systemctl -q daemon-reload &> /dev/null
     return 0
