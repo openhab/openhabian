@@ -26,7 +26,7 @@ Menu 60 finally is a shortcut to offer all option for (un)installation in a sing
 }
 
 show_main_menu() {
-  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Exit --ok-button Execute \
+  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
@@ -38,8 +38,6 @@ show_main_menu() {
   "30 | System Settings"         "A range of system and hardware related configuration steps ►" \
   "40 | openHAB related"         "Switch the installed openHAB version or apply tweaks ►" \
   "50 | Backup/Restore"          "Manage backups and restore your system ►" \
-  "" "" \
-  "60 | Manual/Fresh Setup"      "Go through all openHABian setup steps manually ►" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then
@@ -71,6 +69,7 @@ show_main_menu() {
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
     "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
     "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
+    "16 | Samba"                  "Install the Samba file sharing service and set up openHAB2 shares" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -80,6 +79,7 @@ show_main_menu() {
       13\ *) srv_bind_mounts && misc_system_settings ;;
       14\ *) permissions_corrections ;;
       15\ *) firemotd_setup ;;
+      16\ *) samba_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -215,49 +215,6 @@ show_main_menu() {
       "") return 0 ;;
       *) whiptail --msgbox "A non supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
-
-  elif [[ "$choice" == "60"* ]]; then
-    choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 23 116 16 --cancel-button Back --ok-button Execute \
-    "62 | Packages"               "Install needed and recommended system packages " OFF \
-    "63 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" OFF \
-    "   | Zulu 8 OpenJDK 64-bit"  "Install Zulu 8 64-bit OpenJDK as primary Java provider" OFF \
-    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider (beta)" OFF \
-    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider (beta)" OFF \
-    "   | AdoptOpenJDK 11"        "Install AdoptOpenJDK 11 as primary Java provider (beta)" OFF \
-    "64 | openHAB stable"         "Install the latest openHAB release" OFF \
-    "   | openHAB testing"        "Install the latest openHAB testing (milestone) build" OFF \
-    "   | openHAB unstable"       "(Alternative) Install the latest openHAB SNAPSHOT build" OFF \
-    "65 | System Tweaks"          "Configure system permissions and settings typical for openHAB " OFF \
-    "66 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares " OFF \
-    "67 | Log Viewer"             "The openHAB Log Viewer webapp (frontail) " OFF \
-    "68 | FireMotD"               "Configure FireMotD to present a system overview on SSH login (optional) " OFF \
-    "69 | Bash&Vim Settings"      "Apply openHABian settings for bash, vim and nano (optional) " OFF \
-    "6A | Use ZRAM"               "Use compressed RAM/disk sync for active directories (mitigates SD card wear)" OFF \
-    "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" OFF \
-    "6B | Setup VPN access"       "Setup Wireguard to enable secure remote access openHABian (BETA)" OFF \
-    "   | Remove Wireguard VPN"   "Remove Wireguard VPN from openHABian" OFF \
-    3>&1 1>&2 2>&3)
-    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
-    wait_for_apt_to_finish_update
-    if [[ $choosenComponents == *"62"* ]]; then system_upgrade && basic_packages && needed_packages; fi
-    if [[ $choosenComponents == *"Zulu 8 OpenJDK 32-bit"* ]]; then update_config_java "Zulu8-32" && java_install_or_update "Zulu8-32"; fi
-    if [[ $choosenComponents == *"Zulu 8 OpenJDK 64-bit"* ]]; then update_config_java "Zulu8-64" && java_install_or_update "Zulu8-64"; fi
-    if [[ $choosenComponents == *"Zulu 11 OpenJDK 32-bit"* ]]; then update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32"; fi
-    if [[ $choosenComponents == *"Zulu 11 OpenJDK 64-bit"* ]]; then update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64"; fi
-    if [[ $choosenComponents == *"AdoptOpenJDK 11"* ]]; then update_config_java "Adopt11" && java_install_or_update "Adopt11"; fi
-    if [[ $choosenComponents == *"64"* ]]; then openhab2_setup "stable"; fi
-    if [[ $choosenComponents == *"openHAB testing"* ]]; then openhab2_setup "testing"; fi
-    if [[ $choosenComponents == *"openHAB unstable"* ]]; then openhab2_setup "unstable"; fi
-    if [[ $choosenComponents == *"65"* ]]; then srv_bind_mounts && permissions_corrections && misc_system_settings; fi
-    if [[ $choosenComponents == *"66"* ]]; then samba_setup; fi
-    if [[ $choosenComponents == *"67"* ]]; then frontail_setup; fi
-    if [[ $choosenComponents == *"68"* ]]; then firemotd_setup; fi
-    if [[ $choosenComponents == *"69"* ]]; then bashrc_copy && vimrc_copy && vim_openhab_syntax && nano_openhab_syntax && multitail_openhab_scheme; fi
-    if [[ $choosenComponents == *"6A"* ]]; then init_zram_mounts "install"; fi
-    if [[ $choosenComponents == *"Uninstall ZRAM"* ]]; then init_zram_mounts "uninstall"; fi
-    if [[ $choosenComponents == *"6B"* ]]; then install_wireguard "install"; setup_wireguard; fi
-    if [[ $choosenComponents == *"Uninstall Wireguard"* ]]; then install_wireguard "remove"; fi
-
   else
     whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
   fi
