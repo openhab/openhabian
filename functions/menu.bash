@@ -217,7 +217,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "60"* ]]; then
-    choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 23 116 16 --cancel-button Back --ok-button Execute \
+    choosenComponents=$(whiptail --title "Manual/Fresh Setup" --checklist "Choose which system components to install or configure:" 25 122 18 --cancel-button Back --ok-button Execute \
     "62 | Packages"               "Install needed and recommended system packages " OFF \
     "63 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" OFF \
     "   | Zulu 8 OpenJDK 64-bit"  "Install Zulu 8 64-bit OpenJDK as primary Java provider" OFF \

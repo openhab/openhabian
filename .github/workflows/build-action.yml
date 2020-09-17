@@ -30,7 +30,7 @@ jobs:
        - name: Environment variables
          run: sudo -E bash -c set
        - name: Install required packages
-         run: sudo apt-get install git curl unzip libarchive-zip-perl dos2unix xz-utils kpartx
+         run: sudo apt-get install git curl wget unzip libarchive-zip-perl dos2unix xz-utils kpartx systemd-container zerofree qemu-user-static
        - name: getimagename
          id: getimagename
          run: |
@@ -65,7 +65,7 @@ jobs:
        - name: Environment variables
          run: sudo -E bash -c set
        - name: Install required packages
-         run: sudo apt-get install git curl unzip libarchive-zip-perl dos2unix xz-utils kpartx
+         run: sudo apt-get install git curl wget unzip libarchive-zip-perl dos2unix xz-utils kpartx systemd-container zerofree qemu-user-static
        - name: getimagename
          id: getimagename
          run: |
