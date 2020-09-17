@@ -472,7 +472,7 @@ setup_mirror_SD() {
   partprobe
   cond_redirect mke2fs -F -t ext4 "${dest}3"
   mkdir -p "${storageDir}"
-  if ! sed -e "s|%DEVICE|${backupdrive}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create storage mount)"; fi
+  if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%BKPDIR|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount >${targetDir}/storage.mount; then echo "FAILED (create storage mount)"; fi
   if ! cond_redirect systemctl enable --now storage.mount; then echo "FAILED (enable storage mount)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
