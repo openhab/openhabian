@@ -59,14 +59,13 @@ as issues on the community forum or on GitHub, please. Feel encouraged to report
 any success stories, though.
 
 Going beyond what the RPi image provides, as a manually installed set of
-scripts, we support running openHABian on all Debian like Linux distributions
-such as Ubuntu on x86 hardware.
-Our recommendation is to install Raspberry Pi OS lite on ARM or generic
-Debian or Ubuntu on x86. This is what we support and test openHABian against.
+scripts, we support running openHABian on x86 hardware on generic Debian and
+Ubuntu. On ARM, we only support Raspberry Pi OS.
+These are what we develop and test openHABian against.
 
-If you choose not to use the image, we expect you to use the stable distribution
-that openHABian testing is based on, 'buster' for Raspberry Pi OS (ARM) and
-Debian (x86) that is.
+We expect you to use the stable distribution that openHABian testing is based on,
+'buster' for Raspberry Pi OS (ARM) and Debian (x86) and 'focal' for
+Ubuntu (x86) these are.
 To install openHABian on anything older or newer may work or not. If you
 encounter issues, you may need to upgrade first or to live with the consequences
 of running an OS on the edge of software development.
@@ -78,12 +77,13 @@ installing the HW with the proper OS yourself.
 Although RPi3 and 4 have a 64 bit processor, you cannot run openHAB in 64 bit.
 The Azul Java Virtual Machine we currently use is incompatible with the aarch64
 ARM architecture. In general you should be aware that to run in 64 bit has a
-major drawback, increased memory usage, that is not a good idea on a heavily
+major drawback: increased memory usage. That is not a good idea on a heavily
 memory constrained platform like a RPi. Also remember openHABian makes use of
 Raspberry Pi OS which today still is a 32 bit OS.
 We are closely observing development and will adapt openHABian once it will
-reliably work on 64 bit. So things may change in the future, but for the time
-being, you should not manually enforce to install a 64 bit JVM.
+reliably work on 64 bit.
+So things may change in the future, but for the time being, you should not
+manually enforce to install a 64 bit JVM.
 
 On x86 hardware, 64 bit is the standard.
 
