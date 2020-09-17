@@ -63,7 +63,7 @@ show_main_menu() {
     openhab2_setup "stable"
 
   elif [[ "$choice" == "10"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 12 116 5 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 13 116 6 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
     "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
