@@ -81,7 +81,7 @@ major drawback: increased memory usage. That is not a good idea on a heavily
 memory constrained platform like a RPi. Also remember openHABian makes use of
 Raspberry Pi OS which today still is a 32 bit OS.
 We are closely observing development and will adapt openHABian once it will
-reliably work on 64 bit.
+reliably work on 64 bit.<br/>
 So things may change in the future, but for the time being, you should not
 manually enforce to install a 64 bit JVM.
 
