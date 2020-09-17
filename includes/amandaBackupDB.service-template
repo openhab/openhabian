@@ -1,0 +1,12 @@
+[Unit]
+Description=nightly Amanda backup
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/bin/bash -c 'cd /; /bin/tar czf /storage/amanda-backups/amanda_data_$(date +%%Y%%m%%d%%H%%M%%S).tar.gz etc/amanda var/lib/amanda var/log/amanda; find /storage -name amanda_data_* -mtime +30 -delete' &> /dev/null
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

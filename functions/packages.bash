@@ -36,6 +36,7 @@ samba_setup() {
 ##
 firemotd_setup() {
   local temp
+  local targetDir="/etc/systemd/system/"
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
@@ -67,11 +68,12 @@ firemotd_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up FireMotD apt updates count service... "
   cond_echo "\\nMake FireMotD check for new updates every night... "
-  echo "# FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)" > /etc/cron.d/firemotd
-  echo "0 0 * * * root perl -e 'sleep int(rand(21600))' && /bin/bash /usr/local/bin/FireMotD -S -D all &> /dev/null" >> /etc/cron.d/firemotd
+  if cond_redirect cp "${BASEDIR}"/includes/firemotd.* "$targetDir"/; then echo "OK"; else echo "FAILED"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! cond_redirect systemctl enable firemotd.service &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
   cond_echo "\\nMake FireMotD check for new updates after using apt... "
   echo "DPkg::Post-Invoke { \"if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
-  cond_echo "\nInitial FireMotD updates check"
+  cond_echo "\\nInitial FireMotD updates check"
   if cond_redirect FireMotD -S; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 

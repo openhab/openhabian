@@ -1,0 +1,12 @@
+[Unit]
+Description=Daily generation of FireMotD stats
+
+[Timer]
+OnCalendar=*-*-* 00:00
+#OnBootSec=1h
+#OnUnitInactiveSec=1d
+RandomizedDelaySec=6h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
