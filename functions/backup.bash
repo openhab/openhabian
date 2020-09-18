@@ -351,7 +351,7 @@ mirror_SD() {
   local dest
   local start
   local syncMount="/storage/syncmount"
-  local failed="no"
+  local dirty="no"
   
   # shellcheck disable=SC2154
   if [[ -n "$INTERACTIVE" ]]; then
@@ -377,9 +377,9 @@ mirror_SD() {
   if [[ "$1" == "raw" ]]; then
     echo "Creating a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
     if ! cond_redirect dd if="${src}" bs=1M of="${dest}"; then echo "FAILED (raw device copy)"; return 1; fi
-    if ! cond_redirect fsck -y -t vfat "${dest}1"; then echo "FAILED (dirty fsck ${dest}1)   "; failed="yes"; fi
-    if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "FAILED (dirty fsck ${dest}2)"; failed="yes"; fi
-    if [[ "$failed" == "no" ]]; then
+    if ! cond_redirect fsck -y -t vfat "${dest}1"; then echo "OK (dirty bit on fsck ${dest}1 is normal)   "; dirty="yes"; fi
+    if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "OK (dirty bit on fsck ${dest}2 is normal)"; dirty="yes"; fi
+    if [[ "$dirty" == "no" ]]; then
       echo "OK"
       return 0
     else
