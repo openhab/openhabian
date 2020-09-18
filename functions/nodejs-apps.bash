@@ -44,6 +44,7 @@ nodejs_setup() {
 ##
 frontail_setup() {
   local frontailBase
+  local frontailUser=frontail
 
   if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v12"* ]] || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
@@ -52,6 +53,7 @@ frontail_setup() {
 
   frontailBase="$(npm list -g | head -n 1)/node_modules/frontail"
 
+  if ! (id -u ${frontailUser} &> /dev/null || cond_redirect useradd --groups openhabian,openhab -s /bin/false -d /var/log/openhab2 ${frontailUser}); then echo "FAILED (adduser)"; return 1; fi
   if [[ -x $(command -v frontail) ]]; then
     echo -n "$(timestamp) [openHABian] Updating openHAB Log Viewer (frontail)... "
     if cond_redirect npm update --force -g frontail; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -61,6 +63,7 @@ frontail_setup() {
       cond_echo "Removing any old installations..."
       cond_redirect npm uninstall -g frontail
     fi
+
     if ! cond_redirect npm install --force -g frontail; then echo "FAILED (install)"; return 1; fi
     if cond_redirect npm update --force -g frontail; then echo "OK"; else echo "FAILED (update)"; return 1; fi
   fi
