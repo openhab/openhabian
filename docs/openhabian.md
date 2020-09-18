@@ -34,15 +34,16 @@ The following features are provided by the openHABian image out of the box:
 -   Zulu Embedded OpenJDK Java 8, 11 or AdoptOpenJDK
 -   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
 -   openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
--   Samba file sharing with [pre-configured to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
+-   Samba file sharing [pre-configured to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
 -   Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
 -   Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
 -   Customized Bash shell experience
 -   Customized settings and openHAB syntax highlighting for [vim](https://github.com/cyberkov/openhab-vim) and[nano](https://github.com/airix1/openhabnano)
 -   Frontail log viewer
 -   [Mosquitto](https://mosquitto.org) MQTT broker
+-   the [InfluxDB](https://www.influxdata.com/) database to store home automation data and [Grafana](https://grafana.com/) to visualize it
 -   FIND, the [Framework for Internal Navigation and Discovery](https://www.internalpositioning.com/)
--   [WireGuard](https://www.wireguard.com/) VPN access
+-   [WireGuard](https://www.wireguard.com/) for remote VPN access
 
 The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian-configuration-tool) provides the following optional settings and components:
 
@@ -65,7 +66,7 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 ### Raspberry Pi (Prepackaged SD Card Image)
 **Flash, plug, wait, enjoy:**
 The provided image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/downloads/raspberry-pi-os/) (previously called Raspbian) standard system.
-On first boot the system will set up openHAB and the mentioned settings and tools.
+On first boot, the system will set up openHAB and the mentioned settings and tools.
 All packages will be downloaded in their newest version and configured to work without further modifications.
 The whole process will take a few minutes, then openHAB and all other needed tools to get started will be ready to use without further configuration steps.
 openHABian is designed as a headless system, you will not need a display or a keyboard.
