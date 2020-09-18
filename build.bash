@@ -26,6 +26,10 @@ cleanup_build() {
 ##########################
 # shellcheck source=functions/helpers.bash
 source "$(dirname "$0")"/functions/helpers.bash
+# shellcheck source=functions/java-jre.bash
+source "$(dirname "$0")"/functions/java-jre.bash
+# shellcheck source=functions/zram.bash
+source "$(dirname "$0")"/functions/zram.bash
 
 ## This function formats log messages
 ##
@@ -109,47 +113,98 @@ check_command_availability_and_exit() {
   done
 }
 
-# mount rpi image using userspace tools, in docker use privileged mount via kpartx
-mount_image_file_boot() { # imagefile buildfolder
+## Mount RPi Image with userspace tools, for docker we use kpartx
+##
+##    mount_image_file_boot(String imageFile, String buildFolder)
+##
+mount_image_file_boot() {
+  local imageFile="$1"
+  local buildFolder="$2"
+  local loopPrefix
+
   if ! running_in_docker && ! running_on_github && ! is_pi; then
-    guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda1 "$2/boot"
+    guestmount --format=raw -o uid="$EUID" -a "$imageFile" -m /dev/sda1 "$2/boot"
   else
-    loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
-    mount -o rw -t vfat "/dev/mapper/${loop_prefix}p1" "$buildfolder/boot"
+    loopPrefix="$(kpartx -asv "$imageFile" | grep -oE "loop([0-9]+)" | head -n 1)"
+    mount -o rw -t vfat "/dev/mapper/${loopPrefix}p1" "${buildFolder}/boot"
   fi
-  df -h "$buildfolder/boot"
+  df -h "${buildFolder}/boot"
 }
 
-mount_image_file_root() { # imagefile buildfolder
-  if ! running_in_docker && ! running_on_github && ! is_pi; then
-    guestmount --format=raw -o uid=$EUID -a "$1" -m /dev/sda2 "$2/root"
-  else
-    loop_prefix=$(kpartx -asv "$1" | grep -oE "loop([0-9]+)" | head -n 1)
-    e2fsck -y -f "/dev/mapper/${loop_prefix}p2" &> /dev/null
-    resize2fs "/dev/mapper/${loop_prefix}p2" &> /dev/null
-    mount -o rw -t ext4 "/dev/mapper/${loop_prefix}p2" "$buildfolder/root"
-  fi
-  df -h "$buildfolder/root"
-}
+## Unmount RPi Image with userspace tools, for docker we use kpartx
+##
+##    umount_image_file_boot(String imageFile, String buildFolder)
+##
+umount_image_file_boot() {
+  local imageFile="$1"
+  local buildFolder="$2"
 
-
-# umount rpi image
-umount_image_file_boot() { # imagefile buildfolder
   if ! running_in_docker && ! running_on_github && ! is_pi; then
-    guestunmount "$2/boot"
+    guestunmount "${buildFolder}/boot"
   else
-    umount "$2/boot"
-    kpartx -d "$1"
+    umount "${buildFolder}/boot"
+    kpartx -d "$imageFile"
   fi
 }
 
-# umount rpi image
-umount_image_file_root() { # imagefile buildfolder
+## Mount RPi Image with userspace tools, for docker we use kpartx
+##
+##    mount_image_file_root(String imageFile, String buildFolder)
+##
+mount_image_file_root() {
+  local imageFile="$1"
+  local buildFolder="$2"
+  local loopPrefix
+
   if ! running_in_docker && ! running_on_github && ! is_pi; then
-    guestunmount "$2/root"
+    guestmount --format=raw -o uid="$EUID" -a "$imageFile" -m /dev/sda2 "${buildFolder}/root"
   else
-    umount "$2/root"
-    kpartx -d "$1"
+    loopPrefix="$(kpartx -asv "$imageFile" | grep -oE "loop([0-9]+)" | head -n 1)"
+    e2fsck -y -f "/dev/mapper/${loopPrefix}p2" &> /dev/null
+    resize2fs "/dev/mapper/${loopPrefix}p2" &> /dev/null
+    mount -o rw -t ext4 "/dev/mapper/${loopPrefix}p2" "${buildFolder}/root"
+  fi
+  df -h "${buildFolder}/root"
+}
+
+## Unmount RPi Image with userspace tools, for docker we use kpartx
+##
+##    umount_image_file_root(String imageFile, String buildFolder)
+##
+umount_image_file_root() {
+  local imageFile="$1"
+  local buildFolder="$2"
+
+  if ! running_in_docker && ! running_on_github && ! is_pi; then
+    guestunmount "${buildFolder}/root"
+  else
+    umount "${buildFolder}/root"
+    kpartx -d "$imageFile"
+  fi
+}
+
+## Make offline install modifications to code using systemd-nspawn
+##
+##    offline_install_modifications(String imageFile, String mountFolder)
+##
+offline_install_modifications() {
+  local imageFile="$1"
+  local mountFolder="$2"
+  local loopPrefix
+
+  if running_on_github; then
+    echo_process "Cacheing packages for offline install..."
+    loopPrefix="$(kpartx -asv "$imageFile" | grep -oE "loop([0-9]+)" | head -n 1)"
+    mount -o rw -t ext4 -v "/dev/mapper/${loopPrefix}p2" "$mountFolder"
+    mount -o rw -t vfat -v "/dev/mapper/${loopPrefix}p1" "${mountFolder}/boot"
+    systemd-nspawn --directory="$2" /opt/openhabian/includes/offline-install-modifications.bash
+    sync
+    umount -v "${mountFolder}/boot"
+    umount -v "$mountFolder"
+    e2fsck -y -f "/dev/mapper/${loopPrefix}p2"
+    zerofree "/dev/mapper/${loopPrefix}p2"
+    sleep 30
+    kpartx -dv "$imageFile"
   fi
 }
 
@@ -164,10 +219,10 @@ grow_image() {
   local partition
 
   # root partition is #2 and sector size is 512 byte for the Raspi OS image
-  partition=2
+  partition="2"
 
   dd if=/dev/zero bs=1M count="$2" oflag=append conv=notrunc of="$1" &> /dev/null
-  partStart=$(echo p|/sbin/fdisk "$1" | grep "$1"2 | awk '{print $2}')
+  partStart="$(echo p|/sbin/fdisk "$1" | grep "$1"2 | awk '{print $2}')"
 
   /sbin/fdisk "$1" &> /dev/null <<EOF
 p
@@ -188,7 +243,7 @@ EOF
 #### Build script start ####
 ############################
 
-timestamp=$(date +%Y%m%d%H%M)
+timestamp="$(date +%Y%m%d%H%M)"
 file_tag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
 
@@ -229,7 +284,6 @@ if [ "$2" == "dev-git" ]; then # Use current git repo and branch as a developmen
   get_git_repo
   echo_process "Injecting current branch and git repo when building this image, make sure to push local content to:"
   echo_process "$clone_string"
-
 elif [ "$2" == "dev-url" ]; then # Use custom git server as a development image
   file_tag="custom"
   clone_string="$3 $4"
@@ -256,7 +310,7 @@ sourcefolder="build-image"
 source "${sourcefolder}/openhabian.${hw_platform}.conf"
 buildfolder="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian-build-${hw_platform}-image.XXXXX)"
 imagefile="${buildfolder}/${hw_platform}.img"
-extrasize="300"			# grow image root by this number of MB
+extrasize="500"			# grow image root by this number of MB
 
 # Build Raspberry Pi image
 if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta" ]]; then
@@ -272,8 +326,8 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
 
   # Prerequisites
   echo_process "Checking prerequisites... "
-  REQ_COMMANDS="git curl unzip crc32 dos2unix xz"
-  REQ_PACKAGES="git curl unzip libarchive-zip-perl dos2unix xz-utils"
+  REQ_COMMANDS="git curl wget unzip crc32 dos2unix xz"
+  REQ_PACKAGES="git curl wget unzip libarchive-zip-perl dos2unix xz-utils"
   if running_in_docker || running_on_github || is_pi; then
     # in docker guestfstools are not used; do not install it and all of its prerequisites
     # -> must be run as root
@@ -306,21 +360,20 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   if gpg -q --trust-model always --verify "$buildfolder/$zipfile".sig "$buildfolder/$zipfile"; then echo "OK"; else echo "FAILED (signature)"; exit 1; fi
 
   echo_process "Unpacking image... "
-  unzip -q "$buildfolder/$zipfile" -d "$buildfolder"
+  unzip -q "${buildfolder}/${zipfile}" -d "$buildfolder"
   mv "$buildfolder"/*-raspios-*.img "$imagefile" || true
 
+  # shellcheck disable=SC2012
   if [[ $extrasize -gt 0 ]]; then
     echo_process "Growing root partition of the image by $extrasize MB... "
-    # shellcheck disable=SC2012
-    SIZEBEFORE=$(ls -sh "$imagefile"|awk '{print $1}')
+    SIZEBEFORE="$(ls -sh "$imagefile" | awk '{print $1}')"
     grow_image "$imagefile" "$extrasize"
-    # shellcheck disable=SC2012
-    SIZEAFTER=$(ls -sh "$imagefile"|awk '{print $1}')
-    echo_process "Growing image form $SIZEBEFORE to $SIZEAFTER completed."
+    SIZEAFTER="$(ls -sh "$imagefile" | awk '{print $1}')"
+    echo_process "Growing image from $SIZEBEFORE to $SIZEAFTER completed."
   fi
 
   echo_process "Mounting the image for modifications... "
-  mkdir -p "$buildfolder"/boot "$buildfolder"/root
+  mkdir -p "$buildfolder"/boot "$buildfolder"/root "$buildfolder"/mnt
   mount_image_file_root "$imagefile" "$buildfolder"
 
   echo_process "Setting hostname... "
@@ -347,10 +400,33 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
     git -C "$buildfolder"/root/opt/openhabian checkout "${clonebranch:-stable}" &> /dev/null
   fi
   touch "$buildfolder"/root/opt/openHABian-install-inprogress
+
+  # Cache zram for offline install.
+  (
+    echo_process "Downloading zram..."
+    install_zram_code "${buildfolder}/root/opt/zram"  &> /dev/null
+  )
+
+  # Cache Java for offline install.
+  (
+    # Source config to set Java option correctly, this cache currently only works for Zulu.
+    # shellcheck disable=SC1090
+    source "${sourcefolder}/openhabian.${hw_platform}.conf"
+
+    echo_process "Downloading Java..."
+    # Using variable hw intended for CI only to force use of arm packages.
+    # java_zulu_fetch takes version/bits as parameter, but internally uses is_arm
+    # to decide if i686 or arm packages are downloaded. Parameter works for 32 and 64bit.
+    hwarch="armv7l" java_zulu_fetch "${java_opt:-Zulu8-32}" "$buildfolder"/root &> /dev/null
+    java_zulu_install_crypto_extension "$(find "$buildfolder"/root/opt/jdk/*/lib -type d -print -quit)/security" &> /dev/null
+  )
+
+  sync
   umount_image_file_root "$imagefile" "$buildfolder"
 
-  echo_process "Reactivating SSH... "
   mount_image_file_boot "$imagefile" "$buildfolder"
+
+  echo_process "Reactivating SSH... "
   touch "$buildfolder"/boot/ssh
   cp "$sourcefolder"/first-boot.bash "$buildfolder"/boot/first-boot.bash
   touch "$buildfolder"/boot/first-boot.log
@@ -365,11 +441,13 @@ if [[ $hw_platform == "pi-raspios32" ]] || [[ $hw_platform == "pi-raspios64beta"
   echo_process "Closing up image file... "
   sync
   umount_image_file_boot "$imagefile" "$buildfolder"
+
+  offline_install_modifications "$imagefile" "$buildfolder/mnt"
 fi
 
 echo_process "Moving image and cleaning up... "
 shorthash="$(git log --pretty=format:'%h' -n 1)"
-crc32checksum=$(crc32 "$imagefile")
+crc32checksum="$(crc32 "$imagefile")"
 destination="openhabian-${hw_platform}-${timestamp}-git${file_tag}${shorthash}-crc${crc32checksum}.img"
 mv -v "$imagefile" "$destination"
 rm -rf "$buildfolder"
