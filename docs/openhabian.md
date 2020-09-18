@@ -179,15 +179,22 @@ Follow the instructions in the previous section and insert a line into `openhabi
 
 ### Auto-backup
 You might want to setup openHABian to automatically backup and mirror your internal SD card to an external unit.
-We suggest to use another SD card in an external card writer device so that in case your internal SD card fails, you can switch SD cards to get the system back up running fast.
-The second card needs at least twice the size of your internal card.
+We suggest to use another SD card in an external card writer device so that in case your internal SD card fails,
+you can switch SD cards to get the system back up running fast.
+The second card needs to have at least twice the size of your internal card.
+
+To setup right at installation time:
 Define `backupdrive=/dev/sdX` (replace X with the proper character) to enable this functionality right during unattended installation.
 Eventually change `storagedir=/storage` to any other name.
 The first attached disk type device is usually called `/dev/sda`.
-openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space to a storage partition.
-Use `storagecapacity=xxx` to override how much space to consume at most for backup storage (in MB).
-The install routine will also setup Amanda to take daily backups and store them to that third partition.
-When you need to switch to run on backup, get a another new SD card to match the size of the broken card.
+openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space
+to a storage partition.
+The unattended install routine will also setup Amanda to take daily backups and store them to that third partition.
+Use `storagecapacity=xxx` to override how much space to consume at most for Amanda backup storage (in MB).
+If you choose to skip this during system installation, you can still setup both, mirroring and Amanda, at
+any later time using the 5X menu options.
+
+Should you need to switch to run on backup, get a another new SD card to match the size of the broken card.
 Note most are not "exactly" 16 or 32 GB so your new one mustn't have less bytes than the old one.
 Use menu option 54 to copy your active backup card back to the new one and switch back as soon as possible.
 
