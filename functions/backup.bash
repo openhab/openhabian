@@ -482,8 +482,9 @@ setup_mirror_SD() {
     if ! (whiptail --title "Copy system root to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
   fi
 
-  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template > "${serviceTargetDir}"/sdrawcopy.service; then echo "FAILED (create sync service)"; fi
-  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/{sdrsync.service,sd*.timer} "${serviceTargetDir}"/; then echo "OK"; else rm -f "${serviceTargetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
+  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template > "${serviceTargetDir}"/sdrawcopy.service; then echo "FAILED (create raw SD copy service)"; fi
+  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template > "${serviceTargetDir}"/sdrsync.service; then echo "FAILED (create rsync service)"; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${serviceTargetDir}"/; then echo "OK"; else rm -f "${serviceTargetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
   if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/mirror_SD /usr/local/sbin; then echo "FAILED (install mirror_SD)"; return 1; fi
   cond_redirect systemctl -q daemon-reload &> /dev/null
   if ! cond_redirect systemctl enable --now sdrawcopy.timer sdrsync.timer; then echo "FAILED (enable timed SD sync start)"; return 1; fi
