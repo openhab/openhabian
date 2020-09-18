@@ -38,11 +38,13 @@ The following features are provided by the openHABian image out of the box:
 -   Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
 -   Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
 -   Customized Bash shell experience
--   Customized vim settings, including [openHAB syntax highlighting](https://github.com/cyberkov/openhab-vim)
--   Customized nano settings, including [openHAB syntax highlighting](https://github.com/airix1/openhabnano)
--   [Raspberry Pi specific](rasppi.html): Extend to the whole SD card, 16MB GPU memory split
+-   Customized settings and openHAB syntax highlighting for [vim](https://github.com/cyberkov/openhab-vim) and[nano](https://github.com/airix1/openhabnano)
+-   Frontail log viewer
+-   [Mosquitto](https://mosquitto.org) MQTT broker
+-   FIND, the [Framework for Internal Navigation and Discovery](https://www.internalpositioning.com/)
+-   [WireGuard](https://www.wireguard.com/) VPN access
 
-Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openhabian-configuration-tool) is included and provides the following optional settings and components:
+The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian-configuration-tool) provides the following optional settings and components:
 
 ![openHABian-config menu](images/openHABian-config.png)
 
@@ -54,11 +56,11 @@ Additionally the **openHABian Configuration Tool** [`openhabian-config`](#openha
 -   Easily install and preconfigure [Optional Components](#optional-components) of your choice
 -   ... and many more
 -   Raspberry Pi specific:
-    -   Prepare the serial port for the use with extension boards like Razberry, SCC, Enocean Pi, ...
+    -   Prepare the serial port for the use with extension boards like RaZberry, Enocean Pi, ...
+    -   Use ZRAM to mitigate SD card wearout due to excessive writes
     -   Move the system partition to an external USB stick or drive
 
 ## Quick Start
-Here you'll find supported and tested installation platforms and instructions.
 
 ### Raspberry Pi (Prepackaged SD Card Image)
 **Flash, plug, wait, enjoy:**
@@ -67,8 +69,6 @@ On first boot the system will set up openHAB and the mentioned settings and tool
 All packages will be downloaded in their newest version and configured to work without further modifications.
 The whole process will take a few minutes, then openHAB and all other needed tools to get started will be ready to use without further configuration steps.
 openHABian is designed as a headless system, you will not need a display or a keyboard.
-
-Learn more about the Raspberry Pi as your platform for openHAB and about the requirements over in our [Raspberry Pi article](rasppi.html).
 
 **Setup:**
 
