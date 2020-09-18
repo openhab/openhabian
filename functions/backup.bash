@@ -341,10 +341,10 @@ amanda_setup() {
 
 
 ## "raw" copy partition using dd or mount and use rsync to sync "diff"
-## Valid arguments: "raw", "diff"
+## Valid "method" arguments: "raw", "diff"
 ## Periodically activated by systemd timer units (raw copy on 1st of month, rsync else)
 ##
-##    mirror_SD(String method)
+##    mirror_SD(String method, String destinationDevice)
 ##
 mirror_SD() {
   local src="/dev/mmcblk0"
@@ -358,7 +358,7 @@ mirror_SD() {
     if [[ -z "$retval" ]]; then return 0; fi
     dest="/dev/$retval"
   else
-    dest="${backupdrive}"
+    dest="${2:-${backupdrive}}"
   fi
   if [[ "${src}" == "${dest}" ]]; then
     echo "FAILED (source = destination)"
@@ -390,7 +390,7 @@ mirror_SD() {
       select_blkdev "^-sd" "select partition" "Select the partition to copy the internal SD card data to"
       dest="/dev/$retval"
     else
-      dest="${dest}2"
+      dest="${dest}3"
     fi
 
     mount "$dest" "$syncMount"
