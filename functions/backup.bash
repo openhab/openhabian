@@ -376,10 +376,9 @@ mirror_SD() {
   if [[ "$1" == "raw" ]]; then
     echo "Creating a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
     if ! cond_redirect dd if="${src}" bs=1M of="${dest}"; then echo "FAILED (raw device copy)"; return 1; fi
-    if ! cond_redirect fsck -y -t vfat "${dest}1"; then echo "FAILED (fsck /boot)"; return 1; fi
-    if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "FAILED (fsck root)"; return 1; fi
-    echo "OK"
-    return 0;
+    if cond_redirect fsck -y -t vfat "${dest}1" && cond_redirect fsck -y -t ext4 "${dest}2"; then echo "OK"; return 0; fi
+    echo "FAILED (dirty fsck ${dest})"
+    return 1;
   fi
 
   if [[ "$1" == "diff" ]]; then
