@@ -24,6 +24,12 @@ system_default_locale="en_US.UTF-8"
 wifi_ssid=""
 wifi_psk=""
 
+# Wi-Fi setting. Select a two-letter country code suitable for your location
+# E.g. US (default), DE, AU, NZ...
+# You may infringe on local legislature otherwise
+# See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 or /usr/share/zoneinfo/zone.tab
+wifi_country=""
+
 # Eventually disable all IPv6 e.g. on installation problems
 # values: "enable", "disable"
 ipv6=enable
@@ -44,13 +50,6 @@ debugmode=off
 # x86_64, amd64, armv6l, armv7l, aarch64, arm64
 #hwarch=armv7l
 
-# external SD card device to backup and mirror the internal SD card to
-#backupdrive=/dev/sda
-#storageconfig=openhab-dir
-#storagedir=/storage
-#storagetapes=15
-#storagecapacity=1024
-
 # OS Release
 # ubuntu, raspbian, debian
 # stretch, buster
@@ -60,5 +59,19 @@ debugmode=off
 # Java architecture mode
 # Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
 java_opt=Zulu8-64
+
+# external SD card device to backup and mirror the internal SD card to
+#backupdrive=/dev/sda
+#storageconfig=openhab-dir
+#storagedir=/storage
+#storagetapes=15
+#storagecapacity=1024
+
+# mail relay settings
+#adminmail=john.doe@foo.bar
+#relayuser=john.doe@foo.bar
+#relaypass=secret
+#smarthost=smtp.gmail.com
+#smartport=587
 
 # vim: filetype=sh

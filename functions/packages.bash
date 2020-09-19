@@ -61,7 +61,7 @@ firemotd_setup() {
   echo -n "$(timestamp) [openHABian] Generating FireMotD theme... "
   if cond_redirect FireMotD -G Gray; then echo "OK"; else echo "FAILED"; return 1; fi
 
-  if ! grep -q "FireMotD" /home/"${username:-openhabian}"/.bash_profile; then
+  if ! grep -qs "FireMotD" /home/"${username:-openhabian}"/.bash_profile; then
     echo -n "$(timestamp) [openHABian] Make FireMotD display on login... "
     if echo -e "\\necho\\nFireMotD --theme Gray \\necho" >> /home/"${username:-openhabian}"/.bash_profile; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
