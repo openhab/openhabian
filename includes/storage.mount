@@ -4,7 +4,7 @@ Before=zram-config.service
 
 [Mount]
 What=%DEVICE
-Where=/storage
+Where=%STORAGE
 Type=ext4
 
 [Install]
