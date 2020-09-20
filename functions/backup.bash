@@ -478,9 +478,9 @@ setup_mirror_SD() {
   partprobe
   cond_redirect mke2fs -F -t ext4 "${dest}3"
 
-  mountUnit="$(basename ${storageDir}).mount"
+  mountUnit="$(basename "${storageDir}").mount"
   # shellcheck disable=SC2154
-  if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${serviceTargetDir}"/${mountUnit}; then echo "FAILED (create storage mount)"; fi
+  if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${serviceTargetDir}"/"${mountUnit}"; then echo "FAILED (create storage mount)"; fi
   if ! cond_redirect systemctl enable --now "${mountUnit}"; then echo "FAILED (enable storage mount)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
