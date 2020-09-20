@@ -131,7 +131,7 @@ init_zram_mounts() {
 zram_setup() {
   if [[ -n "$UNATTENDED" ]] && [[ "${zraminstall:-enable}" == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Skipping ZRAM install as requested per config."
-    return
+    return 1
   fi
   if is_arm; then
     if ! has_lowmem && ! is_pione && ! is_cmone && ! is_pizero && ! is_pizerow; then
