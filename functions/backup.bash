@@ -245,7 +245,7 @@ create_amanda_config() {
   if ! cond_redirect systemctl enable "amdump-${config}.timer"; then echo "FAILED (amdump-${config} timer enable)"; return 1; fi
   if [[ $tapeType == "DIRECTORY" ]]; then
     # shellcheck disable=SC2154
-    if ! sed -e "s|%STORAGE|${storage}|g" "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.service-template >"${serviceTargetDir}"/amandaBackupDB.service; then echo "FAILED (create Amanda DB backup service)"; return 1; fi
+    if ! sed -e "s|%STORAGE|${storageLoc}|g" "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.service-template >"${serviceTargetDir}"/amandaBackupDB.service; then echo "FAILED (create Amanda DB backup service)"; return 1; fi
     if ! cp "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.timer "${serviceTargetDir}"/; then echo "FAILED (create Amanda DB timer)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! cond_redirect mkdir -p "$storageLoc"/amanda-backups; then echo "FAILED (create amanda-backups)"; return 1; fi
@@ -350,7 +350,8 @@ mirror_SD() {
   local src="/dev/mmcblk0"
   local dest
   local start
-  local syncMount="/storage/syncmount"
+  local storageDir="${storagedir:-/storage}"
+  local syncMount="${storageDir}/syncmount"
   local dirty="no"
   
   # shellcheck disable=SC2154
@@ -498,6 +499,6 @@ setup_mirror_SD() {
 
   if [[ -z $INTERACTIVE ]]; then
     amanda_install
-    create_amanda_config "${storageconfig:-openhab-dir}" "backup" "${adminmail:-root@${HOSTNAME}}" "${storagetapes:-15}" "${storagecapacity:-1024}" "${storagedir:-/storage}"
+    create_amanda_config "${storageconfig:-openhab-dir}" "backup" "${adminmail:-root@${HOSTNAME}}" "${storagetapes:-15}" "${storagecapacity:-1024}" "${storageDir}"
   fi
 }
