@@ -477,9 +477,11 @@ setup_mirror_SD() {
   (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk "$dest"
   partprobe
   cond_redirect mke2fs -F -t ext4 "${dest}3"
+
+  mountUnit="$(basename ${storageDir}).mount"
   # shellcheck disable=SC2154
-  if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${serviceTargetDir}"/storage.mount; then echo "FAILED (create storage mount)"; fi
-  if ! cond_redirect systemctl enable --now storage.mount; then echo "FAILED (enable storage mount)"; return 1; fi
+  if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${serviceTargetDir}"/${mountUnit}; then echo "FAILED (create storage mount)"; fi
+  if ! cond_redirect systemctl enable --now "${mountUnit}"; then echo "FAILED (enable storage mount)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Copy system root to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
