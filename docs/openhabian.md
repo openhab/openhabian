@@ -140,23 +140,6 @@ to get the automated openHABian installation going.
 
 Please note that we cannot test HW/OS combos upfront so there is no support / no guarantee for this work as explained in the [README](https://github.com/openhab/openhabian/blob/master/README.md).
 Don't be too disappointed if you run into errors. Drop us a note on Github.
-If the `unattended` installation does not work out, you can still try the openHABian configuration tool in interactive mode:
-
-```
-openhabian-config
-```
-
-You'll get to see the openHABian configuration menu.
-Start at least with the menu options 11 and 12, then the "Manual/Fresh Setup" submenu entry is the right place for you.
-Mark all components / actions you think to be of value and execute them in one go to get the full openHABian experience:
-
-![openHABian-config menu fresh setup](images/openHABian-menu-freshsetup.png)
-
-> Attention:
-> openHABian usage on a custom system should be safe.
-> Some routines might not work for you, however.
-> Please be cautious and have a close look at the console output for errors.
-> Should you run into errors, consult the [debug guide](openhabian-DEBUG.md).
 
 ### `openhabian.conf`
 You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails:
