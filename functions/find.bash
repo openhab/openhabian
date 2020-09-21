@@ -113,7 +113,7 @@ find3_setup() {
   if ! (id -u find3 &> /dev/null || cond_redirect useradd --groups openhabian find3); then echo "FAILED (adduser)"; return 1; fi
   if ! cond_redirect chown -R find3:openhabian /opt/find3; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/find3ai.service /etc/systemd/system/find3ai.service; then echo "FAILED (copy service)"; return 1; fi
-  if ! (sed -e 's|%MQTT_SERVER|'"${MQTT_SERVER}"'|g; s|%MQTT_ADMIN|'"${MQTT_ADMIN}"'|g; s|%MQTT_PASS|'"${MQTT_PASS}"'|g; s|%FIND3_PORT|8003|g' "${BASEDIR:-/opt/openhabian}"/includes/find3server.service > /etc/systemd/system/find3server.service); then echo "FAILED (service file creation)"; return 1; fi
+  if ! (sed -e 's|%FIND3_PORT|8003|g' "${BASEDIR:-/opt/openhabian}"/includes/find3server.service > /etc/systemd/system/find3server.service); then echo "FAILED (service file creation)"; return 1; fi
   if ! cond_redirect chmod 644 /etc/systemd/system/find3server.service; then echo "FAILED (permissions)"; return 1; fi
   if ! (sed -e 's|%MQTT_SERVER|'"${MQTT_SERVER}"'|g; s|%MQTT_ADMIN|'"${MQTT_ADMIN}"'|g; s|%MQTT_PASS|'"${MQTT_PASS}"'|g' "${BASEDIR:-/opt/openhabian}"/includes/find3server > /etc/default/find3server); then echo "FAILED (service configuration creation)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
@@ -196,7 +196,7 @@ setup_monitor_mode() {
       echo "$(timestamp) [openHABian] Monitor Mode patch has not been updated for kernel version 5.4 on your RPi... CANCELED"
       return 0
     elif is_pithreeplus || is_pifour; then
-      firmwareVersion="bcm43455c0/7_45_189"
+      firmwareVersion="bcm43455c0/7_45_206"
     fi
   elif [[ $(uname -r) == 4.19* ]]; then
     version="brcmfmac_4.19.y-nexmon"
