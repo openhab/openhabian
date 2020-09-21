@@ -120,7 +120,17 @@ ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 cp /opt/openhabian/openhabian.conf.dist /etc/openhabian.conf
 ```
 
-Edit `/etc/openhabian.conf` to match your needs, then use
+#### interactive install on generic Linux
+Start `openhabian-config` to get into the openHABian configuration tool
+➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
+
+#### unattended install on generic Linux
+BEWARE: this install method is only for experts that already know to handle and debug openHABian.
+As a beginner, use the interactive `openhabian-config` tool !
+
+That being said, you actually _can_ install openHABian in an unattended mode.
+
+To do so, edit `/etc/openhabian.conf` to match your needs, then use
 
 ```shell
 openhabian-config unattended
