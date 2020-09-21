@@ -20,7 +20,7 @@ nodejs_setup() {
   myDistro="$(lsb_release -sc)"
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
-  if is_armv6l; then
+  if [[ -z $PREOFFLINE ]] && is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing NodeJS... "
     if ! cond_redirect wget -qO "$temp" "$link"; then echo "FAILED (download)"; rm -f "$temp"; return 1; fi
     if ! cond_redirect tar -Jxf "$temp" --strip-components=1 -C /usr; then echo "FAILED (extract)"; rm -f "$temp"; return 1; fi
@@ -44,7 +44,7 @@ nodejs_setup() {
 ##
 frontail_setup() {
   local frontailBase
-  local frontailUser=frontail
+  local frontailUser="frontail"
 
   if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v12"* ]] || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "

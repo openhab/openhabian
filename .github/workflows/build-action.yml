@@ -1,4 +1,4 @@
-name: Build Image
+name: Build openHABian images
 
 # Trigger the workflow on push or pull request
 on:
@@ -6,10 +6,12 @@ on:
     paths:
       - 'build.bash'
       - 'build-image/openhabian-installer.service'
+      - 'includes/offline-image-modifications.bash'
   pull_request:
     paths:
       - 'build.bash'
       - 'build-image/openhabian-installer.service'
+      - 'includes/offline-image-modifications.bash'
   workflow_dispatch:
     inputs:
       comments:
@@ -27,31 +29,29 @@ jobs:
          with:
            repository: ${{ github.event.pull_request.head.repo.full_name }}
            ref: ${{ github.event.pull_request.head.ref }}
-       - name: Environment variables
-         run: sudo -E bash -c set
-       - name: Install required packages
-         run: sudo apt-get install git curl unzip libarchive-zip-perl dos2unix xz-utils kpartx
-       - name: getimagename
-         id: getimagename
+       - name: Setup environment
+         id: setup
          run: |
+           sudo -E bash -c set
+           sudo apt-get update
+           sudo apt-get install --yes libarchive-zip-perl dos2unix kpartx systemd-container zerofree qemu-user-static
            echo "::set-output name=image::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
        - name: Cache Raspberry Pi OS image
          uses: actions/cache@v2
          with:
-           path: ${{ steps.getimagename.outputs.image }}
-           key: ${{ steps.getimagename.outputs.image }}
-       - name: Run build.bash rpi
+           path: ${{ steps.setup.outputs.image }}
+           key: ${{ steps.setup.outputs.image }}
+       - name: Build openHABian 32bit image
+         id: build
          run: |
            sudo -E ./ci-setup.bash github pi-raspios32
            sudo -E ./build.bash rpi
-       - name: getfilename
-         id: getfilename
-         run: echo "::set-output name=file::$(ls openhabian-*.img.xz)"
-       - name: Archive
+           echo "::set-output name=file::$(ls openhabian-*.img.xz)"
+       - name: Archive openHABian 32bit image
          uses: actions/upload-artifact@v2
          with:
-           name: ${{ steps.getfilename.outputs.file }}
-           path: ${{ steps.getfilename.outputs.file }}
+           name: ${{ steps.build.outputs.file }}
+           path: ${{ steps.build.outputs.file }}
   build64experimental:
     # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
     runs-on: ubuntu-20.04
@@ -62,28 +62,26 @@ jobs:
          with:
            repository: ${{ github.event.pull_request.head.repo.full_name }}
            ref: ${{ github.event.pull_request.head.ref }}
-       - name: Environment variables
-         run: sudo -E bash -c set
-       - name: Install required packages
-         run: sudo apt-get install git curl unzip libarchive-zip-perl dos2unix xz-utils kpartx
-       - name: getimagename
-         id: getimagename
+       - name: Setup environment
+         id: setup
          run: |
+           sudo -E bash -c set
+           sudo apt-get update
+           sudo apt-get install --yes libarchive-zip-perl dos2unix kpartx systemd-container zerofree qemu-user-static
            echo "::set-output name=image::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
        - name: Cache Raspberry Pi OS image
          uses: actions/cache@v2
          with:
-           path: ${{ steps.getimagename.outputs.image }}
-           key: ${{ steps.getimagename.outputs.image }}
-       - name: Run build.bash rpi64
+           path: ${{ steps.setup.outputs.image }}
+           key: ${{ steps.setup.outputs.image }}
+       - name: Build openHABian 64bit image
+         id: build
          run: |
            sudo -E ./ci-setup.bash github pi-raspios64beta
            sudo -E ./build.bash rpi64
-       - name: getfilename
-         id: getfilename
-         run: echo "::set-output name=file::$(ls openhabian-*.img.xz)"
-       - name: Archive
+           echo "::set-output name=file::$(ls openhabian-*.img.xz)"
+       - name: Archive openHABian 64bit image
          uses: actions/upload-artifact@v2
          with:
-           name: ${{ steps.getfilename.outputs.file }}
-           path: ${{ steps.getfilename.outputs.file }}
+           name: ${{ steps.build.outputs.file }}
+           path: ${{ steps.build.outputs.file }}

@@ -76,14 +76,19 @@ openhab2_setup() {
     echo "OK"
   fi
 
-  if ! add_keys "https://bintray.com/user/downloadSubjectPublicKey?username=openhab"; then return 1; fi
+  if [[ -z $OFFLINE ]]; then
+    if ! add_keys "https://bintray.com/user/downloadSubjectPublicKey?username=openhab"; then return 1; fi
 
-  echo "$repo" > /etc/apt/sources.list.d/openhab2.list
+    echo "$repo" > /etc/apt/sources.list.d/openhab2.list
 
-  echo -n "$(timestamp) [openHABian] Installing selected openHAB version... "
-  if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  openhabVersion="$(apt-cache madison openhab2 | head -n 1 | cut -d'|' -f2 | xargs)"
-  if cond_redirect apt-get install --allow-downgrades --yes "openhab2=${openhabVersion}" "openhab2-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
+    echo -n "$(timestamp) [openHABian] Installing selected openHAB version... "
+    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+    openhabVersion="$(apt-cache madison openhab2 | head -n 1 | cut -d'|' -f2 | xargs)"
+    if cond_redirect apt-get install --allow-downgrades --yes "openhab2=${openhabVersion}" "openhab2-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
+  else
+    echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "
+    if cond_redirect apt-get install --yes openhab2 openhab2-addons; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
 
   echo -n "$(timestamp) [openHABian] Setting up openHAB service... "
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi

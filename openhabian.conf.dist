@@ -24,6 +24,12 @@ system_default_locale="en_US.UTF-8"
 wifi_ssid=""
 wifi_psk=""
 
+# Wi-Fi setting. Select a two-letter country code suitable for your location
+# E.g. US (default), DE, AU, NZ...
+# You may infringe on local legislature otherwise
+# See https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2 or /usr/share/zoneinfo/zone.tab
+wifi_country=""
+
 # Eventually disable all IPv6 e.g. on installation problems
 # values: "enable", "disable"
 ipv6=enable
@@ -70,6 +76,5 @@ java_opt=Zulu8-64
 #relaypass=secret
 #smarthost=smtp.gmail.com
 #smartport=587
-#
 
 # vim: filetype=sh

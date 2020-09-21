@@ -353,7 +353,7 @@ mirror_SD() {
   local storageDir="${storagedir:-/storage}"
   local syncMount="${storageDir}/syncmount"
   local dirty="no"
-  
+
   # shellcheck disable=SC2154
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select the USB attached disk device to copy the internal SD card data to"
@@ -412,6 +412,11 @@ mirror_SD() {
 ##   setup_mirror_SD()
 ##
 setup_mirror_SD() {
+  if [[ -n "$UNATTENDED" ]] && [[ -z "$backupdrive" ]]; then
+    echo "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... CANCELED (no configuration provided)"
+    return 0
+  fi
+
   local dest
   local srcSize
   local destSize
@@ -420,16 +425,17 @@ setup_mirror_SD() {
   local storageDir="${storagedir:-/storage}"
   local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
   local infoText1="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will *copy* your system root from your SD card to a USB attached card writer device. Are you sure"
-  local infoText2="is an SD card writer device equipped with a dispensible SD card ? Are you this will destroy all data on that card and you want to proceed writing to this device ?"
-
+  local infoText2="is an SD card writer device equipped with a dispensible SD card? Are you this will destroy all data on that card and you want to proceed writing to this device?"
 
   echo -n "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... "
+
   if [[ "$1" == "remove" ]]; then
     cond_redirect systemctl disable sdrsync.service sdrawcopy.service sdrsync.timer sdrawcopy.timer
     rm -f ${serviceTargetDir}/sdr*.{service,timer}
     cond_redirect systemctl -q daemon-reload &> /dev/null
     return 0
   fi
+
   if [[ "$1" != "install" ]]; then echo "FAILED"; return 1; fi
 
   if ! is_pi; then
@@ -441,11 +447,8 @@ setup_mirror_SD() {
 
   mkdir -p "${storageDir}"
   if cond_redirect apt-get install --yes gdisk; then echo "OK"; else echo "FAILED (install gdisk)"; return 1; fi
-
-  # shellcheck disable=SC2154
-  if [[ -n "$UNATTENDED" ]] && [[ -z "$backupdrive" ]]; then return 0; fi
-
   if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/set-partuuid /usr/local/sbin; then echo "FAILED (install set-partuuid)"; return 1; fi
+
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
     if [[ -z "$retval" ]]; then return 0; fi
