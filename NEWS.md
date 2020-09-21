@@ -8,7 +8,7 @@ lookup.
 openHABian can automatically take daily syncs of your internal SD card to
 another card in an external port. This allows for fast swapping of cards
 to reduce impact of a failed SD card.
-The remaining space on the external device will also be used to setup openHABian's Amanda backup system.
+The remaining space on the external device can also be used to setup openHABian's Amanda backup system.
 
 
 ## July 4, 2020
@@ -20,6 +20,3 @@ to your local PC or mobile device that you want to use for access.
 Copy the configuration file '/etc/wireguard/wg0-client.conf' from this box or
 transmit QR code to load the tunnel.
 Any feedback is highly appreciated on the forum.
-
-### New Java providers now out of beta
-Java 11 has been proven to work with openHAB 2.5.
