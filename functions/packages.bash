@@ -49,7 +49,7 @@ firemotd_setup() {
   if cond_redirect wget -O "$temp" https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD; then
     echo "OK"
   else
-    echo "FAILED"
+    echo "FAILED (defaulting to cached version)"
     rm -f "$temp"
     return 1
   fi
@@ -61,15 +61,15 @@ firemotd_setup() {
   echo -n "$(timestamp) [openHABian] Generating FireMotD theme... "
   if cond_redirect FireMotD -G Gray; then echo "OK"; else echo "FAILED"; return 1; fi
 
-  if ! grep -q "FireMotD" /home/"${username:-openhabian}"/.bash_profile; then
+  if [[ -z $PREOFFLINE ]] && ! grep -qs "FireMotD" /home/"${username:-openhabian}"/.bash_profile; then
     echo -n "$(timestamp) [openHABian] Make FireMotD display on login... "
     if echo -e "\\necho\\nFireMotD --theme Gray \\necho" >> /home/"${username:-openhabian}"/.bash_profile; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up FireMotD apt updates count service... "
   cond_echo "\\nMake FireMotD check for new updates every night... "
-  if cond_redirect cp "${BASEDIR}"/includes/firemotd.* "$targetDir"/; then echo "OK"; else echo "FAILED"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if cond_redirect cp "${BASEDIR}"/includes/firemotd.* "$targetDir"; then echo "OK"; else echo "FAILED"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; fi     # Don't return to allow proper pre-offline setup
   if ! cond_redirect systemctl enable firemotd.service &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
   cond_echo "\\nMake FireMotD check for new updates after using apt... "
   echo "DPkg::Post-Invoke { \"if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
@@ -83,6 +83,11 @@ firemotd_setup() {
 ##    exim_setup()
 ##
 exim_setup() {
+  if [[ -n $UNATTENDED ]] && [[ -z $relayuser ]]; then
+    echo "$(timestamp) [openHABian] Beginning Mail Transfer Agent setup... CANCELED (no configuration provided)"
+    return 0
+  fi
+
   local updateEximTemplate="${BASEDIR:-/opt/openhabian}/includes/update-exim4.conf.conf-template"
   local eximConfig="/etc/exim4/update-exim4.conf.conf"
   local eximPasswd="/etc/exim4/passwd.client"

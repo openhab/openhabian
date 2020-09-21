@@ -184,6 +184,7 @@ type openhabian_update &> /dev/null && if ! openhabian_update &> /dev/null; then
   echo "FAILED"
   echo "$(timestamp) [openHABian] The git repository on the public internet is not reachable."
   echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but this is not guaranteed to work."
+  export OFFLINE="1"
 else
   echo "OK"
 fi

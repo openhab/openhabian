@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2119,SC2120
 
 ## Install appropriate Java version based on current choice.
 ## Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
@@ -233,14 +234,14 @@ java_zulu_install() {
 ## Fetch Java Zulu 8 directly from Azul API v1
 ## Valid arguments: "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
 ##
-##    java_zulu_fetch(String type)
+##    java_zulu_fetch(String type, String prefix)
 ##
 java_zulu_fetch() {
   local downloadLink
   local jdkInstallLocation
   local link
 
-  jdkInstallLocation="/opt/jdk"
+  jdkInstallLocation="${2}/opt/jdk"
   link="https://api.azul.com/zulu/download/community/v1.0/bundles/latest/binary/?os=linux&ext=tar.gz&javafx=false"
 
   if [[ $1 == "Zulu8-32" ]]; then
@@ -274,7 +275,7 @@ java_zulu_fetch() {
   fi
   if [[ -z $downloadLink ]]; then echo "FAILED (download link)"; return 1; fi
 
-  if ! mkdir -p $jdkInstallLocation; then echo "FAILED (create directory)"; return 1; fi
+  if ! mkdir -p "$jdkInstallLocation"; then echo "FAILED (create directory)"; return 1; fi
   if ! rm -rf "${jdkInstallLocation:?}"/*; then echo "FAILED (clean directory)"; return 1; fi
   if ! cond_redirect wget -O "$jdkInstallLocation"/zulu.tar.gz "$downloadLink"; then echo "FAILED (download)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
   if ! cond_redirect tar -xpzf "$jdkInstallLocation"/zulu.tar.gz -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
@@ -387,13 +388,18 @@ java_zulu_enterprise_apt() {
 
 ## Install Zulu Cryptography Extension Kit to enable cryptos using more then 128 bits
 ##
-##    java_zulu_install_crypto_extension()
+##    java_zulu_install_crypto_extension(String path)
 ##
 java_zulu_install_crypto_extension() {
+  if [[ -n $OFFLINE ]]; then
+    echo "$(timestamp) [openHABian] Using cached Java Zulu CEK to enable unlimited cipher strength... OK"
+    return 0
+  fi
+
   local jdkSecurity
   local policyTempLocation
 
-  jdkSecurity="$(realpath /usr/bin/java | sed 's|/java||')/../lib/security"
+  jdkSecurity="${1:-"$(realpath /usr/bin/java | sed 's|/java||')/../lib/security"}"
   policyTempLocation="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo -n "$(timestamp) [openHABian] Installing Java Zulu CEK to enable unlimited cipher strength... "

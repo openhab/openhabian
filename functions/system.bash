@@ -55,7 +55,7 @@ needed_packages() {
     avahi-autoipd fontconfig; \
   then echo "OK"; else echo "FAILED"; return 1; fi
 
-  if is_pizerow || is_pithree || is_pithreeplus || is_pifour; then
+  if is_pizerow || is_pithree || is_pithreeplus || is_pifour && [[ -z $PREOFFLINE ]]; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
     # phython3-bluez is not available in stretch so only add it if we are runnning on buster or later
     if ! is_stretch; then
