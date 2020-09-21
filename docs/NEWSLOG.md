@@ -3,7 +3,7 @@
 openHABian can automatically take daily syncs of your internal SD card to
 another card in an external port. This allows for fast swapping of cards
 to reduce impact of a failed SD card.
-The remaining space on the external device will also be used to setup openHABian
+The remaining space on the external device can also be used to setup openHABian
 's Amanda backup system.
 
 ## July 4, 2020

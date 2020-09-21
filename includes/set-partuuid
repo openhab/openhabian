@@ -1,0 +1,196 @@
+#!/bin/bash
+
+# shamelessly copied from https://www.raspberrypi.org/forums/viewtopic.php?f=29&t=196778
+
+
+trap '{ stty sane; echo ""; errexit "Aborted"; }' SIGINT SIGTERM
+
+MNTPATH="/tmp/set-partuuid-mnt"
+
+mntpart()
+{
+  MNTED=TRUE
+  if [ ! -d "${MNTPATH}/" ]; then
+    mkdir "${MNTPATH}/"
+    if [ $? -ne 0 ]; then
+      errexit "Unable to make partition mount point"
+    fi
+  fi
+  mount "$1" "${MNTPATH}/"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to mount $2 partition"
+  fi
+}
+
+umntpart()
+{
+  umount "${MNTPATH}/"
+  if [ $? -ne 0 ]; then
+    errexit "Unable to unmount partition"
+  fi
+  rm -r "${MNTPATH}/"
+  MNTED=FALSE
+}
+
+errexit()
+{
+  echo ""
+  echo "$1"
+  echo ""
+  if [ "${MNTED}" = "TRUE" ]; then
+    umount "${MNTPATH}/" &> /dev/null
+    rm -rf "${MNTPATH}/" &> /dev/null
+  fi
+  echo "Usage: $0 device [ hhhhhhhh-02 | hhhhhhhh-hhhh-hhhh-hhhh-hhhhhhhhhhhh | random ]"
+  echo ""
+  exit 1
+}
+
+MNTED=FALSE
+if [ $(id -u) -ne 0 ]; then
+  errexit "$0 must be run as root user"
+fi
+PGMNAME="$(basename $0)"
+for PID in $(pidof -x -o %PPID "${PGMNAME}"); do
+  if [ ${PID} -ne $$ ]; then
+    errexit "${PGMNAME} is already running"
+  fi
+done
+gdisk -l "${DEVICE}" &> /dev/null
+if [ $? -eq 127 ]; then
+  echo ""
+  echo "gdisk not installed"
+  echo ""
+  echo -n "Ok to install gdisk (y/n)? "
+  while read -r -n 1 -s answer; do
+    if [[ "${answer}" = [yYnN] ]]; then
+      echo "${answer}"
+      if [[ "${answer}" = [yY] ]]; then
+        break
+      else
+        errexit "Aborted"
+      fi
+    fi
+  done
+  echo ""
+  echo "Installing gdisk"
+  echo ""
+  apt-get update
+  apt-get install gdisk
+fi
+DEVICE="$1"
+PARTUUID="$2"
+if [[ (! "${DEVICE}" =~ ^/dev/sd[a-z]2$ && ! "${DEVICE}" = "/dev/mmcblk0p2") || ! -b "${DEVICE}" ]]; then
+  errexit "Invalid DEVICE: ${DEVICE}"
+fi
+ORIGUUID="$(blkid "${DEVICE}" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')"
+if [ "${PARTUUID}" = "" ]; then
+  PARTUUID="${ORIGUUID}"
+else
+  DEVICE_P="$(sed 's/[0-9]\+$//' <<< "${DEVICE}")"
+  DEVICE_D="${DEVICE_P}"
+  if [ "${DEVICE_D}" = "/dev/mmcblk0p" ]; then
+    DEVICE_D="${DEVICE_D:0:(${#DEVICE_D} - 1)}"
+  fi
+  SDCBOOT=FALSE
+  if [ -b /dev/mmcblk0p1 ]; then
+    mntpart "/dev/mmcblk0p1" "BOOT"
+    CLRPART="$(sed -n '/^[[:space:]]*#/!s|^.*root=\(\S\+\)\s.*|\1|p' "${MNTPATH}/cmdline.txt")"
+    if [ "${CLRPART}" != "/dev/mmcblk0p2" ]; then
+      CLRUUID="$(sed -n 's|PARTUUID=\(\S\+\)|\1|p' <<< "${CLRPART}")"
+      if [[ "${CLRUUID}" != "$(blkid /dev/mmcblk0p2 | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')"  && "${CLRUUID}" = "${ORIGUUID}" ]]; then
+        SDCBOOT=TRUE
+      fi
+    fi
+    umntpart
+  fi
+  PTTYPE="$(blkid "${DEVICE_D}" | sed -n 's|^.*PTTYPE="\(\S\+\)".*|\1|p')"
+  if [[ "${PTTYPE}" != "dos" && "${PTTYPE}" != "gpt" ]]; then
+    errexit "Unsupported partition table type: ${PTTYPE}"
+  fi
+  PARTUUID="$(tr [A-Z] [a-z] <<< "${PARTUUID}")"
+  if [[ "${PARTUUID}" != "random" && (("${PTTYPE}" = "dos" && ! "${PARTUUID}" =~ ^[[:xdigit:]]{8}-02$) || \
+("${PTTYPE}" = "gpt" && ! "${PARTUUID}" =~ ^[[:xdigit:]]{8}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{4}-[[:xdigit:]]{12}$)) ]]; then
+    errexit "Invalid PARTUUID: ${PARTUUID}"
+  fi
+  echo ""
+  echo -n "Set PARTUUID on ${DEVICE} to ${PARTUUID} (y/n)? "
+  while read -r -n 1 -s answer; do
+    if [[ "${answer}" = [yYnN] ]]; then
+      echo "${answer}"
+      if [[ "${answer}" = [yY] ]]; then
+        break
+      else
+        errexit "Aborted"
+      fi
+    fi
+  done
+  ORIGUUID_1="$(blkid "${DEVICE_P}1" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')"
+  ORIGUUID_2="$(blkid "${DEVICE_P}2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')"
+  if [ "${PTTYPE}" = "dos" ]; then
+    if [ "${PARTUUID}" = "random" ]; then
+      PTUUID="$(hexdump -n 4 -e '"%08X"' /dev/random | tr [A-Z] [a-z])"
+    else
+      PTUUID="${PARTUUID:0:(${#PARTUUID} - 3)}"
+    fi
+    fdisk "${DEVICE_D}" <<EOF &> /dev/null
+x
+i
+0x${PTUUID}
+r
+w
+EOF
+  else
+    if [ "${PARTUUID}" = "random" ]; then
+      sgdisk -u 2:'R' "${DEVICE_D}" > /dev/null
+    else
+      sgdisk -u 2:${PARTUUID} "${DEVICE_D}" > /dev/null
+    fi
+  fi
+  partprobe
+  PARTUUID="$(blkid "${DEVICE}" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')"
+  PARTUUID_1="$(blkid "${DEVICE_P}1" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')"
+  PARTUUID_2="$(blkid "${DEVICE_P}2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')"
+  mntpart "${DEVICE_P}2" "ROOT"
+  sed -i "/^[[:space:]]*#/!s|^\(PARTUUID=\)${ORIGUUID_1}\(\s\+/boot\s\+.*\)$|\1${PARTUUID_1}\2|" "${MNTPATH}/etc/fstab"
+  sed -i "/^[[:space:]]*#/!s|^\(PARTUUID=\)${ORIGUUID_2}\(\s\+/\s\+.*\)$|\1${PARTUUID_2}\2|" "${MNTPATH}/etc/fstab"
+  umntpart
+  mntpart "${DEVICE_P}1" "BOOT"
+  sed -i "/^[[:space:]]*#/!s|^\(.*root=PARTUUID=\)${ORIGUUID_2}\(\s\+.*\)$|\1${PARTUUID_2}\2|" "${MNTPATH}/cmdline.txt"
+  umntpart
+  if [ "${SDCBOOT}" = "TRUE" ]; then
+    mntpart "/dev/mmcblk0p1" "SD card BOOT"
+    sed -i "/^[[:space:]]*#/!s|^\(.*root=PARTUUID=\)${ORIGUUID_2}\(\s\+.*\)$|\1${PARTUUID_2}\2|" "${MNTPATH}/cmdline.txt"
+    umntpart
+  fi
+fi
+echo ""
+echo "PARTUUID on ${DEVICE} is set to ${PARTUUID}"
+if [ -b /dev/mmcblk0 ]; then
+  if [[ "${DEVICE}" != "/dev/mmcblk0p2" && "$(blkid /dev/mmcblk0p2 | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')" = "${PARTUUID}" ]]; then
+    echo ""
+    echo "WARNING : SD card (/dev/mmcblk0p2) and USB device (${DEVICE}) have the same PARTUUID (${PARTUUID}) : SD card will boot instead of USB device"
+  fi
+fi
+DEV_LIST=()
+if [ -b /dev/mmcblk0 ]; then
+  DEV_LIST+=/dev/mmcblk0p2
+fi
+DEV_LIST+=($(ls -l /dev/sd?2 2> /dev/null | sed -n 's|^.*\(/dev/.*\)|\1|p'))
+if [ ${#DEV_LIST[@]} -gt 1 ]; then
+  for i in ${!DEV_LIST[@]}; do
+    if [ ${i} -lt $((${#DEV_LIST[@]} - 1)) ]; then
+      j=$((i + 1))
+      while [ ${j} -lt ${#DEV_LIST[@]} ]; do
+        if [ "$(blkid "${DEV_LIST[i]}" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')" = "$(blkid "${DEV_LIST[j]}" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')" ];then
+          if [[ "${DEV_LIST[i]}" != "/dev/mmcblk0p2" && ("${DEV_LIST[i]}" = "${DEVICE}" || "${DEV_LIST[j]}" = "${DEVICE}") ]]; then
+            echo ""
+            echo "WARNING : ${DEV_LIST[i]} and ${DEV_LIST[j]} have the same PARTUUID : $(blkid "${DEV_LIST[i]}" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')"
+          fi
+        fi
+      ((j += 1))
+      done
+    fi
+  done
+fi
+echo ""
