@@ -129,8 +129,12 @@ init_zram_mounts() {
 }
 
 zram_setup() {
+  if is_pifour_8GB; then
+    echo -n "$(timestamp) [openHABian] We've detected you're using the 8GB model of the RPi4. It is known to not work with ZRAM."
+    zraminstall="disable"
+  fi
   if [[ -n "$UNATTENDED" ]] && [[ "${zraminstall:-enable}" == "disable" ]]; then
-    echo -n "$(timestamp) [openHABian] Skipping ZRAM install as requested per config."
+    echo -n "$(timestamp) [openHABian] Skipping ZRAM install as requested."
     return 1
   fi
   if is_arm; then
