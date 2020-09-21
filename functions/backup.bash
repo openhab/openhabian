@@ -440,6 +440,7 @@ setup_mirror_SD() {
   fi
 
   mkdir -p "${storageDir}"
+  if cond_redirect apt-get install --yes gdisk; then echo "OK"; else echo "FAILED (install gdisk)"; return 1; fi
 
   # shellcheck disable=SC2154
   if [[ -n "$UNATTENDED" ]] && [[ -z "$backupdrive" ]]; then return 0; fi
