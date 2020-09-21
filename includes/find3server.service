@@ -10,7 +10,7 @@ RuntimeDirectory=find3server
 RuntimeDirectoryMode=0775
 User=find3
 Group=openhabian
-ExecStart=/usr/sbin/find3server -mqtt-server %MQTT_SERVER -mqtt-admin %MQTT_ADMIN -mqtt-pass %MQTT_PASS -port %FIND3_PORT
+ExecStart=/usr/sbin/find3server -port %FIND3_PORT
 Restart=always
 
 [Install]
