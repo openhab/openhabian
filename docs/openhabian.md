@@ -121,7 +121,7 @@ cp /opt/openhabian/openhabian.conf.dist /etc/openhabian.conf
 ```
 
 #### Interactive Install on generic Linux
-Start `openhabian-config` to get into the openHABian configuration tool
+Start `openhabian-config` to get into the openHABian configuration tool.
 ➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
 
 #### Unattended Install on generic Linux
