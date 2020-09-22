@@ -394,11 +394,12 @@ mirror_SD() {
       select_blkdev "^-sd" "select partition" "Select the partition to copy the internal SD card data to"
       dest="/dev/$retval"
     else
-      dest="${dest}3"
+      dest="${dest}2"
     fi
-
     mount "$dest" "$syncMount"
-    rsync --one-file-system -avRh "/" "$syncMount"
+    if ! (mountpoint -q "${syncMount}"); then echo "FAILED (${dest} is not mounted as ${syncMount})"; return 1; fi
+    
+    cond_redirect rsync --one-file-system -avRh "/" "$syncMount"
     if ! (umount "$syncMount" &> /dev/null); then
       sleep 1
       umount -l "$syncMount" &> /dev/null
