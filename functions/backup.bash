@@ -386,8 +386,8 @@ mirror_SD() {
       fi
     done
     echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
-    if ! cond_redirect dd if="${src}1" bs=1M of="${dest}1"; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
-    if ! cond_redirect dd if="${src}2" bs=1M of="${dest}2"; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
+    if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1"; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
+    if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2"; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
     if ! (yes | cond_redirect set-partuuid "${dest}2" random); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
     if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "OK (dirty bit on fsck ${dest}2 is normal)"; dirty="yes"; fi
     if [[ "$dirty" == "no" ]]; then
