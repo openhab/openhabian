@@ -381,7 +381,7 @@ mirror_SD() {
       srcSize="$(blockdev --getsize64 "$src"p${i})"
       destSize="$(blockdev --getsize64 "$dest"${i})"
       if [[ "$destSize" -lt "$destSize" ]]; then
-        echo "FAILED (raw device copy of ${src}${i})"
+        echo "FAILED (raw device copy of ${src}${i} larger than ${dest}${i})"
         return 1
       fi
     done
