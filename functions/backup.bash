@@ -353,7 +353,7 @@ mirror_SD() {
   local storageDir="${storagedir:-/storage}"
   local syncMount="${storageDir}/syncmount"
   local dirty="no"
-  local dumpInfoText="For your information as the operator of this openHABian system:\\A timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
+  local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
   # shellcheck disable=SC2154
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select the USB attached disk device to copy the internal SD card data to"
