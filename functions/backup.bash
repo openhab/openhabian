@@ -353,7 +353,7 @@ mirror_SD() {
   local storageDir="${storagedir:-/storage}"
   local syncMount="${storageDir}/syncmount"
   local dirty="no"
-  local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
+  local dumpInfoText="For your information as the operator of this openHABian system:\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
   local partUUID
   local origUUID
 
