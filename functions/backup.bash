@@ -384,7 +384,8 @@ mirror_SD() {
     if [[ "$dirty" == "no" ]]; then
       echo "OK"
     fi
-    echo "${dumpInfoText}" | Mail -s "SD card raw copy dump" $adminmail
+    # shellcheck disable=SC2154
+    echo "${dumpInfoText}" | Mail -s "SD card raw copy dump" "$adminmail"
     return 0
   fi
 
