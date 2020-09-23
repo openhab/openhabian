@@ -386,10 +386,14 @@ mirror_SD() {
     echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
     if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1" status=progress; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
     if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
+    origPartUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')
     if ! partUUID=$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print $7 }'); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
-    origUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')
+    if ! cond_redirect tune2fs "${dest}2" -U random; then echo "FAILED (set random UUID)"; dirty="yes"; fi
     mount "${dest}1" "$syncMount"
-    sed -i "s|${origUUID}|${partUUID}|g" "${syncMount}"/cmdline.txt
+    sed -i "s|${origPartUUID}|${partUUID}|g" "${syncMount}"/cmdline.txt
+    umount "$syncMount"
+    mount "${dest}2" "$syncMount"
+    rm -f "/mnt/etc/systemd/system/${storageDir}".mount
     umount "$syncMount"
     if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "OK (dirty bit on fsck ${dest}2 is normal)"; dirty="yes"; fi
     if [[ "$dirty" == "no" ]]; then
@@ -407,6 +411,7 @@ mirror_SD() {
     fi
     if [[ -n "$INTERACTIVE" ]]; then
       select_blkdev "^-sd" "select partition" "Select the partition to copy the internal SD card data to"
+      # shellcheck disable=SC2154
       dest="/dev/$retval"
     else
       dest="${dest}2"
