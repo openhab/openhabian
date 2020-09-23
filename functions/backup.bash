@@ -376,7 +376,16 @@ mirror_SD() {
     return 1
   fi
   if [[ "$1" == "raw" ]]; then
-    echo "Creating a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
+
+    for i in 1 2; do
+      srcSize="$(blockdev --getsize64 "$src"p${i})"
+      destSize="$(blockdev --getsize64 "$dest"${i})"
+      if [[ "$destSize" -lt "$destSize" ]]; then
+        echo "FAILED (raw device copy of ${src}${i})"
+        return 1
+      fi
+    done
+    echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
     if ! cond_redirect dd if="${src}1" bs=1M of="${dest}1"; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
     if ! cond_redirect dd if="${src}2" bs=1M of="${dest}2"; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
     if ! (yes | cond_redirect set-partuuid "${dest}2" random); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
