@@ -353,7 +353,7 @@ mirror_SD() {
   local storageDir="${storagedir:-/storage}"
   local syncMount="${storageDir}/syncmount"
   local dirty="no"
-  
+  local dumpInfoText="For your information as the operator of this openHABian system:\\A timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
   # shellcheck disable=SC2154
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select the USB attached disk device to copy the internal SD card data to"
@@ -377,16 +377,22 @@ mirror_SD() {
   fi
   if [[ "$1" == "raw" ]]; then
     echo "Creating a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
-    if ! cond_redirect dd if="${src}" bs=1M of="${dest}"; then echo "FAILED (raw device copy)"; dirty="yes"; fi
+    if ! cond_redirect dd if="${src}1" bs=1M of="${dest}1"; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
+    if ! cond_redirect dd if="${src}2" bs=1M of="${dest}2"; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
     if ! (yes | cond_redirect set-partuuid "${dest}2" random); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
     if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "OK (dirty bit on fsck ${dest}2 is normal)"; dirty="yes"; fi
     if [[ "$dirty" == "no" ]]; then
       echo "OK"
     fi
+    echo "${dumpInfoText}" | Mail -s "SD card raw copy dump" $adminmail
     return 0
   fi
 
   if [[ "$1" == "diff" ]]; then
+    if pgrep "dd if=${src}"; then
+      echo "FAILED (raw device dump of ${dest} is running)"
+      return 1
+    fi
     if [[ ! -d $syncMount ]]; then
       mkdir -p "$syncMount"
     fi
@@ -398,7 +404,6 @@ mirror_SD() {
     fi
     mount "$dest" "$syncMount"
     if ! (mountpoint -q "${syncMount}"); then echo "FAILED (${dest} is not mounted as ${syncMount})"; return 1; fi
-    
     cond_redirect rsync --one-file-system -avRh "/" "$syncMount"
     if ! (umount "$syncMount" &> /dev/null); then
       sleep 1
@@ -482,6 +487,7 @@ setup_mirror_SD() {
   (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk "$dest"
   partprobe
   cond_redirect mke2fs -F -t ext4 "${dest}3"
+  mirror_SD "raw" "${dest}"
 
   mountUnit="$(basename "${storageDir}").mount"
   # shellcheck disable=SC2154
