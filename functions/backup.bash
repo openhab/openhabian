@@ -491,7 +491,7 @@ setup_mirror_SD() {
   fi
 
   if [[ -n $INTERACTIVE ]]; then
-    if ! (whiptail --title "Copy internal SD to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "Copy internal SD to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 12 116); then echo "CANCELED"; return 0; fi
   fi
 
   mountUnit="$(basename "${storageDir}").mount"
