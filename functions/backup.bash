@@ -491,6 +491,9 @@ setup_mirror_SD() {
     echo "FAILED (insufficient space)"; return 1;
   fi
 
+  if [[ -n $INTERACTIVE ]]; then
+    if ! (whiptail --title "Copy internal SD to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
+  fi
   # copy partition table
   start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)"
   ((destSize-=start))
@@ -504,9 +507,6 @@ setup_mirror_SD() {
   if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${serviceTargetDir}"/"${mountUnit}"; then echo "FAILED (create storage mount)"; fi
   if ! cond_redirect systemctl enable --now "${mountUnit}"; then echo "FAILED (enable storage mount)"; return 1; fi
 
-  if [[ -n $INTERACTIVE ]]; then
-    if ! (whiptail --title "Copy system root to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
-  fi
 
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template > "${serviceTargetDir}"/sdrawcopy.service; then echo "FAILED (create raw SD copy service)"; fi
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template > "${serviceTargetDir}"/sdrsync.service; then echo "FAILED (create rsync service)"; fi
