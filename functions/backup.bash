@@ -354,6 +354,9 @@ mirror_SD() {
   local syncMount="${storageDir}/syncmount"
   local dirty="no"
   local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
+  local partUUID
+  local origUUID
+
   # shellcheck disable=SC2154
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select the USB attached disk device to copy the internal SD card data to"
@@ -375,8 +378,11 @@ mirror_SD() {
     echo "FAILED (destination mounted)"
     return 1
   fi
-  if [[ "$1" == "raw" ]]; then
+  if [[ ! -d $syncMount ]]; then
+    mkdir -p "$syncMount"
+  fi
 
+  if [[ "$1" == "raw" ]]; then
     for i in 1 2; do
       srcSize="$(blockdev --getsize64 "$src"p${i})"
       destSize="$(blockdev --getsize64 "$dest"${i})"
@@ -388,7 +394,11 @@ mirror_SD() {
     echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
     if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1"; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
     if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2"; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
-    if ! (yes | cond_redirect set-partuuid "${dest}2" random); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
+    if ! partUUID=$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print $7 }'); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
+    origUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')
+    mount "${dest}1" "$syncMount"
+    sed -i "s|${origUUID}|${partUUID}|g" "${syncMount}"/cmdline.txt
+    umount "$syncMount"
     if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "OK (dirty bit on fsck ${dest}2 is normal)"; dirty="yes"; fi
     if [[ "$dirty" == "no" ]]; then
       echo "OK"
@@ -402,9 +412,6 @@ mirror_SD() {
     if pgrep "dd if=${src}"; then
       echo "FAILED (raw device dump of ${dest} is running)"
       return 1
-    fi
-    if [[ ! -d $syncMount ]]; then
-      mkdir -p "$syncMount"
     fi
     if [[ -n "$INTERACTIVE" ]]; then
       select_blkdev "^-sd" "select partition" "Select the partition to copy the internal SD card data to"
@@ -494,6 +501,8 @@ setup_mirror_SD() {
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Copy internal SD to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
   fi
+
+  systemctl stop "$(basename "${storageDir}").mount"
   # copy partition table
   start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)"
   ((destSize-=start))
