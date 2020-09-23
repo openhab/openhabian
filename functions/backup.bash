@@ -348,7 +348,7 @@ amanda_setup() {
 ##
 mirror_SD() {
   local src="/dev/mmcblk0"
-  local dest
+  local dest="${2:-${backupdrive}}"
   local start
   local storageDir="${storagedir:-/storage}"
   local syncMount="${storageDir}/syncmount"
@@ -357,14 +357,6 @@ mirror_SD() {
   local partUUID
   local origUUID
 
-  # shellcheck disable=SC2154
-  if [[ -n "$INTERACTIVE" ]]; then
-    select_blkdev "^sd" "Setup SD mirroring" "Select the USB attached disk device to copy the internal SD card data to"
-    if [[ -z "$retval" ]]; then return 0; fi
-    dest="/dev/$retval"
-  else
-    dest="${2:-${backupdrive}}"
-  fi
   if [[ "${src}" == "${dest}" ]]; then
     echo "FAILED (source = destination)"
     return 1
