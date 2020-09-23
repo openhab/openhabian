@@ -394,6 +394,8 @@ mirror_SD() {
     umount "$syncMount"
     mount "${dest}2" "$syncMount"
     rm -f "/mnt/etc/systemd/system/${storageDir}".mount
+    if ! cp "${BASEDIR:-/opt/openhabian}"/includes/gen-by-uuid.service "${serviceTargetDir}/"; then echo "FAILED (create uuid links on boot)"; return 1; fi
+    ln -s ../gen-by-uuid.service /mnt/etc/systemd/system/basic.target.wants/gen-by-uuid.service
     umount "$syncMount"
     if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "OK (dirty bit on fsck ${dest}2 is normal)"; dirty="yes"; fi
     if [[ "$dirty" == "no" ]]; then
