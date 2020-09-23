@@ -384,8 +384,8 @@ mirror_SD() {
       fi
     done
     echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
-    if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1"; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
-    if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2"; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
+    if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1" status=progress; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
+    if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
     if ! partUUID=$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print $7 }'); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
     origUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')
     mount "${dest}1" "$syncMount"
