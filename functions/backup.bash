@@ -494,7 +494,8 @@ setup_mirror_SD() {
     if ! (whiptail --title "Copy internal SD to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
   fi
 
-  systemctl stop "$(basename "${storageDir}").mount"
+  mountUnit="$(basename "${storageDir}").mount"
+  systemctl stop "${mountUnit}"
   # copy partition table
   start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)"
   ((destSize-=start))
@@ -503,7 +504,6 @@ setup_mirror_SD() {
   cond_redirect mke2fs -F -t ext4 "${dest}3"
   mirror_SD "raw" "${dest}"
 
-  mountUnit="$(basename "${storageDir}").mount"
   # shellcheck disable=SC2154
   if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${serviceTargetDir}"/"${mountUnit}"; then echo "FAILED (create storage mount)"; fi
   if ! cond_redirect systemctl enable --now "${mountUnit}"; then echo "FAILED (enable storage mount)"; return 1; fi
