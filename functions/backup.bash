@@ -355,7 +355,6 @@ mirror_SD() {
   local dirty="no"
   local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
   local partUUID
-  local origUUID
 
   if [[ "${src}" == "${dest}" ]]; then
     echo "FAILED (source = destination)"
@@ -384,9 +383,12 @@ mirror_SD() {
       fi
     done
     echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
-    if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1" status=progress; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
-    if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
-    origPartUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')
+    ((srcSize="$(blockdev --getsize64 "$src"p1)" / 1024 / 1024))
+    if ! cond_redirect dd if="${src}p1" bs=1M count="${srcSize}" of="${dest}1" status=progress; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
+    ((srcSize="$(blockdev --getsize64 "$src"p2)" / 1024 / 1024))
+    if ! cond_redirect dd if="${src}p2" bs=1M count="${srcSize}" of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
+    #origPartUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p')
+    origPartUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')
     if ! partUUID=$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print $7 }'); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
     if ! cond_redirect tune2fs "${dest}2" -U random; then echo "FAILED (set random UUID)"; dirty="yes"; fi
     mount "${dest}1" "$syncMount"
