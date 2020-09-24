@@ -2,7 +2,7 @@
 Description=Run SD raw dump 1st of month
 
 [Timer]
-OnCalendar=*-*-01 02:00:00
+OnCalendar=*-01,07-01 01:15:00
 Persistent=true
 
 [Install]

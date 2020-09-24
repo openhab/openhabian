@@ -348,20 +348,14 @@ amanda_setup() {
 ##
 mirror_SD() {
   local src="/dev/mmcblk0"
-  local dest
+  local dest="${2:-${backupdrive}}"
   local start
   local storageDir="${storagedir:-/storage}"
   local syncMount="${storageDir}/syncmount"
   local dirty="no"
-  
-  # shellcheck disable=SC2154
-  if [[ -n "$INTERACTIVE" ]]; then
-    select_blkdev "^sd" "Setup SD mirroring" "Select the USB attached disk device to copy the internal SD card data to"
-    if [[ -z "$retval" ]]; then return 0; fi
-    dest="/dev/$retval"
-  else
-    dest="${2:-${backupdrive}}"
-  fi
+  local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
+  local partUUID
+
   if [[ "${src}" == "${dest}" ]]; then
     echo "FAILED (source = destination)"
     return 1
@@ -375,30 +369,55 @@ mirror_SD() {
     echo "FAILED (destination mounted)"
     return 1
   fi
+  if [[ ! -d $syncMount ]]; then
+    mkdir -p "$syncMount"
+  fi
+
   if [[ "$1" == "raw" ]]; then
-    echo "Creating a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
-    if ! cond_redirect dd if="${src}" bs=1M of="${dest}"; then echo "FAILED (raw device copy)"; dirty="yes"; fi
-    if ! (yes | cond_redirect set-partuuid "${dest}2" random); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
+    for i in 1 2; do
+      srcSize="$(blockdev --getsize64 "$src"p${i})"
+      destSize="$(blockdev --getsize64 "$dest"${i})"
+      if [[ "$destSize" -lt "$srcSize" ]]; then
+        echo "FAILED (raw device copy of ${src}${i} larger than ${dest}${i})"
+        return 1
+      fi
+    done
+    echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
+    if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1" status=progress; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
+    if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
+    origPartUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')
+    if ! partUUID=$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }'); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
+    if ! cond_redirect tune2fs "${dest}2" -U random; then echo "FAILED (set random UUID)"; dirty="yes"; fi
+    mount "${dest}1" "$syncMount"
+    sed -i "s|${origPartUUID}|${partUUID}|g" "${syncMount}"/cmdline.txt
+    umount "$syncMount"
+    mount "${dest}2" "$syncMount"
+    sed -i "s|${origPartUUID}|${partUUID}|g" "${syncMount}"/etc/fstab
+    sed -i 's|^What=.*|What=/dev/mmcblk0p3|g' "${syncMount}/etc/systemd/system/${storageDir}".mount
+    umount "$syncMount"
     if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "OK (dirty bit on fsck ${dest}2 is normal)"; dirty="yes"; fi
     if [[ "$dirty" == "no" ]]; then
       echo "OK"
     fi
+    # shellcheck disable=SC2154
+    echo -e "${dumpInfoText}" | mail -s "SD card raw copy dump" "$adminmail"
     return 0
   fi
 
   if [[ "$1" == "diff" ]]; then
-    if [[ ! -d $syncMount ]]; then
-      mkdir -p "$syncMount"
+    if pgrep "dd if=${src}"; then
+      echo "FAILED (raw device dump of ${dest} is running)"
+      return 1
     fi
     if [[ -n "$INTERACTIVE" ]]; then
       select_blkdev "^-sd" "select partition" "Select the partition to copy the internal SD card data to"
+      # shellcheck disable=SC2154
       dest="/dev/$retval"
     else
       dest="${dest}2"
     fi
     mount "$dest" "$syncMount"
     if ! (mountpoint -q "${syncMount}"); then echo "FAILED (${dest} is not mounted as ${syncMount})"; return 1; fi
-    
     cond_redirect rsync --one-file-system -avRh "/" "$syncMount"
     if ! (umount "$syncMount" &> /dev/null); then
       sleep 1
@@ -476,21 +495,24 @@ setup_mirror_SD() {
     echo "FAILED (insufficient space)"; return 1;
   fi
 
+  if [[ -n $INTERACTIVE ]]; then
+    if ! (whiptail --title "Copy internal SD to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 12 116); then echo "CANCELED"; return 0; fi
+  fi
+
+  mountUnit="$(basename "${storageDir}").mount"
+  systemctl stop "${mountUnit}"
   # copy partition table
   start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)"
   ((destSize-=start))
-  (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk "$dest"
+  (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk --force "$dest"
   partprobe
   cond_redirect mke2fs -F -t ext4 "${dest}3"
+  mirror_SD "raw" "${dest}"
 
-  mountUnit="$(basename "${storageDir}").mount"
   # shellcheck disable=SC2154
   if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${serviceTargetDir}"/"${mountUnit}"; then echo "FAILED (create storage mount)"; fi
   if ! cond_redirect systemctl enable --now "${mountUnit}"; then echo "FAILED (enable storage mount)"; return 1; fi
 
-  if [[ -n $INTERACTIVE ]]; then
-    if ! (whiptail --title "Copy system root to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 22 116); then echo "CANCELED"; return 0; fi
-  fi
 
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template > "${serviceTargetDir}"/sdrawcopy.service; then echo "FAILED (create raw SD copy service)"; fi
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template > "${serviceTargetDir}"/sdrsync.service; then echo "FAILED (create rsync service)"; fi

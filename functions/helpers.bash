@@ -437,7 +437,8 @@ select_blkdev() {
     retval=0
     whiptail --title "$2" --msgbox "No block device to match pattern \"${1}\" found." 7 75 3>&1 1>&2 2>&3
   else
+    ((count=${#array[@]} + 8))
     # shellcheck disable=SC2034
-    retval="$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "$3" 12 76 4 "${array[@]}" 3>&1 1>&2 2>&3)"
+    retval="$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "\n${3}" ${count} 76 0 "${array[@]}" 3>&1 1>&2 2>&3)"
   fi
 }

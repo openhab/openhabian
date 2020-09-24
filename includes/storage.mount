@@ -1,5 +1,5 @@
 [Unit]
-Description=/storage mount
+Description=%STORAGE mount
 Before=zram-config.service
 
 [Mount]
