@@ -92,6 +92,10 @@ init_zram_mounts() {
     if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (copy service)"; return 1; fi
     if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zramsync.service /etc/systemd/system/zramsync.service; then echo "FAILED (copy service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+
+    if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/sysctl-zram.conf /etc/sysctl.d/zram.conf; then echo "FAILED (add sysctl)"; return 1; fi
+    if ! cond_redirect sysctl -q -p /etc/sysctl.d/zram.conf ; then echo "FAILED (set sysctl parameters)"; return 1; fi
+
     if ! running_in_docker && ! running_on_github; then
       if ! cond_redirect systemctl mask unattended-upgrades.service; then echo "FAILED (mask unattended upgrades service)"; return 1; fi
     fi
@@ -112,6 +116,7 @@ init_zram_mounts() {
     if ! cond_redirect rm -rf /storage/zram; then echo "FAILED (zramsync temp)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/share/zram-config; then echo "FAILED (zram-config share)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
+    if ! cond_redirect rm -rf /etc/sysctl.d/zram.conf; then echo "FAILED (sysctl.d/zram.conf)"; return 1; fi
     if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
 
     if [[ -f "$disklistFileDir" ]]; then
