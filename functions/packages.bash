@@ -56,8 +56,9 @@ firemotd_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up FireMotD... "
   chmod 755 "$temp"
-  if cond_redirect "$temp" -I; then echo "OK"; rm -f "$temp"; else echo "FAILED"; rm -f "$temp"; return 1; fi
-
+  if ! running_in_docker && ! running_on_github; then
+    if cond_redirect "$temp" -I; then echo "OK"; rm -f "$temp"; else echo "FAILED"; rm -f "$temp"; return 1; fi
+  fi
   echo -n "$(timestamp) [openHABian] Generating FireMotD theme... "
   if cond_redirect FireMotD -G Gray; then echo "OK"; else echo "FAILED"; return 1; fi
 
