@@ -64,7 +64,8 @@ if [[ -z "${username+x}" ]] || ! id $userdef &> /dev/null || id "$username" &> /
 else
   usermod -l "$username" "$userdef"
   usermod -m -d "/home/$username" "$username"
-  groupmod -n "$username" "$userdef"
+  groupmod -n "openhab" "$userdef"
+  usermod --append --groups "$username" "$userdef"
   echo "${username}:${userpw:-$username}" | chpasswd
   echo "OK"
 fi
