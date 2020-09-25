@@ -62,10 +62,9 @@ echo -n "$(timestamp) [openHABian] Changing default username and password... "
 if [[ -z "${username+x}" ]] || ! id $userdef &> /dev/null || id "$username" &> /dev/null; then
   echo "SKIPPED"
 else
-  usermod -l "$username" "$userdef"
+  usermod -l "$username" -g "openhab" "$userdef"
   usermod -m -d "/home/$username" "$username"
-  groupmod -n "openhab" "$userdef"
-  usermod --append --groups "$username" "$userdef"
+  groupmod -n "$username" "$userdef"
   echo "${username}:${userpw:-$username}" | chpasswd
   echo "OK"
 fi
