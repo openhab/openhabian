@@ -699,8 +699,9 @@ telldus_core_setup() {
   fi
   echo -n "$(timestamp) [openHABian] Installing libconfuse1... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-#  if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
-  if cond_redirect apt-get install --yes libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
+  #if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect apt-get download --yes libconfuse1 libconfuse-common libftdi1 libtelldus-core2 telldus-core; then echo "OK"; else echo "FAILED (download Telldus libs)"; return 1; fi
+  if cond_redirect dpkg --ignore-depends=libconfuse-common -i  /var/cache/apt/archives/libconfuse* /var/cache/apt/archives/libftdi* /var/cache/apt/archives/libtelldus-core*; then echo "OK"; else echo "FAILED (install Telldus libs)"; return 1; fi
 
   if ! add_keys "https://s3.eu-central-1.amazonaws.com/download.telldus.com/debian/telldus-public.key"; then return 1; fi
 
@@ -709,7 +710,8 @@ telldus_core_setup() {
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Installing telldus-core... "
-  if cond_redirect apt-get install --yes libjna-java telldus-core; then echo "OK"; else echo "FAILED"; return 1; fi
+  #if cond_redirect apt-get install --yes libjna-java telldus-core; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect dpkg --ignore-depends=libconfuse-common -i /var/cache/apt/archives/telldus-core*; then echo "OK"; else echo "FAILED (install Telldus package)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up telldus-core service... "
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/telldusd.service /etc/systemd/system/telldusd.service; then echo "FAILED (copy service)"; return 1; fi
