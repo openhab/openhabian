@@ -686,8 +686,8 @@ telldus_core_setup() {
     dpkg --add-architecture armhf
   fi
 
-  # Maybe add new repository to be able to install libconfuse1
-  # libconfuse1 is only available from old stretch repos, but currently still needed
+  # Tellstick is no longer supported.
+  # Need to link against libconfuse1 which is only available from old stretch repos
   if is_buster; then
     echo -n "$(timestamp) [openHABian] Adding libconfuse1 repository to apt... "
     echo 'APT::Default-Release "buster";' > /etc/apt/apt.conf.d/01release
@@ -704,14 +704,12 @@ telldus_core_setup() {
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Downloading libconfuse1 and Telldus packages..."
-  #if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
   if cond_redirect apt-get install --yes libusb; then echo "OK"; else echo "FAILED"; return 1; fi
   if (cd /var/cache/apt/archives; cond_redirect apt-get download --yes libconfuse1 libconfuse-common libftdi1 libtelldus-core2 telldus-core); then echo "OK"; else echo "FAILED (download Telldus libs)"; return 1; fi
   ls -l /var/cache/apt/archives/libconfuse* /var/cache/apt/archives/libftdi* /var/cache/apt/archives/libtelldus-core* /var/cache/apt/archives/telldus-core* libconfuse* libftdi* libtelldus-core* telldus-core*
   if cond_redirect dpkg --ignore-depends=libconfuse-common -i /var/cache/apt/archives/libconfuse* /var/cache/apt/archives/libftdi* /var/cache/apt/archives/libtelldus-core*; then echo "OK"; else echo "FAILED (install Telldus libs)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Installing telldus-core... "
-  #if cond_redirect apt-get install --yes libjna-java telldus-core; then echo "OK"; else echo "FAILED"; return 1; fi
   if cond_redirect dpkg --ignore-depends=libconfuse-common -i /var/cache/apt/archives/telldus-core*; then echo "OK"; else echo "FAILED (install Telldus package)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up telldus-core service... "
