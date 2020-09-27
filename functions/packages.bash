@@ -699,7 +699,7 @@ telldus_core_setup() {
   fi
   echo -n "$(timestamp) [openHABian] Installing libconfuse1... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-//  if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
+#  if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
   if cond_redirect apt-get install --yes libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
 
   if ! add_keys "https://s3.eu-central-1.amazonaws.com/download.telldus.com/debian/telldus-public.key"; then return 1; fi
