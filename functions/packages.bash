@@ -93,10 +93,11 @@ exim_setup() {
   local logrotateFile="/etc/logrotate.d/exim4"
   local introText
 
-  if ! dpkg -s 'mailutils' 'exim4' 'bind9-dnsutils' &> /dev/null; then
-    echo -n "$(timestamp) [openHABian] Installing MTA required packages (mailutils, exim4, bind9-dnsutils,)... "
-    if cond_redirect apt-get install --yes exim4 bind9-dnsutils mailutils; then echo "OK"; else echo "FAILED"; return 1; fi
+  if ! dpkg -s 'mailutils' 'exim4' &> /dev/null; then
+    echo -n "$(timestamp) [openHABian] Installing MTA required packages (mailutils, exim4, dnsutils)... "
+    if cond_redirect apt-get install --yes exim4 mailutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
+  if cond_redirect install_dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
 
   interfaces="$(dig +short "$HOSTNAME" | tr '\n' ';')127.0.0.1;::1"
   relaynets="$(dig +short "$HOSTNAME" | cut -d'.' -f1-3).0/24"
@@ -517,8 +518,8 @@ nginx_setup() {
   local validDomain="false"
 
   if ! [[ -x $(command -v dig) ]]; then
-    echo -n "$(timestamp) [openHABian] Installing nginx required packages (bind9-dnsutils)... "
-    if cond_redirect apt-get install --yes bind9-dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
+    echo -n "$(timestamp) [openHABian] Installing nginx required packages (dnsutils)... "
+    if cond_redirect install_dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   function comment {
@@ -704,7 +705,9 @@ telldus_core_setup() {
 
   echo -n "$(timestamp) [openHABian] Downloading libconfuse1 and Telldus packages..."
   #if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
-  if (cd /var/cache/apt/archives; cond_redirect apt-get download --yes libconfuse1 libconfuse-common libftdi1 libtelldus-core2 telldus-core); then echo "OK"; else echo "FAILED (download Telldus libs)"; return 1; fi
+  if cond_redirect apt-get install --yes libftdi; then echo "OK"; else echo "FAILED"; return 1; fi
+  if (cond_redirect apt-get download --yes libconfuse1 libconfuse-common libtelldus-core2 telldus-core); then echo "OK"; else echo "FAILED (download Telldus libs)"; return 1; fi
+  #if (cd /var/cache/apt/archives; cond_redirect apt-get download --yes libconfuse1 libconfuse-common libftdi1 libtelldus-core2 telldus-core); then echo "OK"; else echo "FAILED (download Telldus libs)"; return 1; fi
   ls -l /var/cache/apt/archives/libconfuse* /var/cache/apt/archives/libftdi* /var/cache/apt/archives/libtelldus-core* /var/cache/apt/archives/telldus-core* libconfuse* libftdi* libtelldus-core* telldus-core*
   if cond_redirect dpkg --ignore-depends=libconfuse-common -i /var/cache/apt/archives/libconfuse* /var/cache/apt/archives/libftdi* /var/cache/apt/archives/libtelldus-core*; then echo "OK"; else echo "FAILED (install Telldus libs)"; return 1; fi
 
