@@ -705,9 +705,7 @@ telldus_core_setup() {
 
   echo -n "$(timestamp) [openHABian] Downloading libconfuse1 and Telldus packages..."
   #if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
-  if cond_redirect apt-get install --yes libftdi; then echo "OK"; else echo "FAILED"; return 1; fi
-  if (cond_redirect apt-get download --yes libconfuse1 libconfuse-common libtelldus-core2 telldus-core); then echo "OK"; else echo "FAILED (download Telldus libs)"; return 1; fi
-  #if (cd /var/cache/apt/archives; cond_redirect apt-get download --yes libconfuse1 libconfuse-common libftdi1 libtelldus-core2 telldus-core); then echo "OK"; else echo "FAILED (download Telldus libs)"; return 1; fi
+  if (cd /var/cache/apt/archives; cond_redirect apt-get download --yes libconfuse1 libconfuse-common libftdi1 libtelldus-core2 telldus-core); then echo "OK"; else echo "FAILED (download Telldus libs)"; return 1; fi
   ls -l /var/cache/apt/archives/libconfuse* /var/cache/apt/archives/libftdi* /var/cache/apt/archives/libtelldus-core* /var/cache/apt/archives/telldus-core* libconfuse* libftdi* libtelldus-core* telldus-core*
   if cond_redirect dpkg --ignore-depends=libconfuse-common -i /var/cache/apt/archives/libconfuse* /var/cache/apt/archives/libftdi* /var/cache/apt/archives/libtelldus-core*; then echo "OK"; else echo "FAILED (install Telldus libs)"; return 1; fi
 

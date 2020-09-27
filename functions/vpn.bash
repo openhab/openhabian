@@ -110,8 +110,8 @@ create_wireguard_config() {
   local SERVERPRIVATE SERVERPUBLIC CLIENTPRIVATE CLIENTPUBLIC
 
   if ! [[ -x $(command -v dig) ]]; then
-    echo -n "$(timestamp) [openHABian] Installing Wireguard required packages (bind9-dnsutils)... "
-    if cond_redirect apt-get install --yes bind9-dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
+    echo -n "$(timestamp) [openHABian] Installing Wireguard required packages (dnsutils)... "
+    if install_dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   if ! pubIP="$(get_public_ip)"; then echo "FAILED (public ip)"; return 1; fi
