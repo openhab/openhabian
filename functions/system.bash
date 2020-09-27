@@ -83,7 +83,9 @@ timezone_setting() {
     if dpkg-reconfigure tzdata; then echo "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
   elif [[ -n $timezone ]]; then
     echo -n "$(timestamp) [openHABian] Setting timezone based on openhabian.conf... "
-    if cond_redirect timedatectl set-timezone "$timezone"; then echo "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
+    if ! running_in_docker && ! running_on_github; then
+      if cond_redirect timedatectl set-timezone "$timezone"; then echo "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
+    fi
   else
     echo "$(timestamp) [openHABian] Beginning setup of timezone based on IP geolocation... OK"
     if ! dpkg -s 'python3' 'python3-pip' 'python3-wheel' 'python3-setuptools' &> /dev/null; then
