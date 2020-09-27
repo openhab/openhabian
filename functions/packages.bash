@@ -691,16 +691,17 @@ telldus_core_setup() {
   if is_buster; then
     echo -n "$(timestamp) [openHABian] Adding libconfuse1 repository to apt... "
     echo 'APT::Default-Release "buster";' > /etc/apt/apt.conf.d/01release
-    if is_raspbian ; then
+/*    if is_raspbian ; then
       echo "deb http://raspbian.raspberrypi.org/raspbian/ stretch main" > /etc/apt/sources.list.d/raspbian-stretch.list
     else
       echo "deb http://deb.debian.org/debian stretch main" > /etc/apt/sources.list.d/debian-stretch.list
-    fi
+    fi */
     echo "OK"
   fi
   echo -n "$(timestamp) [openHABian] Installing libconfuse1... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
+//  if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect apt-get install --yes libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
 
   if ! add_keys "https://s3.eu-central-1.amazonaws.com/download.telldus.com/debian/telldus-public.key"; then return 1; fi
 
