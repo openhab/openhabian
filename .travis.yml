@@ -25,33 +25,22 @@ jobs:
     - stage: BATS tests
   include:
     - stage: BATS tests
-      name: BATS tests on virtual 64bit RPi4
+      name: BATS tests on virtual 32bit RPi3
       env: HW=rpi3
       arch: arm64
       script:
-        # BATS tests on a 64bit ARMv8 (RPi4) virtual platform, running in a 64bit OS on Travis Arm64 HW
-        - docker build -t openhabian/bats-openhabian -f Dockerfile.raspberrypi4-64 .
-        - echo -e "\n\e[36mopenHABian BATS tests running on a\e[31m 64bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
+        # BATS tests on a 32bit ARMv8 (RPi3/4) virtual platform, running in a 32bit OS on Travis Arm64 HW
+        - docker build -t openhabian/bats-openhabian -f Dockerfile.raspberrypi3 .
+        - echo -e "\n\e[36mopenHABian BATS tests running on a\e[31m 32bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
         - docker run --name "development-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "development-." .'
         - docker run --name "unit-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "unit-." .'
         - docker run --name "installation-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "installation-." .'
         - docker run --name "destructive-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "destructive-." .'
-    - name: BATS tests on virtual 64bit x86
+      name: BATS tests on virtual 64bit x86
       env: HW=amd64
       arch: amd64
       script:
-        # BATS tests on a 64bit x86 virtual platform, running in a 64bit OS on Travis amd64 HW
-        - docker build -t openhabian/bats-openhabian -f Dockerfile.amd64-ubuntu .
-        - echo -e "\n\e[36mopenHABian BATS tests running on a\e[31m 64bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
-        - docker run --name "development-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "development-." .'
-        - docker run --name "unit-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "unit-." .'
-        - docker run --name "installation-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "installation-." .'
-        - docker run --name "destructive-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "destructive-." .'
-    - name: BATS tests on virtual 64bit x86
-      env: HW=amd64
-      arch: amd64
-      script:
-        # BATS tests on a 64bit x86 virtual platform, running in a 64bit OS on Travis amd64 HW
+        # BATS tests on a 64bit x86 virtual platform, running in a 64bit OS on Travis Arm64 HW
         - docker build -t openhabian/bats-openhabian -f Dockerfile.amd64-ubuntu .
         - echo -e "\n\e[36mopenHABian BATS tests running on a\e[31m 64bit OS\e[36m running in a virtual ${HW}...\e[0m\n"
         - docker run --name "development-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "development-." .'
