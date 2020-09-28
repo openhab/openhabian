@@ -442,3 +442,17 @@ select_blkdev() {
     retval="$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "\n${3}" ${count} 76 0 "${array[@]}" 3>&1 1>&2 2>&3)"
   fi
 }
+## install bind9-dnsutils package if available (currently only in sid and focal)
+## else resort to dnsutils
+##
+##    install_dnsutils()
+##
+install_dnsutils() {
+  if apt-cache show bind9-dnsutils &>/dev/null; then
+    apt-get install --yes bind9-dnsutils
+  else
+    apt-get install --yes dnsutils
+  fi
+
+  return $?
+}

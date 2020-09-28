@@ -57,7 +57,7 @@ needed_packages() {
 
   if is_pizerow || is_pithree || is_pithreeplus || is_pifour; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
-    # phython3-bluez is not available in stretch so only add it if we are runnning on buster or later
+    # phython3-bluez is not available in stretch so only add it if we are running on buster or later
     if ! is_stretch; then
       bluetoothPackages+=" python3-bluez"
     fi
