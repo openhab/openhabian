@@ -18,7 +18,7 @@ openHABian aims to provide a **self-configuring** Linux system setup specific to
 To that end, the project provides two things:
 
 *   Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations for the Raspberry Pi
-*   The openHABian Configuration Tool to set up and configure openHAB and many related things on any Debian/Ubuntu based system
+*   The openHABian Configuration Tool to set up and configure openHAB and many related things on any Debian based system
 
 #### Table of Contents
 {::options toc_levels="2..3"/}
@@ -99,7 +99,7 @@ You will see the following welcome screen:
 
 <a id="manual-setup"></a>
 ### Other Linux Systems (add openHABian just like any other software)
-openHABian is also supposed to run on generic Debian/Ubuntu based systems on x86 and some ARM hardware platforms.
+openHABian is also supposed to run on generic Debian based systems on x86 and some ARM hardware platforms.
 Start with a fresh installation of your operating system, login and run
 
 ```shell
@@ -391,7 +391,7 @@ You have been warned, if there came any warranty with openHABian to begin with, 
 <a id="faq-other-platforms"></a>
 #### Can I use openHABian on ...?
 See the [README](https://github.com/openhab/openhabian/blob/master/README.md) for a list of supported HW and OS.
-openHABian is developed for Debian/Ubuntu based systems.
+openHABian is developed for Debian based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
 Check out the [Manual Setup](#manual-setup) instructions for guidance and consult the [debug guide](openhabian-DEBUG.md) if you run into problems.
 Do not hesitate to ask for help on the [openHABian community forum](https://community.openhab.org/) !

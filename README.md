@@ -17,8 +17,8 @@ the needs of every openHAB user.
 
 The project provides two things:
 
-*   a set of scripts to set up openHAB on any Debian based system
-    (Raspberry Pi OS, Ubuntu)
+*   a set of scripts to set up openHAB on any Debian based system incl.
+    Raspberry Pi OS, Ubuntu
 *   a complete **SD-card image pre-configured with openHAB** and many other
     openHAB- and Hardware-specific preparations for all *Raspberry Pi* models.
 
@@ -59,13 +59,16 @@ as issues on the community forum or on GitHub, please. Feel encouraged to report
 any success stories, though.
 
 Going beyond what the RPi image provides, as a manually installed set of
-scripts, we support running openHABian on x86 hardware on generic Debian and
-Ubuntu. On ARM, we only support Raspberry Pi OS.
+scripts, we support running openHABian on x86 hardware on generic Debian
+On ARM, we only support Raspberry Pi OS.
 These are what we develop and test openHABian against.
+We do not actively support Ubuntu so no promises but we provide code "as-is"
+that is known to run on there. Several optional components though, such as
+WireGuard or Homegear, are known to expose problems.
 
 We expect you to use the stable distribution that openHABian testing is based on,
-'buster' for Raspberry Pi OS (ARM) and Debian (x86) and 'focal' for
-Ubuntu (x86) these are.
+'buster' for Raspberry Pi OS (ARM) and Debian (x86) and 'focal' for Ubuntu (x86)
+these are.
 To install openHABian on anything older or newer may work or not. If you
 encounter issues, you may need to upgrade first or to live with the consequences
 of running an OS on the edge of software development.
