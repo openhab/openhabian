@@ -95,7 +95,7 @@ exim_setup() {
 
   if ! dpkg -s 'mailutils' 'exim4' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing MTA required packages (mailutils, exim4, dnsutils)... "
-    if cond_redirect apt-get install --yes exim4 dnsutils mailutils; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes exim4 mailutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if cond_redirect install_dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
 
