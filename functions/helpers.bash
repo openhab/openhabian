@@ -449,9 +449,9 @@ select_blkdev() {
 ##
 install_dnsutils() {
   if apt-cache show bind9-dnsutils &>/dev/null; then
-    apt-get install bind9-dnsutils
+    apt-get install --yes bind9-dnsutils
   else
-    apt-get install dnsutils
+    apt-get install --yes dnsutils
   fi
 
   return $?
