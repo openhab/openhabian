@@ -93,10 +93,11 @@ exim_setup() {
   local logrotateFile="/etc/logrotate.d/exim4"
   local introText
 
-  if ! dpkg -s 'mailutils' 'exim4' 'dnsutils' &> /dev/null; then
+  if ! dpkg -s 'mailutils' 'exim4' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing MTA required packages (mailutils, exim4, dnsutils,)... "
-    if cond_redirect apt-get install --yes exim4 dnsutils mailutils; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes exim4 mailutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
+  if cond_redirect install_dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
 
   interfaces="$(dig +short "$HOSTNAME" | tr '\n' ';')127.0.0.1;::1"
   relaynets="$(dig +short "$HOSTNAME" | cut -d'.' -f1-3).0/24"
@@ -518,7 +519,7 @@ nginx_setup() {
 
   if ! [[ -x $(command -v dig) ]]; then
     echo -n "$(timestamp) [openHABian] Installing nginx required packages (dnsutils)... "
-    if cond_redirect apt-get install --yes dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect install_dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   function comment {
