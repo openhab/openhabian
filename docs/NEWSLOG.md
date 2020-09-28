@@ -21,7 +21,7 @@ Java 11 has been proven to work with openHAB 2.5.
 
 
 ## June 17, 2020
-### Ubuntu support and removed support for PINE A64(+) and older Linux distributions
+### Removed support for PINE A64(+) and older Linux distributions
 `openhabian-config` will now issue a warning if you start on unsupported
 hardware or OS releases. See [README](README.md) for supported HW and OS.
 

@@ -104,12 +104,15 @@ user. Any ordinary user (such as your personal one) can execute commands on beha
 prepending "sudo " to the command. As yourself, prepend "sudo -u backup" to execute the following command as the "backup" user.
 
 # Installation
-These notes were written for an interactive installation run. Note the new ["auto backup" feature](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#auto-backup) that these instructions do not cover. It essentially mirrors your internal SD card to another (bigger) card in an
-external card reader. It also includes an automated Amanda installation, using the excess space as the Amanda storage area.
+These notes were written for an interactive installation run. Note openHABian comes with the new ["auto backup" feature](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#auto-backup).
+It'll essentially mirror your internal SD card to another (bigger) card in an external card reader and uses the remaining space as your Amanda storage area. We highly recommend you to make use of this feature on initial openHABian installation, but you can also setup Amanda later on as well.
 
 ## Storage preparation
 Now once you read up on all of this and feel you have understood this stuff, the next step will be to prepare your storage.
+***
 HEADS UP: You need to provide your storage BEFORE you install Amanda.
+***
+
 That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
 Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage,
 read up on it NOW. Various tutorial can be found on the net such as <https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux> .
