@@ -47,8 +47,8 @@ are simply too many combinations of SBCs, peripherals and OS flavors that
 maintainers do not have available, or, even if they did, the time to spend on
 the testing efforts that is required to make openHABian a reliable system.
 Let's make sure you understand the implications of these statements: it means
-that to run on hardware other than RPi 2/3/4 or x86 may work but this is
-**not** supported.
+that to run on hardware other than RPi 2/3/4 or (bare metal !) x86 may work but
+this is **not** supported.
 
 For ARM hardware that we don't support, check out the [fake hardware parameters](openhabian.md/#fake-hardware-mode).
 There's a good chance it'll work out for you. If that still doesn't work for
@@ -59,7 +59,7 @@ as issues on the community forum or on GitHub, please. Feel encouraged to report
 any success stories, though.
 
 Going beyond what the RPi image provides, as a manually installed set of
-scripts, we support running openHABian on x86 hardware on generic Debian
+scripts, we support running openHABian on x86 hardware on generic Debian.
 On ARM, we only support Raspberry Pi OS.
 These are what we develop and test openHABian against.
 We do not actively support Ubuntu so no promises but we provide code "as-is"
