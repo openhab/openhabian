@@ -162,6 +162,11 @@ In `openhabian.conf`, uncomment and complete the lines reading `wifi_ssid="My Wi
 If to install openHABian fails because you have a non-supported hardware or run an unsupported OS release, you can "fake" your hardware and OS to make openHABian behave as if you did own that HW/OS.
 In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` and/or `release=` with the hw and os versions you want to attempt installation with.
 
+### Disable ZRAM
+ZRAM is activated by default on fresh installations on ARM hardware.
+You may want to disable it if you run a 8GB RPi4 as that is incompatible at the time of writing, leading to kernel crashes.
+Make sure you use the master branch right away: use `clonebranch=master` and `zraminstall=disable` in `openhabian.conf` to install without.
+
 ### Debug mode
 See [Troubleshooting](#Troubleshooting) section if you run into trouble installing. If you want to turn on debug mode,
 edit `openhabian.conf` and set the `debugmode=` parameter to either `off`, `on` or `maximum`.
