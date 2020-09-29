@@ -39,6 +39,7 @@ init_zram_mounts() {
   local introText="You are about to activate the ZRAM feature.\\nBe aware you do this at your own risk of data loss.\\nPlease check out the \"ZRAM status\" thread at https://community.openhab.org/t/zram-status/80996 before proceeding."
   local lowMemText="Your system has less than 1 GB of RAM. It is definitely NOT recommended to run ZRAM (AND openHAB) on your box. If you proceed now you will do so at your own risk!"
   local zramInstallLocation="/opt/zram"
+  local storageDir="${storagedir:-/storage}"
 
   if [[ $1 == "install" ]] && ! [[ -f /etc/ztab ]]; then
     if [[ -n $INTERACTIVE ]]; then
@@ -89,8 +90,8 @@ init_zram_mounts() {
     fi
 
     echo -n "$(timestamp) [openHABian] Setting up ZRAM service... "
-    if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (copy service)"; return 1; fi
-    if ! cond_redirect install -m 644 "$zramInstallLocation"/openhabian-zram/zramsync.service /etc/systemd/system/zramsync.service; then echo "FAILED (copy service)"; return 1; fi
+    if ! cond_redirect sed -i -e 's|%STORAGE=|${storageDir}|g' "$zramInstallLocation"/openhabian-zram/zram-config.service > /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
+    if ! cond_redirect sed -i -e 's|%STORAGE=|${storageDir}|g' "$zramInstallLocation"/openhabian-zram/zramsync.service > /etc/systemd/system/zramsync.service; then echo "FAILED (install service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
 
     if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/sysctl-zram.conf /etc/sysctl.d/zram.conf; then echo "FAILED (add sysctl)"; return 1; fi
