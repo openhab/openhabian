@@ -1,5 +1,5 @@
 [Unit]
-Description=periodic FireMotD stats regeneration
+Description=Periodic FireMotD stats regeneration
 
 [Service]
 Type=oneshot

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2120
 
 ## Function for installing samba for remote access of folders.
 ## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
@@ -29,50 +30,63 @@ samba_setup() {
   if cond_redirect systemctl enable --now smbd.service &> /dev/null; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 }
 
+## Function for downloading FireMotD to current system
+##
+##    firemotd_download(String prefix)
+##
+firemotd_download() {
+  echo -n "$(timestamp) [openHABian] Downloading FireMotD... "
+  if ! [[ -d "${1}/FireMotD" ]]; then
+    cond_echo "\\nFresh Installation... "
+    if cond_redirect git clone https://github.com/OutsideIT/FireMotD.git "${1}/FireMotD"; then echo "OK"; else echo "FAILED (git clone)"; return 1; fi
+  else
+    cond_echo "\\nUpdate... "
+    if cond_redirect update_git_repo "${1}/FireMotD" "master"; then echo "OK"; else echo "FAILED (update git repo)"; return 1; fi
+  fi
+}
+
 ## Function for installing FireMotD which displays the system overview on login.
 ## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
 ##
 ##    firemotd_setup()
 ##
 firemotd_setup() {
-  local temp
+  if running_in_docker || running_on_github; then return 0; fi
+
+  local firemotdDir="/opt/FireMotD"
   local targetDir="/etc/systemd/system/"
 
-  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
-
-  if ! dpkg -s 'bc' 'sysstat' 'jq' 'moreutils' &> /dev/null; then
+  if ! dpkg -s 'bc' 'sysstat' 'jq' 'moreutils' 'make' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing FireMotD required packages (bc, sysstat, jq, moreutils)... "
-    if cond_redirect apt-get install --yes bc sysstat jq moreutils; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes bc sysstat jq moreutils make; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Downloading FireMotD... "
-  if cond_redirect wget -O "$temp" https://raw.githubusercontent.com/OutsideIT/FireMotD/master/FireMotD; then
-    echo "OK"
-  else
-    echo "FAILED"
-    rm -f "$temp"
-    return 1
+  if ! firemotd_download /opt; then
+    if [[ -z $OFFLINE ]]; then
+       return 1
+    fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Setting up FireMotD... "
-  chmod 755 "$temp"
-  if cond_redirect "$temp" -I; then echo "OK"; rm -f "$temp"; else echo "FAILED"; rm -f "$temp"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Installing FireMotD... "
+  if ! cond_redirect make --always-make --directory="$firemotdDir" install; then echo "FAILED (install FireMotD)"; return 1; fi
+  if cond_redirect make --always-make --directory="$firemotdDir" bash_completion; then echo "OK"; else echo "FAILED (install FireMotD bash completion)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Generating FireMotD theme... "
+  if ! cond_redirect FireMotD -S -D all; then echo "FAILED (generate FireMotD)"; return 1; fi
   if cond_redirect FireMotD -G Gray; then echo "OK"; else echo "FAILED"; return 1; fi
 
-  if ! grep -q "FireMotD" /home/"${username:-openhabian}"/.bash_profile; then
+  if ! grep -qs "FireMotD" /home/"${username:-openhabian}"/.bash_profile; then
     echo -n "$(timestamp) [openHABian] Make FireMotD display on login... "
     if echo -e "\\necho\\nFireMotD --theme Gray \\necho" >> /home/"${username:-openhabian}"/.bash_profile; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up FireMotD apt updates count service... "
   cond_echo "\\nMake FireMotD check for new updates every night... "
-  if cond_redirect cp "${BASEDIR}"/includes/firemotd.* "$targetDir"/; then echo "OK"; else echo "FAILED"; return 1; fi
+  if ! cond_redirect cp "${BASEDIR}"/includes/firemotd.* "$targetDir"; then echo "FAILED"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable firemotd.service &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
   cond_echo "\\nMake FireMotD check for new updates after using apt... "
-  echo "DPkg::Post-Invoke { \"if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /bin/bash /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi\"; };" > /etc/apt/apt.conf.d/15firemotd
+  if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/15firemotd /etc/apt/apt.conf.d/; then echo "FAILED (apt configuration)"; return 1; fi
   cond_echo "\\nInitial FireMotD updates check"
   if cond_redirect FireMotD -S; then echo "OK"; else echo "FAILED"; return 1; fi
 }
@@ -83,6 +97,11 @@ firemotd_setup() {
 ##    exim_setup()
 ##
 exim_setup() {
+  if [[ -n $UNATTENDED ]] && [[ -z $relayuser ]]; then
+    echo "$(timestamp) [openHABian] Beginning Mail Transfer Agent setup... CANCELED (no configuration provided)"
+    return 0
+  fi
+
   local updateEximTemplate="${BASEDIR:-/opt/openhabian}/includes/update-exim4.conf.conf-template"
   local eximConfig="/etc/exim4/update-exim4.conf.conf"
   local eximPasswd="/etc/exim4/passwd.client"

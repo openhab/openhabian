@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2119,SC2120
 
 ## Install appropriate Java version based on current choice.
 ## Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
@@ -12,6 +13,11 @@ java_install_or_update() {
 
   # Make sure we don't overwrite existing unsupported installations
   if ! [[ -x $(command -v java) ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"Zulu"* ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"AdoptOpenJDK"* ]]; then
+    if ! [[ -x $(command -v java) ]] && [[ "${cached_java_opt:-Zulu8-32}" == "${java_opt:-Zulu8-32}" ]] && [[ -n $UNATTENDED ]] && java_zulu_dir; then
+      echo "$(timestamp) [openHABian] Installing cached version of Java to ensure that some form of Java is installed!"
+      java_zulu_prerequisite "${cached_java_opt:-Zulu8-32}"
+      java_zulu_install "${cached_java_opt:-Zulu8-32}"
+    fi
     if [[ $1 == "Adopt11" ]]; then
       adoptopenjdk_install_apt
     elif [[ $1 != "Adopt11" ]]; then
@@ -31,9 +37,7 @@ java_install_or_update() {
           if [[ $1 == "Zulu8-64" ]]; then
             if cond_redirect java_zulu_update_available "Zulu8-64"; then
               java_zulu_prerequisite "Zulu8-64"
-              if ! [[ -x $(command -v java) ]] && java_zulu_dir; then
-                java_zulu_install "Zulu8-64"
-              elif [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
+              if [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
                 java_zulu_stable "Zulu8-64"
               else
                 java_zulu_fetch "Zulu8-64"
@@ -43,9 +47,7 @@ java_install_or_update() {
           elif [[ $1 == "Zulu11-64" ]]; then
             if cond_redirect java_zulu_update_available "Zulu11-64"; then
               java_zulu_prerequisite "Zulu11-64"
-              if ! [[ -x $(command -v java) ]] && java_zulu_dir; then
-                java_zulu_install "Zulu11-64"
-              elif [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
+              if [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
                 java_zulu_stable "Zulu11-64"
               else
                 java_zulu_fetch "Zulu11-64"
@@ -61,9 +63,7 @@ java_install_or_update() {
           echo "$(timestamp) [openHABian] Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to Java Zulu 8 32-bit installation."
           if cond_redirect java_zulu_update_available "Zulu8-32"; then
             java_zulu_prerequisite "Zulu8-32"
-            if ! [[ -x $(command -v java) ]] && java_zulu_dir; then
-              java_zulu_install "Zulu8-32"
-            elif [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
+            if [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
               java_zulu_stable "Zulu8-32"
             else
               java_zulu_fetch "Zulu8-32"
@@ -76,9 +76,7 @@ java_install_or_update() {
       if [[ $1 == "Zulu11-32" ]]; then
         if cond_redirect java_zulu_update_available "Zulu11-32"; then
           java_zulu_prerequisite "Zulu11-32"
-          if ! [[ -x $(command -v java) ]] && java_zulu_dir; then
-            java_zulu_install "Zulu11-32"
-          elif [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
+          if [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
             java_zulu_stable "Zulu11-32"
           else
             java_zulu_fetch "Zulu11-32"
@@ -87,9 +85,7 @@ java_install_or_update() {
         fi
       elif cond_redirect java_zulu_update_available "Zulu8-32"; then
         java_zulu_prerequisite "Zulu8-32"
-        if ! [[ -x $(command -v java) ]] && java_zulu_dir; then
-          java_zulu_install "Zulu8-32"
-        elif [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
+        if [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
           java_zulu_stable "Zulu8-32"
         else
           java_zulu_fetch "Zulu8-32"
@@ -116,7 +112,9 @@ java_zulu_prerequisite() {
     if is_aarch64 && [[ $(getconf LONG_BIT) == 64 ]]; then
       if dpkg -s 'libc6:arm64' 'libstdc++6:arm64' 'zlib1g:arm64' &> /dev/null; then echo "OK"; return 0; fi
       dpkg --add-architecture arm64
-      if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+      if [[ -z $OFFLINE ]]; then
+        if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+      fi
       if cond_redirect apt-get install --yes libc6:arm64 libstdc++6:arm64 zlib1g:arm64; then echo "OK"; else echo "FAILED"; return 1; fi
     elif is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
       if dpkg -s 'libc6:amd64' 'libstdc++6:amd64' 'zlib1g:amd64' &> /dev/null; then echo "OK"; return 0; fi
@@ -128,7 +126,9 @@ java_zulu_prerequisite() {
     if is_arm; then
       if dpkg -s 'libc6:armhf' 'libstdc++6:armhf' 'zlib1g:armhf' &> /dev/null; then echo "OK"; return 0; fi
       dpkg --add-architecture armhf
-      if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+      if [[ -z $OFFLINE ]]; then
+        if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+      fi
       if cond_redirect apt-get install --yes libc6:armhf libstdc++6:armhf zlib1g:armhf; then echo "OK"; else echo "FAILED"; return 1; fi
     else
       if dpkg -s 'libc6:i386' 'libstdc++6:i386' 'zlib1g:i386' &> /dev/null; then echo "OK"; return 0; fi
@@ -233,14 +233,14 @@ java_zulu_install() {
 ## Fetch Java Zulu 8 directly from Azul API v1
 ## Valid arguments: "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
 ##
-##    java_zulu_fetch(String type)
+##    java_zulu_fetch(String type, String prefix)
 ##
 java_zulu_fetch() {
   local downloadLink
   local jdkInstallLocation
   local link
 
-  jdkInstallLocation="/opt/jdk"
+  jdkInstallLocation="${2}/opt/jdk"
   link="https://api.azul.com/zulu/download/community/v1.0/bundles/latest/binary/?os=linux&ext=tar.gz&javafx=false"
 
   if [[ $1 == "Zulu8-32" ]]; then
@@ -274,7 +274,7 @@ java_zulu_fetch() {
   fi
   if [[ -z $downloadLink ]]; then echo "FAILED (download link)"; return 1; fi
 
-  if ! mkdir -p $jdkInstallLocation; then echo "FAILED (create directory)"; return 1; fi
+  if ! mkdir -p "$jdkInstallLocation"; then echo "FAILED (create directory)"; return 1; fi
   if ! rm -rf "${jdkInstallLocation:?}"/*; then echo "FAILED (clean directory)"; return 1; fi
   if ! cond_redirect wget -O "$jdkInstallLocation"/zulu.tar.gz "$downloadLink"; then echo "FAILED (download)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
   if ! cond_redirect tar -xpzf "$jdkInstallLocation"/zulu.tar.gz -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
@@ -387,13 +387,18 @@ java_zulu_enterprise_apt() {
 
 ## Install Zulu Cryptography Extension Kit to enable cryptos using more then 128 bits
 ##
-##    java_zulu_install_crypto_extension()
+##    java_zulu_install_crypto_extension(String path)
 ##
 java_zulu_install_crypto_extension() {
+  if [[ -n $OFFLINE ]]; then
+    echo "$(timestamp) [openHABian] Using cached Java Zulu CEK to enable unlimited cipher strength... OK"
+    return 0
+  fi
+
   local jdkSecurity
   local policyTempLocation
 
-  jdkSecurity="$(realpath /usr/bin/java | sed 's|/java||')/../lib/security"
+  jdkSecurity="${1:-"$(realpath /usr/bin/java | sed 's|/java||')/../lib/security"}"
   policyTempLocation="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo -n "$(timestamp) [openHABian] Installing Java Zulu CEK to enable unlimited cipher strength... "

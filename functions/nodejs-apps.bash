@@ -20,21 +20,31 @@ nodejs_setup() {
   myDistro="$(lsb_release -sc)"
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
-  if is_armv6l; then
+  if [[ -z $PREOFFLINE ]] && is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing NodeJS... "
     if ! cond_redirect wget -qO "$temp" "$link"; then echo "FAILED (download)"; rm -f "$temp"; return 1; fi
     if ! cond_redirect tar -Jxf "$temp" --strip-components=1 -C /usr; then echo "FAILED (extract)"; rm -f "$temp"; return 1; fi
     if cond_redirect rm -f "$temp"; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
   else
-    if ! add_keys "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"; then return 1; fi
+    if [[ -z $OFFLINE ]]; then
+      if ! add_keys "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"; then return 1; fi
 
-    echo -n "$(timestamp) [openHABian] Adding NodeSource repository to apt... "
-    echo "deb https://deb.nodesource.com/node_12.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
-    echo "deb-src https://deb.nodesource.com/node_12.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
-    if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
+      echo -n "$(timestamp) [openHABian] Adding NodeSource repository to apt... "
+      echo "deb https://deb.nodesource.com/node_12.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
+      echo "deb-src https://deb.nodesource.com/node_12.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
+      if [[ -n $PREOFFLINE ]]; then
+        if cond_redirect apt-get --quiet update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
+      else
+        if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
+      fi
+    fi
 
     echo -n "$(timestamp) [openHABian] Installing NodeJS... "
-    if cond_redirect apt-get install --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
+    if [[ -n $PREOFFLINE ]]; then
+      if cond_redirect apt-get --quiet install --download-only --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
+    else
+      if cond_redirect apt-get install --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
+    fi
   fi
 }
 
@@ -44,7 +54,7 @@ nodejs_setup() {
 ##
 frontail_setup() {
   local frontailBase
-  local frontailUser=frontail
+  local frontailUser="frontail"
 
   if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v12"* ]] || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "

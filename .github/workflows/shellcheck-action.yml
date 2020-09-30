@@ -21,10 +21,8 @@ jobs:
     steps:
        - name: Checkout repository
          uses: actions/checkout@v2
-       - name: Environment variables
+       - name: Setup environment
          run: sudo -E bash -c set
-       - name: Install required packages
-         run: sudo apt-get install shellcheck
        - name: "ShellCheck openhabian-setup.sh"
          run: |
            echo "ShellCheck openhabian-setup.sh..."
