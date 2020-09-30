@@ -85,6 +85,11 @@ openhab2_setup() {
   openhabVersion="$(apt-cache madison openhab2 | head -n 1 | cut -d'|' -f2 | xargs)"
   if cond_redirect apt-get install --allow-downgrades --yes "openhab2=${openhabVersion}" "openhab2-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
 
+  # shellcheck disable=SC2154
+  gid=$(id -g "$username")
+  usermod -g "openhab" "$username"
+  usermod -aG "$gid" "$username"
+
   echo -n "$(timestamp) [openHABian] Setting up openHAB service... "
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable openhab2.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi

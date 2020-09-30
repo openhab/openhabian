@@ -125,7 +125,8 @@ Start `openhabian-config` to get into the openHABian configuration tool.
 ➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
 
 #### Unattended Install on generic Linux
-BEWARE: this install method is only for experts that already know to handle and debug openHABian.
+BEWARE:<br>
+This install method is only for experts that already know to handle and debug openHABian.
 As a beginner, use the interactive `openhabian-config` tool !
 
 That being said, you actually _can_ install openHABian in an unattended mode.
