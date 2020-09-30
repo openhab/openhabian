@@ -38,7 +38,7 @@ The following features are provided by the openHABian image out of the box:
 -   Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
 -   Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
 -   Customized Bash shell experience
--   Customized settings and openHAB syntax highlighting for [vim](https://github.com/cyberkov/openhab-vim) and[nano](https://github.com/airix1/openhabnano)
+-   Customized settings and openHAB syntax highlighting for [vim](https://github.com/cyberkov/openhab-vim) and [nano](https://github.com/airix1/openhabnano)
 -   Frontail log viewer
 -   [Mosquitto](https://mosquitto.org) MQTT broker
 -   the [InfluxDB](https://www.influxdata.com/) database to store home automation data and [Grafana](https://grafana.com/) to visualize it
