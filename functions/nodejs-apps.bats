@@ -17,8 +17,7 @@ teardown_file() {
 
 @test "development-frontail_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Frontail installation starting...${COL_DEF}" >&3
-  setup_file
-  mkdir -p /var/log/openhab2/.config
+  mkdir -p /var/log/openhab2/.config/.configstore
   setfacl -R -m g::rwX /var/log/openhab2
   run frontail_setup 3>&-
   setfacl -R -m g::rwX /var/log/openhab2
