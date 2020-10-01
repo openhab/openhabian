@@ -15,6 +15,7 @@ teardown_file() {
 
 @test "installation-frontail_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Frontail installation starting...${COL_DEF}" >&3
+  setfacl -R -m g::rwX /var/log/openhab2
   run frontail_setup 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
