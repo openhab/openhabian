@@ -63,7 +63,7 @@ frontail_setup() {
 
   frontailBase="$(npm list -g | head -n 1)/node_modules/frontail"
 
-  if ! (id -u ${frontailUser} &> /dev/null || cond_redirect useradd --groups openhabian,openhab -s /bin/false -d /var/log/openhab2 ${frontailUser}); then echo "FAILED (adduser)"; return 1; fi
+  if ! (id -u ${frontailUser} &> /dev/null || cond_redirect useradd --groups openhabian,openhab -s /bin/bash -d /var/log/openhab2 ${frontailUser}); then echo "FAILED (adduser)"; return 1; fi
   if [[ -x $(command -v frontail) ]]; then
     echo -n "$(timestamp) [openHABian] Updating openHAB Log Viewer (frontail)... "
     if cond_redirect npm update --force -g frontail; then echo "OK"; else echo "FAILED"; return 1; fi
