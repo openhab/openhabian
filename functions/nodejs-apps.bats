@@ -24,11 +24,11 @@ teardown_file() {
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Frontail service is running...${COL_DEF}" >&3
   run journalctl -xu frontail.service
-  echo "$output" >&3; fi
+  echo "$output" >&3
   run systemctl status frontail.service >&3
-  echo "$output" >&3; fi
+  echo "$output" >&3
   run su - frontail -c  "/usr/lib/node_modules/frontail/bin/frontail --ui-highlight --ui-highlight-preset /usr/lib/node_modules/frontail/preset/openhab.json -t openhab -l 2000 -n 200 /var/log/openhab2/openhab.log &"
-  echo "$output" >&3; fi
+  echo "$output" >&3
   run systemctl is-active --quiet frontail.service
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
