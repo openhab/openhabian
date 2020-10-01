@@ -90,8 +90,8 @@ init_zram_mounts() {
     fi
 
     echo -n "$(timestamp) [openHABian] Setting up ZRAM service... "
-#    if ! cond_redirect sed -e "s|%STORAGE=|${storageDir}|g" "$zramInstallLocation"/openhabian-zram/zram-config.service > /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
-#    if ! cond_redirect sed -e "s|%STORAGE=|${storageDir}|g" "$zramInstallLocation"/openhabian-zram/zramsync.service > /etc/systemd/system/zramsync.service; then echo "FAILED (install service)"; return 1; fi
+    if ! cond_redirect sed -e "s|%STORAGE=|${storageDir}|g" "$zramInstallLocation"/openhabian-zram/zram-config.service > /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
+    if ! cond_redirect sed -e "s|%STORAGE=|${storageDir}|g" "$zramInstallLocation"/openhabian-zram/zramsync.service > /etc/systemd/system/zramsync.service; then echo "FAILED (install service)"; return 1; fi
     if ! sed -e "s|%STORAGE=|${storageDir}|g" "$zramInstallLocation"/openhabian-zram/zram-config.service > /etc/systemd/system/zram-config.service; then echo "FAILED (install zram-config service)"; return 1; fi
     if ! sed -e "s|%STORAGE=|${storageDir}|g" "$zramInstallLocation"/openhabian-zram/zramsync.service > /etc/systemd/system/zramsync.service; then echo "FAILED (install zramsync service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
