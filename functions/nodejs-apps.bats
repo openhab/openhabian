@@ -17,19 +17,12 @@ teardown_file() {
 
 @test "development-frontail_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Frontail installation starting...${COL_DEF}" >&3
-  mkdir -p /var/log/openhab2/.config/.configstore
-  setfacl -R -m g::rwX /var/log/openhab2
   run frontail_setup 3>&-
-  setfacl -R -m g::rwX /var/log/openhab2
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Frontail installation successful.${COL_DEF}" >&3
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Frontail service is running...${COL_DEF}" >&3
-  run systemctl status frontail.service >&3
-  echo "$output" >&3
-  run su - frontail -c  "/usr/lib/node_modules/frontail/bin/frontail --ui-highlight --ui-highlight-preset /usr/lib/node_modules/frontail/preset/openhab.json -t openhab -l 2000 -n 200 /var/log/openhab2/openhab.log &"
-  echo "$output" >&3
   run systemctl is-active --quiet frontail.service
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
