@@ -1,0 +1,3 @@
+DPkg::Post-Invoke {
+  "if [ -x /usr/local/bin/FireMotD ]; then echo -n 'Updating FireMotD available updates count ... '; /usr/local/bin/FireMotD --skiprepoupdate -S; echo ''; fi";
+};

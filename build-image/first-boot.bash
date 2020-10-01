@@ -173,7 +173,7 @@ fi
 
 if [[ -x $(command -v python3) ]]; then bash /boot/webserver.bash "reinsure_running"; fi
 
-if ! dpkg -s 'git' &> /dev/null; then
+if ! [[ -x $(command -v git) ]]; then
   echo -n "$(timestamp) [openHABian] Installing git package... "
   if apt-get install --yes git &> /dev/null; then echo "OK"; else echo "FAILED"; fi
 fi
@@ -184,6 +184,7 @@ type openhabian_update &> /dev/null && if ! openhabian_update &> /dev/null; then
   echo "FAILED"
   echo "$(timestamp) [openHABian] The git repository on the public internet is not reachable."
   echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but this is not guaranteed to work."
+  export OFFLINE="1"
 else
   echo "OK"
 fi

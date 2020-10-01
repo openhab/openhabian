@@ -46,16 +46,16 @@ needed_packages() {
   local bluetoothPackages="bluez python3-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth"
 
   # Install apt-transport-https - update packages through https repository
-  # Install bc + sysstat - needed for FireMotD
+  # Install bc/sysstat/jq/moreutils - needed for FireMotD
   # Install avahi-daemon - hostname based discovery on local networks
   # Install python3/python3-pip/python3-wheel/python3-setuptools - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
-  if cond_redirect apt-get install --yes apt-transport-https bc sysstat \
-    avahi-daemon python3 python3-pip python3-wheel python3-setuptools \
+  if cond_redirect apt-get install --yes apt-transport-https bc sysstat jq \
+    moreutils avahi-daemon python3 python3-pip python3-wheel python3-setuptools \
     avahi-autoipd fontconfig; \
   then echo "OK"; else echo "FAILED"; return 1; fi
 
-  if is_pizerow || is_pithree || is_pithreeplus || is_pifour; then
+  if is_pizerow || is_pithree || is_pithreeplus || is_pifour && [[ -z $PREOFFLINE ]]; then
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
     # phython3-bluez is not available in stretch so only add it if we are running on buster or later
     if ! is_stretch; then

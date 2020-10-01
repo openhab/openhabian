@@ -82,7 +82,7 @@ config_ipv6
 
 if [[ -n "$UNATTENDED" ]]; then
   # apt/dpkg commands will not try interactive dialogs
-  export DEBIAN_FRONTEND=noninteractive
+  export DEBIAN_FRONTEND="noninteractive"
   wait_for_apt_to_finish_update
   load_create_config
   change_swapsize
