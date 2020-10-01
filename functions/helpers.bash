@@ -439,7 +439,7 @@ select_blkdev() {
   else
     ((count=${#array[@]} + 8))
     # shellcheck disable=SC2034
-    retval="$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "\n${3}" ${count} 76 0 "${array[@]}" 3>&1 1>&2 2>&3)"
+    retval="$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "\n${3}" "${count}" 76 0 "${array[@]}" 3>&1 1>&2 2>&3)"
   fi
 }
 ## install bind9-dnsutils package if available (currently only in sid and focal)
