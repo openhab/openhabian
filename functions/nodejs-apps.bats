@@ -15,7 +15,7 @@ teardown_file() {
   systemctl kill frontail.service || true
 }
 
-@test "installation-frontail_install" {
+@test "development-frontail_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Frontail installation starting...${COL_DEF}" >&3
   run frontail_setup 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
