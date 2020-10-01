@@ -17,6 +17,7 @@ teardown_file() {
 
 @test "development-frontail_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Frontail installation starting...${COL_DEF}" >&3
+  setup_file
   run frontail_setup 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
