@@ -75,6 +75,7 @@ update_git_repo() {
   echo -n "$(timestamp) [openHABian] Updating $(basename "$path"), ${branch} branch from git... "
 
   if ! cond_redirect git -C "$path" fetch origin; then echo "FAILED (fetch origin)"; return 1; fi
+  if ! cond_redirect git -C "$path" fetch --tags --force --prune; then echo "FAILED (fetch tags)"; return 1; fi
   if ! cond_redirect git -C "$path" reset --hard "origin/${branch}"; then echo "FAILED (reset to origin)"; return 1; fi
   if ! cond_redirect git -C "$path" clean --force -x -d; then echo "FAILED (clean)"; return 1; fi
   if cond_redirect git -C "$path" checkout "${branch}"; then echo "OK"; else echo "FAILED (checkout ${branch})"; return 1; fi
