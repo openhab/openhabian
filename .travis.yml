@@ -25,7 +25,7 @@ jobs:
     - stage: BATS tests
   include:
     - stage: BATS tests
-      name: BATS tests on virtual 64bit RPi4
+      name: BATS tests on virtual 64bit RPi4 running Debian Buster
       env: HW=rpi3
       arch: arm64
       script:
@@ -36,7 +36,7 @@ jobs:
         - docker run --name "unit-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "unit-." .'
         - docker run --name "installation-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "installation-." .'
         - docker run --name "destructive-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "destructive-." .'
-    - name: BATS tests on virtual 64bit x86
+    - name: BATS tests on virtual 64bit x86 running Ubuntu Focal Fossa
       env: HW=amd64
       arch: amd64
       script:
