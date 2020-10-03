@@ -1,7 +1,9 @@
 [Unit]
-Description=Run SD sync daily except on 1st of month (when a raw dump is made)
+#Description=Run SD rsync daily except on 1st of month (when a raw dump is made)
+Description=Run SD rsync once a week
 
 [Timer]
+#OnCalendar=*-*-02..31 02:00:00 
 OnCalendar=*-*-02,09,16,23 02:00:00
 Persistent=true
 
