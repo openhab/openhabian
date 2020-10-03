@@ -25,12 +25,12 @@ The project provides two things:
 ## Hardware recommendation
 Let's put this first: our current recommendation is to get a RPi 4 with 2 GB,
 a 3A power supply and a 16 GB SD card.
-Also get another 32 GB SD card and a USB card reader to make use of the
+Also get another 32 GB or larger SD card and a USB card reader to make use of the
 ["auto backup" feature](openhabian.md/#Auto-Backup).
 ***
 ATTENTION:<br>
 avoid getting a RPi4 with 8GB. It's a waste of money and it has issues.
-You need to use the 1.6 alpha image and [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram).
+You must use a 1.6 image and [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram).
 ***
 ## Hardware and OS support
 As of openHABian version 1.6, all Raspberry Pi models are supported as hardware.
@@ -51,8 +51,8 @@ are simply too many combinations of SBCs, peripherals and OS flavors that
 maintainers do not have available, or, even if they did, the time to spend on
 the testing efforts that is required to make openHABian a reliable system.
 Let's make sure you understand the implications of these statements: it means
-that to run on hardware other than RPi 2/3/4 or (bare metal !) x86 may work but
-this is **not** supported.
+that to run on hardware other than RPi 2/3/4 or (bare metal i.e. not virtualized)
+x86 may work but this is **not** supported.
 
 For ARM hardware that we don't support, check out the [fake hardware parameters](openhabian.md/#fake-hardware-mode).
 There's a good chance it'll work out for you. If that still doesn't work for
