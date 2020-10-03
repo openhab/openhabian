@@ -189,6 +189,7 @@ Eventually change `storagedir=/storage` to any other name.
 The first attached disk type device is usually called `/dev/sda`.
 openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space
 to a storage partition.
+Full mirroring will take place semiannually and changes will be synced once a week, see `systemctl list-timers`.
 The unattended install routine will also setup Amanda to take daily backups and store them to that third partition.
 Use `storagecapacity=xxx` to override how much space to consume at most for Amanda backup storage (in MB).
 If you choose to skip this during system installation, you can still setup both, mirroring and Amanda, at
