@@ -153,7 +153,7 @@ show_main_menu() {
       *Uninstall\ ZRAM) init_zram_mounts "uninstall" ;;
       39\ *) exim_setup ;;
       3A\ *) if install_tailscale install; then setup_tailscale; fi;;
-      *Install\ Wireguard) if install_wireguard install; then setup_wireguard;;
+      *Install\ Wireguard) if install_wireguard install; then setup_wireguard; fi;;
       *Remove\ Wireguard) install_wireguard remove;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
