@@ -177,11 +177,11 @@ setup_wireguard() {
 ##   install_tailscale(String action)
 ##
 install_tailscale() {
-    local queryText="We will install the tailscale VPN client on your system. Use it to securely interconnect multiple openHAB(ian) instances.\\nSee https://tailscale.com/blog/how-tailscale-works/ for a comprehensive explanation how it creates a secure VPN. For personal use, you can get a free solo service from tailscale.com."
+  local queryText="We will install the tailscale VPN client on your system. Use it to securely interconnect multiple openHAB(ian) instances.\\nSee https://tailscale.com/blog/how-tailscale-works/ for a comprehensive explanation how it creates a secure VPN. For personal use, you can get a free solo service from tailscale.com."
   local serviceTargetDir="/lib/systemd/system"
 
   if [[ -n "$INTERACTIVE" ]]; then
-    if (whiptail --title "VPN setup" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "queryText" 12 80); then echo "OK"; else echo "CANCELED"; return 0; fi"'")
+    if (whiptail --title "VPN setup" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "$queryText" 12 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   fi
 
   if [[ "$1" == "remove" ]]; then
@@ -211,8 +211,7 @@ install_tailscale() {
 ##
 setup_tailscale() {
   local pid
-  local joinURL=${joinurl}
-  local vpnAdmin=${vpnadmin}
+  local vpnAdmin=${vpnadmin:-root@${hostname}}
 
   if [[ -n $UNATTENDED  ]] && [[ -z $vpnAdmin  ]]; then
       echo "$(timestamp) [openHABian] Beginning tailscale VPN setup... CANCELED (no configuration provided)"
@@ -221,7 +220,7 @@ setup_tailscale() {
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Setup VPN" --msgbox "We will join this client system to the tailscale network of admin $vpnAdmin." 7 80
   else
-    if [[ -z joinURL ]]; then echo "FAILED (tailscale authorization missing)"; return 1; fi
+    if [[ -z "$vpnAdmin" ]]; then echo "FAILED (tailscale authorization missing)"; return 1; fi
   fi
 
   # Will wait for the admin to authorize
@@ -229,11 +228,12 @@ setup_tailscale() {
   # (test if we can do tailscale up, Ctrl-C and still join the network this way but probably it wait for return data after the admin authorized the new client)
   #
   # is there a better way to run tailscale with a pregenerated key, admin user/VPN name/one time key or similar ?
-  joinURL=$(tailscale up &| grep http & pid=$!)
+  tailscale up &> /dev/null & pid=$!
 
   if tail --pid=$pid -f /dev/null; then echo "OK"; else echo "FAILED (tailscale authorization missing)"; return 1; fi
 
-  tailscale status | mail -s "openHABian client joined tailscale VPN" $adminmail
+  # shellcheck disable=SC2154
+  tailscale status | mail -s "openHABian client joined tailscale VPN" "$adminmail"
 
   return 0
 }
