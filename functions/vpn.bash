@@ -169,3 +169,71 @@ setup_wireguard() {
   echo -n "$(timestamp) [openHABian] Generating QR to load config on the client side (download Wireguard app from PlayStore or AppStore)... "
   qrencode -t ansiutf8 </etc/wireguard/wg0-client.conf
 }
+
+
+## Install Tailscale from their own repo
+## Valid arguments: "install" or "remove"
+##
+##   install_tailscale(String action)
+##
+install_tailscale() {
+    local queryText="We will install the tailscale VPN client on your system. Use it to securely interconnect multiple openHAB(ian) instances.\\nSee https://tailscale.com/blog/how-tailscale-works/ for a comprehensive explanation how it creates a secure VPN. For personal use, you can get a free solo service from tailscale.com."
+  local serviceTargetDir="/lib/systemd/system"
+
+  if [[ -n "$INTERACTIVE" ]]; then
+    if (whiptail --title "VPN setup" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "queryText" 12 80); then echo "OK"; else echo "CANCELED"; return 0; fi"'")
+  fi
+
+  if [[ "$1" == "remove" ]]; then
+    cond_redirect systemctl disable tailscaled.service
+    rm -f ${serviceTargetDir}/tailscale*
+    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+    if ! apt-get purge --yes tailscale; then echo "FAILED (purge tailscale)"; return 1; fi
+    return 0
+  fi
+  if [[ "$1" != "install" ]]; then echo "FAILED"; return 1; fi
+
+  # Add Tailscale's GPG key
+  add_keys https://pkgs.tailscale.com/stable/raspbian/buster.gpg
+  # Add the tailscale repository
+  curl https://pkgs.tailscale.com/stable/raspbian/buster.list | tee /etc/apt/sources.list.d/tailscale.list
+  if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+  # Install Tailscale
+  if cond_redirect apt-get install --yes tailscale; then echo "OK"; else echo "FAILED (install tailscale)"; return 1; fi
+
+  return 0
+}
+
+
+## add node to private Tailscale network
+##
+##   setup_tailscale(String action)
+##
+setup_tailscale() {
+  local pid
+  local joinURL=${joinurl}
+  local vpnAdmin=${vpnadmin}
+
+  if [[ -n $UNATTENDED  ]] && [[ -z $vpnAdmin  ]]; then
+      echo "$(timestamp) [openHABian] Beginning tailscale VPN setup... CANCELED (no configuration provided)"
+      return 0
+  fi
+  if [[ -n "$INTERACTIVE" ]]; then
+    whiptail --title "Setup VPN" --msgbox "We will join this client system to the tailscale network of admin $vpnAdmin." 7 80
+  else
+    if [[ -z joinURL ]]; then echo "FAILED (tailscale authorization missing)"; return 1; fi
+  fi
+
+  # Will wait for the admin to authorize
+  # can we use a background shell to wait forever for input ?
+  # (test if we can do tailscale up, Ctrl-C and still join the network this way but probably it wait for return data after the admin authorized the new client)
+  #
+  # is there a better way to run tailscale with a pregenerated key, admin user/VPN name/one time key or similar ?
+  joinURL=$(tailscale up &| grep http & pid=$!)
+
+  if tail --pid=$pid -f /dev/null; then echo "OK"; else echo "FAILED (tailscale authorization missing)"; return 1; fi
+
+  tailscale status | mail -s "openHABian client joined tailscale VPN" $adminmail
+
+  return 0
+}
