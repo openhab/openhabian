@@ -63,6 +63,10 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 
 ## Quick Start
 
+***
+FIRST, check the [README](https://github.com/openhab/openhabian/blob/master/README.md) if your hardware and OS are supported
+***
+
 ### Raspberry Pi (Prepackaged SD Card Image)
 **Flash, plug, wait, enjoy:**
 The provided image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/downloads/raspberry-pi-os/) (previously called Raspbian) standard system.
@@ -78,7 +82,6 @@ openHABian is designed as a headless system, you will not need a display or a ke
 -   Insert the SD card into your Raspberry Pi, connect Ethernet ([WiFi also supported](#wifi-based-setup-notes)) and power on.
 -   Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhab).)
 -   Enjoy!
-
 
 -   The device will be available under its IP or via the local DNS name `openhab`
 -   [Connect to the openHAB 2 dashboard](https://www.openhab.org/docs/configuration/packages.html): [http://openhab:8080](http://openhab:8080)
