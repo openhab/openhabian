@@ -118,7 +118,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 22 118 15 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 23 118 16 --cancel-button Back --ok-button Execute \
     "31 | Change hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set system locale"      "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
     "33 | Set system timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
