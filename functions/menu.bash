@@ -133,8 +133,8 @@ show_main_menu() {
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
     "39 | Setup Exim Mail Relay"  "Install Exim4 to relay mails via public email provider" \
     "3A | Setup tailscale VPN"    "Establish or join a WireGuard based VPN using the tailscale service (BETA)" \
-    "   | Install WireGuard"      "Setup Wireguard to enable secure remote access to openHABian (BETA)" \
-    "   | Remove Wireguard VPN"   "Remove Wireguard VPN from openHABian" \
+    "   | Install WireGuard"      "Setup Wireguard to enable secure remote access to this openHABian system (BETA)" \
+    "   | Remove Wireguard VPN"   "Remove Wireguard VPN from this system" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
