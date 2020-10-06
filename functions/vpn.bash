@@ -210,8 +210,6 @@ install_tailscale() {
 ##   setup_tailscale(String action)
 ##
 setup_tailscale() {
-  local pid
-  local vpnAdmin=${vpnadmin:-root@${hostname}}
   local preAuthKey=${preauthkey:-preauthkey}
 
   if [[ -n $UNATTENDED ]] && [[ -z $preAuthKey ]]; then
@@ -219,7 +217,7 @@ setup_tailscale() {
     return 0
   fi
   if [[ -n "$INTERACTIVE" ]]; then
-    if ! preAuthKey="$(whiptail --title "Join VPN" --inputbox "\\nEnter the Tailscale pre auth key you generated for this system:" 9 80 $preAuthKey 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! preAuthKey="$(whiptail --title "Join VPN" --inputbox "\\nEnter the Tailscale pre auth key you generated for this system:" 9 80 "$preAuthKey" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
 
   if ! tailscale up --authkey "${preAuthKey}"; then echo "FAILED (join Tailscale VPN)"; return 1; fi 
