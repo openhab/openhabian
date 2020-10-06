@@ -105,9 +105,9 @@ install_wireguard() {
 create_wireguard_config() {
   local configdir
   local pubIP
-  local IFACE
-  local WGSERVERIP WGCLIENTIP VPNSERVER PORT
-  local SERVERPRIVATE SERVERPUBLIC CLIENTPRIVATE CLIENTPUBLIC
+  local interface
+  local wgServerIp wgClientIp vpnServer port
+  local serverPrivate serverPublic clientPrivate clientPublic
 
   if ! [[ -x $(command -v dig) ]]; then
     echo -n "$(timestamp) [openHABian] Installing Wireguard required packages (dnsutils)... "
@@ -116,19 +116,19 @@ create_wireguard_config() {
 
   if ! pubIP="$(get_public_ip)"; then echo "FAILED (public ip)"; return 1; fi
   configdir=/etc/wireguard
-  IFACE=${1:-eth0}
-  PORT="${2:-51900}"
-  WGSERVERIP="${3:-10.253.4}.1"
-  WGCLIENTIP="${3:-10.253.4}.2"
-  VPNSERVER="${4:-$pubIP}"
-  SERVERPRIVATE=$(cat "$configdir"/server_private_key)
-  SERVERPUBLIC=$(cat "$configdir"/server_public_key)
-  CLIENTPRIVATE=$(cat "$configdir"/client_private_key)
-  CLIENTPUBLIC=$(cat "$configdir"/client_public_key)
+  interface=${1:-eth0}
+  port="${2:-51900}"
+  wgServerIp="${3:-10.253.4}.1"
+  wgClientIp="${3:-10.253.4}.2"
+  vpnServer="${4:-$pubIP}"
+  serverPrivate=$(cat "$configdir"/server_private_key)
+  serverPublic=$(cat "$configdir"/server_public_key)
+  clientPrivate=$(cat "$configdir"/client_private_key)
+  clientPublic=$(cat "$configdir"/client_public_key)
 
   mkdir -p "$configdir"
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPRIVATE|${SERVERPRIVATE}|g" -e "s|%CLIENTPUBLIC|${CLIENTPUBLIC}|g" "${BASEDIR:-/opt/openhabian}"/includes/wireguard-server.conf-template > "$configdir"/wg0.conf
-  sed -e "s|%IFACE|${IFACE}|g" -e "s|%PORT|${PORT}|g" -e "s|%VPNSERVER|${VPNSERVER}|g" -e "s|%WGSERVERIP|${WGSERVERIP}|g" -e "s|%WGCLIENTIP|${WGCLIENTIP}|g" -e "s|%SERVERPUBLIC|${SERVERPUBLIC}|g" -e "s|%CLIENTPRIVATE|${CLIENTPRIVATE}|g" "${BASEDIR:-/opt/openhabian}"/includes/wireguard-client.conf-template > "$configdir"/wg0-client.conf
+  sed -e "s|%IFACE|${interface}|g" -e "s|%PORT|${port}|g" -e "s|%VPNSERVER|${vpnServer}|g" -e "s|%WGSERVERIP|${wgServerIp}|g" -e "s|%WGCLIENTIP|${wgClientIp}|g" -e "s|%SERVERPRIVATE|${serverPrivate}|g" -e "s|%CLIENTPUBLIC|${clientPublic}|g" "${BASEDIR:-/opt/openhabian}"/includes/wireguard-server.conf-template > "$configdir"/wg0.conf
+  sed -e "s|%IFACE|${interface}|g" -e "s|%PORT|${port}|g" -e "s|%VPNSERVER|${vpnServer}|g" -e "s|%WGSERVERIP|${wgServerIp}|g" -e "s|%WGCLIENTIP|${wgClientIp}|g" -e "s|%SERVERPUBLIC|${serverPublic}|g" -e "s|%CLIENTPRIVATE|${clientPrivate}|g" "${BASEDIR:-/opt/openhabian}"/includes/wireguard-client.conf-template > "$configdir"/wg0-client.conf
 
   chmod -R og-rwx "$configdir"/*
 }
