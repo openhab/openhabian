@@ -110,6 +110,7 @@ if [[ -n "$UNATTENDED" ]]; then
   frontail_setup
   zram_setup
   exim_setup
+  install_tailscale "install" && setup_tailscale
   setup_mirror_SD "install"
   install_cleanup
 else
