@@ -200,11 +200,11 @@ Note most are not "exactly" 16 or 32 GB so your new one mustn't have less bytes 
 Use menu option 54 to copy your active backup card back to the new one and switch back as soon as possible.
 
 ### Tailscale VPN network
-Tailscale is management toolset to build a WireGuard based VPN between various systems you can use if you want
-to connect to openHAB(ian) instances outside your LAN that you need to connect to over Internet.
-It'll take care 
+Tailscale is management toolset to establish a WireGuard based VPN between multiple systems if you want
+to connect to openHAB(ian) instances outside your LAN over Internet.
+It'll take care to detect and open ports when you and your peers are located behind firewalls.
 [Download the client](https://tailscale.com/download) and eventually get the free Solo service plan from Tailscale,
-that's free for private use. The free service will automatically be used when you fire up your first VPN node.
+that's free for private use. The free service will automatically be selected when you fire up your first VPN node.
 The Windows client has a link to the admin console where you can create pre-auth one-time keys that you can put
 as the `preauthkey` into `openhabian.conf` to automatically deploy remote openHABian nodes (unattended install)
 and have them join the VPN.
