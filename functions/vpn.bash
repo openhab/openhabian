@@ -181,7 +181,7 @@ install_tailscale() {
   local serviceTargetDir="/lib/systemd/system"
 
   if [[ -n "$INTERACTIVE" ]]; then
-    if (whiptail --title "VPN setup" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "$queryText" 12 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if (whiptail --title "VPN setup" --yes-button "Continue" --no-button "Cancel" --yesno "$queryText" 12 80); then echo "OK"; else echo "CANCELED"; return 1; fi
   fi
 
   if [[ "$1" == "remove" ]]; then
@@ -212,28 +212,20 @@ install_tailscale() {
 setup_tailscale() {
   local pid
   local vpnAdmin=${vpnadmin:-root@${hostname}}
+  local preAuthKey=${preauthkey:-preauthkey}
 
-  if [[ -n $UNATTENDED  ]] && [[ -z $vpnAdmin  ]]; then
-      echo "$(timestamp) [openHABian] Beginning tailscale VPN setup... CANCELED (no configuration provided)"
-      return 0
+  if [[ -n $UNATTENDED ]] && [[ -z $preAuthKey ]]; then
+    echo "$(timestamp) [openHABian] Beginning tailscale VPN setup... CANCELED (no pre auth key provided)"
+    return 0
   fi
   if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "Setup VPN" --msgbox "We will join this client system to the tailscale network of admin $vpnAdmin." 7 80
-  else
-    if [[ -z "$vpnAdmin" ]]; then echo "FAILED (tailscale authorization missing)"; return 1; fi
+    if ! preAuthKey="$(whiptail --title "Join VPN" --inputbox "\\nEnter the Tailscale pre auth key you generated for this system:" 9 80 $preAuthKey 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
 
-  # Will wait for the admin to authorize
-  # can we use a background shell to wait forever for input ?
-  # (test if we can do tailscale up, Ctrl-C and still join the network this way but probably it wait for return data after the admin authorized the new client)
-  #
-  # is there a better way to run tailscale with a pregenerated key, admin user/VPN name/one time key or similar ?
-  tailscale up &> /dev/null & pid=$!
-
-  if tail --pid=$pid -f /dev/null; then echo "OK"; else echo "FAILED (tailscale authorization missing)"; return 1; fi
-
+  if ! tailscale up --authkey "${preAuthKey}"; then echo "FAILED (join Tailscale VPN)"; return 1; fi 
   # shellcheck disable=SC2154
   tailscale status | mail -s "openHABian client joined tailscale VPN" "$adminmail"
+  if cond_redirect sed -i -e 's|^preauthkey=.*$|preauthkey=xxxxxxxx|g' /etc/openhabian.conf; then echo "OK"; else echo "FAILED (remove Tailscale pre-auth key)"; exit 1; fi
 
   return 0
 }
