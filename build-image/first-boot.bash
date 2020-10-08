@@ -62,7 +62,7 @@ else
   # THEN create default user AND default group (use $userdef for both, "openhabian" if not on RaspiOS that is)
   # Both, user and group, will be *renamed* below
   if ! [[ $(getent group "${userdef}") ]] || cond_redirect groupadd ${userdef}; then echo "FAILED (add default group $userdef)"; return 1; fi
-  if ! (id -u ${userdef} &> /dev/null || cond_redirect useradd --groups "${userdef}",openhab -s /bin/bash -d /var/tmp ${userdef}); then echo "FAILED (add default usergroup $userdef)"; return 1; fi
+  if ! (id -u ${userdef} &> /dev/null || cond_redirect useradd --groups "${userdef}",openhab --gecos "openHABian,,,,openHAB admin user" -s /bin/bash -d /var/tmp ${userdef}); then echo "FAILED (add default usergroup $userdef)"; return 1; fi
 fi
 
 echo -n "$(timestamp) [openHABian] Changing default username and password... "
