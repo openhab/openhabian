@@ -79,9 +79,9 @@ echo -n "$(timestamp) [openHABian] Changing default username and password... "
 # (2) did there exist a default user in generic Debian on x86 ? If no why did it work there before ? did it ?
 # (3) what happens on generic Debian on x86 ? Ubuntu on x86 ? Ubuntu,Armbian on RPi ?
 #
-# according to Elias on non image installs the user is queried ?
+# according to Elias on non image installs the end user is queried to input the username ?
 # https://github.com/openhab/openhabian/issues/665#issuecomment-522261443
-# is he? Is that only true fopr interactive installs ?
+# is he really ? Is that true for interactive installs ? I have not seen where.
 
 # shellcheck disable=SC2154
 #if [[ -z "${username+x}" ]] || ! id $userdef &> /dev/null || id "$username" &> /dev/null; then
