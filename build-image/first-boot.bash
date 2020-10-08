@@ -53,13 +53,38 @@ else
 fi
 
 userdef="openhabian"
-if is_pi; then
+
+# ersetzt damit es auch für Ubuntu auf RPi funktioniert
+#if is_pi; then
+if is_raspbian || is_raspios; then
   userdef="pi"
 fi
+# was fehlt hier ?
+# WENN nicht auf RaspiOS (dann existiert "pi" und wird in userdef umbenannt)
+# DANN erzeuge Default-User UND Default-Group
+# da hinterher in *jedem* Fall der User $userdef und auch die Gruppe $userdef
+# umbenannt werden, sollten User $userdef und Group $userdef angelegt werden
+#
+if ! (id -u ${userdef} &> /dev/null || cond_redirect useradd --groups openhabian,openhab -s /bin/bash -d /var/tmp ${username}); then echo "FAILED (add default user)"; return 1; fi
 
 echo -n "$(timestamp) [openHABian] Changing default username and password... "
+
+# was macht der folgende Code ?
+# WENN
+# (1) der vom Benutzer in openhabian.conf eingetragene Usernamen-String *leer* ist ODER
+# (2) der Defaultuser ("pi" auf RaspiOS, "openhabian" auf anderen OS) nicht existiert ODER
+# (3) der vom Benutzer in die openhabian.conf eingetragene User *existiert* (und nicht leer ist wegen (1))
+# DANN mache nicht
+# ANSONSTEN benenne den Default-User in den in die openhabian.conf eingetragenen User um.
+#
+# ABER: was passiert auf non-rpi sowie bei Ubuntu auf RPi wenn es den user nicht gibt ?
+#       was passiert auf debian auf x86?
+#
+# laut Elias wird bei manueller Installation nach dem Usernamen gefragt ?
+
 # shellcheck disable=SC2154
-if [[ -z "${username+x}" ]] || ! id $userdef &> /dev/null || id "$username" &> /dev/null; then
+#if [[ -z "${username+x}" ]] || ! id $userdef &> /dev/null || id "$username" &> /dev/null; then
+if [[ -v ${username} ]] || ! id $userdef &> /dev/null || id "$username" &> /dev/null; then
   echo "SKIPPED"
 else
   usermod -l "$username" "$userdef"
