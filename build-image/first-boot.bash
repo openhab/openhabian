@@ -54,33 +54,35 @@ fi
 
 userdef="openhabian"
 
-# ersetzt damit es auch für Ubuntu auf RPi funktioniert
-#if is_pi; then
+# needs to work for non-RaspiOS (Ubuntu, Armbian) on RPi, too (was: "if is_pi")
 if is_raspbian || is_raspios; then
   userdef="pi"
+else
+  # IF not on RaspiOS (because in that case we have an image that the "pi" user exists in and we can rename that user)
+  # THEN create default user AND default group (use $userdef for both, "openhabian" if not on RaspiOS that is)
+  # Both, user and group, will be *renamed* below
+  if ! [[ $(getent group "${userdef}") ]] || cond_redirect groupadd ${userdef}; then echo "FAILED (add default group $userdef)"; return 1; fi
+  if ! (id -u ${userdef} &> /dev/null || cond_redirect useradd --groups "${userdef}",openhab -s /bin/bash -d /var/tmp ${userdef}); then echo "FAILED (add default usergroup $userdef)"; return 1; fi
 fi
-# was fehlt hier ?
-# WENN nicht auf RaspiOS (dann existiert "pi" und wird in userdef umbenannt)
-# DANN erzeuge Default-User UND Default-Group
-# da hinterher in *jedem* Fall der User $userdef und auch die Gruppe $userdef
-# umbenannt werden, sollten User $userdef und Group $userdef angelegt werden
-#
-if ! (id -u ${userdef} &> /dev/null || cond_redirect useradd --groups openhabian,openhab -s /bin/bash -d /var/tmp ${username}); then echo "FAILED (add default user)"; return 1; fi
 
 echo -n "$(timestamp) [openHABian] Changing default username and password... "
 
 # was macht der folgende Code ?
-# WENN
-# (1) der vom Benutzer in openhabian.conf eingetragene Usernamen-String *leer* ist ODER
-# (2) der Defaultuser ("pi" auf RaspiOS, "openhabian" auf anderen OS) nicht existiert ODER
-# (3) der vom Benutzer in die openhabian.conf eingetragene User *existiert* (und nicht leer ist wegen (1))
-# DANN mache nicht
-# ANSONSTEN benenne den Default-User in den in die openhabian.conf eingetragenen User um.
+# IF
+# (1) the string/username that the end user entered as "username=" in openhabian.conf is *empty* OR
+# (2) the default user ("pi" on RaspiOS, "openhabian" on other OS) does not exist OR
+# (3) the user whose name the end user entered as "username=" in openhabian.conf *exists* (and isn't empty because (1) applies, too)
+# THEN skip
+# ELSE rename the default user and default group to what is defined as username= in openhabian.conf
 #
-# ABER: was passiert auf non-rpi sowie bei Ubuntu auf RPi wenn es den user nicht gibt ?
-#       was passiert auf debian auf x86?
+# QUESTIONS:
+# (1) will that do what we want it to
+# (2) did there exist a default user in generic Debian on x86 ? If no why did it work there before ? did it ?
+# (3) what happens on generic Debian on x86 ? Ubuntu on x86 ? Ubuntu,Armbian on RPi ?
 #
-# laut Elias wird bei manueller Installation nach dem Usernamen gefragt ?
+# according to Elias on non image installs the user is queried ?
+# https://github.com/openhab/openhabian/issues/665#issuecomment-522261443
+# is he? Is that only true fopr interactive installs ?
 
 # shellcheck disable=SC2154
 #if [[ -z "${username+x}" ]] || ! id $userdef &> /dev/null || id "$username" &> /dev/null; then
