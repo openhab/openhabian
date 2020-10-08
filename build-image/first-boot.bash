@@ -67,7 +67,6 @@ fi
 
 echo -n "$(timestamp) [openHABian] Changing default username and password... "
 
-# was macht der folgende Code ?
 # IF
 # (1) the string/username that the end user entered as "username=" in openhabian.conf is *empty* OR
 # (2) the default user ("pi" on RaspiOS, "openhabian" on other OS) does not exist OR
