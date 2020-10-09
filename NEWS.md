@@ -15,7 +15,7 @@ This makes use of the tailscale service. Don't worry, for private use it's free 
 ## offline installation (BETA)
 We now allow for deploying openHABian to destination networks without Internet connectivity.
 While the optional components still require access to download, the openHABian core is
-fully contained in the download image and can be installed an run with Internet.
+fully contained in the download image and can be installed and run without Internet.
 This will also provide a failsafe installation when any of the online sources for the tools
 we need to download is unavailable for whatever reason.
 
