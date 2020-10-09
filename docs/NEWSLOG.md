@@ -1,6 +1,6 @@
 ## October 6, 2020
 ## Tailscale VPN network (BETA)
-Tailscale is management toolset to establish a WireGuard based VPN between multiple systems
+Tailscale is a management toolset to establish a WireGuard based VPN between multiple systems
 if you want to connect to openHAB(ian) instances outside your LAN over Internet.
 It'll take care to detect and open ports when you and your peers are located behind firewalls.
 This makes use of the tailscale service. Don't worry, for private use it's free of charge.
