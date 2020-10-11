@@ -170,7 +170,16 @@ Universally formatted code promotes ease of writing, reading, and maintenance.
 
 *   Variables should be named using camelCase. For example, `newVariable`, or
     `requestedArch`.
-
+    
+*   use all-lowercase global variables for all parametrization in `openhabian.conf`.
+    You may not directly read these from inside installation routines (but write if
+    required e.g. to hide passwords after processing). Global variables are sourced
+    in as one batch at the beginning of code execution in both run modes. 
+    Use local variables of the same name but applying camelCase in the install routine
+    and initialize them with the all-lowercase global equivalent's contents before use.
+    This is in preparation of a future migration from Shell CLI to a web based
+    interface.
+    
 *   Always refuse to allow the running of package setup scripts that require
     user input in unattended mode.
 
