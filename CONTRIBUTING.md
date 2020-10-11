@@ -44,7 +44,7 @@ Pull requests will be tested on the Travis CI platform which **shall** pass.
 
 Any install routine for a new feature must
 * equally work in a) unattended and b) interactive mode
-* be tested to execute with a) 'install' and b) 'remove' strings arguments,
+* be tested to execute with a) 'install' and b) 'remove' string arguments,
 resulting in installation or removal, respectively.
 
 Please provide BATS test cases for new features to be executed on every build.
@@ -292,7 +292,8 @@ To run the [ShellCheck](https://www.shellcheck.net/) tests run:
 
 We want to keep the openHAB community awesome, growing and collaborative. We
 need your help to keep it that way. To help with this we've come up with some
-general guidelines for the community as a whole:
+general guidelines for the community as a whole.
+The official guidelines are [located here](https://community.openhab.org/guidelines), the essentials are:
 
 *   Be nice: Be courteous, respectful and polite to fellow community members: no
     regional, racial, gender, or other abuse will be tolerated. We like nice
