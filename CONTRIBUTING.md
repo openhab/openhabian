@@ -42,12 +42,19 @@ comment.
 
 Pull requests will be tested on the Travis CI platform which **shall** pass.
 
-Please provide test-cases for new features. See
-[Test Architecture](#test-architecture) below.
+Any install routine for a new feature must
+equally work in a) unattended and b) interactive mode
+be tested to execute with a) 'install' and b) 'remove' strings arguments,
+resulting in installation or removal, respectively.
+
+Please provide BATS test cases for new features to be executed on every build.
+The minimum test set to provide is a test to run an unattended installation and
+automatically validate the feature is working _in principle_.
+See [Test Architecture](#test-architecture) below.
+Of course, more and more specific test cases are always welcome.
 
 Commits that fix or close an issue should include a reference like `Closes #XXX`
 or `Fixes #XXX`, which will automatically close the issue when merged.
-
 
 Before the pull request is merged, your commits might get squashed, based on the
 size and style of your contribution. Include documentation changes in the same
