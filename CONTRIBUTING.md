@@ -132,18 +132,21 @@ Universally formatted code promotes ease of writing, reading, and maintenance.
 
 *   Use two (2) spaces when indenting code.
 
-*   `local` declarations of variables should be used when possible. Always
-    include declarations of variables at the beginning of functions. The only
-    exception allowed is for short circuit returns to avoid unnecessary checks.
+*   use `local variable` declarations of variables wherever possible.
+    Always start a function with the declarations of variables.
+    The only exception you may have before that is 'short cut' checks that exit
+    the function early if there's conditions in effect that prohibit to proceed
+    with executing the function.
+*   use the short form `local variable=value` to define constants.
 
 *   When using colored output, always use the colors defined in `helpers.bash`.
     For example, `${COL_RED}`, additionally always be sure to reset to standard
     color at the end of your output statement by using `${COL_DEF}`.
 
 *   Never use absolute paths for binaries, always use the standard paths
-    instead. For example, `/usr/bin/apt-get` vs. `apt-get`.
+    instead. For example, use `apt-get` instead of `/usr/bin/apt-get`.
 
-*   When a function is used across many files, include it in the `helpers.bash`
+*   When a function is used across multiple files, include it in the `helpers.bash`
     file.
 
 *   Functions should be named using underscores. For example, `new_function`, or
