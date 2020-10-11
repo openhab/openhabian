@@ -223,7 +223,7 @@ grow_image() {
   local partition="2"
 
   qemu-img resize "$1" "+${2}M" &> /dev/null
-  echo ", +" | sfdisk -N "$partition" "$1" &> /dev/null
+  echo ", +" | PATH=$PATH:/sbin sfdisk -N "$partition" "$1" &> /dev/null
 }
 
 
