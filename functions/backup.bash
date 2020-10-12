@@ -199,14 +199,10 @@ create_amanda_config() {
   fi
   {
     echo "${HOSTNAME}  /boot                         ${dumpType}"; \
-    echo "${HOSTNAME}  /etc                          ${dumpType}"
+    echo "${HOSTNAME}  /etc                          ${dumpType}"; \
+    echo "${HOSTNAME}  /var/lib/openhab              ${dumpType}"; \
+    echo "${HOSTNAME}  /var/lib/openhab2             ${dumpType}"
   } >> "$configDir"/disklist
-  if [[ -d /var/lib/openhab2 ]]; then
-    echo "${HOSTNAME}  /var/lib/openhab2             ${dumpType}" >> "$configDir"/disklist
-  fi
-  if [[ -d /opt/zram/persistence.bind ]]; then
-    echo "${HOSTNAME}  /opt/zram/persistence.bind    ${dumpType}" >> "$configDir"/disklist
-  fi
   if [[ -d /var/lib/homegear ]]; then
     echo "${HOSTNAME}  /var/lib/homegear             ${dumpType}" >> "$configDir"/disklist
   fi

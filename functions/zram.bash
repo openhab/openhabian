@@ -133,6 +133,10 @@ init_zram_mounts() {
   fi
 }
 
+## check hardware and if ok run ZRAM installation
+##
+##    zram_setup()
+##
 zram_setup() {
   if is_pifour_8GB; then
     echo -n "$(timestamp) [openHABian] We've detected you're using the 8GB model of the RPi4. It is known to not work with ZRAM."
