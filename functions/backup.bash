@@ -201,7 +201,6 @@ create_amanda_config() {
     echo "${HOSTNAME}  /boot                         ${dumpType}"; \
     echo "${HOSTNAME}  /etc                          ${dumpType}"; \
     echo "${HOSTNAME}  /var/lib/openhab              ${dumpType}"; \
-    echo "${HOSTNAME}  /var/lib/openhab2             ${dumpType}"
   } >> "$configDir"/disklist
   if [[ -d /var/lib/homegear ]]; then
     echo "${HOSTNAME}  /var/lib/homegear             ${dumpType}" >> "$configDir"/disklist
