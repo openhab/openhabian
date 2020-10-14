@@ -52,46 +52,22 @@ else
   echo "SKIPPED (Python not found)"
 fi
 
-userdef="openhabian"
-
-# needs to work for non-RaspiOS (Ubuntu, Armbian) on RPi, too (was: "if is_pi")
+defaultUserAndGroup=""openhabian"
+userName="${adminusername:-openhabian}"
+groupName="${admingroupname:-openhabian}"
 if is_raspbian || is_raspios; then
-  userdef="pi"
-else
-  # IF not on RaspiOS (because in that case we have an image that the "pi" user exists in and we can rename that user)
-  # THEN create default user AND default group (use $userdef for both, "openhabian" if not on RaspiOS that is)
-  # Both, user and group, will be *renamed* below
-  if ! [[ $(getent group "${userdef}") ]] || cond_redirect groupadd ${userdef}; then echo "FAILED (add default group $userdef)"; return 1; fi
-  if ! (id -u ${userdef} &> /dev/null || cond_redirect useradd --groups "${userdef}",openhab --gecos "openHABian,,,,openHAB admin user" -s /bin/bash -d /var/tmp ${userdef}); then echo "FAILED (add default usergroup $userdef)"; return 1; fi
+  defaultUserAndGroup="pi"
 fi
 
 echo -n "$(timestamp) [openHABian] Changing default username and password... "
-
-# IF
-# (1) the string/username that the end user entered as "username=" in openhabian.conf is *empty* OR
-# (2) the default user ("pi" on RaspiOS, "openhabian" on other OS) does not exist OR
-# (3) the user whose name the end user entered as "username=" in openhabian.conf *exists* (and isn't empty because (1) applies, too)
-# THEN skip
-# ELSE rename the default user and default group to what is defined as username= in openhabian.conf
-#
-# QUESTIONS:
-# (1) will that do what we want it to
-# (2) did there exist a default user in generic Debian on x86 ? If no why did it work there before ? did it ?
-# (3) what happens on generic Debian on x86 ? Ubuntu on x86 ? Ubuntu,Armbian on RPi ?
-#
-# according to Elias on non image installs the end user is queried to input the username ?
-# https://github.com/openhab/openhabian/issues/665#issuecomment-522261443
-# is he really ? Is that true for interactive installs ? I have not seen where.
-
 # shellcheck disable=SC2154
-#if [[ -z "${username+x}" ]] || ! id $userdef &> /dev/null || id "$username" &> /dev/null; then
-if [[ -v ${username} ]] || ! id $userdef &> /dev/null || id "$username" &> /dev/null; then
+if [[ -v ${userName} ]] || ! id $userdef &> /dev/null || id "$username" &> /dev/null; then
   echo "SKIPPED"
 else
-  usermod -l "$username" "$userdef"
-  usermod -m -d "/home/$username" "$username"
-  groupmod -n "$username" "$userdef"
-  echo "${username}:${userpw:-$username}" | chpasswd
+  usermod -l "$userName" "$defaultUserAndGroup"
+  usermod -m -d "/home/$userName" "$userName"
+  groupmod -n "$groupName" "$defaultUserAndGroup"
+  echo "${userName}:${userpw:-$userName}" | chpasswd
   echo "OK"
 fi
 
