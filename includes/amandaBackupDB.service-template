@@ -5,7 +5,7 @@ Description=nightly Amanda backup
 Type=oneshot
 User=root
 Group=root
-ExecStart=/bin/bash -c 'cd /; /bin/tar czf %STORAGE/amanda-backups/amanda_data_$(date +%%Y%%m%%d%%H%%M%%S).tar.gz etc/amanda var/lib/amanda var/log/amanda; find /storage -name amanda_data_* -mtime +30 -delete' &> /dev/null
+ExecStart=/bin/bash -c 'cd /; /bin/tar czf %STORAGE/amanda-backups/amanda_data_$(date +%%Y%%m%%d%%H%%M%%S).tar.gz etc/amanda var/lib/amanda var/log/amanda; find %STORAGE -name amanda_data_* -mtime +30 -delete' &> /dev/null
 RemainAfterExit=yes
 
 [Install]
