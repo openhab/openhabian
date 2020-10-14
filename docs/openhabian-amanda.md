@@ -272,12 +272,12 @@ directories of yours.
 
 Note: the raw SD card backup was left out for the AWS S3 config, as that would require a lot of bandwidth and runtime.
 
-openHABian setup routine will create cron entries in `/etc/cron.d/amanda` to start all backups you select every night at 01:00AM.
+openHABian setup routine will create systemd timers in `/etc/systemd/system/` to start all backups you select every night at around 01:00AM.
 
 ## Backup
 
 Find below a terminal session log of a manually started backup run.
-It's showing the three most important commands to use. They all can be started as user *backup* only, interactively or via cron,
+It's showing the three most important commands to use. They all can be started as user *backup* only, interactively, via systemd.timer or cron,
 and you always need to specify the config to use. You can have multiple backup configs in parallel use.
 
 The `amcheck` command is meant to remind you to put in the right removeable storage medium such as a tape or SD card,
@@ -572,7 +572,7 @@ You could also move that temporary recovered image file to your Windows PC that 
 ### A final word on when things have gone badly wrong...
 
 and your SD card to contain the Amanda database is broken: you don't have to give up.
-Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/cron.d/amanda`).
+Whenever you use a directory as the storage area, openHABian Amanda by default creates a copy of its config and index files (to know what's stored where) in your storage directory once a day (see `/etc/systemd/system/amandaBackupDB.service`).
 So you can reinstall openHABian including Amanda from scratch and copy back those files. Eventually see `amadmin import` option.
 Even if you fail to recover your index files, you can still access the files in your storage area.
 The `amindex` command can be used to regenerate the database. How to apply unfortunately is  out of scope for this document so please g**gle if needed.
