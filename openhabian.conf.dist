@@ -5,9 +5,11 @@
 
 # Hostname to set this one to
 hostname=openHABianDevice
-# the default user (with its working environment) will be renamed to this username given here ...
-username=openhabian
-# ... and given this password. The password will be removed from this file after completion for security reasons.
+# if exists, the default user (with its working environment) will be renamed to this username given here ...
+adminusername=openhabian
+# ... assigned to this group ...
+admingroupname=openhabian
+# and given this password. The password will be removed from this file after completion for security reasons.
 userpw=openhabian
 
 # Language and timezone. See Debian documentation for valid values.
