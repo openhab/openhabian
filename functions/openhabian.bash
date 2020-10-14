@@ -241,3 +241,44 @@ config_ipv6() {
     if cond_redirect sysctl --load; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 }
+
+
+## Create UNIX user and group for openHABian administration purposes
+##
+##    create_user()
+##
+create_user() {
+
+  # TODO: rename to source admin.... from .conf in first-boot.bash
+  #       rework first-boot.bash to not create user there
+  #       add calling this routine in openhabian-setup.bash ()??)
+
+# IF
+# (1) the string/username that the end user entered as "username=" in openhabian.conf is *empty* OR
+# (2) the default user ("pi" on RaspiOS, "openhabian" on other OS) does not exist OR
+# (3) the user whose name the end user entered as "username=" in openhabian.conf *exists* (and isn't empty because (1) applies, too)
+# THEN skip
+# ELSE rename the default user and default group to what is defined as username= in openhabian.conf
+#
+# QUESTIONS:
+# (1) will that do what we want it to
+# (2) did there exist a default user in generic Debian on x86 ? If no why did it work there before ? did it ?
+# (3) what happens on generic Debian on x86 ? Ubuntu on x86 ? Ubuntu,Armbian on RPi ?
+#
+# according to Elias on non image installs the end user is queried to input the username ?
+# https://github.com/openhab/openhabian/issues/665#issuecomment-522261443
+# is he really ? Is that true for interactive installs ? I have not seen where.
+
+  local userName="${adminusername:-openhabian}"
+  local groupName="${admingroupname:-openhabian}"
+
+  if ! [[ $(getent group "$groupName") ]]; then
+    if ! cond_redirect groupadd "$groupName"; then echo "FAILED (add default group $groupName)"; return 1; fi
+  fi
+  if ! [[ $(id -u "$userName" &> /dev/null) ]]; then
+    if ! cond_redirect useradd --groups "$groupName",openhab --gecos "openHABian,,,,openHAB admin user" -s /bin/bash -d /var/tmp "$userName"; then echo "FAILED (add default usergroup $userName)"; return 1; fi
+  else
+    usermod --append --groups "$groupName" "$userName";
+  fi
+}
+

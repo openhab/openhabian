@@ -52,20 +52,22 @@ else
   echo "SKIPPED (Python not found)"
 fi
 
-userdef="openhabian"
-if is_pi; then
-  userdef="pi"
+defaultUserAndGroup="openhabian"
+userName="${adminusername:-openhabian}"
+groupName="${admingroupname:-openhabian}"
+if is_raspbian || is_raspios; then
+  defaultUserAndGroup="pi"
 fi
 
 echo -n "$(timestamp) [openHABian] Changing default username and password... "
 # shellcheck disable=SC2154
-if [[ -z "${username+x}" ]] || ! id $userdef &> /dev/null || id "$username" &> /dev/null; then
+if [[ -v ${userName} ]] || ! id "$defaultUserAndGroup" &> /dev/null || id "$userName" &> /dev/null; then
   echo "SKIPPED"
 else
-  usermod -l "$username" "$userdef"
-  usermod -m -d "/home/$username" "$username"
-  groupmod -n "$username" "$userdef"
-  echo "${username}:${userpw:-$username}" | chpasswd
+  usermod -l "$userName" "$defaultUserAndGroup"
+  usermod -m -d "/home/$userName" "$userName"
+  groupmod -n "$groupName" "$defaultUserAndGroup"
+  echo "${userName}:${userpw:-$userName}" | chpasswd
   echo "OK"
 fi
 
