@@ -43,6 +43,20 @@ teardown_file() {
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] MQTT service is running.${COL_DEF}" >&3
 }
 
+@test "destructive-knxd_install" {
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] knxd installation starting...${COL_DEF}" >&3
+  run knxd_setup 3>&-
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] knxd installation successful.${COL_DEF}" >&3
+
+  # knxd service must be configured and is not started automatically, but we can call knxd executable
+  run knxd --version 3>&-
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] knxd executable ok.${COL_DEF}" >&3
+}
+
 @test "destructive-1wire_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] 1wire installation starting...${COL_DEF}" >&3
   run 1wire_setup 3>&-
