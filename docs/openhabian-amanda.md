@@ -272,7 +272,7 @@ directories of yours.
 
 Note: the raw SD card backup was left out for the AWS S3 config, as that would require a lot of bandwidth and runtime.
 
-openHABian setup routine will create systemd.timer configurations in `/etc/systemd/system/` to start all backups you select every night at around 01:00AM.
+openHABian setup routine will create systemd timers in `/etc/systemd/system/` to start all backups you select every night at around 01:00AM.
 
 ## Backup
 
