@@ -396,27 +396,50 @@ find_setup() {
 ##    knxd_setup()
 ##
 knxd_setup() {
-  local introText="This will install and setup kndx (successor to eibd) as your EIB/KNX IP gateway and router to support your KNX bus system.\\n\\nThis routine was provided by 'Michels Tech Blog': https://bit.ly/3dzeoKh"
-  local successText="Setup was successful.\\n\\nPlease edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help'\\n\\nFurther details can be found under: https://bit.ly/3dzeoKh\\n\\nIntegration into openHAB 2 is described here: https://github.com/openhab/openhab/wiki/KNX-Binding"
+  local introText="This will install kndx as your EIB/KNX IP gateway and router to support your KNX bus system.\\n\\nNOTE: Typically, you don't need this if you connect via an IP interface or router to your KNX installation. This package is to turn an USB or serial interface into an IP interface.\n\nNOTE: openHABian changed from building and installing latest source to installing the knxd package provided by several distributions."
+  local missingText="Setup could not find knxd package.\n\nopenHABian changed from building and installing latest source to installing the knxd package provided by several distrubutions. In case you have an installation of openHABian on a custom Linux which does not provide knxd package, you could try to installation routine we used before as described at 'Michels Tech Blog': https://bit.ly/3dzeoKh"
+  local errorText="Installation of knxd package failed, see console log for details."
+  local successText="Installation was successful.\\n\\nPlease edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help' or see /usr/share/doc/knxd/.\\n\\nIntegration into openHAB 2 is described here: https://github.com/openhab/openhab/wiki/KNX-Binding"
   local temp
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
-  echo -n "$(timestamp) [openHABian] Beginning setup of EIB/KNX IP Gateway and Router with knxd (https://bit.ly/3dzeoKh)... "
+  echo -n "$(timestamp) [openHABian] Beginning setup of knxd package... "
   if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "knxd installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 10 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if (whiptail --title "knxd installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   else
     echo "OK"
   fi
 
-  echo -n "$(timestamp) [openHABian] Installing knxd... "
-  # TODO: serve file from the repository
-  if ! cond_redirect wget -O "$temp" https://michlstechblog.info/blog/download/electronic/install_knxd_systemd.sh; then echo "FAILED (fetch installer)"; return 1; fi
-  # NOTE: install_knxd_systemd.sh currently does not give proper exit status for errors, so installer claims success...
-  if cond_redirect bash "$temp"; then rm -f "$temp"; echo "OK (reboot required)"; else echo "FAILED (install)"; return 1; fi
+  if ! apt-cache show knxd &>/dev/null; then
+    echo "FAILED (install)";
+    if [[ -n $INTERACTIVE ]]; then
+      whiptail --title "knxd install failed" --msgbox "$missingText" 15 80
+    fi
+    return 1
+  fi
+
+  echo -n "$(timestamp) [openHABian] Installing package knxd... "
+  if cond_redirect apt-get install --yes knxd; then
+    echo "OK";
+  else
+    echo "FAILED (install)"
+    if [[ -n $INTERACTIVE ]]; then
+      whiptail --title "knxd install failed" --msgbox "$errorText" 15 80
+    fi
+    return 1
+  fi
+
+  # optional package which contains command line tools, it is allowed to fail
+  echo -n "$(timestamp) [openHABian] Installing optional package knxd-tools... "
+  if cond_redirect apt-get install --yes knxd-tools; then
+    echo "OK";
+  else
+    echo "FAILED (optional install)"
+  fi 
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation Successful!" --msgbox "$successText" 15 80
+    whiptail --title "knxd install sucessful" --msgbox "$successText" 15 80
   fi
 }
 
