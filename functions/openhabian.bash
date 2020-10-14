@@ -110,6 +110,38 @@ openhabian_update_check() {
   if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-stable}"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
+## Changes files on disk to match the new (changed) openhabian branch
+##
+##    update_installation()
+##
+migrate_installation() {
+  local frontailService="/etc/systemd/system/frontail.service"
+  local amandaConfigs="/etc/amanda/openhab-*/disklist"
+  local ztab="/etc/ztab"
+  local from
+  local to
+
+  if [[ "$1" == "openHAB3" ]]; then
+    from=openhab2
+    to=openhab
+  else
+    from=openhab
+    to=openhab2
+  fi
+
+  cond_echo openhab_setup openHAB3
+
+  sed -i "s|${from}/|${to}/|g" $frontailService
+  for i in $amandaConfigs; do
+    sed -i "s|/${from}|/${to}|g" "$i"
+  done
+  sed -i "s|/${from}|/${to}|g" $ztab
+
+  if cond_redirect systemctl restart zram-config.service zramsync.service; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED"; return 1; fi
+}
+
+
 ## Updates the current openhabian repository to the most current version of the
 ## current branch.
 ##
@@ -134,10 +166,10 @@ openhabian_update() {
   echo -n "$(timestamp) [openHABian] Updating myself... "
 
   if [[ -n $INTERACTIVE ]]; then
-    if [[ $current == "stable" || $current == "master" ]]; then
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 2 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF 3>&1 1>&2 2>&3)"; then return 0; fi
+    if [[ $current == "stable" || $current == "master" || $current == "openHAB3" ]]; then
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF openHAB3 "*** DO NOT USE ***" OFF 3>&1 1>&2 2>&3)"; then return 0; fi
     else
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 80 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF openHAB3 "*** DO NOT USE ***" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
     fi
     read -r -t 1 -n 1 key
     if [[ -n $key ]]; then
@@ -155,6 +187,14 @@ openhabian_update() {
     if ! sed -i 's|^clonebranch=.*$|clonebranch='"${branch}"'|g' "$CONFIGFILE"; then echo "FAILED (configure clonebranch)"; exit 1; fi
   else
     branch="${clonebranch:-stable}"
+  fi
+
+  if [[ "$branch" == "openHAB3" ]]; then
+    if [[ "$current" == "master" ]] || [[ "$current" == "stable" ]]; then
+      migrate_installation openHAB3
+    fi
+  elif [[ "$current" == "openHAB3" ]]; then
+    migrate_installation openHAB2
   fi
 
   shorthashBefore="$(git -C "${BASEDIR:-/opt/openhabian}" log --pretty=format:'%h' -n 1)"
