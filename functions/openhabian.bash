@@ -365,7 +365,7 @@ create_user_and_group() {
   local userName="${adminusername:-openhabian}"
 
   if ! [[ $(id -u "$userName" &> /dev/null) ]]; then
-    if ! cond_redirect adduser --quiet --disabled-password --gecos "openHABian,,,,openHAB admin user" --shell /bin/bash --home "/home/${username}" "$userName"; then echo "FAILED (add default usergroup $userName)"; return 1; fi
+    if ! cond_redirect adduser --quiet --disabled-password --gecos "openHABian,,,,openHAB admin user" --shell /bin/bash --home "/home/${userName}" "$userName"; then echo "FAILED (add default usergroup $userName)"; return 1; fi
     echo "${userName}:${userpw:-$userName}" | chpasswd
   fi
   usermod --append --groups "$groupName" "$userName";
