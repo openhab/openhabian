@@ -208,7 +208,7 @@ system_check_default_password() {
   generatedPassword="$(perl -le 'print crypt("$ENV{defaultPassword}","\$$ENV{algo}\$$ENV{salt}\$")')"
 
   echo -n "$(timestamp) [openHABian] Checking for default openHABian username:password combination... "
-  if ! [[ $(id -u $defaultUser) ]]; then echo "OK (unknown user)"; return 0; fi
+  if ! [[ $(id -u "$defaultUser") ]]; then echo "OK (unknown user)"; return 0; fi
   if [[ $generatedPassword == "$originalPassword" ]]; then
     if [[ -n $INTERACTIVE ]]; then
       whiptail --title "Default Password Detected!" --msgbox "$introText" 11 80
@@ -272,7 +272,7 @@ create_user_and_group() {
   if ! [[ $(id -u "$userName" &> /dev/null) ]]; then
     if ! cond_redirect adduser --quiet --disabled-password --gecos "openHABian,,,,openHAB admin user" --shell /bin/bash --home "/home/${userName}" "$userName"; then echo "FAILED (add default usergroup $userName)"; return 1; fi
     echo "${userName}:${userpw:-openhabian}" | chpasswd
+    usermod --append --groups openhab "$userName";
   fi
-  usermod --append --groups "$groupName" "$userName";
 }
 
