@@ -77,6 +77,11 @@ for shfile in "${BASEDIR:-/opt/openhabian}"/functions/*.bash; do source "$shfile
 OLDWD="$(pwd)"
 cd /opt || exit 1
 
+# on non Raspi OS the admin user may be missing
+if [[ ! $(getent group "${adminusername:-openhabian}") ]] || ! id -u "${admingroupname:-openhabian}" &> /dev/null; then
+    create_user_and_group
+fi
+
 # disable ipv6 if requested in openhabian.conf (eventually reboots)
 config_ipv6
 

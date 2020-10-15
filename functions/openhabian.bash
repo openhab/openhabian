@@ -340,13 +340,11 @@ config_ipv6() {
 
 ## Create UNIX user and group for openHABian administration purposes
 ##
-##    create_user()
+##    create_user_and_group()
 ##
-create_user() {
+create_user_and_group() {
 
-  # TODO: rename to source admin.... from .conf in first-boot.bash
-  #       rework first-boot.bash to not create user there
-  #       add calling this routine in openhabian-setup.bash ()??)
+# TODO: add calling this routine in openhabian-setup.bash (or elsewhere ?)
 
 # IF
 # (1) the string/username that the end user entered as "username=" in openhabian.conf is *empty* OR
