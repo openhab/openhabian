@@ -292,7 +292,7 @@ system_check_default_password() {
     defaultUser="pi"
     defaultPassword="raspberry"
   elif is_pi; then
-    defaultUser="openhabian"
+    defaultUser="${adminusername:-openhabian}"
     defaultPassword="openhabian"
   fi
   originalPassword="$(grep -w "$defaultUser" /etc/shadow | cut -d: -f2)"
