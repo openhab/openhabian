@@ -369,7 +369,7 @@ create_user_and_group() {
     if ! cond_redirect groupadd "$groupName"; then echo "FAILED (add default group $groupName)"; return 1; fi
   fi
   if ! [[ $(id -u "$userName" &> /dev/null) ]]; then
-    if ! cond_redirect useradd --groups "$groupName",openhab -s /bin/bash -d /var/tmp "$userName"; then echo "FAILED (add default usergroup $userName)"; return 1; fi
+    if ! cond_redirect adduser --groups "$groupName",openhab --gecos "openHABian,,,,openHAB admin user" -s /bin/bash -d /var/tmp "$userName"; then echo "FAILED (add default usergroup $userName)"; return 1; fi
   else
     usermod --append --groups "$groupName" "$userName";
   fi
