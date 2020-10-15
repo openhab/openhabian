@@ -268,11 +268,7 @@ create_user_and_group() {
 # is he really ? Is that true for interactive installs ? I have not seen where.
 
   local userName="${adminusername:-openhabian}"
-  local groupName="${admingroupname:-openhabian}"
 
-  if ! [[ $(getent group "$groupName") ]]; then
-    if ! cond_redirect groupadd "$groupName"; then echo "FAILED (add default group $groupName)"; return 1; fi
-  fi
   if ! [[ $(id -u "$userName" &> /dev/null) ]]; then
     if ! cond_redirect adduser --quiet --disabled-password --gecos "openHABian,,,,openHAB admin user" --shell /bin/bash --home "/home/${username}" "$userName"; then echo "FAILED (add default usergroup $userName)"; return 1; fi
     echo "${userName}:${userpw:-$userName}" | chpasswd
