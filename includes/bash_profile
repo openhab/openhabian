@@ -30,7 +30,6 @@ fi
 echo
 FireMotD --theme Gray
 
-<<<<<<< HEAD
 OHVERSION=$(sed -n 's/openhab-distro\s*: //p' /var/lib/openhab/etc/version.properties)
 OHBUILD=$(sed -n 's/build-no\s*: //p' /var/lib/openhab/etc/version.properties)
 
