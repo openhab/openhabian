@@ -57,6 +57,7 @@ userName="${adminusername:-openhabian}"
 groupName="${admingroupname:-openhabian}"
 if is_raspbian || is_raspios; then
   defaultUserAndGroup="pi"
+  rm -f "/etc/sudoers.d/010_pi-nopasswd"
 fi
 
 echo -n "$(timestamp) [openHABian] Changing default username and password... "
