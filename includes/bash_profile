@@ -30,26 +30,21 @@ fi
 echo
 FireMotD --theme Gray
 
-OHVERSION=$(dpkg-query --showformat='${Version}' --show openhab)
+OHVERSION=$(sed -n 's/openhab-distro\s*: //p' /var/lib/openhab/etc/version.properties)
 OHBUILD=$(sed -n 's/build-no\s*: //p' /var/lib/openhab/etc/version.properties)
-if [ "$OHBUILD" == "- release build -" ]; then OHBUILD="Release Build"; fi
 
-cat << 'EOF'
+echo -e "
+\e[91m                         \e[97m _   _     _     ____   _               \e[0m
+\e[91m  ___   ___   ___   ___  \e[97m| | | |   / \   | __ ) (_)  ____   ___  \e[0m
+\e[91m / _ \ / _ \ / _ \ / _ \ \e[97m| |_| |  / _ \  |  _ \ | | / _  \ / _ \ \e[0m
+\e[91m| (_) | (_) |  __/| | | |\e[97m|  _  | / ___ \ | |_) )| || (_) || | | |\e[0m
+\e[91m \___/|  __/ \___/|_| |_|\e[97m|_| |_|/_/   \_\|____/ |_| \__|_||_| | |\e[0m
+\e[91m      |_|                          \e[0m$OHVERSION - $OHBUILD          \e[0m
 
-              Welcome to            __  _____    ____  _
-            ____  ____  ___  ____  / / / /   |  / __ )(_)___ _____
-           / __ \/ __ \/ _ \/ __ \/ /_/ / /| | / __  / / __ `/ __ \
-          / /_/ / /_/ /  __/ / / / __  / ___ |/ /_/ / / /_/ / / / /
-          \____/ .___/\___/_/ /_/_/ /_/_/  |_/_____/_/\__,_/_/ /_/
-              /_/
-EOF
-echo "                  openHAB $OHVERSION ($OHBUILD)"
-echo ""
-echo ""
-echo "Looking for a place to get started? Check out 'sudo openhabian-config' and the"
-echo "documentation at https://www.openhab.org/docs/installation/openhabian.html"
-echo "The openHAB dashboard can be reached at http://$(hostname):8080"
-echo "To interact with openHAB on the command line, execute: 'openhab-cli --help'"
-echo ""
+Looking for a place to get started? Check out 'sudo openhabian-config' and the
+documentation at \e[94;04mhttps://www.openhab.org/docs/installation/openhabian.html\e[36;49;00m
+The openHAB dashboard can be reached at \e[94;04mhttp://$(hostname):8080\e[39;49;00m
+To interact with openHAB on the command line, execute: 'openhab-cli --help'
+"
 
 # vim: filetype=sh
