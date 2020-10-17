@@ -109,18 +109,26 @@ change_password() {
 ##
 add_admin_ssh_key() {
   local userName=${adminusername:-openhabian}
-  local sshDir="${userName}/.ssh/"
+  local sshDir="~${userName}/.ssh/"
   local keyFile="${sshDir}/authorized_keys"
+  local karafKeys=/var/lib/openhab2/etc/keys.properties
+  local consoleProperties=/var/lib/openhab2/etc/org.apache.karaf.shell.cfg  
+  local tailscaleIP
 
   if [[ ! -v ${adminkeyurl} ]]; then return 0; fi
 
   if ! cond_redirect mkdir -p "${sshDir}"; then echo "FAILED (create .ssh directory)"; return 1; fi
-  wget --no-check-certificate -O "~${keyFile}.NEW" ${adminkeyurl}
+  wget --no-check-certificate -O "${keyFile}.NEW" ${adminkeyurl}
   if [[ -s ${keyFile}.NEW ]]; then
-    if [[ -f ~${keyFile} ]]; then
-      mv "~${keyFile}" "~${keyFile}.ORIG"
+    if [[ -f ${keyFile} ]]; then
+      mv "${keyFile}" "${keyFile}.ORIG"
     fi
-      mv "~${keyFile}.NEW" "~${keyFile}"
+    mv "${keyFile}.NEW" "${keyFile}"
+  fi
+  (echo -n "openhab="; awk '{ printf [ }' ${keyFile}; echo ",_g_:admingroup") >> $karafKeys
+  tailscaleIP=$(ip a show tailscale0 | awk '/inet / { print substr($2,1,length($2)-3)}')
+  if [[ -n "$tailscaleIP" ]]; then
+    sed -i "s|sshHost=.*|sshHost=${tailscaleIP}|g" $consoleProperties
   fi
 }
 
