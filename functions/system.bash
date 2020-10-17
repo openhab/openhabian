@@ -525,3 +525,4 @@ prepare_serial_port() {
   fi
 
   whiptail --title "Operation Successful!" --msgbox "$successText" 9 80
+  }
