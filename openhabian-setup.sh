@@ -78,7 +78,7 @@ OLDWD="$(pwd)"
 cd /opt || exit 1
 
 # on non Raspi OS the admin user may be missing
-if [[ ! $(getent group "${adminusername:-openhabian}") ]] || ! id -u "${admingroupname:-openhabian}" &> /dev/null; then
+if [[ ! $(getent group "${adminusername:-openhabian}") ]] || ! id -u "${adminusername:-openhabian}" &> /dev/null; then
     create_user_and_group
 fi
 
