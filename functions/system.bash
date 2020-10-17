@@ -224,7 +224,7 @@ vimrc_copy() {
 create_mount() {
   # Docker systemctl replacement does not support mount services
   if running_in_docker; then
-    echo "$(timestamp) [openHABian] Creating mount $2 in '/srv/openhab2-${1}'... SKIPPED"
+    echo "$(timestamp) [openHABian] Creating mount $2 in '/srv/openhab-${1}'... SKIPPED"
     return 0
   fi
 
@@ -233,7 +233,7 @@ create_mount() {
   local source
 
   destination="$2"
-  mountPoint="$(systemd-escape --path "/srv/openhab2-${destination}" --suffix "mount")"
+  mountPoint="$(systemd-escape --path "/srv/openhab-${destination}" --suffix "mount")"
   source="$1"
 
   echo -n "$(timestamp) [openHABian] Creating mount $source in '/srv/openhab2-${destination}'... "
@@ -252,17 +252,17 @@ srv_bind_mounts() {
     if cond_redirect zram-config "stop"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under '/srv/openhab2-*'... "
-  cond_redirect umount -q /srv/openhab2-{sys,conf,userdata,addons}
+  echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under '/srv/openhab-*'... "
+  cond_redirect umount -q /srv/openhab-{sys,conf,userdata,addons}
   if ! cond_redirect rm -f /etc/systemd/system/srv*.mount; then echo "FAILED (clean mounts)"; return 1; fi
-  if ! cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,addons}; then echo "FAILED (prepare dirs)"; return 1; fi
+  if ! cond_redirect mkdir -p /srv/openhab-{sys,conf,userdata,addons}; then echo "FAILED (prepare dirs)"; return 1; fi
   if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/srv_readme.txt /srv/README.txt; then echo "FAILED (copy readme)"; return 1; fi
   if ! cond_redirect chmod ugo+w /srv /srv/README.txt; then echo "FAILED (permissions for readme)"; return 1; fi
 
-  if ! cond_redirect create_mount "/usr/share/openhab2" "sys"; then echo "FAILED (sys)"; return 1; fi
-  if ! cond_redirect create_mount "/etc/openhab2" "conf"; then echo "FAILED (conf)"; return 1; fi
-  if ! cond_redirect create_mount "/var/lib/openhab2" "userdata"; then echo "FAILED (userdata)"; return 1; fi
-  if cond_redirect create_mount "/usr/share/openhab2/addons" "addons"; then echo "OK"; else echo "FAILED (addons)"; return 1; fi
+  if ! cond_redirect create_mount "/usr/share/openhab" "sys"; then echo "FAILED (sys)"; return 1; fi
+  if ! cond_redirect create_mount "/etc/openhab" "conf"; then echo "FAILED (conf)"; return 1; fi
+  if ! cond_redirect create_mount "/var/lib/openhab" "userdata"; then echo "FAILED (userdata)"; return 1; fi
+  if cond_redirect create_mount "/usr/share/openhab/addons" "addons"; then echo "OK"; else echo "FAILED (addons)"; return 1; fi
 
   if [[ -f /etc/ztab ]]; then
     echo -n "$(timestamp) [openHABian] Restarting ZRAM service... "
@@ -277,8 +277,8 @@ srv_bind_mounts() {
 permissions_corrections() {
   local gpioDir="/sys/devices/platform/soc"
   local groups=("audio" "bluetooth" "dialout" "gpio" "tty")
-  local openhabFolders=("/etc/openhab2" "/var/lib/openhab2" "/var/log/openhab2" "/usr/share/openhab2")
-  local openhabHome="/var/lib/openhab2"
+  local openhabFolders=("/etc/openhab" "/var/lib/openhab" "/var/log/openhab" "/usr/share/openhab")
+  local openhabHome="/var/lib/openhab"
 
   echo -n "$(timestamp) [openHABian] Applying file permissions recommendations... "
   if ! openhab_is_installed; then
@@ -532,4 +532,4 @@ prepare_serial_port() {
   fi
 
   whiptail --title "Operation Successful!" --msgbox "$successText" 9 80
-}
+  }
