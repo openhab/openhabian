@@ -1,5 +1,5 @@
 [Unit]
-Description=openhab2-%DEST mount
+Description=openhab-%DEST mount
 DefaultDependencies=no
 Before=smbd.service
 After=zram-config.service
