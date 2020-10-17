@@ -119,7 +119,6 @@ migrate_installation() {
   local amandaConfigs="/etc/amanda/openhab-*/disklist"
   local ztab="/etc/ztab"
   local serviceDir="/etc/systemd/system/"
-  local mountUnits="$(cd $serviceDir; ls srv-openhab*; cd -)"
   local mountUnits="/etc/systemd/system/srv-openhab*"
   local from
   local to
