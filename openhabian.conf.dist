@@ -9,6 +9,8 @@ hostname=openHABianDevice
 username=openhabian
 # ... and given this password. The password will be removed from this file after completion for security reasons.
 userpw=openhabian
+# set this to download a SSH key and authorize the owner to login as the admin user
+#adminkeyurl=https://github.com/openhab/openhabian/adminkey.pub
 
 # Language and timezone. See Debian documentation for valid values.
 timezone=Europe/Berlin
