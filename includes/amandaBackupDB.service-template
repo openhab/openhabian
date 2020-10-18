@@ -1,5 +1,5 @@
 [Unit]
-Description=nightly Amanda backup
+Description=nightly backup: Amanda config, DB, logs
 
 [Service]
 Type=oneshot
