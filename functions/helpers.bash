@@ -190,8 +190,17 @@ is_pifour_8GB() {
   totalMemory="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
   if is_pifour && [[ $totalMemory -gt 5000000 ]]; then return 0; else return 1; fi
 }
+is_cmfour() {
+  if [[ "$hw" == "cm4" ]]; then return 0; fi
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]12[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
 is_pi() {
-  if is_pizero || is_pizerow || is_pione || is_cmone || is_pitwo || is_pithree || is_cmthree || is_pithreeplus || is_cmthreeplus || is_pifour; then return 0; fi
+  if is_pizero || is_pizerow || is_pione || is_cmone || is_pitwo || is_pithree || is_cmthree || is_pithreeplus || is_cmthreeplus || is_pifour || is_cmfour; then return 0; fi
+  return 1
+}
+is_cm() {
+  if is_cmone || is_cmthree || is_cmthreeplus || is_cmfour; then return 0; fi
   return 1
 }
 is_pine64() {
@@ -440,7 +449,7 @@ select_blkdev() {
   else
     ((count=${#array[@]} + 8))
     # shellcheck disable=SC2034
-    retval="$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "\n${3}" "${count}" 76 0 "${array[@]}" 3>&1 1>&2 2>&3)"
+    retval="$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "\\n${3}" "${count}" 76 0 "${array[@]}" 3>&1 1>&2 2>&3)"
   fi
 }
 ## install bind9-dnsutils package if available (currently only in sid and focal)
