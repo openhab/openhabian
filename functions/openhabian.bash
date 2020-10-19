@@ -342,26 +342,20 @@ config_ipv6() {
 ##
 ##    create_user_and_group()
 ##
-create_user_and_group() {
-
-# TODO: add calling this routine in openhabian-setup.bash (or elsewhere ?)
-
 # IF
-# (1) the string/username that the end user entered as "username=" in openhabian.conf is *empty* OR
+# (1) the string/username that the end user entered as "adminusername=" in openhabian.conf is *empty* OR
 # (2) the default user ("pi" on RaspiOS, "openhabian" on other OS) does not exist OR
-# (3) the user whose name the end user entered as "username=" in openhabian.conf *exists* (and isn't empty because (1) applies, too)
+# (3) the user whose name the end user entered as "adminusername=" in openhabian.conf *exists*
+#     (and isn't empty because (1) applies, too)
 # THEN skip
 # ELSE rename the default user and default group to what is defined as username= in openhabian.conf
 #
-# QUESTIONS:
-# (1) will that do what we want it to
-# (2) did there exist a default user in generic Debian on x86 ? If no why did it work there before ? did it ?
-# (3) what happens on generic Debian on x86 ? Ubuntu on x86 ? Ubuntu,Armbian on RPi ?
-#
-# according to Elias on non image installs the end user is queried to input the username ?
+# COMMENT:
+# according to Elias on non image installs the end user is queried to input the username:
 # https://github.com/openhab/openhabian/issues/665#issuecomment-522261443
 # is he really ? Is that true for interactive installs ? I have not seen where.
-
+##
+create_user_and_group() {
   local userName="${adminusername:-openhabian}"
 
   if ! [[ $(id -u "$userName" &> /dev/null) ]]; then
