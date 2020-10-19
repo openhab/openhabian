@@ -112,8 +112,6 @@ add_admin_ssh_key() {
   local sshDir="~${userName}/.ssh/"
   local keyFile="${sshDir}/authorized_keys"
   local karafKeys=/var/lib/openhab2/etc/keys.properties
-  local consoleProperties=/var/lib/openhab2/etc/org.apache.karaf.shell.cfg  
-  local tailscaleIP
 
   # shellcheck disable=SC2154
   if [[ -z "${adminkeyurl}" ]]; then return 0; fi
@@ -127,9 +125,5 @@ add_admin_ssh_key() {
     mv "${keyFile}.NEW" "${keyFile}"
   fi
   (echo -n "openhab="; awk '{ printf $2 }' "${keyFile}"; echo ",_g_:admingroup") >> $karafKeys
-  tailscaleIP=$(ip a show tailscale0 | awk '/inet / { print substr($2,1,length($2)-3)}')
-  if [[ -n "$tailscaleIP" ]]; then
-    sed -i "s|^sshHost =.*|sshHost = 127.0.0.1,${tailscaleIP}|g" $consoleProperties
-  fi
 }
 

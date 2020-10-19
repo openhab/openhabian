@@ -224,10 +224,12 @@ install_tailscale() {
 ##   setup_tailscale(String action)
 ##
 setup_tailscale() {
-  local preAuthKey=${preauthkey:-preauthkey}
+  local preAuthKey=${preauthkey}
+  local consoleProperties=/var/lib/openhab2/etc/org.apache.karaf.shell.cfg
+  local tailscaleIP
 
   if [[ -n $UNATTENDED ]] && [[ -z $preAuthKey ]]; then
-    echo "$(timestamp) [openHABian] Beginning tailscale VPN setup... CANCELED (no pre auth key provided)"
+    echo "$(timestamp) [openHABian] Installing tailscale VPN... SKIPPED (no pre auth key provided)"
     return 0
   fi
   if [[ -n "$INTERACTIVE" ]]; then
@@ -237,6 +239,10 @@ setup_tailscale() {
   if ! tailscale up --authkey "${preAuthKey}"; then echo "FAILED (join tailscale VPN)"; return 1; fi 
   # shellcheck disable=SC2154
   tailscale status | mail -s "openHABian client joined tailscale VPN" "$adminmail"
+  tailscaleIP=$(ip a show tailscale0 | awk '/inet / { print substr([,1,length([)-3)}')
+  if [[ -n "$tailscaleIP"  ]]; then
+    sed -i "s|^sshHost =.*|sshHost = 127.0.0.1,${tailscaleIP}|g" $consoleProperties
+  fi
   if cond_redirect sed -i -e 's|^preauthkey=.*$|preauthkey=xxxxxxxx|g' /etc/openhabian.conf; then echo "OK"; else echo "FAILED (remove tailscale pre-auth key)"; exit 1; fi
 
   return 0
