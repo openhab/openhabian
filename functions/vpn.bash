@@ -171,41 +171,55 @@ setup_wireguard() {
 }
 
 
-## Install Tailscale from their own repo
+## Install tailscale from their own repo
 ## Valid arguments: "install" or "remove"
 ##
 ##   install_tailscale(String action)
 ##
 install_tailscale() {
-  local queryText="We will install the tailscale VPN client on your system. Use it to securely interconnect multiple openHAB(ian) instances.\\nSee https://tailscale.com/blog/how-tailscale-works/ for a comprehensive explanation how it creates a secure VPN. For personal use, you can get a free solo service from tailscale.com."
+  local installText="We will install the tailscale VPN client on your system. Use it to securely interconnect multiple openHAB(ian) instances.\\nSee https://tailscale.com/blog/how-tailscale-works/ for a comprehensive explanation how it creates a secure VPN. For personal use, you can get a free solo service from tailscale.com."
+  local removeText="We will remove the tailscale VPN client from your system.\\n\\nDouble-check ~/.ssh/authorized_keys and eventually remove the admin key."
   local serviceTargetDir="/lib/systemd/system"
 
-  if [[ -n "$INTERACTIVE" ]]; then
-    if (whiptail --title "VPN setup" --yes-button "Continue" --no-button "Cancel" --yesno "$queryText" 12 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+  if [[ -n "$UNATTENDED" ]]; then
+    # shellcheck disable=SC2154
+    if [[ ! -v "${preauthkey}" ]]; then echo "$(timestamp) [openHABian] tailscale VPN installation... SKIPPED (no preauthkey defined)"; return 1; fi
   fi
 
   if [[ "$1" == "remove" ]]; then
+    if [[ -n "$INTERACTIVE" ]]; then
+      if (whiptail --title "Remove tailscale VPN" --yes-button "Continue" --no-button "Cancel" --yesno "$removeText" 12 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+    fi
+    echo "$(timestamp) [openHABian] Removing tailscale VPN... "
     cond_redirect systemctl disable tailscaled.service
     rm -f ${serviceTargetDir}/tailscale*
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! apt-get purge --yes tailscale; then echo "FAILED (purge tailscale)"; return 1; fi
+    if ! rm -f /etc/apt/sources.list.d/tailscale.list; then echo "FAILED (purge tailscale)"; return 1; fi
     return 0
   fi
-  if [[ "$1" != "install" ]]; then echo "FAILED"; return 1; fi
 
-  # Add Tailscale's GPG key
+  if [[ "$1" != "install" ]]; then return 1; fi
+  if ! dpkg -s 'mailutils' 'exim4' &> /dev/null; then
+    exim_setup
+  fi
+  if [[ -n "$INTERACTIVE" ]]; then
+    if (whiptail --title "tailscale VPN setup" --yes-button "Continue" --no-button "Cancel" --yesno "$installText" 12 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+  fi
+  echo "$(timestamp) [openHABian] Installing tailscale VPN... "
+  # Add tailscale's GPG key
   add_keys https://pkgs.tailscale.com/stable/raspbian/buster.gpg
   # Add the tailscale repository
   curl https://pkgs.tailscale.com/stable/raspbian/buster.list | tee /etc/apt/sources.list.d/tailscale.list
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  # Install Tailscale
+  # Install tailscale
   if cond_redirect apt-get install --yes tailscale; then echo "OK"; else echo "FAILED (install tailscale)"; return 1; fi
 
   return 0
 }
 
 
-## add node to private Tailscale network
+## add node to private tailscale network
 ##
 ##   setup_tailscale(String action)
 ##
@@ -217,13 +231,13 @@ setup_tailscale() {
     return 0
   fi
   if [[ -n "$INTERACTIVE" ]]; then
-    if ! preAuthKey="$(whiptail --title "Enter pre auth key" --inputbox "\\nIf you have not received / created the Tailscale pre auth key at this stage, please do so now or tell your administrator to. This can be done on the admin console. There's a menu option on the Tailscale Windows client to lead you there.\\n\\nPlease enter the Tailscale pre auth key for this system:" 11 80 "$preAuthKey" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! preAuthKey="$(whiptail --title "Enter pre auth key" --inputbox "\\nIf you have not received / created the tailscale pre auth key at this stage, please do so now or tell your administrator to. This can be done on the admin console. There's a menu option on the tailscale Windows client to lead you there.\\n\\nPlease enter the tailscale pre auth key for this system:" 11 80 "$preAuthKey" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
 
-  if ! tailscale up --authkey "${preAuthKey}"; then echo "FAILED (join Tailscale VPN)"; return 1; fi 
+  if ! tailscale up --authkey "${preAuthKey}"; then echo "FAILED (join tailscale VPN)"; return 1; fi 
   # shellcheck disable=SC2154
   tailscale status | mail -s "openHABian client joined tailscale VPN" "$adminmail"
-  if cond_redirect sed -i -e 's|^preauthkey=.*$|preauthkey=xxxxxxxx|g' /etc/openhabian.conf; then echo "OK"; else echo "FAILED (remove Tailscale pre-auth key)"; exit 1; fi
+  if cond_redirect sed -i -e 's|^preauthkey=.*$|preauthkey=xxxxxxxx|g' /etc/openhabian.conf; then echo "OK"; else echo "FAILED (remove tailscale pre-auth key)"; exit 1; fi
 
   return 0
 }
