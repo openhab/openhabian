@@ -111,6 +111,7 @@ openhabian_update_check() {
 }
 
 ## Changes files on disk to match the new (changed) openhabian branch
+## Valid arguments: "openHAB3" or "openHAB2"
 ##
 ##    update_installation()
 ##
@@ -122,16 +123,20 @@ migrate_installation() {
   local mountUnits="/etc/systemd/system/srv-openhab*"
   local from
   local to
+  local distro
 
   if [[ "$1" == "openHAB3" ]]; then
     from=openhab2
     to=openhab
+    distro=testing
   else
     from=openhab
     to=openhab2
+    distro=stable
   fi
 
-  cond_echo openhab_setup openHAB3
+  apt --yes purge ${from} ${from}-addons ${from}-addons-legacy
+  openhab_setup "${distro}"
 
   echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
   for i in $amandaConfigs; do
