@@ -44,12 +44,12 @@ restore_openhab_config() {
   fi
 
   local backupList
-  local backupPath="/var/lib/openhab2/backups"
+  local backupPath="/var/lib/openhab/backups"
   local filePath
   local fileSelect
   local introText="This will restore a backup of your openHAB configuration using openHAB's builtin backup tool.\\n\\nWould you like to continue?"
 
-  readarray -t backupList < <(ls -alh "${backupPath}"/openhab2-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
+  readarray -t backupList < <(ls -alh "${backupPath}"/openhab-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
 
   echo -n "$(timestamp) [openHABian] Beginning restoration of openHAB backup... "
   if [[ -n $INTERACTIVE ]]; then
@@ -66,9 +66,9 @@ restore_openhab_config() {
   fi
 
   echo -n "$(timestamp) [openHABian] Restoring openHAB backup... "
-  if ! cond_redirect systemctl stop openhab2.service; then echo "FAILED (stop openHAB)"; return 1; fi
+  if ! cond_redirect systemctl stop openhab.service; then echo "FAILED (stop openHAB)"; return 1; fi
   if ! (yes | cond_redirect openhab-cli restore "$filePath"); then echo "FAILED (restore)"; return 1; fi
-  if cond_redirect systemctl restart openhab2.service; then echo "OK"; else echo "FAILED (restart openHAB)"; return 1; fi
+  if cond_redirect systemctl restart openhab.service; then echo "OK"; else echo "FAILED (restart openHAB)"; return 1; fi
 
   whiptail --title "Operation Successful!" --msgbox "Restoration of selected openHAB configuration was successful!" 7 80
 }
@@ -201,8 +201,8 @@ create_amanda_config() {
     echo "${HOSTNAME}  /boot                         ${dumpType}"; \
     echo "${HOSTNAME}  /etc                          ${dumpType}"
   } >> "$configDir"/disklist
-  if [[ -d /var/lib/openhab2 ]]; then
-    echo "${HOSTNAME}  /var/lib/openhab2             ${dumpType}" >> "$configDir"/disklist
+  if [[ -d /var/lib/openhab ]]; then
+    echo "${HOSTNAME}  /var/lib/openhab             ${dumpType}" >> "$configDir"/disklist
   fi
   if [[ -d /opt/zram/persistence.bind ]]; then
     echo "${HOSTNAME}  /opt/zram/persistence.bind    ${dumpType}" >> "$configDir"/disklist
