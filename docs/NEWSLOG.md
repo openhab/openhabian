@@ -7,7 +7,7 @@ This makes use of the tailscale service. Don't worry, for private use it's free 
 
 
 ## October 1, 2020
-## offline installation (BETA)
+## Offline installation (BETA)
 We now allow for deploying openHABian to destination networks without Internet connectivity.
 While the optional components still require access to download, the openHABian core is
 fully contained in the download image and can be installed and run without Internet.
@@ -16,7 +16,7 @@ we need to download is unavailable for whatever reason.
 
 
 ## August 29, 2020
-## Auto-backup (BETA)
+## Auto-backup
 openHABian can automatically take daily syncs of your internal SD card to
 another card in an external port. This allows for fast swapping of cards
 to reduce impact of a failed SD card.
