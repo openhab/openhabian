@@ -39,11 +39,11 @@ The following features are provided by the openHABian image out of the box:
 -   Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
 -   Customized Bash shell experience
 -   Customized settings and openHAB syntax highlighting for [vim](https://github.com/cyberkov/openhab-vim) and [nano](https://github.com/airix1/openhabnano)
--   Frontail log viewer
+-   web based openHAB log viewer
 -   [Mosquitto](https://mosquitto.org) MQTT broker
 -   the [InfluxDB](https://www.influxdata.com/) database to store home automation data and [Grafana](https://grafana.com/) to visualize it
 -   FIND, the [Framework for Internal Navigation and Discovery](https://www.internalpositioning.com/)
--   [WireGuard](https://www.wireguard.com/) for remote VPN access
+-   [Tailscale](https://tailscale.com/blog/how-tailscale-works/) VPN and [WireGuard](https://www.wireguard.com/) for remote VPN access
 
 The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian-configuration-tool) provides the following optional settings and components:
 
@@ -201,6 +201,16 @@ any later time using the 5X menu options.
 Should you need to switch to run on backup, get a another new SD card to match the size of the broken card.
 Note most are not "exactly" 16 or 32 GB so your new one mustn't have less bytes than the old one.
 Use menu option 54 to copy your active backup card back to the new one and switch back as soon as possible.
+
+### Tailscale VPN network
+Tailscale is a management toolset to establish a WireGuard based VPN between multiple systems if you want
+to connect to openHAB(ian) instances outside your LAN over Internet.
+It'll take care to detect and open ports when you and your peers are located behind firewalls.
+[Download the client](https://tailscale.com/download) and eventually get the Solo service plan from Tailscale,
+that's free for private use. This free service will automatically be selected when you fire up your first VPN node.
+The Windows client has a link to the admin console where you can create pre-auth one-time keys. These you can put
+as the `preauthkey` into `openhabian.conf` to automatically deploy remote openHABian nodes (unattended install)
+and have them join the VPN.
 
 ## openHABian Configuration Tool
 The following instructions target a Raspberry Pi openHABian setup but should be applicable to all openHABian environments.

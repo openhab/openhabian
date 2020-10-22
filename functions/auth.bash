@@ -44,15 +44,15 @@ change_password() {
     while [[ -z $pass ]]; do
       if ! pass1="$(whiptail --title "Authentication Setup" --passwordbox "\\nEnter a new password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
       if ! pass2="$(whiptail --title "Authentication Setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-      if [[ $pass1 == "$pass2" ]] && [[ ${#pass1} -ge 10 ]] && [[ ${#pass2} -ge 10 ]]; then
+      if [[ $pass1 == "$pass2" ]] && [[ ${#pass1} -ge 8 ]] && [[ ${#pass2} -ge 8 ]]; then
         pass="$pass1"
       else
-        whiptail --title "Authentication Setup" --msgbox "Password mismatched, blank, or less than 10 characters... Please try again!" 7 80
+        whiptail --title "Authentication Setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
       fi
     done
   else
     # NON INTERACTIVE FUNCTION INVOKED
-    if [[ ${#1} -le 9 ]]; then echo "FAILED (invalid password, password must be greater than 10 characters)"; return 1; fi
+    if [[ ${#1} -le 7 ]]; then echo "FAILED (invalid password, password must be greater than 8 characters)"; return 1; fi
     pass="$1"
     chosenAccounts="${accounts[*]}"
   fi
@@ -98,3 +98,32 @@ change_password() {
     whiptail --title "Operation Successful!" --msgbox "Password(s) successfully changed for: $chosenAccounts" 8 80
   fi
 }
+
+
+## Function to download SSH key pair for remote access
+## 
+## The function can be invoked during UNATTENDED installation only.
+## It downloads a ssh key from a user specified location and allows the key owner to login as the admin user
+##
+##    add_admin_ssh_key()
+##
+add_admin_ssh_key() {
+  local userName=${adminusername:-openhabian}
+  local sshDir="~${userName}/.ssh/"
+  local keyFile="${sshDir}/authorized_keys"
+  local karafKeys=/var/lib/openhab2/etc/keys.properties
+
+  # shellcheck disable=SC2154
+  if [[ -z "${adminkeyurl}" ]]; then return 0; fi
+
+  if ! cond_redirect mkdir -p "${sshDir}"; then echo "FAILED (create .ssh directory)"; return 1; fi
+  if ! cond_redirect wget --no-check-certificate -O "${keyFile}.NEW" "${adminkeyurl}"; then echo "FAILED (wget $adminkeyurl)"; return 1; fi
+  if [[ -s ${keyFile}.NEW ]]; then
+    if [[ -f ${keyFile} ]]; then
+      mv "${keyFile}" "${keyFile}.ORIG"
+    fi
+    mv "${keyFile}.NEW" "${keyFile}"
+  fi
+  (echo -n "openhab="; awk '{ printf $2 }' "${keyFile}"; echo ",_g_:admingroup") >> $karafKeys
+}
+

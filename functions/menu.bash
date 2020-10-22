@@ -118,7 +118,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 22 118 15 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 24 118 17 --cancel-button Back --ok-button Execute \
     "31 | Change hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set system locale"      "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
     "33 | Set system timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
@@ -131,9 +131,11 @@ show_main_menu() {
     "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
     "38 | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
-    "39 | Setup VPN access"       "Setup Wireguard to enable secure remote access to openHABian (BETA)" \
-    "   | Remove Wireguard VPN"   "Remove Wireguard VPN from openHABian" \
-    "3A | Setup Exim Mail Relay"  "Install Exim4 to relay mails via public email provider" \
+    "39 | Setup Exim Mail Relay"  "Install Exim4 to relay mails via public email provider" \
+    "3A | Setup tailscale VPN"    "Establish or join a WireGuard based VPN using the tailscale service (BETA)" \
+    "   | Remove tailscale VPN"   "Remove the tailscale service" \
+    "   | Install WireGuard"      "Setup WireGuard to enable secure remote access to this openHABian system (BETA)" \
+    "   | Remove WireGuard VPN"   "Remove WireGuard VPN from this system" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -150,9 +152,11 @@ show_main_menu() {
       37\ *) move_root2usb ;;
       38\ *) init_zram_mounts "install" ;;
       *Uninstall\ ZRAM) init_zram_mounts "uninstall" ;;
-      39\ *) if install_wireguard install; then setup_wireguard; fi;;
-      *Uninstall\ Wireguard) install_wireguard remove;;
-      3A\ *) exim_setup ;;
+      39\ *) exim_setup ;;
+      3A\ *) if install_tailscale install; then setup_tailscale; fi;;
+      *Remove\ tailscale) install_tailscale remove;;
+      *Install\ WireGuard) if install_wireguard install; then setup_wireguard; fi;;
+      *Remove\ WireGuard) install_wireguard remove;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
