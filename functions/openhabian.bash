@@ -110,7 +110,6 @@ openhabian_update_check() {
   if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-stable}"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
-
 ## Updates the current openhabian repository to the most current version of the
 ## current branch.
 ##
