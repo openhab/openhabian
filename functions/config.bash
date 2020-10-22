@@ -12,7 +12,7 @@ load_create_config() {
   if [[ -f $CONFIGFILE ]]; then
     echo -n "$(timestamp) [openHABian] Loading configuration file '${CONFIGFILE}'... "
     # on non Raspi OS image installations the admin user may be missing
-    if [[ ! $(getent group "${adminusername:-openhabian}") ]] || ! id -u "${adminusername:-openhabian}" &> /dev/null; then
+    if [[ ! $(getent group "${username:-openhabian}") ]] || ! id -u "${username:-openhabian}" &> /dev/null; then
       create_user_and_group
     fi
   elif ! [[ -f $CONFIGFILE ]] && [[ -f /boot/installer-config.txt ]]; then
@@ -25,7 +25,7 @@ load_create_config() {
     echo -n "$(timestamp) [openHABian] Setting up and loading configuration file '$CONFIGFILE' in manual setup... "
     if input="$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$questionText" 14 80 3>&1 1>&2 2>&3)" && id -u "$input" &> /dev/null; then
       if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/openhabian.conf.dist "$CONFIGFILE"; then echo "FAILED (copy configuration)"; exit 1; fi
-      if ! cond_redirect sed -i -e 's|^adminusername=.*$|adminusername='"${input}"'|g' "$CONFIGFILE"; then echo "FAILED (configure adminusername)"; exit 1; fi
+      if ! cond_redirect sed -i -e 's|^username=.*$|username='"${input}"'|g' "$CONFIGFILE"; then echo "FAILED (configure admin username)"; exit 1; fi
     else
       echo "FAILED"
       echo "$(timestamp) [openHABian] Error: The provided user name is not a valid system user. Please try again. Exiting..." 1>&2

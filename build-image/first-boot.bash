@@ -53,7 +53,7 @@ else
 fi
 
 defaultUserAndGroup="openhabian"
-userName="${adminusername:-openhabian}"
+userName="${username:-openhabian}"
 groupName="${userName}"
 if is_raspbian || is_raspios; then
   defaultUserAndGroup="pi"

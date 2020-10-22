@@ -6,7 +6,7 @@
 # Hostname to set this one to
 hostname=openHABianDevice
 # if it exists, the default user (with its working environment) will be renamed to this username given here ...
-adminusername=openhabian
+username=openhabian
 # and given this password. The password will be removed from this file after completion for security reasons.
 userpw=openhabian
 

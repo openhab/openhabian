@@ -198,7 +198,7 @@ system_check_default_password() {
     defaultUser="pi"
     defaultPassword="raspberry"
   elif is_pi; then
-    defaultUser="${adminusername:-openhabian}"
+    defaultUser="${username:-openhabian}"
     defaultPassword="openhabian"
   fi
   originalPassword="$(grep -w "$defaultUser" /etc/shadow | cut -d: -f2)"
@@ -249,9 +249,9 @@ config_ipv6() {
 ##    create_user_and_group()
 ##
 # IF
-# (1) the string/username that the end user entered as "adminusername=" in openhabian.conf is *empty* OR
+# (1) the string/username that the end user entered as "username=" in openhabian.conf is *empty* OR
 # (2) the default user ("pi" on RaspiOS, "openhabian" on other OS) does not exist OR
-# (3) the user whose name the end user entered as "adminusername=" in openhabian.conf *exists*
+# (3) the user whose name the end user entered as "username=" in openhabian.conf *exists*
 #     (and isn't empty because (1) applies, too)
 # THEN skip
 # ELSE rename the default user and default group to what is defined as username= in openhabian.conf
@@ -262,7 +262,7 @@ config_ipv6() {
 # is he really ? Is that true for interactive installs ? I have not seen where.
 ##
 create_user_and_group() {
-  local userName="${adminusername:-openhabian}"
+  local userName="${username:-openhabian}"
 
   if ! [[ $(id -u "$userName" &> /dev/null) ]]; then
     if ! cond_redirect adduser --quiet --disabled-password --gecos "openHABian,,,,openHAB admin user" --shell /bin/bash --home "/home/${userName}" "$userName"; then echo "FAILED (add default usergroup $userName)"; return 1; fi
