@@ -1,23 +1,23 @@
 #!/usr/bin/env bash
 
-## Generate systemd dependencies for ZRAM, Frontail and others to start together with OH2
-## This is done using /etc/systemd/system/openhab2.service.d/override.conf
+## Generate systemd dependencies for ZRAM, Frontail and others to start together with OH
+## This is done using /etc/systemd/system/openhab.service.d/override.conf
 ##
 ##    create_systemd_dependencies()
 ##
 create_systemd_dependencies() {
-  local targetDir="/etc/systemd/system/openhab2.service.d"
+  local targetDir="/etc/systemd/system/openhab.service.d"
 
   echo -n "$(timestamp) [openHABian] Creating dependencies to jointly start services that depend on each other... "
   if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare directory)"; return 1; fi
   if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean directory)"; return 1; fi
-  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/openhab2-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/openhab-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
 }
 
 
 ## Function to quickly rename openHAB rules back and forth after two minutes to
 ## speed up startup of openHAB.
-## This is done using /etc/systemd/system/openhab2.service.d/override.conf
+## This is done using /etc/systemd/system/openhab.service.d/override.conf
 ## Valid arguments: "yes" or "no"
 ##
 ##    delayed_rules()
@@ -25,7 +25,7 @@ create_systemd_dependencies() {
 delayed_rules() {
   if ! openhab_is_installed; then return 0; fi
 
-  local targetDir="/etc/systemd/system/openhab2.service.d"
+  local targetDir="/etc/systemd/system/openhab.service.d"
 
   if [[ $1 == "yes" ]]; then
     echo -n "$(timestamp) [openHABian] Adding delay on loading openHAB rules... "
@@ -34,31 +34,31 @@ delayed_rules() {
     echo "$(timestamp) [openHABian] Removing delay on loading openHAB rules... OK"
   fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then return 1; fi
-  if ! cond_redirect systemctl restart openhab2.service; then return 1; fi
+  if ! cond_redirect systemctl restart openhab.service; then return 1; fi
 }
 
 ## Function to install / upgrade / downgrade the installed openHAB version
 ## Valid arguments: "unstable", "stable", or "testing"
 ##
-##    openhab2_setup(String version)
+##    openhab_setup(String version)
 ##
-openhab2_setup() {
+openhab_setup() {
   local introText
   local successText
   local repo
   local openhabVersion
 
   if [[ $1 == "unstable" ]]; then
-    introText="Proceed with caution!\\n\\nYou are about to switch over to the latest openHAB 2 unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
-    successText="The latest unstable snapshot build of openHAB 2 is now running on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\n\\nIf you find any problems or bugs, please report them and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (using menu option 02) regularly."
+    introText="Proceed with caution!\\n\\nYou are about to switch over to the latest openHAB unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
+    successText="The latest unstable snapshot build of openHAB is now running on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab' they were replaced, but you can restore them from backup files next to the originals.\\n\\nIf you find any problems or bugs, please report them and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (using menu option 02) regularly."
     repo="deb https://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main"
   elif [[ $1 == "stable" ]]; then
     introText="You are about to install or upgrade to the latest stable openHAB release.\\n\\nPlease be aware that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
-    successText="The stable release of openHAB is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
+    successText="The stable release of openHAB is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb https://dl.bintray.com/openhab/apt-repo2 stable main"
   elif [[ $1 == "testing" ]]; then
     introText="You are about to install or upgrade to the latest milestone (testing) openHAB build. It contains the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue.\\n\\nPlease be aware that downgrading from a newer build is not officially supported.\\n\\nPlease consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
-    successText="The testing release of openHAB is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
+    successText="The testing release of openHAB is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb https://openhab.jfrog.io/openhab/openhab-linuxpkg testing main"
   fi
 
@@ -79,25 +79,25 @@ openhab2_setup() {
   if [[ -z $OFFLINE ]]; then
     if ! add_keys "https://bintray.com/user/downloadSubjectPublicKey?username=openhab"; then return 1; fi
 
-    echo "$repo" > /etc/apt/sources.list.d/openhab2.list
+    echo "$repo" > /etc/apt/sources.list.d/openhab.list
 
     echo -n "$(timestamp) [openHABian] Installing selected openHAB version... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-    openhabVersion="$(apt-cache madison openhab2 | head -n 1 | cut -d'|' -f2 | xargs)"
-    if cond_redirect apt-get install --allow-downgrades --yes "openhab2=${openhabVersion}" "openhab2-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
+    openhabVersion="$(apt-cache madison openhab | head -n 1 | cut -d'|' -f2 | xargs)"
+    if cond_redirect apt-get install --allow-downgrades --yes "openhab=${openhabVersion}" "openhab-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "
-    if cond_redirect apt-get install --yes openhab2 openhab2-addons; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes openhab openhab-addons; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   # shellcheck disable=SC2154
-  gid=$(id -g "$username")
+  gid="$(id -g "$username")"
   usermod -g "openhab" "$username"
   usermod -aG "$gid" "$username"
 
   echo -n "$(timestamp) [openHABian] Setting up openHAB service... "
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-  if cond_redirect systemctl enable openhab2.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl enable openhab.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   openhab_misc
   create_systemd_dependencies
@@ -140,9 +140,9 @@ openhab_shell_interfaces() {
     sshPass="habopen"
   fi
 
-  if ! cond_redirect sed -i -e 's|^sshHost = 127.0.0.1.*$|sshHost = 0.0.0.0|g' /var/lib/openhab2/etc/org.apache.karaf.shell.cfg; then echo "FAILED (sshHost)"; return 1; fi
-  if cond_redirect sed -i -e 's|openhab = .*,|openhab = '"${sshPass}"',|g' /var/lib/openhab2/etc/users.properties; then echo "OK"; else echo "FAILED (sshPass)"; return 1; fi
-  cond_redirect systemctl restart openhab2.service
+  if ! cond_redirect sed -i -e 's|^sshHost = 127.0.0.1.*$|sshHost = 0.0.0.0|g' /var/lib/openhab/etc/org.apache.karaf.shell.cfg; then echo "FAILED (sshHost)"; return 1; fi
+  if cond_redirect sed -i -e 's|openhab = .*,|openhab = '"${sshPass}"',|g' /var/lib/openhab/etc/users.properties; then echo "OK"; else echo "FAILED (sshPass)"; return 1; fi
+  cond_redirect systemctl restart openhab.service
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation Successful!" --msgbox "$successText" 15 80
@@ -188,7 +188,7 @@ multitail_openhab_scheme() {
 ##    openhab_is_installed()
 ##
 openhab_is_installed() {
-  if dpkg -s 'openhab2' &> /dev/null; then return 0; else return 1; fi
+  if dpkg -s 'openhab' &> /dev/null; then return 0; else return 1; fi
 }
 
 ## Function to check if openHAB is running on the current system. Returns
@@ -197,7 +197,7 @@ openhab_is_installed() {
 ##    openhab_is_running()
 ##
 openhab_is_running() {
-  if openhab_is_installed && [[ $(systemctl is-active openhab2) == "active" ]]; then return 0; else return 1; fi
+  if openhab_is_installed && [[ $(systemctl is-active openhab) == "active" ]]; then return 0; else return 1; fi
 }
 
 ## Optimize openHAB Java for low memory SBC's and set HTTP/HTTPS ports
@@ -209,14 +209,14 @@ openhab_misc() {
 
   echo -n "$(timestamp) [openHABian] Optimizing openHAB to run on low memory single board computers... "
   if has_lowmem; then
-    if cond_redirect sed -i -e 's|^#*.*EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^#*.*EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    if cond_redirect sed -i -e 's|^#*.*EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^#*.*EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting openHAB HTTP/HTTPS ports... "
-  if ! cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTP_PORT=.*$|OPENHAB_HTTP_PORT=8080|g' /etc/default/openhab2; then echo "FAILED"; return 1; fi
-  if cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTPS_PORT=.*$|OPENHAB_HTTPS_PORT=8443|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
+  if ! cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTP_PORT=.*$|OPENHAB_HTTP_PORT=8080|g' /etc/default/openhab; then echo "FAILED"; return 1; fi
+  if cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTPS_PORT=.*$|OPENHAB_HTTPS_PORT=8443|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Create a openHAB dashboard title and image for the input application.
@@ -233,7 +233,7 @@ dashboard_add_tile() {
   local tileURL
 
   application="$1"
-  openhabConfig="/etc/openhab2"
+  openhabConfig="/etc/openhab"
   dashboardConfig="${openhabConfig}/services/dashboard.cfg"
   tileDesc="$(grep "^[[:space:]]*tile_desc_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_desc_'"${application}"'=||g; s|"||g')"
   tileImg="$(grep "^[[:space:]]*tile_imagedata_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_imagedata_'"${application}"'=||g; s|"||g')"

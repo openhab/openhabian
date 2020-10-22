@@ -30,7 +30,7 @@ show_main_menu() {
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Upgrade all installed software packages (incl. openHAB) to their latest version" \
-  "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
+  "03 | openHAB Testing"          "Install or upgrade to the latest testing release of openHAB" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
@@ -59,7 +59,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
-    openhab2_setup "stable"
+    openhab_setup "testing"
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 13 116 6 --cancel-button Back --ok-button Execute \
@@ -68,7 +68,7 @@ show_main_menu() {
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
     "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
     "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
-    "16 | Samba"                  "Install the Samba file sharing service and set up openHAB2 shares" \
+    "16 | Samba"                  "Install the Samba file sharing service and set up openHAB shares" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -176,9 +176,9 @@ show_main_menu() {
     wait_for_apt_to_finish_update
     # shellcheck disable=SC2154
     case "$choice2" in
-      41\ *) openhab2_setup "stable" ;;
-      *openHAB\ testing) openhab2_setup "testing" ;;
-      *openHAB\ snapshot) openhab2_setup "unstable" ;;
+      41\ *) openhab_setup "stable" ;;
+      *openHAB\ testing) openhab_setup "testing" ;;
+      *openHAB\ snapshot) openhab_setup "unstable" ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
       *Delay\ rules\ load) create_systemd_dependencies && delayed_rules "yes";;

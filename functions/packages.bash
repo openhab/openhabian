@@ -191,7 +191,7 @@ homegear_setup() {
   local introText="This will install Homegear, the Homematic CCU2 emulation software, using the latest stable release available from the official repository."
   local myOS
   local myRelease
-  local successText="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
+  local successText="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
 
   if ! [[ -x $(command -v lsb_release) ]]; then
     echo -n "$(timestamp) [openHABian] Installing Homegear required packages (lsb-release)... "
@@ -399,7 +399,7 @@ knxd_setup() {
   local introText="This will install kndx as your EIB/KNX IP gateway and router to support your KNX bus system.\\n\\nNOTE: Typically, you don't need this if you connect via an IP interface or router to your KNX installation. This package is to turn an USB or serial interface into an IP interface.\n\nNOTE: openHABian changed from building and installing latest source to installing the knxd package provided by several distributions."
   local missingText="Setup could not find knxd package.\n\nopenHABian changed from building and installing latest source to installing the knxd package provided by several distrubutions. In case you have an installation of openHABian on a custom Linux which does not provide knxd package, you could try to installation routine we used before as described at 'Michels Tech Blog': https://bit.ly/3dzeoKh"
   local errorText="Installation of knxd package failed, see console log for details."
-  local successText="Installation was successful.\\n\\nPlease edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help' or see /usr/share/doc/knxd/.\\n\\nIntegration into openHAB 2 is described here: https://github.com/openhab/openhab/wiki/KNX-Binding"
+  local successText="Installation was successful.\\n\\nPlease edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help' or see /usr/share/doc/knxd/.\\n\\nIntegration into openHAB is described here: https://github.com/openhab/openhab/wiki/KNX-Binding"
   local temp
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
@@ -436,7 +436,7 @@ knxd_setup() {
     echo "OK";
   else
     echo "FAILED (optional install)"
-  fi 
+  fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "knxd install sucessful" --msgbox "$successText" 15 80

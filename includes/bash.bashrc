@@ -92,9 +92,9 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
-alias openhablog='multitail /var/log/openhab2/events.log -wh 16 /var/log/openhab2/openhab.log'
-alias openhablogmix='multitail /var/log/openhab2/events.log -I /var/log/openhab2/openhab.log'
-alias openhablogtail='tail -n 100 -f /var/log/openhab2/events.log -f /var/log/openhab2/openhab.log'
+alias openhablog='multitail /var/log/openhab/events.log -wh 16 /var/log/openhab/openhab.log'
+alias openhablogmix='multitail /var/log/openhab/events.log -I /var/log/openhab/openhab.log'
+alias openhablogtail='tail -n 100 -f /var/log/openhab/events.log -f /var/log/openhab/openhab.log'
 
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
