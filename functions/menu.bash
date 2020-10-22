@@ -74,7 +74,7 @@ show_main_menu() {
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
     "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
     "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
-    "16 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
+    "16 | Samba"                  "Install the Samba file sharing service and set up openHAB shares" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
