@@ -242,7 +242,7 @@ sleep 12
 if [[ -x $(command -v python3) ]]; then bash /boot/webserver.bash "cleanup"; fi
 
 if running_in_docker; then
-  PID="/var/lib/openhab2/tmp/karaf.pid"
+  PID="/var/lib/openhab/tmp/karaf.pid"
   echo -e "\\n${COL_CYAN}Memory usage:" && free -m
   if [[ -f "$PID" ]]; then
     ps -auxq "$(cat "$PID")" | awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
