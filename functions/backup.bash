@@ -16,18 +16,16 @@ backup_openhab_config() {
   local successText
 
   echo -n "$(timestamp) [openHABian] Beginning openHAB backup... "
-  if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "openHAB backup?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 10 80); then echo "OK"; else echo "CANCELED"; return 0; fi
-  else
-    echo "OK"
+  if [[ -n "$INTERACTIVE" ]] && [[ $# == 0 ]]; then
+    if ! (whiptail --title "openHAB backup?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 10 80); then echo "CANCELED"; return 0; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Creating openHAB backup... "
-  if filePath="$(openhab-cli backup | tail -2 | head -1 | awk -F ' ' '{print $NF}')"; then echo "OK"; else echo "FAILED"; return 1; fi
-  successText="A backup of your openHAB configuration has successfully been made.\\n\\nThe backup has been stored in:\\n${filePath}"
+  if filePath="$(openhab-cli backup | awk -F ' ' '/Success/ { print $NF }')"; then echo "OK"; else echo "FAILED"; return 1; fi
+  successText="A backup of your openHAB configuration has successfully been made.\\n\\nIt is stored in ${filePath}."
 
-  if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation Successful!" --msgbox "$successText" 10 80
+  if [[ -n "$INTERACTIVE" ]]; then
+    whiptail --title "Operation Successful!" --msgbox "$successText" 10 90
   else
     echo "$(timestamp) [openHABian] ${successText}"
   fi
@@ -44,15 +42,15 @@ restore_openhab_config() {
   fi
 
   local backupList
-  local backupPath="/var/lib/openhab/backups"
+  local backupPath="${OPENHAB_BACKUPS:-/var/lib/openhab/backups}"
   local filePath
   local fileSelect
   local introText="This will restore a backup of your openHAB configuration using openHAB's builtin backup tool.\\n\\nWould you like to continue?"
 
-  readarray -t backupList < <(ls -alh "${backupPath}"/openhab-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
-
   echo -n "$(timestamp) [openHABian] Beginning restoration of openHAB backup... "
-  if [[ -n $INTERACTIVE ]]; then
+  if [[ -n "$INTERACTIVE" ]]; then
+    readarray -t backupList < <(ls -alh "${backupPath}"/openhab-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
+
     if [[ -z "${backupList[*]}" ]]; then
       whiptail --title "Could not find backup!" --msgbox "We could not find any configuration backup file in the storage directory $backupPath" 8 80
       echo "CANCELED"
@@ -62,6 +60,7 @@ restore_openhab_config() {
     if fileSelect="$(whiptail --title "Choose openHAB configuration to restore" --cancel-button "Cancel" --ok-button "Continue" --notags --menu "\\nSelect your backup from most current 20 files below:" 22 80 13 "${backupList[@]}" 3>&1 1>&2 2>&3)"; then echo "OK"; else echo "CANCELED"; return 0; fi
     filePath="${backupPath}/${fileSelect}"
   else
+    if ! [[ -s "$1" ]]; then echo "FAILED (restore config $1)"; return 1; fi
     filePath="$1"
   fi
 
@@ -70,7 +69,9 @@ restore_openhab_config() {
   if ! (yes | cond_redirect openhab-cli restore "$filePath"); then echo "FAILED (restore)"; return 1; fi
   if cond_redirect systemctl restart openhab.service; then echo "OK"; else echo "FAILED (restart openHAB)"; return 1; fi
 
-  whiptail --title "Operation Successful!" --msgbox "Restoration of selected openHAB configuration was successful!" 7 80
+  if [[ -n "$INTERACTIVE" ]]; then
+    whiptail --title "Operation Successful!" --msgbox "Restoration of selected openHAB configuration was successful!" 7 80
+  fi
 }
 
 ## Install Amanda and configure backup user
@@ -347,14 +348,14 @@ amanda_setup() {
 ##    mirror_SD(String method, String destinationDevice)
 ##
 mirror_SD() {
-  local dest="${2:-${backupdrive}}"
-  local dirty="no"
-  local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
-  local partUUID
   local src="/dev/mmcblk0"
+  local dest="${2:-${backupdrive}}"
   local start
   local storageDir="${storagedir:-/storage}"
   local syncMount="${storageDir}/syncmount"
+  local dirty="no"
+  local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
+  local partUUID
 
   if [[ "${src}" == "${dest}" ]]; then
     echo "FAILED (source = destination)"
@@ -385,8 +386,8 @@ mirror_SD() {
     echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
     if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1" status=progress; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
     if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
-    origPartUUID="$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')"
-    if ! partUUID="$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }')"; then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
+    origPartUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')
+    if ! partUUID=$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }'); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
     if ! cond_redirect tune2fs "${dest}2" -U random; then echo "FAILED (set random UUID)"; dirty="yes"; fi
     mount "${dest}1" "$syncMount"
     sed -i "s|${origPartUUID}|${partUUID}|g" "${syncMount}"/cmdline.txt
