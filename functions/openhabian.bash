@@ -116,6 +116,7 @@ openhabian_update_check() {
 ##    update_installation()
 ##
 migrate_installation() {
+  local backupFile="/var/lib/openhab2/backups/pre-migration-oh2-oh3.zip"
   local frontailService="/etc/systemd/system/frontail.service"
   local amandaConfigs="/etc/amanda/openhab-*/disklist"
   local ztab="/etc/ztab"
@@ -135,8 +136,15 @@ migrate_installation() {
     distro=stable
   fi
 
+  backup_openhab_config "$backupFile"
+  if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
+
   apt --yes purge ${from} ${from}-addons ${from}-addons-legacy
-  openhab_setup "${distro}"
+  if [[ "$1" == "openHAB3" ]]; then
+    openhab_setup "${distro}"
+  else
+    openhab2_setup "${distro}"
+  fi
 
   echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
   for i in $amandaConfigs; do
@@ -145,7 +153,6 @@ migrate_installation() {
 
   echo -n "$(timestamp) [openHABian] Migrating samba mount units... "
   if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba/mount units)"; return 1; fi
-  #if ! cond_redirect systemctl disable --now "srv-openhab*"; then echo "FAILED (disable mount units)"; return 1; fi
   for s in ${mountUnits}; do
     newname=${s//${from}/${to}}
     unitOld=${s//${serviceDir}/}
@@ -162,7 +169,7 @@ migrate_installation() {
 
   echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
   sed -i "s|/${from}|/${to}|g" $ztab
-  if cond_redirect systemctl restart zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; return 1; fi
+  if cond_redirect systemctl start zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; return 1; fi
 }
 
 
@@ -191,9 +198,9 @@ openhabian_update() {
 
   if [[ -n $INTERACTIVE ]]; then
     if [[ $current == "stable" || $current == "master" || $current == "openHAB3" ]]; then
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF openHAB3 "*** DO NOT USE ***" OFF 3>&1 1>&2 2>&3)"; then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF openHAB3 "*** DO NOT USE - IT DOES NOT WORK YET !! ***" OFF 3>&1 1>&2 2>&3)"; then return 0; fi
     else
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 80 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF openHAB3 "*** DO NOT USE ***" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 80 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF openHAB3 "*** DO NOT USE - IT DOES NOT WORK YET !! ***" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
     fi
     read -r -t 1 -n 1 key
     if [[ -n $key ]]; then
