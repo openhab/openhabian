@@ -200,7 +200,7 @@ java_zulu_install() {
   fi
 
   if openhab_is_running; then
-    cond_redirect systemctl stop openhab2.service
+    cond_redirect systemctl stop openhab.service
   fi
   cond_redirect java_alternatives_reset
 
@@ -226,7 +226,7 @@ java_zulu_install() {
   java_zulu_install_crypto_extension
 
   if openhab_is_installed; then
-    cond_redirect systemctl restart openhab2.service
+    cond_redirect systemctl restart openhab.service
   fi
 }
 
@@ -369,7 +369,7 @@ java_zulu_enterprise_apt() {
     if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
     if openhab_is_running; then
-      cond_redirect systemctl stop openhab2.service
+      cond_redirect systemctl stop openhab.service
     fi
     if [[ $1 == "8" ]] && ! dpkg -s 'zulu-8' &> /dev/null; then
       echo -n "$(timestamp) [openHABian] Installing Zulu 8 Enterprise 64-Bit OpenJDK... "
@@ -379,7 +379,7 @@ java_zulu_enterprise_apt() {
       if cond_redirect apt-get install --yes zulu-11; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
     if openhab_is_installed; then
-      cond_redirect systemctl restart openhab2.service
+      cond_redirect systemctl restart openhab.service
     fi
 
     java_zulu_install_crypto_extension
@@ -436,7 +436,7 @@ adoptopenjdk_fetch_apt() {
 ##
 adoptopenjdk_install_apt() {
   if openhab_is_running; then
-    cond_redirect systemctl stop openhab2.service
+    cond_redirect systemctl stop openhab.service
   fi
   if ! dpkg -s 'adoptopenjdk-11-hotspot-jre' &> /dev/null; then # Check if already is installed
     adoptopenjdk_fetch_apt
@@ -449,7 +449,7 @@ adoptopenjdk_install_apt() {
     if cond_redirect dpkg-reconfigure adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if openhab_is_installed; then
-    cond_redirect systemctl restart openhab2.service
+    cond_redirect systemctl restart openhab.service
   fi
 }
 
