@@ -44,12 +44,12 @@ restore_openhab_config() {
   fi
 
   local backupList
-  local backupPath="/var/lib/openhab2/backups"
+  local backupPath="/var/lib/openhab/backups"
   local filePath
   local fileSelect
   local introText="This will restore a backup of your openHAB configuration using openHAB's builtin backup tool.\\n\\nWould you like to continue?"
 
-  readarray -t backupList < <(ls -alh "${backupPath}"/openhab2-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
+  readarray -t backupList < <(ls -alh "${backupPath}"/openhab-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
 
   echo -n "$(timestamp) [openHABian] Beginning restoration of openHAB backup... "
   if [[ -n $INTERACTIVE ]]; then
@@ -66,9 +66,9 @@ restore_openhab_config() {
   fi
 
   echo -n "$(timestamp) [openHABian] Restoring openHAB backup... "
-  if ! cond_redirect systemctl stop openhab2.service; then echo "FAILED (stop openHAB)"; return 1; fi
+  if ! cond_redirect systemctl stop openhab.service; then echo "FAILED (stop openHAB)"; return 1; fi
   if ! (yes | cond_redirect openhab-cli restore "$filePath"); then echo "FAILED (restore)"; return 1; fi
-  if cond_redirect systemctl restart openhab2.service; then echo "OK"; else echo "FAILED (restart openHAB)"; return 1; fi
+  if cond_redirect systemctl restart openhab.service; then echo "OK"; else echo "FAILED (restart openHAB)"; return 1; fi
 
   whiptail --title "Operation Successful!" --msgbox "Restoration of selected openHAB configuration was successful!" 7 80
 }
@@ -201,8 +201,8 @@ create_amanda_config() {
     echo "${HOSTNAME}  /boot                         ${dumpType}"; \
     echo "${HOSTNAME}  /etc                          ${dumpType}"
   } >> "$configDir"/disklist
-  if [[ -d /var/lib/openhab2 ]]; then
-    echo "${HOSTNAME}  /var/lib/openhab2             ${dumpType}" >> "$configDir"/disklist
+  if [[ -d /var/lib/openhab ]]; then
+    echo "${HOSTNAME}  /var/lib/openhab              ${dumpType}" >> "$configDir"/disklist
   fi
   if [[ -d /opt/zram/persistence.bind ]]; then
     echo "${HOSTNAME}  /opt/zram/persistence.bind    ${dumpType}" >> "$configDir"/disklist
@@ -347,14 +347,14 @@ amanda_setup() {
 ##    mirror_SD(String method, String destinationDevice)
 ##
 mirror_SD() {
-  local src="/dev/mmcblk0"
   local dest="${2:-${backupdrive}}"
-  local start
-  local storageDir="${storagedir:-/storage}"
-  local syncMount="${storageDir}/syncmount"
   local dirty="no"
   local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
   local partUUID
+  local src="/dev/mmcblk0"
+  local start
+  local storageDir="${storagedir:-/storage}"
+  local syncMount="${storageDir}/syncmount"
 
   if [[ "${src}" == "${dest}" ]]; then
     echo "FAILED (source = destination)"
@@ -385,8 +385,8 @@ mirror_SD() {
     echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
     if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1" status=progress; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
     if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
-    origPartUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')
-    if ! partUUID=$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }'); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
+    origPartUUID="$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')"
+    if ! partUUID="$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }')"; then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
     if ! cond_redirect tune2fs "${dest}2" -U random; then echo "FAILED (set random UUID)"; dirty="yes"; fi
     mount "${dest}1" "$syncMount"
     sed -i "s|${origPartUUID}|${partUUID}|g" "${syncMount}"/cmdline.txt
