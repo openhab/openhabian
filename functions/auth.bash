@@ -68,9 +68,9 @@ change_password() {
   fi
   if [[ $chosenAccounts == *"openHAB Console"* ]]; then
     echo -n "$(timestamp) [openHABian] Changing password for openHAB console account \"openhab\"... "
-    if sed -i 's|openhab = .*,|openhab = '"${pass}"',|g' /var/lib/openhab2/etc/users.properties; then echo "OK"; else echo "FAILED"; return 1; fi
+    if sed -i 's|openhab = .*,|openhab = '"${pass}"',|g' /var/lib/openhab/etc/users.properties; then echo "OK"; else echo "FAILED"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-    cond_redirect systemctl restart openhab2.service
+    cond_redirect systemctl restart openhab.service
   fi
   if [[ $chosenAccounts == *"Amanda backup"* ]]; then
     echo -n "$(timestamp) [openHABian] Changing password for Linux account \"backup\"... "
