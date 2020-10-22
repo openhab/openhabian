@@ -42,7 +42,7 @@ restore_openhab_config() {
   fi
 
   local backupList
-  local backupPath="${OPENHAB_BACKUPS:-/var/lib/openhab2/backups}"
+  local backupPath="${OPENHAB_BACKUPS:-/var/lib/openhab/backups}"
   local filePath
   local fileSelect
   local introText="This will restore a backup of your openHAB configuration using openHAB's builtin backup tool.\\n\\nWould you like to continue?"
@@ -50,7 +50,6 @@ restore_openhab_config() {
   echo -n "$(timestamp) [openHABian] Beginning restoration of openHAB backup... "
   if [[ -n "$INTERACTIVE" ]]; then
     readarray -t backupList < <(ls -alh "${backupPath}"/openhab*-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
-
     if [[ -z "${backupList[*]}" ]]; then
       whiptail --title "Could not find backup!" --msgbox "We could not find any configuration backup file in the storage directory $backupPath" 8 80
       echo "CANCELED"
@@ -348,6 +347,7 @@ amanda_setup() {
 ##    mirror_SD(String method, String destinationDevice)
 ##
 mirror_SD() {
+  local src="/dev/mmcblk0"
   local dest="${2:-${backupdrive}}"
   local start
   local destPartsLargeEnough=true
@@ -357,10 +357,6 @@ mirror_SD() {
   local repartitionText
   local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
   local partUUID
-  local src="/dev/mmcblk0"
-  local start
-  local storageDir="${storagedir:-/storage}"
-  local syncMount="${storageDir}/syncmount"
 
   if [[ $# -eq 1 ]] && [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
@@ -408,8 +404,8 @@ mirror_SD() {
     echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
     if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1" status=progress; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
     if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
-    origPartUUID="$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')"
-    if ! partUUID="$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }')"; then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
+    origPartUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')
+    if ! partUUID=$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }'); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
     if ! cond_redirect tune2fs "${dest}2" -U random; then echo "FAILED (set random UUID)"; dirty="yes"; fi
     while umount -q "${dest}1"; do : ; done
     mount "${dest}1" "$syncMount"
