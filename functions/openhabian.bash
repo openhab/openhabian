@@ -110,6 +110,68 @@ openhabian_update_check() {
   if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-stable}"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
+## Changes files on disk to match the new (changed) openhabian branch
+## Valid arguments: "openHAB3" or "openHAB2"
+##
+##    update_installation()
+##
+migrate_installation() {
+  local frontailService="/etc/systemd/system/frontail.service"
+  local amandaConfigs="/etc/amanda/openhab-*/disklist"
+  local ztab="/etc/ztab"
+  local serviceDir="/etc/systemd/system/"
+  local mountUnits="/etc/systemd/system/srv-openhab*"
+  local from
+  local to
+  local distro
+
+  if [[ "$1" == "openHAB3" ]]; then
+    from=openhab2
+    to=openhab
+    distro=testing
+  else
+    from=openhab
+    to=openhab2
+    distro=stable
+  fi
+
+  backup_openhab_config
+  if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
+
+  apt --yes remove ${from} ${from}-addons ${from}-addons-legacy
+  if [[ "$1" == "openHAB3" ]]; then
+    openhab_setup "${distro}"
+  else
+    openhab2_setup "${distro}"
+  fi
+
+  echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
+  for i in $amandaConfigs; do
+    sed -i "s|/${from}|/${to}|g" "$i"
+  done
+
+  echo -n "$(timestamp) [openHABian] Migrating samba mount units... "
+  if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba/mount units)"; return 1; fi
+  for s in ${mountUnits}; do
+    newname=${s//${from}/${to}}
+    unitOld=${s//${serviceDir}/}
+    unitNew=${unitOld//${from}/${to}}
+    if ! cond_redirect systemctl disable --now "${unitOld}"; then echo "FAILED (disable mount units)"; fi
+    sed -e "s|${from}|${to}|g" "${s}" > "${newname}"
+    rm -f "$s"
+    if cond_redirect systemctl enable --now "$unitNew"; then echo "OK"; else echo "FAILED (reenable samba/mount unit $unitNew)"; return 1; fi
+  done
+  if cond_redirect systemctl enable --now smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba/mount units)"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Migrating frontail... "
+  sed -i "s|${from}/|${to}/|g" $frontailService
+  if ! cond_redirect systemctl restart frontail.service; then echo "FAILED (restart frontail)"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
+  sed -i "s|/${from}|/${to}|g" $ztab
+  if cond_redirect systemctl start zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; return 1; fi
+}
+
+
 ## Updates the current openhabian repository to the most current version of the
 ## current branch.
 ##
@@ -134,10 +196,10 @@ openhabian_update() {
   echo -n "$(timestamp) [openHABian] Updating myself... "
 
   if [[ -n $INTERACTIVE ]]; then
-    if [[ $current == "stable" || $current == "master" ]]; then
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 2 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF 3>&1 1>&2 2>&3)"; then return 0; fi
+    if [[ $current == "stable" || $current == "master" || $current == "openHAB3" ]]; then
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF openHAB3 "*** DO NOT USE - IT DOES NOT WORK YET !! ***" OFF 3>&1 1>&2 2>&3)"; then return 0; fi
     else
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 80 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF openHAB3 "*** DO NOT USE - IT DOES NOT WORK YET !! ***" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
     fi
     read -r -t 1 -n 1 key
     if [[ -n $key ]]; then
@@ -155,6 +217,14 @@ openhabian_update() {
     if ! sed -i 's|^clonebranch=.*$|clonebranch='"${branch}"'|g' "$CONFIGFILE"; then echo "FAILED (configure clonebranch)"; exit 1; fi
   else
     branch="${clonebranch:-stable}"
+  fi
+
+  if [[ "$branch" == "openHAB3" ]]; then
+    if [[ "$current" == "master" ]] || [[ "$current" == "stable" ]]; then
+      migrate_installation openHAB3
+    fi
+  elif [[ "$current" == "openHAB3" ]]; then
+    migrate_installation openHAB2
   fi
 
   shorthashBefore="$(git -C "${BASEDIR:-/opt/openhabian}" log --pretty=format:'%h' -n 1)"
