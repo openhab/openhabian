@@ -33,7 +33,7 @@ show_main_menu() {
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Upgrade all installed software packages (incl. openHAB) to their latest version" \
-  "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
+  "03 | openHAB Testing"          "Install or upgrade to the latest testing release of openHAB" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
@@ -71,7 +71,7 @@ show_main_menu() {
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
     "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
     "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
-    "16 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
+    "16 | Samba"                  "Install the Samba file sharing service and set up openHAB shares" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
