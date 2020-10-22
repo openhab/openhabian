@@ -5,7 +5,7 @@ are located elsewhere on the file system. Compare the actual folder structure:
 https://www.openhab.org/docs/installation/linux.html#file-locations
 
 You can access this folder via Samba network share and should have write access
-to all subdirectories with the only exception being the 'openhab2-sys' folder, for
+to all subdirectories with the only exception being the 'openhab-sys' folder, for
 security reasons.
 
 A few hints:

@@ -6,8 +6,8 @@ load openhab.bash
 
 setup_file() {
   export BASEDIR="${BATS_TEST_DIRNAME}/.."
-  mkdir -p /var/log/openhab2
-  setfacl -R -m g::rwX /var/log/openhab2
+  mkdir -p /var/log/openhab
+  setfacl -R -m g::rwX /var/log/openhab
 }
 
 teardown_file() {
