@@ -116,7 +116,6 @@ openhabian_update_check() {
 ##    update_installation()
 ##
 migrate_installation() {
-  local backupFile="/var/lib/openhab2/backups/pre-migration-oh2-oh3.zip"
   local frontailService="/etc/systemd/system/frontail.service"
   local amandaConfigs="/etc/amanda/openhab-*/disklist"
   local ztab="/etc/ztab"
@@ -136,10 +135,10 @@ migrate_installation() {
     distro=stable
   fi
 
-  backup_openhab_config "$backupFile"
+  backup_openhab_config
   if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
 
-  apt --yes purge ${from} ${from}-addons ${from}-addons-legacy
+  apt --yes remove ${from} ${from}-addons ${from}-addons-legacy
   if [[ "$1" == "openHAB3" ]]; then
     openhab_setup "${distro}"
   else

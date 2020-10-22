@@ -21,7 +21,7 @@ backup_openhab_config() {
   fi
 
   echo -n "$(timestamp) [openHABian] Creating openHAB backup... "
-  if filePath="$(openhab-cli backup "$1" | awk -F ' ' '/Success/ { print $NF }')"; then echo "OK"; else echo "FAILED"; return 1; fi
+  if filePath="$(openhab-cli backup | awk -F ' ' '/Success/ { print $NF }')"; then echo "OK"; else echo "FAILED"; return 1; fi
   successText="A backup of your openHAB configuration has successfully been made.\\n\\nIt is stored in ${filePath}."
 
   if [[ -n "$INTERACTIVE" ]]; then
