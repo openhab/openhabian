@@ -139,11 +139,7 @@ migrate_installation() {
   if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
 
   apt --yes remove ${from} ${from}-addons ${from}-addons-legacy
-  if [[ "$1" == "openHAB3" ]]; then
-    openhab_setup "${distro}"
-  else
-    openhab2_setup "${distro}"
-  fi
+  openhab_setup "$1" "${distro}"
 
   echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
   for i in $amandaConfigs; do
