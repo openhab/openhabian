@@ -41,7 +41,7 @@ delayed_rules() {
 ## Valid arguments: "openHAB3" or "openHAB2"
 ## Valid arguments: "unstable", "stable", or "testing"
 ##
-##    openhab2_setup(String version, String release)
+##    openhab_setup(String version, String release)
 ##
 openhab_setup() {
   local introText
