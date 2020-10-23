@@ -106,11 +106,12 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   samba_setup
   permissions_corrections
+  add_admin_ssh_key
   clean_config_userpw
   frontail_setup
   zram_setup
   exim_setup
-  install_tailscale "install" && setup_tailscale && add_admin_ssh_key
+  install_tailscale "install" && setup_tailscale
   setup_mirror_SD "install"
   install_cleanup
 else
