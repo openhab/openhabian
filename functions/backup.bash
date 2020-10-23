@@ -12,22 +12,20 @@ backup_openhab_config() {
   fi
 
   local filePath
-  local introText="This will create a backup of your openHAB configuration using openHAB's builtin backup tool.\\n\\nWould you like to continue?"
+  local introText="This will create a backup of your openHAB configuration using openHAB's builtin backup tool.\\n\\nWould you like to backup?"
   local successText
 
   echo -n "$(timestamp) [openHABian] Beginning openHAB backup... "
-  if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "openHAB backup?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 10 80); then echo "OK"; else echo "CANCELED"; return 0; fi
-  else
-    echo "OK"
+  if [[ -n "$INTERACTIVE" ]] && [[ $# == 0 ]]; then
+    if ! (whiptail --title "openHAB backup?" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 10 80); then echo "CANCELED"; return 0; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Creating openHAB backup... "
-  if filePath="$(openhab-cli backup | tail -2 | head -1 | awk -F ' ' '{print $NF}')"; then echo "OK"; else echo "FAILED"; return 1; fi
-  successText="A backup of your openHAB configuration has successfully been made.\\n\\nThe backup has been stored in:\\n${filePath}"
+  if filePath="$(openhab-cli backup | awk -F ' ' '/Success/ { print $NF }')"; then echo "OK"; else echo "FAILED"; return 1; fi
+  successText="A backup of your openHAB configuration has successfully been made.\\n\\nIt is stored in ${filePath}."
 
-  if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation Successful!" --msgbox "$successText" 10 80
+  if [[ -n "$INTERACTIVE" ]]; then
+    whiptail --title "Operation Successful!" --msgbox "$successText" 10 90
   else
     echo "$(timestamp) [openHABian] ${successText}"
   fi
@@ -44,15 +42,15 @@ restore_openhab_config() {
   fi
 
   local backupList
-  local backupPath="/var/lib/openhab2/backups"
+  local backupPath="${OPENHAB_BACKUPS:-/var/lib/openhab2/backups}"
   local filePath
   local fileSelect
   local introText="This will restore a backup of your openHAB configuration using openHAB's builtin backup tool.\\n\\nWould you like to continue?"
 
-  readarray -t backupList < <(ls -alh "${backupPath}"/openhab2-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
-
   echo -n "$(timestamp) [openHABian] Beginning restoration of openHAB backup... "
-  if [[ -n $INTERACTIVE ]]; then
+  if [[ -n "$INTERACTIVE" ]]; then
+    readarray -t backupList < <(ls -alh "${backupPath}"/openhab2-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
+
     if [[ -z "${backupList[*]}" ]]; then
       whiptail --title "Could not find backup!" --msgbox "We could not find any configuration backup file in the storage directory $backupPath" 8 80
       echo "CANCELED"
@@ -62,6 +60,7 @@ restore_openhab_config() {
     if fileSelect="$(whiptail --title "Choose openHAB configuration to restore" --cancel-button "Cancel" --ok-button "Continue" --notags --menu "\\nSelect your backup from most current 20 files below:" 22 80 13 "${backupList[@]}" 3>&1 1>&2 2>&3)"; then echo "OK"; else echo "CANCELED"; return 0; fi
     filePath="${backupPath}/${fileSelect}"
   else
+    if ! [[ -s "$1" ]]; then echo "FAILED (restore config $1)"; return 1; fi
     filePath="$1"
   fi
 
@@ -70,7 +69,9 @@ restore_openhab_config() {
   if ! (yes | cond_redirect openhab-cli restore "$filePath"); then echo "FAILED (restore)"; return 1; fi
   if cond_redirect systemctl restart openhab2.service; then echo "OK"; else echo "FAILED (restart openHAB)"; return 1; fi
 
-  whiptail --title "Operation Successful!" --msgbox "Restoration of selected openHAB configuration was successful!" 7 80
+  if [[ -n "$INTERACTIVE" ]]; then
+    whiptail --title "Operation Successful!" --msgbox "Restoration of selected openHAB configuration was successful!" 7 80
+  fi
 }
 
 ## Install Amanda and configure backup user

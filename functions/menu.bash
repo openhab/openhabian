@@ -59,7 +59,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
-    openhab2_setup "stable"
+    openhab_setup openHAB2 "stable"
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 13 116 6 --cancel-button Back --ok-button Execute \
@@ -180,9 +180,9 @@ show_main_menu() {
     wait_for_apt_to_finish_update
     # shellcheck disable=SC2154
     case "$choice2" in
-      41\ *) openhab2_setup "stable" ;;
-      *openHAB\ testing) openhab2_setup "testing" ;;
-      *openHAB\ snapshot) openhab2_setup "unstable" ;;
+      41\ *) openhab_setup openHAB2 "stable" ;;
+      *openHAB\ testing) openhab_setup openHAB2 "testing" ;;
+      *openHAB\ snapshot) openhab_setup openHAB2 "unstable" ;;
       42\ *) openhab_shell_interfaces ;;
       43\ *) nginx_setup ;;
       *Delay\ rules\ load) create_systemd_dependencies && delayed_rules "yes";;
