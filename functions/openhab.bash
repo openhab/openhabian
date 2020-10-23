@@ -50,22 +50,22 @@ openhab_setup() {
   local openhabVersion
 
   if [[ "$1" == "openHAB3" ]]; then
-     ohname=openhab
+     ohPkgName=openhab
   else
-     ohname=openhab2
+     ohPkgName=openhab2
   fi
                         
   if [[ $2 == "unstable" ]]; then
     introText="Proceed with caution!\\n\\nYou are about to switch over to the latest $1 unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
-    successText="The latest unstable snapshot build of $1 is now running on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\n\\nIf you find any problems or bugs, please report them and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (using menu option 02) regularly."
+    successText="The latest unstable snapshot build of $1 is now running on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nIf you find any problems or bugs, please report them and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (using menu option 02) regularly."
     repo="deb https://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main"
   elif [[ $2 == "stable" ]]; then
     introText="You are about to install or upgrade to the latest stable $1 release.\\n\\nPlease be aware that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
-    successText="The stable release of $1 is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
+    successText="The stable release of $1 is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb https://dl.bintray.com/openhab/apt-repo2 stable main"
   elif [[ $2 == "testing" ]]; then
     introText="You are about to install or upgrade to the latest milestone (testing) $1 build. It contains the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue.\\n\\nPlease be aware that downgrading from a newer build is not officially supported.\\n\\nPlease consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
-    successText="The testing release of $1 is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/openhab2' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
+    successText="The testing release of $1 is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb https://openhab.jfrog.io/openhab/openhab-linuxpkg testing main"
   fi
 
@@ -86,15 +86,15 @@ openhab_setup() {
   if [[ -z $OFFLINE ]]; then
     if ! add_keys "https://bintray.com/user/downloadSubjectPublicKey?username=openhab"; then return 1; fi
 
-    echo "$repo" > /etc/apt/sources.list.d/${ohname}.list
+    echo "$repo" > /etc/apt/sources.list.d/${ohPkgName}.list
 
     echo -n "$(timestamp) [openHABian] Installing selected openHAB version... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-    openhabVersion="$(apt-cache madison ${ohname} | head -n 1 | cut -d'|' -f2 | xargs)"
-    if cond_redirect apt-get install --allow-downgrades --yes "${ohname}=${openhabVersion}" "${ohname}-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
+    openhabVersion="$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)"
+    if cond_redirect apt-get install --allow-downgrades --yes "${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "
-    if cond_redirect apt-get install --yes ${ohname} ${ohname}-addons; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes ${ohPkgName} ${ohPkgName}-addons; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   # shellcheck disable=SC2154
@@ -104,7 +104,7 @@ openhab_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up openHAB service... "
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-  if cond_redirect systemctl enable ${ohname}.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl enable ${ohPkgName}.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   openhab_misc
   create_systemd_dependencies
