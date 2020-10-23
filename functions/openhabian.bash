@@ -217,10 +217,8 @@ openhabian_update() {
     branch="${clonebranch:-stable}"
   fi
 
-  if [[ "$branch" == "openHAB3" ]]; then
-    if [[ "$current" == "master" ]] || [[ "$current" == "stable" ]]; then
-      migrate_installation openHAB3
-    fi
+  if [[ "$branch" == "openHAB3" && "$current" != "openHAB3" ]]; then
+    migrate_installation openHAB3
   elif [[ "$current" == "openHAB3" ]]; then
     migrate_installation openHAB2
   fi
