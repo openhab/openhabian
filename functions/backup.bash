@@ -12,12 +12,12 @@ backup_openhab_config() {
   fi
 
   local filePath
-  local introText="This will create a backup of your openHAB configuration using openHAB's builtin backup tool.\\n\\nWould you like to continue?"
+  local introText="This will create a backup of your openHAB configuration using openHAB's builtin backup tool.\\n\\nWould you like to backup?"
   local successText
 
   echo -n "$(timestamp) [openHABian] Beginning openHAB backup... "
   if [[ -n "$INTERACTIVE" ]] && [[ $# == 0 ]]; then
-    if ! (whiptail --title "openHAB backup?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 10 80); then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "openHAB backup?" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 10 80); then echo "CANCELED"; return 0; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Creating openHAB backup... "
