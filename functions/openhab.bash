@@ -99,8 +99,8 @@ openhab_setup() {
 
   # shellcheck disable=SC2154
   gid="$(id -g "$username")"
-  usermod -g "openhab" "$username"
-  usermod -aG "$gid" "$username"
+  cond_redirect usermod -g "openhab" "$username" &> /dev/null
+  cond_redirect usermod -aG "$gid" "$username" &> /dev/null
 
   echo -n "$(timestamp) [openHABian] Setting up openHAB service... "
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
