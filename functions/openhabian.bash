@@ -136,7 +136,7 @@ migrate_installation() {
     distro=stable
   fi
 
-  javaVersion=$(java -version 2>&1 | awk -F '"' '/version/ {print [}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
+  javaVersion=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
   backup_openhab_config
   if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
 
