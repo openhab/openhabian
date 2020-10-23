@@ -108,10 +108,13 @@ change_password() {
 ##    add_admin_ssh_key()
 ##
 add_admin_ssh_key() {
-  local userName=${username:-openhabian}
-  local sshDir=$(getent passwd ${userName} | cut -d: -f6)"/.ssh"
-  local keyFile="${sshDir}/authorized_keys"
   local karafKeys="/var/lib/openhab/etc/keys.properties"
+  local userName="${username:-openhabian}"
+  local sshDir
+  local keyFile
+
+  sshDir="$(getent passwd "${userName}" | cut -d: -f6)/.ssh"
+  keyFile="${sshDir}/authorized_keys"
 
   # shellcheck disable=SC2154
   if [[ -z "${adminkeyurl}" ]]; then return 0; fi
