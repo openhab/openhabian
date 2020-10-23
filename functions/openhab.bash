@@ -91,7 +91,7 @@ openhab_setup() {
     rm -f /etc/apt/sources.list.d/${ohPkgName}*.list
     echo "$repo" > /etc/apt/sources.list.d/${ohPkgName}.list
 
-    echo -n "$(timestamp) [openHABian] Installing selected openHAB version... "
+    echo -n "$(timestamp) [openHABian] Installing selected $1 version... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     openhabVersion="$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)"
     if cond_redirect apt-get install --allow-downgrades --yes --option Dpkg::Options::="--force-confnew" "${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
