@@ -124,6 +124,7 @@ migrate_installation() {
   local from
   local to
   local distro
+  local javaVersion
 
   if [[ "$1" == "openHAB3" ]]; then
     from=openhab2
@@ -135,10 +136,15 @@ migrate_installation() {
     distro=stable
   fi
 
+  javaVersion=$(java -version 2>&1 | awk -F '"' '/version/ {print [}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
   backup_openhab_config
   if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
 
   apt --yes remove ${from} ${from}-addons ${from}-addons-legacy
+  if [ -z "$javaVersion"  ] || [ "${javaVersion}" -lt "11"  ]; then
+    echo -n "$(timestamp) [openHABian] WARNING: We were unable to detect Java 11 on your system so we will install the openHABian default (Zulu 11)."
+    java_install_or_update "Zulu11-32"
+  fi
   openhab_setup "$1" "${distro}"
 
   echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
