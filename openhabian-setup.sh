@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-# openHABian - hassle-free openHAB 2 installation and configuration tool
+# openHABian - hassle-free openHAB installation and configuration tool
 # for the Raspberry Pi and other Linux systems
 #
 # Documentation: https://www.openhab.org/docs/installation/openhabian.html
