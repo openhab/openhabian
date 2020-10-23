@@ -108,7 +108,7 @@ change_password() {
 ##    add_admin_ssh_key()
 ##
 add_admin_ssh_key() {
-  local userName=${adminusername:-openhabian}
+  local userName=${username:-openhabian}
   local sshDir="~${userName}/.ssh/"
   local keyFile="${sshDir}/authorized_keys"
   local karafKeys="/var/lib/openhab/etc/keys.properties"
