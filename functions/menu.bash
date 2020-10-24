@@ -65,10 +65,10 @@ show_main_menu() {
     openhab_setup openHAB2 "stable"
 
   elif [[ "$choice" == "04"* ]]; then
-    openhab_setup openHAB3 "testing"
+    migrate_installation openHAB3 "testing"
 
   elif [[ "$choice" == "05"* ]]; then
-    openhab_setup openHAB2 "stable"
+    migrate_installation openHAB2 "stable"
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 13 116 6 --cancel-button Back --ok-button Execute \
