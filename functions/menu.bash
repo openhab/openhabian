@@ -33,7 +33,6 @@ show_main_menu() {
   "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
   "04 | Upgrade to openHAB 3"    "Upgrade to openHAB 3 testing milestone (BETA !)" \
   "05 | Downgrade to openHAB 2"  "Downgrade from openHAB 3 testing to openHAB 2 stable" \
-
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
