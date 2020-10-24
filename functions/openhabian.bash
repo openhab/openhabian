@@ -127,10 +127,12 @@ migrate_installation() {
   local javaVersion
 
   if [[ "$1" == "openHAB3" ]]; then
+    if openhab3_is_installed; then echo "FAILED (openHAB3 already installed)"; return 1; fi
     from=openhab2
     to=openhab
     distro=testing
   else
+    if openhab2_is_installed; then echo "FAILED (openHAB2 already installed)"; return 1; fi
     from=openhab
     to=openhab2
     distro=stable
