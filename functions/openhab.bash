@@ -78,7 +78,7 @@ openhab_setup() {
   fi
 
   if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "openHAB software change, Continue?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if (whiptail --title "openHAB software change, Continue?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 1; fi
   else
     echo "OK"
   fi
@@ -189,13 +189,29 @@ multitail_openhab_scheme() {
   if cond_redirect sed -i -e 's|^# misc.*$|# openHAB logs\\ninclude:/etc/multitail.openhab.conf\\n#\\n# misc|g' /etc/multitail.conf; then echo "OK"; else echo "FAILED (include)"; return 1; fi
 }
 
+## Function to check if openHAB 2 is installed on the current system. Returns
+## 0 / true if openHAB is installed and 1 / false if not.
+##
+##    openhab2_is_installed()
+##
+openhab2_is_installed() {
+  if [[ $(dpkg -s 'openhab2' | grep Status | cut -d' ' -f2) == "install" ]]; then return 0; else return 1; fi
+}
+## Function to check if openHAB 3 is installed on the current system. Returns
+## 0 / true if openHAB is installed and 1 / false if not.
+##
+##    openhab3_is_installed()
+##
+openhab3_is_installed() {
+  if [[ $(dpkg -s 'openhab' | grep Status | cut -d' ' -f2) == "install" ]]; then return 0; else return 1; fi
+}
 ## Function to check if openHAB is installed on the current system. Returns
 ## 0 / true if openHAB is installed and 1 / false if not.
 ##
 ##    openhab_is_installed()
 ##
 openhab_is_installed() {
-  if dpkg -s 'openhab2' &> /dev/null; then return 0; else return 1; fi
+  if openhab2_is_installed || openhab3_is_installed; then return 0; else return 1; fi
 }
 
 ## Function to check if openHAB is running on the current system. Returns
