@@ -25,12 +25,15 @@ Note backups are NOT active per default so remember to set them up right at the 
 }
 
 show_main_menu() {
-  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Exit --ok-button Execute \
+  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Upgrade all installed software packages (incl. openHAB) to their latest version" \
   "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
+  "04 | Upgrade to openHAB 3"    "Upgrade to openHAB 3 testing milestone (BETA !)" \
+  "05 | Downgrade to openHAB 2"  "Downgrade from openHAB 3 testing to openHAB 2 stable" \
+
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
@@ -59,6 +62,12 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
+    openhab_setup openHAB2 "stable"
+
+  elif [[ "$choice" == "04"* ]]; then
+    openhab_setup openHAB3 "testing"
+
+  elif [[ "$choice" == "05"* ]]; then
     openhab_setup openHAB2 "stable"
 
   elif [[ "$choice" == "10"* ]]; then
