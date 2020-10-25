@@ -255,8 +255,7 @@ openHABian renames the user to what you specify in the `username` parameter and 
 You can also make use of this if you don't use the image but unattended installation on non-RPi hardware, openHABian will then _create_ that user for you if it does not yet exist.
 
 #### admin key
-Make the `adminkeyurl` point to an URL to contain a public SSH key. This will be included with your administration
-user's `.ssh/authorized_keys` and the openHAB Karaf console so the admin user (yourself, usually) can login after installation.
+Make the `adminkeyurl` point to an URL to contain a public SSH key. This will be included with your administration user's `.ssh/authorized_keys` and the openHAB Karaf console so the admin user (yourself, usually) can login after installation.
 
 #### WiFi based Setup Notes
 If you own a RPi3, RPi3+, RPi4, a RPi0W or any other model with a compatible WiFi dongle you can set up and use openHABian via WiFi only.
