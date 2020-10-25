@@ -203,9 +203,9 @@ openhabian_update() {
 
   if [[ -n $INTERACTIVE ]]; then
     if [[ $current == "stable" || $current == "master" || $current == "openHAB3" ]]; then
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF openHAB3 "*** DO NOT USE - IT DOES NOT WORK YET !! ***" OFF 3>&1 1>&2 2>&3)"; then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF openHAB3 "openHAB 3.0 *** BETA for testing only ***" OFF 3>&1 1>&2 2>&3)"; then return 0; fi
     else
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 80 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF openHAB3 "*** DO NOT USE - IT DOES NOT WORK YET !! ***" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 80 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF openHAB3 "openHAB 3.0 *** BETA for testing only ***" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
     fi
     read -r -t 1 -n 1 key
     if [[ -n $key ]]; then
