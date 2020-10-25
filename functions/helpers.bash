@@ -192,7 +192,7 @@ is_pifour_8GB() {
 }
 is_cmfour() {
   if [[ "$hw" == "cm4" ]]; then return 0; fi
-  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]12[0-9a-fA-F]$" /proc/cpuinfo
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]14[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_pi() {
