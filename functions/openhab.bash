@@ -55,7 +55,7 @@ openhab_setup() {
   else
      ohPkgName="openhab2"
   fi
-                        
+
   if [[ $2 == "unstable" ]]; then
     introText="Proceed with caution!\\n\\nYou are about to switch over to the latest $1 unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
     successText="The latest unstable snapshot build of $1 is now running on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nIf you find any problems or bugs, please report them and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (using menu option 02) regularly."

@@ -236,10 +236,6 @@ migrate_installation() {
       echo "FAILED (openHAB3 already installed)"
       return 1
     fi
-    from="openhab2"
-    to="openhab"
-    distro="testing"
-  else
     if openhab2_is_installed; then
       whiptail --title "openHAB version already installed" --msgbox "openHAB 2 $failText" 10 80
       echo "FAILED (openHAB 2 already installed)"
