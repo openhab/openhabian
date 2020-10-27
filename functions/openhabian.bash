@@ -204,7 +204,7 @@ migrate_installation() {
   local javaVersion
 
   if [[ -z $INTERACTIVE  ]]; then
-    echo "$(timestamp) [openHABian] Migration must be triggered in interactive mode ! Canceling migration."
+    echo "$(timestamp) [openHABian] Migration must be triggered in interactive mode... SKIPPED"
     return 0
   fi
 
