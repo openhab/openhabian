@@ -24,7 +24,7 @@ move_root2usb() {
   local srcSize
   local destSize
 
-  rootPart="$(awk -F ' ' '{ print $4 }' /boot/cmdline.txt | sed -e 's|root=||g')"
+  rootPart="$(tr ' ' '\n' < /boot/cmdline.txt | grep root= | cut -d'=' -f2-)"
   srcSize="$(blockdev --getsize64 /dev/mmcblk0)"
   destSize="$(blockdev --getsize64 "$newRootDev")"
 
