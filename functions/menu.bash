@@ -65,6 +65,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "04"* ]]; then
     migrate_installation openHAB3 "testing"
+    openhabian_update "openHAB3"
 
   elif [[ "$choice" == "05"* ]]; then
     migrate_installation openHAB2 "stable"
