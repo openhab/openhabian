@@ -202,28 +202,30 @@ migrate_installation() {
   local distro
   local javaVersion
 
+  echo -n "$(timestamp) [openHABian] Installing openHAB... "
+
   if [[ "$1" == "openHAB3" ]]; then
     if openhab3_is_installed; then echo "FAILED (openHAB3 already installed)"; return 1; fi
-    from=openhab2
-    to=openhab
-    distro=testing
+    from="openhab2"
+    to="openhab"
+    distro="testing"
   else
     if openhab2_is_installed; then echo "FAILED (openHAB2 already installed)"; return 1; fi
-    from=openhab
-    to=openhab2
-    distro=stable
+    from="openhab"
+    to="openhab2"
+    distro="stable"
   fi
 
   javaVersion="$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')"
-  backup_openhab_config
   if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
+  backup_openhab_config
 
   apt --yes remove ${from} ${from}-addons
-  if [ -z "$javaVersion"  ] || [ "${javaVersion}" -lt "11"  ]; then
+  if [[ -z "$javaVersion" ]] || [[ "${javaVersion}" -lt "11" ]]; then
     echo -n "$(timestamp) [openHABian] WARNING: We were unable to detect Java 11 on your system so we will install the openHABian default (Zulu 11)."
     java_install_or_update "Zulu11-32"
   fi
-  openhab_setup "$1" "${distro}"
+  if ! openhab_setup "$1" "${distro}"; then echo "OK"; else echo "FAILED (install openHAB)"; cond_redirect systemctl start zram-config.service zramsync.service; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
   for i in $amandaConfigs; do
