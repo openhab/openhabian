@@ -192,6 +192,7 @@ openhabian_update() {
 ##    migrate_installation()
 ##
 migrate_installation() {
+  local failText="is already installed on your system.\\n\\nCanceling migration, returning to menu."
   local frontailService="/etc/systemd/system/frontail.service"
   local amandaConfigs="/etc/amanda/openhab-*/disklist"
   local ztab="/etc/ztab"
@@ -202,15 +203,28 @@ migrate_installation() {
   local distro
   local javaVersion
 
-  echo -n "$(timestamp) [openHABian] Installing openHAB... "
+  if [[ -z $INTERACTIVE  ]]; then
+    echo "$(timestamp) [openHABian] Migration must be triggered in interactive mode ! Canceling migration."
+    return 0
+  fi
+
+  echo -n "$(timestamp) [openHABian] Preparing openHAB installation... "
 
   if [[ "$1" == "openHAB3" ]]; then
-    if openhab3_is_installed; then echo "FAILED (openHAB3 already installed)"; return 1; fi
+    if openhab3_is_installed; then
+      whiptail --title "Default Password Detected!" --msgbox "openHAB3 $failText" 10 80
+      echo "FAILED (openHAB3 already installed)"
+      return 0
+    fi
     from="openhab2"
     to="openhab"
     distro="testing"
   else
-    if openhab2_is_installed; then echo "FAILED (openHAB2 already installed)"; return 1; fi
+    if openhab2_is_installed; then
+      whiptail --title "Default Password Detected!" --msgbox "openHAB2 $failText" 10 80
+      echo "FAILED (openHAB2 already installed)"
+      return 0
+    fi
     from="openhab"
     to="openhab2"
     distro="stable"
@@ -225,6 +239,7 @@ migrate_installation() {
     echo -n "$(timestamp) [openHABian] WARNING: We were unable to detect Java 11 on your system so we will install the openHABian default (Zulu 11)."
     java_install_or_update "Zulu11-32"
   fi
+  echo -n "$(timestamp) [openHABian] Installing openHAB... "
   if ! openhab_setup "$1" "${distro}"; then echo "OK"; else echo "FAILED (install openHAB)"; cond_redirect systemctl start zram-config.service zramsync.service; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
