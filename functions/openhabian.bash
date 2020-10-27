@@ -192,7 +192,7 @@ openhabian_update() {
 ##    migrate_installation()
 ##
 migrate_installation() {
-  local failText="is already installed on your system.\\n\\nCanceling migration, returning to menu."
+  local failText="is already installed on your system !\\n\\nCanceling migration, returning to menu."
   local frontailService="/etc/systemd/system/frontail.service"
   local amandaConfigs="/etc/amanda/openhab-*/disklist"
   local ztab="/etc/ztab"
@@ -212,18 +212,18 @@ migrate_installation() {
 
   if [[ "$1" == "openHAB3" ]]; then
     if openhab3_is_installed; then
-      whiptail --title "Default Password Detected!" --msgbox "openHAB3 $failText" 10 80
+      whiptail --title "openHAB version already installed" --msgbox "openHAB3 $failText" 10 80
       echo "FAILED (openHAB3 already installed)"
-      return 0
+      return 1
     fi
     from="openhab2"
     to="openhab"
     distro="testing"
   else
     if openhab2_is_installed; then
-      whiptail --title "Default Password Detected!" --msgbox "openHAB2 $failText" 10 80
+      whiptail --title "openHAB version already installed" --msgbox "openHAB2 $failText" 10 80
       echo "FAILED (openHAB2 already installed)"
-      return 0
+      return 1
     fi
     from="openhab"
     to="openhab2"
