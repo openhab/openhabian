@@ -25,7 +25,7 @@ Note backups are NOT active per default so remember to set them up right at the 
 }
 
 show_main_menu() {
-  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Exit --ok-button Execute \
+  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
@@ -162,7 +162,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "openHAB Setup Options" --menu "Setup Options" 19 116 12 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHAB Setup Options" --menu "Setup Options" 21 116 14 --cancel-button Back --ok-button Execute \
     "41 | openHAB release"        "Install or switch to the latest openHAB release" \
     "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
     "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
