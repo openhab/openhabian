@@ -195,7 +195,7 @@ multitail_openhab_scheme() {
 ##    openhab2_is_installed()
 ##
 openhab2_is_installed() {
-  if [[ $(dpkg -s 'openhab2' | grep Status | cut -d' ' -f2) == "install" ]]; then return 0; else return 1; fi
+  if [[ $(dpkg -s 'openhab2' &> /dev/null | grep Status | cut -d' ' -f2) == "install" ]]; then return 0; else return 1; fi
 }
 ## Function to check if openHAB 3 is installed on the current system. Returns
 ## 0 / true if openHAB is installed and 1 / false if not.
@@ -203,7 +203,7 @@ openhab2_is_installed() {
 ##    openhab3_is_installed()
 ##
 openhab3_is_installed() {
-  if [[ $(dpkg -s 'openhab' | grep Status | cut -d' ' -f2) == "install" ]]; then return 0; else return 1; fi
+  if [[ $(dpkg -s 'openhab' &> /dev/null | grep Status | cut -d' ' -f2) == "install" ]]; then return 0; else return 1; fi
 }
 ## Function to check if openHAB is installed on the current system. Returns
 ## 0 / true if openHAB is installed and 1 / false if not.
