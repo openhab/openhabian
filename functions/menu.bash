@@ -31,8 +31,6 @@ show_main_menu() {
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Upgrade all installed software packages (incl. openHAB) to their latest version" \
   "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
-  "04 | Upgrade to openHAB 3"    "Upgrade to openHAB 3 testing milestone (BETA !)" \
-  "05 | Downgrade to openHAB 2"  "Downgrade from openHAB 3 testing to openHAB 2 stable" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
@@ -62,14 +60,6 @@ show_main_menu() {
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
     openhab_setup openHAB2 "stable"
-
-  elif [[ "$choice" == "04"* ]]; then
-    migrate_installation openHAB3 "testing"
-    openhabian_update "openHAB3"
-
-  elif [[ "$choice" == "05"* ]]; then
-    migrate_installation openHAB2 "stable"
-    openhabian_update "stable"
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 13 116 6 --cancel-button Back --ok-button Execute \
@@ -176,11 +166,13 @@ show_main_menu() {
     "41 | openHAB release"        "Install or switch to the latest openHAB release" \
     "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
     "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
-    "42 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
-    "43 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
-    "44 | Delay rules load"       "Delay loading rules to speed up overall startup" \
+    "42 | Upgrade to openHAB 3"   "Upgrade to openHAB 3 testing milestone (BETA !)" \
+    "   | Downgrade to openHAB 2" "Downgrade from openHAB 3 testing to openHAB 2 stable" \
+    "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
+    "44 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
+    "45 | Delay rules load"       "Delay loading rules to speed up overall startup" \
     "   | Default order"          "Reset config load order to default (random)" \
-    "45 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" \
+    "46 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" \
     "   | Zulu 8 OpenJDK 64-bit"  "Install Zulu 8 64-bit OpenJDK as primary Java provider" \
     "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider" \
     "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider" \
@@ -190,11 +182,13 @@ show_main_menu() {
     wait_for_apt_to_finish_update
     # shellcheck disable=SC2154
     case "$choice2" in
-      41\ *) openhab_setup openHAB2 "stable" ;;
-      *openHAB\ testing) openhab_setup openHAB2 "testing" ;;
-      *openHAB\ snapshot) openhab_setup openHAB2 "unstable" ;;
-      42\ *) openhab_shell_interfaces ;;
-      43\ *) nginx_setup ;;
+      41\ *) openhab_setup openHAB2 "stable";;
+      *openHAB\ testing) openhab_setup openHAB2 "testing";;
+      *openHAB\ snapshot) openhab_setup openHAB2 "unstable";;
+      42\ *) migrate_installation openHAB3 "testing" && openhabian_update "openHAB3";;
+      *Downgrade\ to\ openHAB\ 2) migrate_installation openHAB2 "stable" && openhabian_update "stable";;
+      43\ *) openhab_shell_interfaces;;
+      44\ *) nginx_setup;;
       *Delay\ rules\ load) create_systemd_dependencies && delayed_rules "yes";;
       *Default\ order) create_systemd_dependencies && delayed_rules "no";;
       *Zulu\ 8\ OpenJDK\ 32-bit) update_config_java "Zulu8-32" && java_install_or_update "Zulu8-32";;
