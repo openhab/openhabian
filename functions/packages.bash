@@ -72,7 +72,7 @@ firemotd_setup() {
   if cond_redirect make --always-make --directory="$firemotdDir" bash_completion; then echo "OK"; else echo "FAILED (install FireMotD bash completion)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Generating FireMotD theme... "
-  if ! cond_redirect FireMotD -S -D all; then echo "FAILED (generate FireMotD)"; return 1; fi
+  if ! cond_redirect FireMotD -S -d -D all; then echo "FAILED (generate FireMotD)"; return 1; fi
   if cond_redirect FireMotD -G Gray; then echo "OK"; else echo "FAILED"; return 1; fi
 
   if ! grep -qs "FireMotD" /home/"${username:-openhabian}"/.bash_profile; then
@@ -436,7 +436,7 @@ knxd_setup() {
     echo "OK";
   else
     echo "FAILED (optional install)"
-  fi 
+  fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "knxd install sucessful" --msgbox "$successText" 15 80
