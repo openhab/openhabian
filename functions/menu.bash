@@ -69,6 +69,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "05"* ]]; then
     migrate_installation openHAB2 "stable"
+    openhabian_update "stable"
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 13 116 6 --cancel-button Back --ok-button Execute \
