@@ -50,9 +50,9 @@ openhab_setup() {
   local openhabVersion
 
   if [[ "$1" == "openHAB3" ]]; then
-     ohPkgName=openhab
+     ohPkgName="openhab"
   else
-     ohPkgName=openhab2
+     ohPkgName="openhab2"
   fi
                         
   if [[ $2 == "unstable" ]]; then
@@ -98,7 +98,7 @@ openhab_setup() {
   fi
 
   # shellcheck disable=SC2154
-  gid=$(id -g "$username")
+  gid="$(id -g "$username")"
   usermod -g "openhab" "$username"
   usermod -aG "$gid" "$username"
 

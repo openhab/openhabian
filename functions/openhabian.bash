@@ -110,73 +110,6 @@ openhabian_update_check() {
   if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-stable}"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
-## Changes files on disk to match the new (changed) openhabian branch
-## Valid arguments: "openHAB3" or "openHAB2"
-##
-##    update_installation()
-##
-migrate_installation() {
-  local frontailService="/etc/systemd/system/frontail.service"
-  local amandaConfigs="/etc/amanda/openhab-*/disklist"
-  local ztab="/etc/ztab"
-  local serviceDir="/etc/systemd/system/"
-  local mountUnits="/etc/systemd/system/srv-openhab*"
-  local from
-  local to
-  local distro
-  local javaVersion
-
-  if [[ "$1" == "openHAB3" ]]; then
-    if openhab3_is_installed; then echo "FAILED (openHAB3 already installed)"; return 1; fi
-    from=openhab2
-    to=openhab
-    distro=testing
-  else
-    if openhab2_is_installed; then echo "FAILED (openHAB2 already installed)"; return 1; fi
-    from=openhab
-    to=openhab2
-    distro=stable
-  fi
-
-  javaVersion=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
-  backup_openhab_config
-  if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
-
-  apt --yes remove ${from} ${from}-addons
-  if [ -z "$javaVersion"  ] || [ "${javaVersion}" -lt "11"  ]; then
-    echo -n "$(timestamp) [openHABian] WARNING: We were unable to detect Java 11 on your system so we will install the openHABian default (Zulu 11)."
-    java_install_or_update "Zulu11-32"
-  fi
-  openhab_setup "$1" "${distro}"
-
-  echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
-  for i in $amandaConfigs; do
-    if [[ -s "$i" ]]; then
-      sed -i "s|/${from}|/${to}|g" "$i"
-    fi
-  done
-
-  echo -n "$(timestamp) [openHABian] Migrating samba mount units... "
-  if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba/mount units)"; return 1; fi
-  for s in ${mountUnits}; do
-    newname=${s//${from}/${to}}
-    unitOld=${s//${serviceDir}/}
-    unitNew=${unitOld//${from}/${to}}
-    if ! cond_redirect systemctl disable --now "${unitOld}"; then echo "FAILED (disable mount units)"; fi
-    sed -e "s|${from}|${to}|g" "${s}" > "${newname}"
-    rm -f "$s"
-    if cond_redirect systemctl enable --now "$unitNew"; then echo "OK"; else echo "FAILED (reenable samba/mount unit $unitNew)"; return 1; fi
-  done
-  if cond_redirect systemctl enable --now smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba/mount units)"; return 1; fi
-  echo -n "$(timestamp) [openHABian] Migrating frontail... "
-  sed -i "s|${from}/|${to}/|g" $frontailService
-  if ! cond_redirect systemctl restart frontail.service; then echo "FAILED (restart frontail)"; return 1; fi
-
-  echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
-  sed -i "s|/${from}|/${to}|g" $ztab
-  if cond_redirect systemctl start zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; return 1; fi
-}
-
 
 ## Updates the current openhabian repository to the most current version of the
 ## current branch.
@@ -226,9 +159,9 @@ openhabian_update() {
   fi
 
   if [[ "$branch" == "openHAB3" && "$current" != "openHAB3" ]]; then
-    migrate_installation openHAB3
+    migrate_installation "openHAB3"
   elif [[ "$current" == "openHAB3" ]]; then
-    migrate_installation openHAB2
+    migrate_installation "openHAB2"
   fi
 
   shorthashBefore="$(git -C "${BASEDIR:-/opt/openhabian}" log --pretty=format:'%h' -n 1)"
@@ -249,6 +182,73 @@ openhabian_update() {
       exit 0
     fi
   fi
+}
+
+## Changes files on disk to match the new (changed) openhabian branch
+## Valid arguments: "openHAB3" or "openHAB2"
+##
+##    migrate_installation()
+##
+migrate_installation() {
+  local frontailService="/etc/systemd/system/frontail.service"
+  local amandaConfigs="/etc/amanda/openhab-*/disklist"
+  local ztab="/etc/ztab"
+  local serviceDir="/etc/systemd/system/"
+  local mountUnits="/etc/systemd/system/srv-openhab*"
+  local from
+  local to
+  local distro
+  local javaVersion
+
+  if [[ "$1" == "openHAB3" ]]; then
+    if openhab3_is_installed; then echo "FAILED (openHAB3 already installed)"; return 1; fi
+    from=openhab2
+    to=openhab
+    distro=testing
+  else
+    if openhab2_is_installed; then echo "FAILED (openHAB2 already installed)"; return 1; fi
+    from=openhab
+    to=openhab2
+    distro=stable
+  fi
+
+  javaVersion="$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')"
+  backup_openhab_config
+  if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
+
+  apt --yes remove ${from} ${from}-addons
+  if [ -z "$javaVersion"  ] || [ "${javaVersion}" -lt "11"  ]; then
+    echo -n "$(timestamp) [openHABian] WARNING: We were unable to detect Java 11 on your system so we will install the openHABian default (Zulu 11)."
+    java_install_or_update "Zulu11-32"
+  fi
+  openhab_setup "$1" "${distro}"
+
+  echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
+  for i in $amandaConfigs; do
+    if [[ -s "$i" ]]; then
+      sed -i "s|/${from}|/${to}|g" "$i"
+    fi
+  done
+
+  echo -n "$(timestamp) [openHABian] Migrating samba mount units... "
+  if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba/mount units)"; return 1; fi
+  for s in ${mountUnits}; do
+    newname=${s//${from}/${to}}
+    unitOld=${s//${serviceDir}/}
+    unitNew=${unitOld//${from}/${to}}
+    if ! cond_redirect systemctl disable --now "${unitOld}"; then echo "FAILED (disable mount units)"; fi
+    sed -e "s|${from}|${to}|g" "${s}" > "${newname}"
+    rm -f "$s"
+    if cond_redirect systemctl enable --now "$unitNew"; then echo "OK"; else echo "FAILED (reenable samba/mount unit $unitNew)"; return 1; fi
+  done
+  if cond_redirect systemctl enable --now smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba/mount units)"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Migrating frontail... "
+  sed -i "s|${from}/|${to}/|g" $frontailService
+  if ! cond_redirect systemctl restart frontail.service; then echo "FAILED (restart frontail)"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
+  sed -i "s|/${from}|/${to}|g" $ztab
+  if cond_redirect systemctl start zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; return 1; fi
 }
 
 ## Check for default system password and if found issue a warning and suggest
