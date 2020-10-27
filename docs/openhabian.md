@@ -226,7 +226,7 @@ Delayed rules load will also be enabled by default. This is renaming the rules f
 
 ## Setup notes
 
-### on openHAB3
+### On openHAB3
 openHABian will install latest stable **openHAB2** by default. To ease upgrading, `openhabian-config`  will migrate the openHABian environment and install openHAB3 for you.
 There's big changes such as to install Java 11 (which is mandatory for openHAB3).
 openHAB3 will use a separate file `/etc/default/openhab` and most directory names will change from `... /openhab2/ ...` to `... /openhab/ ...` (NOTE: not `openhab3`).
@@ -251,14 +251,14 @@ You can also try with a different set of parameters if your initial attempt fail
 
 Mind the comments of a configuration parameter. Browse the next documentation section for further explanations.
 
-#### administration user
+#### Administration user
 Raspi OS images include a Linux user (`pi`) that you can use for openHAB administration.
 openHABian renames the user to what you specify in the `username` parameter and assigns the `userpw` password first, then it proceeds and makes various settings that are either useful (such as some aliases) or required to run openHAB.
 You can also make use of this if you don't use the image but unattended installation on non-RPi hardware, openHABian will then _create_ that user for you if it does not yet exist.
 
 #### admin key
 Make the `adminkeyurl` point to an URL to contain a public SSH key. This will be included with your administration
-user's `.ssh/authorized_keys` and the openHAB Karaf console.
+user's `.ssh/authorized_keys` and the openHAB Karaf console so the admin user (yourself, usually) can login after installation.
 
 #### WiFi based Setup Notes
 If you own a RPi3, RPi3+, RPi4, a RPi0W or any other model with a compatible WiFi dongle you can set up and use openHABian via WiFi only.
