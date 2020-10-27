@@ -101,17 +101,20 @@ change_password() {
 
 
 ## Function to download SSH key pair for remote access
-## 
+##
 ## The function can be invoked during UNATTENDED installation only.
 ## It downloads a ssh key from a user specified location and allows the key owner to login as the admin user
 ##
 ##    add_admin_ssh_key()
 ##
 add_admin_ssh_key() {
-  local userName=${adminusername:-openhabian}
-  local sshDir="~${userName}/.ssh/"
-  local keyFile="${sshDir}/authorized_keys"
-  local karafKeys=/var/lib/openhab2/etc/keys.properties
+  local karafKeys="/var/lib/openhab2/etc/keys.properties"
+  local userName="${username:-openhabian}"
+  local sshDir
+  local keyFile
+
+  sshDir="$(getent passwd "${userName}" | cut -d: -f6)/.ssh"
+  keyFile="${sshDir}/authorized_keys"
 
   # shellcheck disable=SC2154
   if [[ -z "${adminkeyurl}" ]]; then return 0; fi
@@ -126,4 +129,3 @@ add_admin_ssh_key() {
   fi
   (echo -n "openhab="; awk '{ printf $2 }' "${keyFile}"; echo ",_g_:admingroup") >> $karafKeys
 }
-
