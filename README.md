@@ -19,8 +19,15 @@ The project provides two things:
 
 *   a set of scripts to set up openHAB on any Debian based system incl.
     Raspberry Pi OS, Ubuntu
-*   a complete **SD-card image pre-configured with openHAB** and many other
-    openHAB- and Hardware-specific preparations for all *Raspberry Pi* models.
+*   a complete **SD-card image pre-configured with openHAB** and many
+    hardware specific preparations for all *Raspberry Pi* models.
+
+## openHAB versions 2 and 3
+openHABian was made to provide a seamless User eXperience with openHAB version 2.
+At the time of writing, the first openHAB 3 milestone was just released to the
+public and we have incorporated the necessary changes to run it on openHABian, too.
+Please remain aware though that this is BETA code for the time being so it can
+mess up your system. Don't use this menu option to run a production setup of yours.
 
 ## Hardware recommendation
 Let's put this first: our current recommendation is to get a RPi 4 with 2 GB,

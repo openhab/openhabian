@@ -145,73 +145,6 @@ to get the automated openHABian installation going.
 Please note that we cannot test HW/OS combos upfront so there is no support / no guarantee for this work as explained in the [README](https://github.com/openhab/openhabian/blob/master/README.md).
 Don't be too disappointed if you run into errors. Drop us a note on Github.
 
-### `openhabian.conf`
-You can actually set a number of parameters before you try installing from SD card for the first time. You can also try with a different set of parameters if your initial attempt fails:
-
--   Flash the system image to your micro SD card as described, do not remove the SD card yet
--   Access the first SD card partition. It's a vfat/FAT-32 (Windows) filesystem so just use the file explorer of your client PC.
--   Open the file `openhabian.conf` in a text editor
--   Uncomment and complete the lines to contain the parameters you want to set
--   Save, unmount/eject, remove and insert into the RPi and boot it
--   Continue with the instructions for your hardware
-
-### WiFi based Setup Notes
-If you own a RPi3, RPi3+, RPi4, a RPi0W or any other model with a compatible WiFi dongle you can set up and use openHABian via WiFi only.
-For the WiFi based setup to work, you'll need to make your SSID and password known to the system before the first boot.
-The following steps are needed in addition to the setup instructions given above:
-
-In `openhabian.conf`, uncomment and complete the lines reading `wifi_ssid="My WiFi SSID"` and `wifi_psk="password123"`
-
-### Fake hardware mode
-If to install openHABian fails because you have a non-supported hardware or run an unsupported OS release, you can "fake" your hardware and OS to make openHABian behave as if you did own that HW/OS.
-In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` and/or `release=` with the hw and os versions you want to attempt installation with.
-
-### Disable ZRAM
-ZRAM is activated by default on fresh installations on ARM hardware.
-You may want to disable it if you run a 8GB RPi4 as that is incompatible at the time of writing, leading to kernel crashes.
-Make sure you use the master branch right away: use `clonebranch=master` and `zraminstall=disable` in `openhabian.conf` to install without.
-
-### Debug mode
-See [Troubleshooting](#Troubleshooting) section if you run into trouble installing. If you want to turn on debug mode,
-edit `openhabian.conf` and set the `debugmode=` parameter to either `off`, `on` or `maximum`.
-
-### IPv6 notes
-You might encounter problems when you make use of IPv6 on some networks and systems. openHABian installation may stop or hang forever.
-In that case *or if you are sure that you do not need IPv6 on your openHABian server*, you can disable IPv6.
-Follow the instructions in the previous section and insert a line into `openhabian.conf` reading `ipv6=disable`.
-
-### Auto-backup
-You might want to setup openHABian to automatically backup and mirror your internal SD card to an external unit.
-We suggest to use another SD card in an external card writer device so that in case your internal SD card fails,
-you can switch SD cards to get the system back up running fast.
-The second card needs to have at least twice the size of your internal card.
-
-To setup right at installation time:
-Define `backupdrive=/dev/sdX` (replace X with the proper character) to enable this functionality right during unattended installation.
-Eventually change `storagedir=/storage` to any other name.
-The first attached disk type device is usually called `/dev/sda`.
-openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space
-to a storage partition.
-Full mirroring will take place semiannually and changes will be synced once a week, see `systemctl list-timers`.
-The unattended install routine will also setup Amanda to take daily backups and store them to that third partition.
-Use `storagecapacity=xxx` to override how much space to consume at most for Amanda backup storage (in MB).
-If you choose to skip this during system installation, you can still setup both, mirroring and Amanda, at
-any later time using the 5X menu options.
-
-Should you need to switch to run on backup, get a another new SD card to match the size of the broken card.
-Note most are not "exactly" 16 or 32 GB so your new one mustn't have less bytes than the old one.
-Use menu option 54 to copy your active backup card back to the new one and switch back as soon as possible.
-
-### Tailscale VPN network
-Tailscale is a management toolset to establish a WireGuard based VPN between multiple systems if you want
-to connect to openHAB(ian) instances outside your LAN over Internet.
-It'll take care to detect and open ports when you and your peers are located behind firewalls.
-[Download the client](https://tailscale.com/download) and eventually get the Solo service plan from Tailscale,
-that's free for private use. This free service will automatically be selected when you fire up your first VPN node.
-The Windows client has a link to the admin console where you can create pre-auth one-time keys. These you can put
-as the `preauthkey` into `openhabian.conf` to automatically deploy remote openHABian nodes (unattended install)
-and have them join the VPN.
-
 ## openHABian Configuration Tool
 The following instructions target a Raspberry Pi openHABian setup but should be applicable to all openHABian environments.
 Once connected to the command line console of your system, please execute the openHABian configuration tool by typing the following command.
@@ -225,7 +158,8 @@ sudo openhabian-config
 ![openHABian-config menu](images/openHABian-config.png)
 
 The configuration tool is the heart of openHABian.
-It is not only a menu with a set of options, it's also used in a special unattended mode inside the ready to use images.
+It is not only a menu with a set of options, it's also used in a special unattended mode to automate the setup run,
+as either part of the RPi image as well as in a manual install.
 
 ⌨ - A quick note on menu navigation.
 Use the cursor keys to navigate, <kbd>Enter</kbd> to execute, <kbd>Space</kbd> to select and <kbd>Tab</kbd> to jump to the actions on the bottom of the screen. Press <kbd>Esc</kbd> twice to exit the configuration tool.
@@ -289,6 +223,97 @@ Finally, we strongly suggest you install Amanda (#4) right after you finish your
 This is not done by default because it requires a number of user inputs, but you should not skip it for your own safety !
 
 Delayed rules load will also be enabled by default. This is renaming the rules files, then after 2 minutes it renames them back. You can toggle to use this feature in menu option 44.
+
+## Setup notes
+
+### On openHAB3
+openHABian will install latest stable **openHAB2** by default. To ease upgrading, `openhabian-config`  will migrate the openHABian environment and install openHAB3 for you.
+There's big changes such as to install Java 11 (which is mandatory for openHAB3).
+openHAB3 will use a separate file `/etc/default/openhab` and most directory names will change from `... /openhab2/ ...` to `... /openhab/ ...` (NOTE: not `openhab3`).
+It's a number of places there'll be changes in, often subtle ones like the name of Samba export shares to change.
+Note that this code is still in BETA so with some bad luck it might mess up your system. We kindly ask you to help and report any issues on Github, including simple ones like when a title hasn't been renamed.
+Menu option 04 will do the upgrade.
+Be aware that there is ONLY an openHAB upgrade path. You cannot downgrade from OH3 to OH2.
+You can exchange the binary packages (which is what openHABian will do), but there is no help to change your configuration back to a OH2 compatible one.
+So it is essential that you take a backup before you upgrade. You will have to restore your setup from that backup after a downgrade using menu option 51 or by manually using `openhab-cli restore <file>`.
+Menu option 05 will do the inverse and change the environment. It'll NOT downgrade Java. openHAB2 is known to run with Java 11, though.
+
+### `openhabian.conf`
+You can actually set a number of parameters _before_ you run an unattended installation. This applies to the RPi image on an SD card as well as to a manual installation.
+You can also try with a different set of parameters if your initial attempt fails:
+
+-   Flash the system image to your micro SD card as described, do not remove the SD card yet
+-   Access the first SD card partition. It's a vfat/FAT-32 (Windows) filesystem so just use the file explorer of your client PC.
+-   Open the file `openhabian.conf` in a text editor
+-   Uncomment and complete the lines to contain the parameters you want to set
+-   Save, unmount/eject, remove and insert into the RPi and boot it
+-   Continue with the instructions for your hardware
+
+Mind the comments of a configuration parameter. Browse the next documentation section for further explanations.
+
+#### Administration user
+Raspi OS images include a Linux user (`pi`) that you can use for openHAB administration.
+openHABian renames the user to what you specify in the `username` parameter and assigns the `userpw` password first, then it proceeds and makes various settings that are either useful (such as some aliases) or required to run openHAB.
+You can also make use of this if you don't use the image but unattended installation on non-RPi hardware, openHABian will then _create_ that user for you if it does not yet exist.
+
+#### admin key
+Make the `adminkeyurl` point to an URL to contain a public SSH key. This will be included with your administration
+user's `.ssh/authorized_keys` and the openHAB Karaf console so the admin user (yourself, usually) can login after installation.
+
+#### WiFi based Setup Notes
+If you own a RPi3, RPi3+, RPi4, a RPi0W or any other model with a compatible WiFi dongle you can set up and use openHABian via WiFi only.
+For the WiFi based setup to work, you'll need to make your SSID and password known to the system before the first boot.
+So in addition to the setup instructions given above, uncomment and complete the lines reading `wifi_ssid="My WiFi SSID"` and `wifi_psk="password123"` in `openhabian.conf`.
+
+#### Disable ZRAM
+ZRAM is activated by default on fresh installations on ARM hardware except on a 8GB RPi4 as that is known to be incompatible at the time of writing, leading to kernel crashes.
+If you want to disable ZRAM for a different reason, use `zraminstall=disable` in `openhabian.conf` to install without.
+
+#### Debug mode
+See [Troubleshooting](#Troubleshooting) section if you run into trouble installing. If you want to turn on debug mode,
+edit `openhabian.conf` and set the `debugmode=` parameter to either `off`, `on` or `maximum`.
+Mind you that if you intend to open an issue, we need you to provide the output of `debugmode=maximum`.
+
+#### Auto-backup
+You might want to setup openHABian to automatically backup and mirror your internal SD card to an external unit.
+We suggest to use another SD card in an external card writer device so that in case your internal SD card fails,
+you can switch SD cards to get the system back up running fast.
+The second card needs to have at least twice the size of your internal card.
+
+To setup right at installation time:
+Define `backupdrive=/dev/sdX` (replace X with the proper character) to enable this functionality right during unattended installation.
+Eventually change `storagedir=/storage` to any other name.
+The first attached disk type device is usually called `/dev/sda`.
+openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space
+to a storage partition.
+Full mirroring will take place semiannually and changes will be synced once a week, see `systemctl list-timers`.
+The unattended install routine will also setup Amanda to take daily backups and store them to that third partition.
+Use `storagecapacity=xxx` to override how much space to consume at most for Amanda backup storage (in MB).
+If you choose to skip this during system installation, you can still setup both, mirroring and Amanda, at
+any later time using the 5X menu options.
+
+Should you need to switch to run on backup, get a another new SD card to match the size of the broken card.
+Note most are not "exactly" 16 or 32 GB so your new one mustn't have less bytes than the old one.
+Use menu option 54 to copy your active backup card back to the new one and switch cards back as soon as possible.
+
+#### Tailscale VPN network
+Tailscale is a management toolset to establish a WireGuard based VPN between multiple systems if you want
+to connect to openHAB(ian) instances outside your LAN over Internet.
+It'll take care to detect and open ports when you and your peers are located behind firewalls.
+[Download the client](https://tailscale.com/download) and eventually get the Solo service plan from Tailscale,
+that's free for private use. This free service will automatically be selected when you fire up your first VPN node.
+The Windows client has a link to the admin console where you can create pre-auth one-time keys. These you can put
+as the `preauthkey` into `openhabian.conf` to automatically deploy remote openHABian nodes (unattended install)
+and have them join the VPN.
+
+#### IPv6 notes
+You might encounter problems when you make use of IPv6 on some networks and systems. openHABian installation may stop or hang forever.
+In that case *or if you are sure that you do not need IPv6 on your openHABian server*, you can disable IPv6.
+Follow the instructions in the previous section and insert a line into `openhabian.conf` reading `ipv6=disable`.
+
+#### Fake hardware mode
+If to install openHABian fails because you have a non-supported hardware or run an unsupported OS release, you can "fake" your hardware and OS to make openHABian behave as if you did own that HW/OS.
+In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` and/or `release=` with the hw and os versions you want to attempt installation with.
 
 ## Optional Components
 openHABian comes with a number of additional routines to quickly install and set up home automation related software.

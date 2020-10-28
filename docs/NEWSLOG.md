@@ -1,3 +1,11 @@
+## October 28, 2020
+## openHAB3 readyness (BETA)
+openHABian now provides menu options 4X to upgrade your system to openHAB3 and to downgrade
+back to current openHAB2 as well. See [documentation](docs/openhabian.md) for details.
+Please be aware that openHAB3 as well as openHABian are not thoroughly tested so be prepared
+to meet bugs and problems. Don't use this on your production system.
+
+
 ## October 6, 2020
 ## Tailscale VPN network (BETA)
 Tailscale is a management toolset to establish a WireGuard based VPN between multiple systems

@@ -2,7 +2,7 @@
 set -e
 
 ####################################################################
-#### dummy: changed this line 6 times to force another image build
+#### dummy: changed this line 9 times to force another image build
 ####################################################################
 
 usage() {

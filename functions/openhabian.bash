@@ -110,6 +110,7 @@ openhabian_update_check() {
   if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-stable}"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
+
 ## Updates the current openhabian repository to the most current version of the
 ## current branch.
 ##
@@ -125,19 +126,21 @@ openhabian_update() {
   local shorthashBefore
 
   current="$(git -C "${BASEDIR:-/opt/openhabian}" rev-parse --abbrev-ref HEAD)"
-  if [[ $current == "master" ]]; then
-    introText="You are currently using the very latest (\"master\") version of openHABian.\\nThis is providing you with the latest features but less people have tested it so it is a little more likely that you run into errors.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
-  else
-    introText="You are currently using neither the stable version nor the latest (\"master\") version of openHABian.\\nAccess to the latest features would require you to switch to master while the default is to use the stable version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
-  fi
-
   echo -n "$(timestamp) [openHABian] Updating myself... "
 
-  if [[ -n $INTERACTIVE ]]; then
-    if [[ $current == "stable" || $current == "master" ]]; then
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 2 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF 3>&1 1>&2 2>&3)"; then return 0; fi
+  if [[ $# == 1 ]]; then
+    branch="$1"
+  elif [[ -n $INTERACTIVE ]]; then
+    if [[ $current == "master" ]]; then
+      introText="You are currently using the very latest (\"master\") version of openHABian.\\nThis is providing you with the latest features but less people have tested it so it is a little more likely that you run into errors.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
     else
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
+      introText="You are currently using neither the stable version nor the latest (\"master\") version of openHABian.\\nAccess to the latest features would require you to switch to master while the default is to use the stable version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
+    fi
+
+    if [[ $current == "stable" || $current == "master" || $current == "openHAB3" ]]; then
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" ON master "very latest version of openHABian" OFF openHAB3 "openHAB 3.0 *** BETA for testing only ***" OFF 3>&1 1>&2 2>&3)"; then return 0; fi
+    else
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 80 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF openHAB3 "openHAB 3.0 *** BETA for testing only ***" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
     fi
     read -r -t 1 -n 1 key
     if [[ -n $key ]]; then
@@ -155,6 +158,12 @@ openhabian_update() {
     if ! sed -i 's|^clonebranch=.*$|clonebranch='"${branch}"'|g' "$CONFIGFILE"; then echo "FAILED (configure clonebranch)"; exit 1; fi
   else
     branch="${clonebranch:-stable}"
+  fi
+
+  if [[ "$branch" == "openHAB3" && "$current" != "openHAB3" ]]; then
+    migrate_installation "openHAB3"
+  elif [[ "$current" == "openHAB3" ]]; then
+    migrate_installation "openHAB2"
   fi
 
   shorthashBefore="$(git -C "${BASEDIR:-/opt/openhabian}" log --pretty=format:'%h' -n 1)"
@@ -175,6 +184,90 @@ openhabian_update() {
       exit 0
     fi
   fi
+}
+
+## Changes files on disk to match the new (changed) openhabian branch
+## Valid arguments: "openHAB3" or "openHAB2"
+##
+##    migrate_installation()
+##
+migrate_installation() {
+  local failText="is already installed on your system !\\n\\nCanceling migration, returning to menu."
+  local frontailService="/etc/systemd/system/frontail.service"
+  local amandaConfigs="/etc/amanda/openhab-*/disklist"
+  local ztab="/etc/ztab"
+  local serviceDir="/etc/systemd/system/"
+  local mountUnits="/etc/systemd/system/srv-openhab*"
+  local from
+  local to
+  local distro
+  local javaVersion
+
+  if [[ -z $INTERACTIVE  ]]; then
+    echo "$(timestamp) [openHABian] Migration must be triggered in interactive mode... SKIPPED"
+    return 0
+  fi
+
+  echo -n "$(timestamp) [openHABian] Preparing openHAB installation... "
+
+  if [[ "$1" == "openHAB3" ]]; then
+    if openhab3_is_installed; then
+      whiptail --title "openHAB version already installed" --msgbox "openHAB3 $failText" 10 80
+      echo "FAILED (openHAB3 already installed)"
+      return 1
+    fi
+    from="openhab2"
+    to="openhab"
+    distro="testing"
+  else
+    if openhab2_is_installed; then
+      whiptail --title "openHAB version already installed" --msgbox "openHAB2 $failText" 10 80
+      echo "FAILED (openHAB2 already installed)"
+      return 1
+    fi
+    from="openhab"
+    to="openhab2"
+    distro="stable"
+  fi
+
+  javaVersion="$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')"
+  if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
+  backup_openhab_config
+
+  apt --yes remove ${from} ${from}-addons
+  if [[ -z "$javaVersion" ]] || [[ "${javaVersion}" -lt "11" ]]; then
+    echo -n "$(timestamp) [openHABian] WARNING: We were unable to detect Java 11 on your system so we will install the openHABian default (Zulu 11)."
+    java_install_or_update "Zulu11-32"
+  fi
+  echo -n "$(timestamp) [openHABian] Installing openHAB... "
+  if openhab_setup "$1" "${distro}"; then echo "OK"; else echo "FAILED (install openHAB)"; cond_redirect systemctl start zram-config.service zramsync.service; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
+  for i in $amandaConfigs; do
+    if [[ -s "$i" ]]; then
+      sed -i "s|/${from}|/${to}|g" "$i"
+    fi
+  done
+
+  echo -n "$(timestamp) [openHABian] Migrating samba mount units... "
+  if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba/mount units)"; return 1; fi
+  for s in ${mountUnits}; do
+    newname=${s//${from}/${to}}
+    unitOld=${s//${serviceDir}/}
+    unitNew=${unitOld//${from}/${to}}
+    if ! cond_redirect systemctl disable --now "${unitOld}"; then echo "FAILED (disable mount units)"; fi
+    sed -e "s|${from}|${to}|g" "${s}" > "${newname}"
+    rm -f "$s"
+    if cond_redirect systemctl enable --now "$unitNew"; then echo "OK"; else echo "FAILED (reenable samba/mount unit $unitNew)"; return 1; fi
+  done
+  if cond_redirect systemctl enable --now smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba/mount units)"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Migrating frontail... "
+  sed -i "s|${from}/|${to}/|g" $frontailService
+  if ! cond_redirect systemctl restart frontail.service; then echo "FAILED (restart frontail)"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
+  sed -i "s|/${from}|/${to}|g" $ztab
+  if cond_redirect systemctl start zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; return 1; fi
 }
 
 ## Check for default system password and if found issue a warning and suggest
