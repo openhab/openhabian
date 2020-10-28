@@ -75,7 +75,7 @@ Note that this is just a summary to cover the most commonly encountered cases.
 The full boot procedure and how to obtain IP addresses, DNS resolver, default
 route and NTP server addresses are highly complex and widely customizable and a
 comprehensive description on how to properly configure your Internet access and
-router are out of scope of openHABian. Please Google for how to accomplish that.
+router are out of scope of openHABian. Please ask G\*\*gle how to accomplish that.
 
 
 ## Install
@@ -85,26 +85,32 @@ Mind you that at this stage, you can access the openHABian config file to set
 parameters to affect install. See the description in
 [openhabian.md](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md)
 on WiFi boot how to mount your SD card and modify `openhabian.conf`. You can
-also do that later times via SSH login, but in case your system does not
+also do that at later times via SSH login, but in case your system does not
 properly obtain any IP address, you would be out of luck.
 
-If you have one available, attach a console (monitor and keyboard) to follow
+If you have a console available (monitor and keyboard), attach it to follow
 the install process. Now insert the SD card and turn on your system.
 If you don't have any console, try to access the web console at
-`http://<yourhostip>:80/first-boot.txt`.
-It will display the contents of `/boot/first-log.boot` at intervals of 2 seconds
+`http://<yourhostip>:80/`.
+It will display the contents of `/boot/first-log.boot` at intervals of some seconds
 while installing.
 Mind you that if installation fails, network access may or may not be possible
 so you might need to access the box via console anyway in order to find out what
 went wrong.
 
-Login to your box using either the console or the network using
-`ssh openhabian@<hostname>`. The default hostname is `openhab`.
-The default password is `openhabian` unless you changed it in `openhabian.conf`
-at installation time.
-If that step already fails, it is likely that installation failed because you
-have not provided a proper DNS or DHCP service as mentioned in the
-[prerequisites](#prerequisites) section.
+Login to your box via network using `ssh openhabian@<hostname>`.
+The default hostname is `openhabiandevice`, and the default username and password
+both are `openhabian` unless you changed either of these in `openhabian.conf`
+before you started the installation run.
+If that step fails, try to `ping openhabiandevice`. If that's failing, find out
+the system's IP address (usually by looking at your router's running configuration
+or using the command `arp -a` which is available on either Windows or Linux.
+If you can login, there probably is an issue with your DHCP server.
+If you cannot ping the system's IP address, try to login on the console.
+In this case you will have to resort to debug the network setup which is beyond
+the scope of this document. There's nothing specific about networking though -
+openHABian just uses the setup of the underlying OS, Raspi OS for RPis that is or
+whatever OS you chose to manually install upon. So again go ask G\*\*gle for help
 
 Once logged in, enter `sudo bash` to become the root user.
 Check if your install fails at some stage (also if it seems to hang forever):
@@ -118,23 +124,23 @@ problems occurs on a second attempt.
 If the problem persists after a boot, check `/boot/first-boot.log` to get an
 indication what went wrong in the install process and at what stage.
 You can avoid openHABian to start reinstalling on future reboots by removing the
-file, i.e. `rm -f /opt/openHABian-install*`, **but** be aware that your
-installation is incomplete and that you should **not run** openHAB on a box in
+status file, i.e. `rm -f /opt/openHABian-install*`, **but** be aware that your
+installation is incomplete and that you should not run openHAB on a box in
 that state.
-You can use this state to debug, you can also use the 6X menu options in
+You can use this state to debug, you can also use the menu options in
 `openhabian-config` to manually install everything that failed or is missing.
 See `/opt/openhabian/openhabian-setup.sh` and the corresponding code in
 `/opt/openhabian/functions/*.bash` what usually gets installed on an unattended
-installation. Note that if you keep or recreate (just `touch`)
-`/opt/openhabian-install-failed`, you can reboot at any time to continue
+installation. Note that if you keep or recreate the status file (just `touch
+/opt/openhabian-install-failed`), you can reboot at any time to continue
 unattended installation. So if say Java install fails (Java being a prerequisite
-to installation of openHAB), you can do that manually or use `openhabian-config`
-to do that, then continue installation by rebooting.
+to installation of openHAB), you can use `openhabian-config` or manual install,
+then continue installation by rebooting.
 Should you succeed at some point in time - great! Let us know what you did to
-make it work please by opening a Github issue (see below).
-As we all cannot be sure everything on your box is 100% the same what an
+make it work please through a Github issue (see below).
+As we cannot be sure everything on your box is 100% the same what an
 unattended install gets you, please also do a complete reinstall before you
-start running openHAB. If possible start with the flash step. If that does not
+start operating openHAB. If possible start with the flash step. If that does not
 work, at least delete all the packages that openhabian-setup had installed
 before you reboot.
 
@@ -144,7 +150,7 @@ on, put openHABian into one of the two more verbose debug levels.
 To do so, edit the config file using `nano /etc/openhabian.conf` and change the
 `debugmode` parameter to either `on` or `maximum` (it should read `off`), then
 reboot again.
-Using `on` will generate more verbose output of commands and use of `maximum`
+Using `on` will generate more verbose output of commands and specifying `maximum`
 will have openHABian show every single command it executes so you or the
 maintainers you send this to can get an idea which part of the code to look at.
 Your next boot run will exhibit much more verbose logging. Remember output will
@@ -193,7 +199,6 @@ If you want to change anything to work around some not yet fixed bug, you can
 directly edit the files in and below `/opt/openhabian` on your box. Just do not
 let `openhabian-config` update itself on start as that would overwrite your
 changes.
-
 You can also clone (download) a different openHABian version than the most
 current one, e.g. if a maintainer or contributor to openHABian offers or asks
 you to test-drive a development version. Set the `clonebranch` parameter in
