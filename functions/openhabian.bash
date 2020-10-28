@@ -240,7 +240,7 @@ migrate_installation() {
     java_install_or_update "Zulu11-32"
   fi
   echo -n "$(timestamp) [openHABian] Installing openHAB... "
-  if ! openhab_setup "$1" "${distro}"; then echo "OK"; else echo "FAILED (install openHAB)"; cond_redirect systemctl start zram-config.service zramsync.service; return 1; fi
+  if openhab_setup "$1" "${distro}"; then echo "OK"; else echo "FAILED (install openHAB)"; cond_redirect systemctl start zram-config.service zramsync.service; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
   for i in $amandaConfigs; do
