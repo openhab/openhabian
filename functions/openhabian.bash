@@ -252,13 +252,15 @@ migrate_installation() {
   echo -n "$(timestamp) [openHABian] Migrating samba mount units... "
   if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba/mount units)"; return 1; fi
   for s in ${mountUnits}; do
-    newname=${s//${from}/${to}}
-    unitOld=${s//${serviceDir}/}
-    unitNew=${unitOld//${from}/${to}}
-    if ! cond_redirect systemctl disable --now "${unitOld}"; then echo "FAILED (disable mount units)"; fi
-    sed -e "s|${from}|${to}|g" "${s}" > "${newname}"
-    rm -f "$s"
-    if cond_redirect systemctl enable --now "$unitNew"; then echo "OK"; else echo "FAILED (reenable samba/mount unit $unitNew)"; return 1; fi
+    if [[ "$to" == "openhab" ]] || ! grep -q "Description=$to" "$2"; then
+      newname=${s//${from}/${to}}
+      unitOld=${s//${serviceDir}/}
+      unitNew=${unitOld//${from}/${to}}
+      if ! cond_redirect systemctl disable --now "${unitOld}"; then echo "FAILED (disable mount units)"; fi
+      sed -e "s|${from}|${to}|g" "${s}" > "${newname}"
+      rm -f "$s"
+      if cond_redirect systemctl enable --now "$unitNew"; then echo "OK"; else echo "FAILED (reenable samba/mount unit $unitNew)"; return 1; fi
+    fi
   done
   if cond_redirect systemctl enable --now smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba/mount units)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Migrating frontail... "
