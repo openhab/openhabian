@@ -5,8 +5,7 @@ lookup.
 
 ## November 14, 2020
 ## WiFi Hotspot
-Whenever your system has a WiFi interface that fails to initialize on installation or startup,
-openHABian will now launch a [WiFi hotspot](docs/openhabian.md#WiFi-Hotspot) you can use to bootstrap WiFi i.e. to connect your
+Whenever your system has a WiFi interface that fails to initialize on installation or startup, openHABian will now launch a [WiFi hotspot](docs/openhabian.md#WiFi-Hotspot) you can use to bootstrap WiFi i.e. to connect your
 system to an existing WiFi network.
 
 
