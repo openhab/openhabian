@@ -13,9 +13,10 @@ bootstrap WiFi i.e. to connect your system to an existing WiFi network.
 
 ## openHAB 3 readiness ## October 28, 2020
 openHABian now provides menu options 4X to upgrade your system to openHAB3 and to downgrade
-back to current openHAB2 as well. See [documentation](docs/openhabian.md) for details.
+back to current openHAB2 See [documentation](docs/openhabian.md) for details.
 Please be aware that openHAB3 as well as openHABian are not thoroughly tested so be prepared
-to meet bugs and problems. Don't use this on your production system.
+to meet bugs and problems in the migration process as well.
+Don't migrate your production system unless you're fully aware of the consequences.
 
 
 ## Tailscale VPN network ## October 6, 2020
