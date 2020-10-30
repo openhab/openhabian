@@ -118,14 +118,15 @@ add_admin_ssh_key() {
 
   # shellcheck disable=SC2154
   if [[ -z "${adminkeyurl}" ]]; then return 0; fi
-
-  if ! cond_redirect mkdir -p "${sshDir}"; then echo "FAILED (create .ssh directory)"; return 1; fi
-  if ! cond_redirect wget --no-check-certificate -O "${keyFile}.NEW" "${adminkeyurl}"; then echo "FAILED (wget $adminkeyurl)"; return 1; fi
+  if ! [[ -d "${sshDir}" ]]; then echo "FAILED (.ssh directory missing)"; return 1; fi
+  if ! cond_redirect wget --no-check-certificate -O "${keyFile}.NEW" "${adminkeyurl}"; then rm -f "${keyFile}.NEW"; echo "FAILED (wget $adminkeyurl)"; return 1; fi
   if [[ -s ${keyFile}.NEW ]]; then
     if [[ -f ${keyFile} ]]; then
       mv "${keyFile}" "${keyFile}.ORIG"
     fi
     mv "${keyFile}.NEW" "${keyFile}"
+    chown "${userName}:${userName}" "${keyFile}" "${keyFile}.NEW"
+    chmod 600 "${keyFile}" "${keyFile}.NEW"
   fi
   (echo -n "openhab="; awk '{ printf $2 }' "${keyFile}"; echo ",_g_:admingroup") >> $karafKeys
 }
