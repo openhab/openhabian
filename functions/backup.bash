@@ -242,8 +242,7 @@ create_amanda_config() {
   if ! sed -e "s|%CONFIG|${config}|g" "${BASEDIR:-/opt/openhabian}"/includes/amdump.service-template >"${serviceTargetDir}/amdump-${config}.service"; then echo "FAILED (create Amanda ${config} backup service)"; return 1; fi
   if ! cp "${BASEDIR:-/opt/openhabian}"/includes/amdump.timer "${serviceTargetDir}/amdump-${config}.timer"; then echo "FAILED (create Amanda ${config} timer)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-  if ! cond_redirect systemctl enable "amdump-${config}.service"; then echo "FAILED (amdump-${config} service enable)"; return 1; fi
-  if ! cond_redirect systemctl enable "amdump-${config}.timer"; then echo "FAILED (amdump-${config} timer enable)"; return 1; fi
+  if ! cond_redirect systemctl enable --now "amdump-${config}.timer"; then echo "FAILED (amdump-${config} timer enable)"; return 1; fi
   if [[ $tapeType == "DIRECTORY" ]]; then
     # shellcheck disable=SC2154
     if ! sed -e "s|%STORAGE|${storageLoc}|g" "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.service-template >"${serviceTargetDir}"/amandaBackupDB.service; then echo "FAILED (create Amanda DB backup service)"; return 1; fi
@@ -251,8 +250,7 @@ create_amanda_config() {
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! cond_redirect mkdir -p "$storageLoc"/amanda-backups; then echo "FAILED (create amanda-backups)"; return 1; fi
     if ! cond_redirect chown --recursive "$backupUser":backup "$storageLoc"/amanda-backups; then echo "FAILED (chown amanda-backups)"; return 1; fi
-    if ! cond_redirect systemctl enable "amandaBackupDB.service"; then echo "FAILED (Amanda DB backup service enable)"; return 1; fi
-    if ! cond_redirect systemctl enable "amandaBackupDB.timer"; then echo "FAILED (Amanda DB backup timer enable)"; return 1; fi
+    if ! cond_redirect systemctl enable --now "amandaBackupDB.timer"; then echo "FAILED (Amanda DB backup timer enable)"; return 1; fi
   fi
 }
 
