@@ -8,17 +8,15 @@ source: https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.
 
 This document is meant to give a guiding hand to users when their openHABian
 install fails in the first place.
-Read on to find out how to improve debug verbosity and how to proceed with that
-information.
 
 **Attention:**
-This guide is written for users of the RPi image where you really are at a loss
-if you don't have a logfile.
-If you do not use the image but install openHABian manually - be it by running
-`openhabian-config unattended` or by interactive use -, **there is no logfile**.
-You then need to configure your terminal client to record the command line output.
+If you do not use the image but use `openhabian-config` manually - either ro run
+`openhabian-config unattended` to install or be it for interactive use -, **there is no logfile**.
+To record output in this case, you need to configure your terminal client to record
+and save the command line output.
 In PuTTy there's a field called 'Lines of scrollback' under the 'Window' option in
-settings that you should increase to at least some thousand lines.
+settings that you should increase to at least some thousand lines else you might not
+capture everything you need to. Configure any other terminal client likewise.
 
 Keep in mind that parts of the following information such as for example WiFi and
 IPv6 setup don't apply to manually installed systems because they happen at or
@@ -69,7 +67,7 @@ that make use of IPv6. If basic IP initialization fails (you cannot `ping`
 your box) or installation gets stuck trying to download software packages, you
 might want to try disabling IPv6. You can also do that before the very first
 install attempt if you're sure you don't need any IPv6 connectivity on your
-openHABian box. See [this section of openhabian.md](openhabian.md#ipv6-notes)
+openHABian box. See [this section of openhabian.md](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#ipv6-notes)
 how to disable IPv6 on your system.
 Note that this is just a summary to cover the most commonly encountered cases.
 The full boot procedure and how to obtain IP addresses, DNS resolver, default
@@ -77,16 +75,22 @@ route and NTP server addresses are highly complex and widely customizable and a
 comprehensive description on how to properly configure your Internet access and
 router are out of scope of openHABian. Please ask G\*\*gle how to accomplish that.
 
-
 ## Install
 Etch-Burn-d(isk)d(ump)-Flash-whatever the image to an SD card.
 
-Mind you that at this stage, you can access the openHABian config file to set
-parameters to affect install. See the description in
-[openhabian.md](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md)
-on WiFi boot how to mount your SD card and modify `openhabian.conf`. You can
-also do that at later times via SSH login, but in case your system does not
-properly obtain any IP address, you would be out of luck.
+NOW, read [openhabian.md](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#openhabianconf)
+how to mount your SD card and how to modify the openHABian config file.
+Some parameters are self-explanatory but please nonetheless read the full explanation
+in the linked document.
+Given that you're already reading the debug guide, the most important parameter
+to set is likely `debugmode=maximum`.
+Once you have passed the first time boot initialization phase and you can login
+to the system, `/etc/openhabian.conf` will be used from there ob. You can change
+it at any time to get output on future boot runs or if you use `openhabian-config`
+interactively.
+_At this stage, read the first paragraph on the logfile and interactive use again._
+To see debug output during the image installation process, you need to use the
+procedure from your PC **before** you power your box on.
 
 If you have a console available (monitor and keyboard), attach it to follow
 the install process. Now insert the SD card and turn on your system.
@@ -145,14 +149,15 @@ work, at least delete all the packages that openhabian-setup had installed
 before you reboot.
 
 ### Create a debug log
-If the second install attempt after boot also fails or other issues arise later
-on, put openHABian into one of the two more verbose debug levels.
-To do so, edit the config file using `nano /etc/openhabian.conf` and change the
-`debugmode` parameter to either `on` or `maximum` (it should read `off`), then
-reboot again.
+You can put openHABian into one of the two more verbose debug levels **at any time**
+after the very first installation run.
+Edit the config file `/etc/openhabian.conf` using the editor of your choice
+(use `nano` if you have no idea) nd change the `debugmode` parameter to either `on`
+or `maximum` right away (it should read `off`).
 Using `on` will generate more verbose output of commands and specifying `maximum`
 will have openHABian show every single command it executes so you or the
 maintainers you send this to can get an idea which part of the code to look at.
+
 Your next boot run will exhibit much more verbose logging. Remember output will
 be written to `/boot/first-boot.log`.
 If installation still fails to finish, please retrieve `/boot/first-log.boot`
