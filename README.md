@@ -61,13 +61,19 @@ Let's make sure you understand the implications of these statements: it means
 that to run on hardware other than RPi 2/3/4 or (bare metal i.e. not virtualized)
 x86 may work but this is **not** supported.
 
-For ARM hardware that we don't support, check out the [fake hardware parameters](openhabian.md/#fake-hardware-mode).
-There's a good chance it'll work out for you. If that still doesn't work for
-you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/)
-a try. But remember if you hit any problem related to memory sizing, peripherals
-or the OS, you'll be on your own. You are expected not to raise these problems
-as issues on the community forum or on GitHub, please. Feel encouraged to report
-any success stories, though.
+It may work to install and run openHABian on unsupported hardware. If it does
+not work, you are welcome to find out what's missing and contribute it back to
+the community with a Pull Request. It is sometimes simple things like a naming
+string. We'll be happy to include that in openHABian so you can use your box
+with openHABian unless there's a valid reason to change or remove it.
+However, that does not make your box a "supported" one as we don't have it
+available for our further development and testing. So there remains a risk that
+future openHABian releases will fail to work on your SBC because we changed a
+thing that broke support for your HW - unintentionally so however inevitable.
+
+For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md/#fake-hardware-mode).
+to 'simulate' RPi hardware and Raspi OS. If that still doesn't work for
+you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try. 
 
 Going beyond what the RPi image provides, as a manually installed set of
 scripts, we support running openHABian on x86 hardware on generic Debian.
