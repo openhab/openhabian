@@ -141,7 +141,7 @@ before you reboot.
 You can put openHABian into one of the two more verbose debug levels **at any time**
 after the very first installation run.
 Edit the config file `/etc/openhabian.conf` using the editor of your choice
-(use `nano` if you have no idea) nd change the `debugmode` parameter to either `on`
+(use `nano` if you have no idea) and change the `debugmode` parameter to either `on`
 or `maximum` right away (it should read `off`).
 Using `on` will generate more verbose output of commands and specifying `maximum`
 will have openHABian show every single command it executes so you or the
