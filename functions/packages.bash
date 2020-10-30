@@ -84,7 +84,8 @@ firemotd_setup() {
   cond_echo "\\nMake FireMotD check for new updates every night... "
   if ! cond_redirect cp "${BASEDIR}"/includes/firemotd.* "$targetDir"; then echo "FAILED"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-  if ! cond_redirect systemctl enable firemotd.service &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
+  if ! cond_redirect systemctl enable --now firemotd.service &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
+  if ! cond_redirect systemctl enable firemotd.timer &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
   cond_echo "\\nMake FireMotD check for new updates after using apt... "
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/15firemotd /etc/apt/apt.conf.d/; then echo "FAILED (apt configuration)"; return 1; fi
   cond_echo "\\nInitial FireMotD updates check"
@@ -396,8 +397,8 @@ find_setup() {
 ##    knxd_setup()
 ##
 knxd_setup() {
-  local introText="This will install kndx as your EIB/KNX IP gateway and router to support your KNX bus system.\\n\\nNOTE: Typically, you don't need this if you connect via an IP interface or router to your KNX installation. This package is to turn an USB or serial interface into an IP interface.\n\nNOTE: openHABian changed from building and installing latest source to installing the knxd package provided by several distributions."
-  local missingText="Setup could not find knxd package.\n\nopenHABian changed from building and installing latest source to installing the knxd package provided by several distrubutions. In case you have an installation of openHABian on a custom Linux which does not provide knxd package, you could try to installation routine we used before as described at 'Michels Tech Blog': https://bit.ly/3dzeoKh"
+  local introText="This will install kndx as your EIB/KNX IP gateway and router to support your KNX bus system.\\n\\nNOTE: Typically, you don't need this if you connect via an IP interface or router to your KNX installation. This package is to turn an USB or serial interface into an IP interface.\\n\\nNOTE: openHABian changed from building and installing latest source to installing the knxd package provided by several distributions."
+  local missingText="Setup could not find knxd package.\\n\\nopenHABian changed from building and installing latest source to installing the knxd package provided by several distrubutions. In case you have an installation of openHABian on a custom Linux which does not provide knxd package, you could try to installation routine we used before as described at 'Michels Tech Blog': https://bit.ly/3dzeoKh"
   local errorText="Installation of knxd package failed, see console log for details."
   local successText="Installation was successful.\\n\\nPlease edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help' or see /usr/share/doc/knxd/.\\n\\nIntegration into openHAB 2 is described here: https://github.com/openhab/openhab/wiki/KNX-Binding"
   local temp
