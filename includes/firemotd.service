@@ -1,5 +1,6 @@
 [Unit]
 Description=Periodic FireMotD stats regeneration
+After=network.target network-online.target
 
 [Service]
 Type=oneshot
