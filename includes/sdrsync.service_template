@@ -1,5 +1,6 @@
 [Unit]
 Description=mount external card reader device and rsync / over there
+After=network.target network-online.target
 
 [Service]
 Type=oneshot

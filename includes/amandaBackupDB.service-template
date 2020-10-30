@@ -1,12 +1,9 @@
 [Unit]
 Description=nightly backup: Amanda config, DB, logs
+After=network.target network-online.target
 
 [Service]
 Type=oneshot
-User=root
-Group=root
+User=backup
+Group=backup
 ExecStart=/bin/bash -c 'cd /; /bin/tar czf %STORAGE/amanda-backups/amanda_data_$(date +%%Y%%m%%d%%H%%M%%S).tar.gz etc/amanda var/lib/amanda var/log/amanda; find %STORAGE -name amanda_data_* -mtime +30 -delete' &> /dev/null
-RemainAfterExit=yes
-
-[Install]
-WantedBy=multi-user.target

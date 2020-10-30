@@ -84,8 +84,7 @@ firemotd_setup() {
   cond_echo "\\nMake FireMotD check for new updates every night... "
   if ! cond_redirect cp "${BASEDIR}"/includes/firemotd.* "$targetDir"; then echo "FAILED"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-  if ! cond_redirect systemctl enable --now firemotd.service &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
-  if ! cond_redirect systemctl enable firemotd.timer &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
+  if ! cond_redirect systemctl enable --now firemotd.timer &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
   cond_echo "\\nMake FireMotD check for new updates after using apt... "
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/15firemotd /etc/apt/apt.conf.d/; then echo "FAILED (apt configuration)"; return 1; fi
   cond_echo "\\nInitial FireMotD updates check"

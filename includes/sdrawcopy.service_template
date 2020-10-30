@@ -1,5 +1,6 @@
 [Unit]
 Description=SD card raw device copy to external card reader device
+After=network.target network-online.target
 
 [Service]
 Type=oneshot
