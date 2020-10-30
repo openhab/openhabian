@@ -10,7 +10,7 @@ This document is meant to give a guiding hand to users when their openHABian
 install fails in the first place.
 
 **Attention:**
-If you do not use the image but use `openhabian-config` manually - either ro run
+If you do not use the image but use `openhabian-config` manually - either to run
 `openhabian-config unattended` to install or be it for interactive use -, **there is no logfile**.
 To record output in this case, you need to configure your terminal client to record
 and save the command line output.
@@ -30,17 +30,6 @@ openHABian requires a minimum of 1GB of RAM to run well. While you can get away
 with a 512MB box like a RPi0W, you must not run anything other than openHAB
 itself, in particular do **not** run memory hogs such as InfluxDB or Grafana.
 
-On "supported" hardware in general:
-It may work to install and run openHABian on unsupported hardware. If it does
-not work, you are welcome to find out what's missing and contribute it back to
-the community with a Pull Request. It is sometimes simple things like a naming
-string. We'll be happy to include that in openHABian so you can use your box
-with openHABian unless there's a valid reason to change or remove it.
-However, that does not make your box a "supported" one as we don't have it
-available for our further development and testing. So there remains a risk that
-future openHABian releases will fail to work on your SBC because we changed a
-thing that broke support for your HW - unintentionally so however inevitable.
-
 openHABian requires you to provide direct Internet access. Using private IP
 addresses is fine as long as your router properly provides NAT (Network Address
 Translation) services.
@@ -49,9 +38,9 @@ be more reliable and WiFi requires user configuration prior to the first boot of
 openHABian. To configure WiFi, simply edit the `wifi_psk=` and `wifi_ssid=`
 fields in the `boot/openhabian.conf` file on your new SD card.
 
-Next, you need your router (or a different device) to provide properly
-configured DHCP services so your openHABian box gets an IP address assigned when
-you boot it for the first time.
+Your router (or a different device) needs to to provide properly configured DHCP
+services so your openHABian box gets an IP address assigned when you boot it for
+the first time.
 The DHCP server also has to announce which DNS resolver to use so your box
 knows how to translate DNS names into IP addresses.
 It also needs to announce which IP address to use as the default gateway to the
@@ -76,7 +65,7 @@ comprehensive description on how to properly configure your Internet access and
 router are out of scope of openHABian. Please ask G\*\*gle how to accomplish that.
 
 ## Install
-Etch-Burn-d(isk)d(ump)-Flash-whatever the image to an SD card.
+Proceed to installation: Etch-Burn-d(isk)d(ump)-Flash-whatever the image to an SD card.
 
 NOW, read [openhabian.md](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#openhabianconf)
 how to mount your SD card and how to modify the openHABian config file.
@@ -125,12 +114,12 @@ As a first troubleshooting step, you should reboot your box to see if the same
 problems occurs on a second attempt.
 
 ## Debug
-If the problem persists after a boot, check `/boot/first-boot.log` to get an
-indication what went wrong in the install process and at what stage.
-You can avoid openHABian to start reinstalling on future reboots by removing the
-status file, i.e. `rm -f /opt/openHABian-install*`, **but** be aware that your
-installation is incomplete and that you should not run openHAB on a box in
-that state.
+If the problem persists after booting succeeded at least in principle, login and
+check `/boot/first-boot.log` to get an indication what went wrong in the install
+process. You can avoid openHABian to start reinstalling on future reboots by
+removing the status file, i.e. `rm -f /opt/openHABian-install*`, **but** be aware
+that your installation is incomplete and that you should not run openHAB on a box
+in that state.
 You can use this state to debug, you can also use the menu options in
 `openhabian-config` to manually install everything that failed or is missing.
 See `/opt/openhabian/openhabian-setup.sh` and the corresponding code in
