@@ -24,7 +24,6 @@ get_git_revision() {
 ##
 install_cleanup() {
   echo -n "$(timestamp) [openHABian] Cleaning up... "
-  clean_config_userpw
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect apt-get clean; then echo "FAILED (apt-get clean)"; return 1; fi
   if cond_redirect apt-get autoremove --yes; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -343,18 +342,13 @@ config_ipv6() {
 ##
 ##    create_user_and_group()
 ##
-# IF
-# (1) the string/username that the end user entered as "username=" in openhabian.conf is *empty* OR
-# (2) the default user ("pi" on RaspiOS, "openhabian" on other OS) does not exist OR
-# (3) the user whose name the end user entered as "username=" in openhabian.conf *exists*
-#     (and isn't empty because (1) applies, too)
-# THEN skip
-# ELSE rename the default user and default group to what is defined as username= in openhabian.conf
-#
-# COMMENT:
-# according to Elias on non image installs the end user is queried to input the username:
-# https://github.com/openhab/openhabian/issues/665#issuecomment-522261443
-# is he really ? Is that true for interactive installs ? I have not seen where.
+## IF
+## (1) the string/username that the end user entered as "username=" in openhabian.conf is *empty* OR
+## (2) the default user ("pi" on RaspiOS, "openhabian" on other OS) does not exist OR
+## (3) the user whose name the end user entered as "username=" in openhabian.conf *exists*
+##     (and isn't empty because (1) applies, too)
+## THEN skip
+## ELSE rename the default user and default group to what is defined as username= in openhabian.conf
 ##
 create_user_and_group() {
   local userName="${username:-openhabian}"
