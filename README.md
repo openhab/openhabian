@@ -71,7 +71,7 @@ available for our further development and testing. So there remains a risk that
 future openHABian releases will fail to work on your SBC because we changed a
 thing that broke support for your HW - unintentionally so however inevitable.
 
-For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md/#fake-hardware-mode).
+For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md/#fake-hardware-mode)
 to 'simulate' RPi hardware and Raspi OS. If that still doesn't work for
 you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try. 
 
