@@ -278,7 +278,9 @@ Mind you that if you intend to open an issue, we need you to provide the output 
 You might want to setup openHABian to automatically backup and mirror your internal SD card to an external unit.
 We suggest to use another SD card in an external card writer device so that in case your internal SD card fails,
 you can switch SD cards to get the system back up running fast.
-The second card needs to have at least twice the size of your internal card.
+Note most "16GB" cards are not _exactly_ 16 GB and your new one mustn't have less bytes than the old one so
+openHABian enforces the second card to have at least twice the size of your internal card.
+We make use of that extra space as storage for the backup system.
 
 To setup right at installation time:
 Define `backupdrive=/dev/sdX` (replace X with the proper character) to enable this functionality right during unattended installation.
@@ -286,14 +288,15 @@ Eventually change `storagedir=/storage` to any other name.
 The first attached disk type device is usually called `/dev/sda`.
 openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space
 to a storage partition.
-Full mirroring will take place semiannually and changes will be synced once a week, see `systemctl list-timers`.
+Full mirroring will take place semiannually and for the 2nd partition (Linux root), changes will be synced once a week.
+See `systemctl list-timers`, timers are defined in `/etc/systemd/system/sd*.timer`.
 The unattended install routine will also setup Amanda to take daily backups and store them to that third partition.
 Use `storagecapacity=xxx` to override how much space to consume at most for Amanda backup storage (in MB).
 If you choose to skip this during system installation, you can still setup both, mirroring and Amanda, at
 any later time using the 5X menu options.
 
 Should you need to switch to run on backup, get a another new SD card to match the size of the broken card.
-Note most are not "exactly" 16 or 32 GB so your new one mustn't have less bytes than the old one.
+
 Use menu option 54 to copy your active backup card back to the new one and switch cards back as soon as possible.
 
 #### Tailscale VPN network
