@@ -162,7 +162,7 @@ openhabian_update() {
 
   if [[ "$branch" == "openHAB3" && "$current" != "openHAB3" ]]; then
     migrate_installation "openHAB3"
-  elif [[ "$current" == "openHAB3" ]]; then
+  elif [[ "$current" == "openHAB3" && "$branch" != "openHAB3" ]]; then
     migrate_installation "openHAB2"
   fi
 
@@ -359,4 +359,3 @@ create_user_and_group() {
     cond_redirect usermod --append --groups openhab,sudo "$userName" &> /dev/null
   fi
 }
-
