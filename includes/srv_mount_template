@@ -8,7 +8,7 @@ After=zram-config.service
 What=%SRC
 Where=/srv/openhab2-%DEST
 Type=none
-Options=bind
+Options=bind,rw
 
 [Install]
 WantedBy=multi-user.target

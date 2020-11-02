@@ -235,7 +235,7 @@ create_mount() {
   source="$1"
 
   echo -n "$(timestamp) [openHABian] Creating mount $source in '/srv/openhab2-${destination}'... "
-  if ! sed -e 's|%SRC|'"${source}"'|g; s|%DEST|'"${destination}"'|g' "${BASEDIR:-/opt/openhabian}"/includes/mount_template > /etc/systemd/system/"$mountPoint"; then echo "FAILED (sed)"; return 1; fi
+  if ! sed -e 's|%SRC|'"${source}"'|g; s|%DEST|'"${destination}"'|g' "${BASEDIR:-/opt/openhabian}"/includes/srv_mount_template > /etc/systemd/system/"$mountPoint"; then echo "FAILED (sed)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now "$mountPoint"; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 }
