@@ -133,25 +133,25 @@ Should you succeed at some point in time - great! Let us know what you did to
 make it work please through a Github issue (see below).
 As we cannot be sure everything on your box is 100% the same what an
 unattended install gets you, please also do a complete reinstall before you
-start operating openHAB. If possible start with the flash step. If that does not
-work, at least delete all the packages that openhabian-setup had installed
+start operating openHAB. If possible start with the flash step. If that does
+not work, at least delete all the packages that openhabian-setup had installed
 before you reboot.
 
 ### Create a debug log
-You can put openHABian into one of the two more verbose debug levels **at any time**
-after the very first installation run.
-Edit the config file `/etc/openhabian.conf` using the editor of your choice
-(use `nano` if you have no idea) and change the `debugmode` parameter to either `on`
-or `maximum` right away (it should read `off`).
-Using `on` will generate more verbose output of commands and specifying `maximum`
-will have openHABian show every single command it executes so you or the
-maintainers you send this to can get an idea which part of the code to look at.
+You can put openHABian into a more verbose debug level **at any time** after
+the very first installation run: edit the config file `/etc/openhabian.conf`
+using the editor of your choice (use `nano` if you have no idea) and change
+the `debugmode` parameter to either `on` or `maximum` right away (default
+is `off`). Specifying `maximum` is usually your best choice as it will have
+`openhabian-config` show every single command it executes so you might spot
+the problem right away. If you open an issue, always provide the maintainers
+with a logfile at `maximum` detail level.
 
-Your next boot run will exhibit much more verbose logging. Remember output will
-be written to `/boot/first-boot.log`.
-If installation still fails to finish, please retrieve `/boot/first-log.boot`
-from your box, open a GitHub issue (see next paragraph), thoroughly describe the
-environment conditions and your findings so far and upload the log.
+Your next boot run will also exhibit much more verbose logging. Remember boot
+time output will be appended to `/boot/first-boot.log`.
+If installation still fails to finish, please retrieve that file from your box,
+open a GitHub issue (see next paragraph), thoroughly describe the environment
+conditions and your findings so far and upload the log.
 
 ### How to open a Github issue
 While written for openHAB, the guideline at <https://community.openhab.org/t/how-to-file-an-issue/68464>
