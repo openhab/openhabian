@@ -7,7 +7,8 @@ source: https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.
 <!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source repository -->
 
 This document is meant to give a guiding hand to users when their openHABian
-install fails in the first place.
+install fails either on initial image installation or later on when running menu
+options that install or configure optional components.
 
 **Attention:**
 If you do not use the image but use `openhabian-config` manually - either to run
