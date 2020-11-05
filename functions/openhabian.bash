@@ -231,7 +231,7 @@ migrate_installation() {
   fi
 
   javaVersion="$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')"
-  if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
+  if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; fi
   backup_openhab_config
 
   apt --yes remove ${from} ${from}-addons
@@ -269,7 +269,7 @@ migrate_installation() {
 
   echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
   sed -i "s|/${from}|/${to}|g" $ztab
-  if cond_redirect systemctl start zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; return 1; fi
+  if cond_redirect systemctl start zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; fi
 }
 
 ## Check for default system password and if found issue a warning and suggest
