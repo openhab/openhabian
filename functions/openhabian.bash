@@ -256,8 +256,6 @@ migrate_installation() {
   for s in ${mountUnits}; do
     if [[ "$to" == "openhab" ]] || ! grep -q "Description=$to" "$s"; then
       newname=${s//${from}/${to}}
-      unitOld=${s//${serviceDir}/}
-      unitNew=${unitOld//${from}/${to}}
       sed -e "s|${from}|${to}|g" "${s}" > "${newname}"
       rm -f "$s"
     fi
