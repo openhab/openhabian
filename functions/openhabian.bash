@@ -251,21 +251,22 @@ migrate_installation() {
   done
 
   echo -n "$(timestamp) [openHABian] Migrating samba mount units... "
-  if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba/mount units)"; return 1; fi
+  if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba)"; return 1; fi
+  if ! cond_redirect systemctl disable --now "${mountUnits}"; then echo "FAILED (disable mount units)"; fi
   for s in ${mountUnits}; do
-    if [[ "$to" == "openhab" ]] || ! grep -q "Description=$to" "$2"; then
+    if [[ "$to" == "openhab" ]] || ! grep -q "Description=$to" "$s"; then
       newname=${s//${from}/${to}}
       unitOld=${s//${serviceDir}/}
       unitNew=${unitOld//${from}/${to}}
-      if ! cond_redirect systemctl disable --now "${unitOld}"; then echo "FAILED (disable mount units)"; fi
       sed -e "s|${from}|${to}|g" "${s}" > "${newname}"
       rm -f "$s"
-      if cond_redirect systemctl enable --now "$unitNew"; then echo "OK"; else echo "FAILED (reenable samba/mount unit $unitNew)"; return 1; fi
     fi
   done
-  if cond_redirect systemctl enable --now smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba/mount units)"; return 1; fi
+  if cond_redirect systemctl enable --now "${mountUnits}"; then echo "OK"; else echo "FAILED (reenable mount units)"; return 1; fi
+  if cond_redirect systemctl start smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Migrating frontail... "
   sed -i "s|${from}/|${to}/|g" $frontailService
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl restart frontail.service; then echo "FAILED (restart frontail)"; return 1; fi
 
   if [[ -s /etc/ztab ]]; then
