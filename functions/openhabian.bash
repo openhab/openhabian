@@ -196,7 +196,6 @@ migrate_installation() {
   local frontailService="/etc/systemd/system/frontail.service"
   local amandaConfigs="/etc/amanda/openhab-*/disklist"
   local ztab="/etc/ztab"
-  local serviceDir="/etc/systemd/system/"
   local mountUnits="/etc/systemd/system/srv-openhab*"
   local from
   local to
