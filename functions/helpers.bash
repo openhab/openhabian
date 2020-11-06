@@ -187,6 +187,7 @@ is_pifour() {
   return $?
 }
 is_pifour_8GB() {
+  if [[ "$hw" == "pi4_8gb" ]]; then return 0; fi
   totalMemory="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
   if is_pifour && [[ $totalMemory -gt 5000000 ]]; then return 0; else return 1; fi
 }

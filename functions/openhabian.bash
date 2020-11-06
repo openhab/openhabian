@@ -196,7 +196,6 @@ migrate_installation() {
   local frontailService="/etc/systemd/system/frontail.service"
   local amandaConfigs="/etc/amanda/openhab-*/disklist"
   local ztab="/etc/ztab"
-  local serviceDir="/etc/systemd/system/"
   local mountUnits="/etc/systemd/system/srv-openhab*"
   local from
   local to
@@ -231,7 +230,8 @@ migrate_installation() {
   fi
 
   javaVersion="$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')"
-  if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; fi
+  # shellcheck disable=SC2154
+  [[ "$zraminstall" != "disable" ]] && if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
   backup_openhab_config
 
   apt --yes remove ${from} ${from}-addons
@@ -250,26 +250,28 @@ migrate_installation() {
   done
 
   echo -n "$(timestamp) [openHABian] Migrating samba mount units... "
-  if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba/mount units)"; return 1; fi
+  if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba)"; return 1; fi
+  if ! cond_redirect systemctl disable --now ${mountUnits}; then echo "FAILED (disable mount units)"; fi
   for s in ${mountUnits}; do
-    if [[ "$to" == "openhab" ]] || ! grep -q "Description=$to" "$2"; then
+    if [[ "$to" == "openhab" ]] || ! grep -q "Description=$to" "$s"; then
       newname=${s//${from}/${to}}
-      unitOld=${s//${serviceDir}/}
-      unitNew=${unitOld//${from}/${to}}
-      if ! cond_redirect systemctl disable --now "${unitOld}"; then echo "FAILED (disable mount units)"; fi
       sed -e "s|${from}|${to}|g" "${s}" > "${newname}"
       rm -f "$s"
-      if cond_redirect systemctl enable --now "$unitNew"; then echo "OK"; else echo "FAILED (reenable samba/mount unit $unitNew)"; return 1; fi
     fi
   done
-  if cond_redirect systemctl enable --now smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba/mount units)"; return 1; fi
+  if cond_redirect systemctl enable --now ${mountUnits}; then echo "OK"; else echo "FAILED (reenable mount units)"; return 1; fi
+  if cond_redirect systemctl start smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Migrating frontail... "
   sed -i "s|${from}/|${to}/|g" $frontailService
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl restart frontail.service; then echo "FAILED (restart frontail)"; return 1; fi
 
-  echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
-  sed -i "s|/${from}|/${to}|g" $ztab
-  if cond_redirect systemctl start zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; fi
+  if [[ -s /etc/ztab ]]; then
+    echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
+    sed -i "s|/${from}|/${to}|g" $ztab
+  fi
+  # shellcheck disable=SC2154
+  [[ "$zraminstall" != "disable" ]] && if cond_redirect systemctl start zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; return 1; fi
 }
 
 ## Check for default system password and if found issue a warning and suggest
