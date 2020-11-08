@@ -17,7 +17,7 @@ backup_openhab_config() {
 
   echo -n "$(timestamp) [openHABian] Beginning openHAB backup... "
   if [[ -n "$INTERACTIVE" ]] && [[ $# == 0 ]]; then
-    if ! (whiptail --title "openHAB backup?" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 10 80); then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "openHAB backup?" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 10 80); then echo "SKIPPED"; return 0; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Creating openHAB backup... "
