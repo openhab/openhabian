@@ -75,7 +75,7 @@ in the linked document.
 Given that you're already reading the debug guide, the most important parameter
 to set is likely `debugmode=maximum`.
 Once you have passed the first time boot initialization phase and you can login
-to the system, `/etc/openhabian.conf` will be used from there ob. You can change
+to the system, `/etc/openhabian.conf` will be used from there on. You can change
 it at any time to get output on future boot runs or if you use `openhabian-config`
 interactively.
 _At this stage, read the first paragraph on the logfile and interactive use again._
