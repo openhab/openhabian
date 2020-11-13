@@ -13,7 +13,7 @@ recommendations is a **boring task** taking quite some time and
 ***A home automation enthusiast doesn't have to be a Linux enthusiast!***
 
 openHABian aims to provide a **self-configuring** Linux system setup to meet the
-the needs of every openHAB user.
+needs of every openHAB user.
 
 The project provides two things:
 
@@ -37,7 +37,8 @@ Also get another 32 GB or larger SD card and a USB card reader to make use of th
 ***
 ATTENTION:<br>
 avoid getting a RPi4 with 8GB. It's a waste of money and it has issues.
-You must use a 1.6 image and [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram).
+You must use a 1.6 image and [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram)
+or use the 64bit image (untested).
 ***
 ## Hardware and OS support
 As of openHABian version 1.6, all Raspberry Pi models are supported as hardware.
