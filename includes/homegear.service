@@ -1,5 +1,6 @@
 [Unit]
 Description=Homegear
+PartOf=openhab2.service
 
 [Service]
 Type=simple
