@@ -30,8 +30,8 @@ Please remain aware though that this is BETA code for the time being so it can
 mess up your system. Don't use this menu option to run a production setup of yours.
 
 ## Hardware recommendation
-Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB,
-a 3A power supply and a 16 GB SD card.
+Let's put this first: our current recommendation is to get a RPi 4 with 2 GB (4 are
+fine, too), a 3A power supply and a 16 GB SD card.<br>
 Also get another 32 GB or larger SD card and a USB card reader to make use of the
 ["auto backup" feature](docs/openhabian.md#Auto-Backup).
 ***
