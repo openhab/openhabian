@@ -118,7 +118,7 @@ configure_wifi() {
 
 ## is the comitup WiFi hotspot active
 ##
-##    is_wifi_connected()
+##    is_hotspot_connected()
 is_hotspot() {
   if echo "q" | comitup-cli | grep -q 'State: HOTSPOT'; then return 0; else return 1; fi
 }
