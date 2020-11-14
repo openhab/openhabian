@@ -478,7 +478,7 @@ install_dnsutils() {
 ##
 ##    is_hotspot_connected()
 is_hotspot() {
-  if [[ ! -z $(command -v "comitup-cli") ]]; then return 1; fi
+  if ! [[ $(command -v "comitup-cli") ]]; then return 1; fi
   if echo "q" | comitup-cli | grep -q 'State: HOTSPOT'; then return 0; else return 1; fi
 }
 
@@ -486,7 +486,7 @@ is_hotspot() {
 ##
 ##    is_wifi_connected()
 is_wifi_connected() {
-  if [[ ! -z $(command -v "comitup-cli") ]]; then return 1; fi
+  if ! [[ $(command -v "comitup-cli") ]]; then return 1; fi
   if echo "q" | comitup-cli | grep -q 'State: CONNECTED'; then return 0; else return 1; fi
 }
 
