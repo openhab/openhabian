@@ -196,6 +196,7 @@ openhabian_update() {
 migrate_installation() {
   local failText="is already installed on your system !\\n\\nCanceling migration, returning to menu."
   local frontailService="/etc/systemd/system/frontail.service"
+  local frontailService="/etc/systemd/system/homegear.service"
   local frontailJSON="/usr/lib/node_modules/frontail/preset/openhab.json"
   local amandaConfigs="/etc/amanda/openhab-*/disklist"
   local ztab="/etc/ztab"
@@ -275,6 +276,9 @@ migrate_installation() {
   sed -i "s|${from}/|${to}/|g" $frontailJSON
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl restart frontail.service; then echo "FAILED (restart frontail)"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Migrating homegear... "
+  sed -i "s|${from}/|${to}/|g" $homegearService
 
   if [[ -s /etc/ztab ]]; then
     echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
