@@ -196,7 +196,7 @@ openhabian_update() {
 migrate_installation() {
   local failText="is already installed on your system !\\n\\nCanceling migration, returning to menu."
   local frontailService="/etc/systemd/system/frontail.service"
-  local frontailService="/etc/systemd/system/homegear.service"
+  local homegearService="/etc/systemd/system/homegear.service"
   local frontailJSON="/usr/lib/node_modules/frontail/preset/openhab.json"
   local amandaConfigs="/etc/amanda/openhab-*/disklist"
   local ztab="/etc/ztab"
