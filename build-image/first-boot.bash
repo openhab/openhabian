@@ -81,6 +81,8 @@ if [[ -z $wifi_ssid ]]; then
   echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... "
   if grep -qs "up" /sys/class/net/eth0/operstate; then echo "OK"; else echo "FAILED"; fi
 elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
+  echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
+  setup_hotspot
   echo -n "$(timestamp) [openHABian] Checking if WiFi is working... "
   if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
     # WiFi might be blocked
