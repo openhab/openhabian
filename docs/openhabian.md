@@ -266,7 +266,7 @@ If you own a RPi3, RPi3+, RPi4, a RPi0W or any other model with a compatible WiF
 For the WiFi based setup to work, you'll need to make your SSID and password known to the system before the first boot.
 So in addition to the setup instructions given above, uncomment and complete the lines reading `wifi_ssid="My WiFi SSID"` and `wifi_psk="password123"` in `openhabian.conf`.
 
-#### WiFi hotspot
+#### WiFi Hotspot
 Whenever the WiFi interface wlan0 exists but does not have connectivity, openHABian will launch a **Hotspot**.
 When you use your mobile phone to scan for WiFi networks, you should be seeing a new network called `openHABian-<n>`.
 Connecting will work without a password. Once connected, open your browser and point it at `http://raspberrypi.local` or `http://comitup-<n>`.
