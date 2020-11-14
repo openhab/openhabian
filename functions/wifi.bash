@@ -122,11 +122,12 @@ configure_wifi() {
 ## https://gist.github.com/jjsanderson/ab2407ab5fd07feb2bc5e681b14a537a
 ##
 ##    setup_hotspot(String option)
+##
+# comitup package is in Debian unstable, if problems:
+# cat "deb http://davesteele.github.io/comitup/repo comitup main" >> /etc/apt/sources.list.d/comitup.list
+# wget https://davesteele.github.io/key-366150CE.pub.txt
+# apt-key add key-366150CE.pub.txt
 setup_hotspot() {
-  # comitup package is in Debian unstable, if problems:
-  # cat "deb http://davesteele.github.io/comitup/repo comitup main" >> /etc/apt/sources.list.d/comitup.list
-  # wget https://davesteele.github.io/key-366150CE.pub.txt
-  # apt-key add key-366150CE.pub.txt
   local wpaFile=/etc/wpa_supplicant/wpa_supplicant.conf
 
   if [[ $1 == "install" ]]; then
@@ -135,11 +136,11 @@ setup_hotspot() {
     if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
     echo "denyinterfaces wlan0" >> /etc/dhcpcd.conf
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
-    mv ${wpaFile} ${wpaFile}.dist
-  elif [[ $1 == "disable" ]]; then
-    if [[ -s "${wpaFile}.dist" ]]; then
-      mv  ${wpaFile}.dist ${wpaFile}
-    fi
+#    mv ${wpaFile} ${wpaFile}.dist
+#  elif [[ $1 == "disable" ]]; then
+#    if [[ -s "${wpaFile}.dist" ]]; then
+#      mv  ${wpaFile}.dist ${wpaFile}
+#    fi
   fi
 }
 
