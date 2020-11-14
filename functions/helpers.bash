@@ -453,6 +453,7 @@ select_blkdev() {
     retval="$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "\\n${3}" "${count}" 76 0 "${array[@]}" 3>&1 1>&2 2>&3)"
   fi
 }
+
 ## install bind9-dnsutils package if available (currently only in sid and focal)
 ## else resort to dnsutils
 ##
@@ -467,3 +468,20 @@ install_dnsutils() {
 
   return $?
 }
+
+## is the comitup WiFi hotspot active
+##
+##    is_hotspot_connected()
+is_hotspot() {
+  if [[ ! -z $(command -v "comitup-cli") ]]; then return 1; fi
+  if echo "q" | comitup-cli | grep -q 'State: HOTSPOT'; then return 0; else return 1; fi
+}
+
+## has WiFi been connected to a wireless network by means of a comitup hotspot
+##
+##    is_wifi_connected()
+is_wifi_connected() {
+  if [[ ! -z $(command -v "comitup-cli") ]]; then return 1; fi
+  if echo "q" | comitup-cli | grep -q 'State: CONNECTED'; then return 0; else return 1; fi
+}
+

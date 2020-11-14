@@ -116,30 +116,12 @@ configure_wifi() {
 }
 
 
-## is the comitup WiFi hotspot active
-##
-##    is_hotspot_connected()
-is_hotspot() {
-  if echo "q" | comitup-cli | grep -q 'State: HOTSPOT'; then return 0; else return 1; fi
-}
-
-## has WiFi been connected to a wireless network by means of a comitup hotspot
-##
-##    is_wifi_connected()
-is_wifi_connected() {
-  if echo "q" | comitup-cli | grep -q 'State: CONNECTED'; then return 0; else return 1; fi
-}
-
 ## Install comitup WiFi hotspot demon
 ## Valid arguments: "setup" or "disable"
 ## see https://davesteele.github.io/comitup/ppa.html and
 ## https://gist.github.com/jjsanderson/ab2407ab5fd07feb2bc5e681b14a537a
 ##
 ##    setup_hotspot(String option)
-
-## TODO: test
-## said to become active (only) when wlan0 down so any need ?
-## will configuring wifi_ssid/psk take precedence ?
 setup_hotspot() {
   # comitup package is in Debian unstable, if problems:
   # cat "deb http://davesteele.github.io/comitup/repo comitup main" >> /etc/apt/sources.list.d/comitup.list
@@ -168,9 +150,9 @@ setup_hotspot() {
 ## or
 ## see https://github.com/lakinduakash/linux-wifi-hotspot
 ##
-##    setup_hotspot_alt(String option)
+##    setup_alt_hotspot(String option)
 ##
-setup_hotspot_alt() {
+setup_alt_hotspot() {
   local hostAPdConfig=hostapd.conf
   #local DHCPdConfig=udhcpd.conf
   local interface=hotspot0
