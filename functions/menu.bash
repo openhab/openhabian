@@ -68,7 +68,7 @@ show_main_menu() {
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
     "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
     "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
-    "16 | Samba"                  "Install the Samba file sharing service and set up openHAB2 shares" \
+    "16 | Samba"                  "Install the Samba file sharing service and set up openHAB 2 shares" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -163,11 +163,11 @@ show_main_menu() {
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "openHAB Setup Options" --menu "Setup Options" 21 116 14 --cancel-button Back --ok-button Execute \
-    "41 | openHAB release"        "Install or switch to the latest openHAB release" \
-    "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
-    "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
-    "42 | Upgrade to openHAB 3"   "Upgrade to openHAB 3 testing milestone (BETA !)" \
-    "   | Downgrade to openHAB 2" "Downgrade from openHAB 3 testing to openHAB 2 stable" \
+    "41 | openHAB 2 release"      "Install or switch to the latest openHAB 2 release" \
+    "   | openHAB 2 testing"      "Install or switch to the latest openHAB 2 testing build" \
+    "   | openHAB 2 snapshot"     "Install or switch to the latest openHAB 2 SNAPSHOT build" \
+    "42 | Upgrade to openHAB 3"   "Upgrade OS environment to openHAB 3 testing milestone (BETA !)" \
+    "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 stable" \
     "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
     "44 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
     "45 | Delay rules load"       "Delay loading rules to speed up overall startup" \

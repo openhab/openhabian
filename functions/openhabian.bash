@@ -199,6 +199,7 @@ migrate_installation() {
   local amandaConfigs="/etc/amanda/openhab-*/disklist"
   local ztab="/etc/ztab"
   local serviceDir="/etc/systemd/system"
+  local services="srv-openhab2\\x2daddons.mount srv-openhab2\\x2dconf.mount srv-openhab2\\x2dlogs.mount srv-openhab2\\x2duserdata.mount  srv-openhab2\\x2dsys.mount"
   # shellcheck disable=SC2206
   local mountUnits="${serviceDir}/srv-openhab*"
   local from
@@ -214,7 +215,7 @@ migrate_installation() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB installation... "
 
   if [[ "$1" == "openHAB3" ]]; then
-    if openhab3_is_installed; then
+    if false; then #if openhab3_is_installed; then
       whiptail --title "openHAB version already installed" --msgbox "openHAB3 $failText" 10 80
       echo "FAILED (openHAB3 already installed)"
       return 1
@@ -224,8 +225,8 @@ migrate_installation() {
     distro="testing"
   else
     if openhab2_is_installed; then
-      whiptail --title "openHAB version already installed" --msgbox "openHAB2 $failText" 10 80
-      echo "FAILED (openHAB2 already installed)"
+      whiptail --title "openHAB version already installed" --msgbox "openHAB 2 $failText" 10 80
+      echo "FAILED (openHAB 2 already installed)"
       return 1
     fi
     from="openhab"
@@ -255,15 +256,17 @@ migrate_installation() {
 
   echo -n "$(timestamp) [openHABian] Migrating samba mount units... "
   if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba)"; return 1; fi
-  if ! cond_redirect systemctl disable --now ${serviceDir}/srv-${from}*; then echo "FAILED (disable mount units)"; fi
+  if ! cond_redirect systemctl disable --now ${services}; then echo "FAILED (disable mount units)"; fi
   for s in ${mountUnits}; do
+    echo "X${s}X"
     if [[ "$to" == "openhab" ]] || ! grep -q "Description=$to" "$s"; then
       newname=${s//${from}/${to}}
       sed -e "s|${from}|${to}|g" "${s}" > "${newname}"
       rm -f "$s"
     fi
   done
-  if cond_redirect systemctl enable --now ${serviceDir}/srv-${to}*; then echo "OK"; else echo "FAILED (reenable mount units)"; return 1; fi
+  services=${services//${from}/${to}}
+  if cond_redirect systemctl enable --now ${services}; then echo "OK"; else echo "FAILED (reenable mount units)"; return 1; fi
   if cond_redirect systemctl start smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Migrating frontail... "
   sed -i "s|${from}/|${to}/|g" $frontailService
