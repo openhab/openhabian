@@ -114,3 +114,74 @@ configure_wifi() {
     fi
   fi
 }
+
+
+## is the comitup WiFi hotspot active
+##
+##    is_wifi_connected()
+is_hotspot() {
+  if $(echo "q" | comitup-cli | grep -q 'State: HOTSPOT'); then return 0; else return 1; fi
+}
+
+## has WiFi been connected to a wireless network by means of a comitup hotspot
+##
+##    is_wifi_connected()
+is_wifi_connected() {
+  if $(echo "q" | comitup-cli | grep -q 'State: CONNECTED'); then return 0; else return 1; fi
+}
+
+## Install comitup WiFi hotspot demon
+## Valid arguments: "setup" or "disable"
+## see https://davesteele.github.io/comitup/ppa.html and
+## https://gist.github.com/jjsanderson/ab2407ab5fd07feb2bc5e681b14a537a
+##
+##    setup_hotspot(String option)
+
+## TODO: test
+## said to become active (only) when wlan0 down so any need ?
+## will configuring wifi_ssid/psk take precedence ?
+setup_hotspot() {
+  # comitup package is in Debian unstable, if problems:
+  # cat "deb http://davesteele.github.io/comitup/repo comitup main" >> /etc/apt/sources.list.d/comitup.list
+  # wget https://davesteele.github.io/key-366150CE.pub.txt
+  # apt-key add key-366150CE.pub.txt
+  local wpaFile=/etc/wpa_supplicant/wpa_supplicant.conf
+
+  if [[ $1 == "install" ]]; then
+    echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
+    if cond_redirect apt install --yes network-manager comitup; then echo "OK"; else echo "FAILED"; return 1; fi
+    if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
+    echo "denyinterfaces wlan0" >> /etc/dhcpcd.conf
+    sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
+    mv ${wpaFile} ${wpaFile}.dist
+  elif [[ $1 == "disable" ]]; then
+    if [[ -s "${wpaFile}.dist" ]]; then
+      mv  ${wpaFile}.dist ${wpaFile}
+    fi
+  fi
+}
+
+
+## ALTERNATIVE: Configure a WiFi hotspot
+## Valid arguments: "setup" or "disable"
+## see https://medium.com/@anooppoommen/create-a-wifi-hotspot-on-linux-29349b9c582d
+## or
+## see https://github.com/lakinduakash/linux-wifi-hotspot
+##
+##    setup_hotspot_alt(String option)
+##
+setup_hotspot_alt() {
+  local hostAPdConfig=hostapd.conf
+  local DHCPdConfig=udhcpd.conf
+  local interface=hotspot0
+  local SSID=openHABian
+  local APpassword
+
+  echo -n "$(timestamp) [openHABian] Instantiating hotspot... "
+  # TODO: check iw list ob mode "ap" enthalten
+  apt install --yes hostapd
+  iw phy phy0 interface add ${interface} type __ap
+  if ! (sed -e 's|%INTERFACE|'"${interface}"'|g; s|%SSID|'"${SSID}"'|g; s|%PASSWORD|8003|g; s|%FINDSERVER|localhost|g' "${BASEDIR:-/opt/openhabian}"/includes/${hostAPdConfig}-template > "${HOME}/${hostAPdConfig}"); then echo "FAILED (hotspot creation)"; return 1; fi
+
+  hostapd "${HOME}/${hostAPdConfig}"
+}
