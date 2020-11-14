@@ -171,9 +171,7 @@ show_main_menu() {
     "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 stable" \
     "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
     "44 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
-    "45 | Delay rules load"       "Delay loading rules to speed up overall startup" \
-    "   | Default order"          "Reset config load order to default (random)" \
-    "46 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" \
+    "45 | Zulu 8 OpenJDK 32-bit"  "Install Zulu 8 32-bit OpenJDK as primary Java provider" \
     "   | Zulu 8 OpenJDK 64-bit"  "Install Zulu 8 64-bit OpenJDK as primary Java provider" \
     "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider" \
     "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider" \
@@ -191,8 +189,6 @@ show_main_menu() {
       *Downgrade\ to\ openHAB\ 2) migrate_installation openHAB2 "stable" && openhabian_update "stable";;
       43\ *) openhab_shell_interfaces;;
       44\ *) nginx_setup;;
-      *Delay\ rules\ load) create_systemd_dependencies && delayed_rules "yes";;
-      *Default\ order) create_systemd_dependencies && delayed_rules "no";;
       *Zulu\ 8\ OpenJDK\ 32-bit) update_config_java "Zulu8-32" && java_install_or_update "Zulu8-32";;
       *Zulu\ 8\ OpenJDK\ 64-bit) update_config_java "Zulu8-64" && java_install_or_update "Zulu8-64";;
       *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
