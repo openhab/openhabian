@@ -237,7 +237,7 @@ migrate_installation() {
 
   javaVersion="$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')"
   # shellcheck disable=SC2154
-  [[ "$zraminstall" != "disable" ]] && if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
+  [[ "$zraminstall" != "disable" ]] && [[ -s /etc/ztab ]] && if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
   backup_openhab_config
 
   apt --yes remove ${from} ${from}-addons
@@ -246,7 +246,7 @@ migrate_installation() {
     java_install_or_update "Zulu11-32"
   fi
   echo -n "$(timestamp) [openHABian] Installing openHAB... "
-  if openhab_setup "$1" "${distro}"; then echo "OK"; else echo "FAILED (install openHAB)"; cond_redirect systemctl start zram-config.service zramsync.service; return 1; fi
+  if openhab_setup "$1" "${distro}"; then echo "OK"; else echo "FAILED (install openHAB)"; cond_redirect systemctl start zram-config.service zramsync.service; fi
 
   echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
   for i in $amandaConfigs; do
