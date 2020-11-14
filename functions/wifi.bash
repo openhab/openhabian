@@ -120,14 +120,14 @@ configure_wifi() {
 ##
 ##    is_wifi_connected()
 is_hotspot() {
-  if $(echo "q" | comitup-cli | grep -q 'State: HOTSPOT'); then return 0; else return 1; fi
+  if echo "q" | comitup-cli | grep -q 'State: HOTSPOT'; then return 0; else return 1; fi
 }
 
 ## has WiFi been connected to a wireless network by means of a comitup hotspot
 ##
 ##    is_wifi_connected()
 is_wifi_connected() {
-  if $(echo "q" | comitup-cli | grep -q 'State: CONNECTED'); then return 0; else return 1; fi
+  if echo "q" | comitup-cli | grep -q 'State: CONNECTED'; then return 0; else return 1; fi
 }
 
 ## Install comitup WiFi hotspot demon
@@ -172,13 +172,13 @@ setup_hotspot() {
 ##
 setup_hotspot_alt() {
   local hostAPdConfig=hostapd.conf
-  local DHCPdConfig=udhcpd.conf
+  #local DHCPdConfig=udhcpd.conf
   local interface=hotspot0
   local SSID=openHABian
-  local APpassword
+  #local APpassword
 
-  echo -n "$(timestamp) [openHABian] Instantiating hotspot... "
-  # TODO: check iw list ob mode "ap" enthalten
+  echo -n "$(timestamp) [openHABian] Installing hostapd hotspot... "
+  # TODO: check iw list if mode "ap" contained
   apt install --yes hostapd
   iw phy phy0 interface add ${interface} type __ap
   if ! (sed -e 's|%INTERFACE|'"${interface}"'|g; s|%SSID|'"${SSID}"'|g; s|%PASSWORD|8003|g; s|%FINDSERVER|localhost|g' "${BASEDIR:-/opt/openhabian}"/includes/${hostAPdConfig}-template > "${HOME}/${hostAPdConfig}"); then echo "FAILED (hotspot creation)"; return 1; fi
