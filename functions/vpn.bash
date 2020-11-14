@@ -241,7 +241,7 @@ setup_tailscale() {
   tailscale status | mail -s "openHABian client joined tailscale VPN" "$adminmail"
   tailscaleIP=$(ip a show tailscale0 | awk '/inet / { print substr([,1,length([)-3)}')
   if [[ -n "$tailscaleIP"  ]]; then
-    sed -ri "s|^(sshHost.*)|\\1,${tailscaleIP}|g" $consoleProperties
+    sed -ri "s|^(sshHost.*)|\\1,${tailscaleIP}|g" "$consoleProperties"
   fi
   if cond_redirect sed -i -e 's|^preauthkey=.*$|preauthkey=xxxxxxxx|g' /etc/openhabian.conf; then echo "OK"; else echo "FAILED (remove tailscale pre-auth key)"; exit 1; fi
 
