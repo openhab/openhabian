@@ -232,7 +232,7 @@ There's big changes such as to install Java 11 (which is mandatory for openHAB3)
 openHAB3 will use a separate file `/etc/default/openhab` and most directory names will change from `... /openhab2/ ...` to `... /openhab/ ...` (NOTE: not `openhab3`).
 It's a number of places there'll be changes in, often subtle ones like the name of Samba export shares to change.
 Note that this code is still in BETA so with some bad luck it might mess up your system. We kindly ask you to help and report any issues on Github, including simple ones like when a title hasn't been renamed.
-Menu option 04 will do the upgrade.
+Menu option 42 will do the upgrade.
 Be aware that there is ONLY an openHAB upgrade path. You cannot downgrade from OH3 to OH2.
 You can exchange the binary packages (which is what openHABian will do), but there is no help to change your configuration back to a OH2 compatible one.
 So it is essential that you take a backup before you upgrade. You will have to restore your setup from that backup after a downgrade using menu option 51 or by manually using `openhab-cli restore <file>`.
