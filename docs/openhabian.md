@@ -227,7 +227,7 @@ Delayed rules load will also be enabled by default. This is renaming the rules f
 ## Setup notes
 
 ### On openHAB3
-openHABian will install latest stable **openHAB2** by default. To ease upgrading, `openhabian-config`  will migrate the openHABian environment and install openHAB3 for you.
+openHABian will install latest stable **openHAB 2** by default. To ease upgrading, `openhabian-config`  will migrate the openHABian environment and install openHAB3 for you.
 There's big changes such as to install Java 11 (which is mandatory for openHAB3).
 openHAB3 will use a separate file `/etc/default/openhab` and most directory names will change from `... /openhab2/ ...` to `... /openhab/ ...` (NOTE: not `openhab3`).
 It's a number of places there'll be changes in, often subtle ones like the name of Samba export shares to change.
@@ -236,7 +236,7 @@ Menu option 42 will do the upgrade.
 Be aware that there is ONLY an openHAB upgrade path. You cannot downgrade from OH3 to OH2.
 You can exchange the binary packages (which is what openHABian will do), but there is no help to change your configuration back to a OH2 compatible one.
 So it is essential that you take a backup before you upgrade. You will have to restore your setup from that backup after a downgrade using menu option 51 or by manually using `openhab-cli restore <file>`.
-Menu option 05 will do the inverse and change the environment. It'll NOT downgrade Java. openHAB2 is known to run with Java 11, though.
+Menu option 05 will do the inverse and change the environment. It'll NOT downgrade Java. openHAB 2 is known to run with Java 11, though.
 
 ### `openhabian.conf`
 You can actually set a number of parameters _before_ you run an unattended installation. This applies to the RPi image on an SD card as well as to a manual installation.
@@ -326,7 +326,7 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 -   Mi Flora MQTT demon
 -   [InfluxDB and Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openhab:3000](http://openhab:3000)
 -   [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
--   [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openhab:1880](http://openhab:1880)
+-   [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB 2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openhab:1880](http://openhab:1880)
 -   [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
 -   [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
 -   [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
