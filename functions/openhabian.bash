@@ -201,7 +201,7 @@ migrate_installation() {
   local amandaConfigs="/etc/amanda/openhab-*/disklist"
   local ztab="/etc/ztab"
   local serviceDir="/etc/systemd/system"
-  local services="srv-openhab2\\x2daddons.mount srv-openhab2\\x2dconf.mount srv-openhab2\\x2dlogs.mount srv-openhab2\\x2duserdata.mount  srv-openhab2\\x2dsys.mount"
+  local services
   # shellcheck disable=SC2206
   local mountUnits="${serviceDir}/srv-openhab*"
   local from
@@ -235,6 +235,7 @@ migrate_installation() {
     to="openhab2"
     distro="stable"
   fi
+  services="srv-${from}\\x2daddons.mount srv-${from}\\x2dconf.mount srv-${from}\\x2dlogs.mount srv-${from}\\x2duserdata.mount  srv-${from}\\x2dsys.mount"
 
   javaVersion="$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')"
   # shellcheck disable=SC2154
