@@ -11,10 +11,9 @@ create_systemd_dependencies() {
   echo -n "$(timestamp) [openHABian] Creating dependencies to jointly start services that depend on each other... "
   if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare directory)"; return 1; fi
   if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean directory)"; return 1; fi
-  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/openhab2-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/openhab-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (reload configuration)"; return 1; fi
 }
-
 
 ## Function to quickly rename openHAB rules back and forth after two minutes to
 ## speed up startup of openHAB.
@@ -243,9 +242,9 @@ openhab_misc() {
 
   echo -n "$(timestamp) [openHABian] Optimizing openHAB to run on low memory single board computers... "
   if has_lowmem; then
-    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting openHAB HTTP/HTTPS ports... "
