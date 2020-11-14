@@ -255,6 +255,7 @@ migrate_installation() {
       sed -i "s|/${from}|/${to}|g" "$i"
     fi
   done
+  echo "OK"
 
   echo -n "$(timestamp) [openHABian] Migrating samba mount units... "
   if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba)"; return 1; fi
@@ -275,10 +276,11 @@ migrate_installation() {
   sed -i "s|${from}/|${to}/|g" $frontailService
   sed -i "s|${from}/|${to}/|g" $frontailJSON
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-  if ! cond_redirect systemctl restart frontail.service; then echo "FAILED (restart frontail)"; return 1; fi
+  if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart frontail)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Migrating homegear... "
   sed -i "s|${from}/|${to}/|g" $homegearService
+  echo "OK"
 
   if [[ -s /etc/ztab ]]; then
     echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
