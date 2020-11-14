@@ -4,9 +4,9 @@ All announcements will be stored in /opt/openhabian/docs/NEWSLOG.md for you to
 lookup.
 
 ## November 14, 2020
-## WiFi hotspot
+## WiFi Hotspot
 Whenever your system has a WiFi interface that fails to initialize on installation or startup,
-openHABian will now launch a WiFi hotspot you can use to bootstrap WiFi i.e. to connect your
+openHABian will now launch a [WiFi hotspot](docs/openhabian.md#WiFi-Hotspot) you can use to bootstrap WiFi i.e. to connect your
 system to an existing WiFi network.
 
 
