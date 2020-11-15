@@ -119,6 +119,9 @@ else
 
   sed -i 's|REGDOMAIN=.*$|REGDOMAIN='"${wifiCountry}"'|g' /etc/default/crda
 
+  echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
+  setup_hotspot "install"
+
   if is_pi; then
     echo "OK (rebooting)"
     reboot
@@ -129,7 +132,7 @@ else
 fi
 
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
-if tryUntil "ping -c1 www.example.com &> /dev/null || curl --silent --head http://www.example.com |& grep -qs 'HTTP/1.1 200 OK'" 30 1; then
+if tryUntil "ping -c1 www.example.com &> /dev/null || curl --silent --head http://www.example.com |& grep -qs 'HTTP/1.1 200 OK'" 3600 1; then
   echo "FAILED"
   if grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig |& grep -qs "ESSID:off"; then
     echo "$(timestamp) [openHABian] I was not able to connect to the configured Wi-Fi. Please check your signal quality. Reachable Wi-Fi networks are:"
@@ -137,14 +140,16 @@ if tryUntil "ping -c1 www.example.com &> /dev/null || curl --silent --head http:
     echo "$(timestamp) [openHABian] Please try again with your correct SSID and password. The following Wi-Fi configuration was used:"
     cat /etc/wpa_supplicant/wpa_supplicant.conf
     rm -f /etc/wpa_supplicant/wpa_supplicant.conf
-    echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
-    setup_hotspot "install"
-  else
-    echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
-    echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but without proper Internet connectivity this is not guaranteed to work."
   fi
+  echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
+  echo "$(timestamp)              We have launched a publicly accessible hotspot named openHABian-<n>."
+  echo "$(timestamp)              Use your mobile to connect and go to http://raspberrypi.local or http://10.42.0.1/"
+  echo "$(timestamp)              and select the WiFi network you want to connect your openHABian system to."
+  echo "$(timestamp)              After about an hour, we will continue trying to get your system installed,"
+  echo "$(timestamp)              but without proper Internet connectivity this is not guaranteed to work."
+else
+  echo "OK"
 fi
-echo "OK"
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
 if wait_for_apt_to_be_ready; then echo "OK"; else echo "FAILED"; fi
