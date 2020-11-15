@@ -30,8 +30,6 @@ source "$(dirname "$0")"/functions/helpers.bash
 source "$(dirname "$0")"/functions/java-jre.bash
 # shellcheck source=functions/packages.bash
 source "$(dirname "$0")"/functions/packages.bash
-# shellcheck source=functions/wifi.bash
-source "$(dirname "$0")"/functions/wifi.bash
 # shellcheck source=functions/zram.bash
 source "$(dirname "$0")"/functions/zram.bash
 
