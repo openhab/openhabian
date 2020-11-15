@@ -128,7 +128,7 @@ configure_wifi() {
 # wget https://davesteele.github.io/key-366150CE.pub.txt
 # apt-key add key-366150CE.pub.txt
 setup_hotspot() {
-  local wpaFile=/etc/wpa_supplicant/wpa_supplicant.conf
+#  local wpaFile=/etc/wpa_supplicant/wpa_supplicant.conf
 
   if [[ $1 == "install" ]]; then
     echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
