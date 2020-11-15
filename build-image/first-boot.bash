@@ -31,6 +31,7 @@ if ! cp /boot/openhabian.conf "$CONFIGFILE"; then echo "FAILED (copy)"; fail_inp
 if ! sed -i 's|\r$||' "$CONFIGFILE"; then echo "FAILED (Unix line endings)"; fail_inprogress; fi
 if ! source "$CONFIGFILE"; then echo "FAILED (source config)"; fail_inprogress; fi
 if ! source "/opt/openhabian/functions/helpers.bash"; then echo "FAILED (source helpers)"; fail_inprogress; fi
+if ! source "/opt/openhabian/functions/wifi.bash"; then echo "FAILED (source wifi)"; fail_inprogress; fi
 if source "/opt/openhabian/functions/openhabian.bash"; then echo "OK"; else echo "FAILED (source openhabian)"; fail_inprogress; fi
 
 if [[ "${debugmode:-on}" == "on" ]]; then
