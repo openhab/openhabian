@@ -82,8 +82,6 @@ if [[ -z $wifi_ssid ]]; then
   echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... "
   if grep -qs "up" /sys/class/net/eth0/operstate; then echo "OK"; else echo "FAILED"; fi
 elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
-  echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
-  setup_hotspot "install"
   echo -n "$(timestamp) [openHABian] Checking if WiFi is working... "
   if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
     # WiFi might be blocked
@@ -132,18 +130,20 @@ fi
 
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
 if tryUntil "ping -c1 www.example.com &> /dev/null || curl --silent --head http://www.example.com |& grep -qs 'HTTP/1.1 200 OK'" 30 1; then
-    echo "FAILED"
-    if grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig |& grep -qs "ESSID:off"; then
-      echo "$(timestamp) [openHABian] I was not able to connect to the configured Wi-Fi. Please check your signal quality. Reachable Wi-Fi networks are:"
-      iwlist wlan0 scanning | grep "ESSID" | sed 's/^\s*ESSID:/\t- /g'
-      echo "$(timestamp) [openHABian] Please try again with your correct SSID and password. The following Wi-Fi configuration was used:"
-      cat /etc/wpa_supplicant/wpa_supplicant.conf
-      rm -f /etc/wpa_supplicant/wpa_supplicant.conf
-    else
-      echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
-      echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but without proper Internet connectivity this is not guaranteed to work."
-    fi
+  echo "FAILED"
+  if grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig |& grep -qs "ESSID:off"; then
+    echo "$(timestamp) [openHABian] I was not able to connect to the configured Wi-Fi. Please check your signal quality. Reachable Wi-Fi networks are:"
+    iwlist wlan0 scanning | grep "ESSID" | sed 's/^\s*ESSID:/\t- /g'
+    echo "$(timestamp) [openHABian] Please try again with your correct SSID and password. The following Wi-Fi configuration was used:"
+    cat /etc/wpa_supplicant/wpa_supplicant.conf
+    rm -f /etc/wpa_supplicant/wpa_supplicant.conf
+    echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
+    setup_hotspot "install"
+  else
+    echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
+    echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but without proper Internet connectivity this is not guaranteed to work."
   fi
+fi
 echo "OK"
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
