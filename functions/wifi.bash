@@ -136,6 +136,9 @@ setup_hotspot() {
     if cond_redirect apt install --yes -o Dpkg::Options::=--force-confdef comitup; then echo "OK"; else echo "FAILED"; return 1; fi
     echo "denyinterfaces wlan0" >> /etc/dhcpcd.conf
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
+
+    (echo "m"; echo ${wifi_ssid}; echo ${wifi_psk}; echo "q") | comitup-cli
+
 #    mv ${wpaFile} ${wpaFile}.dist
 #  elif [[ $1 == "disable" ]]; then
 #    if [[ -s "${wpaFile}.dist" ]]; then
