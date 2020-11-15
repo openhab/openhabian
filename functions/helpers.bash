@@ -361,7 +361,9 @@ tryUntil() {
 
   until [[ $attempts -le 0 ]]; do
     cond_echo "\\nexecuting $cmd \\c"
-    if [[ $(eval "$cmd") -eq 0 ]]; then break; fi
+    eval "$cmd"
+    out=$?
+    if [[ $out -eq 0 ]]; then break; fi
     sleep "$interval"
     if [[ -z $SILENT ]]; then
       echo -e "#${attempts}. $COL_DEF"
