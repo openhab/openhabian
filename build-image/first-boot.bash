@@ -146,7 +146,7 @@ echo "OK"
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
 if wait_for_apt_to_be_ready; then echo "OK"; else echo "FAILED"; fi
 
-firmwareBefore="$(dpkg -s raspberrypi-kernel | grep "Version:[[:space:]]")"
+firmwareBefore="$(dpkg -s raspberrypi-kernel |& grep "Version:[[:space:]]")"
 echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
 apt-get install --fix-broken --yes &> /dev/null
 if [[ $(eval "$(apt-get --yes upgrade &> /dev/null)") -eq 100 ]]; then
@@ -154,7 +154,7 @@ if [[ $(eval "$(apt-get --yes upgrade &> /dev/null)") -eq 100 ]]; then
   dpkg --configure --pending &> /dev/null
   apt-get install --fix-broken --yes &> /dev/null
   if apt-get upgrade --yes &> /dev/null; then
-    if [[ $firmwareBefore != "$(dpkg -s raspberrypi-kernel | grep "Version:[[:space:]]")" ]]; then
+    if [[ $firmwareBefore != "$(dpkg -s raspberrypi-kernel |& grep "Version:[[:space:]]")" ]]; then
       # Fix for issues with updating kernel during install
       echo "OK (rebooting)"
       reboot
@@ -165,7 +165,7 @@ if [[ $(eval "$(apt-get --yes upgrade &> /dev/null)") -eq 100 ]]; then
     echo "FAILED"
   fi
 else
-  if [[ $firmwareBefore != "$(dpkg -s raspberrypi-kernel | grep "Version:[[:space:]]")" ]]; then
+  if [[ $firmwareBefore != "$(dpkg -s raspberrypi-kernel |& grep "Version:[[:space:]]")" ]]; then
     # Fix for issues with updating kernel during install
     echo "OK (rebooting)"
     reboot
