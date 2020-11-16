@@ -12,6 +12,9 @@ nodejs_setup() {
   local myDistro
   local temp
 
+  echo -n "$(timestamp) [openHABian] Installing NodeJS prerequisites (npm)... "
+  if cond_redirect apt-get install --yes npm; then echo "OK"; else echo "FAILED"; return 1; fi
+
   if ! [[ -x $(command -v lsb_release) ]]; then
     echo -n "$(timestamp) [openHABian] Installing NodeJS prerequsites (lsb-release)... "
     if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
