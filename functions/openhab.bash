@@ -84,7 +84,7 @@ openhab_setup() {
     echo "OK"
   fi
 
-  if [[ -z $OFFLINE ]]; then
+  if running_in_docker || [[ -z $OFFLINE ]]; then
     if ! add_keys "https://bintray.com/user/downloadSubjectPublicKey?username=openhab"; then return 1; fi
 
     echo "$repo" > /etc/apt/sources.list.d/${ohPkgName}.list
