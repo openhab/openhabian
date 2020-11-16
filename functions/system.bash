@@ -315,7 +315,7 @@ permissions_corrections() {
   if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; return 1; fi
   if ! cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "FAILED"; return 1; fi
 
-  if cond_redirect chgrp root /var/log/samba /var/log/unattended-upgrades; then echo "OK"; else echo "FAILED (3rd party logdir)"; return 1; fi
+  if cond_redirect chgrp --silent root /var/log/samba /var/log/unattended-upgrades; then echo "OK"; else echo "FAILED (3rd party logdir)"; return 1; fi
 
   if [[ -d /etc/homegear ]]; then
     echo -n "$(timestamp) [openHABian] Applying additional file permissions recommendations for Homegear... "
