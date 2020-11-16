@@ -210,15 +210,10 @@ else
   echo "$(timestamp) [openHABian] We tried to get your system installed, but without proper internet connectivity this may not have worked properly."
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-config unattended' completed."
-
-ip a
-host ${HOSTNAME:-openhab}
-
 echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready on ${HOSTNAME:-openhab}... "
 
 # this took ~130 seconds on a RPi2
 if ! tryUntil "curl --silent --head http://${HOSTNAME:-openhab}:8080/start/index |& grep -qs 'HTTP/1.1 200 OK'" 20 10; then echo "OK"; else echo "FAILED"; exit 1; fi
-#if ! tryUntil "curl --silent --head http://127.0.0.1:8080/start/index |& grep -qs 'HTTP/1.1 200 OK'" 20 10; then echo "OK"; else echo "FAILED"; exit 1; fi
 
 echo "$(timestamp) [openHABian] First time setup successfully finished. Rebooting your system!"
 echo "$(timestamp) [openHABian] After rebooting the openHAB dashboard will be available at: http://${HOSTNAME:-openhab}:8080"
