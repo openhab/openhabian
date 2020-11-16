@@ -212,6 +212,8 @@ fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-config unattended' completed."
 
 ip a
+host ${HOSTNAME:-openhab}
+
 echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready on ${HOSTNAME:-openhab}... "
 
 # this took ~130 seconds on a RPi2
