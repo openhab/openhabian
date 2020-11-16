@@ -6,6 +6,9 @@
 ##    nodejs_setup()
 ##
 nodejs_setup() {
+  echo -n "$(timestamp) [openHABian] Installing NodeJS prerequsites (npm)... "
+  if cond_redirect apt-get install --yes npm; then echo "OK"; else echo "FAILED"; return 1; fi
+
   if [[ -x $(command -v npm) ]] && [[ $(node --version) == "v12"* ]] && ! is_armv6l; then return 0; fi
 
   local link="https://unofficial-builds.nodejs.org/download/release/v12.19.0/node-v12.19.0-linux-armv6l.tar.xz"
