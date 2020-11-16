@@ -13,7 +13,7 @@ services:
   - docker
 
 stages:
-  - BATS tests
+    #  - BATS tests
   - openHABian installation tests
 
 install:
