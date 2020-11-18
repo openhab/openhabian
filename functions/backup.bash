@@ -349,12 +349,19 @@ mirror_SD() {
   local src="/dev/mmcblk0"
   local dest="${2:-${backupdrive}}"
   local start
+  local destPartsLargeEnough=true
   local storageDir="${storagedir:-/storage}"
   local syncMount="${storageDir}/syncmount"
   local dirty="no"
+  local repartitionText
   local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
   local partUUID
 
+  if [[ $# -eq 1 ]] && [[ -n "$INTERACTIVE" ]]; then
+    select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
+    # shellcheck disable=SC2154
+    dest="/dev/$retval"
+  fi
   if [[ "${src}" == "${dest}" ]]; then
     echo "FAILED (source = destination)"
     return 1
@@ -377,10 +384,22 @@ mirror_SD() {
       srcSize="$(blockdev --getsize64 "$src"p${i})"
       destSize="$(blockdev --getsize64 "$dest"${i})"
       if [[ "$destSize" -lt "$srcSize" ]]; then
-        echo "FAILED (raw device copy of ${src}${i} larger than ${dest}${i})"
-        return 1
+        echo -n "raw device copy of ${src}p${i} is larger than ${dest}${i}... "
+        destPartsLargeEnough=false
       fi
     done
+    if ! [[ "$destPartsLargeEnough" == "true" ]]; then
+      srcSize="$(blockdev --getsize64 "$src")"
+      destSize="$(blockdev --getsize64 "$dest")"
+      if [[ "$destSize" -lt "$srcSize" ]]; then
+        echo "FAILED (cannot duplicate internal SD card ${src}, it is larger than external ${dest})"
+        if [[ -z "$INTERACTIVE" ]]; then return 1; fi
+        repartitionText="One or more of the selected destination partition(s) are smaller than their equivalents on the internal SD card so you cannot simply replicate that. The physical size is sufficient though.\\n\\nDo you want the destination ${dest} to be overwritten to match the partitions of theinternal SD card ?"
+        if ! (whiptail --title "Repartition $dest" --yes-button "Repartition" --no-button "Cancel" --yesno "$repartitionText" 12 116); then echo "CANCELED"; return 0; fi
+      fi
+      sfdisk -d /dev/mmcblk0 | sfdisk --force "$dest"
+      partprobe
+    fi
     echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
     if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1" status=progress; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
     if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
@@ -488,7 +507,7 @@ setup_mirror_SD() {
 
   infoText="$infoText1 $dest $infoText2"
   srcSize="$(blockdev --getsize64 /dev/mmcblk0)"
-  minSize="$((19 * srcSize / 10))"	# to accomodate for slight differences in SD sizes
+  minSize="$((195 * srcSize / 100))"	# to accomodate for slight differences in SD sizes
   destSize="$(blockdev --getsize64 "$dest")"
   if [[ "$destSize" -lt "$minSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
