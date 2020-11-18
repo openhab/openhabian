@@ -25,6 +25,9 @@ Note backups are NOT active per default so remember to set them up right at the 
 }
 
 show_main_menu() {
+  local choice
+  local version
+  
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
@@ -163,9 +166,9 @@ show_main_menu() {
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "openHAB Setup Options" --menu "Setup Options" 21 116 14 --cancel-button Back --ok-button Execute \
-    "41 | openHAB 2 release"      "Install or switch to the latest openHAB 2 release" \
-    "   | openHAB 2 testing"      "Install or switch to the latest openHAB 2 testing build" \
-    "   | openHAB 2 snapshot"     "Install or switch to the latest openHAB 2 SNAPSHOT build" \
+    "41 | openHAB release"        "Install or switch to the latest openHAB release" \
+    "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
+    "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
     "42 | Upgrade to openHAB 3"   "Upgrade OS environment to openHAB 3 testing milestone (BETA !)" \
     "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 stable" \
     "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
@@ -180,11 +183,12 @@ show_main_menu() {
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
+    version=$([ openhab3_is_installed ] && echo openHAB3 || echo openHAB2)
     # shellcheck disable=SC2154
     case "$choice2" in
-      41\ *) openhab_setup openHAB2 "stable";;
-      *openHAB\ testing) openhab_setup openHAB2 "testing";;
-      *openHAB\ snapshot) openhab_setup openHAB2 "unstable";;
+      41\ *) openhab_setup "$version" "stable";;
+      *openHAB\ testing) openhab_setup "$version" "testing";;
+      *openHAB\ snapshot) openhab_setup "$version" "unstable";;
       42\ *) migrate_installation openHAB3 "testing" && openhabian_update "openHAB3";;
       *Downgrade\ to\ openHAB\ 2) migrate_installation openHAB2 "stable" && openhabian_update "stable";;
       43\ *) openhab_shell_interfaces;;
