@@ -2,7 +2,7 @@
 set -e
 
 ####################################################################
-#### dummy: changed this line 10 times to force another image build
+#### dummy: changed this line 12 times to force another image build
 ####################################################################
 
 usage() {
@@ -28,10 +28,10 @@ cleanup_build() {
 source "$(dirname "$0")"/functions/helpers.bash
 # shellcheck source=functions/java-jre.bash
 source "$(dirname "$0")"/functions/java-jre.bash
-# shellcheck source=functions/zram.bash
-source "$(dirname "$0")"/functions/zram.bash
 # shellcheck source=functions/packages.bash
 source "$(dirname "$0")"/functions/packages.bash
+# shellcheck source=functions/zram.bash
+source "$(dirname "$0")"/functions/zram.bash
 
 ## This function formats log messages
 ##
@@ -366,6 +366,11 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64beta" ]
   # shellcheck disable=SC2154
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" "$buildFolder"/root/etc/hosts
   echo "$hostname" > "$buildFolder"/root/etc/hostname
+
+  echo_process "Cutting 1GB off rootfs... "
+  sed -i "16 i size=(( $(blockdev --getsize64) - 1024 * 1024 * 1024 ))" "${buildFolder}/root/etc/init.d/resize2fs_once"
+  # shellcheck disable=SC2154
+  sed -i "s|resize2fs $ROOT_DEV|resize2fs $ROOT_DEV $size|g" "${buildFolder}/root/etc/init.d/resize2fs_once"
 
   echo_process "Injecting 'openhabian-installer.service', 'first-boot.bash' and 'openhabian.conf'... "
   cp "$sourceFolder"/openhabian-installer.service "$buildFolder"/root/etc/systemd/system/
