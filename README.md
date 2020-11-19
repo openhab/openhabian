@@ -1,4 +1,8 @@
-﻿As an **openHABian end user**, please check out the official openHAB
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/openhab/openhabian)
+
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/openhab/openhabian)
+
+As an **openHABian end user**, please check out the official openHAB
 documentation:  
 -   <https://www.openhab.org/docs/installation/openhabian.html>
 
