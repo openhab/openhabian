@@ -368,8 +368,9 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64beta" ]
   echo "$hostname" > "$buildFolder"/root/etc/hostname
 
   echo_process "Cutting 1GB (2G sectors) off rootfs... "
+  # shellcheck disable=SC2016
   sed -i '16 i \    size=(( $(blockdev --getsize64 $ROOT_DEV) / 512 - 2 * 1024 * 1024 ))" "${buildFolder}/root/etc/init.d/resize2fs_once'
-  # shellcheck disable=SC2154
+  # shellcheck disable=SC2016
   sed -i 's|resize2fs $ROOT_DEV|resize2fs $ROOT_DEV ${size}s|g" "${buildFolder}/root/etc/init.d/resize2fs_once'
 
   echo_process "Injecting 'openhabian-installer.service', 'first-boot.bash' and 'openhabian.conf'... "
