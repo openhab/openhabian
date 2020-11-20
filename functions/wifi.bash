@@ -134,15 +134,11 @@ setup_hotspot() {
     echo -n "$(timestamp) [openHABian] Installing hotspot... "
     if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
     if cond_redirect apt install --yes -o Dpkg::Options::=--force-confdef comitup; then echo "OK"; else echo "FAILED"; return 1; fi
-    echo "denyinterfaces wlan0" >> /etc/dhcpcd.conf
+    echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
-#    mv ${wpaFile} ${wpaFile}.dist
   elif [[ $1 == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Uninstalling hotspot... "
     if cond_redirect apt purge --yes comitup; then echo "OK"; else echo "FAILED"; return 1; fi
-#    if [[ -s "${wpaFile}.dist" ]]; then
-#      mv  ${wpaFile}.dist ${wpaFile}
-#    fi
   fi
 }
 
