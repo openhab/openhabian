@@ -129,7 +129,7 @@ setup_hotspot() {
     echo -n "$(timestamp) [openHABian] Installing Comitup hotspot... "
     # get from source - the comitup package in Buster is 2yrs old
     if ! add_keys https://davesteele.github.io/key-366150CE.pub.txt; then echo "FAILED (comitup repo setup)"; return 1; fi
-    echo "deb http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.listA
+    echo "deb http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.list
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
 
     if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
