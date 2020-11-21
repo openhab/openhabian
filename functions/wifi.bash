@@ -123,15 +123,15 @@ configure_wifi() {
 ##
 ##    setup_hotspot(String option)
 ##
-# comitup package is in Debian unstable, if problems:
-# cat "deb http://davesteele.github.io/comitup/repo comitup main" >> /etc/apt/sources.list.d/comitup.list
-# wget https://davesteele.github.io/key-366150CE.pub.txt
-# apt-key add key-366150CE.pub.txt
 setup_hotspot() {
-#  local wpaFile=/etc/wpa_supplicant/wpa_supplicant.conf
 
   if [[ $1 == "install" ]]; then
-    echo -n "$(timestamp) [openHABian] Installing hotspot... "
+    echo -n "$(timestamp) [openHABian] Installing Comitup hotspot... "
+    # get from source - the comitup package in Buster is 2yrs old
+    if ! add_keys https://davesteele.github.io/key-366150CE.pub.txt; then echo "FAILED (comitup repo setup)"; return 1; fi
+    echo "deb http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.listA
+    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+
     if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
     if cond_redirect apt install --yes -o Dpkg::Options::=--force-confdef comitup; then echo "OK"; else echo "FAILED"; return 1; fi
     echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
