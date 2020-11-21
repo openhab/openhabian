@@ -295,9 +295,14 @@ Use `storagecapacity=xxx` to override how much space to consume at most for Aman
 If you choose to skip this during system installation, you can still setup both, mirroring and Amanda, at
 any later time using the 5X menu options.
 
-Should you need to switch to run on backup, get a another new SD card to match the size of the broken card.
+Menu 5X provides interactive access to the aforementioned functions:
+`53 Setup SD monitoring` prepares the partitions on an SD card and sets up timers to execute both, a full mirroring
+and complementary rsync 'diff' runs in a backup schedule.
+`54 Raw copy SD` is a one-time raw copy (mirror) run.
+`55 Sync SD` proagates (syncs) differences from your main SD card to your external card.
 
-Use menu option 54 to copy your active backup card back to the new one and switch cards back as soon as possible.
+Should you need to switch over to your backup card, get a another new SD card to match the size of the broken card and use menu option 54 to copy your active backup card back to the new one and switch cards back as soon as possible.
+
 
 #### Tailscale VPN network
 Tailscale is a management toolset to establish a WireGuard based VPN between multiple systems if you want
