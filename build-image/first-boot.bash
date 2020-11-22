@@ -84,7 +84,7 @@ if [[ -z $wifi_ssid ]]; then
   echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... "
   if grep -qs "up" /sys/class/net/eth0/operstate; then echo "OK"; else echo "FAILED"; fi
 
-  if tryUntil "ping -c1 www.example.com &> /dev/null || curl --silent --head http://www.example.com |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
+  if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
     if ! [[ -x $(command -v comitup) ]]; then
       setup_hotspot "install"
     fi
@@ -104,7 +104,7 @@ elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qs
       echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
       if ! [[ -x $(command -v comitup) ]]; then
         setup_hotspot "install"
-        #reboot # wirklich rebooten? (nötig? schädlich?)
+        reboot # wirklich rebooten? (nötig? schädlich?)
       fi
       #fail_inprogress
     else
@@ -113,7 +113,7 @@ elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qs
   else
     echo "OK"
   fi
-  if tryUntil "ping -c1 www.example.com &> /dev/null || curl --silent --head http://www.example.com |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
+  if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
     if ! [[ -x $(command -v comitup)  ]]; then
       echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
       setup_hotspot "install"
@@ -156,7 +156,7 @@ else
 fi
 
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
-if tryUntil "ping -c1 www.example.com &> /dev/null || curl --silent --head http://www.example.com |& grep -qs 'HTTP/1.1 200 OK'" 86400 1; then
+if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 86400 1; then
   echo "FAILED"
   if grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig |& grep -qs "ESSID:off"; then
     echo "$(timestamp) [openHABian] I was not able to connect to the configured Wi-Fi. Please check your signal quality. Reachable Wi-Fi networks are:"
