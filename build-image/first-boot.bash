@@ -76,6 +76,8 @@ fi
 # While setup: show log to logged in user, will be overwritten by openhabian-setup.sh
 echo "watch cat /boot/first-boot.log" > "$HOME/.bash_profile"
 
+# setup networking
+apt install --yes network-manager &>/dev/null
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 if [[ -z $wifi_ssid ]]; then
   # Actually check if ethernet is working
@@ -110,6 +112,12 @@ elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qs
     fi
   else
     echo "OK"
+  fi
+  if tryUntil "ping -c1 www.example.com &> /dev/null || curl --silent --head http://www.example.com |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
+    if ! [[ -x $(command -v comitup)  ]]; then
+      echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
+      setup_hotspot "install"
+    fi
   fi
 else
   echo -n "$(timestamp) [openHABian] Setting up Wi-Fi connection... "
