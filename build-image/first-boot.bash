@@ -86,7 +86,10 @@ if [[ -z $wifi_ssid ]]; then
 
   if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
     if ! [[ -x $(command -v comitup) ]]; then
+      echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
       setup_hotspot "install"
+      cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
+      reboot
     fi
   fi
 elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
@@ -100,13 +103,7 @@ elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qs
       echo -e "\\nI was not able to turn on the WiFi\\nHere is some more information:\\n"
       rfkill list all
       ip a
-      # entweder hier (dann wird noch rfkill probiert bevor hotspot gestartet wird) sonst 5 Zeilen weiter unten
-      echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
-      if ! [[ -x $(command -v comitup) ]]; then
-        setup_hotspot "install"
-        reboot # wirklich rebooten? (nötig? schädlich?)
-      fi
-      #fail_inprogress
+      fail_inprogress
     else
       echo "OK"
     fi
@@ -117,6 +114,8 @@ elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qs
     if ! [[ -x $(command -v comitup)  ]]; then
       echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
       setup_hotspot "install"
+      cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
+      reboot
     fi
   fi
 else
