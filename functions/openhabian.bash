@@ -287,6 +287,9 @@ migrate_installation() {
     echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
     sed -i "s|/${from}|/${to}|g" $ztab
   fi
+
+  bashrc_copy
+
   # shellcheck disable=SC2154
   [[ "$zraminstall" != "disable" ]] && if cond_redirect systemctl start zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; return 1; fi
 }
