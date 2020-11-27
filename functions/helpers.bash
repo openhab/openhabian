@@ -202,8 +202,7 @@ is_pi400() {
   return $?
 }
 is_pi() {
-  if is_pifour || is_cmfour || is_pi400 || is_cmthreeplus || is_cmthree || is_pithree || is_pitwo || is_pione || is_cmone || is_pizerow || is_pizero
-      ; then return 0; fi
+  if is_pifour || is_cmfour || is_pi400 || is_cmthreeplus || is_cmthree || is_pithree || is_pitwo || is_pione || is_cmone || is_pizerow || is_pizero; then return 0; fi
   return 1
 }
 is_cm() {
