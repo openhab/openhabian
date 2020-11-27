@@ -196,8 +196,14 @@ is_cmfour() {
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]14[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
+is_pi400() {
+  if [[ "$hw" == "pi400" ]]; then return 0; fi
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]13[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
 is_pi() {
-  if is_pizero || is_pizerow || is_pione || is_cmone || is_pitwo || is_pithree || is_cmthree || is_pithreeplus || is_cmthreeplus || is_pifour || is_cmfour; then return 0; fi
+  if is_pifour || is_cmfour || is_pi400 || is_cmthreeplus || is_cmthree || is_pithree || is_pitwo || is_pione || is_cmone || is_pizerow || is_pizero
+      ; then return 0; fi
   return 1
 }
 is_cm() {
