@@ -239,7 +239,7 @@ setup_tailscale() {
   if ! tailscale up --authkey "${preAuthKey}"; then echo "FAILED (join tailscale VPN)"; return 1; fi 
   # shellcheck disable=SC2154
   tailscale status | mail -s "openHABian client joined tailscale VPN" "$adminmail"
-  tailscaleIP=$(ip a show tailscale0 | awk '/inet / { print substr([,1,length([)-3)}')
+  tailscaleIP=$(ip a show tailscale0 | awk '/inet / { print substr($2,1,length($2)-3)}')
   if [[ -n "$tailscaleIP"  ]]; then
     sed -ri "s|^(sshHost.*)|\\1,${tailscaleIP}|g" "$consoleProperties"
   fi
