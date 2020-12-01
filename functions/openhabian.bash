@@ -182,7 +182,7 @@ openhabian_update() {
     if [[ -n $INTERACTIVE ]]; then
       echo "Visit the development repository for more details: ${repositoryurl:-https://github.com/openhab/openhabian.git}"
       echo "The tool will now restart to load the updates... OK"
-      exec "${BASEDIR:-/opt/openhabian}/$SCRIPTNAME migration"
+      exec "${BASEDIR:-/opt/openhabian}/$SCRIPTNAME" migration
       exit 0
     fi
   fi
