@@ -140,28 +140,3 @@ setup_hotspot() {
     if cond_redirect apt purge --yes comitup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 }
-
-
-## ALTERNATIVE: Configure a WiFi hotspot
-## Valid arguments: "setup" or "disable"
-## see https://medium.com/@anooppoommen/create-a-wifi-hotspot-on-linux-29349b9c582d
-## or
-## see https://github.com/lakinduakash/linux-wifi-hotspot
-##
-##    setup_alt_hotspot(String option)
-##
-setup_alt_hotspot() {
-  local hostAPdConfig=hostapd.conf
-  #local DHCPdConfig=udhcpd.conf
-  local interface=hotspot0
-  local SSID=openHABian
-  #local APpassword
-
-  echo -n "$(timestamp) [openHABian] Installing hostapd hotspot... "
-  # TODO: check iw list if mode "ap" contained
-  apt install --yes hostapd
-  iw phy phy0 interface add ${interface} type __ap
-  if ! (sed -e 's|%INTERFACE|'"${interface}"'|g; s|%SSID|'"${SSID}"'|g; s|%PASSWORD|8003|g; s|%FINDSERVER|localhost|g' "${BASEDIR:-/opt/openhabian}"/includes/${hostAPdConfig}-template > "${HOME}/${hostAPdConfig}"); then echo "FAILED (hotspot creation)"; return 1; fi
-
-  hostapd "${HOME}/${hostAPdConfig}"
-}
