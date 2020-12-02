@@ -104,7 +104,7 @@ elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qs
       echo -e "\\nI was not able to turn on the WiFi\\nHere is some more information:\\n"
       rfkill list all
       ip a
-      fail_inprogress
+      echo -e "FAILED.\\n$(timestamp) [openHABian] Starting hotspot as a desperate last attempt; see if you can connect there...\\n"
     else
       echo "OK"
     fi
