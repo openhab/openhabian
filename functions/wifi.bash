@@ -106,7 +106,7 @@ configure_wifi() {
     if (whiptail --title "WiFi is currently enabled" --defaultno --yesno "$enabledText" 10 80); then
       cond_redirect enable_disable_wifi "disable"
       echo -n "$(timestamp) [openHABian] Cleaning up old WiFi configuration... "
-      if cond_redirect sed -i -e '/allow-hotplug wlan0/d; /iface wlan0 inet manual/d; /wpa-roam \/etc\/wpa_supplicant\/wpa_supplicant.conf/d; /iface default inet dhcp/d' /etc/network/interfaces; then echo "OK (reboot now)"; else echo "FAILED"; return 1; fi
+      if cond_redirect sed -i -e '/allow-hotplug wlan0/d; /iface wlan0 inet manual/d; /wpa-roam \/etc\/wpa_supplicant\/wpa_supplicant.conf/d; /iface default inet dhcp/d' /etc/network/interfaces; then echo "OK (will reboot now)"; else echo "FAILED"; return 1; fi
       whiptail --title "Operation Successful!" --msgbox "Setup was successful. Please reboot now." 7 80
     else
       echo "CANCELED"
