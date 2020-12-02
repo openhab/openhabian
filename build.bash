@@ -367,9 +367,10 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64beta" ]
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" "$buildFolder"/root/etc/hosts
   echo "$hostname" > "$buildFolder"/root/etc/hostname
 
-  echo_process "Cutting 1G sectors (0.5GB) off rootfs to make copies fit into smaller SD cards... "
+  echo_process "Cutting 1M sectors (0.5GB) off rootfs to make copies fit into smaller SD cards... "
+  blocksize=512
   # shellcheck disable=SC2016
-  sed -i '16 i \    size=$(( $(blockdev --getsize64 $ROOT_DEV) / 512 - 1024 * 1024 ))' "${buildFolder}/root/etc/init.d/resize2fs_once"
+  sed -i '16 i \    size=$(( $(blockdev --getsize64 $ROOT_DEV) / $blocksize - 1024 * 1024 ))' "${buildFolder}/root/etc/init.d/resize2fs_once"
   # shellcheck disable=SC2016
   sed -i 's|resize2fs $ROOT_DEV|resize2fs $ROOT_DEV ${size}s|g' "${buildFolder}/root/etc/init.d/resize2fs_once"
   sed -i 's|bin/sh|bin/bash|g' "${buildFolder}/root/etc/init.d/resize2fs_once"
