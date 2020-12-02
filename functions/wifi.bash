@@ -106,11 +106,37 @@ configure_wifi() {
     if (whiptail --title "WiFi is currently enabled" --defaultno --yesno "$enabledText" 10 80); then
       cond_redirect enable_disable_wifi "disable"
       echo -n "$(timestamp) [openHABian] Cleaning up old WiFi configuration... "
-      if cond_redirect sed -i -e '/allow-hotplug wlan0/d; /iface wlan0 inet manual/d; /wpa-roam \/etc\/wpa_supplicant\/wpa_supplicant.conf/d; /iface default inet dhcp/d' /etc/network/interfaces; then echo "OK (reboot now)"; else echo "FAILED"; return 1; fi
+      if cond_redirect sed -i -e '/allow-hotplug wlan0/d; /iface wlan0 inet manual/d; /wpa-roam \/etc\/wpa_supplicant\/wpa_supplicant.conf/d; /iface default inet dhcp/d' /etc/network/interfaces; then echo "OK (will reboot now)"; else echo "FAILED"; return 1; fi
       whiptail --title "Operation Successful!" --msgbox "Setup was successful. Please reboot now." 7 80
     else
       echo "CANCELED"
       return 0
     fi
+  fi
+}
+
+
+## Install comitup WiFi hotspot demon
+## Valid arguments: "setup" or "disable"
+## see https://davesteele.github.io/comitup/ppa.html and
+## https://gist.github.com/jjsanderson/ab2407ab5fd07feb2bc5e681b14a537a
+##
+##    setup_hotspot(String option)
+##
+setup_hotspot() {
+
+  if [[ $1 == "install" ]]; then
+    echo -n "$(timestamp) [openHABian] Installing Comitup hotspot... "
+    # get from source - the comitup package in Buster is 2yrs old
+    echo "deb http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.list
+    if ! cond_redirect apt-get --quiet update; then echo "FAILED (update apt lists)"; return 1; fi
+
+    if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
+    if cond_redirect apt install --yes -o Dpkg::Options::=--force-confdef comitup; then echo "OK"; else echo "FAILED"; return 1; fi
+    echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
+    sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
+  elif [[ $1 == "disable" ]]; then
+    echo -n "$(timestamp) [openHABian] Uninstalling hotspot... "
+    if cond_redirect apt purge --yes comitup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 }

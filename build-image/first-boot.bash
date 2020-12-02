@@ -31,6 +31,7 @@ if ! cp /boot/openhabian.conf "$CONFIGFILE"; then echo "FAILED (copy)"; fail_inp
 if ! sed -i 's|\r$||' "$CONFIGFILE"; then echo "FAILED (Unix line endings)"; fail_inprogress; fi
 if ! source "$CONFIGFILE"; then echo "FAILED (source config)"; fail_inprogress; fi
 if ! source "/opt/openhabian/functions/helpers.bash"; then echo "FAILED (source helpers)"; fail_inprogress; fi
+if ! source "/opt/openhabian/functions/wifi.bash"; then echo "FAILED (source wifi)"; fail_inprogress; fi
 if source "/opt/openhabian/functions/openhabian.bash"; then echo "OK"; else echo "FAILED (source openhabian)"; fail_inprogress; fi
 
 if [[ "${debugmode:-on}" == "on" ]]; then
@@ -75,11 +76,23 @@ fi
 # While setup: show log to logged in user, will be overwritten by openhabian-setup.sh
 echo "watch cat /boot/first-boot.log" > "$HOME/.bash_profile"
 
+# setup networking
+apt install --yes network-manager &>/dev/null
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 if [[ -z $wifi_ssid ]]; then
   # Actually check if ethernet is working
   echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... "
   if grep -qs "up" /sys/class/net/eth0/operstate; then echo "OK"; else echo "FAILED"; fi
+
+  if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
+    if [[ "$hotspot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
+      echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
+      setup_hotspot "install"
+      cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
+      echo "$(timestamp) [openHABian] hotspot software installed. Rebooting your system to make it take effect!"
+      reboot
+    fi
+  fi
 elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
   echo -n "$(timestamp) [openHABian] Checking if WiFi is working... "
   if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
@@ -91,12 +104,21 @@ elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qs
       echo -e "\\nI was not able to turn on the WiFi\\nHere is some more information:\\n"
       rfkill list all
       ip a
-      fail_inprogress
+      echo -e "FAILED.\\n$(timestamp) [openHABian] Starting hotspot as a desperate last attempt; see if you can connect there...\\n"
     else
       echo "OK"
     fi
   else
     echo "OK"
+  fi
+  if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
+    if [[ "$hotspot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
+      echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
+      setup_hotspot "install"
+      cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
+      echo "$(timestamp) [openHABian] hotspot software installed. Rebooting your system to make it take effect!"
+      reboot
+    fi
   fi
 else
   echo -n "$(timestamp) [openHABian] Setting up Wi-Fi connection... "
@@ -118,6 +140,13 @@ else
 
   sed -i 's|REGDOMAIN=.*$|REGDOMAIN='"${wifiCountry}"'|g' /etc/default/crda
 
+  echo -n "$(timestamp) [openHABian] Configuring network... "
+  if grep -qs "wlan0" /etc/network/interfaces; then
+    cond_echo "\\nNot writing to '/etc/network/interfaces', wlan0 entry already available. You might need to check, adopt or remove these lines."
+  else
+    echo -e "\\nallow-hotplug wlan0\\niface wlan0 inet manual\\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\\niface default inet dhcp" >> /etc/network/interfaces
+  fi
+
   if is_pi; then
     echo "OK (rebooting)"
     reboot
@@ -128,20 +157,24 @@ else
 fi
 
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
-if tryUntil "ping -c1 www.example.com &> /dev/null || curl --silent --head http://www.example.com |& grep -qs 'HTTP/1.1 200 OK'" 30 1; then
-    echo "FAILED"
-    if grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig |& grep -qs "ESSID:off"; then
-      echo "$(timestamp) [openHABian] I was not able to connect to the configured Wi-Fi. Please check your signal quality. Reachable Wi-Fi networks are:"
-      iwlist wlan0 scanning | grep "ESSID" | sed 's/^\s*ESSID:/\t- /g'
-      echo "$(timestamp) [openHABian] Please try again with your correct SSID and password. The following Wi-Fi configuration was used:"
-      cat /etc/wpa_supplicant/wpa_supplicant.conf
-      rm -f /etc/wpa_supplicant/wpa_supplicant.conf
-    else
-      echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
-      echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but without proper Internet connectivity this is not guaranteed to work."
-    fi
+if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 86400 1; then
+  echo "FAILED"
+  if grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig |& grep -qs "ESSID:off"; then
+    echo "$(timestamp) [openHABian] I was not able to connect to the configured Wi-Fi. Please check your signal quality. Reachable Wi-Fi networks are:"
+    iwlist wlan0 scanning | grep "ESSID" | sed 's/^\s*ESSID:/\t- /g'
+    echo "$(timestamp) [openHABian] Please try again with your correct SSID and password. The following Wi-Fi configuration was used:"
+    cat /etc/wpa_supplicant/wpa_supplicant.conf
+    rm -f /etc/wpa_supplicant/wpa_supplicant.conf
   fi
-echo "OK"
+  echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
+  echo "$(timestamp)              We have launched a publicly accessible hotspot named openHABian-<n>."
+  echo "$(timestamp)              Use your mobile to connect and go to http://raspberrypi.local or http://10.42.0.1/"
+  echo "$(timestamp)              and select the WiFi network you want to connect your openHABian system to."
+  echo "$(timestamp)              After about an hour, we will continue trying to get your system installed,"
+  echo "$(timestamp)              but without proper Internet connectivity this is not guaranteed to work."
+else
+  echo "OK"
+fi
 
 echo -n "$(timestamp) [openHABian] Waiting for dpkg/apt to get ready... "
 if wait_for_apt_to_be_ready; then echo "OK"; else echo "FAILED"; fi
@@ -202,7 +235,6 @@ else
   echo "$(timestamp) [openHABian] We tried to get your system installed, but without proper internet connectivity this may not have worked properly."
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-config unattended' completed."
-
 echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready on ${HOSTNAME:-openhab}... "
 
 # this took ~130 seconds on a RPi2

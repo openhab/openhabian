@@ -361,7 +361,9 @@ tryUntil() {
 
   until [[ $attempts -le 0 ]]; do
     cond_echo "\\nexecuting $cmd \\c"
-    if [[ $(eval "$cmd") -eq 0 ]]; then break; fi
+    eval "$cmd"
+    out=$?
+    if [[ $out -eq 0 ]]; then break; fi
     sleep "$interval"
     if [[ -z $SILENT ]]; then
       echo -e "#${attempts}. $COL_DEF"
@@ -458,6 +460,7 @@ select_blkdev() {
     retval="$(whiptail --title "$2" --cancel-button Cancel --ok-button Select --menu "\\n${3}" "${count}" 76 0 "${array[@]}" 3>&1 1>&2 2>&3)"
   fi
 }
+
 ## install bind9-dnsutils package if available (currently only in sid and focal)
 ## else resort to dnsutils
 ##
@@ -472,3 +475,20 @@ install_dnsutils() {
 
   return $?
 }
+
+## is the comitup WiFi hotspot active
+##
+##    is_hotspot_connected()
+is_hotspot() {
+  if ! [[ -x $(command -v "comitup-cli") ]]; then return 1; fi
+  if echo "q" | comitup-cli | grep -q 'State: HOTSPOT'; then return 0; else return 1; fi
+}
+
+## has WiFi been connected to a wireless network by means of a comitup hotspot
+##
+##    is_wifi_connected()
+is_wifi_connected() {
+  if ! [[ -x $(command -v "comitup-cli") ]]; then return 1; fi
+  if echo "q" | comitup-cli | grep -q 'State: CONNECTED'; then return 0; else return 1; fi
+}
+

@@ -2,7 +2,7 @@
 set -e
 
 ####################################################################
-#### dummy: changed this line 10 times to force another image build
+#### dummy: changed this line 14 times to force another image build
 ####################################################################
 
 usage() {
@@ -28,10 +28,10 @@ cleanup_build() {
 source "$(dirname "$0")"/functions/helpers.bash
 # shellcheck source=functions/java-jre.bash
 source "$(dirname "$0")"/functions/java-jre.bash
-# shellcheck source=functions/zram.bash
-source "$(dirname "$0")"/functions/zram.bash
 # shellcheck source=functions/packages.bash
 source "$(dirname "$0")"/functions/packages.bash
+# shellcheck source=functions/zram.bash
+source "$(dirname "$0")"/functions/zram.bash
 
 ## This function formats log messages
 ##
