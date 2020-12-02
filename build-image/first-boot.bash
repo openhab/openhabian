@@ -86,7 +86,7 @@ if [[ -z $wifi_ssid ]]; then
 
   if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
     if [[ "$hotspot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
-      echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
+      echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
       setup_hotspot "install"
       cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
       echo "$(timestamp) [openHABian] hotspot software installed. Rebooting your system to make it take effect!"
@@ -113,7 +113,7 @@ elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qs
   fi
   if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
     if [[ "$hotspot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
-      echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
+      echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
       setup_hotspot "install"
       cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
       echo "$(timestamp) [openHABian] hotspot software installed. Rebooting your system to make it take effect!"
