@@ -3,6 +3,13 @@ PGUP/PGDN.
 All announcements will be stored in /opt/openhabian/docs/NEWSLOG.md for you to
 lookup.
 
+## November 14, 2020
+## WiFi Hotspot
+Whenever your system has a WiFi interface that fails to initialize on installation or startup,
+openHABian will now launch a [WiFi hotspot](docs/openhabian.md#WiFi-Hotspot) you can use to bootstrap WiFi i.e. to connect your
+system to an existing WiFi network.
+
+
 ## October 28, 2020
 ## openHAB3 readiness (BETA)
 openHABian now provides menu options 4X to upgrade your system to openHAB3 and to downgrade

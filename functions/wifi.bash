@@ -114,3 +114,29 @@ configure_wifi() {
     fi
   fi
 }
+
+
+## Install comitup WiFi hotspot demon
+## Valid arguments: "setup" or "disable"
+## see https://davesteele.github.io/comitup/ppa.html and
+## https://gist.github.com/jjsanderson/ab2407ab5fd07feb2bc5e681b14a537a
+##
+##    setup_hotspot(String option)
+##
+setup_hotspot() {
+
+  if [[ $1 == "install" ]]; then
+    echo -n "$(timestamp) [openHABian] Installing Comitup hotspot... "
+    # get from source - the comitup package in Buster is 2yrs old
+    echo "deb http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.list
+    if ! cond_redirect apt-get --quiet update; then echo "FAILED (update apt lists)"; return 1; fi
+
+    if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
+    if cond_redirect apt install --yes -o Dpkg::Options::=--force-confdef comitup; then echo "OK"; else echo "FAILED"; return 1; fi
+    echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
+    sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
+  elif [[ $1 == "disable" ]]; then
+    echo -n "$(timestamp) [openHABian] Uninstalling hotspot... "
+    if cond_redirect apt purge --yes comitup; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+}
