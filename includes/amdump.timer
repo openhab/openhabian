@@ -1,5 +1,5 @@
 [Unit]
-Description=Daily generation of FireMotD stats
+Description=Daily start of Amanda backup
 
 [Timer]
 OnCalendar=*-*-* 00:55
