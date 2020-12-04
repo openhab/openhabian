@@ -30,15 +30,14 @@ Please remain aware though that this is BETA code for the time being so it can
 mess up your system. Don't use this menu option to run a production setup of yours.
 
 ## Hardware recommendation
-Let's put this first: our current recommendation is to get a RPi 4 with 2 GB (4 are
-fine, too), a 3A power supply and a 16 GB SD card.<br>
+Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB,
+a 3A power supply and a 16 GB SD card.<br>
 Also get another 32 GB or larger SD card and a USB card reader to make use of the
 ["auto backup" feature](docs/openhabian.md#Auto-Backup).
 ***
 ATTENTION:<br>
-Avoid getting a RPi4 with 8GB. It's a waste of money and it has issues.
-You must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram)
-or use the 64bit image (untested).
+Avoid getting the 8 GB model of RPi4. 8 GB are waste of money and it has issues,
+you must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram) or use the 64bit image (untested).
 ***
 ## Hardware and OS support
 As of openHABian version 1.6, all Raspberry Pi models are supported as hardware.
