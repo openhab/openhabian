@@ -10,7 +10,7 @@ source: https://github.com/openhab/openhabian/blob/master/docs/openhabian.md
 
 # openHABian - Hassle-free openHAB Setup
 The Raspberry Pi and other small single-board computers are quite famous platforms for openHAB.
-However, setting up a fully working Linux system with all recommended packages and openHAB recommendations is a **boring task** taking quite some time and **Linux newcomers** shouldn't worry about these technical details.
+However, setting up a fully working Linux system with all recommended packages and openHAB recommendations is a **boring task**, takes a lot of time and **Linux newcomers** shouldn't need to worry about technical details like these.
 
 <p style="text-align: center; font-size: 1.2em; font-style: italic;"><q>A home automation enthusiast doesn't have to be a Linux enthusiast!</q></p>
 
@@ -33,13 +33,11 @@ The following features are provided by the openHABian image out of the box:
 -   the latest stable version of openHAB 2
 -   Zulu Embedded OpenJDK Java 8, 11 or AdoptOpenJDK
 -   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
--   openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
+-   web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
 -   Samba file sharing [pre-configured to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
 -   Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
 -   Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
--   Customized Bash shell experience
--   Customized settings and openHAB syntax highlighting for [vim](https://github.com/cyberkov/openhab-vim) and [nano](https://github.com/airix1/openhabnano)
--   web based openHAB log viewer
+-   Customized Bash shell experience, settings and openHAB syntax highlighting for [vim](https://github.com/cyberkov/openhab-vim) and [nano](https://github.com/airix1/openhabnano)
 -   [Mosquitto](https://mosquitto.org) MQTT broker
 -   the [InfluxDB](https://www.influxdata.com/) database to store home automation data and [Grafana](https://grafana.com/) to visualize it
 -   FIND, the [Framework for Internal Navigation and Discovery](https://www.internalpositioning.com/)
@@ -49,7 +47,7 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 
 ![openHABian-config menu](images/openHABian-config.png)
 
--   Switch over to the latest *Milestone* or *Snapshot* release of openHAB 2 [*unstable/SNAPSHOT* build](https://www.openhab.org/docs/installation/linux.html#changing-versions)
+-   Switch over to the latest *Milestone* or *Snapshot* release of openHAB [*unstable/SNAPSHOT* build](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 -   Install and Setup a [reverse proxy](security.html#nginx-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
 -   Set up a WiFi connection
 -   Bind the [openHAB remote console]({{base}}/administration/console.html) to all interfaces
@@ -172,7 +170,7 @@ A lot of helpful articles can be found on the internet, for example:
 -   The official Raspberry Pi help articles over at [raspberrypi.org](https://www.raspberrypi.org/help)
 -   "Now what?", Tutorial on the Command line console at [LinuxCommand.org](http://linuxcommand.org/index.php)
 
-*The good news:* openHABian helps you to stay away from Linux - *The bad news:* Not for long...
+*The good news:* openHABian helps you to stay away from Linux - *The bad news:* not for long...
 
 Regardless of if you want to copy some files or are on the search for a solution to a problem, sooner or later you'll have to know some Linux.
 Take a few minutes to study the above Tutorials and get to know the most basic commands and tools to be able to navigate on your Linux system, edit configurations, check the system state or look at log files.
