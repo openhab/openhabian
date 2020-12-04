@@ -92,13 +92,9 @@ openhab_setup() {
     echo -n "$(timestamp) [openHABian] Installing selected openHAB version... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     openhabVersion="$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)"
-    # as of 3.0M4, install may fail for an unknown reason but finishes when run for the 2nd time
-    cond_redirect apt-get install --allow-downgrades --yes "${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"
     if cond_redirect apt-get install --allow-downgrades --yes "${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "
-    # as of 3.0M4, install may fail for an unknown reason but finishes when run for the 2nd time
-    cond_redirect apt-get install --yes ${ohPkgName} ${ohPkgName}-addons
+    echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "S
     if cond_redirect apt-get install --yes ${ohPkgName} ${ohPkgName}-addons; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
