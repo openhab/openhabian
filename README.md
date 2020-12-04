@@ -7,8 +7,8 @@ documentation:
 ![shellcheck](https://github.com/openhab/openhabian/workflows/shellcheck/badge.svg?branch=master)
 
 Setting up a fully working Linux system with all needed packages and openHAB
-recommendations is a **boring task** taking quite some time and
-**Linux newcomers** shouldn't worry about these technical details.
+recommendations is a **boring task**, takes a lot of time and **Linux newcomers**
+shouldn't need to worry about technical details like these.
 
 ***A home automation enthusiast doesn't have to be a Linux enthusiast!***
 
@@ -23,11 +23,11 @@ The project provides two things:
     hardware specific preparations for all *Raspberry Pi* models.
 
 ## openHAB versions 2 and 3
-openHABian was made to provide a seamless User eXperience with openHAB version 2.
-At the time of writing, the first openHAB 3 milestone was just released to the
-public and we have incorporated the necessary changes to run it on openHABian, too.
-Please remain aware though that this is BETA code for the time being so it can
-mess up your system. Don't use this menu option to run a production setup of yours.
+openHABian was made to provide a seamless User eXperience with openHAB.
+Now that the first openHAB 3 milestones were released to the public, we have
+incorporated the necessary changes to run on and migrate from within openHABian.
+Please remain aware though that this is fresh code and not much tested yet. It can
+mess up your system so take extra care if you want to migrate a production system.
 
 ## Hardware recommendation
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB,
@@ -40,10 +40,10 @@ Avoid getting the 8 GB model of RPi4. 8 GB are waste of money and it has issues,
 you must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram) or use the 64bit image (untested).
 ***
 ## Hardware and OS support
-As of openHABian version 1.6, all Raspberry Pi models are supported as hardware.
-Anything x86 based may work or not. Anything else ARM based such as ODroids,
+As of openHABian version 1.6 and later, all Raspberry Pi models are supported as
+hardware. Anything x86 based may work or not. Anything else ARM based such as ODroids,
 OrangePis and the like may work or not. NAS servers such as QNAP and Synology
-boxes will not work. Support for PINEA64 was dropped in this current release.
+boxes will not work. Support for PINEA64 was dropped in this current release.<br>
 We strongly recommend that users choose Raspberry Pi 2, 3 or 4 systems to have
 1 GB of RAM or more. RPi 1 and 0/0W only have a single CPU core and 512 MB.
 This can be sufficient to run a smallish openHAB setup, but it will
@@ -79,7 +79,7 @@ Going beyond what the RPi image provides, as a manually installed set of
 scripts, we support running openHABian on x86 hardware on generic Debian.
 On ARM, we only support Raspberry Pi OS.
 These are what we develop and test openHABian against.
-We do not actively support Ubuntu so no promises but we provide code "as-is"
+We do **not** actively **support Ubuntu** so no promises but we provide code "as-is"
 that is known to run on there. Several optional components though, such as
 WireGuard or Homegear, are known to expose problems.
 
