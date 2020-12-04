@@ -164,14 +164,6 @@ openhabian_update() {
     branch="${clonebranch:-stable}"
   fi
 
-# use menu 42 to migrate
-#
-#  if [[ "$branch" == "openHAB3" && "$current" != "openHAB3" ]]; then
-#    migrate_installation "openHAB3"
-#  elif [[ "$current" == "openHAB3" && "$branch" != "openHAB3" ]]; then
-#    migrate_installation "openHAB2"
-#  fi
-
   shorthashBefore="$(git -C "${BASEDIR:-/opt/openhabian}" log --pretty=format:'%h' -n 1)"
   if ! cond_redirect update_git_repo "${BASEDIR:-/opt/openhabian}" "$branch"; then echo "FAILED (update git repo)"; return 1; fi
   shorthashAfter="$(git -C "${BASEDIR:-/opt/openhabian}" log --pretty=format:'%h' -n 1)"
@@ -246,7 +238,6 @@ migrate_installation() {
   [[ "$zraminstall" != "disable" ]] && [[ -s /etc/ztab ]] && if cond_redirect systemctl stop zram-config.service zramsync.service; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
   backup_openhab_config
 
-  apt --yes remove ${from} ${from}-addons
   if [[ -z "$javaVersion" ]] || [[ "${javaVersion}" -lt "11" ]]; then
     echo -n "$(timestamp) [openHABian] WARNING: We were unable to detect Java 11 on your system so we will install the openHABian default (Zulu 11)."
     java_install_or_update "Zulu11-32"
