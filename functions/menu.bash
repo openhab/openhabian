@@ -96,8 +96,7 @@ show_main_menu() {
     "26 | Homegear"              "Homematic specific, the CCU2 emulation software Homegear" \
     "27 | knxd"                  "KNX specific, the KNX router/gateway daemon knxd" \
     "28 | 1wire"                 "1wire specific, owserver and related packages" \
-    "29 | FIND"                  "Framework for Internal Navigation and Discovery" \
-    "   | FIND3"                 "Framework for Internal Navigation and Discovery (BETA)" \
+    "29 | FIND 3"                "Framework for Internal Navigation and Discovery" \
     "   | Monitor Mode"          "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
     "2A | Telldus Core"          "Telldus Core service for Tellstick USB devices" \
     3>&1 1>&2 2>&3)
@@ -112,8 +111,7 @@ show_main_menu() {
       26\ *) homegear_setup ;;
       27\ *) knxd_setup ;;
       28\ *) 1wire_setup ;;
-      29\ *) find_setup ;;
-      *FIND3) find3_setup ;;
+      29\ *) find3_setup ;;
       *Monitor\ Mode) setup_monitor_mode ;;
       2A\ *) telldus_core_setup ;;
       "") return 0 ;;
