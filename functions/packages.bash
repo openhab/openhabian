@@ -141,7 +141,7 @@ exim_setup() {
 
   echo -n "$(timestamp) [openHABian] Creating MTA config... "
   if ! cond_redirect mkdir -p /var/log/exim; then echo "FAILED (logging)"; return 1; fi
-  if ! cond_redirect chown -R Debian-exim /var/log/exim; then echo "FAILED (logging permissions)"; return 1; fi
+  if ! cond_redirect chmod -R u+rw /var/log/exim4 && chown -R Debian-exim /var/log/exim; then echo "FAILED (logging permissions)"; return 1; fi
   if ! grep '^#' "$eximPasswd" > "$temp"; then echo "FAILED (configuration)"; rm -f "$temp"; return 1; fi
   if ! echo "${smarthost}:${relayuser}:${relaypass}" >> "$temp"; then echo "FAILED (configuration)"; rm -f "$temp"; return 1; fi
   if ! cond_redirect cp "$temp" "$eximPasswd"; then echo "FAILED (copy)"; rm -f "$temp"; return 1; fi
