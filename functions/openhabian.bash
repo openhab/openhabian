@@ -118,6 +118,9 @@ openhabian_update_check() {
 ##
 openhabian_update() {
   local branch
+  local stable
+  local master
+  local openHAB3
   local current
   local introText
   local own="yes"
@@ -138,10 +141,26 @@ openhabian_update() {
       introText="You are currently using neither the stable version nor the latest (\"master\") version of openHABian.\\nAccess to the latest features would require you to switch to master while the default is to use the stable version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
     fi
 
-     [[ $current == "stable" ]] && stable="ON"; own="no" || stable="OFF"
-     [[ $current == "master" ]] && master="ON"; own="no" || master="OFF"
-     [[ $current == "openHAB3" ]] && openHAB3="ON"; own="no" || openHAB3="OFF"
-     if [[ $own == "no" ]]; then
+    if [[ $current == "stable" ]]; then
+      stable="ON"
+      master="OFF"
+      openHAB3="OFF"
+      own="no"
+    elif [[ $current == "master" ]]; then
+      stable="OFF"
+      master="ON"
+      openHAB3="OFF"
+      own="no"
+    elif [[ $current == "openHAB3" ]]; then
+      stable="OFF"
+      master="OFF"
+      openHAB3="ON"
+      own="no"
+    else
+      own="yes"
+    fi
+
+    if [[ $own == "no" ]]; then
       if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" "$stable" master "very latest version of openHABian" "$master" openHAB3 "openHAB 3.0" "$openHAB3" 3>&1 1>&2 2>&3)"; then return 0; fi
     else
       if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 80 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF openHAB3 "openHAB 3.0" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
