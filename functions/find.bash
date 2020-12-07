@@ -186,7 +186,7 @@ setup_monitor_mode() {
 
   disabledText="WiFi is currently disabled on your box.\\n\\nATTENTION:\\nWould you like to enable WiFi and continue setup?"
   firmwarePath="$(modinfo --field=filename brcmfmac | sed -e 's|/brcmfmac.ko||g')"
-  introText="This will patch your RPi's WiFi firmware to enable Monitor Mode. This will make regular WiFi use not possible without manual configuration. This is in no way guaranteed to work and may destroy your system!\\n\\nThis is a highly advanced function and should only be used by people who know exactly what they are doing. This will void any warranty on yor HW.\\n\\nFor more details on how this works and what to do with it see:\\nhttps://github.com/seemoo-lab/nexmon/blob/master/README.md"
+  introText="This will patch your RPi's WiFi firmware to enable Monitor Mode. This will make regular WiFi use not possible without manual configuration. This is in no way guaranteed to work and may destroy your system!\\n\\nThis is a highly advanced function and should only be used by people who know exactly what they are doing. This will void any warranty on your HW.\\n\\nFor more details on how this works and what to do with it see:\\nhttps://github.com/seemoo-lab/nexmon/blob/master/README.md"
   KERNEL="$(iw dev wlan0 info | awk '/wiphy/ {printf "phy" $2}')"
   nexmonDir="/opt/nexmon"
   successText="Setup completed successfully, however this does not mean it worked correctly.\\n\\nPlease reboot and the Monitor Mode should be available and ready for use on interface 'mon0'!"
