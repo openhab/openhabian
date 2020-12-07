@@ -47,17 +47,16 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 
 ![openHABian-config menu](images/openHABian-config.png)
 
--   Switch over to the latest *Milestone* or *Snapshot* release of openHAB [*unstable/SNAPSHOT* build](https://www.openhab.org/docs/installation/linux.html#changing-versions)
+-   Switch openHAB versions 2 vs 3 and select the latest *Release*, *Milestone* or *Snapshot* [*unstable/SNAPSHOT* build](https://www.openhab.org/docs/installation/linux.html#changing-versions) version
 -   Install and Setup a [reverse proxy](security.html#nginx-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
--   Set up a WiFi connection
--   Bind the [openHAB remote console]({{base}}/administration/console.html) to all interfaces
+-   manually set up a WiFi connection
 -   Setup [Backup](#backup) for your system
 -   Easily install and preconfigure [Optional Components](#optional-components) of your choice
--   ... and many more
--   Raspberry Pi specific:
+-   configure Raspberry Pi specific functions
     -   Prepare the serial port for the use with extension boards like RaZberry, Enocean Pi, ...
     -   Use ZRAM to mitigate SD card wearout due to excessive writes
     -   Move the system partition to an external USB stick or drive
+... and much more
 
 ## Quick Start
 
@@ -315,7 +314,6 @@ and complementary rsync 'diff' runs in a backup schedule.
 
 Should you need to switch over to your backup card, get a another new SD card to match the size of the broken card and use menu option 54 to copy your active backup card back to the new one and switch cards back as soon as possible.
 
-
 #### Tailscale VPN network
 Tailscale is a management toolset to establish a WireGuard based VPN between multiple systems if you want
 to connect to openHAB(ian) instances outside your LAN over Internet.
@@ -340,7 +338,6 @@ openHABian comes with a number of additional routines to quickly install and set
 You'll find all of these in the [openHABian Configuration Tool](#openhabian-configuration-tool)
 
 -   [Frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openhab:9001](http://openhab:9001)
--   Mi Flora MQTT demon
 -   [InfluxDB and Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openhab:3000](http://openhab:3000)
 -   [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
 -   [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB 2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openhab:1880](http://openhab:1880)
@@ -348,12 +345,13 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 -   [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
 -   [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
 -   [FIND](https://www.internalpositioning.com/) - the Framework for Internal Navigation and Discovery
+-   Mi Flora MQTT demon
 -   Tellstick core
 
 ## Troubleshooting
 If you're having problems to get openHABian to install properly, check out the [debug guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md). It's also available on your system as [/opt/openhabian/docs/openhabian-DEBUG.md](openhabian-DEBUG.md).
-
-Do not hesitate to ask for help on the [openHABian community forum](https://community.openhab.org/) ! Remember to [mind the rules](https://community.openhab.org/t/how-to-ask-a-good-question-help-us-help-you/58396) please.
+Do not hesitate to ask for help on the [openHABian community forum](https://community.openhab.org/) when the debug guide doesn't help.
+Remember to [mind the rules](https://community.openhab.org/t/how-to-ask-a-good-question-help-us-help-you/58396) please.
 
 If you want to get involved, you found a bug, or just want to see what's planned for the future, visit us on GitHub:
 
@@ -361,45 +359,26 @@ If you want to get involved, you found a bug, or just want to see what's planned
 
 <a id="changelog"></a>
 ### Where can I find a changelog for openHABian?
-The official changelog announcements are posted [here](https://community.openhab.org/t/13379/1) and [here](https://github.com/openhab/openhabian/releases), be sure to check these out for your version.
+Official announcements are co-located with the download links [here](https://github.com/openhab/openhabian/releases).
 If you want to stay in touch with all the latest code changes under the hood, see the [commit history](https://github.com/openhab/openhabian/commits/master) for openHABian.
-You'll also see added commits when executing the "Update" function within the openHABian Configuration Tool.
+You'll also see commits "fly by" when executing the "Update" function within the openHABian Configuration Tool.
 
 <a id="successful"></a>
 ### Did my Installation succeed? What to do in case of a problem?
-A note on **patience**: stay calm - the openHABian setup will take 15 up to 45 minutes to complete all steps.
-The amount of time highly depends on your device's performance and a number of external factors such as your internet connection.
+Don't panic ;-)
+openHABian setup will take 15 up to 45 minutes to complete all steps, depending on your device's performance and a number of external factors such as your internet connection.
 
-<!--
-#### LED Indication (RPi only)
-
-During and after the first boot of your Raspberry Pi, the green on-board LED will indicate the setup progress (no display needed):
-
-* `❇️️ ❇️️    ❇️️ ❇️️     ` - Steady "heartbeat": setup **successful**
-* ` ❇️️         ❇️️❇️️❇️️ ` - Irregular blinking: setup in progress...
-* `❇️️ ❇️️ ❇️️ ❇️️ ❇️️ ❇️️ ❇️️` - Fast blinking: error while setup
-
-**RPi note:**
-The progress indication via the **green Raspberry Pi LED** is currently not possible.
-We will re-add the functionality as soon as the underlying issue is resolved.
--->
-
-#### Progress Report
-Watch the progress on the console or the web interface at https://<yourip>/ or <http://openhab/> if that name has become available.
-
-Double-check the address and name with your router while you wait.
-
+Watch the progress on the console or the web interface at https://<yourip>/ or <http://openhabiandevice/> if that name has become available.
+Double-check the IP address and name with your router while you wait.
 If there is absolutely no output for more than 10 minutes, your installation has failed in the first initialization phase. There probably is a problem
 with the way your router or local network are setup.
-
-You might want to try disabling IPv6.
 Read on in the [Troubleshooting](#Troubleshooting) section or move on to the [DEBUG guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md).
 
-It is also always possible to [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device (after a few minutes of boot up time).
-During the setup process you'll be redirected to the live progress report of the setup.
-The report can also be checked for errors after the installation finished by executing: `cat /boot/first-boot.log`
+After a few minutes of boot up time, you can [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device.
+During the setup process you'll be redirected to the live progress report of the setup (you can Ctrl-C to get into the shell).
+The report can also be checked for errors at any time, see `/boot/first-boot.log`
 
-The progress of a successful installation will look similar to the following:
+The progress of a successful installation will look like this:
 
 ![openHABian installation log](images/openHABian-install-log.png)
 
