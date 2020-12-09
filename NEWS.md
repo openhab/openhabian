@@ -11,7 +11,7 @@ system to an existing WiFi network.
 
 
 ## October 28, 2020
-## openHAB3 readiness
+## openHAB 3 readiness
 openHABian now provides menu options 4X to upgrade your system to openHAB3 and to downgrade
 back to current openHAB2 as well. See [documentation](docs/openhabian.md) for details.
 
