@@ -133,10 +133,10 @@ show_main_menu() {
     "38 | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
     "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
     "39 | Setup Exim Mail Relay"  "Install Exim4 to relay mails via public email provider" \
-    "3A | Setup tailscale VPN"    "Establish or join a WireGuard based VPN using the tailscale service (BETA)" \
-    "   | Remove tailscale VPN"   "Remove the tailscale service" \
-    "   | Install WireGuard"      "Setup WireGuard to enable secure remote access to this openHABian system (BETA)" \
-    "   | Remove WireGuard VPN"   "Remove WireGuard VPN from this system" \
+    "3A | Setup Tailscale VPN"    "Establish or join a WireGuard based VPN using the Tailscale service" \
+    "   | Remove Tailscale VPN"   "Remove the Tailscale VPN service" \
+    "   | Install WireGuard"      "Setup WireGuard to enable secure remote access to this openHABian system" \
+    "   | Remove WireGuard"       "Remove WireGuard VPN from this system" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -155,9 +155,9 @@ show_main_menu() {
       *Uninstall\ ZRAM) init_zram_mounts "uninstall" ;;
       39\ *) exim_setup ;;
       3A\ *) if install_tailscale install; then setup_tailscale; fi;;
-      *Remove\ tailscale) install_tailscale remove;;
-      *Install\ WireGuard) if install_wireguard install; then setup_wireguard; fi;;
-      *Remove\ WireGuard) install_wireguard remove;;
+      *Remove\ Tailscale*) install_tailscale remove;;
+      *Install\ WireGuard*) if install_wireguard install; then setup_wireguard; fi;;
+      *Remove\ WireGuard*) install_wireguard remove;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
