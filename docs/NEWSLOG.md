@@ -6,7 +6,7 @@ bootstrap WiFi i.e. to connect your system to an existing WiFi network.
 
 
 ## October 28, 2020
-## openHAB3 readiness (BETA)
+## openHAB 3 readiness
 openHABian now provides menu options 4X to upgrade your system to openHAB3 and to downgrade
 back to current openHAB2 as well. See [documentation](docs/openhabian.md) for details.
 Please be aware that openHAB3 as well as openHABian are not thoroughly tested so be prepared
@@ -14,7 +14,7 @@ to meet bugs and problems. Don't use this on your production system.
 
 
 ## October 6, 2020
-## Tailscale VPN network (BETA)
+## Tailscale VPN network
 Tailscale is a management toolset to establish a WireGuard based VPN between multiple systems
 if you want to connect to openHAB(ian) instances outside your LAN over Internet.
 It'll take care to detect and open ports when you and your peers are located behind firewalls.
@@ -22,7 +22,7 @@ This makes use of the tailscale service. Don't worry, for private use it's free 
 
 
 ## October 1, 2020
-## Offline installation (BETA)
+## Offline installation
 We now allow for deploying openHABian to destination networks without Internet connectivity.
 While the optional components still require access to download, the openHABian core is
 fully contained in the download image and can be installed and run without Internet.
@@ -39,7 +39,7 @@ The remaining space on the external device can also be used to setup openHABian
 's Amanda backup system.
 
 ## July 4, 2020
-### Wireguard VPN (BETA)
+### Wireguard VPN
 Wireguard can be deployed to enable for VPN access to your openHABian box when
 it's located in some remote location.
 You need to install the Wireguard client from <http://www.wireguard.com/install>
