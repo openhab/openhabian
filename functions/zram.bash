@@ -7,22 +7,15 @@
 ##    install_zram_code(String dir)
 ##
 install_zram_code() {
-  local overlayfsGit="https://github.com/kmxz/overlayfs-tools"
   local zramGit="https://github.com/ecdye/zram-config"
 
   echo -n "$(timestamp) [openHABian] Installing ZRAM code... "
   if ! cond_redirect mkdir -p "$1"; then echo "FAILED (create directory)"; return 1; fi
 
-  if [[ -d "${1}/overlayfs-tools" ]]; then
-    if ! cond_redirect update_git_repo "${1}/overlayfs-tools" "master"; then echo "FAILED (update overlayfs)"; return 1; fi
-  else
-    if ! cond_redirect git clone "$overlayfsGit" "$1"/overlayfs-tools; then echo "FAILED (clone overlayfs)"; return 1; fi
-  fi
-
   if [[ -d "${1}/zram-config" ]]; then
     if cond_redirect update_git_repo "${1}/zram-config" "openHAB2"; then echo "OK"; else echo "FAILED (update zram)"; return 1; fi
   else
-    if cond_redirect git clone --branch "openHAB2" "$zramGit" "$1"/zram-config; then echo "OK"; else echo "FAILED (clone zram)"; return 1; fi
+    if cond_redirect git clone --recurse-submodules --branch "openHAB2" "$zramGit" "$1"/zram-config; then echo "OK"; else echo "FAILED (clone zram)"; return 1; fi
   fi
 }
 
@@ -38,8 +31,7 @@ init_zram_mounts() {
   local disklistFileDir="/etc/amanda/openhab-dir/disklist"
   local introText="You are about to activate the ZRAM feature.\\nBe aware you do this at your own risk of data loss.\\nPlease check out the \"ZRAM status\" thread at https://community.openhab.org/t/zram-status/80996 before proceeding."
   local lowMemText="Your system has less than 1 GB of RAM. It is definitely NOT recommended to run ZRAM (AND openHAB) on your box. If you proceed now you will do so at your own risk!"
-  local zramInstallLocation="/opt/zram"
-  local storageDir="${storagedir:-/storage}"
+  local zramInstallLocation="/opt/zram/zram-config"
 
   if [[ $1 == "install" ]] && ! [[ -f /etc/ztab ]]; then
     if [[ -n $INTERACTIVE ]]; then
@@ -64,10 +56,10 @@ init_zram_mounts() {
     if cond_redirect install -m 755 "$zramInstallLocation"/overlayfs-tools/overlay /usr/local/lib/zram-config/overlay; then echo "OK"; else echo "FAILED (install overlayfs)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Setting up ZRAM... "
-    if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
+    if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
     if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/ztab /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
-    if cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
+    if cond_redirect install -m 644 "$zramInstallLocation"/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
 
     if [[ -f /etc/systemd/system/find3server.service ]]; then
       echo -n "$(timestamp) [openHABian] Adding FIND3 to ZRAM... "
@@ -90,7 +82,7 @@ init_zram_mounts() {
     fi
 
     echo -n "$(timestamp) [openHABian] Setting up ZRAM service... "
-    if ! sed -e "s|%STORAGE|${storageDir}|g" "$zramInstallLocation"/zram-config/zram-config.service > /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
+    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
 
     if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/sysctl-zram.conf /etc/sysctl.d/zram.conf; then echo "FAILED (add sysctl)"; return 1; fi
