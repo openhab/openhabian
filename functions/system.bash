@@ -457,7 +457,7 @@ prepare_serial_port() {
   local optionTwo
   local selection
 
-  introText="\\nProceeding with this routine, the serial console normally provided by a Raspberry Pi can be disabled for the sake of a usable serial port. The provided port can henceforth be used by devices like RaZberry, UZB or Busware SCC.\\n\\nOn a Raspberry Pi 3 or 4 the Bluetooth module should be disabled to ensure the proper operation of a RaZberry or other HAT. Usage of Bluetooth and HATs that use serial is mutually exclusive.\\n\\nPlease make your choice:"
+  introText="\\nProceeding with this routine, the serial console normally provided by a Raspberry Pi must be disabled to make serial port become useable by devices like RaZberry, UZB or Busware adapters.\\n\\nOn a Raspberry Pi 3 or 4 the Bluetooth module can be relocated to the mini UART port to allow for proper operation of a RaZberry or other HAT.\\n\\nPlease make your choice:"
   successText="The serial options have successfully been configured!\\n\\nPlease reboot for changes to take effect."
   # Find current settings
   if grep -qs "^[[:space:]]*enable_uart=1" /boot/config.txt; then optionOne="ON"; else optionOne="OFF"; fi
@@ -472,9 +472,9 @@ prepare_serial_port() {
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning configuration of serial console for serial port peripherals... "
-  if selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introText" 19 80 2 \
-  "1"  "(RPi)     Disable serial console    (RaZberry, SCC, Enocean)" $optionOne \
-  "2"  "(RPi3/4)  Disable Bluetooth module  (RaZberry)"               $optionTwo \
+  if selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introText" 19 75 2 \
+  "1"  "(RPi)     Disable serial console"      $optionOne \
+  "2"  "(RPi3/4)  move Bluetooth to mini UART" $optionTwo \
   3>&1 1>&2 2>&3); then echo "OK"; else echo "CANCELED"; return 0; fi
 
 
