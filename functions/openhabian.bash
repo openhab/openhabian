@@ -263,7 +263,13 @@ migrate_installation() {
   fi
   echo -n "$(timestamp) [openHABian] Installing openHAB... "
   if openhab_setup "$1" "${distro}"; then echo "OK"; else echo "FAILED (install openHAB)"; cond_redirect systemctl start zram-config.service zramsync.service; fi
-
+  
+  if [[ -d /var/lib/openhab/persistence/mapdb ]]; then
+    echo -n "$(timestamp) [openHABian] Deleting mapdb persistence files... "
+    rm -f /var/lib/${to}/persistence/mapdb/storage.mapdb
+    echo "OK"
+  fi
+  
   echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
   for i in $amandaConfigs; do
     if [[ -s "$i" ]]; then
