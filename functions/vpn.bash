@@ -152,7 +152,7 @@ setup_wireguard() {
   iface="${1:-eth0}"
   port="${2:-51900}"
   defaultNetwork="${3:-10.253.4}"
-  textConfigured="We have configured Wireguard to provide remote VPN access to your system.\\Install the Wireguard client no if you have not yet done so. Download from either http://www.wireguard.com/install to your local PC or from PlayStore/AppStore for mobile devices.\\nUse the configuration file $configdir/wg0-client.conf from this system to load the tunnel. Use the QR code displayed at the end of this installation to transfer. If you missed the output, use qrencode -t ansiutf8 </etc/wireguard/wg0-client.conf from the command line generate it again.\\nDouble-check the Endpoint parameter to match the public IP of your openHABian system before using and double-check the Address parameter in config files for both, client (wg0-client.conf) and server (wg0.conf)."
+  textConfigured="We have configured Wireguard to provide remote VPN access to your system.\\nInstall the Wireguard client no if you have not yet done so. Download from either http://www.wireguard.com/install to your local PC or from PlayStore/AppStore for mobile devices.\\nUse the configuration file $configdir/wg0-client.conf from this system to load the tunnel. Use the QR code displayed at the end of this installation to transfer. If you missed the output, use qrencode -t ansiutf8 </etc/wireguard/wg0-client.conf from the command line generate it again.\\nDouble-check the Endpoint parameter to match the public IP of your openHABian system before using and double-check the Address parameter in config files for both, client (wg0-client.conf) and server (wg0.conf)."
 
   # iface=eth0 or wlan0
   if [[ -n "$INTERACTIVE" ]]; then
@@ -168,6 +168,7 @@ setup_wireguard() {
 
   echo -n "$(timestamp) [openHABian] Generating QR to load config on the client side (download Wireguard app from PlayStore or AppStore)... "
   qrencode -t ansiutf8 </etc/wireguard/wg0-client.conf
+  read -r -n 1 key
 }
 
 
