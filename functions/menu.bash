@@ -16,7 +16,7 @@ Note backups are NOT active per default so remember to set them up right at the 
 \\nVisit these sites for more information:
   - Documentation: https://www.openhab.org/docs/installation/openhabian.html
   - Development: http://github.com/openhab/openhabian
-  - Discussion: https://community.openhab.org/t/13379" 27 116
+  - Discussion: https://community.openhab.org/t/13379" 25 116
   RET=$?
   if [ $RET -eq 255 ]; then
     # <Esc> key pressed.
@@ -27,7 +27,7 @@ Note backups are NOT active per default so remember to set them up right at the 
 show_main_menu() {
   local choice
   local version
-  
+
   choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
@@ -38,7 +38,7 @@ show_main_menu() {
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
   "30 | System Settings"         "A range of system and hardware related configuration steps ►" \
-  "40 | openHAB related"         "Switch the installed openHAB version or apply tweaks ►" \
+  "40 | openHAB Related"         "Switch the installed openHAB version or apply tweaks ►" \
   "50 | Backup/Restore"          "Manage backups and restore your system ►" \
   3>&1 1>&2 2>&3)
   RET=$?
@@ -65,7 +65,7 @@ show_main_menu() {
     openhab_setup openHAB2 "stable"
 
   elif [[ "$choice" == "10"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 13 116 6 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
     "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
@@ -87,7 +87,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 19 116 12 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Optional Components" 18 116 11 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer"            "openHAB Log Viewer webapp (frontail)" \
     "22 | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     "23 | Mosquitto"             "MQTT broker Eclipse Mosquitto" \
@@ -119,7 +119,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 24 118 17 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "System Settings" 24 118 17 --cancel-button Back --ok-button Execute \
     "31 | Change hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set system locale"      "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
     "33 | Set system timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
@@ -163,11 +163,11 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "openHAB Setup Options" --menu "Setup Options" 21 116 14 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "openHAB Related" 21 116 14 --cancel-button Back --ok-button Execute \
     "41 | openHAB release"        "Install or switch to the latest openHAB release" \
     "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
     "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
-    "42 | Upgrade to openHAB 3"   "Upgrade OS environment to openHAB 3 testing milestone (BETA !)" \
+    "42 | Upgrade to openHAB 3"   "Upgrade OS environment to openHAB 3 testing milestone (BETA!)" \
     "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 stable" \
     "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
     "44 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
@@ -181,7 +181,7 @@ show_main_menu() {
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
-    version=$( openhab3_is_installed && echo openHAB3 || echo openHAB2)
+    version="$(openhab3_is_installed && echo "openHAB3" || echo "openHAB2")"
     # shellcheck disable=SC2154
     case "$choice2" in
       41\ *) openhab_setup "$version" "stable";;
@@ -203,7 +203,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "50"* ]]; then
-    choice2=$(whiptail --title "Backup options" --menu "Backup options" 14 116 7 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Backup/Restore" 14 116 7 --cancel-button Back --ok-button Execute \
     "50 | Backup openHAB config"      "Backup the current active openHAB configuration" \
     "51 | Restore an openHAB config"  "Restore a previous openHAB configuration from backup" \
     "52 | Amanda System Backup"       "Set up Amanda to comprehensively backup your complete openHABian box" \
