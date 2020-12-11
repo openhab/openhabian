@@ -168,7 +168,6 @@ setup_wireguard() {
 
   echo -n "$(timestamp) [openHABian] Generating QR to load config on the client side (download Wireguard app from PlayStore or AppStore)... "
   qrencode -t ansiutf8 </etc/wireguard/wg0-client.conf
-  read -r -n 1 key
 }
 
 
@@ -237,7 +236,7 @@ setup_tailscale() {
     if ! preAuthKey="$(whiptail --title "Enter pre auth key" --inputbox "\\nIf you have not received / created the tailscale pre auth key at this stage, please do so now or tell your administrator to. This can be done on the admin console. There's a menu option on the tailscale Windows client to lead you there.\\n\\nPlease enter the tailscale pre auth key for this system:" 11 80 "$preAuthKey" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
 
-  if ! tailscale up --authkey "${preAuthKey}"; then echo "FAILED (join tailscale VPN)"; return 1; fi 
+  if ! tailscale up --authkey "${preAuthKey}"; then echo "FAILED (join tailscale VPN)"; return 1; fi
   # shellcheck disable=SC2154
   tailscale status | mail -s "openHABian client joined tailscale VPN" "$adminmail"
   tailscaleIP=$(ip a show tailscale0 | awk '/inet / { print substr($2,1,length($2)-3)}')
