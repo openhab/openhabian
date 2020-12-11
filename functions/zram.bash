@@ -13,9 +13,9 @@ install_zram_code() {
   if ! cond_redirect mkdir -p "$1"; then echo "FAILED (create directory)"; return 1; fi
 
   if [[ -d "${1}/zram-config" ]]; then
-    if cond_redirect update_git_repo "${1}/zram-config" "openHAB2"; then echo "OK"; else echo "FAILED (update zram)"; return 1; fi
+    if cond_redirect update_git_repo "${1}/zram-config" "openHAB"; then echo "OK"; else echo "FAILED (update zram)"; return 1; fi
   else
-    if cond_redirect git clone --recurse-submodules --branch "openHAB2" "$zramGit" "$1"/zram-config; then echo "OK"; else echo "FAILED (clone zram)"; return 1; fi
+    if cond_redirect git clone --recurse-submodules --branch "openHAB" "$zramGit" "$1"/zram-config; then echo "OK"; else echo "FAILED (clone zram)"; return 1; fi
   fi
 }
 
