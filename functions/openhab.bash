@@ -80,6 +80,7 @@ openhab_setup() {
 
   if [[ -n $INTERACTIVE ]]; then
     if (whiptail --title "openHAB software change, Continue?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+    export DEBIAN_FRONTEND=noninteractive
   else
     echo "OK"
   fi
@@ -94,7 +95,6 @@ openhab_setup() {
     openhabVersion="$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)"
     if cond_redirect apt-get install --allow-downgrades --yes --option Dpkg::Options::="--force-confnew" "${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    export DEBIAN_FRONTEND=noninteractive
     echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "
     if cond_redirect apt-get install --yes --option Dpkg::Options::="--force-confnew" ${ohPkgName} ${ohPkgName}-addons; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
