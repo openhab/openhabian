@@ -245,35 +245,26 @@ create_mount() {
 ##    srv_bind_mounts()
 ##
 srv_bind_mounts() {
-  if [[ -f /etc/samba/smb.conf ]] && [[ $(systemctl is-active smbd) ]]; then
-    echo -n "$(timestamp) [openHABian] Stopping Samba service... "
-    if cond_redirect systemctl stop smbd.service; then echo "OK"; else echo "FAILED"; return 1; fi
-  fi
-  if [[ -f /etc/ztab ]] && [[ $(systemctl is-active zram-config) ]]; then
+  if [[ -f /etc/ztab ]] && [[ $(systemctl is-active zram-config.service) == "active" ]]; then
     echo -n "$(timestamp) [openHABian] Stopping ZRAM service... "
     if cond_redirect systemctl stop zram-config.service; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under '/srv/openhab2-*'... "
-  cond_redirect umount -q /srv/openhab2-{sys,conf,userdata,logs,addons}
+  cond_redirect umount -q /srv/openhab2-{sys,conf,userdata,addons}
   if ! cond_redirect rm -f /etc/systemd/system/srv*.mount; then echo "FAILED (clean mounts)"; return 1; fi
-  if ! cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,logs,addons}; then echo "FAILED (prepare dirs)"; return 1; fi
+  if ! cond_redirect mkdir -p /srv/openhab2-{sys,conf,userdata,addons}; then echo "FAILED (prepare dirs)"; return 1; fi
   if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/srv_readme.txt /srv/README.txt; then echo "FAILED (copy readme)"; return 1; fi
   if ! cond_redirect chmod ugo+w /srv /srv/README.txt; then echo "FAILED (permissions for readme)"; return 1; fi
 
   if ! cond_redirect create_mount "/usr/share/openhab2" "sys"; then echo "FAILED (sys)"; return 1; fi
   if ! cond_redirect create_mount "/etc/openhab2" "conf"; then echo "FAILED (conf)"; return 1; fi
   if ! cond_redirect create_mount "/var/lib/openhab2" "userdata"; then echo "FAILED (userdata)"; return 1; fi
-  if ! cond_redirect create_mount "/var/log/openhab2" "logs"; then echo "FAILED (logs)"; return 1; fi
   if cond_redirect create_mount "/usr/share/openhab2/addons" "addons"; then echo "OK"; else echo "FAILED (addons)"; return 1; fi
 
   if [[ -f /etc/ztab ]]; then
     echo -n "$(timestamp) [openHABian] Restarting ZRAM service... "
     if cond_redirect systemctl restart zram-config.service; then echo "OK"; else echo "FAILED"; return 1; fi
-  fi
-  if [[ -f /etc/samba/smb.conf ]]; then
-    echo -n "$(timestamp) [openHABian] Restarting Samba service... "
-    if cond_redirect systemctl restart smbd.service; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 }
 
