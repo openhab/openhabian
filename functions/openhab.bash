@@ -94,8 +94,9 @@ openhab_setup() {
     openhabVersion="$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)"
     if cond_redirect apt-get install --allow-downgrades --yes "${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "S
-    if cond_redirect apt-get install --yes ${ohPkgName} ${ohPkgName}-addons; then echo "OK"; else echo "FAILED"; return 1; fi
+    export DEBIAN_FRONTEND=noninteractive
+    echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "
+    if cond_redirect apt-get install --yes --option Dpkg::Options::="--force-confnew" ${ohPkgName} ${ohPkgName}-addons; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   # shellcheck disable=SC2154
@@ -113,6 +114,7 @@ openhab_setup() {
   dashboard_add_tile "openhabiandocs"
 
   if [[ -n $INTERACTIVE ]]; then
+    export DEBIAN_FRONTEND=
     whiptail --title "Operation Successful!" --msgbox "$successText" 15 80
   fi
 }
