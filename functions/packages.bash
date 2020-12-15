@@ -660,7 +660,7 @@ nginx_setup() {
       echo -n "$(timestamp) [openHABian] Installing nginx password utilities... "
       if cond_redirect apt-get install --yes apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
       if cond_redirect htpasswd -b -c /etc/nginx/.htpasswd "$nginxUsername" "$nginxPass"; then echo "OK"; else echo "FAILED (password file)"; return 1; fi
-      if ! uncomment "#AUTHOH2" /etc/nginx/sites-enabled/openhab; then return 1; fi
+      if ! uncomment "#OH2AUTH" /etc/nginx/sites-enabled/openhab; then return 1; fi
     fi
     if ! uncomment "#AUTH" /etc/nginx/sites-enabled/openhab; then return 1; fi
   fi
