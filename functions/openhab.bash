@@ -80,6 +80,7 @@ openhab_setup() {
 
   if [[ -n $INTERACTIVE ]]; then
     if (whiptail --title "openHAB software change, Continue?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+    export DEBIAN_FRONTEND=noninteractive
   else
     echo "OK"
   fi
@@ -92,10 +93,10 @@ openhab_setup() {
     echo -n "$(timestamp) [openHABian] Installing selected openHAB version... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     openhabVersion="$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)"
-    if cond_redirect apt-get install --allow-downgrades --yes "${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --allow-downgrades --yes --option Dpkg::Options::="--force-confnew" "${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "S
-    if cond_redirect apt-get install --yes ${ohPkgName} ${ohPkgName}-addons; then echo "OK"; else echo "FAILED"; return 1; fi
+    echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "
+    if cond_redirect apt-get install --yes --option Dpkg::Options::="--force-confnew" ${ohPkgName} ${ohPkgName}-addons; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   # shellcheck disable=SC2154
@@ -116,6 +117,7 @@ openhab_setup() {
   if cond_redirect systemctl restart ${ohPkgName}.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
+    export DEBIAN_FRONTEND=
     whiptail --title "Operation Successful!" --msgbox "$successText" 15 80
   fi
 }
