@@ -104,11 +104,7 @@ if [[ -n "$UNATTENDED" ]]; then
   vimrc_copy
   firemotd_setup
   java_install_or_update "${java_opt:-Zulu11-32}"
-<<<<<<< HEAD
-  openhab_setup openHAB2 "stable"
-=======
-  openhab_setup "testing"    # Use testing on OH3 branch to allow for proper testing of functionality until stable OH3 builds are available
->>>>>>> 29c6c00 (Update 'functions/*.bash' for openHAB 3 packages (#1181))
+  openhab_setup "openHAB3" "stable"
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme
