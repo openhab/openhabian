@@ -192,7 +192,7 @@ homegear_setup() {
   local introText="This will install Homegear, the Homematic CCU2 emulation software, using the latest stable release available from the official repository."
   local myOS
   local myRelease
-  local successText="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB 2, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
+  local successText="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
 
   if ! [[ -x $(command -v lsb_release) ]]; then
     echo -n "$(timestamp) [openHABian] Installing Homegear required packages (lsb-release)... "
@@ -400,7 +400,7 @@ knxd_setup() {
   local introText="This will install kndx as your EIB/KNX IP gateway and router to support your KNX bus system.\\n\\nNOTE: Typically, you don't need this if you connect via an IP interface or router to your KNX installation. This package is to turn an USB or serial interface into an IP interface.\\n\\nNOTE: openHABian changed from building and installing latest source to installing the knxd package provided by several distributions."
   local missingText="Setup could not find knxd package.\\n\\nopenHABian changed from building and installing latest source to installing the knxd package provided by several distrubutions. In case you have an installation of openHABian on a custom Linux which does not provide knxd package, you could try to installation routine we used before as described at 'Michels Tech Blog': https://bit.ly/3dzeoKh"
   local errorText="Installation of knxd package failed, see console log for details."
-  local successText="Installation was successful.\\n\\nPlease edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help' or see /usr/share/doc/knxd/.\\n\\nIntegration into openHAB 2 is described here: https://github.com/openhab/openhab/wiki/KNX-Binding"
+  local successText="Installation was successful.\\n\\nPlease edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help' or see /usr/share/doc/knxd/.\\n\\nIntegration into openHAB is described here: https://github.com/openhab/openhab/wiki/KNX-Binding"
   local temp
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
@@ -576,7 +576,10 @@ nginx_setup() {
   if (whiptail --title "nginx installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 9 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
   echo "$(timestamp) [openHABian] Configuring nginx authentication options... "
-  if (whiptail --title "Authentication Setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
+  if openhab3_is_installed || (whiptail --title "Authentication Setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
+    auth="true"
+  fi
+  if [[ "$auth" == "yes" ]]; then
     if nginxUsername="$(whiptail --title "Authentication Setup" --inputbox "\\nEnter a username to sign into openHAB:" 9 80 openhab 3>&1 1>&2 2>&3)"; then
       while [[ -z $nginxPass ]]; do
         if ! nginxPass1="$(whiptail --title "Authentication Setup" --passwordbox "\\nEnter a password for ${nginxUsername}:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
@@ -591,7 +594,6 @@ nginx_setup() {
       echo "CANCELED"
       return 0
     fi
-    auth="true"
   fi
 
   if (whiptail --title "Secure Certificate Setup" --yesno "Would you like to secure your openHAB interface with HTTPS?" 7 80); then secure="true"; echo "OK"; else echo "CANCELED"; return 0; fi
@@ -653,10 +655,13 @@ nginx_setup() {
   if cond_redirect sed -i -e 's|DOMAINNAME|'"${domain}"'|g' /etc/nginx/sites-enabled/openhab; then echo "OK"; else echo "FAILED (set domain name)"; return 1; fi
 
   if [[ $auth == "true" ]]; then
-    cond_echo "Setting up nginx password options..."
-    echo -n "$(timestamp) [openHABian] Installing nginx password utilities... "
-    if cond_redirect apt-get install --yes apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
-    if cond_redirect htpasswd -b -c /etc/nginx/.htpasswd "$nginxUsername" "$nginxPass"; then echo "OK"; else echo "FAILED (password file)"; return 1; fi
+    if openhab2_is_installed; then
+      cond_echo "Setting up nginx password options..."
+      echo -n "$(timestamp) [openHABian] Installing nginx password utilities... "
+      if cond_redirect apt-get install --yes apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect htpasswd -b -c /etc/nginx/.htpasswd "$nginxUsername" "$nginxPass"; then echo "OK"; else echo "FAILED (password file)"; return 1; fi
+      if ! uncomment "#OH2AUTH" /etc/nginx/sites-enabled/openhab; then return 1; fi
+    fi
     if ! uncomment "#AUTH" /etc/nginx/sites-enabled/openhab; then return 1; fi
   fi
 
