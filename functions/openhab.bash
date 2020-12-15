@@ -111,6 +111,9 @@ openhab_setup() {
   create_systemd_dependencies
   delayed_rules "yes"
   dashboard_add_tile "openhabiandocs"
+  
+  # see https://github.com/openhab/openhab-core/issues/1937
+  if cond_redirect systemctl restart ${ohPkgName}.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation Successful!" --msgbox "$successText" 15 80
