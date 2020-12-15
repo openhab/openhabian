@@ -458,7 +458,7 @@ setup_mirror_SD() {
   local dest
   local srcSize
   local destSize
-  local minSize
+  local minBackupSize
   local serviceTargetDir="/etc/systemd/system/"
   local storageDir="${storagedir:-/storage}"
   local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
@@ -507,9 +507,9 @@ setup_mirror_SD() {
 
   infoText="$infoText1 $dest $infoText2"
   srcSize="$(blockdev --getsize64 /dev/mmcblk0)"
-  minSize="$((195 * srcSize / 100))"	# to accomodate for slight differences in SD sizes
+  minBackupSize="$((195 * srcSize / 100))"# to accomodate for     slight differences in SD sizes
   destSize="$(blockdev --getsize64 "$dest")"
-  if [[ "$destSize" -lt "$minSize" ]]; then
+  if [[ "$destSize" -lt "$srcSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "insufficient space" --msgbox "$sizeError" 9 80
     fi
@@ -520,20 +520,20 @@ setup_mirror_SD() {
     if ! (whiptail --title "Copy internal SD to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 12 116); then echo "CANCELED"; return 0; fi
   fi
 
-  mountUnit="$(basename "${storageDir}").mount"
-  systemctl stop "${mountUnit}"
-  # copy partition table
-  start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)"
-  ((destSize-=start))
-  (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk --force "$dest"
-  partprobe
-  cond_redirect mke2fs -F -t ext4 "${dest}3"
+  if [[ "$destSize" -gt "$srcSize" ]]; then
+    mountUnit="$(basename "${storageDir}").mount"
+    systemctl stop "${mountUnit}"
+    # copy partition table
+    start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)"
+    ((destSize-=start))
+    (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk --force "$dest"
+    partprobe
+    cond_redirect mke2fs -F -t ext4 "${dest}3"
+    # shellcheck disable=SC2154
+    if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${serviceTargetDir}"/"${mountUnit}"; then echo "FAILED (create storage mount)"; fi
+    if ! cond_redirect systemctl enable --now "${mountUnit}"; then echo "FAILED (enable storage mount)"; return 1; fi
+  fi
   mirror_SD "raw" "${dest}"
-
-  # shellcheck disable=SC2154
-  if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${serviceTargetDir}"/"${mountUnit}"; then echo "FAILED (create storage mount)"; fi
-  if ! cond_redirect systemctl enable --now "${mountUnit}"; then echo "FAILED (enable storage mount)"; return 1; fi
-
 
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template > "${serviceTargetDir}"/sdrawcopy.service; then echo "FAILED (create raw SD copy service)"; fi
   if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template > "${serviceTargetDir}"/sdrsync.service; then echo "FAILED (create rsync service)"; fi
@@ -544,7 +544,7 @@ setup_mirror_SD() {
 
   echo "OK"
 
-  if [[ -z $INTERACTIVE ]]; then
+  if [[ -z $INTERACTIVE ]] && [[ "$destSize" -ge "$minBackupSize" ]]; then
     amanda_install
     create_amanda_config "${storageconfig:-openhab-dir}" "backup" "${adminmail:-root@${HOSTNAME}}" "${storagetapes:-15}" "${storagecapacity:-1024}" "${storageDir}"
   fi
