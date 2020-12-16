@@ -279,7 +279,7 @@ migrate_installation() {
   done
   echo "OK"
 
-  echo -n "$(timestamp) [openHABian] Migrating samba mount units... "
+  echo -n "$(timestamp) [openHABian] Migrating Samba and mount units... "
   if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba)"; return 1; fi
   # shellcheck disable=SC2086
   if ! cond_redirect systemctl disable --now ${services}; then echo "FAILED (disable mount units)"; fi
@@ -290,7 +290,10 @@ migrate_installation() {
       rm -f "$s"
     fi
   done
+
   services=${services//${from}/${to}}
+  sed -i "s|/${from}|/${to}|g" /etc/samba/smb.conf
+
   # shellcheck disable=SC2086
   if cond_redirect systemctl enable --now ${services}; then echo "OK"; else echo "FAILED (reenable mount units)"; return 1; fi
   if cond_redirect systemctl start smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba)"; return 1; fi
