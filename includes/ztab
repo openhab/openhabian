@@ -34,7 +34,7 @@
 #
 # If you need multiple ZRAM swaps or ZRAM directories, just create another entry
 # in this file.
-# To do this safely, first stop ZRAM using 'systemctl stop zram-config.service',
+# To do this safely, first stop ZRAM using 'zram-config "stop"',
 # then edit this file.
 # Once finished, restart ZRAM using 'systemctl restart zram-config.service'.
 

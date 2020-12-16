@@ -93,7 +93,8 @@ init_zram_mounts() {
     if cond_redirect systemctl enable --now zram-config.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
   elif [[ $1 == "uninstall" ]]; then
     echo -n "$(timestamp) [openHABian] Removing ZRAM service... "
-    if ! cond_redirect systemctl disable --now zram-config.service; then echo "FAILED (disable service)"; return 1; fi
+    if ! cond_redirect zram-config "stop"; then echo "FAILED (stop zram)"; return 1; fi
+    if ! cond_redirect systemctl disable zram-config.service; then echo "FAILED (disable service)"; return 1; fi
     if ! cond_redirect rm -f /etc/systemd/system/zram-config.service; then echo "FAILED (remove service)"; return 1; fi
     if ! running_in_docker && ! running_on_github; then
       if ! cond_redirect systemctl unmask unattended-upgrades.service; then echo "FAILED (unmask unattended upgrades service)"; return 1; fi
@@ -133,14 +134,8 @@ zram_setup() {
   fi
   if is_arm; then
     if ! has_lowmem && ! is_pione && ! is_cmone && ! is_pizero && ! is_pizerow; then
-      if openhab_is_running; then
-        cond_redirect systemctl stop openhab2.service
-      fi
       echo -n "$(timestamp) [openHABian] Installing ZRAM... "
       if cond_redirect init_zram_mounts "install"; then echo "OK"; else echo "FAILED"; return 1; fi
-      if openhab_is_installed; then
-        cond_redirect systemctl restart openhab2.service
-      fi
     else
       echo "$(timestamp) [openHABian] Skipping ZRAM install on ARM hardware without enough memory."
     fi
