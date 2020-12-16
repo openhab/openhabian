@@ -33,9 +33,9 @@ delayed_rules() {
     if (cat "${BASEDIR:-/opt/openhabian}"/includes/delayed-rules.conf >> "${targetDir}"/override.conf); then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
   elif [[ $1 == "no" ]]; then
     echo "$(timestamp) [openHABian] Removing delay on loading openHAB rules... OK"
+    rm -rf ${targetDir}/override.conf
   fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then return 1; fi
-  if ! cond_redirect systemctl restart openhab2.service; then return 1; fi
 }
 
 ## Function to install / upgrade / downgrade the installed openHAB version
@@ -110,7 +110,11 @@ openhab_setup() {
 
   openhab_misc
   create_systemd_dependencies
-  delayed_rules "yes"
+  if [[ "$1" == "openHAB3" ]]; then
+    delayed_rules "yno"
+  else
+    delayed_rules "yes"
+  fi
   dashboard_add_tile "openhabiandocs"
   
   # see https://github.com/openhab/openhab-core/issues/1937
