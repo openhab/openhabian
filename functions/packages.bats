@@ -16,6 +16,8 @@ teardown_file() {
 }
 
 @test "destructive-homegear_install" {
+  if is_ubuntu; then skip "Not executing Homegear test because it currently does not support Ubuntu."; fi
+
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Homegear installation starting...${COL_DEF}" >&3
   run homegear_setup 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
@@ -30,6 +32,8 @@ teardown_file() {
 }
 
 @test "destructive-mqtt_install" {
+  if is_aarch64; then skip "Not executing MQTT test because it currently does not support aarch64/arm64 env provided by GitHub Actions."; fi
+
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] MQTT installation starting...${COL_DEF}" >&3
   run mqtt_setup 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
@@ -66,6 +70,9 @@ teardown_file() {
 }
 
 @test "destructive-telldus_install" {
+  if is_aarch64; then skip "Not executing Telldus test because it currently does not support aarch64/arm64."; fi
+  if is_ubuntu; then skip "Not executing Telldus test because it currently does not support Ubuntu."; fi
+
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Telldus Core installation starting...${COL_DEF}" >&3
   run telldus_core_setup 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi

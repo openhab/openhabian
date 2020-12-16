@@ -3,8 +3,11 @@ documentation:
 -   <https://www.openhab.org/docs/installation/openhabian.html>
 
 # openHABian - Hassle-free openHAB Setup
-[![build](https://travis-ci.org/openhab/openhabian.svg?branch=master)](https://travis-ci.com/github/openhab/openhabian)
-![shellcheck](https://github.com/openhab/openhabian/workflows/shellcheck/badge.svg?branch=master)
+![ShellCheck](https://github.com/openhab/openhabian/workflows/ShellCheck/badge.svg)
+![BATS](https://github.com/openhab/openhabian/workflows/BATS/badge.svg)
+![Installation](https://github.com/openhab/openhabian/workflows/Installation/badge.svg)
+![Build](https://github.com/openhab/openhabian/workflows/Build/badge.svg)
+
 
 Setting up a fully working Linux system with all needed packages and useful
 tooling is a boring, lengthy albeit challenging task. Fortunately,
@@ -66,7 +69,7 @@ thing that broke support for your HW - unintentionally so however inevitable.
 
 For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md/#fake-hardware-mode)
 to 'simulate' RPi hardware and Raspi OS. If that still doesn't work for
-you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try. 
+you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try.
 
 Going beyond what the RPi image provides, as a manually installed set of
 scripts, we support running openHABian on x86 hardware on generic Debian.
@@ -145,7 +148,7 @@ sudo bash build.bash platform dev-url branch url
 ```
 
 ### Testing
-Testing is done continuously with Travis-CI using the test framework
+Testing is done continuously with GitHub Actions using the test framework
 [BATS](https://github.com/bats-core/bats-core) and the linter
 [ShellCheck](https://www.shellcheck.net/).  As the tests focus on installing
 software, a [Docker](https://www.docker.com/) solution is used for easy build-up
@@ -158,17 +161,8 @@ need to be installed first. For more details regarding the tests see
 in CONTRIBUTING.md.
 
 ```
-docker build --tag openhabian/bats-openhabian -f Dockerfile.amd64 .
-docker run --rm --name "unit-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "unit-." .'
-docker run --rm --name "installation-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "installation-." .'
-docker run --rm --name "destructive-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "destructive-." .'
-
-docker build --tag openhabian/install-openhabian -f Dockerfile.amd64 .
-docker run --name "install-test" --privileged -d openhabian/bats-openhabian
-docker exec -i "install-test" bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash"
-
-docker stop install-test
-docker rm install-test
+docker build -f Dockerfile.ubuntu-BATS .
+docker build -f Dockerfile.amd64-installation .
 ```
 
 The [ShellCheck](https://www.shellcheck.net/) linter can be run by using the

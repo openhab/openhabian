@@ -1,4 +1,4 @@
-name: Build openHABian images
+name: Build
 
 # Trigger the workflow on push or pull request
 on:
@@ -7,11 +7,13 @@ on:
       - 'build.bash'
       - 'build-image/openhabian-installer.service'
       - 'includes/offline-image-modifications.bash'
+      - '.github/workflows/build-action.yml'
   pull_request:
     paths:
       - 'build.bash'
       - 'build-image/openhabian-installer.service'
       - 'includes/offline-image-modifications.bash'
+      - '.github/workflows/build-action.yml'
   workflow_dispatch:
     inputs:
       comments:
@@ -44,7 +46,7 @@ jobs:
        - name: Build openHABian 32bit image
          id: build
          run: |
-           sudo -E ./ci-setup.bash github pi-raspios32
+           sudo -E ./ci-setup.bash github .pi-raspios32
            sudo -E ./build.bash rpi
            echo "::set-output name=file::$(ls openhabian-*.img.xz)"
        - name: Archive openHABian 32bit image
@@ -77,7 +79,7 @@ jobs:
        - name: Build openHABian 64bit image
          id: build
          run: |
-           sudo -E ./ci-setup.bash github pi-raspios64beta
+           sudo -E ./ci-setup.bash github .pi-raspios64beta
            sudo -E ./build.bash rpi64
            echo "::set-output name=file::$(ls openhabian-*.img.xz)"
        - name: Archive openHABian 64bit image

@@ -336,7 +336,14 @@ is_focal() {
   return $?
 }
 running_in_docker() {
-  grep -q 'docker\|lxc' /proc/1/cgroup
+  if grep -qs 'docker\|lxc' /proc/1/cgroup; then
+    return 0
+  else
+    if [[ -f /.dockerenv ]]; then
+      return 0
+    fi
+    return 1
+  fi
 }
 running_on_github() {
   [[ -n "$GITHUB_RUN_ID" ]]
@@ -491,4 +498,3 @@ is_wifi_connected() {
   if ! [[ -x $(command -v "comitup-cli") ]]; then return 1; fi
   if echo "q" | comitup-cli | grep -q 'State: CONNECTED'; then return 0; else return 1; fi
 }
-
