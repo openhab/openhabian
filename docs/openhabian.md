@@ -216,7 +216,7 @@ ZRAM is enabled by default for swap, logs and persistence data. You can toggle u
 4.  Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, documentation [here](https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md). \[menu option 52\]
 
 Standard openHABian install enables ZRAM by default (#1). Once you attach a *safe* external medium to your system (such as an SSD), you can disable ZRAM (#1) and move the system over using menu options 37 (#2).
-Finally, we strongly suggest you install Amanda (#4) right after you finish your setup. Amanda is to take care to backup your openHAB config and whole server to be able to quickly restore it when in need.
+Finally, we strongly suggest you install Amanda (#4) right after you finish your setup. Amanda is to take care to backup the whole system to be able to quickly restore it when in need.
 This is not done by default because it requires a number of user inputs, but you should not skip it for your own safety !
 
 Delayed rules load will also be enabled by default. This is renaming the rules files, then after 2 minutes it renames them back. You can toggle to use this feature in menu option 44.
@@ -224,17 +224,17 @@ Delayed rules load will also be enabled by default. This is renaming the rules f
 ## Setup notes
 
 ### On openHAB3
-openHABian will install latest stable **openHAB 2** by default. To ease upgrading, `openhabian-config`  will migrate the openHABian environment and install openHAB3 for you.
-There's big changes such as to install Java 11 (which is mandatory for openHAB3).
-openHAB3 will use a separate file `/etc/default/openhab` and most directory names will change from `... /openhab2/ ...` to `... /openhab/ ...` (NOTE: not `openhab3`).
-It's a number of places there'll be changes in, often subtle ones like the name of Samba export shares to change.
-Note that this code is still in BETA so with some bad luck it might mess up your system. We kindly ask you to help and report any issues on Github, including simple ones like when a title hasn't been renamed.
-NOTE: you need to be on the openHABian `master` branch for the following to work.
-Menu option 42 will do the upgrade. Be aware that there is ONLY an openHAB upgrade path. You cannot downgrade from OH3 to OH2.
-You can exchange the binary packages (which is what openHABian will do), but there is no help to change your configuration back to a OH2 compatible one.
-So it is essential that you take a backup before you upgrade. You will have to restore your setup from that backup after a downgrade using menu option 51 or by manually using `openhab-cli restore <file>`.
-Menu option 42 can also do the inverse and change the environment back to match openHAB 2.
-Note it'll NOT downgrade Java however. openHAB 2 is known to run with Zulu Java 11, though.
+Starting with its general release, openHABian will install **openHAB 3** by default.
+There's some big changes also to openHABian such as to install Java 11 and to use changed file and directory names.
+Most directory names `... /openhab2/ ...` will become `... /openhab/ ...` (NOTE: not `openhab3`) plus there's changes in a number of places, often subtle ones like the name of Samba export shares to change.
+As openHABian users will be running openHAB 2.X by the time 3.0 gets released, `openhabian-config` offers to migrate the openHABian environment and install openHAB3 for you.
+Menu option 42 will do the upgrade. Be aware that it isn't the universal answer to all your migration needs - there is ONLY an openHAB upgrade path. You cannot downgrade from OH3 to OH2.
+
+::: warning No downgrades
+Take an openHAB config backup BEFORE you upgrade from openHAB v2 to v3. You should also take a system level backup !
+:::
+Menu option 42 can also do the downgrade and change the environment back to match openHAB 2 **BUT** it'll ONLY exchange the binary packages. There is no migration to change your configuration back to a OH2 compatible one. So it is essential that you take a backup before you upgrade. You will have to restore your setup from that backup after a downgrade using menu option 51 or by manually using `openhab-cli restore <archive file>`.
+Note option 42 will also not downgrade Java. openHAB 2 however is known to run with Zulu Java 11 as well.
 
 ### `openhabian.conf`
 You can actually set a number of parameters _before_ you run an unattended installation. This applies to the RPi image on an SD card as well as to a manual installation.
@@ -247,10 +247,10 @@ You can also try with a different set of parameters if your initial attempt fail
 -   Save, unmount/eject, remove and insert into the RPi and boot it
 -   Continue with the instructions for your hardware
 
-Mind the comments of a configuration parameter. Browse the next documentation section for further explanations.
+Mind the comments for each configuration parameter. Browse the next documentation section for more explanations.
 
 #### Administration user
-Raspi OS images include a Linux user (`pi`) that you can use for openHAB administration.
+Raspberry Pi OS images include a Linux user (`pi`) that you can use for openHAB administration.
 openHABian renames the user to what you specify in the `username` parameter and assigns the `userpw` password first, then it proceeds and makes various settings that are either useful (such as some aliases) or required to run openHAB.
 You can also make use of this if you don't use the image but unattended installation on non-RPi hardware, openHABian will then _create_ that user for you if it does not yet exist.
 
