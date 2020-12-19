@@ -7,25 +7,21 @@ documentation:
 ![shellcheck](https://github.com/openhab/openhabian/workflows/shellcheck/badge.svg?branch=master)
 
 Setting up a fully working Linux system with all needed packages and openHAB
-recommendations is a **boring task**, takes a lot of time and **Linux newcomers**
-shouldn't need to worry about technical details like these.
+recommendations is a boring and lengthy task.
+Newcomers to Linux shouldn't need to worry about these details.
 
 ***A home automation enthusiast doesn't have to be a Linux enthusiast!***
 
-openHABian aims to provide a **self-configuring** Linux system setup to meet the
-needs of every openHAB user.
+openHABian provides a **self-configuring** Linux system setup to meet the
+needs of every openHAB user, there's two flavours:
 
-The project provides two things:
-
-*   a set of scripts to set up openHAB on any Debian based system incl.
-    Raspberry Pi OS, Ubuntu
-*   a complete **SD-card image pre-configured with openHAB** and many
-    hardware specific preparations for all *Raspberry Pi* models.
+* a **SD-card image pre-configured with openHAB** for all *Raspberry Pi* models
+* as a set of scripts that sets up openHAB and tools on any Debian based system
 
 ## openHAB versions 2 and 3
 openHABian was made to provide a seamless User eXperience with openHAB.
-Now that openHAB 3 is released to the public, we have incorporated the necessary
-changes to run on and migrate from within openHABian.
+Now that openHAB 3 is released to the public, we have incorporated changes to run
+on and migrate to and from within openHABian.
 
 ## Hardware recommendation
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB,
