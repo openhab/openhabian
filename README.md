@@ -24,10 +24,8 @@ The project provides two things:
 
 ## openHAB versions 2 and 3
 openHABian was made to provide a seamless User eXperience with openHAB.
-Now that the first openHAB 3 milestones were released to the public, we have
-incorporated the necessary changes to run on and migrate from within openHABian.
-Please remain aware though that this is fresh code and not much tested yet. It can
-mess up your system so take extra care if you want to migrate a production system.
+Now that openHAB 3 is released to the public, we have incorporated the necessary
+changes to run on and migrate from within openHABian.
 
 ## Hardware recommendation
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB,

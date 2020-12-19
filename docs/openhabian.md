@@ -99,7 +99,12 @@ You will see the following welcome screen:
 
 <a id="manual-setup"></a>
 ### Other Linux Systems (add openHABian just like any other software)
-openHABian is also supposed to run on generic Debian based systems on x86 and some ARM hardware platforms.
+Going beyond what the RPi image provides, we support running openHABian on x86 hardware on top of any existing
+Debian installation.
+Note that although the core parts of openHABian were reported to work on there, Ubuntu is not supported and untested.
+See the [README](https://github.com/openhab/openhabian#hardware-and-os-support) for details on supported hardware and OSs before you proceed.
+***
+
 Start with a fresh installation of your operating system, login and run
 
 ```shell
@@ -139,11 +144,10 @@ openhabian-config unattended
 
 to get the automated openHABian installation going.
 
-Please note that we cannot test HW/OS combos beyond RPis upfront so there is no support / no promise for this work as explained in the [README](https://github.com/openhab/openhabian/blob/master/README.md).
-Drop us a note on Github.
+Please note that we cannot test HW/OS combos beyond RPis upfront so there is no support / no promise for this work as explained in the [README](https://github.com/openhab/openhabian#hardware-and-os-support). 
 
 ## openHABian Configuration Tool
-The following instructions target a Raspberry Pi openHABian setup but should be applicable to all openHABian environments.
+The following instructions are targeted at a Raspberry Pi but should be applicable to all openHABian environments.
 Once connected to the command line console of your system, please execute the openHABian configuration tool by typing the following command.
 
 (Hint: sudo executes a command with elevated rights and will hence ask for your password: `openhabian`).
@@ -256,7 +260,7 @@ You can also make use of this if you don't use the image but unattended installa
 
 #### admin key
 Make the `adminkeyurl` point to an URL to contain a public SSH key. This will be included with your administration
-user's `.ssh/authorized_keys` and the openHAB Karaf console so the admin user (yourself, usually) can login after installation.
+user's `.ssh/authorized_keys` and the openHAB console so the admin user (yourself, usually) can login after installation.
 
 #### WiFi based setup notes
 If you own a RPi3, RPi3+, RPi4, a RPi0W or any other model with a compatible WiFi dongle you can set up and use openHABian via WiFi only.
@@ -415,11 +419,11 @@ Check the Linux installation article for all needed details: [Linux: Changing Ve
 I've just installed openHABian and now I'm confused.
 No fancy login screen, no windows, no mouse support. What did I get into?
 
-You are not the first one to get confused about the **intended use case of openHABian** or most other solutions based on a Raspberry Pi.
+You are not the first one to get confused about the **intended use case of openHABian**.
 Maybe it helps to not think of the RPi as a PC as we know it.
 An RPi is not (well, not *necessarily*) to be used with a keyboard and display.
-Its intended use case is to sit in a corner and provide a service reliably 24/7.
-You already own a **powerful PC or Mac** which you should benefit from.
+Its intended use case is to sit in a corner and provide a service reliably 24 hours a day, 7 days a week.
+You already own a **powerful PC or Mac** to work on.
 It would be a shame to have a powerful computer at your fingertips and then have to **restrict yourself** to a very limited graphical frontend on another device, wouldn't you agree?
 
 Moving on.
