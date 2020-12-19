@@ -6,14 +6,13 @@ documentation:
 [![build](https://travis-ci.org/openhab/openhabian.svg?branch=master)](https://travis-ci.com/github/openhab/openhabian)
 ![shellcheck](https://github.com/openhab/openhabian/workflows/shellcheck/badge.svg?branch=master)
 
-Setting up a fully working Linux system with all needed packages and openHAB
-recommendations is a boring and lengthy task.
-Newcomers to Linux shouldn't need to worry about these details.
+Setting up a fully working Linux system with all needed packages and useful tooling
+is a boring, lengthy albeit challenging task, and
 
 ***A home automation enthusiast doesn't have to be a Linux enthusiast!***
 
 openHABian provides a **self-configuring** Linux system setup to meet the
-needs of every openHAB user, there's two flavours:
+needs of every openHAB user, in two flavours:
 
 * a **SD-card image pre-configured with openHAB** for all *Raspberry Pi* models
 * as a set of scripts that sets up openHAB and tools on any Debian based system
@@ -21,7 +20,7 @@ needs of every openHAB user, there's two flavours:
 ## openHAB versions 2 and 3
 openHABian was made to provide a seamless User eXperience with openHAB.
 Now that openHAB 3 is released to the public, we have incorporated changes to run
-on and migrate to and from within openHABian.
+on and migrate to openHAB 3 from within openHABian.
 
 ## Hardware recommendation
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB,
