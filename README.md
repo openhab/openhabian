@@ -6,13 +6,13 @@ documentation:
 [![build](https://travis-ci.org/openhab/openhabian.svg?branch=master)](https://travis-ci.com/github/openhab/openhabian)
 ![shellcheck](https://github.com/openhab/openhabian/workflows/shellcheck/badge.svg?branch=master)
 
-Setting up a fully working Linux system with all needed packages and useful tooling
-is a boring, lengthy albeit challenging task, and
+Setting up a fully working Linux system with all needed packages and useful
+tooling is a boring, lengthy albeit challenging task. Fortunately,
 
 ***A home automation enthusiast doesn't have to be a Linux enthusiast!***
 
-openHABian provides a **self-configuring** Linux system setup to meet the
-needs of every openHAB user, in two flavours:
+openHABian is here to provide a **self-configuring** Linux system setup to meet
+the needs of every openHAB user, in two flavours:
 
 * a **SD-card image pre-configured with openHAB** for all *Raspberry Pi* models
 * as a set of scripts that sets up openHAB and tools on any Debian based system
