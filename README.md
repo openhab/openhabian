@@ -6,28 +6,21 @@ documentation:
 [![build](https://travis-ci.org/openhab/openhabian.svg?branch=master)](https://travis-ci.com/github/openhab/openhabian)
 ![shellcheck](https://github.com/openhab/openhabian/workflows/shellcheck/badge.svg?branch=master)
 
-Setting up a fully working Linux system with all needed packages and openHAB
-recommendations is a **boring task**, takes a lot of time and **Linux newcomers**
-shouldn't need to worry about technical details like these.
+Setting up a fully working Linux system with all needed packages and useful
+tooling is a boring, lengthy albeit challenging task. Fortunately,
 
 ***A home automation enthusiast doesn't have to be a Linux enthusiast!***
 
-openHABian aims to provide a **self-configuring** Linux system setup to meet the
-needs of every openHAB user.
+openHABian is here to provide a **self-configuring** Linux system setup to meet
+the needs of every openHAB user, in two flavours:
 
-The project provides two things:
-
-*   a set of scripts to set up openHAB on any Debian based system incl.
-    Raspberry Pi OS, Ubuntu
-*   a complete **SD-card image pre-configured with openHAB** and many
-    hardware specific preparations for all *Raspberry Pi* models.
+* a **SD-card image pre-configured with openHAB** for all *Raspberry Pi* models
+* as a set of scripts that sets up openHAB and tools on any Debian based system
 
 ## openHAB versions 2 and 3
 openHABian was made to provide a seamless User eXperience with openHAB.
-Now that the first openHAB 3 milestones were released to the public, we have
-incorporated the necessary changes to run on and migrate from within openHABian.
-Please remain aware though that this is fresh code and not much tested yet. It can
-mess up your system so take extra care if you want to migrate a production system.
+Now that openHAB 3 is released to the public, we have incorporated changes to run
+on and migrate to openHAB 3 from within openHABian.
 
 ## Hardware recommendation
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB,
