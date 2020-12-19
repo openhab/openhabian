@@ -258,10 +258,10 @@ You can also make use of this if you don't use the image but unattended installa
 Make the `adminkeyurl` point to an URL to contain a public SSH key. This will be included with your administration
 user's `.ssh/authorized_keys` and the openHAB Karaf console so the admin user (yourself, usually) can login after installation.
 
-#### WiFi based Setup Notes
+#### WiFi based setup notes
 If you own a RPi3, RPi3+, RPi4, a RPi0W or any other model with a compatible WiFi dongle you can set up and use openHABian via WiFi only.
 For the WiFi based setup to work, you'll need to make your SSID and password known to the system before the first boot.
-So in addition to the setup instructions given above, uncomment and complete the lines reading `wifi_ssid="My WiFi SSID"` and `wifi_psk="password123"` in `openhabian.conf`.
+So in addition to the setup instructions given above, uncomment and complete the lines reading `wifi_ssid=""` and `wifi_psk=""` in `openhabian.conf`.
 
 #### WiFi Hotspot
 Whenever the WiFi interface wlan0 exists but does not have connectivity, openHABian will launch a **Hotspot**.
@@ -269,7 +269,7 @@ When you use your mobile phone to scan for WiFi networks, you should be seeing a
 Connecting will work without a password. Once connected, open your browser and point it at `http://raspberrypi.local` or `http://comitup-<n>`.
 This may or may not work for your mobile browser as it requires Bonjour/ZeroConf abilities. If you cannot connect to this address, go to `http://10.42.0.1`.
 On that page you can select the SSID of the network you want to connect your system to. Provide the password and press the button.
-Note that as soon as you do, the wlan0 IP address changes so your mobile browser will not receive/priovide you any more feedback.
+Note that as soon as you do, the wlan0 IP address changes so your mobile browser will not be able to provide you any feedback if that worked out.
 Try to ping the new system's hostname (default is `openHABianDevice`) or check DHCP on your router if your openHABian system appeared there.
 For more information on this feature see [comitup-cli](https://davesteele.github.io/comitup/).
 You can use `sudo comitup-cli` inside openHABian to change networks and eventually remove network credentials.
