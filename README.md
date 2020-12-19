@@ -31,12 +31,12 @@ mess up your system so take extra care if you want to migrate a production syste
 
 ## Hardware recommendation
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB,
-a 3A power supply and a 16 GB SD card.<br>
+a 3 A power supply and a 16 GB SD card.
 Also get another 32 GB or larger SD card and a USB card reader to make use of the
 ["auto backup" feature](docs/openhabian.md#Auto-Backup).
 ***
 ATTENTION:<br>
-Avoid getting the 8 GB model of RPi4. 8 GB are waste of money and it has issues,
+Avoid getting the 8 GB model of RPi 4. 8 GB are a waste of money and it has issues,
 you must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram) or use the 64bit image (untested).
 ***
 ## Hardware and OS support
