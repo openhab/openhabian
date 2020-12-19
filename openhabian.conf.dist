@@ -39,7 +39,7 @@ ipv6=enable
 
 # repo and branch to clone from
 repositoryurl=https://github.com/openhab/openhabian.git
-clonebranch=stable
+clonebranch=openHAB3
 
 # debug verbosity mode
 # off, on (verbose output in log) or maximum (show every command)
