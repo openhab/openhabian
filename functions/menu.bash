@@ -62,11 +62,8 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
-    if openhab2_is_installed; then
-      migrate_installation openHAB3 "stable" && openhabian_update "openHAB3"
-    else
-      openhab_setup openHAB3 "stable"
-    fi
+    openhab_setup openHAB3 "stable"
+
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
