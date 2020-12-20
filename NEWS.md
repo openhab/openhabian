@@ -7,6 +7,7 @@ lookup.
 ## openHAB 3 released
 In the darkest of times (midwinter for most of us), openHAB 3 was released.
 See [documentation](docs/openhabian.md#on-openhab3) and [www.openhab.org](http://www.openhab.org) for details.
+
 Merry Christmas and a healthy New Year !
 
 
