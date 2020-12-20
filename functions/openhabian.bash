@@ -233,9 +233,9 @@ migrate_installation() {
   echo -n "$(timestamp) [openHABian] Preparing openHAB installation... "
 
   if [[ "$1" == "openHAB3" ]]; then
-    if false; then #if openhab3_is_installed; then
+    if openhab3_is_installed; then
       whiptail --title "openHAB version already installed" --msgbox "openHAB3 $failText" 10 80
-      echo "FAILED (openHAB3 already installed)"
+      echo "FAILED (openHAB 3 already installed)"
       return 1
     fi
     from="openhab2"
