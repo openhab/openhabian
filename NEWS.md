@@ -3,17 +3,18 @@ PGUP/PGDN.
 All announcements will be stored in /opt/openhabian/docs/NEWSLOG.md for you to
 lookup.
 
+## December 21, 2020
+## openHAB 3 released
+In the darkest of times (midwinter for most of us), openHAB 3 was released.
+See [documentation](docs/openhabian.md#on-openhab3) and [www.openhab.org](http://www.openhab.org) for details.
+Merry Christmas and a healthy New Year !
+
+
 ## November 14, 2020
 ## WiFi Hotspot
 Whenever your system has a WiFi interface that fails to initialize on installation or startup,
 openHABian will now launch a [WiFi hotspot](docs/openhabian.md#WiFi-Hotspot) you can use to bootstrap WiFi i.e. to connect your
 system to an existing WiFi network.
-
-
-## October 28, 2020
-## openHAB 3 readiness
-openHABian now provides menu options 4X to upgrade your system to openHAB3 and to downgrade
-back to current openHAB2 as well. See [documentation](docs/openhabian.md) for details.
 
 
 ## October 6, 2020
@@ -24,18 +25,9 @@ It'll take care to detect and open ports when you and your peers are located beh
 This makes use of the tailscale service. Don't worry, for private use it's free of charge.
 
 
-## October 1, 2020
-## Offline installation
-We now allow for deploying openHABian to destination networks without Internet connectivity.
-While the optional components still require access to download, the openHABian core is
-fully contained in the download image and can be installed and run without Internet.
-This will also provide a failsafe installation when any of the online sources for the tools
-we need to download is unavailable for whatever reason.
-
-
 ## August 29, 2020
 ## Auto-backup
 openHABian can automatically take daily syncs of your internal SD card to
 another card in an external port. This allows for fast swapping of cards
 to reduce impact of a failed SD card.
-The remaining space on the external device can also be used to setup openHABian's Amanda backup system.
+The remaining space on the external device will be made use of for openHABian's Amanda backup system.
