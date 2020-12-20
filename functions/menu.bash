@@ -33,7 +33,7 @@ show_main_menu() {
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Upgrade all installed software packages (incl. openHAB) to their latest version" \
-  "03 | Install openHAB"         "Install the current openHAB release" \
+  "03 | Install openHAB"         "Install or upgrade to openHAB release 3" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
@@ -62,8 +62,11 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
-    migrate_installation openHAB3 "stable" && openhabian_update "openHAB3"
-
+    if openhab2_is_installed; then
+      migrate_installation openHAB3 "stable" && openhabian_update "openHAB3"
+    else
+      openhab_setup openHAB3 "stable"
+    fi
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
