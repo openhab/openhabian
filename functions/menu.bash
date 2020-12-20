@@ -33,7 +33,7 @@ show_main_menu() {
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Upgrade all installed software packages (incl. openHAB) to their latest version" \
-  "03 | openHAB Stable"          "Install or upgrade to the latest stable release of openHAB 2" \
+  "03 | Install openHAB"         "Install the current openHAB release" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
@@ -62,7 +62,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
-    openhab_setup openHAB2 "stable"
+    migrate_installation openHAB3 "stable" && openhabian_update "openHAB3"
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
@@ -167,7 +167,7 @@ show_main_menu() {
     "41 | openHAB release"        "Install or switch to the latest openHAB release" \
     "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
     "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
-    "42 | Upgrade to openHAB 3"   "Upgrade OS environment to openHAB 3 testing milestone (BETA!)" \
+    "42 | Upgrade to openHAB 3"   "Upgrade OS environment to openHAB 3 release" \
     "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 stable" \
     "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
     "44 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
@@ -187,7 +187,7 @@ show_main_menu() {
       41\ *) openhab_setup "$version" "stable";;
       *openHAB\ testing) openhab_setup "$version" "testing";;
       *openHAB\ snapshot) openhab_setup "$version" "unstable";;
-      42\ *) migrate_installation openHAB3 "testing" && openhabian_update "openHAB3";;
+      42\ *) migrate_installation openHAB3 "stable" && openhabian_update "openHAB3";;
       *Downgrade\ to\ openHAB\ 2) migrate_installation openHAB2 "stable" && openhabian_update "stable";;
       43\ *) openhab_shell_interfaces;;
       44\ *) nginx_setup;;
@@ -222,7 +222,7 @@ show_main_menu() {
       54\ *) mirror_SD "raw" ;;
       55\ *) mirror_SD "diff" ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A non supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
   else
     whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60
