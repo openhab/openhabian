@@ -240,7 +240,7 @@ migrate_installation() {
     fi
     from="openhab2"
     to="openhab"
-    distro="testing"
+    distro="stable"
   else
     if openhab2_is_installed; then
       whiptail --title "openHAB version already installed" --msgbox "openHAB 2 $failText" 10 80
