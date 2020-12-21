@@ -1,5 +1,5 @@
 Hit tab to unselect buttons and scroll through the text using UP/DOWN or PGUP/PGDN.
-All announcements are stored in /opt/openhabian/docs/NEWSLOG.md for you to lookup.
+All announcements are stored in `/opt/openhabian/docs/NEWSLOG.md` for you to lookup.
 
 ## December 21, 2020
 ## openHAB 3 released
@@ -12,8 +12,7 @@ Merry Christmas and a healthy New Year !
 ## November 14, 2020
 ## WiFi Hotspot
 Whenever your system has a WiFi interface that fails to initialize on installation or startup,
-openHABian will now launch a [WiFi hotspot](docs/openhabian.md#WiFi-Hotspot) you can use to bootstrap WiFi i.e. to connect your
-system to an existing WiFi network.
+openHABian will now launch a [WiFi hotspot](docs/openhabian.md#WiFi-Hotspot) you can use to connect your system to an existing WiFi network.
 
 
 ## October 6, 2020
