@@ -1,7 +1,5 @@
-Hit tab to unselect the buttons and scroll through the text using UP/DOWN or
-PGUP/PGDN.
-All announcements will be stored in /opt/openhabian/docs/NEWSLOG.md for you to
-lookup.
+Hit tab to unselect buttons and scroll through the text using UP/DOWN or PGUP/PGDN.
+All announcements are stored in /opt/openhabian/docs/NEWSLOG.md for you to lookup.
 
 ## December 21, 2020
 ## openHAB 3 released
@@ -28,7 +26,6 @@ This makes use of the tailscale service. Don't worry, for private use it's free 
 
 ## August 29, 2020
 ## Auto-backup
-openHABian can automatically take daily syncs of your internal SD card to
-another card in an external port. This allows for fast swapping of cards
-to reduce impact of a failed SD card.
+openHABian can automatically take daily syncs of your internal SD card to another card in an external port.
+This allows for fast swapping of cards to reduce impact of a failed SD card.
 The remaining space on the external device will be made use of for openHABian's Amanda backup system.
