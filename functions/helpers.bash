@@ -163,7 +163,7 @@ is_pitwo() {
 }
 is_pithree() {
   if [[ "$hw" == "pi3" ]]; then return 0; fi
-  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]08[0-9a-fA-F]$" /proc/cpuinfo
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]0[8dDeE][0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
 is_cmthree() {
