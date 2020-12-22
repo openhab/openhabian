@@ -81,7 +81,7 @@ openHABian is designed as a headless system, you will not need a display or a ke
 -   Enjoy!
 
 -   The device will be accessible by its IP or via the local DNS name `openhabiandevice` (or whatever you changed 'hostname' in `openhabian.conf` to)
--   [Connect to the openHAB 2 dashboard](https://www.openhab.org/docs/configuration/packages.html): [http://openhabiandevice:8080](http://openhabiandevice:8080)
+-   [Connect to the openHAB UI](https://www.openhab.org/docs/configuration/packages.html): [http://openhabiandevice:8080](http://openhabiandevice:8080)
 -   [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
 -   Connect to the openHAB Log Viewer (frontail): [http://openhabiandevice:9001](http://openhabiandevice:9001)
 -   If you encounter any setup problem, [please continue here](#successful)
@@ -180,10 +180,11 @@ Take a few minutes to study the above Tutorials and get to know the most basic c
 It's not complicated and something that doesn't hurt on one's résumé.
 
 ### First Steps with openHAB
-After your first setup of openHABian is successful and you are able to access the openHAB dashboard, you should dig into the possibilites.
+When your first setup of openHABian is successful and you have access to the openHAB UI, dive into its possibilites.
+
 Install [Bindings](https://www.openhab.org/addons/), discover your devices, and [configure your smart home](https://www.openhab.org/docs/configuration/).
-You might want to start defining [Items](https://www.openhab.org/docs/configuration/items.html), [Sitemap](https://www.openhab.org/docs/configuration/sitemaps.html) and [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html) dashboard for your home, but these are just some first hints.
-Be sure to read up on the [Configuration](https://www.openhab.org/docs/configuration/) section of the documentation pages to learn more.
+You might want to check out the [New User Tutorial](https://www.openhab.org/docs/tutorial/)
+Be sure to also read up on the [Configuration](https://www.openhab.org/docs/configuration/) section of the documentation pages *before* you start work on your setup.
 
 ### Further Configuration Steps
 openHABian is supposed to provide a ready-to-use openHAB base system.
@@ -397,14 +398,11 @@ If the installation was **not successful** you will see a warning and further in
   <div class="col s12 m5 offset-m2"><img src="images/openHABian-install-failed.png" alt="openHABian installation failed warning and instructions" title="openHABian installation failed warning and instructions"></div>
 </div>
 
-#### openHAB Dashboard
-After the installation of openHABian was successful, you should be able to access the openHAB dashboard:
-
--   Raspberry Pi image setup: [http://openhab:8080](http://openhab:8080)
--   In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP with yours)
+#### openHAB UI
+After the installation of openHABian was successful, you should be able to access the openHAB UI on [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP with yours)
 
 #### What's next?
-If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem. Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
+If you cannot access your system neither via openHAB UI nor via SSH after more than one hour, chances are high that your hardware setup is the problem. Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 
 <a id="switch-openhab-branch"></a>
 #### Can I switch from openHAB 2 stable to the testing or unstable branch?

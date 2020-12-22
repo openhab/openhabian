@@ -43,7 +43,7 @@ echo -e "
 
 Looking for a place to get started? Check out 'sudo openhabian-config' and the
 documentation at \e[94;04mhttps://www.openhab.org/docs/installation/openhabian.html\e[36;49;00m
-The openHAB dashboard can be reached at \e[94;04mhttp://$(hostname):8080\e[39;49;00m
+The openHAB UI can be reached at \e[94;04mhttp://$(hostname):8080\e[39;49;00m
 To interact with openHAB on the command line, execute: 'openhab-cli --help'
 "
 

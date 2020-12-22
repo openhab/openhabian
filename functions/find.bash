@@ -125,10 +125,6 @@ find3_setup() {
   if ! cond_redirect go get -v github.com/schollz/find3-cli-scanner/v3; then echo "FAILED (get)"; return 1; fi
   if cond_redirect install -m 755 "$GOPATH"/bin/find3-cli-scanner /usr/local/bin/find3-cli-scanner; then echo "OK"; else echo "FAILED"; return 1; fi
 
-  if openhab_is_installed; then
-    dashboard_add_tile "find3"
-  fi
-
   whiptail --title "Operation Successful!" --msgbox "$successText" 22 80
 }
 

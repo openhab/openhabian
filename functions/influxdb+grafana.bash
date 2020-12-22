@@ -170,10 +170,6 @@ influxdb_grafana_setup() {
   fi
 
   whiptail --title "Operation Successful!" --msgbox "$successText" 10 80
-
-  if openhab_is_installed; then
-    dashboard_add_tile "grafana"
-  fi
 }
 
 ## Install local InfluxDB database

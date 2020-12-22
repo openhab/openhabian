@@ -92,10 +92,6 @@ frontail_setup() {
   if ! cond_redirect chmod 644 /etc/systemd/system/frontail.service; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now frontail.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
-
-  if openhab_is_installed; then
-    dashboard_add_tile "frontail"
-  fi
 }
 
 ## Function for installing Node-RED a flow based programming interface for IoT devices.
@@ -145,8 +141,4 @@ nodered_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Node-RED service... "
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now nodered.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
-
-  if openhab_is_installed; then
-    dashboard_add_tile "nodered"
-  fi
 }
