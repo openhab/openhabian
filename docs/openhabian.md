@@ -30,7 +30,7 @@ To that end, the project provides two things:
 The following features are provided by the openHABian image out of the box:
 
 -   Hassle-free setup without a display or keyboard, connected via Ethernet or [WiFi](#wifi-based-setup-notes)
--   the latest stable version of openHAB 2
+-   the latest stable version of openHAB
 -   Zulu Embedded OpenJDK Java 8, 11 or AdoptOpenJDK
 -   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
 -   web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
@@ -81,7 +81,7 @@ openHABian is designed as a headless system, you will not need a display or a ke
 -   Enjoy!
 
 -   The device will be accessible by its IP or via the local DNS name `openhabiandevice` (or whatever you changed 'hostname' in `openhabian.conf` to)
--   [Connect to the openHAB 2 dashboard](https://www.openhab.org/docs/configuration/packages.html): [http://openhabiandevice:8080](http://openhabiandevice:8080)
+-   Connect to the openHAB UI at [http://openhabiandevice:8080](http://openhabiandevice:8080)
 -   [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
 -   Connect to the openHAB Log Viewer (frontail): [http://openhabiandevice:9001](http://openhabiandevice:9001)
 -   If you encounter any setup problem, [please continue here](#successful)
@@ -120,7 +120,7 @@ apt-get update
 apt-get install git
 
 # download, link and create config file
-git clone -b stable https://github.com/openhab/openhabian.git /opt/openhabian
+git clone -b openHAB3 https://github.com/openhab/openhabian.git /opt/openhabian
 ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 cp /opt/openhabian/openhabian.conf.dist /etc/openhabian.conf
 ```
@@ -179,25 +179,25 @@ Regardless of if you want to copy some files or are on the search for a solution
 Take a few minutes to study the above Tutorials and get to know the most basic commands and tools to be able to navigate on your Linux system, edit configurations, check the system state or look at log files.
 It's not complicated and something that doesn't hurt on one's résumé.
 
-### First Steps with openHAB
+### First steps with openHAB
 After your first setup of openHABian is successful and you are able to access the openHAB dashboard, you should dig into the possibilites.
 Install [Bindings](https://www.openhab.org/addons/), discover your devices, and [configure your smart home](https://www.openhab.org/docs/configuration/).
 You might want to start defining [Items](https://www.openhab.org/docs/configuration/items.html), [Sitemap](https://www.openhab.org/docs/configuration/sitemaps.html) and [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html) dashboard for your home, but these are just some first hints.
 Be sure to read up on the [Configuration](https://www.openhab.org/docs/configuration/) section of the documentation pages to learn more.
 
-### Further Configuration Steps
+### Further configuration steps
 openHABian is supposed to provide a ready-to-use openHAB base system.
 There are a few things, however, we need you to decide and act on right now at the beginning:
 
--   **Delayed Rules Loading** openHAB startup times can be annoyingly long. There's an optimization available that *delays* loading the rules. It quickly renames rules forth and back after 2 minutes, *effectively speeding up* openHAB startup. This is setup by default, you can disable this via \[menu option: 44\].
--   **Time Zone:** The time zone of your openHABian system will be determined based on your internet connection. In some cases you might have to adjust that setting.
+-   **Delayed Rules loading** openHAB startup times can be annoyingly long. There's an optimization available that *delays* loading the rules. It quickly renames rules forth and back after 2 minutes, *effectively speeding up* openHAB startup. This is setup by default, you can disable this via \[menu option: 44\].
+-   **Timezone:** The time zone of your openHABian system will be determined based on your internet connection. In some cases you might have to adjust that setting.
 -   **Language:** The `locale` setting of the openHABian base system is set to "en_US.UTF-8". While this setting will not do any harm, you might prefer e.g. console errors in German or Spanish. Change the locale settings accordingly. Be aware, that error solving might be easier when using the English error messages as search phrases.
 -   **Passwords:** Relying on default passwords is a security concern you should care about! The openHABian system is preconfigured with a few passwords you should change to ensure the security of your system. This is especially important if your system is accessible from outside your private subnet.
 
-All of these settings **can easily be changed** via the openHABian Configuration Tool.
+All of these settings can be changed via the openHABian configuration tool.
 
 Here are the passwords in question with their respective default "username:password" values.
-All password can be changed from openHABian menu.
+They can be changed from openHABian menu.
 
 ### Passwords
 -   User password needed for SSH or sudo (e.g. "openhabian:openhabian")
@@ -223,7 +223,8 @@ Standard openHABian install enables ZRAM by default (#1). Once you attach a *saf
 Finally, we strongly suggest you install Amanda (#4) right after you finish your setup. Amanda is to take care to backup the whole system to be able to quickly restore it when in need.
 This is not done by default because it requires a number of user inputs, but you should not skip it for your own safety !
 
-Delayed rules load will also be enabled by default. This is renaming the rules files, then after 2 minutes it renames them back. You can toggle to use this feature in menu option 44.
+`Delayed rules load` will be enabled by default in openHAB 2 but disabled in openHAB 3 (which has a new startlevel system).
+This function will rename the rules files so they get ignored by the starting openHAB instance, then after 2 minutes they're renamed back. You can toggle to use this feature in menu option 44.
 
 ## Setup notes
 
@@ -344,7 +345,7 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 -   [Frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openhab:9001](http://openhab:9001)
 -   [InfluxDB and Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openhab:3000](http://openhab:3000)
 -   [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
--   [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things", with preinstalled [openHAB 2](https://flows.nodered.org/node/node-red-contrib-openhab2) and [BigTimer](https://flows.nodered.org/node/node-red-contrib-bigtimer) add-ons. Accessible from [http://openhab:1880](http://openhab:1880)
+-   [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things". Access at [http://openhab:1880](http://openhab:1880).
 -   [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
 -   [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
 -   [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
@@ -407,11 +408,13 @@ After the installation of openHABian was successful, you should be able to acces
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem. Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 
 <a id="switch-openhab-branch"></a>
-#### Can I switch from openHAB 2 stable to the testing or unstable branch?
-openHABian installs the latest stable build of openHAB 2.
-If you want to switch over to the snapshot or milestone release, please do so via the openHABian Configuration Tool.
+#### Can I switch openHAB 2 and 3 via openHABian branches ?
+openHABian installs the latest stable build of openHAB.
+The standard openHABian `stable` and `master` branches will install openHAB version 2 and the `openHAB3` branch will install the new openHAB version 3.
+You can migrate between versions by selecting the corresponding 4X menu option. That should also result in an openHABian branch change.
+If you want to choose from stable, snapshot or milestone releases, please do so via `openhabian-config` tool (also menu 4X).
+Note this will **not** result in any openHABian branch change.
 Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
-
 Check the Linux installation article for all needed details: [Linux: Changing Versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 
 <a id="headache"></a>
