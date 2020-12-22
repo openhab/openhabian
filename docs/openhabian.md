@@ -81,9 +81,9 @@ openHABian is designed as a headless system, you will not need a display or a ke
 -   Enjoy!
 
 -   The device will be accessible by its IP or via the local DNS name `openhabiandevice` (or whatever you changed 'hostname' in `openhabian.conf` to)
--   [Connect to the openHAB UI](https://www.openhab.org/docs/configuration/packages.html): [http://openhabiandevice:8080](http://openhabiandevice:8080)
+-   Connect to the openHAB UI at [http://openhabiandevice:8080](http://openhabiandevice:8080)
 -   [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
--   Connect to the openHAB Log Viewer (frontail): [http://openhabiandevice:9001](http://openhabiandevice:9001)
+-   Connect to the openHAB Log Viewer (frontail) at [http://openhabiandevice:9001](http://openhabiandevice:9001)
 -   If you encounter any setup problem, [please continue here](#successful)
 
 You can stop reading now, openHABian has installed and configured your openHAB system and you can start to use it right away.
