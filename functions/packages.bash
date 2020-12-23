@@ -249,9 +249,10 @@ homegear_setup() {
 ##    mqtt_setup()
 ##
 mqtt_setup() {
-  local introText="The MQTT broker Eclipse Mosquitto will be installed from the official repository.\\n\\nIn addition, you can activate username:password authentication."
   local mqttPasswd
   local mqttUser="openhabian"
+  local targetDir="/etc/systemd/system/mosquitto.service.d"
+  local introText="The MQTT broker Eclipse Mosquitto will be installed from the official repository.\\n\\nIn addition, you can activate username:password authentication."
   local questionText="\\nDo you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\\n\\nUsername will be '${mqttUser}', please provide a password (consisting of ASCII printable characters except space). Leave blank for no authentication, run setup again to change."
   local successText="Setup was successful.\\n\\nEclipse Mosquitto is now up and running in the background. You should be able to make a first connection.\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/mqtt/"
 
@@ -274,7 +275,7 @@ mqtt_setup() {
       echo -e "\\npassword_file /etc/mosquitto/passwd\\nallow_anonymous false\\n" >> /etc/mosquitto/mosquitto.conf
     fi
     echo -n "" > /etc/mosquitto/passwd
-    chown mosquitto:openhabian /etc/mosquitto/passwd
+    chown "mosquitto:${username:-openhabian}" /etc/mosquitto/passwd
     chmod 660 /etc/mosquitto/passwd
     if cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd "$mqttUser" "$mqttPasswd"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
@@ -283,6 +284,9 @@ mqtt_setup() {
     if cond_redirect rm -f /etc/mosquitto/passwd; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
+  if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare mosquitto override directory)"; return 1; fi
+  if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean mosquitto override directory)"; return 1; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/mosquitto-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up MQTT service... "
   if ! cond_redirect usermod --append --groups mosquitto "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} mosquitto)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
