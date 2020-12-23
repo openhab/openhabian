@@ -274,6 +274,8 @@ mqtt_setup() {
       echo -e "\\npassword_file /etc/mosquitto/passwd\\nallow_anonymous false\\n" >> /etc/mosquitto/mosquitto.conf
     fi
     echo -n "" > /etc/mosquitto/passwd
+    chown mosquitto:openhabian /etc/mosquitto/passwd
+    chmod 660 /etc/mosquitto/passwd
     if cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd "$mqttUser" "$mqttPasswd"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
     if ! cond_redirect sed -i -e '/password_file/d' /etc/mosquitto/mosquitto.conf; then echo "FAILED"; return 1; fi
