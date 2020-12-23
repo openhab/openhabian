@@ -301,7 +301,11 @@ permissions_corrections() {
   fi
 
   if ! cond_redirect chown --recursive "${username:-openhabian}:${username:-openhabian}" "/home/${username:-openhabian}"; then echo "FAILED (${username:-openhabian} own $HOME)"; return 1; fi
-
+  
+  if [ -f /etc/mosquitto/passwd ]; then
+    if ! cond_redirect chown "mosquitto:${username:-openhabian}" /etc/mosquitto/passwd; then echo "FAILED (mosquitto passwd permissions)"; return 1; fi
+    if ! cond_redirect chmod 660 /etc/mosquitto/passwd; then echo "FAILED (mosquitto passwd permissions)"; return 1; fi
+  fi
   if ! cond_redirect setfacl -R --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access)"; return 1; fi
   if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; return 1; fi
   if ! cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "FAILED"; return 1; fi
