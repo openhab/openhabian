@@ -137,10 +137,9 @@ openhab_shell_interfaces() {
   local sshPass2
   local successText
 
-  introText="\\nThe openHAB remote console is a powerful tool for every openHAB user. It allows you too have a deeper insight into the internals of your setup. Further details: https://www.openhab.org/docs/administration/console.html\\n\\nThis routine will bind the console to all interfaces and thereby make it available to other devices in your network. Please provide a secure password for this connection (letters and numbers only!):"
-  successText="The openHAB remote console was successfully opened on all interfaces. openHAB has been restarted. You should be able to reach the console via:\\n\\n'ssh://openhab:<password>@<openhabian-IP> -p 8101'\\n\\nPlease be aware, that the first connection attempt may take a few minutes or may result in a timeout due to key generation.\\n\\nThe default password is habopen."
-
-  echo -n "$(timestamp) [openHABian] Binding the openHAB remote console on all interfaces... "
+  introText="\\nThe openHAB remote console is a powerful tool for every openHAB user. For details see https://www.openhab.org/docs/administration/console.html\\n\\nThis menu option will make the console available on all interfaces of your system. Please provide a secure password for this connection. Blank input will get you the default password \"habopen\"."
+  successText="The openHAB remote console was successfully activated on all interfaces and openHAB has been restarted. You can reach the console using\\n\\nssh openhab@$HOSTNAME -p 8101\\n\\nBe aware that the first connection attempt may take a few minutes or may result in a timeout due to key generation.\\nThe default password is \"habopen\"."
+  echo -n "$(timestamp) [openHABian] Activating the openHAB console on all interfaces... "
 
   if [[ -n $INTERACTIVE ]]; then
     while [[ -z $sshPass ]]; do
