@@ -10,9 +10,14 @@ This document is meant to give a guiding hand to users when their openHABian
 install fails either on initial image installation or later on when running menu
 options that install or configure optional components.
 
+TL;DR:<br>
+set `debugmode=maximum`in `/etc/openhabian.conf` and see `/boot/first-boot.log` for
+image installation else record the terminal output.<br>
+Do not ask for help on the forum unless you have FULLY read this guide.
+
 **Attention:**
 If you do not use the image but use `openhabian-config` manually - either to run
-`openhabian-config unattended` to install or be it for interactive use -, **there is no logfile**.
+`openhabian-config unattended` or interactive use -, **there is no logfile**.
 To record output in this case, you need to configure your terminal client to record
 and save the command line output.
 In PuTTy there's a field called 'Lines of scrollback' under the 'Window' option in
@@ -136,14 +141,15 @@ As we cannot be sure everything on your box is 100% the same what an
 unattended install gets you, please also do a complete reinstall before you
 start operating openHAB. If possible start with the flash step. If that does
 not work, at least delete all the packages that openhabian-setup had installed
-before you reboot.
+before you reboot. Use `apt purge` (and not just `apt remove`).
 
 ### Create a debug log
 You can put openHABian into a more verbose debug level **at any time** after
 the very first installation run: edit the config file `/etc/openhabian.conf`
 using the editor of your choice (use `nano` if you have no idea) and change
 the `debugmode` parameter to either `on` or `maximum` right away (default
-is `off`). Specifying `maximum` is usually your best choice as it will have
+is `off`). If it's missing there, just add it.
+Specifying `maximum` is usually your best choice as it will have
 `openhabian-config` show every single command it executes so you might spot
 the problem right away. If you open an issue, always provide the maintainers
 with a logfile at `maximum` detail level.
