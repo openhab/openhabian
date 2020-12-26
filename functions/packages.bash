@@ -259,11 +259,14 @@ mqtt_setup() {
   echo -n "$(timestamp) [openHABian] Beginning the MQTT broker Eclipse Mosquitto installation... "
   if [[ -n $INTERACTIVE ]]; then
     if (whiptail --title "MQTT installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+  else
+    echo "OK"
   fi
 
   if ! dpkg -s 'mosquitto' 'mosquitto-clients' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing MQTT... "
     if cond_redirect apt-get install --yes mosquitto mosquitto-clients; then echo "OK"; else echo "FAILED"; return 1; fi
+    apt-get install --fix-broken --yes
   fi
 
   echo -n "$(timestamp) [openHABian] Configuring MQTT... "
@@ -290,7 +293,7 @@ mqtt_setup() {
   echo -n "$(timestamp) [openHABian] Setting up MQTT service... "
   if ! cond_redirect usermod --append --groups mosquitto "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} mosquitto)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-  if cond_redirect systemctl enable --now  mosquitto.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl enable --now mosquitto.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation Successful!" --msgbox "$successText" 13 80
@@ -740,27 +743,26 @@ telldus_core_setup() {
     dpkg --add-architecture armhf
   fi
 
+  if ! add_keys "http://download.telldus.com/debian/telldus-public.key"; then return 1; fi
+
   # Maybe add new repository to be able to install libconfuse1
   # libconfuse1 is only available from old stretch repos, but currently still needed
   if is_buster; then
-    echo -n "$(timestamp) [openHABian] Adding libconfuse1 repository to apt... "
+    echo -n "$(timestamp) [openHABian] Adding libconfuse1 and telldus repositories to apt... "
     echo 'APT::Default-Release "buster";' > /etc/apt/apt.conf.d/01release
     if is_raspbian ; then
       echo "deb http://raspbian.raspberrypi.org/raspbian/ stretch main" > /etc/apt/sources.list.d/raspbian-stretch.list
     else
       echo "deb http://deb.debian.org/debian stretch main" > /etc/apt/sources.list.d/debian-stretch.list
     fi
-    echo "OK"
+  else
+    echo -n "$(timestamp) [openHABian] Adding telldus repository to apt... "
   fi
-  echo -n "$(timestamp) [openHABian] Installing libconfuse1... "
-  if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
-
-  if ! add_keys "https://s3.eu-central-1.amazonaws.com/download.telldus.com/debian/telldus-public.key"; then return 1; fi
-
-  echo -n "$(timestamp) [openHABian] Adding telldus repository to apt... "
-  echo "deb https://s3.eu-central-1.amazonaws.com/download.telldus.com unstable main" > /etc/apt/sources.list.d/telldus-unstable.list
+  echo "deb http://download.telldus.com/debian/ unstable main" > /etc/apt/sources.list.d/telldus-unstable.list
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Installing libconfuse1... "
+  if cond_redirect apt-get install --yes --target-release "stretch" libconfuse1; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Installing telldus-core... "
   if cond_redirect apt-get install --yes libjna-java telldus-core; then echo "OK"; else echo "FAILED"; return 1; fi

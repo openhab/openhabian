@@ -77,14 +77,14 @@ fi
 echo "watch cat /boot/first-boot.log" > "$HOME/.bash_profile"
 
 # setup networking
-apt install --yes network-manager &>/dev/null
+apt install --yes network-manager &> /dev/null
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 if [[ -z $wifi_ssid ]]; then
   # Actually check if ethernet is working
   echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... "
   if grep -qs "up" /sys/class/net/eth0/operstate; then echo "OK"; else echo "FAILED"; fi
 
-  if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
+  if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
     if [[ "$hotspot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
       echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
       setup_hotspot "install"
@@ -157,7 +157,7 @@ else
 fi
 
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
-if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 86400 1; then
+if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
   echo "FAILED"
   if grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig |& grep -qs "ESSID:off"; then
     echo "$(timestamp) [openHABian] I was not able to connect to the configured Wi-Fi. Please check your signal quality. Reachable Wi-Fi networks are:"
@@ -167,11 +167,11 @@ if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.op
     rm -f /etc/wpa_supplicant/wpa_supplicant.conf
   fi
   echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
-  echo "$(timestamp)              We have launched a publicly accessible hotspot named openHABian-<n>."
-  echo "$(timestamp)              Use your mobile to connect and go to http://raspberrypi.local or http://10.42.0.1/"
-  echo "$(timestamp)              and select the WiFi network you want to connect your openHABian system to."
-  echo "$(timestamp)              After about an hour, we will continue trying to get your system installed,"
-  echo "$(timestamp)              but without proper Internet connectivity this is not guaranteed to work."
+  echo "                          We have launched a publicly accessible hotspot named openHABian-<n>."
+  echo "                          Use your mobile to connect and go to http://raspberrypi.local or http://10.42.0.1/"
+  echo "                          and select the WiFi network you want to connect your openHABian system to."
+  echo "                          After about an hour, we will continue trying to get your system installed,"
+  echo "                          but without proper Internet connectivity this is not guaranteed to work."
 else
   echo "OK"
 fi
@@ -216,13 +216,13 @@ fi
 
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Updating myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-stable} branch... "
-type openhabian_update &> /dev/null && if ! openhabian_update &> /dev/null; then
+if [[ $(eval "$(openhabian_update &> /dev/null)") -eq 0 ]]; then
+  echo "OK"
+else
   echo "FAILED"
   echo "$(timestamp) [openHABian] The git repository on the public internet is not reachable."
   echo "$(timestamp) [openHABian] We will continue trying to get your system installed, but this is not guaranteed to work."
   export OFFLINE="1"
-else
-  echo "OK"
 fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 
@@ -235,11 +235,6 @@ else
   echo "$(timestamp) [openHABian] We tried to get your system installed, but without proper internet connectivity this may not have worked properly."
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-config unattended' completed."
-echo -n "$(timestamp) [openHABian] Waiting for openHAB to become ready on ${HOSTNAME:-openhab}... "
-
-# this took ~130 seconds on a RPi2
-if ! tryUntil "curl --silent --head http://${HOSTNAME:-openhab}:8080/ |& grep -qs 'HTTP/1.1 200 OK'" 20 10; then echo "OK"; else echo "FAILED"; exit 1; fi
-
 echo "$(timestamp) [openHABian] First time setup successfully finished. Rebooting your system!"
 echo "$(timestamp) [openHABian] After rebooting the openHAB dashboard will be available at: http://${HOSTNAME:-openhab}:8080"
 echo "$(timestamp) [openHABian] After rebooting to gain access to a console, simply reconnect using ssh."

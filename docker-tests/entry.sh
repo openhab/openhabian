@@ -1,11 +1,40 @@
 #!/bin/bash
 
-hostname "$HOSTNAME" &> /dev/null
-if [[ $? == 0 ]]; then
+set -m
+
+# This command only works in privileged container
+
+if ip link add dummy0 type dummy &> /dev/null; then
 	PRIVILEGED=true
+	# clean the dummy0 link
+    ip link delete dummy0 &> /dev/null
 else
 	PRIVILEGED=false
 fi
+
+# Send SIGTERM to child processes of PID 1.
+function signal_handler()
+{
+	kill "$pid"
+}
+
+function start_udev()
+{
+	if [ "$UDEV" == "on" ]; then
+		if [ "$INITSYSTEM" != "on" ]; then
+			if command -v udevd &>/dev/null; then
+				unshare --net udevd --daemon &> /dev/null
+			else
+				unshare --net /lib/systemd/systemd-udevd --daemon &> /dev/null
+			fi
+			udevadm trigger &> /dev/null
+		fi
+	else
+		if [ "$INITSYSTEM" == "on" ]; then
+			systemctl mask systemd-udevd
+		fi
+	fi
+}
 
 function mount_dev()
 {
@@ -30,34 +59,55 @@ function mount_dev()
 	mount -t debugfs nodev /sys/kernel/debug
 }
 
-function start_udev()
+function init_systemd()
 {
-	if [ "$UDEV" == "on" ]; then
-		if $PRIVILEGED; then
-			mount_dev
-			if command -v udevd &> /dev/null; then
-				unshare --net udevd --daemon &> /dev/null
-			else
-				unshare --net /lib/systemd/systemd-udevd --daemon &> /dev/null
-			fi
-			udevadm trigger &> /dev/null
-		else
-			echo "Unable to start udev, container must be run in privileged mode to start udev!"
-		fi
-	fi
+	GREEN='\033[0;32m'
+	echo -e "${GREEN}Systemd init system enabled."
+	for var in $(compgen -e); do
+		printf '%q=%q\n' "$var" "${!var}"
+	done > /etc/docker.env
+	echo 'source /etc/docker.env' >> ~/.bashrc
+
+	printf '#!/bin/bash\n exec ' > /etc/resinApp.sh
+	printf '%q ' "$@" >> /etc/resinApp.sh
+	chmod +x /etc/resinApp.sh
+
+	mkdir -p /etc/systemd/system/resin.service.d
+	cat <<-EOF > /etc/systemd/system/resin.service.d/override.conf
+		[Service]
+		WorkingDirectory=$(pwd)
+	EOF
+
+	sleep infinity &
+	exec env DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket SYSTEMD_LOG_LEVEL=info /sbin/init quiet systemd.show_status=0
 }
 
-function init()
+function init_non_systemd()
 {
+	# trap the stop signal then send SIGTERM to user processes
+	trap signal_handler SIGRTMIN+3 SIGTERM
+
 	# echo error message, when executable file doesn't exist.
-	if CMD=$(command -v "$1" 2> /dev/null); then
+	if CMD=$(command -v "$1" 2>/dev/null); then
 		shift
-		exec "$CMD" "$@"
+		"$CMD" "$@" &
+		pid=$!
+		wait "$pid"
+		exit_code=$?
+		fg &> /dev/null || exit "$exit_code"
 	else
 		echo "Command not found: $1"
 		exit 1
 	fi
 }
+
+INITSYSTEM=$(echo "$INITSYSTEM" | awk '{print tolower($0)}')
+
+case "$INITSYSTEM" in
+	'1' | 'true')
+		INITSYSTEM='on'
+	;;
+esac
 
 UDEV=$(echo "$UDEV" | awk '{print tolower($0)}')
 
@@ -67,5 +117,14 @@ case "$UDEV" in
 	;;
 esac
 
-start_udev
-init "$@"
+if $PRIVILEGED; then
+	# Only run this in privileged container
+	mount_dev
+	start_udev
+fi
+
+if [ "$INITSYSTEM" = "on" ]; then
+	init_systemd "$@"
+else
+	init_non_systemd "$@"
+fi

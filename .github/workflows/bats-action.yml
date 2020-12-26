@@ -1,0 +1,67 @@
+name: BATS
+
+on:
+  push:
+    paths:
+      - 'functions/*.bats'
+      - 'functions/*.bash'
+      - '!functions/wifi.bash'
+      - '!functions/system.bash'
+      - '!functions/openhab.bash'
+      - '!functions/openhabian.bash'
+      - '!functions/menu.bash'
+      - '!functions/find.bash'
+      - '!functions/ext-storage.bash'
+      - '!functions/config.bash'
+      - '!functions/backup.bash'
+      - '!functions/auth.bash'
+      - '.github/workflows/bats-action.yml'
+  pull_request:
+    paths:
+      - 'functions/*.bats'
+      - 'functions/*.bash'
+      - '!functions/wifi.bash'
+      - '!functions/system.bash'
+      - '!functions/openhab.bash'
+      - '!functions/openhabian.bash'
+      - '!functions/menu.bash'
+      - '!functions/find.bash'
+      - '!functions/ext-storage.bash'
+      - '!functions/config.bash'
+      - '!functions/backup.bash'
+      - '!functions/auth.bash'
+      - '.github/workflows/bats-action.yml'
+
+jobs:
+  rpi4-bats:
+    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
+    runs-on: ubuntu-20.04
+
+    steps:
+       - name: Checkout repository
+         uses: actions/checkout@v2
+       - name: Setup environment
+         run: |
+           sudo -E bash -c set
+           sudo -E ./ci-setup.bash github
+       - name: "BATS tests on virtual 64bit RPi4 running Debian Buster"
+         run: |
+           echo -e "\e[36mopenHABian BATS tests running on a\e[31m 64bit OS\e[36m running on a virtual RPi4...\e[0m\n"
+           docker build -f Dockerfile.rpi4-BATS .
+         shell: bash
+  amd64-bats:
+    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
+    runs-on: ubuntu-20.04
+
+    steps:
+       - name: Checkout repository
+         uses: actions/checkout@v2
+       - name: Setup environment
+         run: |
+           sudo -E bash -c set
+           sudo -E ./ci-setup.bash github
+       - name: "BATS tests on virtual 64bit x86 running Ubuntu Focal Fossa"
+         run: |
+           echo -e "\e[36mopenHABian BATS tests running on a\e[31m 64bit OS\e[36m running on a native amd64...\e[0m"
+           docker build -f Dockerfile.ubuntu-BATS .
+         shell: bash

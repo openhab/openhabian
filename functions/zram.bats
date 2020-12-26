@@ -21,7 +21,7 @@ check_zram_mounts() {
 	    TARGET=$5
 	    echo "$(swapon | grep -q zram)"; echo $?
             if [ "${TYPE}" == "swap" ]; then
-	      if [ $(swapon | grep -q zram) ]; then
+	      if [ "$(swapon | grep -q zram)" ]; then
                 echo "# $(basename $0) error: swap not on zram." >&3
                 return 1
               fi
@@ -51,7 +51,7 @@ check_zram_removal() {
             TYPE=$1
 	    TARGET=$5
             if [ "${TYPE}" == "swap" ]; then
-	      if ! [ $(swapon | grep -q zram) ]; then
+	      if ! [ "$(swapon | grep -q zram)" ]; then
                 echo "# $(basename $0) error: swap still on zram." >&3
                 return 1
               fi
