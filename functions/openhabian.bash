@@ -135,10 +135,14 @@ openhabian_update() {
   if [[ $# == 1 ]]; then
     branch="$1"
   elif [[ -n $INTERACTIVE ]]; then
-    if [[ $current == "master" ]]; then
-      introText="You are currently using the very latest (\"master\") version of openHABian.\\nThis is providing you with the latest features but less people have tested it so it is a little more likely that you run into errors.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
+    if [[ $current == "master" ]] || [[ $current == "stable" ]]; then
+      introText="You are currently using the \"${current}}\" openHABian environment version. I will ONLY work with openHAB version 2\\nThe very latest version is called \"master\".\\nThis is providing you with the latest features but less people have tested it so it is a little more likely that you run into errors.\\nYou can step back a little and switch to use the stable version now.\\nYou can switch at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
     else
-      introText="You are currently using neither the stable version nor the latest (\"master\") version of openHABian.\\nAccess to the latest features would require you to switch to master while the default is to use the stable version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
+      if [[ $current == "openHAB3" ]]; then
+        introText="You are currently using neither the stable version nor the latest (\"master\") version of openHABian.\\nAccess to the latest features would require you to switch to master while the default is to use the stable version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
+      else
+        introText="You are currently using an unknown branch of openHABian.\\nThis may be a test version or an error, if so please report on Github."
+      fi
     fi
 
     if [[ $current == "stable" ]]; then
