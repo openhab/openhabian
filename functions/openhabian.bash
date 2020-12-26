@@ -135,10 +135,14 @@ openhabian_update() {
   if [[ $# == 1 ]]; then
     branch="$1"
   elif [[ -n $INTERACTIVE ]]; then
-    if [[ $current == "master" ]]; then
-      introText="You are currently using the very latest (\"master\") version of openHABian.\\nThis is providing you with the latest features but less people have tested it so it is a little more likely that you run into errors.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
+    if [[ $current == "master" ]] || [[ $current == "stable" ]]; then
+        introText="You are currently using the \"${current}\" openHABian environment version. I will ONLY work with openHAB version 2.\\nIf you want to run openHAB 3 you need to switch to the \"openHAB3\" branch. If that's your intent better let the upgrade function do it for you and validate afterwards you are on openHAB3 branch.\\n\\nThe very latest openHAB 2 version is called \"master\".\\nThis is providing you with the latest (openHAB2 !) features but less people have tested it so it is a little more likely that you run into errors.\\nYou can step back a little and switch to use the stable version now.\\nYou can switch at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
     else
-      introText="You are currently using neither the stable version nor the latest (\"master\") version of openHABian.\\nAccess to the latest features would require you to switch to master while the default is to use the stable version.\\nWould you like to step back a little now and switch to use the stable version ?\\nYou can switch versions at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
+      if [[ $current == "openHAB3" ]]; then
+          introText="You are currently the latest (\"openHAB3\") openHABian environment version.\\nYou will need to be on here (openHAB3) if you want to run openHAB version 3.\\n\\nYou can switch environments at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n\\nATTENTION: If you want to upgrade to openHAB 3 you should select \"Cancel\" now and select option 03 from the main menu instead."
+      else
+          introText="You are currently using an unknown branch of openHABian.\\nThis may be a test version or an error, if so please report on Github (remember to provide a debug log - see debug guide)."
+      fi
     fi
 
     if [[ $current == "stable" ]]; then
@@ -161,9 +165,9 @@ openhabian_update() {
     fi
 
     if [[ $own == "no" ]]; then
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 80 3 stable "recommended standard version of openHABian" "$stable" master "very latest version of openHABian" "$master" openHAB3 "openHAB 3.0" "$openHAB3" 3>&1 1>&2 2>&3)"; then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 100 3 stable "recommended standard version of openHABian" "$stable" master "very latest version of openHABian" "$master" openHAB3 "openHAB 3.0" "$openHAB3" 3>&1 1>&2 2>&3)"; then return 0; fi
     else
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 80 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF openHAB3 "openHAB 3.0" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 100 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF openHAB3 "openHAB 3.0" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
     fi
     read -r -t 1 -n 1 key
     if [[ -n $key ]]; then
