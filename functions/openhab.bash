@@ -112,7 +112,7 @@ openhab_setup() {
   openhab_misc
   create_systemd_dependencies
   if [[ "$1" == "openHAB3" ]]; then
-    delayed_rules "yno"
+    delayed_rules "no"
   else
     delayed_rules "yes"
   fi
