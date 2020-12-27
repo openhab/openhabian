@@ -64,10 +64,10 @@ find3_setup() {
 
   echo -n "$(timestamp) [openHABian] Downloading FIND3 source... "
   if ! [[ -d $find3Dir ]]; then
-    cond_echo "\nFresh Installation... "
+    cond_echo "\\nFresh Installation... "
     if cond_redirect git clone https://github.com/schollz/find3.git $find3Dir; then echo "OK"; else echo "FAILED (git clone)"; return 1; fi
   else
-    cond_echo "\nUpdate... "
+    cond_echo "\\nUpdate... "
     if cond_redirect update_git_repo "$find3Dir" "master"; then echo "OK"; else echo "FAILED (update git repo)"; return 1; fi
   fi
 
@@ -109,7 +109,7 @@ find3_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up FIND3 service... "
   if ! (id -u find3 &> /dev/null || cond_redirect useradd --groups openhabian find3); then echo "FAILED (adduser)"; return 1; fi
-  if ! cond_redirect chown -R find3:${username:-openhabian} /opt/find3; then echo "FAILED (permissions)"; return 1; fi
+  if ! cond_redirect chown -R "find3:${username:-openhabian}" /opt/find3; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/find3ai.service /etc/systemd/system/find3ai.service; then echo "FAILED (copy service)"; return 1; fi
   if ! (sed -e 's|%FIND3_PORT|8003|g' "${BASEDIR:-/opt/openhabian}"/includes/find3server.service > /etc/systemd/system/find3server.service); then echo "FAILED (service file creation)"; return 1; fi
   if ! cond_redirect chmod 644 /etc/systemd/system/find3server.service; then echo "FAILED (permissions)"; return 1; fi
@@ -234,10 +234,10 @@ setup_monitor_mode() {
 
   echo -n "$(timestamp) [openHABian] Downloading Nexmon... "
   if ! [[ -d $nexmonDir ]]; then
-    cond_echo "\nFresh Installation... "
+    cond_echo "\\nFresh Installation... "
     if ! cond_redirect git clone https://github.com/seemoo-lab/nexmon.git $nexmonDir; then echo "FAILED (git clone)"; return 1; fi
   else
-    cond_echo "\nUpdate... "
+    cond_echo "\\nUpdate... "
     if ! cond_redirect update_git_repo "$nexmonDir" "master"; then echo "FAILED (update git repo)"; return 1; fi
   fi
   if cond_redirect touch "${nexmonDir}/DISABLE_STATISTICS"; then echo "OK"; else echo "FAILED (disable statistics)"; return 1; fi
