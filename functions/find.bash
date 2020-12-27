@@ -109,7 +109,7 @@ find3_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up FIND3 service... "
   if ! (id -u find3 &> /dev/null || cond_redirect useradd --groups openhabian find3); then echo "FAILED (adduser)"; return 1; fi
-  if ! cond_redirect chown -R find3:openhabian /opt/find3; then echo "FAILED (permissions)"; return 1; fi
+  if ! cond_redirect chown -R find3:${username:-openhabian} /opt/find3; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/find3ai.service /etc/systemd/system/find3ai.service; then echo "FAILED (copy service)"; return 1; fi
   if ! (sed -e 's|%FIND3_PORT|8003|g' "${BASEDIR:-/opt/openhabian}"/includes/find3server.service > /etc/systemd/system/find3server.service); then echo "FAILED (service file creation)"; return 1; fi
   if ! cond_redirect chmod 644 /etc/systemd/system/find3server.service; then echo "FAILED (permissions)"; return 1; fi
