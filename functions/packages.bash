@@ -286,7 +286,8 @@ mqtt_setup() {
     if ! cond_redirect sed -i -e '/allow_anonymous/d' /etc/mosquitto/mosquitto.conf; then echo "FAILED"; return 1; fi
     if cond_redirect rm -f /etc/mosquitto/passwd; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-
+  cond_redirect mkdir -p /var/log/mosquitto /opt/zram/log.bind/mosquitto
+  cond_redirect chown mosquitto /var/log/mosquitto /opt/zram/log.bind/mosquitto
   if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare mosquitto override directory)"; return 1; fi
   if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean mosquitto override directory)"; return 1; fi
   if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/mosquitto-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
