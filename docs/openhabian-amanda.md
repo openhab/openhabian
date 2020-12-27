@@ -1,6 +1,5 @@
 # How to backup your openHABian server using Amanda
 
-# Intro
 ## The need for recovery
 First, make yourself aware how important a comprehensive backup and recovery concept is.
 Yes, this text is the README on the backup software part for openHABian that you're reading, but take a couple of minutes to
