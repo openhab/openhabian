@@ -119,7 +119,7 @@ openhabian_update() {
   local branch
   local stable
   local master
-  local openHAB3
+  local main
   local current
   local introText
   local own="yes"
@@ -133,11 +133,11 @@ openhabian_update() {
   if [[ $# == 1 ]]; then
     branch="$1"
   elif [[ -n $INTERACTIVE ]]; then
-    if [[ $current == "master" ]] || [[ $current == "stable" ]]; then
+    if [[ $current == "main" ]] || [[ $current == "stable" ]]; then
         introText="You are currently using the \"${current}\" openHABian environment version. I will ONLY work with openHAB version 2.\\nIf you want to run openHAB 3 you need to switch to the \"openHAB3\" branch. If that's your intent better let the upgrade function do it for you and validate afterwards you are on openHAB3 branch.\\n\\nThe very latest openHAB 2 version is called \"master\".\\nThis is providing you with the latest (openHAB2 !) features but less people have tested it so it is a little more likely that you run into errors.\\nYou can step back a little and switch to use the stable version now.\\nYou can switch at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
     else
-      if [[ $current == "openHAB3" ]]; then
-          introText="You are currently the latest (\"openHAB3\") openHABian environment version.\\nYou will need to be on here (openHAB3) if you want to run openHAB version 3.\\n\\nYou can switch environments at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n\\nATTENTION: If you want to upgrade to openHAB 3 you should select \"Cancel\" now and select option 03 from the main menu instead."
+      if [[ $current == "main" ]]; then
+          introText="You are currently the latest (\"openHAB3\") openHABian environment version.\\nYou will need to be on here (main) if you want to run openHAB version 3.\\n\\nYou can switch environments at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n\\nATTENTION: If you want to upgrade to openHAB 3 you should select \"Cancel\" now and select option 03 from the main menu instead."
       else
           introText="You are currently using an unknown branch of openHABian.\\nThis may be a test version or an error, if so please report on Github (remember to provide a debug log - see debug guide)."
       fi
@@ -146,26 +146,26 @@ openhabian_update() {
     if [[ $current == "stable" ]]; then
       stable="ON"
       master="OFF"
-      openHAB3="OFF"
+      main="OFF"
       own="no"
     elif [[ $current == "master" ]]; then
       stable="OFF"
       master="ON"
-      openHAB3="OFF"
+      main="OFF"
       own="no"
-    elif [[ $current == "openHAB3" ]]; then
+    elif [[ $current == "main" ]]; then
       stable="OFF"
       master="OFF"
-      openHAB3="ON"
+      main="ON"
       own="no"
     else
       own="yes"
     fi
 
     if [[ $own == "no" ]]; then
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 100 3 stable "recommended standard version of openHABian" "$stable" master "very latest version of openHABian" "$master" openHAB3 "openHAB 3.0" "$openHAB3" 3>&1 1>&2 2>&3)"; then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 14 100 3 stable "recommended standard version of openHABian" "$stable" master "very latest version of openHABian (OH3)" "$main" master "legacy version of openHABian (OH2)" "$master" 3>&1 1>&2 2>&3)"; then return 0; fi
     else
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 100 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF openHAB3 "openHAB 3.0" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
+      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 15 100 4 stable "recommended standard version of openHABian" OFF master "very latest version of openHABian" OFF main "openHAB 3.0" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
     fi
     read -r -t 1 -n 1 key
     if [[ -n $key ]]; then
