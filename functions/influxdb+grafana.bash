@@ -186,6 +186,8 @@ influxdb_install() {
   local adminPassword
   local myOS
   local myRelease
+  local targetDir="/etc/systemd/system/influxdb.service.d"
+
 
   if ! [[ -x $(command -v lsb_release) ]]; then
     echo -n "$(timestamp) [openHABian] Installing InfluxDB required packages (lsb-release)... "
@@ -213,6 +215,10 @@ influxdb_install() {
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up InfluxDB service... "
+  cond_redirect mkdir -p /var/log/influxdb /opt/zram/log.bind/influxdb
+  if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare influxdb override directory)"; return 1; fi
+  if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean influxdb override directory)"; return 1; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/influxdb-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy override configuration)"; return 1; fi
   # Disable authentication, to allow changes in existing installations
   if ! cond_redirect sed -i -e 's|auth-enabled = true|# auth-enabled = false|g' /etc/influxdb/influxdb.conf; then echo "FAILED (disable authentication)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
@@ -242,6 +248,7 @@ influxdb_install() {
 ##
 grafana_install(){
   local adminPassword
+  local targetDir="/etc/systemd/system/grafana.service.d"
 
   adminPassword="$1"
 
@@ -256,6 +263,11 @@ grafana_install(){
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up Grafana service... "
+  cond_redirect mkdir -p /var/log/grafana /opt/zram/log.bind/grafana
+  cond_redirect chown grafana /var/log/grafana /opt/zram/log.bind/grafana
+  if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare grafana override directory)"; return 1; fi
+  if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean grafana override directory)"; return 1; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/grafana-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy override configuration)"; return 1; fi
   # Workaround for strange behavior in CI
   if ! cond_redirect mkdir -p /var/run/grafana; then echo "FAILED (mkdir)"; return 1; fi
   if ! cond_redirect chmod -R 0750 /var/run/grafana; then echo "FAILED (chmod)"; return 1; fi
