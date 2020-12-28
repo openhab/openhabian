@@ -127,6 +127,8 @@ setup_hotspot() {
 
   if [[ $1 == "install" ]]; then
     echo -n "$(timestamp) [openHABian] Installing Comitup hotspot... "
+    # manage networking through network manager
+    apt install --yes network-manager &> /dev/null
     # get from source - the comitup package in Buster is 2yrs old
     echo "deb http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.list
     if ! cond_redirect apt-get --quiet update; then echo "FAILED (update apt lists)"; return 1; fi
