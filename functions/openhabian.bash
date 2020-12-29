@@ -82,13 +82,12 @@ update_openhabian_conf() {
   cp /dev/null $config
 
   while read -r line; do
-    #if line is a comment
-    if [[ $line =~ ^# ]] || [[ -z "$line" ]]; then
-        echo "$line"  # not sure if anything else is a proper param setting ?
-    else
+    if [[ $line =~ ^# ]] || [[ -z "$line" ]]; then  # if line is a comment or empty
+        echo "$line"
+    else                                            # not fully sure if anything else is a proper param setting but let's assume this
         param=$(echo "$line" | cut -d'=' -f1)       # get parameter name first
         if [[ -z ${!param+x} ]]; then               # if $param is set (if so it is because it was sourced on start)
-            echo "$line"                            # take the param from the default config by simply printing the default's full line
+            echo "$line"                            # take the param from the default config by printing the default .conf's full line
         else
             echo "param=${!param}"                  # else parameter is set i.e. a line setting it is present in $config so use its value
         fi
