@@ -80,6 +80,9 @@ for shfile in "${BASEDIR:-/opt/openhabian}"/functions/*.bash; do source "$shfile
 OLDWD="$(pwd)"
 cd /opt || exit 1
 
+# update openhabian.conf to have latest set of parameters
+update_openhabian_conf
+
 # disable ipv6 if requested in openhabian.conf (eventually reboots)
 config_ipv6
 

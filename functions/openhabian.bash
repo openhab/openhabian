@@ -50,7 +50,7 @@ openhabian_announcements() {
   fi
 }
 
-## Displays a warning if the current console may exibit issues displaing the
+## Displays a warning if the current console may exibit issues displaying the
 ## openHABian menus.
 ##
 ##    openhabian_console_check()
@@ -65,6 +65,37 @@ openhabian_console_check() {
 
   whiptail --title "Compatibility Warning" --msgbox "$warningText" 13 80
 }
+
+
+## Check against openhabian.conf for need to update parameters
+## Add a parameter if it's missing or keep it if user provided.
+## Cycling through openhabian.conf.dist will ensure all current and future params are checked for
+## Run on every start (to ensure params are *up to date* whenever the user changes branch or openhabian-config unattended is run)
+##
+##    update_openhabian_conf()
+##
+update_openhabian_conf() {
+  local config=/etc/openhabian.conf
+  local referenceConfig=/opt/openhabian/openhabian.conf.dist
+
+  cp $config ${config}.BAK
+  cp /dev/null $config
+
+  while read -r line; do
+    #if line is a comment
+    if [[ $line =~ ^# ]] || [[ -z "$line" ]]; then
+        echo "$line"  # not sure if anything else is a proper param setting ?
+    else
+        param=$(echo "$line" | cut -d'=' -f1)       # get parameter name first
+        if [[ -z ${!param+x} ]]; then               # if $param is set (if so it is because it was sourced on start)
+            echo "$line"                            # take the param from the default config by simply printing the default's full line
+        else
+            echo "param=${!param}"                  # else parameter is set i.e. a line setting it is present in $config so use its value
+        fi
+    fi
+   done > $config < $referenceConfig
+}
+
 
 ## Check for updates to the openhabian git repository, if so then issue an update.
 ## This also ensures that announcements will be displayed and that we stay on the correct branch.
