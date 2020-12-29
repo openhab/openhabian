@@ -159,7 +159,7 @@ exim_setup() {
   sed -i '/^[^#]/d' ${addresses}
   if {
     # shellcheck disable=SC2154
-    echo "openhab: $adminmail"; echo "openhabian: $adminmail"
+    echo "openhab: $adminmail"; echo "${username:-openhabian}: $adminmail"
     echo "root: $adminmail"; echo "backup: $adminmail"
   } >> "$addresses"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
