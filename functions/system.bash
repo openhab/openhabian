@@ -333,8 +333,8 @@ permissions_corrections() {
       echo "out" > /sys/class/gpio/gpio18/direction
       echo "0" > /sys/class/gpio/gpio18/value
     fi
-    if ! cond_redirect chgrp --recursive gpio "${gpioDir}/gpio18"; then echo "FAILED (set GPIO 18 group)"; return 1; fi
-    if cond_redirect chmod g+rw --recursive "${gpioDir}/gpio18"; then echo "OK"; else echo "FAILED (set GPIO 18 access)"; return 1; fi
+    if ! cond_redirect chgrp --silent --recursive gpio "${gpioDir}/gpio18"; then echo "FAILED (set GPIO 18 group)"; return 1; fi
+    if cond_redirect chmod g+rw --silent --recursive "${gpioDir}/gpio18"; then echo "OK"; else echo "FAILED (set GPIO 18 access)"; return 1; fi
   fi
 }
 
