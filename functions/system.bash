@@ -305,14 +305,16 @@ permissions_corrections() {
   if ! cond_redirect chown --recursive "${username:-openhabian}:${username:-openhabian}" "/home/${username:-openhabian}"; then echo "FAILED (${username:-openhabian} own $HOME)"; return 1; fi
   
   if [ -f /etc/mosquitto/passwd ]; then
-    if ! cond_redirect chown "mosquitto:${username:-openhabian}" /etc/mosquitto/passwd; then echo "FAILED (mosquitto passwd permissions)"; return 1; fi
+    if ! cond_redirect chown --silent "mosquitto:${username:-openhabian}" /etc/mosquitto/passwd /opt/zram/log.bind/mosquitto; then echo "FAILED (mosquitto passwd and log permissions)"; return 1; fi
     if ! cond_redirect chmod 660 /etc/mosquitto/passwd; then echo "FAILED (mosquitto passwd permissions)"; return 1; fi
   fi
-  if ! cond_redirect setfacl -R --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access)"; return 1; fi
-  if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; return 1; fi
-  if ! cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "FAILED"; return 1; fi
+  if ! cond_redirect setfacl --recursive --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access lists)"; return 1; fi
+  # not sure if still needed. Let's see if removing this causes any user issues
+  #if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; return 1; fi
+  #if ! cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "FAILED"; return 1; fi
 
-  if cond_redirect chgrp --silent root /var/log/samba /var/log/unattended-upgrades; then echo "OK"; else echo "FAILED (3rd party logdir)"; return 1; fi
+  if cond_redirect chgrp --silent root /var/log/samba /var/log/unattended-upgrades /opt/zram/log.bind/samba; then echo "OK"; else echo "FAILED (samba and 3rd party logdir)"; return 1; fi
+  if cond_redirect chown --silent --recursive "${username:-openhabian}:${username:-openhabian}" /opt/zram/persistence.bind/ /opt/zram/log.bind/openhab; then echo "OK"; else echo "FAILED (persistence)"; return 1; fi
 
   if [[ -d /etc/homegear ]]; then
     echo -n "$(timestamp) [openHABian] Applying additional file permissions recommendations for Homegear... "
@@ -330,9 +332,10 @@ permissions_corrections() {
       echo "18" > /sys/class/gpio/export
       echo "out" > /sys/class/gpio/gpio18/direction
       echo "0" > /sys/class/gpio/gpio18/value
+    else
+      if ! cond_redirect chgrp --silent --recursive gpio "${gpioDir}/gpio18"; then echo "FAILED (set GPIO 18 group)"; return 1; fi
+      if cond_redirect chmod g+rw --silent --recursive "${gpioDir}/gpio18"; then echo "OK"; else echo "FAILED (set GPIO 18 access)"; return 1; fi
     fi
-    if ! cond_redirect chgrp --recursive gpio "${gpioDir}/gpio18"; then echo "FAILED (set GPIO 18 group)"; return 1; fi
-    if cond_redirect chmod g+rw --recursive "${gpioDir}/gpio18"; then echo "OK"; else echo "FAILED (set GPIO 18 access)"; return 1; fi
   fi
 }
 
