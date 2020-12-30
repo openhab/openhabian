@@ -83,16 +83,18 @@ update_openhabian_conf() {
 
   while read -r line; do
     if [[ $line =~ ^# ]] || [[ -z "$line" ]]; then  # if line is a comment or empty
-        echo "$line"
+      echo "$line"
     else                                            # not fully sure if anything else is a proper param setting but let's assume this
-        param=$(echo "$line" | cut -d'=' -f1)       # get parameter name first
-        if [[ -z ${!param+x} ]]; then               # if $param is set (if so it is because it was sourced on start)
-            echo "$line"                            # take the param from the default config by printing the default .conf's full line
-        else
-            echo "param=${!param}"                  # else parameter is set i.e. a line setting it is present in $config so use its value
-        fi
+      param=$(echo "$line" | cut -d'=' -f1)         # get parameter name first
+      if [[ -z ${!param+x} ]]; then                 # if $param is set (if so it is because it was sourced on start)
+        echo "$line"                                # take the param from the default config by printing the default .conf's full line
+      elif [[ ${!param} == *" "* ]]; then
+      	echo "$param=\"${!param}\""                 # else parameter is set i.e. a line setting it is present in $config so use its value
+      else
+	echo "$param=${!param}"
+      fi
     fi
-   done > $config < $referenceConfig
+  done > $config < $referenceConfig
 }
 
 
@@ -140,7 +142,6 @@ openhabian_update_check() {
   if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-stable}"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
-
 ## Updates the current openhabian repository to the most current version of the
 ## current branch.
 ##
@@ -161,7 +162,6 @@ openhabian_update() {
 
   current="$(git -C "${BASEDIR:-/opt/openhabian}" rev-parse --abbrev-ref HEAD)"
   echo -n "$(timestamp) [openHABian] Updating myself... "
-
   if [[ $# == 1 ]]; then
     branch="$1"
   elif [[ -n $INTERACTIVE ]]; then
