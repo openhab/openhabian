@@ -275,10 +275,10 @@ is_raspbian() {
   [[ "$(cat /etc/*release*)" =~ "Raspbian" ]]
   return $?
 }
-# TODO: Not official yet, update when os-release file actually reflects the name change
+# os-release file actually does not reflect the name on 64 bit
 is_raspios() {
-  if [[ "$release" == "raspios" ]]; then return 0; fi
-  [[ "$(cat /etc/*release*)" =~ "Raspberry Pi OS" ]]
+  if [[ "$release" == "raspios" ]] || is_raspbian || [[ "$(cat /etc/*release*)" =~ "Raspberry Pi OS" ]]; then return 0; fi
+  [[ "$(cat /boot/issue.txt)" =~ "Raspberry Pi reference" ]]
   return $?
 }
 # Debian/Raspbian, to be deprecated, LTS ends 2020-06-30
