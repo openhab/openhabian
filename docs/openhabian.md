@@ -288,7 +288,7 @@ If you want to disable ZRAM for a different reason, use `zraminstall=disable` in
 #### Debug mode
 See [Troubleshooting](#Troubleshooting) section if you run into trouble installing. If you want to turn on debug mode,
 edit `openhabian.conf` and set the `debugmode=` parameter to either `off`, `on` or `maximum`.
-Mind you that if you intend to open an issue, we need you to provide the output of `debugmode=maximum`.
+Mind you that if you intend to open an issue, we need you to provide the output of `debugmode=maximum` so if you're in interactive mode, set your terminal to record output.
 
 #### Auto-backup
 You might want to setup openHABian to automatically backup and mirror your internal SD card to an external unit.
@@ -354,7 +354,7 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 -   Tellstick core
 
 ## Troubleshooting
-If you're having problems to get openHABian to install properly, check out the [debug guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md). It's also available on your system as [/opt/openhabian/docs/openhabian-DEBUG.md](openhabian-DEBUG.md).
+If you're having problems to get openHABian to install properly, check out the [debug guide](openhabian-DEBUG.md). It's also available on your system as `/opt/openhabian/docs/openhabian-DEBUG.md`.
 Do not hesitate to ask for help on the [openHABian community forum](https://community.openhab.org/) when the debug guide doesn't help.
 Remember to [mind the rules](https://community.openhab.org/t/how-to-ask-a-good-question-help-us-help-you/58396) please.
 
@@ -365,7 +365,7 @@ If you want to get involved, you found a bug, or just want to see what's planned
 <a id="changelog"></a>
 ### Where can I find a changelog for openHABian?
 Official announcements are co-located with the download links [here](https://github.com/openhab/openhabian/releases).
-If you want to stay in touch with all the latest code changes under the hood, see the [commit history](https://github.com/openhab/openhabian/commits/master) for openHABian.
+If you want to stay in touch with all the latest code changes under the hood, see [commit history](https://github.com/openhab/openhabian/commits/master) for openHABian.
 You'll also see commits "fly by" when executing the "Update" function within the openHABian Configuration Tool.
 
 <a id="successful"></a>
@@ -377,7 +377,8 @@ Watch the progress on the console or the web interface at https://<yourip>/ or <
 Double-check the IP address and name with your router while you wait.
 If there is absolutely no output for more than 10 minutes, your installation has failed in the first initialization phase. There probably is a problem
 with the way your router or local network are setup.
-Read on in the [Troubleshooting](#Troubleshooting) section or move on to the [DEBUG guide](https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md).
+Read on in the [Troubleshooting](#Troubleshooting) section or move on to the [DEBUG guide](openhabian-DEBUG.md).
+You can set `debugmode=on` (or even = `maximum`) right on first install, too, to get to see what openHABian is doing.
 
 After a few minutes of boot up time, you can [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device.
 During the setup process you'll be redirected to the live progress report of the setup (you can Ctrl-C to get into the shell).
@@ -415,7 +416,7 @@ You can migrate between versions by selecting the corresponding 4X menu option. 
 If you want to choose from stable, snapshot or milestone releases, please do so via `openhabian-config` tool (also menu 4X).
 Note this will **not** result in any openHABian branch change.
 Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
-Check the Linux installation article for all needed details: [Linux: Changing Versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
+Check the Linux installation article for all needed details: [Linux: Changing Versions](linux.html#changing-versions)
 
 <a id="headache"></a>
 #### Where is the graphical user interface?
@@ -429,15 +430,11 @@ Its intended use case is to sit in a corner and provide a service reliably 24 ho
 You already own a **powerful PC or Mac** to work on.
 It would be a shame to have a powerful computer at your fingertips and then have to **restrict yourself** to a very limited graphical frontend on another device, wouldn't you agree?
 
-Moving on.
-What we actually want openHABian to be is a **dedicated headless system** to **reliably execute openHAB** and to **expose all interfaces** needed to interact and configure it (PaperUI, BasicUI, HABPanel, openHAB LogViewer, Samba Network Shares, openHABian Configuration Tool, SSH, you-name-it).
+What we actually want openHABian to be is a **dedicated, headless system** to **reliably run openHAB** and to **expose all interfaces** needed to interact and configure it (MainUI, HABPanel, openHAB LogViewer, Samba Network Shares, openHABian Configuration Tool, SSH, you-name-it).
 If you know how to work with these interfaces, you are set for a way better experience than the alternatives.
 The main challenge is to **get used to the Linux command line**, not even a GUI (like Pixel, see below) will relieve you from that in the long run.
 If you are not willing to teach yourself a few fundamental Linux skills you will not become happy with any Linux system and should resort to a e.g. Windows machine.
 However as you are willing to tinker with smart home technology, I'm sure you are ready to **teach yourself new stuff** and expand your experience.
-
-**If** the above didn't convince you, execute the following commands to get the graphical user interface [Pixel](https://www.raspberrypi.org/blog/introducing-pixel) installed.
-You have been warned, if there came any warranty with openHABian to begin with, it would end here.
 
 <a id="faq-other-platforms"></a>
 #### Can I use openHABian on ...?
