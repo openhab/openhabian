@@ -6,7 +6,11 @@ source: https://github.com/openhab/openhabian/blob/master/docs/openhabian.md
 
 {% include base.html %}
 
-<!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source repository -->
+<!-- Attention authors: Do not edit directly. Please add your changes to the source repository -->
+
+::: tip TL;DR
+Jump to [install instructions](#Raspberry-Pi-prepackaged-SD-card-image).
+:::
 
 # openHABian - Hassle-free openHAB Setup
 The Raspberry Pi and other small single-board computers are quite famous platforms for openHAB.
@@ -27,7 +31,7 @@ To that end, the project provides two things:
 {:toc}
 
 ## Features
-The following features are provided by the openHABian image out of the box:
+Out of the box, the openHABian image provides
 
 -   Hassle-free setup without a display or keyboard, connected via Ethernet or [WiFi](#wifi-based-setup-notes)
 -   the latest stable version of openHAB
@@ -58,13 +62,86 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
     -   Move the system partition to an external USB stick or drive
 ... and much more
 
-## Quick Start
+## Hardware
 
+### Hardware recommendation
+Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB,
+a 3 A power supply and a 16 GB SD card.
+Also get another 32 GB or larger SD card and a USB card reader to make use of the
+["auto backup" feature](docs/openhabian.md#Auto-Backup).
 ***
-FIRST, check the [README](https://github.com/openhab/openhabian/blob/master/README.md) if your hardware and OS are supported
+ATTENTION:<br>
+Avoid getting the 8 GB model of RPi 4. 8 GB are a waste of money and it has issues,
+you must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram) or use the 64bit image (untested).
 ***
+### Hardware and OS support
+As of openHABian version 1.6 and later, all Raspberry Pi models are supported as
+hardware. Anything x86 based may work or not. Anything else ARM based such as ODroids,
+OrangePis and the like may work or not. NAS servers such as QNAP and Synology
+boxes will not work. Support for PINEA64 was dropped in this current release.<br>
+We strongly recommend that users choose Raspberry Pi 2, 3 or 4 systems to have
+1 GB of RAM or more. RPi 1 and 0/0W only have a single CPU core and 512 MB.
+This can be sufficient to run a smallish openHAB setup, but it will
+not be enough to run a full-blown system with many bindings and memory consuming
+openHABian features/components such as ZRAM, InfluxDB or Grafana.
+We do not actively prohibit installation on any hardware, including unsupported
+systems, but we might skip or deny to install specific extensions such as those
+memory hungry applications named above.
 
-### Raspberry Pi (Prepackaged SD Card Image)
+Supporting hardware means testing every single patch and every release. There
+are simply too many combinations of SBCs, peripherals and OS flavors that
+maintainers do not have available, or, even if they did, the time to spend on
+the testing efforts that is required to make openHABian a reliable system.
+Let's make sure you understand the implications of these statements: it means
+that to run on hardware other than RPi 2/3/4 or (bare metal i.e. not virtualized)
+x86 may work but this is **not** supported.
+
+It may work to install and run openHABian on unsupported hardware. If it does
+not work, you are welcome to find out what's missing and contribute it back to
+the community with a Pull Request. It is sometimes simple things like a naming
+string. We'll be happy to include that in openHABian so you can use your box
+with openHABian unless there's a valid reason to change or remove it.
+However, that does not make your box a "supported" one as we don't have it
+available for our further development and testing. So there remains a risk that
+future openHABian releases will fail to work on your SBC because we changed a
+thing that broke support for your HW - unintentionally so however inevitable.
+
+For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md/#fake-hardware-mode)
+to 'simulate' RPi hardware and Raspi OS. If that still doesn't work for
+you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try.
+
+Going beyond what the RPi image provides, as a manually installed set of
+scripts, we support running openHABian on x86 hardware on generic Debian.
+On ARM, we only support Raspberry Pi OS.
+These are what we develop and test openHABian against.
+We do **not** actively **support Ubuntu** so no promises but we provide code
+"as-is" that is known to run on there. Several optional components though,
+such as WireGuard or Homegear, are known to expose problems.
+
+We expect you to use the current stable distribution, 'buster' for Raspberry
+Pi OS (ARM) and Debian (x86) and 'focal' for Ubuntu (x86) this is.
+To install openHABian on anything older or newer may work or not. If you
+encounter issues, you may need to upgrade first or to live with the consequences
+of running an OS on the edge of software development.
+
+Either way, please note that you're on your own when it comes to configuring and
+installing the HW with the proper OS yourself.
+
+### 64 bit ?
+RPi3 and 4 have a 64 bit processor and you may want to run openHAB in 64 bit.
+We provide a 64bit version of the image but it is unsupported so use it at your
+own risk. Please don't ask for support if it does not work for you.
+It's just provided as-is.
+Be aware that to run in 64 bit has a major drawback: increased memory usage.
+That is not a good idea on a heavily memory constrained platform like a RPi.
+Also remember openHABian makes use of Raspberry Pi OS which as per today still
+is a 32 bit OS.
+We are closely observing development and will adapt openHABian once it will
+reliably work on 64 bit.<br/>
+
+On x86 hardware, 64 bit is the standard.
+
+## Raspberry Pi prepackaged SD card image
 **Flash, plug, wait, enjoy:**
 The provided image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit) (previously called Raspbian) standard system.
 On first boot, the system will set up openHAB and the mentioned settings and tools.
@@ -75,7 +152,7 @@ openHABian is designed as a headless system, you will not need a display or a ke
 **Setup:**
 
 -   [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
--   Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/) or official [Raspberry Pi Imager](https://www.raspberrypi.org/software/), both able to directly work with *xz* files)
+-   Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/) or official [Raspberry Pi Imager](https://www.raspberrypi.org/software/), both able to directly work with *xz* files
 -   Insert the SD card into your Raspberry Pi, connect Ethernet ([WiFi also supported](#wifi-based-setup-notes)) and power on.
 -   Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhabiandevice).)
 -   Enjoy!
