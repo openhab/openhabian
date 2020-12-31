@@ -48,9 +48,9 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 ![openHABian-config menu](images/openHABian-config.png)
 
 -   Switch openHAB versions 2 vs 3 and select the latest *Release*, *Milestone* or *Snapshot* [*unstable/SNAPSHOT* build](https://www.openhab.org/docs/installation/linux.html#changing-versions) version
--   Install and Setup a [reverse proxy](security.html#nginx-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
+-   Install and Setup a [reverse proxy](security.html##running-openhab-behind-a-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
 -   manually set up a WiFi connection
--   Setup [Backup](#backup) for your system
+-   Setup [Backup](#availability-and-backup) for your system
 -   Easily install and preconfigure [Optional Components](#optional-components) of your choice
 -   configure Raspberry Pi specific functions
     -   Prepare the serial port for the use with extension boards like RaZberry, Enocean Pi, ...
@@ -66,7 +66,7 @@ FIRST, check the [README](https://github.com/openhab/openhabian/blob/master/READ
 
 ### Raspberry Pi (Prepackaged SD Card Image)
 **Flash, plug, wait, enjoy:**
-The provided image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/downloads/raspberry-pi-os/) (previously called Raspbian) standard system.
+The provided image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit) (previously called Raspbian) standard system.
 On first boot, the system will set up openHAB and the mentioned settings and tools.
 All packages will be downloaded in their newest version and configured to work without further modifications.
 The whole process will take a few minutes, then openHAB and all other needed tools to get started will be ready to use without further configuration steps.
@@ -75,7 +75,7 @@ openHABian is designed as a headless system, you will not need a display or a ke
 **Setup:**
 
 -   [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
--   Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/), able to directly work with *xz* files)
+-   Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/) or official [Raspberry Pi Imager](https://www.raspberrypi.org/software/), both able to directly work with *xz* files)
 -   Insert the SD card into your Raspberry Pi, connect Ethernet ([WiFi also supported](#wifi-based-setup-notes)) and power on.
 -   Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhabiandevice).)
 -   Enjoy!
@@ -286,7 +286,7 @@ ZRAM is activated by default on fresh installations on ARM hardware except on a 
 If you want to disable ZRAM for a different reason, use `zraminstall=disable` in `openhabian.conf` to install without.
 
 #### Debug mode
-See [Troubleshooting](#Troubleshooting) section if you run into trouble installing. If you want to turn on debug mode,
+See [Troubleshooting](#troubleshooting) section if you run into trouble installing. If you want to turn on debug mode,
 edit `openhabian.conf` and set the `debugmode=` parameter to either `off`, `on` or `maximum`.
 Mind you that if you intend to open an issue, we need you to provide the output of `debugmode=maximum` so if you're in interactive mode, set your terminal to record output.
 
@@ -377,7 +377,7 @@ Watch the progress on the console or the web interface at https://<yourip>/ or <
 Double-check the IP address and name with your router while you wait.
 If there is absolutely no output for more than 10 minutes, your installation has failed in the first initialization phase. There probably is a problem
 with the way your router or local network are setup.
-Read on in the [Troubleshooting](#Troubleshooting) section or move on to the [DEBUG guide](openhabian-DEBUG.md).
+Read on in the [Troubleshooting](#troubleshooting) section or move on to the [DEBUG guide](openhabian-DEBUG.md).
 You can set `debugmode=on` (or even = `maximum`) right on first install, too, to get to see what openHABian is doing.
 
 After a few minutes of boot up time, you can [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device.
@@ -438,7 +438,7 @@ However as you are willing to tinker with smart home technology, I'm sure you ar
 
 <a id="faq-other-platforms"></a>
 #### Can I use openHABian on ...?
-See the [README](https://github.com/openhab/openhabian/blob/master/README.md) for a list of supported HW and OS.
+See the [README](https://github.com/openhab/openhabian/blob/master/README.md#hardware-and-os-support) for a list of supported HW and OS.
 openHABian is developed for Debian based systems.
 If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
 Check out the [Manual Setup](#manual-setup) instructions for guidance and consult the [debug guide](openhabian-DEBUG.md) if you run into problems.
