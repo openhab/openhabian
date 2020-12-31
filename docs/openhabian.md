@@ -75,7 +75,7 @@ openHABian is designed as a headless system, you will not need a display or a ke
 **Setup:**
 
 -   [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
--   Write the image to your SD card (e.g. with official [Raspberry Pi Imager](https://www.raspberrypi.org/software/) or [Etcher](https://www.balena.io/etcher/) as an alternative, both able to directly work with *xz* files)
+-   Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/) or official [Raspberry Pi Imager](https://www.raspberrypi.org/software/), both able to directly work with *xz* files)
 -   Insert the SD card into your Raspberry Pi, connect Ethernet ([WiFi also supported](#wifi-based-setup-notes)) and power on.
 -   Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhabiandevice).)
 -   Enjoy!
