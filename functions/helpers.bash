@@ -498,3 +498,19 @@ is_wifi_connected() {
   if ! [[ -x $(command -v "comitup-cli") ]]; then return 1; fi
   if echo "q" | comitup-cli | grep -q 'State: CONNECTED'; then return 0; else return 1; fi
 }
+
+## add dependency on ZRAM up
+## Argument 1 is service that ZRAM must be available for to start
+##
+##    add_ZRAM_dependency
+add_ZRAM_dependency() {
+  local zramServiceConfig="/etc/systemd/system/zram-config.service"
+
+  for arg in "$@"; do
+    if [[ -f /etc/ztab ]] && ! grep -qs "${arg}.service" $zramServiceConfig; then
+      echo -n "$(timestamp) [openHABian] Adding ${arg} to ZRAM service dependencies... "
+      sed -i -e "/^Before/s/$/ ${arg}.service/" $zramServiceConfig
+    fi
+  done
+}
+
