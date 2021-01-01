@@ -118,7 +118,6 @@ exim_setup() {
     if cond_redirect apt-get install --yes exim4 mailutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if cond_redirect install_dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
-  add_ZRAM_dependency exim4
 
   interfaces="$(dig +short "$HOSTNAME" | tr '\n' ';')127.0.0.1;::1"
   relaynets="$(dig +short "$HOSTNAME" | cut -d'.' -f1-3).0/24"
@@ -140,6 +139,8 @@ exim_setup() {
     update-exim4.conf
     echo "OK"
   fi
+  add_ZRAM_dependency exim4
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Creating MTA config... "
   if ! cond_redirect mkdir -p /var/log/exim4; then echo "FAILED (logging)"; return 1; fi
