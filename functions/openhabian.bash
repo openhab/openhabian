@@ -398,7 +398,7 @@ system_check_default_password() {
 ##    config_ipv6()
 ##
 config_ipv6() {
-  local aptConf="/etc/apt/apt.conf/S90force-ipv4"
+  local aptConf="/etc/apt/apt.conf.d/S90force-ipv4"
   local sysctlConf="/etc/sysctl.d/99-sysctl.conf"
 
   if [[ "${ipv6:-enable}" == "disable" ]]; then
