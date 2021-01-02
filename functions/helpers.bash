@@ -499,9 +499,9 @@ is_wifi_connected() {
   if echo "q" | comitup-cli | grep -q 'State: CONNECTED'; then return 0; else return 1; fi
 }
 
-## Add dependency on ZRAM up
-## Argument 1 is "install" or "remove" and means to uninstall dependencies
-## all remaining arguments are service names that ZRAM must be available for to start
+## Add dependency on ZRAM up: install/uninstall dependencies in zram-config.service
+## Argument 1 is "install" or "remove"
+## all remaining arguments are service names that zram must be available for to start
 ##
 ##    zram_dependency
 zram_dependency() {
