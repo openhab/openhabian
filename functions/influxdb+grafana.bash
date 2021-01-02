@@ -211,7 +211,7 @@ influxdb_install() {
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     if cond_redirect apt-get install --yes influxdb; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  add_ZRAM_dependency influxdb
+  zram_dependency install influxdb
 
   echo -n "$(timestamp) [openHABian] Setting up InfluxDB service... "
   # Disable authentication, to allow changes in existing installations
@@ -255,7 +255,7 @@ grafana_install(){
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     if cond_redirect apt-get install --yes grafana; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  add_ZRAM_dependency grafana
+  zram_dependency install grafana
 
   echo -n "$(timestamp) [openHABian] Setting up Grafana service... "
   # Workaround for strange behavior in CI

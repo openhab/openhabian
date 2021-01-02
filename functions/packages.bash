@@ -13,7 +13,7 @@ samba_setup() {
     echo -n "$(timestamp) [openHABian] Installing Samba... "
     if cond_redirect apt-get install --yes samba; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  add_ZRAM_dependency nmbd smbd;
+  zram_dependency install nmbd smbd
 
   echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
   cond_echo "\\nCopying over custom 'smb.conf'... "
@@ -139,7 +139,7 @@ exim_setup() {
     update-exim4.conf
     echo "OK"
   fi
-  add_ZRAM_dependency exim4
+  zram_dependency install exim4
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Creating MTA config... "
@@ -290,7 +290,7 @@ mqtt_setup() {
   fi
   cond_redirect mkdir -p /var/log/mosquitto
   cond_redirect chown mosquitto /var/log/mosquitto
-  if grep -qs "/log.bind" /etc/ztab; then add_ZRAM_dependency mosquitto; fi
+  if grep -qs "/log.bind" /etc/ztab; then zram_dependency install mosquitto; fi
   echo -n "$(timestamp) [openHABian] Setting up MQTT service... "
   if ! cond_redirect usermod --append --groups mosquitto "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} mosquitto)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
