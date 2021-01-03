@@ -2,7 +2,7 @@
 Description=openhab2-%DEST mount
 DefaultDependencies=no
 Before=smbd.service
-After=zram-config.service
+After=network.target zram-config.service
 
 [Mount]
 What=%SRC
