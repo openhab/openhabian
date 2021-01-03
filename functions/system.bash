@@ -294,8 +294,8 @@ permissions_corrections() {
   done
   if ! cond_redirect usermod --append --groups openhab "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} openhab)"; return 1; fi
 
-  if ! cond_redirect chown openhab:openhab /srv /srv/README.txt /opt; then echo "FAILED (openhab server mounts)"; return 1; fi
-  if ! cond_redirect chmod ugo+w /srv /srv/README.txt; then echo "FAILED (server mounts)"; return 1; fi
+  cond_redirect chown --silent openhab:openhab /srv /opt
+  cond_redirect chmod --silent ugo+w /srv
   if ! cond_redirect chown --recursive openhab:openhab "${openhabFolders[@]}"; then echo "FAILED (openhab folders)"; return 1; fi
   if ! cond_redirect chmod --recursive ug+wX /opt "${openhabFolders[@]}"; then echo "FAILED (folders)"; return 1; fi
   if [[ -d "$openhabHome"/.ssh ]]; then
