@@ -211,12 +211,11 @@ influxdb_install() {
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     if cond_redirect apt-get install --yes influxdb; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  zram_dependency install influxdb
 
   echo -n "$(timestamp) [openHABian] Setting up InfluxDB service... "
   # Disable authentication, to allow changes in existing installations
   if ! cond_redirect sed -i -e 's|auth-enabled = true|# auth-enabled = false|g' /etc/influxdb/influxdb.conf; then echo "FAILED (disable authentication)"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! zram_dependency install influxdb; then return 1; fi
   if cond_redirect systemctl enable --now influxdb.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up InfluxDB... "
@@ -255,13 +254,13 @@ grafana_install(){
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     if cond_redirect apt-get install --yes grafana; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  zram_dependency install grafana
 
   echo -n "$(timestamp) [openHABian] Setting up Grafana service... "
   # Workaround for strange behavior in CI
   if ! cond_redirect mkdir -p /var/run/grafana; then echo "FAILED (mkdir)"; return 1; fi
   if ! cond_redirect chmod -R 0750 /var/run/grafana; then echo "FAILED (chmod)"; return 1; fi
   if ! cond_redirect chown -R grafana:grafana /var/run/grafana; then echo "FAILED (chown)"; return 1; fi
+  if ! zram_dependency install grafana; then return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now grafana-server.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 

@@ -13,7 +13,6 @@ samba_setup() {
     echo -n "$(timestamp) [openHABian] Installing Samba... "
     if cond_redirect apt-get install --yes samba; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  zram_dependency install nmbd smbd
 
   echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
   cond_echo "\\nCopying over custom 'smb.conf'... "
@@ -27,7 +26,7 @@ samba_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Samba service... "
   if ! cond_redirect mkdir -p /var/log/samba /var/run/samba; then echo "FAILED (create directories)"; return 1; fi
   if ! cond_redirect sed -i -E -e '/PIDFile/d; /NotifyAccess/ a PIDFile=smbd.pid\nRuntimeDirectory=samba' "$serviceFile"; then echo "FAILED"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! zram_dependency install nmbd smbd; then return 1; fi
   if cond_redirect systemctl enable --now smbd.service &> /dev/null; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 }
 
@@ -139,8 +138,7 @@ exim_setup() {
     update-exim4.conf
     echo "OK"
   fi
-  zram_dependency install exim4
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! zram_dependency install exim4; then return 1; fi
 
   echo -n "$(timestamp) [openHABian] Creating MTA config... "
   if ! cond_redirect mkdir -p /var/log/exim4; then echo "FAILED (logging)"; return 1; fi
@@ -227,7 +225,7 @@ homegear_setup() {
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/homegear-management.service /etc/systemd/system/homegear-management.service; then echo "FAILED (copy service)"; return 1; fi
   if ! cond_redirect rm -f /lib/systemd/system/homegear*; then echo "FAILED (clean default service)"; return 1; fi
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /etc/systemd/system/homegear*; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! zram_dependency install homegear homegear-management; then return 1; fi
   if ! cond_redirect systemctl enable --now homegear.service homegear-management.service; then echo "FAILED (enable service)"; return 1; fi
 
   if [[ -f $disklistFileDir ]]; then
@@ -290,10 +288,9 @@ mqtt_setup() {
   fi
   cond_redirect mkdir -p /var/log/mosquitto
   cond_redirect chown mosquitto /var/log/mosquitto
-  if grep -qs "/log.bind" /etc/ztab; then zram_dependency install mosquitto; fi
+  grep -qs "/log.bind" /etc/ztab && if ! zram_dependency install mosquitto; then return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up MQTT service... "
   if ! cond_redirect usermod --append --groups mosquitto "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} mosquitto)"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now mosquitto.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then

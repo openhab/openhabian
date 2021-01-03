@@ -523,5 +523,6 @@ zram_dependency() {
       if cond_redirect sed -i -e "s/ ${arg}.service//g" $zramServiceConfig; then echo "OK"; else echo "FAILED (sed dependency removal)"; return 1; fi
     fi
   done
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
 }
 
