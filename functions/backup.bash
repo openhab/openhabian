@@ -143,6 +143,7 @@ create_amanda_config() {
   awsBucket="$8"
   awsAccessKey="$9"
   awsSecretKey="${10}"
+  amandaSecurityConf="/etc/amanda-security.conf"
   amandaHosts="/var/backups/.amandahosts"
   configDir="/etc/amanda/${config}"
   databaseDir="/var/lib/amanda/${config}/curinfo"
@@ -155,6 +156,7 @@ create_amanda_config() {
   if ! cond_redirect mkdir -p "$configDir" "$databaseDir" "$logDir" "$indexDir"; then echo "FAILED (create directories)"; return 1; fi
   if ! cond_redirect touch "$configDir"/tapelist; then echo "FAILED (touch tapelist)"; return 1; fi
   if ! (echo -e "${HOSTNAME} ${backupUser}\\n${HOSTNAME} root amindexd amidxtaped\\nlocalhost ${backupUser}\\nlocalhost root amindexd amidxtaped" > "$amandaHosts"); then echo "FAILED (Amanda hosts)"; return 1; fi
+  if ! (echo -e "amgtar:gnutar_path=/usr/bin/tar\\n" >> "$amandaSecurityConf"); then echo "FAILED (amanda-security.conf)"; return 1; fi
   if ! cond_redirect chown --recursive "$backupUser":backup "$amandaHosts" "$configDir" "$databaseDir" "$indexDir" /var/log/amanda; then echo "FAILED (chown)"; return 1; fi
   if [[ $config == "openhab-dir" ]]; then
     if ! cond_redirect chown --recursive "$backupUser":backup "$storageLoc"; then echo "FAILED (chown)"; return 1; fi
