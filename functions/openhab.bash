@@ -117,7 +117,7 @@ openhab_setup() {
     delayed_rules "yes"
   fi
   dashboard_add_tile "openhabiandocs"
-  
+
   # see https://github.com/openhab/openhab-core/issues/1937
   if cond_redirect systemctl restart ${ohPkgName}.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
@@ -267,15 +267,15 @@ dashboard_add_tile() {
 
   application="$1"
   openhabConfig="/etc/openhab"
-  dashboardConfig="${openhabConfig}/services/dashboard.cfg"
+  dashboardConfig="${openhabConfig}/services/runtime.cfg"
   tileDesc="$(grep "^[[:space:]]*tile_desc_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_desc_'"${application}"'=||g; s|"||g')"
   tileImg="$(grep "^[[:space:]]*tile_imagedata_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_imagedata_'"${application}"'=||g; s|"||g')"
-  tileURL="$(grep "^[[:space:]]*tile_url_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_url_'"${application}"'=||g; s|"||g')"
+  tileURL="$(grep "^[[:space:]]*tile_url_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_url_'"${application}"'=||g; s|"||g; s|{HOSTNAME}|'"${HOSTNAME}.local"'|g')"
 
   echo -n "$(timestamp) [openHABian] Adding an openHAB dashboard tile for '${application}'... "
 
   case $application in
-    grafana|frontail|nodered|find|find3|openhabiandocs)
+    grafana|frontail|nodered|find3|openhabiandocs)
       true ;;
     *)
       echo "FAILED (tile name not valid)"; return 1 ;;
@@ -286,9 +286,9 @@ dashboard_add_tile() {
   fi
 
   touch $dashboardConfig
-  if grep -qs "${application}.link" $dashboardConfig; then
+  if grep -qs "${application}-link" $dashboardConfig; then
     echo -n "Replacing... "
-    cond_redirect sed -i -e '/^'"${application}"'.link.*$/d' $dashboardConfig
+    cond_redirect sed -i -e "/^${application}.link.*$/d" $dashboardConfig
   fi
 
   if [[ -z $tileDesc ]] || [[ -z $tileURL ]] || [[ -z $tileImg ]]; then
@@ -296,5 +296,5 @@ dashboard_add_tile() {
     return 1
   fi
 
-  if echo -e "\\n${application}.link-name=${tileDesc}\\n${application}.link-url=${tileURL}\\n${application}.link-imageurl=${tileImg}" >> $dashboardConfig; then echo "OK"; else echo "FAILED"; return 1; fi
+  if echo -e "\\norg.openhab.core.ui.tiles:${application}-link-name=${tileDesc}\\norg.openhab.core.ui.tiles:${application}-link-url=${tileURL}\\norg.openhab.core.ui.tiles:${application}-link-imageurl=${tileImg}" >> $dashboardConfig; then echo "OK"; else echo "FAILED"; return 1; fi
 }
