@@ -508,7 +508,6 @@ zram_dependency() {
   local zramServiceConfig="/etc/systemd/system/zram-config.service"
   local install="yes"
 
-  zramServiceConfig="/tmp/z"
   if ! [[ -f /etc/ztab ]]; then return 0; fi
   if [[ "$1" == "install" ]]; then shift 1; fi
   if [[ "$1" == "remove" ]]; then install="no"; shift 1; fi
