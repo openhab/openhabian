@@ -506,13 +506,13 @@ is_wifi_connected() {
 ##    zram_dependency
 zram_dependency() {
   local zramServiceConfig="/etc/systemd/system/zram-config.service"
-  local install=yes
+  local install="yes"
 
   zramServiceConfig="/tmp/z"
-  if ! [[ -f /etc/ztab ]]; then return 1; fi
+  if ! [[ -f /etc/ztab ]]; then return 0; fi
   if [[ "$1" == "install" ]]; then shift 1; fi
-  if [[ "$1" == "remove" ]]; then install=no; shift 1; fi
-                                  
+  if [[ "$1" == "remove" ]]; then install="no"; shift 1; fi
+
   for arg in "$@"; do
     if [[ "$install" == "yes" ]] && ! grep -qs "${arg}.service" $zramServiceConfig; then
       echo -n "$(timestamp) [openHABian] Adding ${arg} to zram service dependencies... "
@@ -544,4 +544,3 @@ fix_permissions() {
     fi
   fi
 }
-
