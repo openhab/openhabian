@@ -287,10 +287,10 @@ dashboard_add_tile() {
     return 1
   fi
 
-  touch $dashboardConfig
-  if grep -qs "${application}-link" $dashboardConfig; then
+  touch "$dashboardConfig"
+  if grep -qs "${application}-link" "$dashboardConfig"; then
     echo -n "Replacing... "
-    cond_redirect sed -i -e "/^${application}.link.*$/d" $dashboardConfig
+    cond_redirect sed -i -e "/^${application}.link.*$/d" "$dashboardConfig"
   fi
 
   if [[ -z $tileDesc ]] || [[ -z $tileURL ]] || [[ -z $tileImg ]]; then
@@ -298,5 +298,5 @@ dashboard_add_tile() {
     return 1
   fi
 
-  if echo -e "\\norg.openhab.core.ui.tiles:${application}-link-name=${tileDesc}\\norg.openhab.core.ui.tiles:${application}-link-url=${tileURL}\\norg.openhab.core.ui.tiles:${application}-link-imageurl=${tileImg}" >> $dashboardConfig; then echo "OK"; else echo "FAILED"; return 1; fi
+  if echo -e "\\norg.openhab.core.ui.tiles:${application}-link-name=${tileDesc}\\norg.openhab.core.ui.tiles:${application}-link-url=${tileURL}\\norg.openhab.core.ui.tiles:${application}-link-imageurl=${tileImg}" >> "$dashboardConfig"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
