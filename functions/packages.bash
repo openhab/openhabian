@@ -26,7 +26,7 @@ samba_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Samba service... "
   if ! cond_redirect mkdir -p /var/log/samba /var/run/samba; then echo "FAILED (create directories)"; return 1; fi
   if ! cond_redirect sed -i -E -e '/PIDFile/d; /NotifyAccess/ a PIDFile=smbd.pid\nRuntimeDirectory=samba' "$serviceFile"; then echo "FAILED"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! zram_dependency install nmbd smbd; then return 1; fi
   if cond_redirect systemctl enable --now smbd.service &> /dev/null; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 }
 
@@ -138,6 +138,7 @@ exim_setup() {
     update-exim4.conf
     echo "OK"
   fi
+  if ! zram_dependency install exim4; then return 1; fi
 
   echo -n "$(timestamp) [openHABian] Creating MTA config... "
   if ! cond_redirect mkdir -p /var/log/exim4; then echo "FAILED (logging)"; return 1; fi
@@ -224,7 +225,7 @@ homegear_setup() {
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/homegear-management.service /etc/systemd/system/homegear-management.service; then echo "FAILED (copy service)"; return 1; fi
   if ! cond_redirect rm -f /lib/systemd/system/homegear*; then echo "FAILED (clean default service)"; return 1; fi
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /etc/systemd/system/homegear*; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! zram_dependency install homegear homegear-management; then return 1; fi
   if ! cond_redirect systemctl enable --now homegear.service homegear-management.service; then echo "FAILED (enable service)"; return 1; fi
 
   if [[ -f $disklistFileDir ]]; then
@@ -251,7 +252,6 @@ homegear_setup() {
 mqtt_setup() {
   local mqttPasswd
   local mqttUser="openhabian"
-  local targetDir="/etc/systemd/system/mosquitto.service.d"
   local introText="The MQTT broker Eclipse Mosquitto will be installed from the official repository.\\n\\nIn addition, you can activate username:password authentication."
   local questionText="\\nDo you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\\n\\nUsername will be '${mqttUser}', please provide a password (consisting of ASCII printable characters except space). Leave blank for no authentication, run setup again to change."
   local successText="Setup was successful.\\n\\nEclipse Mosquitto is now up and running in the background. You should be able to make a first connection.\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/mqtt/"
@@ -288,12 +288,9 @@ mqtt_setup() {
   fi
   cond_redirect mkdir -p /var/log/mosquitto
   cond_redirect chown mosquitto /var/log/mosquitto
-  if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare mosquitto override directory)"; return 1; fi
-  if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean mosquitto override directory)"; return 1; fi
-  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/mosquitto-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
+  grep -qs "/log.bind" /etc/ztab && if ! zram_dependency install mosquitto; then return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up MQTT service... "
   if ! cond_redirect usermod --append --groups mosquitto "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} mosquitto)"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now mosquitto.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then

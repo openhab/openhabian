@@ -498,3 +498,31 @@ is_wifi_connected() {
   if ! [[ -x $(command -v "comitup-cli") ]]; then return 1; fi
   if echo "q" | comitup-cli | grep -q 'State: CONNECTED'; then return 0; else return 1; fi
 }
+
+## Add dependency on ZRAM up: install/uninstall dependencies in zram-config.service
+## Argument 1 is "install" or "remove"
+## all remaining arguments are service names that zram must be available for to start
+##
+##    zram_dependency
+zram_dependency() {
+  local zramServiceConfig="/etc/systemd/system/zram-config.service"
+  local install=yes
+
+  zramServiceConfig="/tmp/z"
+  if ! [[ -f /etc/ztab ]]; then return 1; fi
+  if [[ "$1" == "install" ]]; then shift 1; fi
+  if [[ "$1" == "remove" ]]; then install=no; shift 1; fi
+                                  
+  for arg in "$@"; do
+    if [[ "$install" == "yes" ]] && ! grep -qs "${arg}.service" $zramServiceConfig; then
+      echo -n "$(timestamp) [openHABian] Adding ${arg} to zram service dependencies... "
+      if cond_redirect sed -i -e "/^Before/s/$/ ${arg}.service/" $zramServiceConfig; then echo "OK"; else echo "FAILED (sed add dependency)"; return 1; fi
+    fi
+    if [[ "$install" == "no" ]] && grep -qs "${arg}.service" $zramServiceConfig; then
+      echo -n "$(timestamp) [openHABian] Removing ${arg} from zram service dependencies... "
+      if cond_redirect sed -i -e "s/ ${arg}.service//g" $zramServiceConfig; then echo "OK"; else echo "FAILED (sed dependency removal)"; return 1; fi
+    fi
+  done
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+}
+
