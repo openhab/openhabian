@@ -304,9 +304,11 @@ permissions_corrections() {
 
   if ! cond_redirect fix_permissions  "/home/${username:-openhabian}" "${username:-openhabian}:${username:-openhabian}"; then echo "FAILED (${username:-openhabian} chown $HOME)"; return 1; fi
   
-  if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 660 770; then echo "FAILED (mosquitto passwd permissions)"; return 1; fi
-  if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 664 775; then echo "FAILED (mosquitto log permissions)"; return 1; fi
-  if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 664 775; then echo "FAILED (mosquitto log permissions on ZRAM)"; return 1; fi
+  if [[ -f /etc/mosquitto/mosquitto.conf ]]; then
+    if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 660 770; then echo "FAILED (mosquitto passwd permissions)"; return 1; fi
+    if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 664 775; then echo "FAILED (mosquitto log permissions)"; return 1; fi
+    if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 664 775; then echo "FAILED (mosquitto log permissions on ZRAM)"; return 1; fi
+  fi
   if ! cond_redirect setfacl --recursive --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access lists)"; return 1; fi
   # not sure if still needed. Let's see if removing this causes any user issues
   #if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; return 1; fi
