@@ -260,17 +260,19 @@ openhab_misc() {
 dashboard_add_tile() {
   local application
   local dashboardConfig
+  local ipAddress
   local openhabConfig
   local tileDesc
   local tileImg
   local tileURL
 
   application="$1"
-  openhabConfig="/etc/openhab"
   dashboardConfig="${openhabConfig}/services/runtime.cfg"
+  ipAddress="$(hostname -I)"
+  openhabConfig="/etc/openhab"
   tileDesc="$(grep "^[[:space:]]*tile_desc_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_desc_'"${application}"'=||g; s|"||g')"
   tileImg="$(grep "^[[:space:]]*tile_imagedata_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_imagedata_'"${application}"'=||g; s|"||g')"
-  tileURL="$(grep "^[[:space:]]*tile_url_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_url_'"${application}"'=||g; s|"||g; s|{HOSTNAME}|'"${HOSTNAME}.local"'|g')"
+  tileURL="$(grep "^[[:space:]]*tile_url_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_url_'"${application}"'=||g; s|"||g; s|{HOSTNAME}|'"${ipAddress}"'|g')"
 
   echo -n "$(timestamp) [openHABian] Adding an openHAB dashboard tile for '${application}'... "
 
