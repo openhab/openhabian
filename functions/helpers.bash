@@ -525,3 +525,22 @@ zram_dependency() {
   done
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
 }
+
+## Fix permissions on a file OR recursively on a directory that MIGHT be on zram
+## return true even if it does not exist or if zram is not installed
+## Argument 1 is directory to fix
+## Argument 2 is string to pass to chown i.e. "user:group" e.g. "mosquitto:openhabian"
+## Argument 3 & 4 are optional strings to pass to chmod for file(s) (3) and dirs (4) e.g. "0755" "644"
+##
+##    fix_permissions
+fix_permissions() {
+  if ! [[ -e $1 ]]; then return 0; fi
+
+  if ! chown "$2" "$1"; then return 1; fi
+  if [[ -n "$3" ]]; then
+    if ! (find "$1" -type f -print0 | xargs -0 chmod "$3"); then return 1; fi
+    if [[ -n "$4" ]]; then
+      if ! (find "$1" -type d -print0 | xargs -0 chmod "$4"); then return 1; fi
+    fi
+  fi
+}
