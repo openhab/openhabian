@@ -303,7 +303,7 @@ permissions_corrections() {
   fi
 
   if ! cond_redirect fix_permissions  "/home/${username:-openhabian}" "${username:-openhabian}:${username:-openhabian}"; then echo "FAILED (${username:-openhabian} chown $HOME)"; return 1; fi
-  
+
   if [[ -f /etc/mosquitto/mosquitto.conf ]]; then
     if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 660 770; then echo "FAILED (mosquitto passwd permissions)"; return 1; fi
     if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 664 775; then echo "FAILED (mosquitto log permissions)"; return 1; fi
@@ -354,7 +354,7 @@ misc_system_settings() {
   echo -n "$(timestamp) [openHABian] Applying miscellaneous system settings... "
   # Set Java and arping file capabilites
   cond_echo "Setting Java and arping file capabilites"
-  if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' "$(realpath $(which java))"; then echo "FAILED (setcap java)"; fi
+  if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' "$(realpath "$(command -v java)")"; then echo "FAILED (setcap java)"; fi
   if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping; then echo "FAILED (setcap arping)"; fi
 
   # Add README.txt note to the end user's home folder
