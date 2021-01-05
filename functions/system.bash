@@ -354,8 +354,8 @@ misc_system_settings() {
   echo -n "$(timestamp) [openHABian] Applying miscellaneous system settings... "
   # Set Java and arping file capabilites
   cond_echo "Setting Java and arping file capabilites"
-  if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' "$(realpath /usr/bin/java)"; then echo "FAILED (setcap java)"; return 1; fi
-  if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping; then echo "FAILED (setcap arping)"; return 1; fi
+  if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' "$(realpath $(which java))"; then echo "FAILED (setcap java)"; fi
+  if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping; then echo "FAILED (setcap arping)"; fi
 
   # Add README.txt note to the end user's home folder
   cond_echo "Creating a README note for end user's home folder"
