@@ -176,10 +176,11 @@ You will see the following welcome screen:
 
 <a id="manual-setup"></a>
 ### Other Linux Systems (add openHABian just like any other software)
-Going beyond what the RPi image provides, we support running openHABian on x86 hardware on top of any existing
-Debian installation.
+Going beyond what the RPi image provides, you can also openHABian on x86 hardware on top of any existing Debian installation.
+Please note that the unattended install is tailored to work for Raspberries. We cannot test HW/OS combos beyond RPis upfront so there is no promise for this work.
+See the [Hardware and OS section](#hardware-and-os-support) for details on supported hardware and OSs before you proceed.
 Note that although the core parts of openHABian were reported to work on there, Ubuntu is not supported and untested.
-See the [README](https://github.com/openhab/openhabian#hardware-and-os-support) for details on supported hardware and OSs before you proceed.
+If you try and fail, please help and drop us a note on Github with debug log enabled, see [DEBUG guide](openhabian-DEBUG.md).
 ***
 
 Start with a fresh installation of your operating system, login and run
@@ -201,31 +202,25 @@ git clone -b openHAB3 https://github.com/openhab/openhabian.git /opt/openhabian
 ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 cp /opt/openhabian/openhabian.conf.dist /etc/openhabian.conf
 ```
-
-#### Interactive Install on generic Linux
-Start `openhabian-config` to get into the openHABian configuration tool.
-➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
-
-#### Unattended Install on generic Linux
-BEWARE:<br>
-This install method is only for experts that already know to handle and debug openHABian.
-As a beginner, use the interactive `openhabian-config` tool !
-
-That being said, you actually _can_ install openHABian in an unattended mode.
-
-To do so, edit `/etc/openhabian.conf` to match your needs, then use
+Edit `/etc/openhabian.conf` to match your needs, then finally use
 
 ```shell
 openhabian-config unattended
 ```
+to install.
 
-to get the automated openHABian installation going.
+#### Interactive install on generic x86 Linux
+We strongly recommend you to use the automated install but you actually *can* walk through the interactive tool.
+Start `openhabian-config`.
+Get the bare minimum you will *need* installed by selecting menu option 03.
+To install the recommended components that automated install will get in one go select menu options 33, 32, 31, 11, 12, 15, Zulu 11 OpenJDK 64-bit (in menu 4X), 13, 16, 14, 21, 38, 53, 52.
+We try to make install options independent of each other but there may be dependencies we are not aware of left so any other order may or may not work.
 
-Please note that we cannot test HW/OS combos beyond RPis upfront so there is no support / no promise for this work as explained in the [README](https://github.com/openhab/openhabian#hardware-and-os-support). 
+➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below
 
 ## openHABian Configuration Tool
-The following instructions are targeted at a Raspberry Pi but should be applicable to all openHABian environments.
-Once connected to the command line console of your system, please execute the openHABian configuration tool by typing the following command.
+The following instructions are developed for a Raspberry Pi but should be applicable to all hardware / all openHABian environments.
+Once connected to the command line console of your system, please execute the openHABian configuration tool by typing the following command:
 
 (Hint: sudo executes a command with elevated rights and will hence ask for your password: `openhabian`).
 
@@ -236,15 +231,13 @@ sudo openhabian-config
 ![openHABian-config menu](images/openHABian-config.png)
 
 The configuration tool is the heart of openHABian.
-It is not only a menu with a set of options, it's also used in a special unattended mode to automate the setup run,
-as either part of the RPi image as well as in a manual install.
+It is not only a menu with a set of options, it's also used in a special unattended mode to automate the setup run, either as part of the RPi image or in a manual install run.
 
 ⌨ - A quick note on menu navigation.
 Use the cursor keys to navigate, <kbd>Enter</kbd> to execute, <kbd>Space</kbd> to select and <kbd>Tab</kbd> to jump to the actions on the bottom of the screen. Press <kbd>Esc</kbd> twice to exit the configuration tool.
 
 ### Linux Hints
-If you are unfamiliar with Linux, SSH and the Linux console or if you want to improve your skills, read up on these important topics.
-A lot of helpful articles can be found on the internet, for example:
+Many helpful articles can be found on the internet, for example:
 
 -   "Learn the ways of Linux-fu, for free" interactively with exercises at [linuxjourney.com](https://linuxjourney.com).
 -   The official Raspberry Pi help articles over at [raspberrypi.org](https://www.raspberrypi.org/help)
