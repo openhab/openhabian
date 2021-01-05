@@ -272,7 +272,7 @@ dashboard_add_tile() {
   ipAddress="$(hostname -I)"
   tileDesc="$(grep "^[[:space:]]*tile_desc_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_desc_'"${application}"'=||g; s|"||g')"
   tileImg="$(grep "^[[:space:]]*tile_imagedata_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_imagedata_'"${application}"'=||g; s|"||g')"
-  tileURL="$(grep "^[[:space:]]*tile_url_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_url_'"${application}"'=||g; s|"||g; s|{HOSTNAME}|'"${ipAddress}"'|g')"
+  tileURL="$(grep "^[[:space:]]*tile_url_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_url_'"${application}"'=||g; s|"||g; s|{HOSTNAME}|'"${ipAddress// /}"'|g')"
 
   echo -n "$(timestamp) [openHABian] Adding an openHAB dashboard tile for '${application}'... "
 
