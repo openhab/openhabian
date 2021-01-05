@@ -19,11 +19,11 @@ body {
 
 .navbar-inverse .navbar-brand,
 .navbar-inverse .navbar-brand:hover {
-  color: #efefef; /* #999; */
+  color: #efefef;
 }
 
 .navbar .navbar-brand::before {
-  content: "openHAB 3 Log Viewer (frontail)";
+  content: "openHAB Log Viewer (frontail)";
   font-size: 150%;
   padding-right: 30px;
 }
@@ -47,7 +47,7 @@ body {
 
 .log {
   white-space: pre-wrap;
-  color: #f2f2f2; /* #7f8289; */
+  color: #f2f2f2;
   font-size: 0.85em;
   background: inherit;
   border: 0;
@@ -72,5 +72,5 @@ body {
 }
 
 .log .line-selected {
-  background-color: #4f204c; /* #302436; */
+  background-color: #4f204c;
 }
