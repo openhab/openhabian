@@ -264,7 +264,7 @@ is_ubuntu() {
 # 64 bit returns true (0)
 is_debian() {
   if [[ "$release" == "debian" ]]; then return 0; fi
-  [[ $(cat /etc/*release*) =~ "Debian" ]]
+  [[ $(cat /etc/*release*) =~ "ID_LIKE=debian" ]]
   return $?
 }
 # introduction of Raspberry Pi OS:
