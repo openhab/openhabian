@@ -60,6 +60,19 @@ nodejs_setup() {
 frontail_setup() {
   local frontailBase
   local frontailUser="frontail"
+  local chosenTheme
+
+  # ask for light or dark theme
+if [[ -n $INTERACTIVE ]]; then
+    chosenTheme=$(whiptail --title "openHAB Log Viewer (frontail)" --menu "select theme" 18 116 2 --cancel-button Back --ok-button Execute \
+    "21 | light theme"           "frontail light theme, the openHABian default" \
+    "22 | dark theme"            "frontail dark theme" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+  else
+    echo "$(timestamp) [openHABian] openHAB Log Viewer Theme can only be chosen in interactive mode! Setting to default light theme."
+    chosenTheme=21 # set to default light theme when no user input
+  fi
 
   if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v12"* ]] || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
@@ -86,14 +99,34 @@ frontail_setup() {
   echo -n "$(timestamp) [openHABian] Configuring openHAB Log Viewer (frontail)... "
   if ! cond_redirect mkdir -p "$frontailBase"/preset "$frontailBase"/web/assets/styles; then echo "FAILED (create directory)"; return 1; fi
   if ! cond_redirect rm -rf "${frontailBase:?}"/preset/* "${frontailBase:?}"/web/assets/styles/*; then echo "FAILED (clean directory)"; return 1; fi
-  if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail-preset.json "$frontailBase"/preset/openhab.json; then echo "FAILED (copy presets)"; return 1; fi
-  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail-theme.css "$frontailBase"/web/assets/styles/openhab.css; then echo "OK"; else echo "FAILED (copy theme)"; return 1; fi
+  if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail-preset.json "$frontailBase"/preset/openhab.json; then echo "FAILED (copy light presets)"; return 1; fi
+  if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail-preset_dark.json "$frontailBase"/preset/openhab_dark.json; then echo "FAILED (copy dark presets)"; return 1; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail_default.css "$frontailBase"/web/assets/styles/default.css; then echo "OK"; else echo "FAILED (copy default.css)"; return 1; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail-theme.css "$frontailBase"/web/assets/styles/openhab.css; then echo "OK"; else echo "FAILED (copy light theme)"; return 1; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail-theme_dark.css "$frontailBase"/web/assets/styles/openhab_dark.css; then echo "OK"; else echo "FAILED (copy dark theme)"; return 1; fi
 
-  echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service... "
-  if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi
+  # copy the service file for the previous chosen theme
+  case "$chosenTheme" in
+      21\ *)  echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service... light theme..."
+              if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi;
+              ;;
+      22\ *)  echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service with dark theme..."
+              if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail_dark.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi;
+              ;;
+      21)     echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service with light theme..."
+              if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi;
+              ;;
+      "") return 0 ;;
+      *)  echo -n "A not supported option was selected (probably a programming error)"
+          echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service with default theme..."
+          if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi;
+          ;;
+    esac
+
   if ! cond_redirect chmod 644 /etc/systemd/system/frontail.service; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now frontail.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
+  if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "Failed (restart service)"; return 1; fi
 
   if openhab_is_installed; then
     dashboard_add_tile "frontail"
