@@ -1,4 +1,4 @@
-#/usr/bin/env bash
+#!/usr/bin/env bash
 # shellcheck disable=SC2181
 
 ## Function for installing NodeJS for frontail and other addons.

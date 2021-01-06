@@ -21,7 +21,7 @@ body {
 }
 
 .navbar .navbar-brand::before {
-  content: "openHAB 3 Log Viewer (frontail)";
+  content: "openHAB Log Viewer (frontail)";
   font-size: 150%;
   padding-right: 30px;
 }
