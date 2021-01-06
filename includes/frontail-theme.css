@@ -1,4 +1,4 @@
-@import url('//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css');
+@import 'default.css';
 
 body {
   padding-top: 7em;
@@ -21,15 +21,9 @@ body {
 }
 
 .navbar .navbar-brand::before {
-  content: "openHAB Log Viewer (frontail)";
+  content: "openHAB 3 Log Viewer (frontail)";
   font-size: 150%;
   padding-right: 30px;
-}
-
-.navbar .text-right::before {
-  color: white;
-  content: "Pause/Play Log";
-  font-size: 100%;
 }
 
 .form-control {
