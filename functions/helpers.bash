@@ -255,83 +255,80 @@ is_x86_64() {
 }
 is_ubuntu() {
   # shellcheck disable=SC2154
-  if [[ "$release" == "ubuntu" ]]; then return 0; fi
+  if [[ "$osrelease" == "ubuntu" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "Ubuntu" ]]
   return $?
 }
-# introduction of Raspberry Pi OS:
-# 32 bit returns false (1)
-# 64 bit returns true (0)
 is_debian() {
-  if [[ "$release" == "debian" ]]; then return 0; fi
+  if [[ "$osrelease" == "debian" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "=debian" ]]
   return $?
 }
-# introduction of Raspberry Pi OS:
-# 32 bit returns true (0)
-# 64 bit returns false (1)
+# 32 bit image returns true (0)
+# 64 bit image returns false (1) for now
 is_raspbian() {
-  if [[ "$release" == "raspbian" ]]; then return 0; fi
+  if [[ "$osrelease" == "raspbian" ]]; then return 0; fi
   [[ "$(cat /etc/*release*)" =~ "Raspbian" ]]
   return $?
 }
-# os-release file actually does not reflect the name on 64 bit
+# /etc/os-release actually does not reflect the name on 64 bit
 is_raspios() {
-  if [[ "$release" == "raspios" ]] || is_raspbian || [[ "$(cat /etc/*release*)" =~ "Raspberry Pi OS" ]]; then return 0; fi
+  if [[ "$osrelease" == "raspios" ]] || is_raspbian || [[ "$(cat /etc/*release*)" =~ "Raspberry Pi OS" ]]; then return 0; fi
+  if ! [[ -f /boot/issue.txt ]]; then return 1; fi
   [[ "$(cat /boot/issue.txt)" =~ "Raspberry Pi reference" ]]
   return $?
 }
-# Debian/Raspbian, to be deprecated, LTS ends 2020-06-30
+# Debian/Raspbian, deprecated
 is_jessie() {
-  if [[ "$release" == "jessie" ]]; then return 0; fi
+  if [[ "$osrelease" == "jessie" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "jessie" ]]
   return $?
 }
 # Debian/Raspbian oldstable
 is_stretch() {
-  if [[ "$release" == "stretch" ]]; then return 0; fi
+  if [[ "$osrelease" == "stretch" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "stretch" ]]
   return $?
 }
 # Debian/Raspbian stable
 is_buster() {
-  if [[ "$release" == "buster" ]]; then return 0; fi
+  if [[ "$osrelease" == "buster" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "buster" ]]
   return $?
 }
 # Debian/Raspbian testing
 is_bullseye() {
-  if [[ "$release" == "bullseye" ]]; then return 0; fi
+  if [[ "$osrelease" == "bullseye" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "bullseye" ]]
   return $?
 }
 # Debian/Raspbian unstable
 is_sid() {
-  if [[ "$release" == "sid" ]]; then return 0; fi
+  if [[ "$osrelease" == "sid" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "sid" ]]
   return $?
 }
 # Ubuntu 14, deprecated
 is_trusty() {
-  if [[ "$release" == "trusty" ]]; then return 0; fi
+  if [[ "$osrelease" == "trusty" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "trusty" ]]
   return $?
 }
 # Ubuntu 16, deprecated
 is_xenial() {
-  if [[ "$release" == "xenial" ]]; then return 0; fi
+  if [[ "$osrelease" == "xenial" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "xenial" ]]
   return $?
 }
 # Ubuntu 18.04 LTS
 is_bionic() {
-  if [[ "$release" == "bionic" ]]; then return 0; fi
+  if [[ "$osrelease" == "bionic" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "bionic" ]]
   return $?
 }
 # Ubuntu 20.04 LTS
 is_focal() {
-  if [[ "$release" == "focal" ]]; then return 0; fi
+  if [[ "$osrelease" == "focal" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "focal" ]]
   return $?
 }
