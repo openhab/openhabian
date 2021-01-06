@@ -406,7 +406,7 @@ Follow the instructions in the previous section and insert a line into `openhabi
 
 #### Fake hardware mode
 If to install openHABian fails because you have a non-supported hardware or run an unsupported OS release, you can "fake" your hardware and OS to make openHABian behave as if you did own that HW/OS.
-In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` and/or `release=` with the hw and os versions you want to attempt installation with.
+In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` and/or `osrelease=` with the hw and os versions you want to attempt installation with.
 
 ## Optional Components
 openHABian comes with a number of additional routines to quickly install and set up home automation related software.
