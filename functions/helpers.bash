@@ -263,13 +263,14 @@ is_ubuntu() {
 # 32 bit returns false (1)
 # 64 bit returns true (0)
 is_debian() {
+  set -x
+  cat /etc/*issue*
   if [[ "$release" == "debian" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "=debian" ]]
   return $?
 }
-# introduction of Raspberry Pi OS:
-# 32 bit returns true (0)
-# 64 bit returns false (1)
+# 32 bit image returns true (0)
+# 64 bit image returns false (1) for now
 is_raspbian() {
   if [[ "$release" == "raspbian" ]]; then return 0; fi
   [[ "$(cat /etc/*release*)" =~ "Raspbian" ]]
@@ -278,10 +279,11 @@ is_raspbian() {
 # os-release file actually does not reflect the name on 64 bit
 is_raspios() {
   if [[ "$release" == "raspios" ]] || is_raspbian || [[ "$(cat /etc/*release*)" =~ "Raspberry Pi OS" ]]; then return 0; fi
+  if ! [[ -f /boot/issue.txt ]]; then return 1; fi
   [[ "$(cat /boot/issue.txt)" =~ "Raspberry Pi reference" ]]
   return $?
 }
-# Debian/Raspbian, to be deprecated, LTS ends 2020-06-30
+# Debian/Raspbian, deprecated
 is_jessie() {
   if [[ "$release" == "jessie" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "jessie" ]]
