@@ -508,7 +508,7 @@ setup_mirror_SD() {
 
   infoText="$infoText1 $dest $infoText2"
   srcSize="$(blockdev --getsize64 /dev/mmcblk0)"
-  minBackupSize="$((195 * srcSize / 100))"# to accomodate for     slight differences in SD sizes
+  minBackupSize="$((195 * srcSize / 100))"    # to accomodate for slight differences in SD sizes
   destSize="$(blockdev --getsize64 "$dest")"
   if [[ "$destSize" -lt "$srcSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then

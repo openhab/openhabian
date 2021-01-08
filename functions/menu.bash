@@ -87,7 +87,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Optional Components" 18 116 11 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Optional Components" 20 116 13 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer"            "openHAB Log Viewer webapp (frontail)" \
     "22 | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     "23 | Mosquitto"             "MQTT broker Eclipse Mosquitto" \
@@ -99,6 +99,8 @@ show_main_menu() {
     "29 | FIND 3"                "Framework for Internal Navigation and Discovery" \
     "   | Monitor Mode"          "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
     "2A | Telldus Core"          "Telldus Core service for Tellstick USB devices" \
+    "2B | Install HABApp"        "Python 3 integration and rule engine for openHAB" \
+    "   | Remove HABApp"         "Remove HABApp from this system" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -114,6 +116,8 @@ show_main_menu() {
       29\ *) find3_setup ;;
       *Monitor\ Mode) setup_monitor_mode ;;
       2A\ *) telldus_core_setup ;;
+      2B\ *) habapp_setup install;;
+      *Remove\ HABApp*) habapp_setup remove;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac

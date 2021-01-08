@@ -9,7 +9,7 @@ source: https://github.com/openhab/openhabian/blob/master/docs/openhabian.md
 <!-- Attention authors: Do not edit directly. Please add your changes to the source repository -->
 
 ::: tip TL;DR
-Jump to [install instructions](#Raspberry-Pi-prepackaged-SD-card-image).
+Jump to [install instructions](#raspberry-pi-prepackaged-sd-card-image). But read the full docs before you ask for help !
 :::
 
 # openHABian - Hassle-free openHAB Setup
@@ -19,14 +19,13 @@ However, setting up a fully working Linux system with all recommended packages a
 <p style="text-align: center; font-size: 1.2em; font-style: italic;"><q>A home automation enthusiast doesn't have to be a Linux enthusiast!</q></p>
 
 openHABian aims to provide a **self-configuring** Linux system setup specific to the needs of every openHAB user.
-To that end, the project provides two things:
+It provides:
 
-*   Complete **SD-card images pre-configured with openHAB** and many other openHAB- and Hardware-specific preparations for the Raspberry Pi
-*   The openHABian Configuration Tool to set up and configure openHAB and many related things on any Debian based system
+*   complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of SBCs 
+*   The openHABian configuration tool to set up and configure openHAB and many related things on any Debian based system
 
 #### Table of Contents
 {::options toc_levels="2..3"/}
-
 -   TOC
 {:toc}
 
@@ -69,11 +68,12 @@ Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 G
 a 3 A power supply and a 16 GB SD card.
 Also get another 32 GB or larger SD card and a USB card reader to make use of the
 ["auto backup" feature](docs/openhabian.md#Auto-Backup).
-***
-ATTENTION:<br>
+
+::: warning ATTENTION
 Avoid getting the 8 GB model of RPi 4. 8 GB are a waste of money and it has issues,
 you must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram) or use the 64bit image (untested).
-***
+:::
+
 ### Hardware and OS support
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as
 hardware. Anything x86 based may work or not. Anything else ARM based such as ODroids,
@@ -97,7 +97,7 @@ that to run on hardware other than RPi 2/3/4 or (bare metal i.e. not virtualized
 x86 may work but this is **not** supported.
 
 It may work to install and run openHABian on unsupported hardware. If it does
-not work, you are welcome to find out what's missing and contribute it back to
+not, you are welcome to find out what's missing and contribute it back to
 the community with a Pull Request. It is sometimes simple things like a naming
 string. We'll be happy to include that in openHABian so you can use your box
 with openHABian unless there's a valid reason to change or remove it.
