@@ -1,7 +1,7 @@
-@import 'default.css';
+@import url('//stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css');
 
 body {
-  padding-top: 4em;
+  padding-top: 7em;
   background-color: #2f3238;
 }
 
@@ -17,9 +17,8 @@ body {
   padding-bottom: 15px;
 }
 
-.navbar-inverse .navbar-brand,
-.navbar-inverse .navbar-brand:hover {
-  color: #efefef; /* #999; */
+.navbar .navbar-brand {
+  color: #efefef;
 }
 
 .navbar .navbar-brand::before {
@@ -28,15 +27,10 @@ body {
   padding-right: 30px;
 }
 
-.btn-pause {
-    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%237f8289' viewBox='0 0 8 8'><path d='M1 1v6h2v-6h-2zm4 0v6h2v-6h-2z'></path></svg>") no-repeat center center;
-    background-color: #2f3238;
-    border: 1px solid transparent;
-}
-
-.btn-pause.play {
-    background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' fill='%237f8289' viewBox='0 0 8 8'><path d='M1 1v6l6-3-6-3z'></path></svg>") no-repeat center center;
-    background-color: #2f3238;
+.navbar .text-right::before {
+  color: #efefef;
+  content: "Pause/Play Log";
+  font-size: 100%;
 }
 
 .form-control {
@@ -47,8 +41,8 @@ body {
 
 .log {
   white-space: pre-wrap;
-  color: #f2f2f2; /* #7f8289; */
-  font-size: 0.85em;
+  color: #f2f2f2;
+  font-size: 0.95em;
   background: inherit;
   border: 0;
   padding: 0;
@@ -56,8 +50,8 @@ body {
 
 .log .inner-line {
   padding: 0 15px;
-  margin-left: 84pt;
-  text-indent: -84pt;
+  margin-left: 288pt;
+  text-indent: -288pt;
   margin-bottom: 0;
 }
 
@@ -72,5 +66,5 @@ body {
 }
 
 .log .line-selected {
-  background-color: #4f204c; /* #302436; */
+  background-color: #4f204c;
 }
