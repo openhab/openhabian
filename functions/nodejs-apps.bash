@@ -102,7 +102,6 @@ if [[ -n $INTERACTIVE ]]; then
   if ! cond_redirect rm -rf "${frontailBase:?}"/preset/* "${frontailBase:?}"/web/assets/styles/*; then echo "FAILED (clean directory)"; return 1; fi
   if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail-preset.json "$frontailBase"/preset/openhab.json; then echo "FAILED (copy light presets)"; return 1; fi
   if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail-preset_dark.json "$frontailBase"/preset/openhab_dark.json; then echo "FAILED (copy dark presets)"; return 1; fi
-  if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail_default.css "$frontailBase"/web/assets/styles/default.css; then echo "FAILED (copy default.css)"; return 1; fi
   if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail-theme.css "$frontailBase"/web/assets/styles/openhab.css; then echo "FAILED (copy light theme)"; return 1; fi
   if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail-theme_dark.css "$frontailBase"/web/assets/styles/openhab_dark.css; then echo "OK"; else echo "FAILED (copy dark theme)"; return 1; fi
 
