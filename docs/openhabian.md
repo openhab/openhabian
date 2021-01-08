@@ -68,11 +68,12 @@ Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 G
 a 3 A power supply and a 16 GB SD card.
 Also get another 32 GB or larger SD card and a USB card reader to make use of the
 ["auto backup" feature](docs/openhabian.md#Auto-Backup).
-***
-ATTENTION:<br>
+
+::: warning ATTENTION
 Avoid getting the 8 GB model of RPi 4. 8 GB are a waste of money and it has issues,
 you must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram) or use the 64bit image (untested).
-***
+:::
+
 ### Hardware and OS support
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as
 hardware. Anything x86 based may work or not. Anything else ARM based such as ODroids,
