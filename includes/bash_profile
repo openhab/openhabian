@@ -36,5 +36,6 @@ OHBUILD="$(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
 
 echo -e "\\n$(sed -e 's|$OHVERSION|'"${OHVERSION}"'|g' -e 's|$OHBUILD|'"${OHBUILD}"'|g' -e 's|${HOSTNAME}|'"${HOSTNAME}"'|g' /opt/openhabian/includes/${OHPKG}logo)\\n"
 
+if [[ -f $HOME/.profile ]]; then source $HOME/.profile; fi
 
 # vim: filetype=sh
