@@ -107,7 +107,7 @@ timezone_setting() {
 ##    setup_ntp(String option)
 ##
 setup_ntp() {
-  if running_in_docker || ! is_raspbian; then
+  if running_in_docker || (! is_raspios && ! is_raspbian); then
     echo "$(timestamp) [openHABian] Enabling time synchronization using NTP... SKIPPED"
     return 0
   fi
