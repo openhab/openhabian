@@ -156,7 +156,7 @@ root@pi:/home/pi#
 
 ### USB storage mount example
 
-Note that this is showing two alternative versions, for FAT16/FAT32 filesystems (i.e. the original MS-DOS and the improved
+Note that this is showing two alternative versions, for FAT16/VFAT filesystems (i.e. the original MS-DOS and the improved
 Windows filesystems that you usually use for USB sticks) and another version to use the ext4 native Linux filesystem. You can
 use ext4 on a stick or USB-attached hard drive.
 Either way, you just need one or the other.
@@ -192,12 +192,19 @@ Allocating group tables: done
 Writing inode tables: done
 Creating journal (8192 blocks): done
 Writing superblocks and filesystem accounting information: done
-root@pi:/# mkexfatfs /dev/sda1
-mkexfatfs 1.1.0
-Creating... done.
-Flushing... done.
-File system created successfully.
-root@pi:/#
+root@pi:/# mkfs.vfat -v /dev/sda1
+mkfs.fat 4.1 (2017-01-24)
+/dev/sda1 has 4 heads and 32 sectors per track,
+hidden sectors 0x2000;
+logical sector size is 512,
+using 0xf8 media descriptor, with 524288 sectors;
+drive number 0x80;
+filesystem has 2 16-bit FATs and 8 sectors per cluster.
+FAT size is 256 sectors, and provides 65467 clusters.
+There are 8 reserved sectors.
+Root directory contains 512 slots and uses 32 sectors.
+Volume ID is 3604a1e5, no volume label.
+
 root@pi:/home/pi# mkdir -p /storage/usbstick-linux /storage/usbstick-msdos
 root@pi:/home/pi# echo "/dev/sda8     /storage/usbstick-linux    ext4     defaults,noatime  0       1" >> /etc/fstab
 root@pi:/home/pi# echo "/dev/sda1     /storage/usbstick-msdos    vfat     noatime,noauto,user,uid=backup  0       1" >> /etc/fstab
