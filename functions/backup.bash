@@ -408,9 +408,11 @@ mirror_SD() {
     origPartUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')
     if ! partUUID=$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }'); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
     if ! cond_redirect tune2fs "${dest}2" -U random; then echo "FAILED (set random UUID)"; dirty="yes"; fi
+    while umount -q "${dest}1"; do : ; done
     mount "${dest}1" "$syncMount"
     sed -i "s|${origPartUUID}|${partUUID}|g" "${syncMount}"/cmdline.txt
     umount "$syncMount"
+    while umount -q "${dest}2"; do : ; done
     mount "${dest}2" "$syncMount"
     sed -i "s|${origPartUUID}|${partUUID}|g" "${syncMount}"/etc/fstab
     sed -i 's|^What=.*|What=/dev/mmcblk0p3|g' "${syncMount}/etc/systemd/system/${storageDir}".mount
