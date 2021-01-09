@@ -342,7 +342,7 @@ So in addition to the setup instructions given above, uncomment and complete the
 Whenever the WiFi interface wlan0 exists but does not have connectivity, openHABian will launch a **Hotspot**.
 When you use your mobile phone to scan for WiFi networks, you should be seeing a new network called `openHABian-<n>`.
 Connecting will work without a password. Once connected, open your browser and point it at `http://raspberrypi.local` or `http://comitup-<n>`.
-This may or may not work for your mobile browser as it requires Bonjour/ZeroConf abilities. If you cannot connect to this address, go to `http://10.42.0.1`.
+This may or may not work for your mobile browser as it requires Bonjour/ZeroConf abilities. If you cannot connect to this address, go to `http://10.41.0.1`.
 On that page you can select the SSID of the network you want to connect your system to. Provide the password and press the button.
 Note that as soon as you do, the wlan0 IP address changes so your mobile browser will not be able to provide you any feedback if that worked out.
 Try to ping the new system's hostname (default is `openHABianDevice`) or check DHCP on your router if your openHABian system appeared there.
