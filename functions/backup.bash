@@ -422,7 +422,7 @@ mirror_SD() {
       echo "OK"
     fi
     # shellcheck disable=SC2154
-    echo -e "${dumpInfoText}" | mail -s "SD card raw copy dump" "$adminmail"
+    [[ -n "$adminmail" ]] && echo -e "${dumpInfoText}" | mail -s "SD card raw copy dump" "$adminmail"
     return 0
   fi
 
