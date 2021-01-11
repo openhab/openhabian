@@ -80,27 +80,34 @@ update_git_repo() {
   if ! cond_redirect git -C "$path" clean --force -x -d; then echo "FAILED (clean)"; return 1; fi
   if cond_redirect git -C "$path" checkout "${branch}"; then echo "OK"; else echo "FAILED (checkout ${branch})"; return 1; fi
 }
-
 ## Function to get public IP
+## Argument 1 is optional to contain a hostname to resolve
 ##
 ##    get_public_ip()
 ##
 get_public_ip() {
   local pubIP
+  local localName1=myip.opendns.com
+  local localName2=o-o.myaddr.l.google.com
 
   if ! [[ -x $(command -v dig) ]]; then return 1; fi
-
-  if pubIP="$(dig +short myip.opendns.com @resolver1.opendns.com | tail -1)"; then echo "$pubIP"; return 0; else return 1; fi
+  if [[ $# -eq 1 ]]; then
+    localName1=$1
+    localName2=$2
+  fi
+  if ! pubIP="$(dig +short ${localName1} @resolver1.opendns.com | tail -1)"; then return 1; fi
   if [[ -z $pubIP ]]; then
-    if pubIP="$(dig -4 +short myip.opendns.com @resolver1.opendns.com | tail -1)"; then echo "$pubIP"; return 0; else return 1; fi
+    if ! pubIP="$(dig -4 +short ${localName1} @resolver1.opendns.com | tail -1)"; then return 1; fi
   fi
   if [[ -z $pubIP ]]; then
-    if pubIP="$(dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | tr -d '"')"; then echo "$pubIP"; return 0; else return 1; fi
+    if ! pubIP="$(dig TXT +short ${localName2} @ns1.google.com)"; then return 1; fi
     if [[ -z $pubIP ]]; then
-      if pubIP="$(dig -4 TXT +short o-o.myaddr.l.google.com @ns1.google.com | tr -d '"')"; then echo "$pubIP"; return 0; else return 1; fi
+      if ! pubIP="$(dig -4 TXT +short ${localName2} @ns1.google.com)"; then return 1; fi
     fi
   fi
+  echo $pubIP | tr -dc '[0-9.]'
 }
+
 
 ## Enable or disable the RPi WiFi module
 ## Valid arguments: "enable" or "disable"
