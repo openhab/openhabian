@@ -530,10 +530,10 @@ nginx_setup() {
 
   while [[ $validDomain == "false" ]] && [[ -n $domain ]] && [[ $domain != "IP" ]]; do
     cond_echo "Obtaining domain IP address... "
-    if domainIP="$(dig -4 +short "$domain" @resolver1.opendns.com | tail -1)"; then echo "$domainIP"; else echo "FAILED"; return 1; fi
-    if [[ $pubIP = "$domainIP" ]]; then
+    if ! domainIP="$(get_public_ip $domain)"; then echo "FAILED (domain IP)"; return 1; fi
+    if [[ "$pubIP" == "$domainIP" ]]; then
       validDomain="true"
-      cond_echo "Public and domain IP address match"
+      cond_echo "Public and domain IP address match."
     else
       cond_echo "Public and domain IP address mismatch!"
       if ! domain=$(whiptail --title "Domain Setup" --inputbox "\\nDomain does not resolve to your public IP address. Please enter a valid domain.\\n\\n${domainText}" 14 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
