@@ -114,7 +114,7 @@ if [[ -n "$UNATTENDED" ]]; then
   permissions_corrections
   add_admin_ssh_key
   clean_config_userpw
-  frontail_setup
+  frontail_setup "${frontailtheme:-light}"
   zram_setup
   exim_setup
   install_tailscale "install" && setup_tailscale

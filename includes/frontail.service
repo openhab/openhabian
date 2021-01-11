@@ -6,7 +6,7 @@ PartOf=openhab2.service
 
 [Service]
 Type=simple
-ExecStart=%FRONTAILBASE/bin/frontail --ui-highlight --ui-highlight-preset %FRONTAILBASE/preset/openhab.json -t openhab -l 2000 -n 200 /var/log/openhab2/openhab.log /var/log/openhab2/events.log
+ExecStart=%FRONTAILBASE/bin/frontail --ui-highlight --ui-highlight-preset %FRONTAILBASE/preset/%FRONTAILTHEME.json -t %FRONTAILTHEME -l 2000 -n 200 /var/log/openhab2/openhab.log /var/log/openhab2/events.log
 Restart=always
 User=frontail
 Group=openhab
