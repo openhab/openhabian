@@ -64,7 +64,7 @@ java_opt=Zulu8-32
 
 # openHAB Log Viewer (frontail) theme
 # Valid arguments: "light", "dark"
-frontail_theme=light
+frontailtheme=light
 
 # install ZRAM per default, set to "disable" to skip installation
 #zraminstall=enable

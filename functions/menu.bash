@@ -90,7 +90,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Optional Components" 20 116 14 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Optional Components" 21 116 14 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer light"      "openHAB Log Viewer webapp (frontail): light theme" \
     "   | Log Viewer dark"       "openHAB Log Viewer webapp (frontail): dark theme" \
     "22 | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
