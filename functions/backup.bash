@@ -100,6 +100,10 @@ amanda_install() {
     echo -n "$(timestamp) [openHABian] Installing Amanda backup system... "
     if cond_redirect apt-get install --yes amanda-common amanda-server amanda-client; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
+  if ! dpkg -s 'exim4' &> /dev/null; then
+    if ! exim_setup; then return 1; fi
+  fi
+
 }
 
 
@@ -291,12 +295,6 @@ amanda_setup() {
 
   echo -n "$(timestamp) [openHABian] Beginning setup of the Amanda backup system... "
   if (whiptail --title "Amanda backup installation" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "$queryText" 24 80); then echo "OK"; else echo "CANCELED"; return 0; fi
-
-  if ! dpkg -s 'exim4' &> /dev/null; then
-    if (whiptail --title "MTA installation" --yes-button "Install EXIM4" --no-button "Ignore" --yesno "$eximText" 12 80); then
-      if ! exim_setup; then return 1; fi
-    fi
-  fi
 
   echo -n "$(timestamp) [openHABian] Configuring Amanda backup system prerequisites... "
   adminMail="$(whiptail --title "Amanda backup reports" --inputbox "\\nEnter the eMail address to send backup reports to:" 9 80 ${adminmail:-root@${HOSTNAME}} 3>&1 1>&2 2>&3)"
