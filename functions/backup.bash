@@ -17,7 +17,7 @@ backup_openhab_config() {
 
   echo -n "$(timestamp) [openHABian] Beginning openHAB backup... "
   if [[ -n "$INTERACTIVE" ]] && [[ $# == 0 ]]; then
-    if ! (whiptail --title "openHAB backup?" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 10 80); then echo "SKIPPED"; return 0; fi
+    if ! (whiptail --title "openHAB backup" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 10 80); then echo "SKIPPED"; return 0; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Creating openHAB backup... "
@@ -25,7 +25,7 @@ backup_openhab_config() {
   successText="A backup of your openHAB configuration has successfully been made.\\n\\nIt is stored in ${filePath}."
 
   if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "Operation Successful!" --msgbox "$successText" 10 90
+    whiptail --title "Operation successful!" --msgbox "$successText" 10 90
   else
     echo "$(timestamp) [openHABian] ${successText}"
   fi
@@ -55,7 +55,7 @@ restore_openhab_config() {
       echo "CANCELED"
       return 0
     fi
-    if ! (whiptail --title "Restore openHAB backup?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 10 80); then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "Restore openHAB backup" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 10 80); then echo "CANCELED"; return 0; fi
     if fileSelect="$(whiptail --title "Choose openHAB configuration to restore" --cancel-button "Cancel" --ok-button "Continue" --notags --menu "\\nSelect your backup from most current 20 files below:" 22 80 13 "${backupList[@]}" 3>&1 1>&2 2>&3)"; then echo "OK"; else echo "CANCELED"; return 0; fi
     filePath="${backupPath}/${fileSelect}"
   else
@@ -69,7 +69,7 @@ restore_openhab_config() {
   if cond_redirect systemctl restart openhab.service; then echo "OK"; else echo "FAILED (restart openHAB)"; return 1; fi
 
   if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "Operation Successful!" --msgbox "Restoration of selected openHAB configuration was successful!" 7 80
+    whiptail --title "Operation successful!" --msgbox "Restoration of selected openHAB configuration was successful!" 7 80
   fi
 }
 
@@ -194,7 +194,7 @@ create_amanda_config() {
     if ! cond_redirect rm -f "$configDir"/disklist; then echo "FAILED (clean disklist)"; return 1; fi
     # Don't backup full SD by default as this can cause issues with large cards
     if [[ -n $INTERACTIVE ]]; then
-      if (whiptail --title "Backup raw SD card?" --defaultno --yes-button "Yes" --no-button "No" --yesno "Do you want to create raw disk backups of your SD card?\\n\\nThis is only recommended if your SD card is 16GB or less, otherwise this can take too long.\\n\\nYou can change this at any time by editing:\\n'${configDir}/disklist'" 13 80); then
+      if (whiptail --title "Backup raw SD card" --defaultno --yes-button "Yes" --no-button "No" --yesno "Do you want to create raw disk backups of your SD card?\\n\\nThis is only recommended if your SD card is 16GB or less, otherwise this can take too long.\\n\\nYou can change this at any time by editing:\\n'${configDir}/disklist'" 13 80); then
         echo "${HOSTNAME}  /dev/mmcblk0                  comp-amraw" >> "$configDir"/disklist
       fi
     fi
@@ -224,7 +224,7 @@ create_amanda_config() {
 
   echo -n "$(timestamp) [openHABian] Preparing storage location... "
   if [[ -n $INTERACTIVE ]]; then
-    if ! (whiptail --title "Storage container creation?" --yes-button "Continue" --no-button "Cancel" --yesno "$storageText" 10 80); then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "Storage container creation" --yes-button "Continue" --no-button "Cancel" --yesno "$storageText" 10 80); then echo "CANCELED"; return 0; fi
   fi
   until [[ $tapes -le 0 ]]; do
     if [[ $config == "openhab-dir" ]]; then
@@ -262,7 +262,7 @@ create_amanda_config() {
 ##
 amanda_setup() {
   if [[ -z $INTERACTIVE ]]; then
-    echo "$(timestamp) [openHABian] Amanda backup setup must be run in interactive mode! Canceling Amanda backup setup!"
+    echo "$(timestamp) [openHABian] Amanda backup setup must be run in interactive mode! Cancelling Amanda backup setup."
     return 0
   fi
 
@@ -276,7 +276,6 @@ amanda_setup() {
   local awsBucket
   local awsAccessKey
   local awsSecretKey
-  local adminMail
   local backupPass
   local backupPass1
   local backupPass2
@@ -294,45 +293,45 @@ amanda_setup() {
   if (whiptail --title "Amanda backup installation" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "$queryText" 24 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
   if ! dpkg -s 'exim4' &> /dev/null; then
-    if (whiptail --title "MTA missing?" --yes-button "Install EXIM4" --no-button "Ignore" --yesno "$eximText" 12 80); then
+    if (whiptail --title "MTA installation" --yes-button "Install EXIM4" --no-button "Ignore" --yesno "$eximText" 12 80); then
       if ! exim_setup; then return 1; fi
     fi
   fi
 
   echo -n "$(timestamp) [openHABian] Configuring Amanda backup system prerequisites... "
-  adminMail="$(whiptail --title "Amanda backup reports?" --inputbox "\\nEnter the eMail address to send backup reports to:" 9 80 3>&1 1>&2 2>&3)"
+  adminMail="$(whiptail --title "Amanda backup reports" --inputbox "\\nEnter the eMail address to send backup reports to:" 9 80 ${adminmail:-root@${HOSTNAME}} 3>&1 1>&2 2>&3)"
   if [[ -z $adminMail ]]; then
     adminMail="root@${HOSTNAME}"
   fi
   while [[ -z $backupPass ]]; do
-    if ! backupPass1="$(whiptail --title "Authentication Setup" --passwordbox "\\nEnter a password for ${backupUser}:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-    if ! backupPass2="$(whiptail --title "Authentication Setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! backupPass1="$(whiptail --title "Authentication setup" --passwordbox "\\nEnter a password for ${backupUser}:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! backupPass2="$(whiptail --title "Authentication setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     if [[ $backupPass1 == "$backupPass2" ]] && [[ ${#backupPass1} -ge 8 ]] && [[ ${#backupPass2} -ge 8 ]]; then
       backupPass="$backupPass1"
     else
-      whiptail --title "Authentication Setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
+      whiptail --title "Authentication setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
     fi
   done
 
   if ! amanda_install "$backupPass"; then return 1; fi
 
-  if (whiptail --title "Backup using locally attached storage?" --yes-button "Yes" --no-button "No" --yesno "Would you like to setup a backup mechanism based on locally attached or NAS mounted storage?" 8 80); then
+  if (whiptail --title "Backup using locally attached storage" --yes-button "Yes" --no-button "No" --yesno "Would you like to setup a backup mechanism based on locally attached or NAS mounted storage?" 8 80); then
     config="openhab-dir"
-    if ! storageLoc="$(whiptail --title "Storage directory?" --inputbox "\\nWhat is the directory backups should be stored in?\\n\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick, HDD, or a NFS/CIFS share." 13 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! storageLoc="$(whiptail --title "Storage directory" --inputbox "\\nWhat is the directory backups should be stored in?\\n\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick, HDD, or a NFS/CIFS share." 13 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     tapes="15"
-    if ! tapeSize="$(whiptail --title "Storage capacity?" --inputbox "\\nHow much storage do you want to dedicate to your backup in megabytes?\\n\\nRecommendation: 2-3 times the amount of data to be backed up." 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! tapeSize="$(whiptail --title "Storage capacity" --inputbox "\\nHow much storage do you want to dedicate to your backup in megabytes?\\n\\nRecommendation: 2-3 times the amount of data to be backed up." 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     ((tapeSize/=tapes))
     if ! create_amanda_config "$config" "$backupUser" "$adminMail" "$tapes" "$tapeSize" "$storageLoc"; then return 1; fi
     whiptail --title "Amanda config setup successful" --msgbox "$successText" 10 80
   fi
-  if (whiptail --title "Backup using Amazon AWS?" --yes-button "Yes" --no-button "No"  --defaultno --yesno "Would you like to setup a backup mechanism based on Amazon Web Services?\\n\\nYou can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. For hints see http://markelov.org/wiki/index.php?title=Backup_with_Amanda:_tape,_NAS,_Amazon_S3#Amazon_S3\\nPlease setup your S3 bucket on Amazon Web Services NOW if you have not done so. Remember the name has to be unique in AWS namespace." 14 90); then
+  if (whiptail --title "Backup using Amazon AWS" --yes-button "Yes" --no-button "No"  --defaultno --yesno "Would you like to setup a backup mechanism based on Amazon Web Services?\\n\\nYou can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. For hints see http://markelov.org/wiki/index.php?title=Backup_with_Amanda:_tape,_NAS,_Amazon_S3#Amazon_S3\\nPlease setup your S3 bucket on Amazon Web Services NOW if you have not done so. Remember the name has to be unique in AWS namespace." 14 90); then
     config="openhab-AWS"
-    if ! awsSite="$(whiptail --title "AWS bucket site location?" --inputbox "\\nEnter the AWS site location you want to use (e.g. \"eu-central-1\"):" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-    if ! awsBucket="$(whiptail --title "AWS bucket name?" --inputbox "\\nEnter the bucket name you created on AWS (only the part after the last ':' of the ARN):" 10 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-    if ! awsAccessKey="$(whiptail --title "AWS access key?" --inputbox "\\nEnter the AWS access key you obtained at S3 setup time:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-    if ! awsSecretKey="$(whiptail --title "AWS secret key?" --inputbox "\\nEnter the AWS secret key you obtained at S3 setup time:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! awsSite="$(whiptail --title "AWS bucket site location" --inputbox "\\nEnter the AWS site location you want to use (e.g. \"eu-central-1\"):" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! awsBucket="$(whiptail --title "AWS bucket name" --inputbox "\\nEnter the bucket name you created on AWS (only the part after the last ':' of the ARN):" 10 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! awsAccessKey="$(whiptail --title "AWS access key" --inputbox "\\nEnter the AWS access key you obtained at S3 setup time:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! awsSecretKey="$(whiptail --title "AWS secret key" --inputbox "\\nEnter the AWS secret key you obtained at S3 setup time:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     tapes="15"
-    if ! tapeSize="$(whiptail --title "Storage capacity?" --inputbox "\\nHow much storage do you want to dedicate to your backup in megabytes?\\n\\nRecommendation: 2-3 times the amount of data to be backed up." 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! tapeSize="$(whiptail --title "Storage capacity" --inputbox "\\nHow much storage do you want to dedicate to your backup in megabytes?\\n\\nRecommendation: 2-3 times the amount of data to be backed up." 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     ((tapeSize/=tapes))
     if ! create_amanda_config "$config" "$backupUser" "$adminMail" "$tapes" "$tapeSize" "AWS" "$awsSite" "$awsBucket" "$awsAccessKey" "$awsSecretKey"; then return 1; fi
     whiptail --title "Amanda config setup successful" --msgbox "$successText" 10 80

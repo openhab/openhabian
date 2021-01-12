@@ -32,10 +32,10 @@ find3_setup() {
   echo -n "$(timestamp) [openHABian] Beginning setup of FIND3, the Framework for Internal Navigation and Discovery... "
 
   if ! [[ -f "/etc/mosquitto/mosquitto.conf" ]]; then
-    if ! (whiptail --title "Mosquitto not installed, continue?" --defaultno --yes-button "Continue" --no-button "Cancel" --yesno "$mqttMissingText" 13 80); then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "Mosquitto not installed" --defaultno --yes-button "Continue" --no-button "Cancel" --yesno "$mqttMissingText" 13 80); then echo "CANCELED"; return 0; fi
   fi
 
-  if (whiptail --title "FIND3 installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 22 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+  if (whiptail --title "FIND3 installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 22 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
   echo -n "$(timestamp) [openHABian] Configuring FIND3... "
   if ! MQTT_SERVER="$(whiptail --title "FIND3 Setup" --inputbox "\\nPlease enter the hostname and port of the device your MQTT broker is running on:" 10 80 localhost:1883 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
@@ -129,7 +129,7 @@ find3_setup() {
     dashboard_add_tile "find3"
   fi
 
-  whiptail --title "Operation Successful!" --msgbox "$successText" 22 80
+  whiptail --title "Operation successful" --msgbox "$successText" 22 80
 }
 
 ## Function to install Go on the current system
@@ -286,6 +286,6 @@ setup_monitor_mode() {
   if cond_redirect make --directory="${nexmonDir}/utilities/nexutil" install; then echo "OK"; else "FAILED (install)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation Successful!" --msgbox "$successText" 11 80
+    whiptail --title "Operation successful" --msgbox "$successText" 11 80
   fi
 }

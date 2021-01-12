@@ -9,9 +9,9 @@
 # Discussion: https://community.openhab.org/t/13379
 #
 
-CONFIGFILE="/etc/openhabian.conf"
-if ! [[ -f $CONFIGFILE ]]; then
-  cp /opt/openhabian/openhabian.conf.dist "$CONFIGFILE"
+configFile="/etc/openhabian.conf"
+if ! [[ -f $configFile ]]; then
+  cp /opt/openhabian/openhabian.conf.dist "$configFile"
 fi
 
 # Find the absolute script location dir (e.g. BASEDIR=/opt/openhabian)
@@ -42,7 +42,7 @@ else
 fi
 
 # shellcheck disable=SC1090
-source "$CONFIGFILE"
+source "$configFile"
 
 # script will be called with 'unattended' argument by openHABian images else retrieve values from openhabian.conf
 if [[ $1 == "unattended" ]]; then
