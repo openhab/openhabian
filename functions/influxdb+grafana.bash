@@ -41,88 +41,88 @@ influxdb_grafana_setup() {
   integrationOH="false"
 
   echo -n "$(timestamp) [openHABian] Beginning setup of InfluxDB and Grafana... "
-  if ! (whiptail --title "InfluxDB and Grafana installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "CANCELED"; return 0; fi
+  if ! (whiptail --title "InfluxDB and Grafana installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "CANCELED"; return 0; fi
   if has_lowmem; then
-    if ! (whiptail --title "WARNING, Continue?" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "$lowMemText" 11 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "WARNING, continue?" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "$lowMemText" 11 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   else
     echo "OK"
   fi
 
   echo -n "$(timestamp) [openHABian] Configuring InfluxDB... "
-  if ! (whiptail --title "InfluxDB installation?" --yes-button "Setup InfluxDB" --no-button "Preexisting Installation" --yesno "$influxDBText" 11 80); then
-    if ! (whiptail --title "InfluxDB database configuration?" --yes-button "Create new" --no-button "Use existing" --yesno "Shall a new user and database be configured on the InfluxDB instance automatically or shall existing existing ones be used?" 8 80); then
+  if ! (whiptail --title "InfluxDB installation" --yes-button "Setup InfluxDB" --no-button "Preexisting Installation" --yesno "$influxDBText" 11 80); then
+    if ! (whiptail --title "InfluxDB database configuration" --yes-button "Create new" --no-button "Use existing" --yesno "Shall a new user and database be configured on the InfluxDB instance automatically or shall existing existing ones be used?" 8 80); then
       # Existing InfluxDB - Manual configuration
-      if ! influxDBDatabaseName="$(whiptail --title "InfluxDB database name?" --inputbox "\\nopenHAB needs to use a specific InfluxDB database.\\n\\nPlease enter a configured InfluxDB database name:" 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
-      if ! influxDBUsernameOH="$(whiptail --title "InfluxDB openHAB username?" --inputbox "\\nopenHAB needs read/write access to the previously defined database.\\n\\nPlease enter an InfluxDB username for openHAB to use:" 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
-      if ! influxDBPasswordOH="$(whiptail --title "InfluxDB openHAB password?" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameOH':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
-      if ! influxDBUsernameGrafana="$(whiptail --title "InfluxDB Grafana username?" --inputbox "\\nGrafana needs read access to the previously defined database.\\n\\nPlease enter an InfluxDB username for Grafana to use:" 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
-      if ! influxDBPasswordGrafana="$(whiptail --title "InfluxDB Grafana password?" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameGrafana':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
+      if ! influxDBDatabaseName="$(whiptail --title "InfluxDB database name" --inputbox "\\nopenHAB needs to use a specific InfluxDB database.\\n\\nPlease enter a configured InfluxDB database name:" 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
+      if ! influxDBUsernameOH="$(whiptail --title "InfluxDB openHAB username" --inputbox "\\nopenHAB needs read/write access to the previously defined database.\\n\\nPlease enter an InfluxDB username for openHAB to use:" 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
+      if ! influxDBPasswordOH="$(whiptail --title "InfluxDB openHAB password" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameOH':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
+      if ! influxDBUsernameGrafana="$(whiptail --title "InfluxDB Grafana username" --inputbox "\\nGrafana needs read access to the previously defined database.\\n\\nPlease enter an InfluxDB username for Grafana to use:" 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
+      if ! influxDBPasswordGrafana="$(whiptail --title "InfluxDB Grafana password" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameGrafana':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
     else
       # Existing InfluxDB - Automatic configuration
-      if ! influxDBUsernameAdmin="$(whiptail --title "InfluxDB admin username?" --inputbox "\\nAn InfluxDB admin account must be used for automatic database configuration.\\n\\nPlease enter an InfluxDB admin username:" 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
-      if ! influxDBPasswordAdmin="$(whiptail --title "InfluxDB admin password?" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameAdmin':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
+      if ! influxDBUsernameAdmin="$(whiptail --title "InfluxDB admin username" --inputbox "\\nAn InfluxDB admin account must be used for automatic database configuration.\\n\\nPlease enter an InfluxDB admin username:" 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
+      if ! influxDBPasswordAdmin="$(whiptail --title "InfluxDB admin password" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameAdmin':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
     fi
     while [[ $influxDBReturnCode != "204" ]]; do
-      if ! influxDBAddress="$(whiptail --title "InfluxDB network address?" --inputbox "$influxDBAddressText" 13 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
+      if ! influxDBAddress="$(whiptail --title "InfluxDB network address" --inputbox "$influxDBAddressText" 13 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 1; fi
       influxDBReturnCode="$(curl -s -k -m 6 -I -o /dev/null -w "%{http_code}" "${influxDBAddress}/ping")"
       influxDBAddressText="\\nSorry, but I could not connect to the specified InfluxDB instance.\\n\\nEnter your InfluxDB instance's network address: [protocol:address:port]\\n\\nFor example: https://192.168.1.100:8086"
     done
   else
     # New InfluxDB - Manual configuration
-    if ! influxDBUsernameAdmin="$(whiptail --title "InfluxDB admin username?" --inputbox "\\nEnter a username for InfluxDB to use as an admin:" 9 80 admin 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! influxDBUsernameAdmin="$(whiptail --title "InfluxDB admin username" --inputbox "\\nEnter a username for InfluxDB to use as an admin:" 9 80 admin 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     while [[ -z $influxDBPasswordAdmin ]]; do
-      if ! influxDBPasswordAdmin1="$(whiptail --title "InfluxDB admin password?" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameAdmin':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-      if ! influxDBPasswordAdmin2="$(whiptail --title "InfluxDB admin password?" --passwordbox "\\nPlease confirm the password for InfluxDB account '$influxDBUsernameAdmin':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! influxDBPasswordAdmin1="$(whiptail --title "InfluxDB admin password" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameAdmin':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! influxDBPasswordAdmin2="$(whiptail --title "InfluxDB admin password" --passwordbox "\\nPlease confirm the password for InfluxDB account '$influxDBUsernameAdmin':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
       if [[ $influxDBPasswordAdmin1 == "$influxDBPasswordAdmin2" ]] && [[ ${#influxDBPasswordAdmin1} -ge 8 ]] && [[ ${#influxDBPasswordAdmin2} -ge 8 ]]; then
         influxDBPasswordAdmin="$influxDBPasswordAdmin1"
       else
-        whiptail --title "InfluxDB admin password?" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
+        whiptail --title "InfluxDB admin password" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
       fi
     done
   fi
   if [[ -z $influxDBUsernameOH ]]; then
-    if ! influxDBUsernameOH="$(whiptail --title "InfluxDB openHAB username?" --inputbox "\\nEnter a username for openHAB to use with InfluxDB:" 9 80 openhab 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! influxDBUsernameOH="$(whiptail --title "InfluxDB openHAB username" --inputbox "\\nEnter a username for openHAB to use with InfluxDB:" 9 80 openhab 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     while [[ -z $influxDBPasswordOH ]]; do
-      if ! influxDBPasswordOH1="$(whiptail --title "InfluxDB openHAB password?" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameOH':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-      if ! influxDBPasswordOH2="$(whiptail --title "InfluxDB openHAB password?" --passwordbox "\\nPlease confirm the password for InfluxDB account '$influxDBUsernameOH':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! influxDBPasswordOH1="$(whiptail --title "InfluxDB openHAB password" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameOH':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! influxDBPasswordOH2="$(whiptail --title "InfluxDB openHAB password" --passwordbox "\\nPlease confirm the password for InfluxDB account '$influxDBUsernameOH':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
       if [[ $influxDBPasswordOH1 == "$influxDBPasswordOH2" ]] && [[ ${#influxDBPasswordOH1} -ge 8 ]] && [[ ${#influxDBPasswordOH2} -ge 8 ]]; then
         influxDBPasswordOH="$influxDBPasswordOH1"
       else
-        whiptail --title "InfluxDB openHAB password?" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
+        whiptail --title "InfluxDB openHAB password" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
       fi
     done
   fi
   if [[ -z $influxDBUsernameGrafana ]]; then
-    if ! influxDBUsernameGrafana="$(whiptail --title "InfluxDB Grafana username?" --inputbox "\\nEnter a username for Grafana to use with InfluxDB:" 9 80 grafana 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! influxDBUsernameGrafana="$(whiptail --title "InfluxDB Grafana username" --inputbox "\\nEnter a username for Grafana to use with InfluxDB:" 9 80 grafana 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     while [[ -z $influxDBPasswordGrafana ]]; do
-      if ! influxDBPasswordGrafana1="$(whiptail --title "InfluxDB Grafana password?" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameGrafana':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-      if ! influxDBPasswordGrafana2="$(whiptail --title "InfluxDB Grafana password?" --passwordbox "\\nPlease confirm the password for InfluxDB account '$influxDBUsernameGrafana':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! influxDBPasswordGrafana1="$(whiptail --title "InfluxDB Grafana password" --passwordbox "\\nPlease enter the password for InfluxDB account '$influxDBUsernameGrafana':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! influxDBPasswordGrafana2="$(whiptail --title "InfluxDB Grafana password" --passwordbox "\\nPlease confirm the password for InfluxDB account '$influxDBUsernameGrafana':" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
       if [[ $influxDBPasswordGrafana1 == "$influxDBPasswordGrafana2" ]] && [[ ${#influxDBPasswordGrafana1} -ge 8 ]] && [[ ${#influxDBPasswordGrafana2} -ge 8 ]]; then
         influxDBPasswordGrafana="$influxDBPasswordGrafana1"
       else
-        whiptail --title "InfluxDB Grafana password?" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
+        whiptail --title "InfluxDB Grafana password" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
       fi
     done
   fi
   if [[ -z $influxDBDatabaseName ]]; then
-    if ! influxDBDatabaseName="$(whiptail --title "InfluxDB database name?" --inputbox "\\nEnter a name for the InfluxDB database:" 9 80 openhab 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! influxDBDatabaseName="$(whiptail --title "InfluxDB database name" --inputbox "\\nEnter a name for the InfluxDB database:" 9 80 openhab 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
   echo "OK"
 
   echo -n "$(timestamp) [openHABian] Configuring Grafana... "
   while [[ -z $grafanaPasswordAdmin ]]; do
-    if ! grafanaPasswordAdmin1="$(whiptail --title "Grafana Admin password?" --passwordbox "\\nPlease enter the password for Grafana Admin account:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-    if ! grafanaPasswordAdmin2="$(whiptail --title "Grafana Admin password?" --passwordbox "\\nPlease confirm the password for Grafana Admin account:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! grafanaPasswordAdmin1="$(whiptail --title "Grafana Admin password" --passwordbox "\\nPlease enter the password for Grafana Admin account:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! grafanaPasswordAdmin2="$(whiptail --title "Grafana Admin password" --passwordbox "\\nPlease confirm the password for Grafana Admin account:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     if [[ $grafanaPasswordAdmin1 == "$grafanaPasswordAdmin2" ]] && [[ ${#grafanaPasswordAdmin1} -ge 5 ]] && [[ ${#grafanaPasswordAdmin2} -ge 5 ]]; then
       grafanaPasswordAdmin="$grafanaPasswordAdmin1"
     else
-      whiptail --title "Grafana Admin password?" --msgbox "Password mismatched, blank, or less than 5 characters... Please try again!" 7 80
+      whiptail --title "Grafana Admin password" --msgbox "Password mismatched, blank, or less than 5 characters... Please try again!" 7 80
     fi
   done
   echo "OK"
 
   if openhab_is_running; then
-    if (whiptail --title "Setup openHAB integration?" --yes-button "Yes" --no-button "No" --yesno "openHAB can use InfluxDB for persistant storage, shall InfluxDB be configured with openHAB?\\n\\nA new config file for openHAB will be created with basic settings." 10 80); then integrationOH="true"; fi
+    if (whiptail --title "Setup openHAB integration" --yes-button "Yes" --no-button "No" --yesno "openHAB can use InfluxDB for persistant storage, shall InfluxDB be configured with openHAB?\\n\\nA new config file for openHAB will be created with basic settings." 10 80); then integrationOH="true"; fi
   else
     cond_echo "Integration with openHAB was skipped as openHAB is not running!"
   fi
@@ -169,7 +169,7 @@ influxdb_grafana_setup() {
     echo "OK"
   fi
 
-  whiptail --title "Operation Successful!" --msgbox "$successText" 10 80
+  whiptail --title "Operation successful" --msgbox "$successText" 10 80
 
   if openhab_is_installed; then
     dashboard_add_tile "grafana"

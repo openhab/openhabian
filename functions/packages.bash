@@ -133,6 +133,7 @@ exim_setup() {
     if ! relayuser="$(whiptail --title "Enter your public service mail user" --inputbox "\\nEnter your mail username you use with the public service to relay all outgoing mail to $smarthost" 10 80 "$relayuser" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     if ! relaypass="$(whiptail --title "Enter your public service mail password" --passwordbox "\\nEnter the password to use for mailuser ${relayuser} to relay mail via ${smarthost}" 9 80 "$relaypass" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     if ! adminmail="$(whiptail --title "Enter your administration user's mail address" --inputbox "\\nEnter the address to send system reports to" 9 80 "$adminmail" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    for i in smarthost smartport relayuser relaypass adminmail; do store_in_conf $i; done
   else
     sed -e "s|%INTERFACES|${interfaces}|g" -e "s|%SMARTHOST|${smarthost}|g" -e "s|%SMARTPORT|${smartport}|g" -e "s|%RELAYNETS|${relaynets}|g" "$updateEximTemplate" > "$eximConfig"
     update-exim4.conf
@@ -205,7 +206,7 @@ homegear_setup() {
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
   if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "Homegear installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 8 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if (whiptail --title "Homegear installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 8 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   else
     echo "OK"
   fi
@@ -240,7 +241,7 @@ homegear_setup() {
   fi
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation Successful!" --msgbox "$successText" 14 80
+    whiptail --title "Operation successful" --msgbox "$successText" 14 80
   fi
 }
 
@@ -258,7 +259,7 @@ mqtt_setup() {
 
   echo -n "$(timestamp) [openHABian] Beginning the MQTT broker Eclipse Mosquitto installation... "
   if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "MQTT installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if (whiptail --title "MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   else
     echo "OK"
   fi
@@ -271,7 +272,7 @@ mqtt_setup() {
 
   echo -n "$(timestamp) [openHABian] Configuring MQTT... "
   if [[ -n $INTERACTIVE ]]; then
-    if ! mqttPasswd="$(whiptail --title "MQTT Authentication?" --passwordbox "$questionText" 14 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! mqttPasswd="$(whiptail --title "MQTT Authentication" --passwordbox "$questionText" 14 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
   if [[ -n $mqttPasswd ]]; then
     if ! grep -qs password_file /etc/mosquitto/passwd /etc/mosquitto/mosquitto.conf; then
@@ -294,7 +295,7 @@ mqtt_setup() {
   if cond_redirect systemctl enable --now mosquitto.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation Successful!" --msgbox "$successText" 13 80
+    whiptail --title "Operation successful" --msgbox "$successText" 13 80
   fi
 }
 
@@ -314,7 +315,7 @@ knxd_setup() {
 
   echo -n "$(timestamp) [openHABian] Beginning setup of knxd package... "
   if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "knxd installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if (whiptail --title "knxd installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   else
     echo "OK"
   fi
@@ -362,7 +363,7 @@ knxd_setup() {
 
   echo -n "$(timestamp) [openHABian] Beginning setup of owserver (1wire)... "
   if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "1wire installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 12 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if (whiptail --title "1wire installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 12 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   else
     echo "OK"
   fi
@@ -373,7 +374,7 @@ knxd_setup() {
   fi
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation Successful!" --msgbox "$successText" 17 80
+    whiptail --title "Operation successful" --msgbox "$successText" 17 80
   fi
 }
 
@@ -399,7 +400,7 @@ miflora_setup() {
 
   echo -n "$(timestamp) [openHABian] Beginning setup of miflora-mqtt-daemon... "
   if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "miflora-mqtt-daemon installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if (whiptail --title "miflora-mqtt-daemon installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   else
     echo "OK"
   fi
@@ -431,7 +432,7 @@ miflora_setup() {
   fi
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation Successful!" --msgbox "$successText" 16 80
+    whiptail --title "Operation successful" --msgbox "$successText" 16 80
   fi
 }
 
@@ -480,21 +481,21 @@ nginx_setup() {
   }
 
   echo -n "$(timestamp) [openHABian] Beginning setup of nginx as reverse proxy with authentication... "
-  if (whiptail --title "nginx installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 9 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+  if (whiptail --title "nginx installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 9 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
   echo "$(timestamp) [openHABian] Configuring nginx authentication options... "
-  if openhab3_is_installed || (whiptail --title "Authentication Setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
+  if openhab3_is_installed || (whiptail --title "Authentication setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
     auth="true"
   fi
   if [[ "$auth" == "yes" ]]; then
-    if nginxUsername="$(whiptail --title "Authentication Setup" --inputbox "\\nEnter a username to sign into openHAB:" 9 80 openhab 3>&1 1>&2 2>&3)"; then
+    if nginxUsername="$(whiptail --title "Authentication setup" --inputbox "\\nEnter a username to sign into openHAB:" 9 80 openhab 3>&1 1>&2 2>&3)"; then
       while [[ -z $nginxPass ]]; do
-        if ! nginxPass1="$(whiptail --title "Authentication Setup" --passwordbox "\\nEnter a password for ${nginxUsername}:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-        if ! nginxPass2="$(whiptail --title "Authentication Setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+        if ! nginxPass1="$(whiptail --title "Authentication setup" --passwordbox "\\nEnter a password for ${nginxUsername}:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+        if ! nginxPass2="$(whiptail --title "Authentication setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
         if [[ $nginxPass1 == "$nginxPass2" ]] && [[ ${#nginxPass1} -ge 8 ]] && [[ ${#nginxPass2} -ge 8 ]]; then
           nginxPass="$nginxPass1"
         else
-          whiptail --title "Authentication Setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
+          whiptail --title "Authentication setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
         fi
       done
     else
@@ -503,7 +504,7 @@ nginx_setup() {
     fi
   fi
 
-  if (whiptail --title "Secure Certificate Setup" --yesno "Would you like to secure your openHAB interface with HTTPS?" 7 80); then secure="true"; echo "OK"; else echo "CANCELED"; return 0; fi
+  if (whiptail --title "Secure certificate setup" --yesno "Would you like to secure your openHAB interface with HTTPS?" 7 80); then secure="true"; echo "OK"; else echo "CANCELED"; return 0; fi
 
   if [[ $auth == "true" ]]; then
     authText="Authentication Enabled\\n- Username: ${nginxUsername}"
@@ -526,7 +527,7 @@ nginx_setup() {
   if ! pubIP="$(get_public_ip)"; then echo "FAILED (public ip)"; return 1; fi
 
   cond_echo "Configuring domain settings... "
-  if ! domain="$(whiptail --title "Domain Setup" --inputbox "$domainText" 10 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+  if ! domain="$(whiptail --title "Domain setup" --inputbox "$domainText" 10 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
 
   while [[ $validDomain == "false" ]] && [[ -n $domain ]] && [[ $domain != "IP" ]]; do
     cond_echo "Obtaining domain IP address... "
@@ -536,7 +537,7 @@ nginx_setup() {
       cond_echo "Public and domain IP address match."
     else
       cond_echo "Public and domain IP address mismatch!"
-      if ! domain=$(whiptail --title "Domain Setup" --inputbox "\\nDomain does not resolve to your public IP address. Please enter a valid domain.\\n\\n${domainText}" 14 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+      if ! domain=$(whiptail --title "Domain setup" --inputbox "\\nDomain does not resolve to your public IP address. Please enter a valid domain.\\n\\n${domainText}" 14 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
     fi
   done
 
@@ -599,7 +600,7 @@ nginx_setup() {
       mkdir -p /etc/ssl/certs
       certPath="/etc/ssl/certs/openhab.crt"
       keyPath="/etc/ssl/certs/openhab.key"
-      whiptail --title "openSSL Key Generation" --msgbox "openSSL is about to ask for information in the command line, please fill out each line." 8 80
+      whiptail --title "openSSL key generation" --msgbox "openSSL is about to ask for information in the command line, please fill out each line." 8 80
       if ! openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout "$keyPath" -out "$certPath"; then echo "FAILED (openSSL configuration)"; return 1; fi
     fi
     if ! uncomment "#CERT" /etc/nginx/sites-enabled/openhab; then return 1; fi
@@ -617,7 +618,7 @@ nginx_setup() {
   if ! nginx -t; then echo "FAILED (nginx configuration test)"; return 1; fi
   if ! cond_redirect systemctl restart nginx.service; then echo "FAILED (nginx restart)"; return 1; fi
 
-  whiptail --title "Operation Successful!" --msgbox "Setup successful. Please try entering ${protocol}://${domain} in a browser to test your settings." 8 80
+  whiptail --title "Operation successful" --msgbox "Setup successful. Please try entering ${protocol}://${domain} in a browser to test your settings." 8 80
 }
 
 ## Function for installing Telldus Core service for Tellstick USB devices.
@@ -632,7 +633,7 @@ telldus_core_setup() {
 
   echo -n "$(timestamp) [openHABian] Beginning setup of Telldus Core... "
   if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "Telldus Core installation?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 8 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if (whiptail --title "Telldus Core installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 8 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   else
     echo "OK"
   fi
@@ -682,6 +683,6 @@ telldus_core_setup() {
   if cond_redirect ln -sf /opt/tdtool-improved/tdtool-improved.py /usr/bin/tdtool-improved; then echo "OK"; else echo "FAILED (link)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation Successful!" --msgbox "$successText" 16 80
+    whiptail --title "Operation successful" --msgbox "$successText" 16 80
   fi
 }
