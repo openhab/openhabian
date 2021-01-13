@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck source=/etc/openhabian.conf disable=SC1091
+# shellcheck source=/etc/openhabian.conf disable=SC1091,SC2154
 
 ## Load, copy, or create a new configuration file for openHABian.
 ##

@@ -73,7 +73,8 @@ openhabian_console_check() {
 ##    store_in_conf(String parameter)
 ##
 store_in_conf() {
-  if [[ -z "$1" ]]; then return 0;
+  if [[ -z "$1" ]]; then return 0; fi
+  # shellcheck disable=SC2154
   sed -i "s|^${1}=.*$|$1=${!1}|g" "$configFile"
 } 
 
@@ -88,9 +89,10 @@ store_in_conf() {
 update_openhabian_conf() {
   local referenceConfig=/opt/openhabian/openhabian.conf.dist
 
-  cp $configFile ${configFile}.BAK
-  cp /dev/null $config
+  cp "$configFile" "${configFile}.BAK"
+  cp /dev/null "$configFile"
 
+  # shellcheck disable=SC2154
   while read -r line; do
     if [[ $line =~ ^# ]] || [[ -z "$line" ]]; then  # if line is a comment or empty
       echo "$line"
@@ -104,7 +106,7 @@ update_openhabian_conf() {
 	echo "$param=${!param}"
       fi
     fi
-  done > $config < $referenceConfig
+  done > "$config" < $referenceConfig
 }
 
 
