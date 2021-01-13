@@ -154,13 +154,13 @@ openHABian is designed as a headless system, you will not need a display or a ke
 -   [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
 -   Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/) or official [Raspberry Pi Imager](https://www.raspberrypi.org/software/), both able to directly work with *xz* files
 -   Insert the SD card into your Raspberry Pi, connect Ethernet ([WiFi also supported](#wifi-based-setup-notes)) and power on.
--   Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhabiandevice).)
+-   Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhabian).)
 -   Enjoy!
 
--   The device will be accessible by its IP or via the local DNS name `openhabiandevice` (or whatever you changed 'hostname' in `openhabian.conf` to)
--   Connect to the openHAB UI at [http://openhabiandevice:8080](http://openhabiandevice:8080)
+-   The device will be accessible by its IP or via the local DNS name `openhabian` (or whatever you changed 'hostname' in `openhabian.conf` to)
+-   Connect to the openHAB UI at [http://openhabian:8080](http://openhabian:8080)
 -   [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
--   Connect to the openHAB Log Viewer (frontail): [http://openhabiandevice:9001](http://openhabiandevice:9001)
+-   Connect to the openHAB Log Viewer (frontail): [http://openhabian:9001](http://openhabian:9001)
 -   If you encounter any setup problem, [please continue here](#successful)
 
 You can stop reading now, openHABian has installed and configured your openHAB system and you can start to use it right away.
@@ -345,7 +345,7 @@ Connecting will work without a password. Once connected, open your browser and p
 This may or may not work for your mobile browser as it requires Bonjour/ZeroConf abilities. If you cannot connect to this address, go to `http://10.41.0.1`.
 On that page you can select the SSID of the network you want to connect your system to. Provide the password and press the button.
 Note that as soon as you do, the wlan0 IP address changes so your mobile browser will not be able to provide you any feedback if that worked out.
-Try to ping the new system's hostname (default is `openHABianDevice`) or check DHCP on your router if your openHABian system appeared there.
+Try to ping the new system's hostname (default is `openhabian`) or check DHCP on your router if your openHABian system appeared there.
 For more information on this feature see [comitup-cli](https://davesteele.github.io/comitup/).
 You can use `sudo comitup-cli` inside openHABian to change networks and eventually remove network credentials.
 Note the hotspot may not only become available during installation: it will remain on standby and will show up again every time your `wlan0` interface is losing connectivity.
@@ -443,7 +443,7 @@ You'll also see commits "fly by" when executing the "Update" function within the
 Don't panic ;-)
 openHABian setup will take 15 up to 45 minutes to complete all steps, depending on your device's performance and a number of external factors such as your internet connection.
 
-Watch the progress on the console or the web interface at https://<yourip>/ or <http://openhabiandevice/> if that name has become available.
+Watch the progress on the console or the web interface at https://<yourip>/ or <http://openhabian/> if that name has become available.
 Double-check the IP address and name with your router while you wait.
 If there is absolutely no output for more than 10 minutes, your installation has failed in the first initialization phase. There probably is a problem
 with the way your router or local network are setup.
