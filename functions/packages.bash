@@ -530,7 +530,7 @@ nginx_setup() {
 
   while [[ $validDomain == "false" ]] && [[ -n $domain ]] && [[ $domain != "IP" ]]; do
     cond_echo "Obtaining domain IP address... "
-    if ! domainIP="$(get_public_ip $domain)"; then echo "FAILED (domain IP)"; return 1; fi
+    if ! domainIP="$(get_public_ip "$domain")"; then echo "FAILED (domain IP)"; return 1; fi
     if [[ "$pubIP" == "$domainIP" ]]; then
       validDomain="true"
       cond_echo "Public and domain IP address match."
