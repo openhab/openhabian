@@ -279,6 +279,7 @@ permissions_corrections() {
   local groups=("audio" "bluetooth" "dialout" "gpio" "tty")
   local openhabFolders=("/etc/openhab2" "/var/lib/openhab2" "/var/log/openhab2" "/usr/share/openhab2")
   local openhabHome="/var/lib/openhab2"
+  local retval=0
 
   echo -n "$(timestamp) [openHABian] Applying file permissions recommendations... "
   if ! openhab_is_installed; then
@@ -288,51 +289,51 @@ permissions_corrections() {
 
   for pGroup in "${groups[@]}"; do
     if grep -qs "^[[:space:]]*${pGroup}:" /etc/group; then
-      if ! cond_redirect usermod --append --groups "$pGroup" openhab ; then echo "FAILED (openhab ${pGroup})"; return 1; fi
-      if ! cond_redirect usermod --append --groups "$pGroup" "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} ${pGroup})"; return 1; fi
+      if ! cond_redirect usermod --append --groups "$pGroup" openhab ; then echo "FAILED (openhab ${pGroup})"; retval=1; fi
+      if ! cond_redirect usermod --append --groups "$pGroup" "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} ${pGroup})"; retval=1; fi
     fi
   done
-  if ! cond_redirect usermod --append --groups openhab "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} openhab)"; return 1; fi
+  if ! cond_redirect usermod --append --groups openhab "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} openhab)"; retval=1; fi
 
   cond_redirect chown --silent openhab:openhab /srv /opt
   cond_redirect chmod --silent ugo+w /srv
-  if ! cond_redirect chown --recursive openhab:openhab "${openhabFolders[@]}"; then echo "FAILED (openhab folders)"; return 1; fi
-  if ! cond_redirect chmod --recursive ug+wX /opt "${openhabFolders[@]}"; then echo "FAILED (folders)"; return 1; fi
+  if ! cond_redirect chown --recursive openhab:openhab "${openhabFolders[@]}"; then echo "FAILED (openhab folders)"; reval=1; fi
+  if ! cond_redirect chmod --recursive ug+wX /opt "${openhabFolders[@]}"; then echo "FAILED (folders)"; retval=1; fi
   if [[ -d "$openhabHome"/.ssh ]]; then
-    if ! cond_redirect chmod --recursive go-rwx "$openhabHome"/.ssh; then echo "FAILED (set .ssh access)"; return 1; fi
+    if ! cond_redirect chmod --recursive go-rwx "$openhabHome"/.ssh; then echo "FAILED (set .ssh access)"; retval=1; fi
   fi
 
-  if ! cond_redirect fix_permissions  "/home/${username:-openhabian}" "${username:-openhabian}:${username:-openhabian}"; then echo "FAILED (${username:-openhabian} chown $HOME)"; return 1; fi
+  if ! cond_redirect fix_permissions  "/home/${username:-openhabian}" "${username:-openhabian}:${username:-openhabian}"; then echo "FAILED (${username:-openhabian} chown $HOME)"; retval=1; fi
 
   if [[ -f /etc/mosquitto/mosquitto.conf ]]; then
-    if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 660 770; then echo "FAILED (mosquitto passwd permissions)"; return 1; fi
-    if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 664 775; then echo "FAILED (mosquitto log permissions)"; return 1; fi
-    if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 664 775; then echo "FAILED (mosquitto log permissions on ZRAM)"; return 1; fi
+    if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 660 770; then echo "FAILED (mosquitto passwd permissions)"; retval=1; fi
+    if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 664 775; then echo "FAILED (mosquitto log permissions)"; retval=1; fi
+    if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 664 775; then echo "FAILED (mosquitto log permissions on ZRAM)"; retval=1; fi
   fi
-  if ! cond_redirect setfacl --recursive --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access lists)"; return 1; fi
+  if ! cond_redirect setfacl --recursive --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access lists)"; retval=1; fi
   # not sure if still needed. Let's see if removing this causes any user issues
-  #if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; return 1; fi
-  #if ! cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "FAILED"; return 1; fi
+  #if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; retval=1; fi
+  #if ! cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "FAILED"; retval=1; fi
 
-  if cond_redirect fix_permissions /var/log/unattended-upgrades root:root 664 755; then echo "OK"; else echo "FAILED (unattended upgrades logdir)"; return 1; fi
-  if cond_redirect fix_permissions /var/log/samba root:root 660 770; then echo "OK"; else echo "FAILED (samba logdir)"; return 1; fi
-  if cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 660 770; then echo "OK"; else echo "FAILED (samba logdir on ZRAM)"; return 1; fi
+  if cond_redirect fix_permissions /var/log/unattended-upgrades root:root 664 755; then echo "OK"; else echo "FAILED (unattended upgrades logdir)"; retval=1; fi
+  if cond_redirect fix_permissions /var/log/samba root:root 660 770; then echo "OK"; else echo "FAILED (samba logdir)"; retval=1; fi
+  if cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 660 770; then echo "OK"; else echo "FAILED (samba logdir on ZRAM)"; retval=1; fi
 
-  if cond_redirect fix_permissions /opt/zram/persistence.bind "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (persistence)"; return 1; fi
+  if cond_redirect fix_permissions /opt/zram/persistence.bind "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (persistence)"; retval=1; fi
 
-  if cond_redirect fix_permissions /var/log/openhab "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (openhab log)"; return 1; fi
-  if cond_redirect fix_permissions /opt/zram/log.bind/openhab "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (openhab log on ZRAM)"; return 1; fi
+  if cond_redirect fix_permissions /var/log/openhab "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (openhab log)"; retval=1; fi
+  if cond_redirect fix_permissions /opt/zram/log.bind/openhab "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (openhab log on ZRAM)"; retval=1; fi
 
   if [[ -d /etc/homegear ]]; then
     echo -n "$(timestamp) [openHABian] Applying additional file permissions recommendations for Homegear... "
-    if ! cond_redirect chown --recursive root:root /etc/homegear; then echo "FAILED (chown)"; return 1; fi
-    if ! (find /etc/homegear -type d -print0 | xargs -0 chmod 755); then echo "FAILED (chmod directories)"; return 1; fi
-    if ! (find /etc/homegear -type f -print0 | xargs -0 chmod 644); then echo "FAILED (chmod files)"; return 1; fi
-    if ! (find /etc/homegear -name "*.key" -print0 | xargs -0 chmod 644); then echo "FAILED (chmod *.key)"; return 1; fi
-    if ! (find /etc/homegear -name "*.key" -print0 | xargs -0 chown homegear:homegear); then echo "FAILED (chown *.key)"; return 1; fi
-    if ! cond_redirect chown homegear:homegear /etc/homegear/rpcclients.conf; then echo "FAILED (chown rpcclients)"; return 1; fi
-    if ! cond_redirect chmod 400 /etc/homegear/rpcclients.conf; then echo "FAILED (chmod rpcclients)"; return 1; fi
-    if ! cond_redirect chown --recursive homegear:homegear /var/log/homegear; then echo "FAILED (chown logs)"; return 1; fi
+    if ! cond_redirect chown --recursive root:root /etc/homegear; then echo "FAILED (chown)"; retval=1; fi
+    if ! (find /etc/homegear -type d -print0 | xargs -0 chmod 755); then echo "FAILED (chmod directories)"; retval=1; fi
+    if ! (find /etc/homegear -type f -print0 | xargs -0 chmod 644); then echo "FAILED (chmod files)"; retval=1; fi
+    if ! (find /etc/homegear -name "*.key" -print0 | xargs -0 chmod 644); then echo "FAILED (chmod *.key)"; retval=1; fi
+    if ! (find /etc/homegear -name "*.key" -print0 | xargs -0 chown homegear:homegear); then echo "FAILED (chown *.key)"; retval=1; fi
+    if ! cond_redirect chown homegear:homegear /etc/homegear/rpcclients.conf; then echo "FAILED (chown rpcclients)"; retval=1; fi
+    if ! cond_redirect chmod 400 /etc/homegear/rpcclients.conf; then echo "FAILED (chmod rpcclients)"; retval=1; fi
+    if ! cond_redirect chown --recursive homegear:homegear /var/log/homegear; then echo "FAILED (chown logs)"; retval=1; fi
 
     # homeMatic/homegear controller HM-MOD-RPI-PCB uses GPIO 18 to reset HW
     if ! [[ -d ${gpioDir}/gpio18 ]]; then
@@ -340,10 +341,12 @@ permissions_corrections() {
       echo "out" > /sys/class/gpio/gpio18/direction
       echo "0" > /sys/class/gpio/gpio18/value
     else
-      if ! cond_redirect chgrp --silent --recursive gpio "${gpioDir}/gpio18"; then echo "FAILED (set GPIO 18 group)"; return 1; fi
-      if cond_redirect chmod g+rw --silent --recursive "${gpioDir}/gpio18"; then echo "OK"; else echo "FAILED (set GPIO 18 access)"; return 1; fi
+      if ! cond_redirect chgrp --silent --recursive gpio "${gpioDir}/gpio18"; then echo "FAILED (set GPIO 18 group)"; retval=1; fi
+      if cond_redirect chmod g+rw --silent --recursive "${gpioDir}/gpio18"; then echo "OK"; else echo "FAILED (set GPIO 18 access)"; retval=1; fi
     fi
   fi
+  
+  return $retval
 }
 
 ## Function for applying miscellaneous system settings.
