@@ -79,34 +79,33 @@ store_in_conf() {
 } 
 
 
-## Check against openhabian.conf for need to update parameters
+## Check openhabian.conf against openhabian.conf.dist for need to add parameters
 ## Add a parameter if it's missing or keep it if user provided.
 ## Cycling through openhabian.conf.dist will ensure all current and future params are checked for
-## Run on every start (to ensure params are *up to date* whenever the user changes branch or openhabian-config unattended is run)
+## Run on every start (to ensure params are up to date at any time)
 ##
 ##    update_openhabian_conf()
 ##
 update_openhabian_conf() {
+  local configFile=/etc/openhabian.conf
   local referenceConfig=/opt/openhabian/openhabian.conf.dist
 
-  cp "$configFile" "${configFile}.BAK"
-  cp /dev/null "$configFile"
-
-  # shellcheck disable=SC2154
+  cp $configFile ${configFile}.BAK
   while read -r line; do
-    if [[ $line =~ ^# ]] || [[ -z "$line" ]]; then  # if line is a comment or empty
-      echo "$line"
-    else                                            # not fully sure if anything else is a proper param setting but let's assume this
-      param=$(echo "$line" | cut -d'=' -f1)         # get parameter name first
-      if [[ -z ${!param+x} ]]; then                 # if $param is set (if so it is because it was sourced on start)
-        echo "$line"                                # take the param from the default config by printing the default .conf's full line
-      elif [[ ${!param} == *" "* ]]; then
-      	echo "$param=\"${!param}\""                 # else parameter is set i.e. a line setting it is present in $config so use its value
-      else
-	echo "$param=${!param}"
+    if [[ $line =~ ^[a-zA-Z] ]]; then         # if line is a comment or empty
+      param=$(echo "$line" | cut -d'=' -f1)   # get parameter name first
+      if ! [[ -v $param ]]; then              # if $param is set it was sourced on start i.e. exists in config
+        eval "$line"
       fi
+      if [[ ${!param} == *" "* ]]; then
+        echo "$param=\"${!param}\""           # if $param contains whitespaces print quotes, too
+      else
+        echo "$param=${!param}"
+      fi
+    else
+      echo "$line"
     fi
-  done > "$config" < $referenceConfig
+  done > $configFile < $referenceConfig
 }
 
 
