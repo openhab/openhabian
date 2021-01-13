@@ -271,8 +271,7 @@ amanda_setup() {
   fi
 
   local config
-  local backupUser
-  local adminMail
+  local backupUser="backup"
   local tapes
   local tapeSize
   local storageLoc
@@ -283,24 +282,13 @@ amanda_setup() {
   local backupPass
   local backupPass1
   local backupPass2
-  local eximText
-  local introText
-  local queryText
-  local successText
-
-  backupUser="backup"
-  eximText="It appears EXIM4 is not installed as a mail transfer agent.\\n\\nAmanda needs a MTA to be able to send emails. Only choose to ignore this if you know that there is a working MTA other than EXIM4 on your system.\\n\\nDo you want to continue with EXIM4 installation?"
-  queryText="You are about to install the Amanda backup solution.\\nDocumentation is available at '/opt/openhabian/docs/openhabian-amanda.md' or https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md\\nHave you read this document? If not, please do so now, as you will need to follow the instructions provided there in order to successfully complete installation of Amanda.\\n\\nProceeding will setup a backup mechanism to allow for saving your openHAB setup and modifications to either USB attached or Amazon cloud storage.\\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an pre-prepared replacement in case of card failures.\\n\\nWARNING: running this setup will overwrite any previous Amanda backup configurations.\\n\\nWould you like to begin setup?"
-  successText="Setup was successful.\\n\\nAmanda backup tool is now taking backups around 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
+  local queryText="You are about to install the Amanda backup solution.\\nDocumentation is available at '/opt/openhabian/docs/openhabian-amanda.md' or https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md\\nHave you read this document? If not, please do so now, as you will need to follow the instructions provided there in order to successfully complete installation of Amanda.\\n\\nProceeding will setup a backup mechanism to allow for saving your openHAB setup and modifications to either USB attached or Amazon cloud storage.\\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an pre-prepared replacement in case of card failures.\\n\\nWARNING: running this setup will overwrite any previous Amanda backup configurations.\\n\\nWould you like to begin setup?"
+  local successText="Setup was successful.\\n\\nAmanda backup tool is now taking backups around 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
 
   echo -n "$(timestamp) [openHABian] Beginning setup of the Amanda backup system... "
   if (whiptail --title "Amanda backup installation" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "$queryText" 24 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
   echo -n "$(timestamp) [openHABian] Configuring Amanda backup system prerequisites... "
-  adminMail="$(whiptail --title "Amanda backup reports" --inputbox "\\nEnter the eMail address to send backup reports to:" 9 80 ${adminmail:-root@${HOSTNAME}} 3>&1 1>&2 2>&3)"
-  if [[ -z $adminMail ]]; then
-    adminMail="root@${HOSTNAME}"
-  fi
   while [[ -z $backupPass ]]; do
     if ! backupPass1="$(whiptail --title "Authentication setup" --passwordbox "\\nEnter a password for ${backupUser}:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     if ! backupPass2="$(whiptail --title "Authentication setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
@@ -319,7 +307,7 @@ amanda_setup() {
     tapes="15"
     if ! tapeSize="$(whiptail --title "Storage capacity" --inputbox "\\nHow much storage do you want to dedicate to your backup in megabytes?\\n\\nRecommendation: 2-3 times the amount of data to be backed up." 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     ((tapeSize/=tapes))
-    if ! create_amanda_config "$config" "$backupUser" "$adminMail" "$tapes" "$tapeSize" "$storageLoc"; then return 1; fi
+    if ! create_amanda_config "$config" "$backupUser" "${adminmail:-root@${HOSTNAME}}" "$tapes" "$tapeSize" "$storageLoc"; then return 1; fi
     whiptail --title "Amanda config setup successful" --msgbox "$successText" 10 80
   fi
   if (whiptail --title "Backup using Amazon AWS" --yes-button "Yes" --no-button "No"  --defaultno --yesno "Would you like to setup a backup mechanism based on Amazon Web Services?\\n\\nYou can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. For hints see http://markelov.org/wiki/index.php?title=Backup_with_Amanda:_tape,_NAS,_Amazon_S3#Amazon_S3\\nPlease setup your S3 bucket on Amazon Web Services NOW if you have not done so. Remember the name has to be unique in AWS namespace." 14 90); then
@@ -331,7 +319,7 @@ amanda_setup() {
     tapes="15"
     if ! tapeSize="$(whiptail --title "Storage capacity" --inputbox "\\nHow much storage do you want to dedicate to your backup in megabytes?\\n\\nRecommendation: 2-3 times the amount of data to be backed up." 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     ((tapeSize/=tapes))
-    if ! create_amanda_config "$config" "$backupUser" "$adminMail" "$tapes" "$tapeSize" "AWS" "$awsSite" "$awsBucket" "$awsAccessKey" "$awsSecretKey"; then return 1; fi
+    if ! create_amanda_config "$config" "$backupUser" "${adminmail:-root@${HOSTNAME}}" "$tapes" "$tapeSize" "AWS" "$awsSite" "$awsBucket" "$awsAccessKey" "$awsSecretKey"; then return 1; fi
     whiptail --title "Amanda config setup successful" --msgbox "$successText" 10 80
   fi
 }
