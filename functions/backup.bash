@@ -380,7 +380,7 @@ mirror_SD() {
       if [[ "$destSize" -lt "$srcSize" ]]; then
         echo "FAILED (cannot duplicate internal SD card ${src}, it is larger than external ${dest})"
         if [[ -z "$INTERACTIVE" ]]; then return 1; fi
-        repartitionText="One or more of the selected destination partition(s) are smaller than their equivalents on the internal SD card so you cannot simply replicate that. The physical size is sufficient though.\\n\\nDo you want the destination ${dest} to be overwritten to match the partitions of theinternal SD card ?"
+        repartitionText="One or more of the selected destination partition(s) are smaller than their equivalents on the internal SD card so you cannot simply replicate that. The physical size is sufficient though.\\n\\nDo you want the destination ${dest} to be overwritten to match the partitions of the internal SD card ?"
         if ! (whiptail --title "Repartition $dest" --yes-button "Repartition" --no-button "Cancel" --yesno "$repartitionText" 12 116); then echo "CANCELED"; return 0; fi
       fi
       sfdisk -d /dev/mmcblk0 | sfdisk --force "$dest"
