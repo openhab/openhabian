@@ -95,17 +95,17 @@ get_public_ip() {
     localName1=$1
     localName2=$2
   fi
-  if ! pubIP="$(dig +short ${localName1} @resolver1.opendns.com | tail -1)"; then return 1; fi
+  if ! pubIP="$(dig +short "${localName1}" @resolver1.opendns.com | tail -1)"; then return 1; fi
   if [[ -z $pubIP ]]; then
-    if ! pubIP="$(dig -4 +short ${localName1} @resolver1.opendns.com | tail -1)"; then return 1; fi
+    if ! pubIP="$(dig -4 +short "${localName1}" @resolver1.opendns.com | tail -1)"; then return 1; fi
   fi
   if [[ -z $pubIP ]]; then
-    if ! pubIP="$(dig TXT +short ${localName2} @ns1.google.com)"; then return 1; fi
+    if ! pubIP="$(dig TXT +short "${localName2}" @ns1.google.com)"; then return 1; fi
     if [[ -z $pubIP ]]; then
-      if ! pubIP="$(dig -4 TXT +short ${localName2} @ns1.google.com)"; then return 1; fi
+      if ! pubIP="$(dig -4 TXT +short "${localName2}" @ns1.google.com)"; then return 1; fi
     fi
   fi
-  echo $pubIP | tr -dc '[0-9.]'
+  echo "$pubIP" | tr -dc '[0-9.]'
 }
 
 
