@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2119,SC2120
+# shellcheck disable=SC1117,SC2119,SC2120
 
 ## Install appropriate Java version based on current choice.
 ## Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
