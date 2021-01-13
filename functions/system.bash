@@ -306,18 +306,18 @@ permissions_corrections() {
   if ! cond_redirect fix_permissions  "/home/${username:-openhabian}" "${username:-openhabian}:${username:-openhabian}"; then echo "FAILED (${username:-openhabian} chown $HOME)"; retval=1; fi
 
   if [[ -f /etc/mosquitto/mosquitto.conf ]]; then
-    if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 660 770; then echo "FAILED (mosquitto passwd permissions)"; retval=1; fi
-    if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 664 775; then echo "FAILED (mosquitto log permissions)"; retval=1; fi
-    if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 664 775; then echo "FAILED (mosquitto log permissions on ZRAM)"; retval=1; fi
+    if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 640 750; then echo "FAILED (mosquitto passwd permissions)"; retval=1; fi
+    if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions)"; retval=1; fi
+    if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions on ZRAM)"; retval=1; fi
   fi
   if ! cond_redirect setfacl --recursive --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access lists)"; retval=1; fi
   # not sure if still needed. Let's see if removing this causes any user issues
   #if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; retval=1; fi
   #if ! cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "FAILED"; retval=1; fi
 
-  if cond_redirect fix_permissions /var/log/unattended-upgrades root:root 664 755; then echo "OK"; else echo "FAILED (unattended upgrades logdir)"; retval=1; fi
-  if cond_redirect fix_permissions /var/log/samba root:root 660 770; then echo "OK"; else echo "FAILED (samba logdir)"; retval=1; fi
-  if cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 660 770; then echo "OK"; else echo "FAILED (samba logdir on ZRAM)"; retval=1; fi
+  if cond_redirect fix_permissions /var/log/unattended-upgrades root:root 644 755; then echo "OK"; else echo "FAILED (unattended upgrades logdir)"; retval=1; fi
+  if cond_redirect fix_permissions /var/log/samba root:root 640 750; then echo "OK"; else echo "FAILED (samba logdir)"; retval=1; fi
+  if cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 640 750; then echo "OK"; else echo "FAILED (samba logdir on ZRAM)"; retval=1; fi
 
   if cond_redirect fix_permissions /opt/zram/persistence.bind "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (persistence)"; retval=1; fi
 
