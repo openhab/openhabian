@@ -19,6 +19,8 @@ configure_wifi() {
   local wifiNetworkList
   local wifiPassword
   local wifiSSID
+  local wifiDirPrefix=/etc/network/interfaces
+  local wifiInterfaceConfig=/etc/network/interfaces.d/wlan0.cfg
 
   disabledText="WiFi is currently disabled on your box.\\n\\nATTENTION:\\nWould you like to enable WiFi and continue setup?"
   enabledText="WiFi is currently enabled on your box.\\n\\nATTENTION:\\nWould you like to disable WiFi and use Ethernet?"
@@ -92,10 +94,10 @@ configure_wifi() {
     if cond_redirect sed -i -e 's|REGDOMAIN=.*$|REGDOMAIN='"${wifiCountry}"'|g' /etc/default/crda; then echo "OK"; else echo "FAILED (set country)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Configuring network... "
-    if grep -qs "wlan0" /etc/network/interfaces; then
-      cond_echo "\\nNot writing to '/etc/network/interfaces', wlan0 entry already available. You might need to check, adopt or remove these lines."
+    if grep -qs "wlan0" ${wifiDirPrefix}*/*; then
+      cond_echo "\\nNot writing to $wifiInterfaceConfig, wlan0 entry already available. You might need to check, adopt or remove these lines."
     else
-      echo -e "\\nallow-hotplug wlan0\\niface wlan0 inet manual\\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\\niface default inet dhcp" >> /etc/network/interfaces
+      echo -e "\\nallow-hotplug wlan0\\niface wlan0 inet manual\\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\\niface default inet dhcp" > $wifiInterfaceConfig
     fi
     if ! cond_redirect wpa_cli reconfigure; then echo "FAILED (reconfigure)"; return 1; fi
     if ! cond_redirect ip link set wlan0 down; then echo "FAILED (down)"; return 1; fi
@@ -106,7 +108,7 @@ configure_wifi() {
     if (whiptail --title "WiFi is currently enabled" --defaultno --yesno "$enabledText" 10 80); then
       cond_redirect enable_disable_wifi "disable"
       echo -n "$(timestamp) [openHABian] Cleaning up old WiFi configuration... "
-      if cond_redirect sed -i -e '/allow-hotplug wlan0/d; /iface wlan0 inet manual/d; /wpa-roam \/etc\/wpa_supplicant\/wpa_supplicant.conf/d; /iface default inet dhcp/d' /etc/network/interfaces; then echo "OK (will reboot now)"; else echo "FAILED"; return 1; fi
+      if cond_redirect sed -i -e '/allow-hotplug wlan0/d; /iface wlan0 inet manual/d; /wpa-roam \/etc\/wpa_supplicant\/wpa_supplicant.conf/d; /iface default inet dhcp/d' ${wifiDirPrefix}; then echo "OK (will reboot now)"; else echo "FAILED"; return 1; fi
       whiptail --title "Operation Successful!" --msgbox "Setup was successful. Please reboot now." 7 80
     else
       echo "CANCELED"
