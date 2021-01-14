@@ -89,7 +89,9 @@ if [[ -z $wifi_ssid ]]; then
     if [[ "$hotspot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
       echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
       setup_hotspot "install"
-      cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
+      cp /etc/network/interfaces /var/tmp
+      ls -la /etc/network/interfaces.d >> /var/tmp/interfaces
+      #cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
       cp "${BASEDIR:-/opt/openhabian}"/includes/wlan0.cfg ${wifiInterfaceConfig}
       echo "$(timestamp) [openHABian] hotspot software installed. Rebooting your system to make it take effect!"
       reboot
@@ -117,6 +119,8 @@ elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qs
     if [[ "$hotspot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
       echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
       setup_hotspot "install"
+      cp /etc/network/interfaces /var/tmp
+      ls -la /etc/network/interfaces.d >> /var/tmp/interfaces
       cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
       cp "${BASEDIR:-/opt/openhabian}"/includes/wlan0.cfg ${wifiInterfaceConfig}
       echo "$(timestamp) [openHABian] hotspot software installed. Rebooting your system to make it take effect!"
@@ -144,10 +148,10 @@ else
   sed -i 's|REGDOMAIN=.*$|REGDOMAIN='"${wifiCountry}"'|g' /etc/default/crda
 
   echo -n "$(timestamp) [openHABian] Configuring network... "
-  if grep -qs "wlan0" ${wifiDirPrefix}; then
-    cond_echo "\\nNot writing to ${wifiDirPrefix}, wlan0 entry already available. You might need to check, adopt or remove these lines."
+  if grep -qs "wlan0" ${wifiDirPrefix}*/*; then
+    cond_echo "\\nNot writing to ${wifiInterfaceConfig}, wlan0 entry already available. You might need to check, adopt or remove these lines."
   else
-    echo -e "\\nallow-hotplug wlan0\\niface wlan0 inet manual\\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\\niface default inet dhcp" >> ${wifiDirPrefix}
+    echo -e "\\nallow-hotplug wlan0\\niface wlan0 inet manual\\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\\niface default inet dhcp" >> ${wifiInterfaceConfig}
   fi
 
   if is_pi; then
