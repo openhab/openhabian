@@ -94,8 +94,7 @@ configure_wifi() {
     if cond_redirect sed -i -e 's|REGDOMAIN=.*$|REGDOMAIN='"${wifiCountry}"'|g' /etc/default/crda; then echo "OK"; else echo "FAILED (set country)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Configuring network... "
-    if grep -qs "wlan0" ${wifiDirPrefix}; then
-    #if grep -qs "wlan0" ${wifiDirPrefix}*/*; then
+    if grep -qs "wlan0" ${wifiDirPrefix}*/*; then
       cond_echo "\\nNot writing to $wifiInterfaceConfig, wlan0 entry already available. You might need to check, adopt or remove these lines."
     else
       echo -e "\\nallow-hotplug wlan0\\niface wlan0 inet manual\\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\\niface default inet dhcp" > $wifiInterfaceConfig
