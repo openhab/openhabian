@@ -6,9 +6,10 @@ Here's what you will need to enter:
 
 *   Mail server type: mail sent by smarthost (received via SMTP or fetchmail)
 *   System mail name: FQDN (your full hostname including the domain part)
-*   IPs that should be allowed by the server: 127.0.0.1; ::1; 192.168.xxx.yyy (replace with your hosts's IP)
+*   IPs that should be allowed by the server: 127.0.0.1; ::1; 192.168.1.100
+    (replace the last address with your openHABian server interface IP>)
 *   Other destinations for which mail is accepted: `<hostname> <hostname>.<domainname> <domainname>`
-*   Machines to relay mail for: Leave empty
+*   Machines to relay mail for: Leave empty or 192.168.xxx.0/24 (replace with your local network)
 *   IP address or host name of the outgoing smarthost: `smtp.gmail.com::587`
 *   Hide local mail name in outgoing mail: No
 *   Keep number of DNS-queries minimal: No
