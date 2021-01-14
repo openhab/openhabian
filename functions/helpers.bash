@@ -105,7 +105,7 @@ get_public_ip() {
       if ! pubIP="$(dig -4 TXT +short "${localName2}" @ns1.google.com)"; then return 1; fi
     fi
   fi
-  echo "$pubIP" | tr -dc '[0-9.]'
+  echo "$pubIP" | tr -dc '0-9.'
 }
 
 
