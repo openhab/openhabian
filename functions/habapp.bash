@@ -43,7 +43,7 @@ habapp_setup() {
 
   echo -n "$(timestamp) [openHABian] Creating HABApp configuration folder ... "
   if ! cond_redirect mkdir -p "$configFolder"; then echo "FAILED"; return 1; fi
-  if ! cond_redirect chown -R openhab:openhabian "$configFolder"; then echo "FAILED"; return 1; fi
+  if ! cond_redirect chown -R openhab:${username:-openhabian} "$configFolder"; then echo "FAILED"; return 1; fi
   if cond_redirect chmod -R 775 "$configFolder"; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up HABApp as a service ... "
