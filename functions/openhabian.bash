@@ -92,7 +92,7 @@ update_openhabian_conf() {
 
   cp $configFile ${configFile}.BAK
   while read -r line; do
-    if [[ $line =~ ^[a-zA-Z] ]]; then         # if line is a comment or empty
+      if [[ $line =~ ^[a-zA-Z] ]]; then       # if line is an (actively set) parameter
       param=$(echo "$line" | cut -d'=' -f1)   # get parameter name first
       if ! [[ -v $param ]]; then              # if $param is set it was sourced on start i.e. exists in config
         eval "$line"

@@ -58,7 +58,7 @@ update_config_java() {
       else
         echo "Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to Java Zulu 8 32-bit installation."
       fi
-      if ! cond_redirect sed -i -e 's|^java_opt.*$|java_opt=Zulu8-32|' "$configFile"; then return 1; fi
+      if ! cond_redirect sed -i -e 's|^java_opt.*$|java_opt=Zulu11-32|' "$configFile"; then return 1; fi
     fi
   else
     if ! cond_redirect sed -i -e 's|^java_opt.*$|java_opt='"${1}"'|' "$configFile"; then return 1; fi
