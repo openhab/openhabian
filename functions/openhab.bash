@@ -1,24 +1,23 @@
 #!/usr/bin/env bash
 
-## Generate systemd dependencies for ZRAM, Frontail and others to start together with OH2
-## This is done using /etc/systemd/system/openhab2.service.d/override.conf
+## Generate systemd dependencies for ZRAM, Frontail and others to start together with OH
+## This is done using /etc/systemd/system/openhab.service.d/override.conf
 ##
 ##    create_systemd_dependencies()
 ##
 create_systemd_dependencies() {
-  local targetDir="/etc/systemd/system/openhab2.service.d"
+  local targetDir="/etc/systemd/system/openhab.service.d"
 
   echo -n "$(timestamp) [openHABian] Creating dependencies to jointly start services that depend on each other... "
   if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare directory)"; return 1; fi
   if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean directory)"; return 1; fi
-  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/openhab2-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
+  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/openhab-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (reload configuration)"; return 1; fi
 }
 
-
 ## Function to quickly rename openHAB rules back and forth after two minutes to
 ## speed up startup of openHAB.
-## This is done using /etc/systemd/system/openhab2.service.d/override.conf
+## This is done using /etc/systemd/system/openhab.service.d/override.conf
 ## Valid arguments: "yes" or "no"
 ##
 ##    delayed_rules()
@@ -26,7 +25,7 @@ create_systemd_dependencies() {
 delayed_rules() {
   if ! openhab_is_installed; then return 0; fi
 
-  local targetDir="/etc/systemd/system/openhab2.service.d"
+  local targetDir="/etc/systemd/system/openhab.service.d"
 
   if [[ $1 == "yes" ]]; then
     echo -n "$(timestamp) [openHABian] Adding delay on loading openHAB rules... "
@@ -55,7 +54,7 @@ openhab_setup() {
   else
      ohPkgName="openhab2"
   fi
-                        
+
   if [[ $2 == "unstable" ]]; then
     introText="Proceed with caution!\\n\\nYou are about to switch over to the latest $1 unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
     successText="The latest unstable snapshot build of $1 is now running on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nIf you find any problems or bugs, please report them and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (using menu option 02) regularly."
@@ -91,7 +90,7 @@ openhab_setup() {
     rm -f /etc/apt/sources.list.d/${ohPkgName}*.list
     echo "$repo" > /etc/apt/sources.list.d/${ohPkgName}.list
 
-    echo -n "$(timestamp) [openHABian] Installing selected openHAB version... "
+    echo -n "$(timestamp) [openHABian] Installing selected $1 version... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     openhabVersion="$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)"
     if cond_redirect apt-get install --allow-downgrades --yes --option Dpkg::Options::="--force-confnew" "${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -118,7 +117,7 @@ openhab_setup() {
     delayed_rules "yes"
   fi
   dashboard_add_tile "openhabiandocs"
-  
+
   # see https://github.com/openhab/openhab-core/issues/1937
   if cond_redirect systemctl restart ${ohPkgName}.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
@@ -158,9 +157,9 @@ openhab_shell_interfaces() {
     sshPass="habopen"
   fi
 
-  if ! cond_redirect sed -i -e 's|^sshHost = 127.0.0.1.*$|sshHost = 0.0.0.0|g' /var/lib/openhab2/etc/org.apache.karaf.shell.cfg; then echo "FAILED (sshHost)"; return 1; fi
-  if cond_redirect sed -i -e 's|openhab = .*,|openhab = '"${sshPass}"',|g' /var/lib/openhab2/etc/users.properties; then echo "OK"; else echo "FAILED (sshPass)"; return 1; fi
-  cond_redirect systemctl restart openhab2.service
+  if ! cond_redirect sed -i -e 's|^sshHost = 127.0.0.1.*$|sshHost = 0.0.0.0|g' /var/lib/openhab/etc/org.apache.karaf.shell.cfg; then echo "FAILED (sshHost)"; return 1; fi
+  if cond_redirect sed -i -e 's|openhab = .*,|openhab = '"${sshPass}"',|g' /var/lib/openhab/etc/users.properties; then echo "OK"; else echo "FAILED (sshPass)"; return 1; fi
+  cond_redirect systemctl restart openhab.service
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation successful!" --msgbox "$successText" 15 80
@@ -231,7 +230,7 @@ openhab_is_installed() {
 ##    openhab_is_running()
 ##
 openhab_is_running() {
-  if openhab_is_installed && [[ $(systemctl is-active openhab2) == "active" ]]; then return 0; else return 1; fi
+  if openhab_is_installed && [[ $(systemctl is-active openhab) == "active" ]]; then return 0; else return 1; fi
 }
 
 ## Optimize openHAB Java for low memory SBC's and set HTTP/HTTPS ports
@@ -243,14 +242,14 @@ openhab_misc() {
 
   echo -n "$(timestamp) [openHABian] Optimizing openHAB to run on low memory single board computers... "
   if has_lowmem; then
-    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx320m"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting openHAB HTTP/HTTPS ports... "
-  if ! cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTP_PORT=.*$|OPENHAB_HTTP_PORT=8080|g' /etc/default/openhab2; then echo "FAILED"; return 1; fi
-  if cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTPS_PORT=.*$|OPENHAB_HTTPS_PORT=8443|g' /etc/default/openhab2; then echo "OK"; else echo "FAILED"; return 1; fi
+  if ! cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTP_PORT=.*$|OPENHAB_HTTP_PORT=8080|g' /etc/default/openhab; then echo "FAILED"; return 1; fi
+  if cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTPS_PORT=.*$|OPENHAB_HTTPS_PORT=8443|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Create a openHAB dashboard title and image for the input application.
@@ -261,22 +260,24 @@ openhab_misc() {
 dashboard_add_tile() {
   local application
   local dashboardConfig
+  local ipAddress
   local openhabConfig
   local tileDesc
   local tileImg
   local tileURL
 
   application="$1"
-  openhabConfig="/etc/openhab2"
-  dashboardConfig="${openhabConfig}/services/dashboard.cfg"
+  openhabConfig="/etc/openhab"
+  dashboardConfig="${openhabConfig}/services/runtime.cfg"
+  ipAddress="$(hostname -I)"
   tileDesc="$(grep "^[[:space:]]*tile_desc_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_desc_'"${application}"'=||g; s|"||g')"
   tileImg="$(grep "^[[:space:]]*tile_imagedata_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_imagedata_'"${application}"'=||g; s|"||g')"
-  tileURL="$(grep "^[[:space:]]*tile_url_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_url_'"${application}"'=||g; s|"||g')"
+  tileURL="$(grep "^[[:space:]]*tile_url_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_url_'"${application}"'=||g; s|"||g; s|{HOSTNAME}|'"${ipAddress// /}"'|g')"
 
   echo -n "$(timestamp) [openHABian] Adding an openHAB dashboard tile for '${application}'... "
 
   case $application in
-    grafana|frontail|nodered|find|find3|openhabiandocs)
+    grafana|frontail|nodered|find3|openhabiandocs)
       true ;;
     *)
       echo "FAILED (tile name not valid)"; return 1 ;;
@@ -286,10 +287,10 @@ dashboard_add_tile() {
     return 1
   fi
 
-  touch $dashboardConfig
-  if grep -qs "${application}.link" $dashboardConfig; then
+  touch "$dashboardConfig"
+  if grep -qs "${application}-link" "$dashboardConfig"; then
     echo -n "Replacing... "
-    cond_redirect sed -i -e '/^'"${application}"'.link.*$/d' $dashboardConfig
+    cond_redirect sed -i -e "/^${application}-link-*$/d" "$dashboardConfig"
   fi
 
   if [[ -z $tileDesc ]] || [[ -z $tileURL ]] || [[ -z $tileImg ]]; then
@@ -297,5 +298,5 @@ dashboard_add_tile() {
     return 1
   fi
 
-  if echo -e "\\n${application}.link-name=${tileDesc}\\n${application}.link-url=${tileURL}\\n${application}.link-imageurl=${tileImg}" >> $dashboardConfig; then echo "OK"; else echo "FAILED"; return 1; fi
+  if echo -e "\\norg.openhab.core.ui.tiles:${application}-link-name=${tileDesc}\\norg.openhab.core.ui.tiles:${application}-link-url=${tileURL}\\norg.openhab.core.ui.tiles:${application}-link-imageurl=${tileImg}" >> "$dashboardConfig"; then echo "OK"; else echo "FAILED"; return 1; fi
 }

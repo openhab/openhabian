@@ -165,7 +165,7 @@ influxdb_grafana_setup() {
       echo "password=${influxDBPasswordOH}"; \
       echo "db=${influxDBDatabaseName}"; \
       echo "retentionPolicy=autogen"
-    } > /etc/openhab2/services/influxdb.cfg
+    } > /etc/openhab/services/influxdb.cfg
     echo "OK"
   fi
 

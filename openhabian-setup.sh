@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2034
 
-# openHABian - hassle-free openHAB 2 installation and configuration tool
+# openHABian - hassle-free openHAB installation and configuration tool
 # for the Raspberry Pi and other Linux systems
 #
 # Documentation: https://www.openhab.org/docs/installation/openhabian.html
@@ -104,7 +104,7 @@ if [[ -n "$UNATTENDED" ]]; then
   vimrc_copy
   firemotd_setup
   java_install_or_update "${java_opt:-Zulu11-32}"
-  openhab_setup openHAB2 "stable"
+  openhab_setup "openHAB3" "stable"
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme

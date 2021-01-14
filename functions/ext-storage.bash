@@ -76,7 +76,7 @@ move_root2usb() {
   echo -n "$(timestamp) [openHABian] Preparing device '$newRootDev'... "
   if openhab_is_running; then
     cond_echo "\\nStopping openHAB"
-    if ! cond_redirect systemctl stop openhab2.service; then echo "FAILED (stop openHAB)"; return 1; fi
+    if ! cond_redirect systemctl stop openhab.service; then echo "FAILED (stop openHAB)"; return 1; fi
   fi
 
   cond_echo "\\nCleaning new root disk"

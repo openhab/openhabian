@@ -358,19 +358,19 @@ backup@pi:~$ amcheck openhab-dir
 
   NOTES:
     planner: Adding new disk pi:/dev/mmcblk0.
-    planner: Adding new disk pi:/etc/openhab2.
-    planner: Adding new disk pi:/var/lib/openhab2/persistence.
-    planner: Adding new disk pi:/var/lib/openhab2/zwave.
-    planner: WARNING: no history available for pi:/var/lib/openhab2/zwave; guessing that size will be 1000000 KB
-    planner: WARNING: no history available for pi:/var/lib/openhab2/persistence; guessing that size will be 1000000 KB
-    planner: WARNING: no history available for pi:/etc/openhab2; guessing that size will be 1000000 KB
+    planner: Adding new disk pi:/etc/openhab.
+    planner: Adding new disk pi:/var/lib/openhab/persistence.
+    planner: Adding new disk pi:/var/lib/openhab/zwave.
+    planner: WARNING: no history available for pi:/var/lib/openhab/zwave; guessing that size will be 1000000 KB
+    planner: WARNING: no history available for pi:/var/lib/openhab/persistence; guessing that size will be 1000000 KB
+    planner: WARNING: no history available for pi:/etc/openhab; guessing that size will be 1000000 KB
     taper: Slot 3 without label can be labeled
     taper: tape openhab-openhab-dir-001 kb 8141884 fm 4 [OK]
-    big estimate: pi /etc/openhab2 0
+    big estimate: pi /etc/openhab 0
                     est: 1000032k    out 259820k
-    big estimate: pi /var/lib/openhab2/persistence 0
+    big estimate: pi /var/lib/openhab/persistence 0
                     est: 1000032k    out 48720k
-    big estimate: pi /var/lib/openhab2/zwave 0
+    big estimate: pi /var/lib/openhab/zwave 0
                     est: 1000032k    out 1370k
 
 
@@ -379,9 +379,9 @@ backup@pi:~$ amcheck openhab-dir
   HOSTNAME     DISK                          L  ORIG-kB  OUT-kB  COMP%  MMM:SS   KB/s MMM:SS   KB/s
   -------------------------------------------- ----------------------- -------------- -------------
   pi           /dev/mmcblk0                  0 15645696 7831974   50.1   78:01 1673.2  77:59 1673.9  
-  pi           /etc/openhab2                 0   259820  259820     --    0:32 8077.0   0:34 7641.8
-  pi           /var/lib/openhab2/persistence 0    48720   48720     --    0:11 4501.6   0:13 3747.7
-  pi           /var/lib/openhab2/zwave       0     1370    1370     --    0:01 1156.1   0:01 1370.0
+  pi           /etc/openhab                 0   259820  259820     --    0:32 8077.0   0:34 7641.8
+  pi           /var/lib/openhab/persistence 0    48720   48720     --    0:11 4501.6   0:13 3747.7
+  pi           /var/lib/openhab/zwave       0     1370    1370     --    0:01 1156.1   0:01 1370.0
 
   (brought to you by Amanda version 3.3.6)
 ```
@@ -394,7 +394,7 @@ Depending on the type of storage medium, you eventually may need to locate which
 You can use the `amadmin` and eventually `amtape` commands to do this:
 
 ```
-[14:24:16] backup@openhabianpi:~$ amadmin openhab-dir find  openhabianpi /dev/mmcblk0 /var/lib/openhab2
+[14:24:16] backup@openhabianpi:~$ amadmin openhab-dir find  openhabianpi /dev/mmcblk0 /var/lib/openhab
 
 date                host         disk              lv storage     pool        tape or file    file part  status
 2019-12-06 01:00:02 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-005    5   1/1 OK
@@ -412,20 +412,20 @@ date                host         disk              lv storage     pool        ta
 2019-12-18 01:00:02 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-019    5   1/1 OK
 2019-12-19 01:00:02 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-006    5   1/1 OK
 2019-12-30 01:00:03 openhabianpi /dev/mmcblk0       0 openhab-dir openhab-dir openhab-dir-007    5   1/1 OK
-2019-12-06 01:00:02 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-005    1   1/1 OK
-2019-12-07 01:00:02 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-008    1   1/1 OK
-2019-12-08 01:00:02 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-009    1   1/1 OK
-2019-12-09 01:00:03 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-010    1   1/1 OK
-2019-12-10 01:00:06 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-011    1   1/1 OK
-2019-12-11 01:00:03 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-012    1   1/1 OK
-2019-12-12 01:00:04 openhabianpi /var/lib/openhab2  1 openhab-dir openhab-dir openhab-dir-013    2   1/1 OK
-2019-12-13 01:00:04 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-014    1   1/1 OK
-2019-12-14 01:00:03 openhabianpi /var/lib/openhab2  1 openhab-dir openhab-dir openhab-dir-015    2   1/1 OK
-2019-12-15 01:00:06 openhabianpi /var/lib/openhab2  1 openhab-dir openhab-dir openhab-dir-016    2   1/1 OK
-2019-12-17 01:00:03 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-018    1   1/1 OK
-2019-12-18 01:00:02 openhabianpi /var/lib/openhab2  1 openhab-dir openhab-dir openhab-dir-019    1   1/1 OK
-2019-12-19 01:00:02 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-006    1   1/1 OK
-2019-12-30 01:00:03 openhabianpi /var/lib/openhab2  0 openhab-dir openhab-dir openhab-dir-007    1   1/1 OK
+2019-12-06 01:00:02 openhabianpi /var/lib/openhab   0 openhab-dir openhab-dir openhab-dir-005    1   1/1 OK
+2019-12-07 01:00:02 openhabianpi /var/lib/openhab   0 openhab-dir openhab-dir openhab-dir-008    1   1/1 OK
+2019-12-08 01:00:02 openhabianpi /var/lib/openhab   0 openhab-dir openhab-dir openhab-dir-009    1   1/1 OK
+2019-12-09 01:00:03 openhabianpi /var/lib/openhab   0 openhab-dir openhab-dir openhab-dir-010    1   1/1 OK
+2019-12-10 01:00:06 openhabianpi /var/lib/openhab   0 openhab-dir openhab-dir openhab-dir-011    1   1/1 OK
+2019-12-11 01:00:03 openhabianpi /var/lib/openhab   0 openhab-dir openhab-dir openhab-dir-012    1   1/1 OK
+2019-12-12 01:00:04 openhabianpi /var/lib/openhab   1 openhab-dir openhab-dir openhab-dir-013    2   1/1 OK
+2019-12-13 01:00:04 openhabianpi /var/lib/openhab   0 openhab-dir openhab-dir openhab-dir-014    1   1/1 OK
+2019-12-14 01:00:03 openhabianpi /var/lib/openhab   1 openhab-dir openhab-dir openhab-dir-015    2   1/1 OK
+2019-12-15 01:00:06 openhabianpi /var/lib/openhab   1 openhab-dir openhab-dir openhab-dir-016    2   1/1 OK
+2019-12-17 01:00:03 openhabianpi /var/lib/openhab   0 openhab-dir openhab-dir openhab-dir-018    1   1/1 OK
+2019-12-18 01:00:02 openhabianpi /var/lib/openhab   1 openhab-dir openhab-dir openhab-dir-019    1   1/1 OK
+2019-12-19 01:00:02 openhabianpi /var/lib/openhab   0 openhab-dir openhab-dir openhab-dir-006    1   1/1 OK
+2019-12-30 01:00:03 openhabianpi /var/lib/openhab   0 openhab-dir openhab-dir openhab-dir-007    1   1/1 OK
 ```
 
 `amtape` can show which volume is in which slot:
@@ -591,7 +591,7 @@ Here's examples how to decode them:
 insgesamt 2196552
 -rw-rw----+ 1 backup backup      32768 Mär 29 09:29 00000.openhab-dir-007
 -rw-rw----+ 1 backup backup   16857088 Mär 29 09:29 00001.openhab._etc.0
--rw-rw----+ 1 backup backup  370219008 Mär 29 09:30 00002.openhab._var_lib_openhab2.0
+-rw-rw----+ 1 backup backup  370219008 Mär 29 09:30 00002.openhab._var_lib_openhab.0
 -rw-rw----+ 1 backup backup   22673408 Mär 29 09:30 00003.openhab._boot.0
 -rw-rw----+ 1 backup backup 1839450239 Mär 29 09:55 00004.openhab._dev_mmcblk0.0
 [18:13:29] root@openhabianpi:/volatile/backup/slots/slot7# head -14 *001*
