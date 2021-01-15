@@ -76,6 +76,8 @@ fi
 # While setup: show log to logged in user, will be overwritten by openhabian-setup.sh
 echo "watch cat /boot/first-boot.log" > "$HOME/.bash_profile"
 
+wifiDirPrefix=/etc/network/interfaces
+wifiInterfaceConfig=/etc/network/interfaces.d/wlan0.cfg
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 if [[ -z $wifi_ssid ]]; then
   # Actually check if ethernet is working
@@ -86,7 +88,8 @@ if [[ -z $wifi_ssid ]]; then
     if [[ "$hotspot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
       echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
       setup_hotspot "install"
-      cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
+#      cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
+      cp /etc/network/interfaces /var/tmp
       echo "$(timestamp) [openHABian] hotspot software installed. Rebooting your system to make it take effect!"
       reboot
     fi
@@ -113,7 +116,8 @@ elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qs
     if [[ "$hotspot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
       echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
       setup_hotspot "install"
-      cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
+      #cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
+      cp /etc/network/interfaces /boot
       echo "$(timestamp) [openHABian] hotspot software installed. Rebooting your system to make it take effect!"
       reboot
     fi
@@ -139,10 +143,10 @@ else
   sed -i 's|REGDOMAIN=.*$|REGDOMAIN='"${wifiCountry}"'|g' /etc/default/crda
 
   echo -n "$(timestamp) [openHABian] Configuring network... "
-  if grep -qs "wlan0" /etc/network/interfaces; then
-    cond_echo "\\nNot writing to '/etc/network/interfaces', wlan0 entry already available. You might need to check, adopt or remove these lines."
+  if grep -qs "wlan0" ${wifiDirPrefix}*/*; then
+    cond_echo "\\nNot writing to $wifiInterfaceConfig, wlan0 entry already available. You might need to check, adopt or remove these lines."
   else
-    echo -e "\\nallow-hotplug wlan0\\niface wlan0 inet manual\\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\\niface default inet dhcp" >> /etc/network/interfaces
+    echo -e "\\nallow-hotplug wlan0\\niface wlan0 inet manual\\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\\niface default inet dhcp" >> $wifiInterfaceConfig
   fi
 
   if is_pi; then
