@@ -92,15 +92,22 @@ update_openhabian_conf() {
 
   cp $configFile ${configFile}.BAK
   while read -r line; do
-      if [[ $line =~ ^[a-zA-Z] ]]; then       # if line is an (actively set) parameter
-      param=$(echo "$line" | cut -d'=' -f1)   # get parameter name first
-      if ! [[ -v $param ]]; then              # if $param is set it was sourced on start i.e. exists in config
-        eval "$line"
-      fi
-      if [[ ${!param} == *" "* ]]; then
-        echo "$param=\"${!param}\""           # if $param contains whitespaces print quotes, too
+    # remove optional leading '#'
+    # ensure comments start with '# '
+    if [[ $line =~ ^(#)?[a-zA-Z] ]]; then         # if line is a comment or empty
+      parsed=$line
+      if [[ $line =~ ^#[a-zA-Z] ]]; then parsed=${line:1}; fi
+
+      param=$(echo "$parsed" | cut -d'=' -f1)   # get parameter name first
+      if [[ -v $param ]]; then                # if $param is set it was sourced on start i.e. exists in config
+        if [[ ${!param} == *" "* ]]; then
+          echo "$param=\"${!param}\""           # if $param contains whitespaces print quotes, too
+        else
+          echo "$param=${!param}"
+        fi
       else
-        echo "$param=${!param}"
+        echo "$line"
+        eval "$parsed"
       fi
     else
       echo "$line"
