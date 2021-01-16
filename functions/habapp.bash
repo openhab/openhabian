@@ -10,6 +10,7 @@ habapp_setup() {
   local installFolder="/opt"
   local venvName="habapp"
   local configFolder="/etc/openhab/habapp"
+  local serviceFile=/etc/systemd/system/habapp.service
 
   if [[ $1 == "remove" ]]; then
     echo -n "$(timestamp) [openHABian] Removing HABApp service ... "
@@ -47,8 +48,8 @@ habapp_setup() {
   if cond_redirect chmod -R 775 "$configFolder"; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up HABApp as a service ... "
-  if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/habapp.service /etc/systemd/system/habapp.service; then echo "FAILED (copy service)"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! (sed -e 's|%USERNAME|'"${username}"'|g' "${BASEDIR:-/opt/openhabian}"/includes/habapp.service > ${serviceFile}); then echo "FAILED (install habapp service)"; return 1; fi
+
   if cond_redirect systemctl enable --now habapp.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
   
   if [[ -n "$INTERACTIVE" ]]; then
