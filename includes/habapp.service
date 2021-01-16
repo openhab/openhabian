@@ -6,7 +6,7 @@ After=openhab.service
 [Service]
 Type=simple
 User=openhab
-Group=openhabian
+Group=%USERNAME
 UMask=002
 ExecStart=/opt/habapp/bin/habapp -c /etc/openhab/habapp
 
