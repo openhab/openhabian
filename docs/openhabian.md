@@ -13,8 +13,8 @@ Jump to [install instructions](#raspberry-pi-prepackaged-sd-card-image). Please 
 :::
 
 # openHABian - Hassle-free openHAB Setup
-The Raspberry Pi and other small single-board computers are quite famous platforms for openHAB.
-However, setting up a fully working Linux system with all recommended packages and openHAB recommendations is a **boring task**, takes a lot of time and **Linux newcomers** shouldn't need to worry about technical details like these.
+The Raspberry Pi is quite a famous platform for openHAB.
+However, setting up a fully working Linux system with all recommended packages and openHAB recommendations is a **boring task**, takes a lot of time and **Linux newcomers** are challenged in a number of ways although all they want is to run openHAB amd not some server.
 
 <p style="text-align: center; font-size: 1.2em; font-style: italic;"><q>A home automation enthusiast doesn't have to be a Linux enthusiast!</q></p>
 
@@ -438,9 +438,9 @@ You'll also see commits "fly by" when executing the "Update" function within the
 <a id="successful"></a>
 ### Did my Installation succeed? What to do in case of a problem?
 Don't panic ;-)
-openHABian setup will take 15 up to 45 minutes to complete all steps, depending on your device's performance and a number of external factors such as your internet connection.
+openHABian setup will take 15 up to 45 minutes to complete all steps, depending on your device's performance and your internet connection.
 
-Watch the progress on the console or the web interface at https://<yourip>/ or <http://openhabian/> if that name has become available.
+Watch the progress on the console or the web interface at https://\<your IP\>/ or <http://openhabian/> if that name has become available.
 Double-check the IP address and name with your router while you wait.
 If there is absolutely no output for more than 10 minutes, your installation has failed in the first initialization phase. There probably is a problem
 with the way your router or local network are setup.
