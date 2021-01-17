@@ -18,7 +18,7 @@ However, setting up a fully working Linux system with all recommended packages a
 
 <p style="text-align: center; font-size: 1.2em; font-style: italic;"><q>A home automation enthusiast doesn't have to be a Linux enthusiast!</q></p>
 
-openHABian aims to provide a **self-configuring** Linux system setup specific to the needs of every openHAB user.
+openHABian is a **self-configuring** Linux system setup to meet the needs of every openHAB user.
 It provides:
 
 *   complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of SBCs 
