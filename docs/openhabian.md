@@ -9,7 +9,7 @@ source: https://github.com/openhab/openhabian/blob/master/docs/openhabian.md
 <!-- Attention authors: Do not edit directly. Please add your changes to the source repository -->
 
 ::: tip [TLDR](https://www.howtogeek.com/435266/what-does-tldr-mean-and-how-do-you-use-it/)
-Jump to [install instructions](#raspberry-pi-prepackaged-sd-card-image). But read the full docs before you ask for help !
+Jump to [install instructions](#raspberry-pi-prepackaged-sd-card-image). Please read the _full_ docs before you ask for help.
 :::
 
 # openHABian - Hassle-free openHAB Setup
