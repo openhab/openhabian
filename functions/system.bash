@@ -56,6 +56,8 @@ needed_packages() {
   then echo "OK"; else echo "FAILED"; return 1; fi
 
   if is_pizerow || is_pithree || is_pithreeplus || is_pifour && [[ -z $PREOFFLINE ]]; then
+    echo -n "$(timestamp) [openHABian] Installing pigpio package... "
+    if cond_redirect apt-get install --yes pigpio; then echo "OK"; else echo "FAILED"; return 1; fi
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
     # phython3-bluez is not available in stretch so only add it if we are running on buster or later
     if ! is_stretch; then
