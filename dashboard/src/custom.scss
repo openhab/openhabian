@@ -1,0 +1,315 @@
+@import "../node_modules/@patternfly/patternfly/components/Backdrop/backdrop.css";
+@import "../node_modules/@patternfly/patternfly/layouts/Bullseye/bullseye.css";
+@import "../node_modules/@patternfly/patternfly/components/ModalBox/modal-box.css";
+
+#console-logs * {
+  all: initial;
+}
+
+.color-blue {
+  color: blue;
+}
+
+.color-orange {
+  color: orange;
+}
+
+.color-red {
+  color: red;
+}
+
+.display-block {
+    display: block;
+  }
+  
+  .display-none {
+    display: none;
+  }
+
+  .display-flex {
+    display: flex;
+  }
+  .display-flex-justify-space-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .display-flex-center {
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .display-max {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1050;
+    display: block;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+    outline: 0;
+}
+
+  .flex-direction-row {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .flex-direction-column {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .padding-top {
+    padding-top: 0.5rem;
+  }
+
+  .padding-vertical {
+    padding-top: 0.5rem;
+    padding-top: 0.5rem;
+  }
+  .dropdown {
+    margin-left: 0.5rem;
+  }
+
+  .success-icon {
+    color: green;
+    padding: 0.5rem;
+  }
+
+  .failure-icon {
+    color: red;
+    padding: 0.5rem;
+  }
+
+  .info-icon {
+    color: black;
+    padding: 0.5rem;
+  }
+
+  .warn-icon {
+    color: orange;
+    padding: 0.5rem;
+  }
+
+  .error-icon {
+    color: red;
+    padding: 0.5rem;
+  }
+
+  .dropdown-button {
+    padding-right: 0.5rem;
+    border: none;
+    outline: none;
+    color: var(--pf-c-button--m-primary--Color);
+    background-color: var(--pf-c-button--m-primary--BackgroundColor);
+
+  }
+
+  .dropdown-icon {
+    border: none;
+    outline: none;
+    margin-right: -0.5rem;
+    color: var(--pf-c-button--m-primary--Color);
+    background-color: var(--pf-c-button--m-primary--BackgroundColor);
+  }
+
+  .dropdown-body {
+    position: absolute;
+    top: var(--pf-c-dropdown__menu--Top);
+    z-index: var(--pf-c-dropdown__menu--ZIndex);
+    min-width: 100%;
+    padding-top: var(--pf-c-dropdown__menu--PaddingTop);
+    padding-bottom: var(--pf-c-dropdown__menu--PaddingBottom);
+    background: #ffffff;
+    background-clip: padding-box;
+    border: var(--pf-c-dropdown__menu--BorderWidth) solid transparent;
+    box-shadow: var(--pf-c-dropdown__menu--BoxShadow);
+    border-left: 3px;
+    border-right: 3px;
+    border-bottom: 3px;
+    border-color: var(--pf-c-button--m-primary--BackgroundColor);
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+  }
+
+  .dropdown-item{
+    margin-left: 0.5rem;
+  }
+
+  .width-max {
+    width: 100%;
+  }
+
+  .background-white {
+    background: #ffffff;
+  }
+
+  .radio-item {
+    padding-top: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  .div-full-center {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+  }
+
+  .logViewer-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1040;
+    background-color:  #000;
+    opacity: 0.5;
+  }
+
+  .logViewer-content {    
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 1040;
+    background-color:  #fff;
+    overflow-y: hidden;
+    opacity: 1;
+
+  }
+
+  .search-box {
+    min-width: 300px;
+    max-width: 400px;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .search-box-small {
+    min-width: 210px;
+    max-width: 300px;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .close-button {
+    margin-left: 1rem;
+    margin-right:  -1rem;;
+
+  }
+
+  .console-text {
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: #b8b9ba;
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-break: break-word       /* Internet Explorer 5.5+ */
+  }
+
+  .console-logs {
+    width: 100%;
+    height: 92%;
+    overflow-y:auto;
+    padding: 0.5rem;
+    padding-bottom: 0rem;
+    border-radius: 0.25rem;
+    background-color: #b8b9ba;
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    word-break: break-word       /* Internet Explorer 5.5+ */
+  } 
+
+  .console-log-pre {
+    
+    background-color: #b8b9ba;
+    overflow-y:auto;
+    white-space: pre-wrap;       /* Since CSS 2.1 */
+    word-break: break-word       /* Internet Explorer 5.5+ */
+  } 
+
+  .console-logs-bg {
+    width: 100%;
+    height: 100%;
+    background-color: #b8b9ba;
+  } 
+
+  .justify-content-space-between {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .disable-modalClose {
+    display: block;
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    top:0;
+    left:0;
+    z-index: 2040;
+    opacity: 0;
+  }
+
+  .modal-container {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 1050;
+    display: block;
+    overflow: hidden;
+    -webkit-overflow-scrolling: touch;
+    outline: 0;
+}
+
+.action-list {
+  position: fixed;
+  margin-top: -0.45rem;
+}
+
+.table-body {
+  display: block;
+  min-height: 185px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.table-head {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+.table {
+  display: block;
+  max-height: 300px;
+  overflow-y: hidden;
+}
+
+.table-row {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.notification-message {
+  font-size: var(--pf-global--FontSize--lg);
+  font-size: var(--pf-global--FontSize--xl);
+  line-height: var(--pf-global--LineHeight--sm);
+  font-family: var(--pf-global--FontFamily--redhatfont--heading--sans-serif);
+  font-size: 100%;
+  font-weight: var(--pf-global--FontWeight--normal);
+  white-space: pre-wrap;
+}
