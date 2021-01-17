@@ -144,26 +144,23 @@ On x86 hardware, 64 bit is the standard.
 ## Raspberry Pi prepackaged SD card image
 **Flash, plug, wait, enjoy:**
 The provided image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit) (previously called Raspbian) standard system.
-On first boot, the system will set up openHAB and the mentioned settings and tools.
-All packages will be downloaded in their newest version and configured to work without further modifications.
-The whole process will take a few minutes, then openHAB and all other needed tools to get started will be ready to use without further configuration steps.
 openHABian is designed as a headless system, you will not need a display or a keyboard.
+On first boot, the system will set up openHAB, its tools and settings. Packages will be downloaded in their newest version and configured.
+The whole process will take a few minutes, then openHAB and all other tools needed to get started will be ready to use without further configuration steps.
 
 **Setup:**
 
 -   [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is *xz* compressed)
 -   Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/) or official [Raspberry Pi Imager](https://www.raspberrypi.org/software/), both able to directly work with *xz* files
--   Insert the SD card into your Raspberry Pi, connect Ethernet ([WiFi also supported](#wifi-based-setup-notes)) and power on.
--   Wait approximately **15-45 minutes** for openHABian to do its magic. <br>(You can check the progress in your web-browser [here](http://openhabian).)
--   Enjoy!
-
--   The device will be accessible by its IP or via the local DNS name `openhabian` (or whatever you changed 'hostname' in `openhabian.conf` to)
+-   Insert the SD card into your Raspberry Pi, connect your Ethernet cable - [WiFi is also supported](#wifi-based-setup-notes) - and power on.
+-   Wait approximately **15-45 minutes** for openHABian to do its magic. <br>You can watch the install progress from within your browser.
+-   The system will be accessible by its IP or via the local DNS name `openhabian` (or whatever you changed 'hostname' in `openhabian.conf` to)
 -   Connect to the openHAB UI at [http://openhabian:8080](http://openhabian:8080)
--   [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally) with username `openhabian` and password `openhabian`
+-   [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
 -   Connect to the openHAB Log Viewer (frontail): [http://openhabian:9001](http://openhabian:9001)
 -   If you encounter any setup problem, [please continue here](#successful)
 
-You can stop reading now, openHABian has installed and configured your openHAB system and you can start to use it right away.
+You can stop reading for the time being, openHABian has installed and configured your openHAB system and you can start to use it right away.
 If you want to get in touch with the system or want to install one of the previously mentioned optional features, come back here later.
 
 Ready for more?
