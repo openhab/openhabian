@@ -1,0 +1,13 @@
+{
+    "version": "0.1",
+    "requires": {
+        "cockpit": "137"
+    },
+
+    "dashboard": {
+        "index": {
+            "label": "openHABian"
+        }
+    },
+    "content-security-policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval'"
+}

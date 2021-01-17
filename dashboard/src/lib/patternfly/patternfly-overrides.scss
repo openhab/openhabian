@@ -1,0 +1,765 @@
+// Global Cockpit overrides for PatternFly variables
+
+$font-family-base: "RedHatText", "Open Sans", Helvetica, Arial, sans-serif;
+$font-family-mono: SFMono-Regular, menlo, monaco, consolas, "Liberation Mono", Courier New, monospace;
+
+// Resize headings
+h1, h2, h3, h4, h5, h6 {
+  line-height: var(--pf-global--LineHeight--sm);
+  font-family: var(--pf-global--FontFamily--redhatfont--heading--sans-serif);
+
+  .breadcrumb + & {
+    // Vertically align contents of headings directly following breadcrumbs
+    display: flex;
+    align-items: baseline;
+  }
+}
+
+h1 {
+  font-size: var(--pf-global--FontSize--4xl);
+}
+
+h2 {
+  font-size: var(--pf-global--FontSize--3xl);
+}
+
+h3 {
+  font-size: var(--pf-global--FontSize--2xl);
+}
+
+h4 {
+  font-size: var(--pf-global--FontSize--xl);
+}
+
+h4 {
+  font-size: var(--pf-global--FontSize--lg);
+}
+
+// Restyle inputs & dropdowns
+.input-group-addon,
+.bootstrap-select.btn-group .btn,
+.content-header-extra .dropdown-toggle,
+.dropdown-toggle,
+.form-control:not(.ct-select):not(.rbt-input):not(select) {
+  background-image: none !important;
+}
+
+.input-group-addon,
+.bootstrap-select.btn-group .btn,
+.content-header-extra .dropdown-toggle,
+.dropdown-toggle,
+.form-control:not(.ct-select) {
+  border-radius: 3px;
+  border-color: var(--pf-global--BorderColor--300);
+  border-bottom-color: var(--pf-global--Color--200);
+  color: var(--pf-global--Color--100);
+  box-shadow: none !important;
+  min-height: 2.25rem;
+
+  &:not(.bootstrap-select):not(.dropdown-form-control) {
+    padding: 1px 0.5rem;
+  }
+
+  .fa-caret-down {
+    align-self: center;
+
+    &::before {
+      content: "\f0d7";
+    }
+  }
+
+  &::placeholder {
+    color: var(--pf-global--Color--dark-200);
+    font-style: normal;
+  }
+
+  &:active, &:focus, &:hover {
+    border-color: var(--pf-global--BorderColor--300);
+    border-bottom-color: var(--pf-global--primary-color--100);
+    color: var(--pf-global--Color--100);
+  }
+
+  &:focus {
+    // Take 1px from the padding and add it to the border
+    padding-bottom: 0;
+    border-bottom-width: 2px;
+  }
+
+  &[aria-disabled=true],
+  &:disabled {
+    background-color: var(--pf-global--disabled-color--300);
+    border-color: var(--pf-global--disabled-color--300);
+    color: var(--pf-global--disabled-color--100);
+    cursor: not-allowed;
+  }
+
+  .has-error &,
+  &.has-error {
+    position: relative;
+
+    &, &:hover, &:focus {
+      border-color: var(--pf-global--BorderColor--300);
+      border-bottom: 2px solid var(--pf-global--danger-color--100);
+    }
+  }
+}
+
+// Truncate text in Cockpit/PF3 dropdowns (when necessary)
+.dropdown-toggle > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Fix split dropdowns
+.input-group:not(.combobox-with-reset){
+  display: inline-flex;
+
+  .combobox-container & {
+    width: 100%;
+  }
+
+  > .form-control {
+    display: flex;
+    flex: auto;
+  }
+
+  > .input-group-addon,
+  > .dropdown,
+  > .dropdown-toggle {
+    display: flex;
+    width: auto;
+    align-items: stretch;
+  }
+
+  > .input-group-btn {
+    width: auto;
+
+    > .btn {
+      min-width: 2.5rem;
+    }
+  }
+}
+
+// Select dropdowns in Composer & typeahead find
+.rbt-input.form-control,
+select.form-control {
+  --dropdown-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='8'%3E%3Cpath fill='%23151515' d='M18.804 1h8.392c.58 0 .87.701.46 1.112L23.46 6.31a.653.653 0 0 1-.922 0l-4.194-4.197A.651.651 0 0 1 18.805 1z'/%3E%3C/svg%3E");
+  --dropdown-background: var(--pf-global--BackgroundColor--100);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background: var(--dropdown-image) no-repeat 100% 50%, var(--dropdown-background) !important;
+  padding-right: 2.5em !important;
+}
+
+// Adjust dropdown menus
+.dropdown-menu {
+  > li {
+    padding: 0;
+
+    > a {
+      padding: 0.5rem 1rem;
+    }
+
+    &:not(.disabled) > a {
+      color: var(--pf-global--Color--100);
+
+      &:active,
+      &:focus,
+      &:hover {
+        background-color: var(--pf-global--BackgroundColor--light-300);
+        border-color: var(--pf-global--BackgroundColor--light-300);
+      }
+
+    }
+
+    &.active > a,
+    > a:active {
+      // PF3 reverts the active color with an !important
+      // so we also use an !important here to override it
+      color: var(--pf-global--Color--100) !important;
+    }
+
+    &.active > a {
+      // PF3 also modifies these colors with an !important
+      &,
+      &:active,
+      &:focus,
+      &:hover {
+        color: var(--pf-global--Color--100) !important;
+        background-color: var(--pf-global--BackgroundColor--light-300) !important;
+        border-color: var(--pf-global--BackgroundColor--light-300) !important;
+      }
+    }
+
+    &.selected > a {
+      color: var(--pf-global--Color--100);
+      background-color: var(--pf-global--BackgroundColor--light-300);
+      border-color: var(--pf-global--BackgroundColor--light-300);
+    }
+  }
+
+  // Stretch dropdown menus to at least the width of the dropdown
+  .dropdown > & {
+    min-width: 100%;
+  }
+}
+
+// Restyle buttons
+.pagination a[role=button],
+.btn {
+  padding: 0.375rem 1rem;
+  transition: background 0.3s, border 0.3s, color 0.3s;
+
+  &:not(.dropdown-toggle):not(.dropdown):not(.bootstrap-select):not(.ct-select) {
+    background-image: none !important;
+    border-radius: 3px;
+
+    &:not(:active):not(:focus):not(:hover) {
+      box-shadow: none !important;
+    }
+
+    &:not(:disabled):not([aria-disabled=true]):not(.btn-link) {
+      &:not(.btn-primary):not(.btn-success):not(.btn-info):not(.btn-warning):not(.btn-danger) {
+        &:active, &:focus, &:hover {
+          border-color: var(--pf-global--primary-color--100);
+          box-shadow: inset 0 0 0 1px var(--pf-global--primary-color--100);
+        }
+      }
+    }
+
+    &.btn-primary {
+      &:active, &:focus, &:hover {
+        background-color: var(--pf-global--primary-color--200);
+        border-color: var(--pf-global--primary-color--200);
+      }
+    }
+    &.btn-success {
+      &:active, &:focus, &:hover {
+        background-color: var(--pf-global--success-color--200);
+        border-color: var(--pf-global--success-color--200);
+      }
+    }
+    &.btn-info {
+      &:active, &:focus, &:hover {
+        background-color: var(--pf-global--info-color--200);
+        border-color: var(--pf-global--info-color--200);
+      }
+    }
+    &.btn-warning {
+      &:active, &:focus, &:hover {
+        background-color: var(--pf-global--warning-color--200);
+        border-color: var(--pf-global--warning-color--200);
+      }
+    }
+    &.btn-danger {
+      &:active, &:focus, &:hover {
+        background-color: var(--pf-global--danger-color--200);
+        border-color: var(--pf-global--danger-color--200);
+      }
+    }
+
+    &[aria-disabled=true],
+    &.disabled,
+    &:disabled {
+      &:not(.btn-link):not(a) {
+        &, &:hover {
+          background-color: var(--pf-global--disabled-color--200) !important;
+          border-color: var(--pf-global--disabled-color--200) !important;
+          color: var(--pf-global--disabled-color--100) !important;
+          cursor: default;
+
+          // Backgrounds are a bit too visually weighty in button groups
+          .btn-group > & {
+            background-color: var(--pf-global--disabled-color--300) !important;
+          }
+        }
+      }
+    }
+  }
+
+  @at-root .btn {
+    &-primary,
+    &-success,
+    &-info,
+    &-warning,
+    &-danger {
+      &:active, &:focus, &:hover {
+        box-shadow: none !important;
+      }
+    }
+  }
+
+  // Shrink embedded buttons
+  .ct-form &,
+  .content-filter &,
+  .listing-ct-head &,
+  .listing-ct-body &,
+  .listing-ct-item &,
+  .action &,
+  .panel-heading &,
+  .panel tr & {
+    padding: 0.125rem 0.5rem;
+  }
+
+  // Restyle button dropdowns to have button borders
+  .btn-group > & + .dropdown-toggle {
+    border-color: var(--pf-global--primary-color--100);
+
+    &:hover, &:focus {
+      border-width: 1px;
+    }
+  }
+
+  // Center-align icon buttons
+  &.pficon,
+  &.fa {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Fix up panel action buttons
+  .panel-actions & {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+  }
+}
+
+// Unround touching corners in button and input groups
+.btn-group,
+.input-group {
+  > :not(:first-of-type) {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+  }
+
+  > :not(:last-of-type) {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+  }
+}
+
+// Adjust height of inline edit buttons
+.form-control-pf-editable > button {
+  max-height: 100%;
+}
+
+// Pagination buttons
+.pagination {
+  ul, li {
+    margin: 0;
+    padding: 0;
+  }
+
+  li {
+    display: flex;
+  }
+
+  a[role=button] {
+    display: flex;
+    height: 2.25rem;
+    align-items: center;
+
+    &[aria-disabled=true],
+    &:disabled {
+      // Backgrounds are a bit too visually weighty in pagination
+      background-color: var(--pf-global--disabled-color--300) !important;
+    }
+  }
+}
+
+// Kebab menu buttons should get special treatment
+.dropdown-kebab-pf > button {
+  border: none;
+  padding: 0.5rem 1rem !important;
+}
+
+// Restyle modals
+.modal {
+  &-header {
+    background: var(--pf-global--BackgroundColor--100);
+    padding: 0 0 1.5rem;
+  }
+
+  &-title {
+    font-size: 1.5rem;
+    font-weight: var(--pf-global--FontWeight--normal);
+    line-height: 1.3;
+  }
+
+  &-content {
+    padding: 2rem;
+  }
+
+  &-footer {
+    > .pf-c-button:not(:last-child) {
+        --pf-c-modal-box__footer--c-button--MarginRight: var(--pf-global--spacer--md);
+        margin-right: calc(var(--pf-c-modal-box__footer--c-button--MarginRight) / 2);
+    }
+    --pf-c-modal-box__footer--MarginTop: var(--pf-global--spacer--xl);
+    margin-top: var(--pf-c-modal-box__footer--MarginTop);
+    text-align: unset;
+    padding: 0;
+
+    > .pf-c-button:first-of-type {
+        --pf-c-modal-box__footer__c-button--first-of-type--MarginLeft: 0;
+        margin-left: var(--pf-c-modal-box__footer__c-button--first-of-type--MarginLeft);
+    }
+  }
+
+  &-body {
+    padding: 0;
+  }
+}
+
+// Adjust list group font sizes
+.list-group {
+  font-size: var(--pf-global--FontSize--sm);
+
+  &-item {
+    .dialog-list-ct > &.active {
+      background-color: var(--pf-global--active-color--100);
+      color: var(--pf-global--Color--light-100);
+    }
+
+    > p {
+      font-size: var(--pf-global--FontSize--md);
+    }
+  }
+
+  // Navigation should be standard size
+  nav > & {
+    font-size: var(--pf-global--FontSize--md);
+  }
+
+}
+
+// Adjust list views
+.list-view-pf {
+  .list-group-item-heading {
+      font-size: var(--pf-global--FontSize--md);
+      font-weight: 600;
+  }
+}
+
+// Standardize small font size to PF4 small font
+small {
+  font-size: var(--pf-global--FontSize--sm);
+}
+
+// Bump content away from cards
+.content,
+.page-ct,
+.container,
+.container-fluid {
+  --container-padding-x: var(--pf-global--spacer--md);
+  --container-padding-y: var(--pf-global--spacer--lg);
+  --container-padding: var(--container-padding-y) var(--container-padding-x);
+  padding: var(--container-padding);
+
+  .cards-pf + & {
+    padding-top: var(--pf-global--spacer--md);
+  }
+}
+
+@media screen and (min-width: 768px) {
+  // Add PF4 padding to desktop mode
+  .content,
+  .page-ct,
+  .container,
+  .container-fluid {
+    --container-padding-x: var(--pf-global--spacer--lg);
+    --container-padding-y: var(--pf-global--spacer--xl);
+
+    .breadcrumb,
+    .breadcrumb + & {
+      padding-top: 0;
+    }
+  }
+
+  // Rely on page-ct padding; don't duplicate
+  .page-ct .container,
+  .page-ct .container-fluid {
+    padding: 0;
+  }
+
+  // Remove excess padding from dialogs
+  .modal-dialog .content {
+    padding: 0;
+  }
+}
+
+// Bump content away from cards
+.content,
+.page-ct,
+.container,
+.container-fluid {
+  .cards-pf + & {
+    padding-top: 1rem;
+  }
+}
+
+// Change label size & weight to match PF4
+label {
+  font-weight: normal;
+}
+
+.help-block,
+.label,
+.list-group-item-heading,
+.control-label,
+.info-table-ct > tbody > tr > td:first-child,
+th > label {
+  font-weight: normal;
+  font-size: var(--font-size-s);
+}
+
+// Adjust labels in tables
+// (used in accounts & containers)
+.info-table-ct > tbody > tr > td:first-child,
+td > label,
+th > label {
+  vertical-align: baseline;
+  // Fake spacing (not quite right, but close)
+  padding: 0.125rem 0.25rem 0 0.5rem;
+}
+
+// Adjust nav tab sizes
+.nav-tabs {
+  font-size: var(--font-size-s);
+
+  > li {
+
+    > a {
+      padding: 0.75rem 1rem;
+      position: relative;
+    }
+
+    &.active > a {
+
+      &::before {
+        position: absolute;
+        height: 2px;
+        top: -1px;
+        left: -1px;
+        right: -1px;
+        content: "";
+        background: var(--pf-global--active-color--100);
+        pointer-events: none;
+      }
+
+      // listing-ct uses tertitiary nav, which has a bottom line
+      .pf-c-table__expandable-row &::before,
+      .listing-ct-panel &::before {
+        top: auto;
+        bottom: 0;
+      }
+    }
+
+  }
+}
+
+// Add a PF4 shadow to panels
+.panel {
+  box-shadow: var(--pf-global--BoxShadow--sm);
+}
+
+// Change breadcrumb font size
+.breadcrumb {
+  padding: 1rem 0;
+  font-size: var(--pf-global--FontSize--sm);
+}
+
+// Adjust modal dialog sizes
+.modal {
+  &-dialog {
+    width: auto;
+    max-width: 45rem;
+  }
+
+  &-sm {
+    max-width: 35rem;
+  }
+
+  &-lg {
+    max-width: 60rem;
+  }
+}
+
+// Bump down graph text size
+.server-graph {
+  font-size: var(--pf-global--FontSize--xs);
+}
+
+// Restyle nav tabs (in content header only, for services)
+// in Cockpit, nav-tabs are also used in lists
+// and Cockpit's lists use underlines, not overlines
+.content-header-extra > .nav-tabs > li {
+  position: relative;
+
+  &.active::after {
+    position: absolute;
+    background: var(--pf-global--primary-color--100);
+    content: "";
+    height: 2px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+  }
+}
+
+// Flatten the progress bar trough
+.progress {
+  box-shadow: none;
+}
+
+// Adjust spacing of expand/collapse divider
+.expand-collapse-pf .expand-collapse-pf-separator.bordered {
+  margin-top: 1rem;
+}
+
+// Restyle slider to look more modern (PF4-like)
+.slider {
+  &-selection {
+    background: var(--pf-global--active-color--100);
+  }
+
+  &-track {
+    border: none;
+    background: var(--pf-global--BorderColor--100);
+  }
+
+  &.slider-horizontal .slider-track {
+    height: 0.25rem;
+    margin-top: -0.125rem;
+  }
+
+  &-handle {
+    background: var(--pf-global--primary-color--100);
+    border: none;
+    width: 0.75rem;
+    height: 0.75rem;
+    margin: 0.125rem 0 0 0.125rem;
+    position: relative;
+
+    &.slider-horizontal {
+      /* Move right by half the width */
+      margin-left: -0.375rem;
+    }
+
+    /* Replace native outline with a stylized one */
+    &:focus {
+      --focus-offset: -3px;
+      outline: none;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: var(--focus-offset);
+        left: var(--focus-offset);
+        right: var(--focus-offset);
+        bottom: var(--focus-offset);
+        border: 2px solid var(--pf-global--primary-color--100);
+        border-radius: 50%;
+        opacity: 0.5;
+      }
+    }
+
+    &:focus,
+    &:active {
+      background: var(--pf-global--primary-color--200);
+    }
+  }
+
+  &-pf {
+    margin: 0 1rem 0 0;
+    min-height: 2.25rem;
+    position: relative;
+
+    > * {
+      margin: 0;
+    }
+
+    /* Slider labels */
+    > b {
+      color: var(--pf-global--Color--300);
+      font: inherit;
+      font-size: var(--pf-global--FontSize--xs);
+      position: absolute;
+      top: 1.5rem;
+
+      &:first-child {
+        left: 0;
+      }
+
+      &:last-child {
+        right: 0;
+      }
+    }
+
+    /* Readjust the tooltip for our needs */
+    .tooltip {
+      margin: -2.75rem 0 0 -2px !important;
+      /* Center horizontally based on its own width */
+      transform: translateX(-50%);
+      /* Don't trap mouse hovering */
+      pointer-events: none;
+    }
+  }
+}
+
+/* Style tooltips to resemble PF4 */
+.tooltip {
+  // Make it 100% opaque
+  &.in { opacity: 1; }
+
+  // Recolor the arrows
+  &.top &-arrow { border-top-color: var(--pf-global--BackgroundColor--dark-100); }
+  &.right &-arrow { border-right-color: var(--pf-global--BackgroundColor--dark-100); }
+  &.bottom &-arrow { border-bottom-color: var(--pf-global--BackgroundColor--dark-100); }
+  &.left &-arrow { border-left-color: var(--pf-global--BackgroundColor--dark-100); }
+
+  // Match content background, padding, fonts, etc. to PF4 tooltips
+  &-inner {
+    background: var(--pf-global--BackgroundColor--dark-100);
+    font-size: var(--pf-global--FontSize--sm);
+    line-height: var(--pf-global--LineHeight--md);
+    padding: var(--pf-global--spacer--sm) var(--pf-global--spacer--md);
+    text-align: center;
+  }
+}
+
+/* Round off badges, similar to PF4 */
+.badge {
+  border-radius: 30em;
+}
+
+/* Fix PF3 carets */
+.caret {
+  /* PF3 oddly uses borders and a dropdown triangle */
+  border: none;
+
+  &::before {
+    /* Use a solid triangle, like PF4, not the lined "v" icon */
+    content: "\f0d7";
+  }
+}
+
+// Fix small icon size (for Composer)
+.pf-icon-small::before {
+  // PF3 uses (1.7em * 12px = 20.4px); PF4 1.25rem = 20px
+  font-size: 1.25rem;
+}
+
+// Fix small list icon size (for Composer)
+.list-pf-icon-small::before {
+  // PF3 uses (1.4em * 12px = 16.8px); PF4 1rem = 16px
+  font-size: 1rem;
+}
+
+:root {
+  font-size: $font-size-base;
+}

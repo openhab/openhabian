@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="addon">
+  <id>org.openhabian.dashboard</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>openHABian Dashboard</name>
+  <summary>Module to control the openHABian device</summary>
+  <description>
+    <p>
+      Module to control the openHABian device.
+    </p>
+  </description>
+  <extends>org.cockpit_project.cockpit</extends>
+  <launchable type="cockpit-manifest">openhabian</launchable>
+</component>

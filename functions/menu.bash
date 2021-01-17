@@ -105,6 +105,7 @@ show_main_menu() {
     "2A | Telldus Core"          "Telldus Core service for Tellstick USB devices" \
     "2B | Install HABApp"        "Python 3 integration and rule engine for openHAB" \
     "   | Remove HABApp"         "Remove HABApp from this system" \
+    "2C | Install Dashboard"     "Install openHABian web administration dashboard" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -123,6 +124,7 @@ show_main_menu() {
       2A\ *) telldus_core_setup ;;
       2B\ *) habapp_setup install;;
       *Remove\ HABApp*) habapp_setup remove;;
+      2C\ *) openhabian_dashboard_install;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac

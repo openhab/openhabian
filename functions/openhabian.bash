@@ -225,6 +225,7 @@ openhabian_update() {
     echo "OK - No remote changes detected. You are up to date!"
     return 0
   else
+    if ! cond_redirect openhabian_dashboard_update; then echo "FAILED (update dashboard application)"; return 1; fi
     echo -e "OK - Commit history (oldest to newest):\\n"
     git -C "${BASEDIR:-/opt/openhabian}" --no-pager log --pretty=format:'%Cred%h%Creset - %s %Cgreen(%ar) %C(bold blue)<%an>%Creset %C(dim yellow)%G?' --reverse --abbrev-commit --stat "$shorthashBefore..$shorthashAfter"
     echo -e "\\nopenHABian configuration tool successfully updated."
@@ -436,5 +437,71 @@ create_user_and_group() {
     if ! cond_redirect adduser --quiet --disabled-password --gecos "openHABian,,,,openHAB admin user" --shell /bin/bash --home "/home/${userName}" "$userName"; then echo "FAILED (add default usergroup $userName)"; return 1; fi
     echo "${userName}:${userpw:-openhabian}" | chpasswd
     cond_redirect usermod --append --groups openhab,sudo "$userName" &> /dev/null
+  fi
+}
+
+## Copys dasshboard html files to cockpit html folder if dashboard was installed
+##
+##    openhabian_dashboard_update()
+##
+openhabian_dashboard_update() {
+  local dist=/opt/openhabian/dashboard/dist/*
+  local cockpit=/usr/share/cockpit/openhabian
+  local scripts=/opt/openhabian/dashboard/src/scripts/*.sh
+
+  echo -n "$(timestamp) [openHABian] Update dashboard web folder... "
+  if [ $(dpkg-query -W -f='${Status}' cockpit 2>/dev/null | grep -c "ok installed") -eq 1 ];
+  then
+    if ! cond_redirect cp -r $dist $cockpit; then echo "FAILED (Copy dashboard files)"; return 1; fi
+    
+    if cond_redirect chmod +x $scripts; then echo "OK"; else echo "FAILED (Configure dashoard)"; return 1; fi
+  else
+    echo "SKIPPED"
+  fi
+}
+
+## Installs the openHABian dashboard application
+##
+##    openhabian_dashboard_update()
+##
+openhabian_dashboard_install() {
+  local mainfestDahsboard=/opt/openhabian/dashboard/org.openhabian.dashboard.metainfo.xml
+  local mainfestDestination=/usr/share/metainfo/org.openhabian.dashboard.metainfo.xml
+  local cockpit=/usr/share/cockpit/openhabian
+
+  local introText="This will install the openHABian dashboard application. It will allow you to control your openHABian device from a web browser. This feature is currently in development so do not expect all features from openhabian-config to be available.\\n\\nWould you like to continue?"
+  local successText="openHABian dashboard was installed succesfully. You can access the dashboard under the following url:\\n\\nhttps://openHABianDevice:9090/openhabian"
+
+  echo -n "$(timestamp) [openHABian] Beginning openHABian dashboard installation... "
+  if [[ -n $INTERACTIVE ]]; then
+    if (whiptail --title "Install openHABian Dashboard?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+    export DEBIAN_FRONTEND=noninteractive
+  else
+    echo "OK"
+  fi
+
+  echo -n "$(timestamp) [openHABian] Add required backports repository... "
+  rm -f /etc/apt/sources.list.d/backports.list
+  echo 'deb http://deb.debian.org/debian buster-backports main' > /etc/apt/sources.list.d/backports.list
+
+  if ! cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138; then echo "FAILED (Dashboard add key 648ACFD622F3D138)"; return 1; fi
+  if cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC; then echo "OK"; else echo "FAILED (Dashboard add key 04EE7237B7D453EC)"; return 1; fi
+
+  if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Installing dashboard pre-requirements... "
+  if cond_redirect apt install -y -t buster-backports cockpit; then echo "OK"; else echo "FAILED (installing cockpit apt package)"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Create dashboard directory..."
+  if cond_redirect mkdir -p $cockpit; then echo "OK"; else echo "FAILED (creating dashboard directory)"; return 1; fi
+
+  echo -n "$(timestamp) [openHABian] Register dashboard application..."
+  if cond_redirect ln -f -s $mainfestDahsboard $mainfestDestination; then echo "OK"; else echo "FAILED (register dashboard application)"; return 1; fi
+
+  if ! openhabian_dashboard_update; then return 1; fi
+
+  if [[ -n $INTERACTIVE ]]; then
+    export DEBIAN_FRONTEND=
+    whiptail --title "Operation Successful!" --msgbox "$successText" 15 80
   fi
 }

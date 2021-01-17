@@ -1,0 +1,40 @@
+/*** PF4 overrides ***/
+
+/* WORKAROUND: Override word-break bug */
+/* See: https://github.com/patternfly/patternfly-next/issues/2325 */
+.pf-c-table td {
+    word-break: normal;
+    overflow-wrap: break-word;
+}
+
+/* WORKAROUND: Navigation problems with Tertiary Nav widget on mobile */
+/* See: https://github.com/patternfly/patternfly-design/issues/840 */
+/* Helper mod to wrap pf-c-nav__tertiary */
+.ct-m-nav__tertiary-wrap {
+    .pf-c-nav__list {
+        flex-wrap: wrap;
+    }
+
+    .pf-c-nav__scroll-button {
+        display: none;
+    }
+}
+
+/* Helper mod to center pf-c-nav__tertiary when it wraps */
+.ct-m-nav__tertiary-center {
+    .pf-c-nav__list {
+        justify-content: center;
+    }
+}
+
+ul.pf-c-select__menu {
+    max-height: 20rem;
+    overflow-y: auto;
+}
+
+/* Breadcrumb dividers have some inline style to align them
+ * https://github.com/patternfly/patternfly-react/issues/4767
+ */
+.pf-c-breadcrumb__item-divider > svg {
+    vertical-align: -0.125em;
+}
