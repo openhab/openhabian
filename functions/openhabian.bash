@@ -452,9 +452,18 @@ openhabian_dashboard_update() {
   echo -n "$(timestamp) [openHABian] Update dashboard web folder... "
   if [ "$(dpkg-query -W -f='${Status}' cockpit 2>/dev/null | grep -c "ok installed")" -eq 1 ];
   then
-    if ! cond_redirect cp -r $dist "$cockpit"; then echo "FAILED (Copy dashboard files)"; return 1; fi
+    echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
+    for i in $dist; do
+      if [[ -s "$i" ]]; then
+        if ! cond_redirect cp "$i" "$cockpit"; then echo "FAILED (Copy dashboard files)"; return 1; fi
+      fi
+    done
     
-    if cond_redirect chmod +x $scripts; then echo "OK"; else echo "FAILED (Configure dashoard)"; return 1; fi
+    for i in $scripts; do
+      if [[ -s "$i" ]]; then
+        if cond_redirect chmod +x "$i"; then echo "OK"; else echo "FAILED (Configure dashoard)"; return 1; fi
+      fi
+    done
   else
     echo "SKIPPED"
   fi
