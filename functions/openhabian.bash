@@ -445,14 +445,14 @@ create_user_and_group() {
 ##    openhabian_dashboard_update()
 ##
 openhabian_dashboard_update() {
-  local dist=/opt/openhabian/dashboard/dist/*
-  local cockpit=/usr/share/cockpit/openhabian
-  local scripts=/opt/openhabian/dashboard/src/scripts/*.sh
+  local dist="/opt/openhabian/dashboard/dist/*"
+  local cockpit="/usr/share/cockpit/openhabian"
+  local scripts="/opt/openhabian/dashboard/src/scripts/*.sh"
 
   echo -n "$(timestamp) [openHABian] Update dashboard web folder... "
-  if [ $(dpkg-query -W -f='${Status}' cockpit 2>/dev/null | grep -c "ok installed") -eq 1 ];
+  if [ "$(dpkg-query -W -f='${Status}' cockpit 2>/dev/null | grep -c "ok installed")" -eq 1 ];
   then
-    if ! cond_redirect cp -r $dist $cockpit; then echo "FAILED (Copy dashboard files)"; return 1; fi
+    if ! cond_redirect cp -r $dist "$cockpit"; then echo "FAILED (Copy dashboard files)"; return 1; fi
     
     if cond_redirect chmod +x $scripts; then echo "OK"; else echo "FAILED (Configure dashoard)"; return 1; fi
   else
@@ -465,9 +465,9 @@ openhabian_dashboard_update() {
 ##    openhabian_dashboard_update()
 ##
 openhabian_dashboard_install() {
-  local mainfestDahsboard=/opt/openhabian/dashboard/org.openhabian.dashboard.metainfo.xml
-  local mainfestDestination=/usr/share/metainfo/org.openhabian.dashboard.metainfo.xml
-  local cockpit=/usr/share/cockpit/openhabian
+  local mainfestDahsboard="/opt/openhabian/dashboard/org.openhabian.dashboard.metainfo.xml"
+  local mainfestDestination="/usr/share/metainfo/org.openhabian.dashboard.metainfo.xml"
+  local cockpit="/usr/share/cockpit/openhabian"
 
   local introText="This will install the openHABian dashboard application. It will allow you to control your openHABian device from a web browser. This feature is currently in development so do not expect all features from openhabian-config to be available.\\n\\nWould you like to continue?"
   local successText="openHABian dashboard was installed succesfully. You can access the dashboard under the following url:\\n\\nhttps://openHABianDevice:9090/openhabian"
