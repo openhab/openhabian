@@ -415,7 +415,7 @@ mirror_SD() {
     while umount -q "${dest}2"; do : ; done
     mount "${dest}2" "$syncMount"
     sed -i "s|${origPartUUID}|${partUUID}|g" "${syncMount}"/etc/fstab
-    sed -i 's|^What=.*|What=/dev/mmcblk0p3|g' "${syncMount}/etc/systemd/system/${storageDir}".mount
+    [[ -f "${syncMount}/etc/systemd/system/${storageDir}".mount ]] && sed -i 's|^What=.*|What=/dev/mmcblk0p3|g' "${syncMount}/etc/systemd/system/${storageDir}".mount
     umount "$syncMount"
     if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "OK (dirty bit on fsck ${dest}2 is normal)"; dirty="yes"; fi
     if [[ "$dirty" == "no" ]]; then
