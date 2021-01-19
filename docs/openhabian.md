@@ -21,7 +21,7 @@ However, setting up a fully working Linux system with all recommended packages a
 openHABian is a **self-configuring** Linux system setup to meet the needs of every openHAB user.
 It provides:
 
-*   complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of SBCs 
+*   complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of SBCs
 *   The openHABian configuration tool to set up and configure openHAB and many related things on any Debian based system
 
 #### Table of Contents
@@ -299,7 +299,7 @@ This function will rename the rules files so they get ignored by the starting op
 Starting with its general release, openHABian will install **openHAB 3** by default.
 There's some big changes also to openHABian such as to install Java 11 and to use changed file and directory names.
 Most directory names `... /openhab2/ ...` will become `... /openhab/ ...` (NOTE: not `openhab3`) plus there's changes in a number of places, often subtle ones like the name of Samba export shares to change.
-As openHABian users will be running openHAB 2.X by the time 3.0 gets released, `openhabian-config` offers to migrate the openHABian environment and install openHAB3 for you.
+For openHABian users running openHAB 2.X, `openhabian-config` offers to migrate the openHABian environment and install openHAB3 for you.
 Menu option 42 will do the upgrade. Be aware that it isn't the universal answer to all your migration needs - there is ONLY an openHAB upgrade path. You cannot downgrade from OH3 to OH2.
 
 ::: warning No downgrades
@@ -478,7 +478,7 @@ If you are not able to access your system via the openHAB dashboard or SSH after
 <a id="switch-openhab-branch"></a>
 #### Can I switch openHAB 2 and 3 via openHABian branches ?
 openHABian installs the latest stable build of openHAB.
-The standard openHABian `stable` and `master` branches will install openHAB version 2 and the `openHAB3` branch will install the new openHAB version 3.
+The standard openHABian `openHAB3` and `main` branches will install the new openHAB version 3 and the old `stable` and `master` branches will install the old openHAB version 2.
 You can migrate between versions by selecting the corresponding 4X menu option. That should also result in an openHABian branch change.
 If you want to choose from stable, snapshot or milestone releases, please do so via `openhabian-config` tool (also menu 4X).
 Note this will **not** result in any openHABian branch change.
