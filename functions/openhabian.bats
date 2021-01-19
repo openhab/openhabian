@@ -13,36 +13,19 @@ load helpers.bash
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] openHABian dashboard installation successful.${COL_DEF}" >&3
   
-  # Wait 5 seconds so that webservice becomes ready
-  sleep 5s
+  # Check if cockpit socket was loaded after installation
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if cockpit socket is loaded...${COL_DEF}" >&3
+  socket_status=$(systemctl status --quiet cockpit.socket || true)
+  if [[ "$socket_status" != *"Loaded: loaded"* ]]; then systemctl status cockpit.socket; fi
+  [[ "$socket_status" == *"Loaded: loaded"* ]]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] cockpit socket is loaded.${COL_DEF}" >&3
 
-  # Call webservice to trigger service startet
-  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] openHABian dashboard calling webservice...${COL_DEF}" >&3
-  run wget -S --spider https://127.0.0.1:9090 --no-check-certificate 2>&1
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] webservice call succesful.${COL_DEF}" >&3
-  
-  # Check if cockpit service becames active after wget call
-  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if cockpit service is running...${COL_DEF}" >&3
-  run systemctl is-active --quiet cockpit.service
-  if [ "$status" -ne 0 ]; then systemctl status cockpit.service; fi
-  [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] cockpit service is running.${COL_DEF}" >&3
-
-  # Check if wget call initiated a new https instance of the webservice
-  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if cockpit-wsinstance-https is running...${COL_DEF}" >&3
-  run systemctl is-active --quiet cockpit-wsinstance-https*.service
-  if [ "$status" -ne 0 ]; then echo "Error cockpit-wsinstance-https* is not running. It seams like the wget call was not succesful.${COL_DEF}" >&3; systemctl status cockpit-wsinstance-https*.service; fi
-  [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] cockpit-wsinstance-https* is running.${COL_DEF}" >&3
-
-  # Check if openHABian dashboard is available
-  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] openHABian dashboard calling dashboard application...${COL_DEF}" >&3
-  run wget -S --spider https://127.0.0.1:9090/openhabian --no-check-certificate 2>&1
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] openhabian dashboard call succesful.${COL_DEF}" >&3
+  # Check if cockpit service was loaded after installation
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if cockpit service is loaded...${COL_DEF}" >&3
+  service_status=$(systemctl status --quiet cockpit.service || true)
+  if [[ "$service_status" != *"Loaded: loaded"* ]]; then systemctl status cockpit.service; fi
+  [[ "$service_status" == *"Loaded: loaded"* ]]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] cockpit service is loaded.${COL_DEF}" >&3
 
   # Check all dashboard script file permissions for "-x" permission
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] openHABian dashboard verifying script file permission...${COL_DEF}" >&3
@@ -53,9 +36,9 @@ load helpers.bash
   done
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] openHABian dashboard script file permission are fine.${COL_DEF}" >&3
 
- # Check all dashboard html files
+  # Check all dashboard html files
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] openHABian dashboard verifying all html files...${COL_DEF}" >&3
-  [ "$(ls /usr/share/cockpit/openhabian/ | wc -l)" -eq 7 ]
+  [ "$(find /usr/share/cockpit/openhabian/ | wc -l)" -eq 8 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] openHABian dashboard html files are fine.${COL_DEF}" >&3
 
 }
