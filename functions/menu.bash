@@ -196,8 +196,8 @@ show_main_menu() {
       41\ *) openhab_setup "$version" "stable";;
       *openHAB\ testing) openhab_setup "$version" "testing";;
       *openHAB\ snapshot) openhab_setup "$version" "unstable";;
-      42\ *) migrate_installation openHAB3 "stable" && openhabian_update "openHAB3";;
-      *Downgrade\ to\ openHAB\ 2) migrate_installation openHAB2 "stable" && openhabian_update "stable";;
+      42\ *) migrate_installation "openHAB3" && openhabian_update "openHAB3";;
+      *Downgrade\ to\ openHAB\ 2) migrate_installation "openHAB2" && openhabian_update "stable";;
       43\ *) openhab_shell_interfaces;;
       44\ *) nginx_setup;;
       *Delay\ rules\ load) create_systemd_dependencies && delayed_rules "yes";;
