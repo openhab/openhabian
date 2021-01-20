@@ -152,14 +152,14 @@ openhabian_update() {
   local current
   local introText
   local key
-  local main
-  local master
-  local openHAB3
-  local own
+  local main="OFF"
+  local master="OFF"
+  local openHAB3="OFF"
+  local own="no"
   local selection
   local shorthashAfter
   local shorthashBefore
-  local stable
+  local stable="OFF"
 
   current="$(git -C "${BASEDIR:-/opt/openhabian}" rev-parse --abbrev-ref HEAD)"
   echo -n "$(timestamp) [openHABian] Updating myself... "
@@ -177,29 +177,13 @@ openhabian_update() {
     fi
 
     if [[ $current == "stable" ]]; then
-      main="OFF"
-      master="OFF"
-      openHAB3="OFF"
-      own="no"
       stable="ON"
     elif [[ $current == "master" ]]; then
-      main="OFF"
       master="ON"
-      openHAB3="OFF"
-      own="no"
-      stable="OFF"
     elif [[ $current == "openHAB3" ]]; then
-      main="OFF"
-      master="OFF"
       openHAB3="ON"
-      own="no"
-      stable="OFF"
     elif [[ $current == "main" ]]; then
       main="ON"
-      master="OFF"
-      openHAB3="OFF"
-      own="no"
-      stable="OFF"
     else
       own="yes"
     fi
