@@ -27,7 +27,7 @@ configure_wifi() {
   echo -n "$(timestamp) [openHABian] Beginning WiFi configuration... "
 
   if ! is_pizerow && ! is_pithree && ! is_pithreeplus && ! is_pifour; then
-    if (whiptail --title "No WiFi Hardware Detected" --yesno "$questionText" 10 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+    if (whiptail --title "No WiFi hardware detected" --yesno "$questionText" 10 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   else
     echo "OK"
   fi
@@ -75,11 +75,11 @@ configure_wifi() {
     echo -n "$(timestamp) [openHABian] Configuring WiFi... "
     wifiNetworkList="$(iwlist wlan0 scan | grep ESSID | sed -e 's/^[[:space:]]*ESSID://g; s/"//g; /^[[:space:]]*$/d')"
     if [[ -z $wifiNetworkList ]]; then echo "FAILED (no networks found)"; return 1; fi
-    if ! wifiSSID="$(whiptail --title "Wifi Setup" --inputbox "\\nWhich WiFi network would you like do you want to connect to?\\n\\nNetwork List:\\n${wifiNetworkList}" 20 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! wifiSSID="$(whiptail --title "Wifi setup" --inputbox "\\nWhich WiFi network would you like do you want to connect to?\\n\\nNetwork List:\\n${wifiNetworkList}" 20 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     if [[ -z $wifiSSID ]]; then echo "FAILED (blank SSID)"; return 1; fi
     if ! wifiPassword="$(whiptail --title "Wifi Setup" --passwordbox "\\nWhat's the password for ${wifiSSID}?" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     if ! wifiConfig="$(wpa_passphrase "${wifiSSID}" "${wifiPassword}")"; then echo "FAILED (${wifiConfig})"; return 1; fi
-    if ! wifiCountry="$(whiptail --title "Wifi Setup" --inputbox "\\nPlease enter the two-letter country code matching your region (US, DE, NZ, AU)...\\n\\nSee https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2" 12 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! wifiCountry="$(whiptail --title "Wifi setup" --inputbox "\\nPlease enter the two-letter country code matching your region (US, DE, NZ, AU)...\\n\\nSee https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2" 12 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     # Check if the country code is valid, valid country codes are followed by spaces in /usr/share/zoneinfo/zone.tab
     if grep -qs "^${wifiCountry^^}[[:space:]]" /usr/share/zoneinfo/zone.tab; then
       wifiCountry="${wifiCountry^^}"
@@ -101,13 +101,13 @@ configure_wifi() {
     if ! cond_redirect ip link set wlan0 down; then echo "FAILED (down)"; return 1; fi
     if cond_redirect ip link set wlan0 up; then echo "OK (reboot now)"; else echo "FAILED (up)"; return 1; fi
 
-    whiptail --title "Operation Successful!" --msgbox "Setup was successful. The credentials provided were not tested. Please reboot now." 7 80
+    whiptail --title "Operation successful" --msgbox "Setup was successful. The credentials provided were not tested. Please reboot now." 7 80
   elif [[ $1 == "disable" ]]; then
     if (whiptail --title "WiFi is currently enabled" --defaultno --yesno "$enabledText" 10 80); then
       cond_redirect enable_disable_wifi "disable"
       echo -n "$(timestamp) [openHABian] Cleaning up old WiFi configuration... "
       if cond_redirect sed -i -e '/allow-hotplug wlan0/d; /iface wlan0 inet manual/d; /wpa-roam \/etc\/wpa_supplicant\/wpa_supplicant.conf/d; /iface default inet dhcp/d' /etc/network/interfaces; then echo "OK (will reboot now)"; else echo "FAILED"; return 1; fi
-      whiptail --title "Operation Successful!" --msgbox "Setup was successful. Please reboot now." 7 80
+      whiptail --title "Operation successful" --msgbox "Setup was successful. Please reboot now." 7 80
     else
       echo "CANCELED"
       return 0
@@ -124,7 +124,6 @@ configure_wifi() {
 ##    setup_hotspot(String option)
 ##
 setup_hotspot() {
-
   if [[ $1 == "install" ]]; then
     echo -n "$(timestamp) [openHABian] Installing Comitup hotspot... "
     # manage networking through network manager

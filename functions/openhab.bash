@@ -78,7 +78,7 @@ openhab_setup() {
   fi
 
   if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "openHAB software change, Continue?" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+    if (whiptail --title "openHAB software change" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 1; fi
     export DEBIAN_FRONTEND=noninteractive
   else
     echo "OK"
@@ -123,7 +123,7 @@ openhab_setup() {
 
   if [[ -n $INTERACTIVE ]]; then
     export DEBIAN_FRONTEND=
-    whiptail --title "Operation Successful!" --msgbox "$successText" 15 80
+    whiptail --title "Operation successful!" --msgbox "$successText" 15 80
   fi
 }
 
@@ -144,12 +144,12 @@ openhab_shell_interfaces() {
 
   if [[ -n $INTERACTIVE ]]; then
     while [[ -z $sshPass ]]; do
-      if ! sshPass1="$(whiptail --title "Authentication Setup" --passwordbox "$introText" 15 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-      if ! sshPass2="$(whiptail --title "Authentication Setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! sshPass1="$(whiptail --title "Authentication setup" --passwordbox "$introText" 15 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! sshPass2="$(whiptail --title "Authentication setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
       if [[ $sshPass1 == "$sshPass2" ]] && [[ ${#sshPass1} -ge 8 ]] && [[ ${#sshPass2} -ge 8 ]]; then
         sshPass="$sshPass1"
       else
-        whiptail --title "Authentication Setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
+        whiptail --title "Authentication setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
       fi
     done
   fi
@@ -162,7 +162,7 @@ openhab_shell_interfaces() {
   cond_redirect systemctl restart openhab.service
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation Successful!" --msgbox "$successText" 15 80
+    whiptail --title "Operation successful!" --msgbox "$successText" 15 80
   fi
 }
 

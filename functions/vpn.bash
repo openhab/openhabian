@@ -204,7 +204,7 @@ install_tailscale() {
     exim_setup
   fi
   if [[ -n "$INTERACTIVE" ]]; then
-    if (whiptail --title "tailscale VPN setup" --yes-button "Continue" --no-button "Cancel" --yesno "$installText" 12 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+    if (whiptail --title "Tailscale VPN setup" --yes-button "Continue" --no-button "Cancel" --yesno "$installText" 12 80); then echo "OK"; else echo "CANCELED"; return 1; fi
   fi
   echo "$(timestamp) [openHABian] Installing tailscale VPN... "
   # Add tailscale's GPG key

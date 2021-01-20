@@ -161,7 +161,7 @@ locale_setting() {
   if cond_redirect update-locale LANG="${locale:-${system_default_locale:-en_US.UTF-8}}" LC_ALL="${locale:-${system_default_locale:-en_US.UTF-8}}" LC_CTYPE="${locale:-${system_default_locale:-en_US.UTF-8}}" LANGUAGE="${locale:-${system_default_locale:-en_US.UTF-8}}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Change Locale" --msgbox "For the locale change to take effect, please reboot your system now." 7 80
+    whiptail --title "Change locale" --msgbox "For the locale change to take effect, please reboot your system now." 7 80
   fi
 }
 
@@ -179,9 +179,9 @@ hostname_change() {
 
   if [[ -n $INTERACTIVE ]]; then
     echo -n "$(timestamp) [openHABian] Setting hostname of the base system based on user choice... "
-    if ! newHostname="$(whiptail --title "Change Hostname" --inputbox "\\nPlease enter the new system hostname (no special characters, no spaces):" 9 80 3>&1 1>&2 2>&3)"; then echo "FAILED"; return 1; fi
+    if ! newHostname="$(whiptail --title "Change hostname" --inputbox "\\nPlease enter the new system hostname (no special characters, no spaces):" 9 80 3>&1 1>&2 2>&3)"; then echo "FAILED"; return 1; fi
     if [[ -z $newHostname ]] || ( echo "$newHostname" | grep -q ' ' ); then
-      whiptail --title "Change Hostname" --msgbox "The hostname you have entered is not a valid hostname. Please try again." 7 80
+      whiptail --title "Change hostname" --msgbox "The hostname you have entered is not a valid hostname. Please try again." 7 80
       echo "FAILED"
       return 1
     fi
@@ -194,7 +194,7 @@ hostname_change() {
   if sed -i 's|127.0.1.1.*$|127.0.1.1 '"${newHostname}"'|g' /etc/hosts; then echo "OK"; else echo "FAILED (edit hosts)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Change Hostname" --msgbox "For the hostname change to take effect, please reboot your system now." 7 80
+    whiptail --title "Change hostname" --msgbox "For the hostname change to take effect, please reboot your system now." 7 80
   fi
 }
 
@@ -484,7 +484,7 @@ prepare_serial_port() {
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning configuration of serial console for serial port peripherals... "
-  if selection=$(whiptail --title "Prepare Serial Port" --checklist --separate-output "$introText" 19 75 2 \
+  if selection=$(whiptail --title "Prepare serial port" --checklist --separate-output "$introText" 19 75 2 \
   "1"  "(RPi)     Disable serial console"      $optionOne \
   "2"  "(RPi3/4)  move Bluetooth to mini UART" $optionTwo \
   3>&1 1>&2 2>&3); then echo "OK"; else echo "CANCELED"; return 0; fi
@@ -536,5 +536,5 @@ prepare_serial_port() {
     fi
   fi
 
-  whiptail --title "Operation Successful!" --msgbox "$successText" 9 80
-  }
+  whiptail --title "Operation successful" --msgbox "$successText" 9 80
+}

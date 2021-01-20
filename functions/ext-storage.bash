@@ -47,12 +47,12 @@ move_root2usb() {
 
   # Exit if destination is not available
   if ! [[ -b "$newRootPart" ]]; then
-    whiptail --title "No destination device?" --msgbox "It seems that there is no external storage medium inserted that we could move openHABian root to.\\n\\n***Aborting, process cannot be started!***" 9 80
+    whiptail --title "No destination device" --msgbox "It seems that there is no external storage medium inserted that we could move openHABian root to.\\n\\n***Aborting, process cannot be started!***" 9 80
     return 0
   fi
 
   if [[ $srcSize -gt $destSize ]]; then
-    if ! (whiptail --title "Destination device to small?" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "Your internal storage medium is larger than the external device/medium you want to move your root to. This will very likely break your system.\\n\\nDo you still REALLY want to continue?" 10 80); then echo "CANCELED"; return 0; fi
+    if ! (whiptail --title "Destination device to small" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "Your internal storage medium is larger than the external device/medium you want to move your root to. This will very likely break your system.\\n\\nDo you still REALLY want to continue?" 10 80); then echo "CANCELED"; return 0; fi
   fi
 
   # Check if USB power is already unlimited, otherwise set it now
@@ -71,7 +71,7 @@ move_root2usb() {
     return 0
   fi
 
-  whiptail --title "Ready to move root?" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "After final confirmation, the system root will be moved.\\n\\nPlease be patient. This can take from 5 to 15+ minutes, depending mainly on the speed of your USB device.\\n\\nWhen the process is finished, you will be informed via message box." 12 80
+  whiptail --title "Ready to move root" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "After final confirmation, the system root will be moved.\\n\\nPlease be patient. This can take from 5 to 15+ minutes, depending mainly on the speed of your USB device.\\n\\nWhen the process is finished, you will be informed via message box." 12 80
 
   echo -n "$(timestamp) [openHABian] Preparing device '$newRootDev'... "
   if openhab_is_running; then
@@ -103,5 +103,5 @@ move_root2usb() {
   if ! cond_redirect cp /boot/cmdline.txt /boot/cmdline.txt.sdcard; then echo "FAILED (backup cmdline.txt)"; return 1; fi
   if cond_redirect sed -i 's|root='"${rootPart}"'|root='"${newRootPart}"'|' /boot/cmdline.txt; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
 
-  whiptail --title "Operation Successful!" --msgbox "The system root has successfully been moved to the USB. PLEASE REBOOT!\\n\\nIn the unlikely case that the reboot does not succeed, please put the SD card into another device and copy back '/boot/cmdline.txt.sdcard' to '/boot/cmdline.txt'." 11 80
+  whiptail --title "Operation successful" --msgbox "The system root has successfully been moved to the USB. PLEASE REBOOT!\\n\\nIn the unlikely case that the reboot does not succeed, please put the SD card into another device and copy back '/boot/cmdline.txt.sdcard' to '/boot/cmdline.txt'." 11 80
 }

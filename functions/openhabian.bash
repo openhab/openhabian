@@ -44,7 +44,7 @@ openhabian_announcements() {
 
   if ! cmp --silent "$newsFile" "$readNews" &> /dev/null; then
     # shellcheck disable=SC2086
-    if (whiptail --title "openHABian announcements" --yes-button "Stop Displaying" --no-button "Keep Displaying" --defaultno --scrolltext --yesno "$(cat $newsFile)" 27 100); then
+    if (whiptail --title "openHABian announcements" --yes-button "Stop displaying" --no-button "Keep displaying" --defaultno --scrolltext --yesno "$(cat $newsFile)" 27 100); then
       cp "$newsFile" "$readNews"
     fi
   fi
@@ -63,38 +63,56 @@ openhabian_console_check() {
 
   warningText="We detected that you use a console which is less than 120 columns wide. This tool is designed for a minimum of 120 columns and therefore some menus may not be presented correctly. Please increase the width of your console and rerun this tool.\\n\\nEither resize the window or consult the preferences of your console application."
 
-  whiptail --title "Compatibility Warning" --msgbox "$warningText" 13 80
+  whiptail --title "Compatibility warning" --msgbox "$warningText" 13 80
 }
 
 
-## Check against openhabian.conf for need to update parameters
+## Store a set parameter into openhabian.conf
+## Parameter to write into openhabian.conf
+##
+##    store_in_conf(String parameter)
+##
+store_in_conf() {
+  if [[ -z "$1" ]]; then return 0; fi
+  # shellcheck disable=SC2154
+  sed -i "s|^${1}=.*$|$1=${!1}|g" "$configFile"
+} 
+
+
+## Check openhabian.conf against openhabian.conf.dist for need to add parameters
 ## Add a parameter if it's missing or keep it if user provided.
 ## Cycling through openhabian.conf.dist will ensure all current and future params are checked for
-## Run on every start (to ensure params are *up to date* whenever the user changes branch or openhabian-config unattended is run)
+## Run on every start (to ensure params are up to date at any time)
 ##
 ##    update_openhabian_conf()
 ##
 update_openhabian_conf() {
-  local config=/etc/openhabian.conf
+  local configFile=/etc/openhabian.conf
   local referenceConfig=/opt/openhabian/openhabian.conf.dist
 
-  cp $config ${config}.BAK
-  cp /dev/null $config
-
+  cp $configFile ${configFile}.BAK
   while read -r line; do
-    if [[ $line =~ ^# ]] || [[ -z "$line" ]]; then  # if line is a comment or empty
-      echo "$line"
-    else                                            # not fully sure if anything else is a proper param setting but let's assume this
-      param=$(echo "$line" | cut -d'=' -f1)         # get parameter name first
-      if [[ -z ${!param+x} ]]; then                 # if $param is set (if so it is because it was sourced on start)
-        echo "$line"                                # take the param from the default config by printing the default .conf's full line
-      elif [[ ${!param} == *" "* ]]; then
-      	echo "$param=\"${!param}\""                 # else parameter is set i.e. a line setting it is present in $config so use its value
+    # remove optional leading '#'
+    # ensure comments start with '# '
+    if [[ $line =~ ^(#)?[a-zA-Z] ]]; then         # if line is a comment or empty
+      parsed=$line
+      if [[ $line =~ ^#[a-zA-Z] ]]; then parsed=${line:1}; fi
+
+      param=$(echo "$parsed" | cut -d'=' -f1)   # get parameter name first
+      if [[ -v $param ]]; then                # if $param is set it was sourced on start i.e. exists in config
+        if [[ ${!param} == *" "* ]]; then
+          echo "$param=\"${!param}\""           # if $param contains whitespaces print quotes, too
+        else
+          echo "$param=${!param}"
+        fi
       else
-	echo "$param=${!param}"
+        echo "$line"
+        eval "$parsed"
       fi
+    else
+      echo "$line"
     fi
-  done > $config < $referenceConfig
+  done > $configFile < $referenceConfig
 }
 
 
@@ -134,7 +152,7 @@ openhabian_update_check() {
     echo "OK"
   else
     echo -n "Updates available... "
-    if (whiptail --title "openHABian Update Available" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 11 80); then echo "UPDATING"; else echo "SKIP"; return 0; fi
+    if (whiptail --title "openHABian update available" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 11 80); then echo "UPDATING"; else echo "SKIP"; return 0; fi
     openhabian_update
   fi
   openhabian_announcements
@@ -206,7 +224,7 @@ openhabian_update() {
     else
       branch="${selection:-openHAB3}"
     fi
-    if ! sed -i 's|^clonebranch=.*$|clonebranch='"${branch}"'|g' "$CONFIGFILE"; then echo "FAILED (configure clonebranch)"; exit 1; fi
+    if ! sed -i 's|^clonebranch=.*$|clonebranch='"${branch}"'|g' "$configFile"; then echo "FAILED (configure clonebranch)"; exit 1; fi
   else
     branch="${clonebranch:-openHAB3}"
   fi
@@ -379,7 +397,7 @@ system_check_default_password() {
   if ! [[ $(id -u "$defaultUser") ]]; then echo "OK (unknown user)"; return 0; fi
   if [[ $generatedPassword == "$originalPassword" ]]; then
     if [[ -n $INTERACTIVE ]]; then
-      whiptail --title "Default Password Detected!" --msgbox "$introText" 11 80
+      whiptail --title "Default password detected" --msgbox "$introText" 11 80
     fi
     echo "FAILED"
   else
@@ -387,7 +405,7 @@ system_check_default_password() {
   fi
 }
 
-## Enable / Disable IPv6 according to the users configured option in '$CONFIGFILE'
+## Enable / Disable IPv6 according to the users configured option in '$configFile'
 ##
 ##    config_ipv6()
 ##

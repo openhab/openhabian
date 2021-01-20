@@ -42,12 +42,12 @@ change_password() {
 
     # COLLECT NEW PASSWORD
     while [[ -z $pass ]]; do
-      if ! pass1="$(whiptail --title "Authentication Setup" --passwordbox "\\nEnter a new password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-      if ! pass2="$(whiptail --title "Authentication Setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! pass1="$(whiptail --title "Authentication setup" --passwordbox "\\nEnter a new password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! pass2="$(whiptail --title "Authentication setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
       if [[ $pass1 == "$pass2" ]] && [[ ${#pass1} -ge 8 ]] && [[ ${#pass2} -ge 8 ]]; then
         pass="$pass1"
       else
-        whiptail --title "Authentication Setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
+        whiptail --title "Authentication setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
       fi
     done
   else
@@ -95,7 +95,7 @@ change_password() {
   fi
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation Successful!" --msgbox "Password(s) successfully changed for: $chosenAccounts" 8 80
+    whiptail --title "Operation successful" --msgbox "Password(s) successfully changed for: $chosenAccounts" 8 80
   fi
 }
 
