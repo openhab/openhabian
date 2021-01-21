@@ -20,7 +20,7 @@ whiptail_check() {
 system_upgrade() {
   echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
   if ! cond_redirect apt-get upgrade --yes; then echo "FAILED"; return 1; fi
-  if cond_redirect java_install_or_update "${java_opt:-Zulu8-32}"; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect java_install_or_update "${java_opt:-Zulu11-32}"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Function for installing basic Linux packages.

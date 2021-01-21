@@ -88,7 +88,7 @@ inject_build_repo() {
   sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' "$1"
   sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' "$1"
-  sed -i 's|^clonebranch=.*$|clonebranch='"${clonebranch:-stable}"'|g' "/etc/openhabian.conf"
+  sed -i 's|^clonebranch=.*$|clonebranch='"${clonebranch:-openHAB3}"'|g' "/etc/openhabian.conf"
   sed -i 's|^repositoryurl=.*$|repositoryurl='"${repositoryurl:-https://github.com/openhab/openhabian.git}"'|g' "/etc/openhabian.conf"
 }
 
@@ -380,10 +380,10 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64beta" ]
     rm -f getty@tty1.service.d/autologin.conf
   )
 
-  echo_process "Cloning myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-stable} branch... "
+  echo_process "Cloning myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-openHAB3} branch... "
   if ! [[ -d ${buildFolder}/root/opt/openhabian ]]; then
     git clone "${repositoryurl:-https://github.com/openhab/openhabian.git}" "$buildFolder"/root/opt/openhabian &> /dev/null
-    git -C "$buildFolder"/root/opt/openhabian checkout "${clonebranch:-stable}" &> /dev/null
+    git -C "$buildFolder"/root/opt/openhabian checkout "${clonebranch:-openHAB3}" &> /dev/null
   fi
   touch "$buildFolder"/root/opt/openHABian-install-inprogress
 
@@ -403,7 +403,7 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64beta" ]
     # Using variable hw intended for CI only to force use of arm packages.
     # java_zulu_fetch takes version/bits as parameter, but internally uses is_arm
     # to decide if x86/64 or arm packages are downloaded. Parameter works for 32 and 64bit.
-    hwarch="armv7l" java_zulu_fetch "${cached_java_opt:-Zulu8-32}" "$buildFolder"/root &> /dev/null
+    hwarch="armv7l" java_zulu_fetch "${cached_java_opt:-Zulu11-32}" "$buildFolder"/root &> /dev/null
     java_zulu_install_crypto_extension "$(find "$buildFolder"/root/opt/jdk/*/lib -type d -print -quit)/security" &> /dev/null
   )
 

@@ -213,7 +213,7 @@ if ! [[ -x $(command -v git) ]]; then
 fi
 
 # shellcheck disable=SC2154
-echo -n "$(timestamp) [openHABian] Updating myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-stable} branch... "
+echo -n "$(timestamp) [openHABian] Updating myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-openHAB3} branch... "
 if [[ $(eval "$(openhabian_update &> /dev/null)") -eq 0 ]]; then
   echo "OK"
 else

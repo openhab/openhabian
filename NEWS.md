@@ -1,6 +1,13 @@
 Hit tab to unselect buttons and scroll through the text using UP/DOWN or PGUP/PGDN.
 All announcements are stored in `/opt/openhabian/docs/NEWSLOG.md` for you to lookup.
 
+## Future of master branch ## January 20, 2021
+We will no longer make regular updates to the master branch as we migrate away from supporting openHAB2.
+As such in the coming months we will make bug fixes directly to the 'stable' branch for openHA2.
+With that said, please migrate off of the 'master' branch as it will be deleted soon.
+You can change branches at any time use menu option 01.
+
+
 ## openHAB 3 released ## December 21, 2020
 In the darkest of times (midwinter for most of us), openHAB 3 gets released.
 See [documentation](docs/openhabian.md#on-openhab3) and [www.openhab.org](http://www.openhab.org) for details.
@@ -18,9 +25,3 @@ Tailscale is a management toolset to establish a WireGuard based VPN between mul
 if you want to connect to openHAB(ian) instances outside your LAN over Internet.
 It'll take care to detect and open ports when you and your peers are located behind firewalls.
 This makes use of the tailscale service. Don't worry, for private use it's free of charge.
-
-
-## Auto-backup ## August 29, 2020
-openHABian can automatically take daily syncs of your internal SD card to another card in an external port.
-This allows for fast swapping of cards to reduce impact of a failed SD card.
-The remaining space on the external device will be made use of for openHABian's Amanda backup system.

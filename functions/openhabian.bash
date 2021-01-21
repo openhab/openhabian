@@ -66,7 +66,6 @@ openhabian_console_check() {
   whiptail --title "Compatibility warning" --msgbox "$warningText" 13 80
 }
 
-
 ## Store a set parameter into openhabian.conf
 ## Parameter to write into openhabian.conf
 ##
@@ -76,8 +75,7 @@ store_in_conf() {
   if [[ -z "$1" ]]; then return 0; fi
   # shellcheck disable=SC2154
   sed -i "s|^${1}=.*$|$1=${!1}|g" "$configFile"
-} 
-
+}
 
 ## Check openhabian.conf against openhabian.conf.dist for need to add parameters
 ## Add a parameter if it's missing or keep it if user provided.
@@ -87,19 +85,19 @@ store_in_conf() {
 ##    update_openhabian_conf()
 ##
 update_openhabian_conf() {
-  local configFile=/etc/openhabian.conf
-  local referenceConfig=/opt/openhabian/openhabian.conf.dist
+  local configFile="/etc/openhabian.conf"
+  local referenceConfig="/opt/openhabian/openhabian.conf.dist"
 
   cp $configFile ${configFile}.BAK
   while read -r line; do
     # remove optional leading '#'
-    # ensure comments start with '# '
-    if [[ $line =~ ^(#)?[a-zA-Z] ]]; then         # if line is a comment or empty
+    # ensure comments start with '#'
+    if [[ $line =~ ^(#)?[a-zA-Z] ]]; then       # if line is a comment or empty
       parsed=$line
       if [[ $line =~ ^#[a-zA-Z] ]]; then parsed=${line:1}; fi
 
       param=$(echo "$parsed" | cut -d'=' -f1)   # get parameter name first
-      if [[ -v $param ]]; then                # if $param is set it was sourced on start i.e. exists in config
+      if [[ -v $param ]]; then                  # if $param is set it was sourced on start i.e. exists in config
         if [[ ${!param} == *" "* ]]; then
           echo "$param=\"${!param}\""           # if $param contains whitespaces print quotes, too
         else
@@ -114,7 +112,6 @@ update_openhabian_conf() {
     fi
   done > $configFile < $referenceConfig
 }
-
 
 ## Check for updates to the openhabian git repository, if so then issue an update.
 ## This also ensures that announcements will be displayed and that we stay on the correct branch.
@@ -156,8 +153,8 @@ openhabian_update_check() {
     openhabian_update
   fi
   openhabian_announcements
-  echo -n "$(timestamp) [openHABian] Switching to branch ${clonebranch:-stable}... "
-  if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-stable}"; then echo "OK"; else echo "FAILED"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Switching to branch ${clonebranch:-openHAB3}... "
+  if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-openHAB3}"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Updates the current openhabian repository to the most current version of the
@@ -243,7 +240,7 @@ openhabian_update() {
     if [[ -n $INTERACTIVE ]]; then
       echo "Visit the development repository for more details: ${repositoryurl:-https://github.com/openhab/openhabian.git}"
       echo "The tool will now restart to load the updates... OK"
-      exec "${BASEDIR:-/opt/openhabian}/$SCRIPTNAME" migration
+      exec "${BASEDIR:-/opt/openhabian}/$SCRIPTNAME"
       exit 0
     fi
   fi
@@ -268,7 +265,7 @@ migrate_installation() {
   local mountUnits="${serviceDir}/srv-openhab*"
   local from
   local to
-  local distro
+  local distro="stable"
   local javaVersion
 
   if [[ -z $INTERACTIVE  ]]; then
@@ -286,7 +283,6 @@ migrate_installation() {
     fi
     from="openhab2"
     to="openhab"
-    distro="stable"
   else
     if openhab2_is_installed; then
       whiptail --title "openHAB version already installed" --msgbox "openHAB 2 $failText" 10 80
@@ -295,7 +291,6 @@ migrate_installation() {
     fi
     from="openhab"
     to="openhab2"
-    distro="stable"
   fi
   services="srv-${from}\\x2daddons.mount srv-${from}\\x2dconf.mount srv-${from}\\x2duserdata.mount  srv-${from}\\x2dsys.mount"
 

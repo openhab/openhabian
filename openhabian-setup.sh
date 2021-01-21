@@ -48,9 +48,6 @@ source "$configFile"
 if [[ $1 == "unattended" ]]; then
   UNATTENDED="1"
   SILENT="1"
-elif [[ $1 == "migration" ]]; then
-  MIGRATION="1"
-  INTERACTIVE="1"
 else
   INTERACTIVE="1"
 fi
@@ -65,12 +62,10 @@ elif [[ $debugmode == "on" ]]; then
 elif [[ $debugmode == "maximum" ]]; then
   unset SILENT
   DEBUGMAX=1
-
   set -x
 fi
 
-
-export UNATTENDED MIGRATION SILENT DEBUGMAX INTERACTIVE
+export UNATTENDED SILENT DEBUGMAX INTERACTIVE
 
 # Include all subscripts
 # shellcheck source=/dev/null
@@ -126,9 +121,6 @@ else
   load_create_config
   openhabian_console_check
   openhabian_update_check
-  if [[ -n "$MIGRATION" ]]; then
-    bashrc_copy
-  fi
   while show_main_menu; do
     true
   done

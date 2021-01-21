@@ -13,10 +13,10 @@ java_install_or_update() {
 
   # Make sure we don't overwrite existing unsupported installations
   if ! [[ -x $(command -v java) ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"Zulu"* ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"AdoptOpenJDK"* ]]; then
-    if ! [[ -x $(command -v java) ]] && [[ "${cached_java_opt:-Zulu8-32}" == "${java_opt:-Zulu8-32}" ]] && [[ -n $UNATTENDED ]] && java_zulu_dir; then
+    if ! [[ -x $(command -v java) ]] && [[ "${cached_java_opt:-Zulu11-32}" == "${java_opt:-Zulu11-32}" ]] && [[ -n $UNATTENDED ]] && java_zulu_dir; then
       echo "$(timestamp) [openHABian] Installing cached version of Java to ensure that some form of Java is installed!"
-      java_zulu_prerequisite "${cached_java_opt:-Zulu8-32}"
-      java_zulu_install "${cached_java_opt:-Zulu8-32}"
+      java_zulu_prerequisite "${cached_java_opt:-Zulu11-32}"
+      java_zulu_install "${cached_java_opt:-Zulu11-32}"
     fi
     if [[ $1 == "Adopt11" ]]; then
       adoptopenjdk_install_apt
