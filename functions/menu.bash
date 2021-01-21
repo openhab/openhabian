@@ -13,6 +13,7 @@ Menu 30 allows for changing system configuration to match your hardware.
 Note that the raspi-config tool was intentionally removed to not interfere with openhabian-config.
 Menu 50 provides options to backup and restore either your openHAB configuration or the whole system.
 Note backups are NOT active per default so remember to set them up right at the beginning of your journey.
+Menu 60 is to setup Versioning of your config files localy and Commit to Github for online storage.
 \\nVisit these sites for more information:
   - Documentation: https://www.openhab.org/docs/installation/openhabian.html
   - Development: http://github.com/openhab/openhabian
@@ -40,6 +41,7 @@ show_main_menu() {
   "30 | System Settings"         "A range of system and hardware related configuration steps ►" \
   "40 | openHAB Related"         "Switch the installed openHAB version or apply tweaks ►" \
   "50 | Backup/Restore"          "Manage backups and restore your system ►" \
+  "60 | Versioning"              "Setup and Commit. EXPERAMENTAL ►" \
   3>&1 1>&2 2>&3)
   RET=$?
   if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then
@@ -219,6 +221,29 @@ show_main_menu() {
       *Remove\ SD\ mirroring*) setup_mirror_SD "remove" ;;
       54\ *) mirror_SD "raw" ;;
       55\ *) mirror_SD "diff" ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
+    esac
+
+  elif [[ "$choice" == "60"* ]]; then
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Versioning" 16 116 9 --cancel-button Back --ok-button Execute \
+    "60 | Setup"      "Setup new or old Versioning using Github" \
+    "61 | Uninstall"  "Remove Versioning, Keep local config" \
+    "62 | Enable"     "Enable Daily Commit" \
+    "63 | Disable"    "Disable Daily Commit" \
+    "64 | Commit"     "Commit local changes and Push to Github NOW" \
+    "65 | Token"      "Update you're Github Token" \
+    "66 | Log"        "Show Commit log" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    case "$choice2" in
+      60\ *) versioning_setup ;;
+      61\ *) versioning_uninstall ;;
+      62\ *) versioning_enable_auto_commit ;;
+      63\ *) versioning_disable_auto_commit ;;
+      64\ *) versioning_commit ;;
+      65\ *) versioning_tokenupdate ;;
+      66\ *) whiptail --title "Last 5 Commits" --textbox /dev/stdin 12 116 <<<"$(git -C "/" log -5 --pretty=format:"%h - %ar : %s")" ;;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
