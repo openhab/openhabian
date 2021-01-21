@@ -3,16 +3,28 @@ name: Installation
 on:
   push:
     paths-ignore:
+      - 'Dockerfile.*-BATS'
       - '**.md'
       - '**.txt'
       - '**.html'
+      - '**.css'
+      - '**.bats'
       - 'docs/**'
+      - '.github/workflows/bats-action.yml'
+      - '.github/workflows/build-action.yml'
+      - '.github/workflows/shellcheck-action.yml'
   pull_request:
     paths-ignore:
+      - 'Dockerfile.*-BATS'
       - '**.md'
       - '**.txt'
       - '**.html'
+      - '**.css'
+      - '**.bats'
       - 'docs/**'
+      - '.github/workflows/bats-action.yml'
+      - '.github/workflows/build-action.yml'
+      - '.github/workflows/shellcheck-action.yml'
 
 jobs:
   amd64-zulu11-64:

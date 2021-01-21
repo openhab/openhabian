@@ -70,7 +70,7 @@ check_zram_removal() {
   return 0
 }
 
-@test "destructive-zram" {
+@test "installation-zram" {
   if ! is_arm; then skip "Not executing zram test because not on native ARM architecture hardware."; fi
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] ZRAM test installation starting...${COL_DEF}" >&3

@@ -8,19 +8,13 @@ teardown_file() {
   systemctl kill habapp.service || true
 }
 
-@test "installation-habapp_install" {
-  # required packages are not in the package cache
-  run apt-get update
-
-  #
-  # install
-  #
+@test "destructive-habapp_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] HABApp installation starting...${COL_DEF}" >&3
   run habapp_setup install 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] HABApp installation successful.${COL_DEF}" >&3
-  
+
   # Ensure that HABApp doesn't crash on startup
   sleep 5s
 
@@ -30,9 +24,6 @@ teardown_file() {
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] HABApp service is running.${COL_DEF}" >&3
 
-  #
-  # remove
-  #
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] HABApp removal starting...${COL_DEF}" >&3
   run habapp_setup remove 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
