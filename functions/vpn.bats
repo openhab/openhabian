@@ -11,7 +11,7 @@ teardown_file() {
   systemctl kill wg-quick@wg0.service || true
 }
 
-@test "development-wireguard_install" {
+@test "destructive-wireguard_install" {
   if is_ubuntu; then skip "Not executing Wireguard test because it currently does not support Ubuntu."; fi
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN installation starting...${COL_DEF}" >&3

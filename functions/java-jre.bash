@@ -2,7 +2,7 @@
 # shellcheck disable=SC1117,SC2119,SC2120
 
 ## Install appropriate Java version based on current choice.
-## Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
+## Valid arguments: "Adopt11", "Zulu11-32", or "Zulu11-64"
 ##
 ##    java_install_or_update(String type)
 ##
@@ -25,71 +25,45 @@ java_install_or_update() {
         java_zulu_install "$1"
       fi
     fi
-    if [[ $1 == "Zulu8-64" ]] || [[ $1 == "Zulu11-64" ]]; then
+    if [[ $1 == "Zulu11-64" ]]; then
       if is_aarch64 || is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
         if is_x86_64; then
-          if [[ $1 == "Zulu8-64" ]]; then
-            java_zulu_enterprise_apt "8"
-          elif [[ $1 == "Zulu11-64" ]]; then
-            java_zulu_enterprise_apt "11"
-          fi
+          java_zulu_enterprise_apt
         else
-          if [[ $1 == "Zulu8-64" ]]; then
-            if cond_redirect java_zulu_update_available "Zulu8-64"; then
-              java_zulu_prerequisite "Zulu8-64"
-              if [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
-                java_zulu_stable "Zulu8-64"
-              else
-                java_zulu_fetch "Zulu8-64"
-                java_zulu_install "Zulu8-64"
-              fi
-            fi
-          elif [[ $1 == "Zulu11-64" ]]; then
-            if cond_redirect java_zulu_update_available "Zulu11-64"; then
-              java_zulu_prerequisite "Zulu11-64"
-              if [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
-                java_zulu_stable "Zulu11-64"
-              else
-                java_zulu_fetch "Zulu11-64"
-                java_zulu_install "Zulu11-64"
-              fi
+          if cond_redirect java_zulu_update_available "Zulu11-64"; then
+            java_zulu_prerequisite "Zulu11-64"
+            if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
+              java_zulu_stable "Zulu11-64"
+            else
+              java_zulu_fetch "Zulu11-64"
+              java_zulu_install "Zulu11-64"
             fi
           fi
         fi
       else
         if [[ -n $INTERACTIVE ]]; then
-          whiptail --title "Incompatible hardware detected" --msgbox "Zulu OpenJDK 64-bit: this option does not currently work on your platform.\\n\\nDefaulting to Java Zulu 8 32-bit installation." 9 80
+          whiptail --title "Incompatible hardware detected" --msgbox "Zulu OpenJDK 64-bit: this option does not currently work on your platform.\\n\\nDefaulting to Java Zulu 11 32-bit installation." 9 80
         else
-          echo "$(timestamp) [openHABian] Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to Java Zulu 8 32-bit installation."
-          if cond_redirect java_zulu_update_available "Zulu8-32"; then
-            java_zulu_prerequisite "Zulu8-32"
-            if [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
-              java_zulu_stable "Zulu8-32"
+          echo "$(timestamp) [openHABian] Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to Java Zulu 11 32-bit installation."
+          if cond_redirect java_zulu_update_available "Zulu11-32"; then
+            java_zulu_prerequisite "Zulu11-32"
+            if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
+              java_zulu_stable "Zulu11-32"
             else
-              java_zulu_fetch "Zulu8-32"
-              java_zulu_install "Zulu8-32"
+              java_zulu_fetch "Zulu11-32"
+              java_zulu_install "Zulu11-32"
             fi
           fi
         fi
       fi
     elif [[ $1 != "Adopt11" ]]; then # Default to 32-bit installation
-      if [[ $1 == "Zulu11-32" ]]; then
-        if cond_redirect java_zulu_update_available "Zulu11-32"; then
-          java_zulu_prerequisite "Zulu11-32"
-          if [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
-            java_zulu_stable "Zulu11-32"
-          else
-            java_zulu_fetch "Zulu11-32"
-            java_zulu_install "Zulu11-32"
-          fi
-        fi
-      elif cond_redirect java_zulu_update_available "Zulu8-32"; then
-        java_zulu_prerequisite "Zulu8-32"
-        if [[ $branch == "stable" ]] && [[ -z $UNATTENDED ]]; then
-          java_zulu_stable "Zulu8-32"
+      if cond_redirect java_zulu_update_available "Zulu11-32"; then
+        java_zulu_prerequisite "Zulu11-32"
+        if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
+          java_zulu_stable "Zulu11-32"
         else
-          java_zulu_fetch "Zulu8-32"
-          java_zulu_install "Zulu8-32"
+          java_zulu_fetch "Zulu11-32"
+          java_zulu_install "Zulu11-32"
         fi
       fi
     fi
@@ -102,13 +76,13 @@ java_install_or_update() {
 }
 
 ## Install Java Zulu prerequisites (libc, libstdc++, zlib1g)
-## Valid arguments: "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
+## Valid arguments: "Zulu11-32" or "Zulu11-64"
 ##
 ##    java_zulu_prerequisite(String type)
 ##
 java_zulu_prerequisite() {
   echo -n "$(timestamp) [openHABian] Installing Java Zulu prerequisites (libc, libstdc++, zlib1g)... "
-  if [[ $1 == "Zulu8-64" ]] || [[ $1 == "Zulu11-64" ]]; then
+  if [[ $1 == "Zulu11-64" ]]; then
     if is_aarch64 && [[ $(getconf LONG_BIT) == 64 ]]; then
       if dpkg -s 'libc6:arm64' 'libstdc++6:arm64' 'zlib1g:arm64' &> /dev/null; then echo "OK"; return 0; fi
       dpkg --add-architecture arm64
@@ -140,7 +114,7 @@ java_zulu_prerequisite() {
 }
 
 ## Use special handling when installing Zulu on the stable branch
-## Valid arguments: "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
+## Valid arguments: "Zulu11-32" or "Zulu11-64"
 ##
 ##    java_zulu_stable(String type)
 ##
@@ -161,37 +135,19 @@ java_zulu_stable() {
 }
 
 ## Install Java Zulu directly from fetched files
-## Valid arguments: "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
+## Valid arguments: "Zulu11-32", or "Zulu11-64"
 ##
 ##    java_zulu_install(String type)
 ##
 java_zulu_install() {
-  local jdkArch
   local jdkBin
   local jdkLib
 
   jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
   jdkLib="$(find /opt/jdk/*/lib ... -print -quit)"
-  if [[ $1 == "Zulu8-64" ]] || [[ $1 == "Zulu11-64" ]]; then
-    if is_aarch64 && [[ $(getconf LONG_BIT) == 64 ]]; then
-      jdkArch="aarch64"
-    elif is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
-      jdkArch="amd64"
-    fi
-  else
-    if is_arm; then
-      jdkArch="aarch32"
-    else
-      jdkArch="i386"
-    fi
-  fi
 
-  if [[ $1 == "Zulu8-32" ]]; then
-    echo -n "$(timestamp) [openHABian] Installing Java Zulu 8 32-Bit OpenJDK... "
-  elif [[ $1 == "Zulu11-32" ]]; then
+  if [[ $1 == "Zulu11-32" ]]; then
     echo -n "$(timestamp) [openHABian] Installing Java Zulu 11 32-Bit OpenJDK... "
-  elif [[ $1 == "Zulu8-64" ]]; then
-    echo -n "$(timestamp) [openHABian] Installing Java Zulu 8 64-Bit OpenJDK... "
   elif [[ $1 == "Zulu11-64" ]]; then
     echo -n "$(timestamp) [openHABian] Installing Java Zulu 11 64-Bit OpenJDK... "
   else
@@ -212,15 +168,9 @@ java_zulu_install() {
   cond_redirect update-alternatives --install /usr/bin/rmiregistry rmiregistry "$jdkBin"/rmiregistry 1000000
   cond_redirect update-alternatives --install /usr/bin/unpack200 unpack200 "$jdkBin"/unpack200 1000000
   cond_redirect update-alternatives --install /usr/bin/jexec jexec "$jdkLib"/jexec 1000000
-  if [[ $1 == "Zulu8"* ]]; then
-    echo "$jdkLib"/"$jdkArch" > /etc/ld.so.conf.d/java.conf
-    echo "$jdkLib"/"$jdkArch"/jli >> /etc/ld.so.conf.d/java.conf
-    echo "$jdkLib"/"$jdkArch"/client >> /etc/ld.so.conf.d/java.conf
-  elif [[ $1 == "Zulu11"* ]]; then
-    echo "$jdkLib" > /etc/ld.so.conf.d/java.conf
-    echo "$jdkLib"/jli >> /etc/ld.so.conf.d/java.conf
-    echo "$jdkLib"/client >> /etc/ld.so.conf.d/java.conf
-  fi
+  echo "$jdkLib" > /etc/ld.so.conf.d/java.conf
+  echo "$jdkLib"/jli >> /etc/ld.so.conf.d/java.conf
+  echo "$jdkLib"/client >> /etc/ld.so.conf.d/java.conf
   if ldconfig; then echo "OK"; else echo "FAILED"; return 1; fi
 
   java_zulu_install_crypto_extension
@@ -230,8 +180,8 @@ java_zulu_install() {
   fi
 }
 
-## Fetch Java Zulu 8 directly from Azul API v1
-## Valid arguments: "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
+## Fetch Java Zulu directly from Azul API v1
+## Valid arguments: "Zulu11-32" or "Zulu11-64"
 ##
 ##    java_zulu_fetch(String type, String prefix)
 ##
@@ -243,26 +193,12 @@ java_zulu_fetch() {
   jdkInstallLocation="${2}/opt/jdk"
   link="https://api.azul.com/zulu/download/community/v1.0/bundles/latest/binary/?os=linux&ext=tar.gz&javafx=false"
 
-  if [[ $1 == "Zulu8-32" ]]; then
-    echo -n "$(timestamp) [openHABian] Downloading Java Zulu 8 32-Bit OpenJDK... "
-    if is_arm; then
-      downloadLink="$(curl "${link}&jdk_version=8&arch=arm&hw_bitness=32&abi=hard_float" -s -L -I -o /dev/null -w '%{url_effective}')"
-    else
-      downloadLink="$(curl "${link}&jdk_version=8&arch=x86&hw_bitness=32&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
-    fi
-  elif [[ $1 == "Zulu11-32" ]]; then
+  if [[ $1 == "Zulu11-32" ]]; then
     echo -n "$(timestamp) [openHABian] Downloading Java Zulu 11 32-Bit OpenJDK... "
     if is_arm; then
       downloadLink="$(curl "${link}&jdk_version=11&arch=arm&hw_bitness=32&abi=hard_float" -s -L -I -o /dev/null -w '%{url_effective}')"
     else
       downloadLink="$(curl "${link}&jdk_version=11&arch=x86&hw_bitness=32&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
-    fi
-  elif [[ $1 == "Zulu8-64" ]]; then
-    echo -n "$(timestamp) [openHABian] Downloading Java Zulu 8 64-Bit OpenJDK... "
-    if is_arm; then
-      downloadLink="$(curl "${link}&jdk_version=8&arch=arm&hw_bitness=64" -s -L -I -o /dev/null -w '%{url_effective}')"
-    else
-      downloadLink="$(curl "${link}&jdk_version=8&arch=x86&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
     fi
   elif [[ $1 == "Zulu11-64" ]]; then
     echo -n "$(timestamp) [openHABian] Downloading Java Zulu 11 64-Bit OpenJDK... "
@@ -281,9 +217,9 @@ java_zulu_fetch() {
   if cond_redirect rm -rf "$jdkInstallLocation"/zulu.tar.gz; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
 }
 
-## Check if a newer version of Java Zulu 8 is available.
+## Check if a newer version of Java Zulu is available.
 ## Returns 0 / true if new version exists
-## Valid arguments: "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
+## Valid arguments: "Zulu11-32" or "Zulu11-64"
 ##
 ##    java_zulu_update_available(String type)
 ##
@@ -291,8 +227,7 @@ java_zulu_update_available() {
   if ! [[ -x $(command -v java) ]]; then return 0; fi
 
   local availableVersion
-  local filter8
-  local filter11
+  local filter
   local javaArch
   local javaVersion
   local jdkBin
@@ -304,43 +239,26 @@ java_zulu_update_available() {
     if cond_redirect apt-get install --yes jq; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  filter8='[.zulu_version[] | tostring] | join(".")'
-  filter11='[.jdk_version[] | tostring] | join(".")'
+  filter='[.jdk_version[] | tostring] | join(".")'
   jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
   javaVersion="$("${jdkBin}"/java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1 | sed 's|+|.|g')"
   link="https://api.azul.com/zulu/download/community/v1.0/bundles/latest/?os=linux&ext=tar.gz&javafx=false"
 
-  if [[ $1 == "Zulu8-32" ]]; then
+  if [[ $1 == "Zulu11-32" ]]; then
     if is_arm; then
       requestedArch="aarch32hf"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter8")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter")"
     else
       requestedArch="i686"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter8")"
-    fi
-  elif [[ $1 == "Zulu11-32" ]]; then
-    if is_arm; then
-      requestedArch="aarch32hf"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter11")"
-    else
-      requestedArch="i686"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter11")"
-    fi
-  elif [[ $1 == "Zulu8-64" ]]; then
-    if is_arm; then
-      requestedArch="aarch64"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=arm&hw_bitness=64" | jq -r "$filter8")"
-    else
-      requestedArch="x64"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=8&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter8")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter")"
     fi
   elif [[ $1 == "Zulu11-64" ]]; then
     if is_arm; then
       requestedArch="aarch64"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=arm&hw_bitness=64" | jq -r "$filter11")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=arm&hw_bitness=64" | jq -r "$filter")"
     else
       requestedArch="x64"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter11")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter")"
     fi
   fi
   if [[ -z $requestedArch ]] || [[ -z $availableVersion ]]; then echo "FAILED (java update available)"; return 1; fi
@@ -356,33 +274,29 @@ java_zulu_update_available() {
 }
 
 ## Install Azul's Java Zulu Enterprise using APT repository.
-## Package manager distributions are only available on x86-64bit platforms when checked in July 2020
-## Valid arguments: "8" or "11"
+## Package manager distributions are only available on x86-64bit platforms when checked in January 2021
 ##
 ##    java_zulu_enterprise_apt(String ver)
 ##
 java_zulu_enterprise_apt() {
-    if ! add_keys "https://www.azul.com/files/0xB1998361219BD9C9.txt"; then return 1; fi
+  if ! add_keys "https://www.azul.com/files/0xB1998361219BD9C9.txt"; then return 1; fi
 
-    echo -n "$(timestamp) [openHABian] Adding Zulu repository to apt... "
-    if ! echo "deb http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list; then echo "FAILED"; return 1; fi
-    if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Adding Zulu repository to apt... "
+  if ! echo "deb http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list; then echo "FAILED"; return 1; fi
+  if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
-    if openhab_is_running; then
-      cond_redirect systemctl stop openhab.service
-    fi
-    if [[ $1 == "8" ]] && ! dpkg -s 'zulu-8' &> /dev/null; then
-      echo -n "$(timestamp) [openHABian] Installing Zulu 8 Enterprise 64-Bit OpenJDK... "
-      if cond_redirect apt-get install --yes zulu-8; then echo "OK"; else echo "FAILED"; return 1; fi
-    elif [[ $1 == "11" ]] && ! dpkg -s 'zulu-11' &> /dev/null; then
-      echo -n "$(timestamp) [openHABian] Installing Zulu 11 Enterprise 64-Bit OpenJDK... "
-      if cond_redirect apt-get install --yes zulu-11; then echo "OK"; else echo "FAILED"; return 1; fi
-    fi
-    if openhab_is_installed; then
-      cond_redirect systemctl restart openhab.service
-    fi
+  if openhab_is_running; then
+    cond_redirect systemctl stop openhab.service
+  fi
+  if ! dpkg -s 'zulu-11' &> /dev/null; then
+    echo -n "$(timestamp) [openHABian] Installing Zulu 11 Enterprise 64-Bit OpenJDK... "
+    if cond_redirect apt-get install --yes zulu-11; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+  if openhab_is_installed; then
+    cond_redirect systemctl restart openhab.service
+  fi
 
-    java_zulu_install_crypto_extension
+  java_zulu_install_crypto_extension
 }
 
 ## Install Zulu Cryptography Extension Kit to enable cryptos using more then 128 bits
