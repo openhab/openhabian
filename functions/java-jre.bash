@@ -140,25 +140,11 @@ java_zulu_stable() {
 ##    java_zulu_install(String type)
 ##
 java_zulu_install() {
-  local jdkArch
   local jdkBin
   local jdkLib
 
   jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
   jdkLib="$(find /opt/jdk/*/lib ... -print -quit)"
-  if [[ $1 == "Zulu11-64" ]]; then
-    if is_aarch64 && [[ $(getconf LONG_BIT) == 64 ]]; then
-      jdkArch="aarch64"
-    elif is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
-      jdkArch="amd64"
-    fi
-  else
-    if is_arm; then
-      jdkArch="aarch32"
-    else
-      jdkArch="i386"
-    fi
-  fi
 
   if [[ $1 == "Zulu11-32" ]]; then
     echo -n "$(timestamp) [openHABian] Installing Java Zulu 11 32-Bit OpenJDK... "
