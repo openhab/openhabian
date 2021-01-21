@@ -3,6 +3,7 @@ name: BATS
 on:
   push:
     paths:
+      - 'Dockerfile.*-BATS'
       - 'functions/*.bats'
       - 'functions/*.bash'
       - '!functions/wifi.bash'
@@ -18,6 +19,7 @@ on:
       - '.github/workflows/bats-action.yml'
   pull_request:
     paths:
+      - 'Dockerfile.*-BATS'
       - 'functions/*.bats'
       - 'functions/*.bash'
       - '!functions/wifi.bash'

@@ -13,7 +13,7 @@ RUN [ "cross-build-start" ]
 RUN apt-get update -qq && \
     apt-get install --yes -qq --no-install-recommends systemd systemd-sysv \
         git wget python3 python3-pip apt-utils jq lsb-release unzip \
-        apt-transport-https acl && \
+        apt-transport-https gnupg acl && \
     rm -rf /var/lib/apt/lists/*
 
 ENV container docker
@@ -57,7 +57,8 @@ COPY . /opt/openhabian/
 COPY build-image/openhabian.conf /etc/openhabian.conf
 
 WORKDIR /opt/openhabian/
-RUN bats --tap --recursive --filter "development-." . && \
+RUN apt-get update && \
+    bats --tap --recursive --filter "development-." . && \
     bats --tap --recursive --filter "unit-." . && \
     bats --tap --recursive --filter "installation-." . && \
     bats --tap --recursive --filter "destructive-." .
