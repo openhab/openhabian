@@ -254,6 +254,7 @@ openhabian_update() {
   fi
 }
 
+
 ## Check for default system password and if found issue a warning and suggest
 ## changing the password.
 ##
