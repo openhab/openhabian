@@ -13,16 +13,16 @@
 # than the compression algorithm is capable of as it will waste memory because
 # there is a ~0.1% memory overhead when empty
 #
-# swap_priority will set ZRAM over alternative swap devices.
+# swap_priority will set zram over alternative swap devices.
 #
 # page-cluster 0 means tuning to singular pages rather than the default 3 which
 # caches 8 for HDD tuning, which can lower latency.
 #
-# swappiness 80 because the improved performance of ZRAM allows more usage
+# swappiness 80 because the improved performance of zram allows more usage
 # without any adverse affects from the default of 60. It can be raised up to 100
 # but that will increase process queue on intense loads such as boot time.
 #
-# target_dir is the directory you wish to hold in ZRAM, and the original will be
+# target_dir is the directory you wish to hold in zram, and the original will be
 # moved to a bind mount 'bind_dir' and is synchronized on start, stop, and write
 # commands.
 #
@@ -30,13 +30,13 @@
 # sync purposes. Usually in '/opt' or '/var', name optional.
 #
 # oldlog_dir will enable log-rotation to an off device directory while retaining
-# only live logs in ZRAM. Usually in '/opt' or '/var', name optional.
+# only live logs in zram. Usually in '/opt' or '/var', name optional.
 #
-# If you need multiple ZRAM swaps or ZRAM directories, just create another entry
+# If you need multiple zram swaps or zram directories, just create another entry
 # in this file.
-# To do this safely, first stop ZRAM using 'zram-config "stop"',
+# To do this safely, first stop zram using 'zram-config "stop"',
 # then edit this file.
-# Once finished, restart ZRAM using 'systemctl restart zram-config.service'.
+# Once finished, restart zram using 'systemctl restart zram-config.service'.
 
 # swap	alg		mem_limit	disk_size	swap_priority	page-cluster	swappiness
 swap	lzo-rle		200M		600M		75		0		80

@@ -73,7 +73,7 @@ check_zram_removal() {
 @test "installation-zram" {
   if ! is_arm; then skip "Not executing zram test because not on native ARM architecture hardware."; fi
 
-  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] ZRAM test installation starting...${COL_DEF}" >&3
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zram test installation starting...${COL_DEF}" >&3
   run init_zram_mounts "install" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]

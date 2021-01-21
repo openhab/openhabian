@@ -136,8 +136,8 @@ show_main_menu() {
     "36 | WiFi setup"             "Configure wireless network connection" \
     "   | Disable WiFi"           "Disable wireless network connection" \
     "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
-    "38 | Use ZRAM"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
-    "   | Uninstall ZRAM"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
+    "38 | Use zram"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
+    "   | Uninstall zram"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
     "39 | Setup Exim Mail Relay"  "Install Exim4 to relay mails via public email provider" \
     "3A | Setup Tailscale VPN"    "Establish or join a WireGuard based VPN using the Tailscale service" \
     "   | Remove Tailscale VPN"   "Remove the Tailscale VPN service" \
@@ -158,7 +158,7 @@ show_main_menu() {
       *Disable\ WiFi) configure_wifi disable ;;
       37\ *) move_root2usb ;;
       38\ *) init_zram_mounts "install" ;;
-      *Uninstall\ ZRAM) init_zram_mounts "uninstall" ;;
+      *Uninstall\ zram) init_zram_mounts "uninstall" ;;
       39\ *) exim_setup ;;
       3A\ *) if install_tailscale install; then setup_tailscale; fi;;
       *Remove\ Tailscale*) install_tailscale remove;;
@@ -227,5 +227,5 @@ show_main_menu() {
   fi
 
   # shellcheck disable=SC2154,SC2181
-  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or https://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md how to proceed." 14 80; return 0; fi
+  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or https://github.com/openhab/openhabian/blob/main/docs/openhabian-DEBUG.md how to proceed." 14 80; return 0; fi
 }

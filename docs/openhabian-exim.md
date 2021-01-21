@@ -5,8 +5,8 @@ In case you enter anything wrong you can re-initiate the installation process fr
 
 ::: tip if you relay via mail.gmail.com or mail.gmx.net
 Both of these freemailers will only forward your mail when you authenticate with your Google/GMX username first.
-Additionally, GMX requires the "From:" address to be your GMX mail address. Google allows for arbitrary From: but will
-override any From: with your Gmail address.
+Additionally, GMX requires the "From:" address to be your GMX mail address.
+Google allows for arbitrary From: but will override any From: with your Gmail address.
 :::
 
 Here is what you will need to enter:

@@ -66,7 +66,7 @@ java_opt=Zulu11-32
 # Valid arguments: "light", "dark"
 frontailtheme=light
 
-# install ZRAM per default, set to "disable" to skip installation
+# install zram per default, set to "disable" to skip installation
 zraminstall=enable
 
 # start comitup hotspot if internet is not reachable

@@ -11,14 +11,14 @@ move_root2usb() {
     return 0
   fi
   if [[ -f /etc/ztab ]]; then
-    echo "$(timestamp) [openHABian] Move root to USB must not be used while using ZRAM! Canceling move root to USB!"
-    whiptail --title "Incompatible selection detected!" --msgbox "Move root to USB must not be used together with ZRAM.\\n\\nIf you want to mitigate SD card corruption, don't use this but stay with ZRAM, it is the proper choice.\\n\\nIf you want to move for other reasons, uninstall ZRAM first then return here." 13 80
+    echo "$(timestamp) [openHABian] Move root to USB must not be used while using zram! Canceling move root to USB!"
+    whiptail --title "Incompatible selection detected!" --msgbox "Move root to USB must not be used together with zram.\\n\\nIf you want to mitigate SD card corruption, don't use this but stay with zram, it is the proper choice.\\n\\nIf you want to move for other reasons, uninstall zram first then return here." 13 80
     return 0
   fi
 
   local newRootDev="/dev/sda"
   local newRootPart="/dev/sda1"
-  local introText="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will move your system root from your SD card to a USB device like an SSD or a USB stick.\\nATTENTION: this is NOT the recommended method to reduce wearout and failure of the SD card. If that is your intention, stop here and go for ZRAM (menu option 38).\\n\\nIf you still want to proceed,\\n1.) Ensure your RPi model can boot from a device other than the internal SD card reader.\\n2.) Make a backup of your SD card\\n3.) Remove all USB mass storage devices from your Pi\\n4.) Insert the USB device to be used for the new system root.\\n\\nTHIS DEVICE WILL BE COMPLETELY DELETED!\\n\\nDo you want to continue at your own risk?"
+  local introText="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will move your system root from your SD card to a USB device like an SSD or a USB stick.\\nATTENTION: this is NOT the recommended method to reduce wearout and failure of the SD card. If that is your intention, stop here and go for zram (menu option 38).\\n\\nIf you still want to proceed,\\n1.) Ensure your RPi model can boot from a device other than the internal SD card reader.\\n2.) Make a backup of your SD card\\n3.) Remove all USB mass storage devices from your Pi\\n4.) Insert the USB device to be used for the new system root.\\n\\nTHIS DEVICE WILL BE COMPLETELY DELETED!\\n\\nDo you want to continue at your own risk?"
   local rootOnSD
   local rootPart
   local srcSize

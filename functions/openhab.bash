@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-## Generate systemd dependencies for ZRAM, Frontail and others to start together with OH
+## Generate systemd dependencies for zram, Frontail and others to start together with OH
 ## This is done using /etc/systemd/system/openhab.service.d/override.conf
 ##
 ##    create_systemd_dependencies()
