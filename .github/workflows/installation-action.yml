@@ -15,23 +15,6 @@ on:
       - 'docs/**'
 
 jobs:
-  amd64-zulu8-64:
-    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
-    runs-on: ubuntu-20.04
-
-    steps:
-       - name: Checkout repository
-         uses: actions/checkout@v2
-       - name: Setup environment
-         run: |
-           sudo -E bash -c set
-           sudo -E ./ci-setup.bash github
-       - name: "openHABian installation test with 64bit Azul Java 8 on native a amd64"
-         run: |
-           echo -e "\e[36mopenHABian test installation using 64bit Azul Enterprise Java 8 running on a\e[31m 64bit OS\e[36m running on a native amd64...\e[0m\n"
-           sed -i 's|^java_opt=.*$|java_opt=Zulu8-64|' build-image/openhabian.conf
-           docker build -f Dockerfile.amd64-installation .
-         shell: bash
   amd64-zulu11-64:
     # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
     runs-on: ubuntu-20.04
@@ -48,23 +31,6 @@ jobs:
            echo -e "\e[36mopenHABian test installation using 64bit Azul Enterprise Java 11 running on a\e[31m 64bit OS\e[36m running on a native amd64...\e[0m\n"
            sed -i 's|^java_opt=.*$|java_opt=Zulu11-64|' build-image/openhabian.conf
            docker build -f Dockerfile.amd64-installation .
-         shell: bash
-  rpi2-zulu8-32:
-    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
-    runs-on: ubuntu-20.04
-
-    steps:
-       - name: Checkout repository
-         uses: actions/checkout@v2
-       - name: Setup environment
-         run: |
-           sudo -E bash -c set
-           sudo -E ./ci-setup.bash github
-       - name: "openHABian installation test with 32bit Azul Java 8 on a virtual RPi2"
-         run: |
-           echo -e "\e[36mopenHABian test installation using 32bit Azul Embedded Java 8 running on a\e[31m 32bit OS\e[36m running on a virtual RPi2...\e[0m\n"
-           sed -i 's|^java_opt=.*$|java_opt=Zulu8-32|' build-image/openhabian.conf
-           docker build -f Dockerfile.rpi2-installation .
          shell: bash
   rpi3-zulu11-32:
     # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
@@ -98,23 +64,6 @@ jobs:
          run: |
            echo -e "\e[36mopenHABian test installation using 64bit Azul Embedded Java 11 running on a\e[31m 64bit OS\e[36m running on a virtual RPi3...\e[0m\n"
            sed -i 's|^java_opt=.*$|java_opt=Zulu11-64|' build-image/openhabian.conf
-           docker build -f Dockerfile.rpi3-64-installation .
-         shell: bash
-  rpi3-zulu8-64:
-    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
-    runs-on: ubuntu-20.04
-
-    steps:
-       - name: Checkout repository
-         uses: actions/checkout@v2
-       - name: Setup environment
-         run: |
-           sudo -E bash -c set
-           sudo -E ./ci-setup.bash github
-       - name: "openHABian installation test with 64bit Azul Java 8 on a virtual RPi3"
-         run: |
-           echo -e "\e[36mopenHABian test installation using 64bit Azul Embedded Java 8 running on a\e[31m 64bit OS\e[36m running on a virtual RPi3...\e[0m\n"
-           sed -i 's|^java_opt=.*$|java_opt=Zulu8-64|' build-image/openhabian.conf
            docker build -f Dockerfile.rpi3-64-installation .
          shell: bash
   rpi2-adopt11:
