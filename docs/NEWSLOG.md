@@ -1,3 +1,10 @@
+## Future of master branch ## January 20, 2021
+We will no longer make regular updates to the master branch as we migrate away from supporting openHAB2.
+As such in the coming months we will make bug fixes directly to the 'stable' branch for openHA2.
+With that said, please migrate off of the 'master' branch as it will be deleted soon.
+You can change branches at any time use menu option 01.
+
+
 ## openHAB 3 released ## December 21, 2020
 In the darkest of times (midwinter for most of us), openHAB 3 was released.
 See [documentation](docs/openhabian.md#on-openhab3) and [www.openhab.org](http://www.openhab.org) for details.
@@ -39,6 +46,7 @@ another card in an external port. This allows for fast swapping of cards
 to reduce impact of a failed SD card.
 The remaining space on the external device can also be used to setup openHABian
 's Amanda backup system.
+
 
 ## Wireguard VPN ## July 4, 2020
 Wireguard can be deployed to enable for VPN access to your openHABian box when
