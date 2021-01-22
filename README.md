@@ -32,8 +32,8 @@ Also get another 32 GB or larger SD card and a USB card reader to make use of th
 ["auto backup" feature](docs/openhabian.md#Auto-Backup).
 ***
 ATTENTION:<br>
-Avoid getting the 8 GB model of RPi 4. 8 GB are a waste of money and it has issues,
-you must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram) or use the 64bit image (untested).
+Avoid getting the 8 GB model of RPi 4.<br>
+8 GB are a waste of money and it has issues, you must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram) or use the 64bit image (untested).
 ***
 ## Hardware and OS support
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as
@@ -52,7 +52,7 @@ memory hungry applications named above.
 Supporting hardware means testing every single patch and every release. There
 are simply too many combinations of SBCs, peripherals and OS flavors that
 maintainers do not have available, or, even if they did, the time to spend on
-the testing efforts that is required to make openHABian a reliable system.
+the testing efforts that is required to make openHABian a reliable system.<br>
 Let's make sure you understand the implications of these statements: it means
 that to run on hardware other than RPi 2/3/4 or (bare metal i.e. not virtualized)
 x86 may work but this is **not** supported.
