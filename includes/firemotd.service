@@ -6,7 +6,7 @@ After=network.target network-online.target
 Type=oneshot
 User=root
 Group=root
-RemainAfterExit=yes
+RemainAfterExit=no
 ExecStart=/usr/local/bin/FireMotD -S -D all &> /dev/null
 
 [Install]
