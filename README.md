@@ -35,7 +35,7 @@ ATTENTION:<br>
 Avoid getting the 8 GB model of RPi 4.<br>
 8 GB are a waste of money and it has issues, you must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram) or use the 64bit image (untested).
 ***
-## Hardware and OS support
+## Hardware support
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as
 hardware. Anything x86 based may work or not. Anything else ARM based such as ODroids,
 OrangePis and the like may work or not. NAS servers such as QNAP and Synology
@@ -71,6 +71,7 @@ For ARM hardware that we don't support, you can try any of the [fake hardware pa
 to 'simulate' RPi hardware and Raspi OS. If that still doesn't work for
 you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try.
 
+## OS support
 Going beyond what the RPi image provides, as a manually installed set of
 scripts, we support running openHABian on x86 hardware on generic Debian.
 On ARM, we only support Raspberry Pi OS.
@@ -80,7 +81,7 @@ We do **not** actively **support Ubuntu** so no promises but we provide code
 such as WireGuard or Homegear, are known to expose problems.
 
 We expect you to use the current stable distribution, 'buster' for Raspberry
-Pi OS (ARM) and Debian (x86) and 'focal' for Ubuntu (x86) this is.
+Pi OS (ARM) and Debian (x86).
 To install openHABian on anything older or newer may work or not. If you
 encounter issues, you may need to upgrade first or to live with the consequences
 of running an OS on the edge of software development.
