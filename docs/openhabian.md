@@ -115,9 +115,8 @@ Going beyond what the RPi image provides, as a manually installed set of
 scripts, we support running openHABian on x86 hardware on generic Debian.
 On ARM, we only support Raspberry Pi OS.
 These are what we develop and test openHABian against.
-We do **not** actively **support Ubuntu** so no promises but we provide code
-"as-is" that is known to run on there. Several optional components though,
-such as WireGuard or Homegear, are known to expose problems.
+We do **not support Ubuntu** so no promises. We provide code "as-is", it may work or not.
+Several optional components such as WireGuard or Homegear are known to expose problems.
 
 We expect you to use the current stable distribution, 'buster' for Raspberry
 Pi OS (ARM) and Debian (x86).
