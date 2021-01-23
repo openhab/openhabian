@@ -5,6 +5,7 @@ Description=Daily generation of FireMotD stats
 OnCalendar=*-*-* 00:00
 RandomizedDelaySec=6h
 Persistent=true
+RemainAfterElapse=true
 
 [Install]
 WantedBy=timers.target
