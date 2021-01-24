@@ -78,6 +78,9 @@ cd /opt || exit 1
 # update openhabian.conf to have latest set of parameters
 update_openhabian_conf
 
+# eventually set CPU speed
+set_cpu_speed
+
 # disable ipv6 if requested in openhabian.conf (eventually reboots)
 config_ipv6
 
