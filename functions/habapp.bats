@@ -8,7 +8,8 @@ teardown_file() {
   systemctl kill habapp.service || true
 }
 
-@test "destructive-habapp_install" {
+# Leave disabled unless actively developing for HABapp as it takes ~20 minutes to run on GitHub Actions
+@test "inactive-habapp_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] HABApp installation starting...${COL_DEF}" >&3
   run habapp_setup install 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi

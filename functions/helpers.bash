@@ -340,6 +340,7 @@ is_focal() {
   return $?
 }
 running_in_docker() {
+  if [[ -n $DOCKER ]]; then return 0; fi
   if grep -qs 'docker\|lxc' /proc/1/cgroup; then
     return 0
   else

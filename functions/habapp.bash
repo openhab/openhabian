@@ -10,7 +10,7 @@ habapp_setup() {
   local installFolder="/opt"
   local venvName="habapp"
   local configFolder="/etc/openhab/habapp"
-  local serviceFile=/etc/systemd/system/habapp.service
+  local serviceFile="/etc/systemd/system/habapp.service"
 
   if [[ $1 == "remove" ]]; then
     echo -n "$(timestamp) [openHABian] Removing HABApp service ... "
@@ -28,18 +28,18 @@ habapp_setup() {
   fi
   if [[ $1 != "install" ]]; then return 1; fi
 
-  echo -n "$(timestamp) [openHABian] Installing HABApp prerequisites (pip, venv) ... "
-  if cond_redirect apt-get install --yes python3-pip python3-dev python3-venv; then echo "OK"; else echo "FAILED"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Installing HABApp prerequisites (dev, venv) ... "
+  if cond_redirect apt-get install --yes python3-dev python3-venv; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Creating venv ... "
   if ! cond_redirect cd "$installFolder"; then echo "FAILED"; return 1; fi
   if cond_redirect python3 -m venv "$venvName"; then echo "OK"; else echo "FAILED"; return 1; fi
-  
+
   echo -n "$(timestamp) [openHABian] Installing HABApp ... "
   if ! cond_redirect cd "$venvName"; then echo "FAILED"; return 1; fi
   if ! cond_redirect source bin/activate; then echo "FAILED"; return 1; fi
 
-  if ! cond_redirect python3 -m pip install --upgrade pip habapp; then echo "FAILED"; return 1; fi
+  if ! cond_redirect python3 -m pip install --upgrade habapp; then echo "FAILED"; return 1; fi
   if cond_redirect deactivate; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Creating HABApp configuration folder ... "
@@ -51,7 +51,7 @@ habapp_setup() {
   if ! (sed -e 's|%USERNAME|'"${username}"'|g' "${BASEDIR:-/opt/openhabian}"/includes/habapp.service > ${serviceFile}); then echo "FAILED (install habapp service)"; return 1; fi
 
   if cond_redirect systemctl enable --now habapp.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
-  
+
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "HABApp installed" --msgbox "HABApp was successfully installed on your system. A folder 'habapp' was created inside your openHAB configuration folder." 8 80
   fi

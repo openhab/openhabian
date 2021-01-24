@@ -7,10 +7,10 @@
 hostname=openhabian
 # if it exists, the default user (with its working environment) will be renamed to this username given here ...
 username=openhabian
-# and given this password. The password will be removed from this file after completion for security reasons.
+# ... and given this password. The password will be removed from this file after completion for security reasons.
 userpw=openhabian
 # set this to download a SSH key and authorize the owner to login as the admin user
-#adminkeyurl=https://github.com/openhab/openhabian/adminkey.pub
+adminkeyurl=""
 
 # Language and timezone. See Debian documentation for valid values.
 timezone=Europe/Berlin
@@ -59,7 +59,7 @@ debugmode=off
 #osrelease=buster
 
 # Java architecture mode
-# Valid arguments: "Adopt11", "Zulu8-32", "Zulu8-64", "Zulu11-32", or "Zulu11-64"
+# Valid arguments: "Adopt11", "Zulu11-32", or "Zulu11-64"
 java_opt=Zulu11-32
 
 # openHAB Log Viewer (frontail) theme
@@ -77,7 +77,7 @@ hotspot=enable
 storageconfig=openhab-dir
 storagedir=/storage
 storagetapes=15
-storagecapacity=10240
+storagecapacity=1024
 
 # mail relay settings
 #adminmail=john.doe@foo.bar
