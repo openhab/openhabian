@@ -490,6 +490,7 @@ install_dnsutils() {
 ## is the comitup WiFi hotspot active
 ##
 ##    is_hotspot_connected()
+##
 is_hotspot() {
   if ! [[ -x $(command -v "comitup-cli") ]]; then return 1; fi
   if echo "q" | comitup-cli | grep -q 'State: HOTSPOT'; then return 0; else return 1; fi
@@ -498,6 +499,7 @@ is_hotspot() {
 ## has WiFi been connected to a wireless network by means of a comitup hotspot
 ##
 ##    is_wifi_connected()
+##
 is_wifi_connected() {
   if ! [[ -x $(command -v "comitup-cli") ]]; then return 1; fi
   if echo "q" | comitup-cli | grep -q 'State: CONNECTED'; then return 0; else return 1; fi
@@ -508,6 +510,7 @@ is_wifi_connected() {
 ## all remaining arguments are service names that zram must be available for to start
 ##
 ##    zram_dependency
+##
 zram_dependency() {
   local zramServiceConfig="/etc/systemd/system/zram-config.service"
   local install="yes"
@@ -536,6 +539,7 @@ zram_dependency() {
 ## Argument 3 & 4 are optional strings to pass to chmod for file(s) (3) and dirs (4) e.g. "0755" "644"
 ##
 ##    fix_permissions
+##
 fix_permissions() {
   if ! [[ -e $1 ]]; then return 0; fi
 
@@ -547,3 +551,15 @@ fix_permissions() {
     fi
   fi
 }
+
+## install package to set CPU usage governor to ondemand (run at maximum CPU speed if beneficial)
+##
+##    set_cpu_speed
+##
+set_cpu_speed() {
+  cond_redirect apt-get install --yes cpufrequtils &> /dev/null
+  echo 'GOVERNOR="ondemand"' > /etc/default/cpufrequtils
+  echo ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+}
+
+
