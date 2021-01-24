@@ -557,9 +557,8 @@ fix_permissions() {
 ##    set_cpu_speed
 ##
 set_cpu_speed() {
+  if ! is_raspios || running_in_docker; then return 0; fi
   cond_redirect apt-get install --yes cpufrequtils &> /dev/null
   echo 'GOVERNOR="ondemand"' > /etc/default/cpufrequtils
   echo ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 }
-
-
