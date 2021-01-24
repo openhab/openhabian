@@ -33,7 +33,7 @@ basic_packages() {
     if ! cond_redirect apt-get purge --yes raspi-config; then echo "FAILED (remove raspi-config)"; return 1; fi
   fi
   if cond_redirect apt-get install --yes screen vim nano mc vfu bash-completion \
-    htop curl wget multitail git util-linux bzip2 zip unzip xz-utils \
+    htop curl wget multitail git util-linux bzip2 zip unzip xz-utils cpufrequtils \
     software-properties-common man-db whiptail acl usbutils dirmngr arping; \
   then echo "OK"; else echo "FAILED"; exit 1; fi
 }
@@ -383,6 +383,8 @@ misc_system_settings() {
     if ! cond_redirect systemd-tmpfiles --create --prefix /var/log/journal; then echo "FAILED (systemd-tmpfiles)"; return 1; fi
     cond_echo "Keeping at most 30 days of systemd journal entries"
     if ! cond_redirect journalctl --vacuum-time=30d; then echo "FAILED (journalctl)"; return 1; fi
+    # run at full CPU when needed
+    echo 'GOVERNOR="ondemand"'> /etc/default/cpufrequtils
   fi
   # A distinguishable apt User-Agent
   cond_echo "Setting a distinguishable apt User-Agent"
