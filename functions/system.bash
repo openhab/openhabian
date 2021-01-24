@@ -347,7 +347,7 @@ permissions_corrections() {
       if cond_redirect chmod g+rw --silent --recursive "${gpioDir}/gpio18"; then echo "OK"; else echo "FAILED (set GPIO 18 access)"; retval=1; fi
     fi
   fi
-  
+
   return $retval
 }
 

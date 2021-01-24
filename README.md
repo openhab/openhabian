@@ -33,7 +33,7 @@ Also get another 32 GB or larger SD card and a USB card reader to make use of th
 ***
 ATTENTION:<br>
 Avoid getting the 8 GB model of RPi 4.<br>
-8 GB are a waste of money and it has issues, you must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram) or use the 64bit image (untested).
+8 GB of RAM is a waste of money and it has issues, you must [disable ZRAM](https://github.com/openhab/openhabian/blob/master/docs/openhabian.md#disable-zram) or use the 64bit image (untested).
 ***
 ## Hardware support
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as
@@ -104,7 +104,7 @@ On x86 hardware, 64 bit is the standard.
 
 ## Installation and Setup
 Please check the [official documentation article](https://www.openhab.org/docs/installation/openhabian.html)
-to learn about openHABian and please visit and subscribe to our 
+to learn about openHABian and please visit and subscribe to our
 [community forum thread](https://community.openhab.org/t/13379).
 
 If you want to install openHABian on non-supported hardware, you can actually

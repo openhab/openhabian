@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2154
 
 ## Function for changing various password related to openHAB or this system instance.
 ## The function can be invoked either INTERACTIVE with userinterface UNATTENDED.
 ##
 ## When called UNATTENDED it will change all passwords. Notice that implies that the system is installed.
-## Make sure the password is at least 10 characters long to ensure compability with all services.
+## Make sure the password is at least 8 characters long to ensure compability with all services.
 ##
 ##    change_password(String password)
 ##
@@ -108,6 +109,8 @@ change_password() {
 ##    add_admin_ssh_key()
 ##
 add_admin_ssh_key() {
+  if [[ -z $adminkeyurl ]]; then return 0; fi
+
   local karafKeys="/var/lib/openhab/etc/keys.properties"
   local userName="${username:-openhabian}"
   local sshDir
@@ -116,8 +119,6 @@ add_admin_ssh_key() {
   sshDir="$(getent passwd "${userName}" | cut -d: -f6)/.ssh"
   keyFile="${sshDir}/authorized_keys"
 
-  # shellcheck disable=SC2154
-  if [[ -z "${adminkeyurl}" ]]; then return 0; fi
   if ! [[ -d "${sshDir}" ]]; then echo "FAILED (.ssh directory missing)"; return 1; fi
   if ! cond_redirect wget --no-check-certificate -O "${keyFile}.NEW" "${adminkeyurl}"; then rm -f "${keyFile}.NEW"; echo "FAILED (wget $adminkeyurl)"; return 1; fi
   if [[ -s ${keyFile}.NEW ]]; then

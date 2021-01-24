@@ -38,6 +38,11 @@ jobs:
   rpi4-bats:
     # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
     runs-on: ubuntu-20.04
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
 
     steps:
        - name: Checkout repository
@@ -46,14 +51,37 @@ jobs:
          run: |
            sudo -E bash -c set
            sudo -E ./ci-setup.bash github
-       - name: "BATS tests on virtual 64bit RPi4 running Debian Buster"
+           sudo apt-get install --yes qemu binfmt-support qemu-user-static
+       - name: Set up Docker Buildx
+         id: buildx
+         uses: docker/setup-buildx-action@v1
+         with:
+           driver-opts: network=host
+       - name: Build Docker image
+         uses: docker/build-push-action@v2
+         with:
+           context: ./
+           file: ./Dockerfile.rpi4-BATS
+           builder: ${{ steps.buildx.outputs.name }}
+           tags: localhost:5000/openhabian/rpi4-openhabian:latest
+           push: true
+       - name: BATS tests on virtual 64bit RPi4 running Debian Buster
          run: |
-           echo -e "\e[36mopenHABian BATS tests running on a\e[31m 64bit OS\e[36m running on a virtual RPi4...\e[0m\n"
-           docker build -f Dockerfile.rpi4-BATS .
+           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+           docker run --name "openhabian-rpi4" -d localhost:5000/openhabian/rpi4-openhabian
+           docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "development-." .'
+           docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "unit-." .'
+           docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "installation-." .'
+           docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "destructive-." .'
          shell: bash
   amd64-bats:
     # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
     runs-on: ubuntu-20.04
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
 
     steps:
        - name: Checkout repository
@@ -62,8 +90,24 @@ jobs:
          run: |
            sudo -E bash -c set
            sudo -E ./ci-setup.bash github
-       - name: "BATS tests on virtual 64bit x86 running Ubuntu Focal Fossa"
+       - name: Set up Docker Buildx
+         id: buildx
+         uses: docker/setup-buildx-action@v1
+         with:
+           driver-opts: network=host
+       - name: Build Docker image
+         uses: docker/build-push-action@v2
+         with:
+           context: ./
+           file: ./Dockerfile.ubuntu-BATS
+           builder: ${{ steps.buildx.outputs.name }}
+           tags: localhost:5000/openhabian/ubuntu-openhabian:latest
+           push: true
+       - name: BATS tests on virtual 64bit x86 running Ubuntu Focal Fossa
          run: |
-           echo -e "\e[36mopenHABian BATS tests running on a\e[31m 64bit OS\e[36m running on a native amd64...\e[0m"
-           docker build -f Dockerfile.ubuntu-BATS .
+           docker run --name "openhabian-ubuntu" -d localhost:5000/openhabian/ubuntu-openhabian
+           docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "development-." .'
+           docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "unit-." .'
+           docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "installation-." .'
+           docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "destructive-." .'
          shell: bash

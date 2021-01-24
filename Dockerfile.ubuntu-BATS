@@ -15,6 +15,7 @@ RUN apt-get update -qq && \
 
 ENV container docker
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
+ENV DOCKER=1
 
 # We never want these to run in a container
 # Feel free to edit the list but this is the one we used
@@ -47,17 +48,13 @@ RUN cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
 RUN adduser openhabian --gecos "openHABian,,," --disabled-password && \
     adduser openhab --gecos "openHABian,,," --disabled-password && \
     echo "openhabian:openhabian" | chpasswd && \
-    echo "openhab:openhabian" | chpasswd && \
-    echo "Running on $(/usr/bin/arch)"
+    echo "openhab:openhabian" | chpasswd
 
 COPY . /opt/openhabian/
 COPY build-image/openhabian.conf /etc/openhabian.conf
 
 WORKDIR /opt/openhabian/
-RUN apt-get update && \
-    bats --tap --recursive --filter "development-." . && \
-    bats --tap --recursive --filter "unit-." . && \
-    bats --tap --recursive --filter "installation-." . && \
-    bats --tap --recursive --filter "destructive-." .
+RUN apt-get update
+COPY docker-tests/start.sh ./
 
 CMD ["bash", "start.sh"]

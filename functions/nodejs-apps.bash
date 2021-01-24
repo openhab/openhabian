@@ -8,14 +8,9 @@
 nodejs_setup() {
   if [[ -x $(command -v npm) ]] && [[ $(node --version) == "v12"* ]] && ! is_armv6l; then return 0; fi
 
-  local link="https://unofficial-builds.nodejs.org/download/release/v12.19.0/node-v12.19.0-linux-armv6l.tar.xz"
+  local link="https://unofficial-builds.nodejs.org/download/release/v12.19.1/node-v12.19.1-linux-armv6l.tar.xz"
   local myDistro
   local temp
-
-  if ! [[ -x $(command -v npm) ]] && ! is_raspios; then
-    echo -n "$(timestamp) [openHABian] Installing NodeJS prerequisites (npm)... "
-    if cond_redirect apt-get install --yes npm; then echo "OK"; else echo "FAILED"; return 1; fi
-  fi
 
   if ! [[ -x $(command -v lsb_release) ]]; then
     echo -n "$(timestamp) [openHABian] Installing NodeJS prerequsites (lsb-release)... "
@@ -107,7 +102,7 @@ frontail_setup() {
   if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" -e "s|%FRONTAILTHEME|${frontailTheme}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi;
   if ! cond_redirect chmod 644 /etc/systemd/system/frontail.service; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-  if ! cond_redirect systemctl enable --now frontail.service; then echo "FAILED (enable service)"; return 1; fi 
+  if ! cond_redirect systemctl enable --now frontail.service; then echo "FAILED (enable service)"; return 1; fi
   if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "Failed (restart service)"; return 1; fi # restart the service to make the change visible
 
   if openhab_is_installed; then
