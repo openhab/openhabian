@@ -111,9 +111,7 @@ openhab_setup() {
 
   openhab_misc
   create_systemd_dependencies
-  if [[ "$1" == "openHAB3" ]]; then
-    delayed_rules "no"
-  else
+  if ! [[ "$1" == "openHAB3" ]]; then
     delayed_rules "yes"
   fi
   dashboard_add_tile "openhabiandocs"
@@ -122,7 +120,7 @@ openhab_setup() {
   if cond_redirect systemctl restart ${ohPkgName}.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
-    export DEBIAN_FRONTEND=
+    unset DEBIAN_FRONTEND
     whiptail --title "Operation successful!" --msgbox "$successText" 15 80
   fi
 }
