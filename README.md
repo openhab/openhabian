@@ -161,8 +161,17 @@ need to be installed first. For more details regarding the tests see
 in CONTRIBUTING.md.
 
 ```
-docker build -f Dockerfile.ubuntu-BATS .
-docker build -f Dockerfile.amd64-installation .
+docker build --tag openhabian/bats-openhabian -f Dockerfile.ubuntu-BATS .
+docker run --rm --name "unit-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "unit-." .'
+docker run --rm --name "installation-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "installation-." .'
+docker run --rm --name "destructive-tests" -i openhabian/bats-openhabian bash -c 'bats --tap --recursive --filter "destructive-." .'
+
+docker build --tag openhabian/install-openhabian -f Dockerfile.amd64-installation .
+docker run --name "install-test" --privileged -d openhabian/bats-openhabian
+docker exec -i "install-test" bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash"
+
+docker stop install-test
+docker rm install-test
 ```
 
 The [ShellCheck](https://www.shellcheck.net/) linter can be run by using the
