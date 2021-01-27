@@ -36,7 +36,7 @@ basic_packages() {
   fi
   if cond_redirect apt-get install --yes screen vim nano mc vfu bash-completion \
     htop curl wget multitail git util-linux bzip2 zip unzip xz-utils cpufrequtils \
-    software-properties-common man-db whiptail acl usbutils dirmngr arping; \
+    software-properties-common man-db whiptail acl usbutils dirmngr arping perl; \
   then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -54,7 +54,7 @@ needed_packages() {
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   if cond_redirect apt-get install --yes apt-transport-https bc sysstat jq \
     moreutils avahi-daemon python3 python3-pip python3-wheel python3-setuptools \
-    avahi-autoipd fontconfig; \
+    avahi-autoipd fontconfig libregexp-common-perl; \
   then echo "OK"; else echo "FAILED"; return 1; fi
 
   if is_pizerow || is_pithree || is_pithreeplus || is_pifour && [[ -z $PREOFFLINE ]]; then
