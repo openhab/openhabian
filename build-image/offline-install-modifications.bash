@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC1091
 
 export BASEDIR="/opt/openhabian"
 export DEBIAN_FRONTEND="noninteractive"
