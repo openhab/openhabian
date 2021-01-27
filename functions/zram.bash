@@ -85,9 +85,7 @@ init_zram_mounts() {
     if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
 
-    if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/sysctl-zram.conf /etc/sysctl.d/zram.conf; then echo "FAILED (add sysctl)"; return 1; fi
     if ! running_in_docker && ! running_on_github; then
-      if ! cond_redirect sysctl -q -p /etc/sysctl.d/zram.conf ; then echo "FAILED (set sysctl parameters)"; return 1; fi
       if ! cond_redirect systemctl mask unattended-upgrades.service; then echo "FAILED (mask unattended upgrades service)"; return 1; fi
     fi
     if cond_redirect systemctl enable --now zram-config.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
