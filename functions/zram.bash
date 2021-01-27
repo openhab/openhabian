@@ -104,7 +104,6 @@ init_zram_mounts() {
     if ! cond_redirect rm -f /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/share/zram-config; then echo "FAILED (zram-config share)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
-    if ! cond_redirect rm -rf /etc/sysctl.d/zram.conf; then echo "FAILED (sysctl.d/zram.conf)"; return 1; fi
     if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
 
     if [[ -f "$disklistFileDir" ]]; then
