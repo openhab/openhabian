@@ -264,14 +264,10 @@ dashboard_add_tile() {
   local tileImg
   local tileURL
 
-  if ! dpkg -s 'libregexp-common-perl' &> /dev/null; then
-    apt-get install --yes libregexp-common-perl &> /dev/null
-  fi
-
   application="$1"
   openhabConfig="/etc/openhab"
   dashboardConfig="${openhabConfig}/services/runtime.cfg"
-  ipAddress="$(ip route get 8.8.8.8 | head -1 | sed -n -e 's/^.*src[[:space:]]//p' | perl -MRegexp::Common=net -nE 'say $& while /$RE{net}{IPv4}|$RE{net}{IPv6}/g')"
+  ipAddress="$(ip route get 8.8.8.8 | awk '{print $7}' | xargs)"
   tileDesc="$(grep "^[[:space:]]*tile_desc_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_desc_'"${application}"'=||g; s|"||g')"
   tileImg="$(grep "^[[:space:]]*tile_imagedata_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_imagedata_'"${application}"'=||g; s|"||g')"
   tileURL="$(grep "^[[:space:]]*tile_url_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_url_'"${application}"'=||g; s|"||g; s|{HOSTNAME}|'"${ipAddress}"'|g')"
