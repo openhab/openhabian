@@ -3,7 +3,7 @@
 ## start:             Starts a minimalistic web server that shows the status of the
 ##                    openHABian installation.
 ## reinsure_running:  Checks if webserver is running.
-## inst_done:         Create finish message and link to http://${HOSTNAME:-openhab}:8080.
+## inst_done:         Create finish message and link to http://${HOSTNAME:-openhabian}:8080.
 ## cleanup:           Stops the webserver and removes all no longer needed files.
 
 port="80"
@@ -24,7 +24,7 @@ fi
 
 if [[ $1 == "inst_done" ]]; then
   mkdir -p "${TMPDIR:-/tmp}"/webserver
-  sed 's|%HOSTNAME|'"${HOSTNAME:-openhab}"'|g' /opt/openhabian/includes/install-complete.html > "${TMPDIR:-/tmp}"/webserver/index.html
+  sed 's|%HOSTNAME|'"${HOSTNAME:-openhabian}"'|g' /opt/openhabian/includes/install-complete.html > "${TMPDIR:-/tmp}"/webserver/index.html
 fi
 
 if [[ $1 == "cleanup" ]]; then

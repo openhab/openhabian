@@ -1,4 +1,4 @@
-Files in this directory are taken from https://github.com/balena-io-library/base-images/tree/master/examples/INITSYSTEM, this license applies:
+Files in this directory, except for 'runlevel', are taken from https://github.com/balena-io-library/base-images/tree/master/examples/INITSYSTEM, this license applies:
 
 
                               Apache License
