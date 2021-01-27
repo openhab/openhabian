@@ -546,9 +546,9 @@ fix_permissions() {
 
   if ! chown "$2" "$1"; then return 1; fi
   if [[ -n "$3" ]]; then
-    if ! (find "$1" -type f -print0 | xargs -0 chmod "$3"); then return 1; fi
+    [[ -f $1 ]] && if ! (find "$1" -type f -print0 | xargs -0 chmod "$3"); then return 1; fi
     if [[ -n "$4" ]]; then
-      if ! (find "$1" -type d -print0 | xargs -0 chmod "$4"); then return 1; fi
+      [[ -d $1 ]] && if ! (find "$1" -type d -print0 | xargs -0 chmod "$4"); then return 1; fi
     fi
   fi
 }
