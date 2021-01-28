@@ -252,7 +252,7 @@ openhabian_update() {
 ##    migrate_installation()
 ##
 migrate_installation() {
-  local failText="is already installed on your system !\\n\\nCanceling migration, returning to menu."
+  local failText="is already installed on your system!\\n\\nCanceling migration, returning to menu."
   local frontailService="/etc/systemd/system/frontail.service"
   local homegearService="/etc/systemd/system/homegear.service"
   local zramService="/etc/systemd/system/zram-config.service"
@@ -296,7 +296,7 @@ migrate_installation() {
 
   javaVersion="$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')"
   # shellcheck disable=SC2154
-  [[ "$zraminstall" != "disable" ]] && [[ -s /etc/ztab ]] && if cond_redirect zram-config "stop"; then echo "OK"; else echo "FAILED (stop ZRAM)"; return 1; fi
+  [[ "$zraminstall" != "disable" ]] && [[ -s /etc/ztab ]] && if cond_redirect zram-config "stop"; then echo "OK"; else echo "FAILED (stop zram)"; return 1; fi
   backup_openhab_config
 
   if [[ -z "$javaVersion" ]] || [[ "${javaVersion}" -lt "11" ]]; then
@@ -349,13 +349,13 @@ migrate_installation() {
   echo "OK"
 
   if [[ -s /etc/ztab ]]; then
-    echo -n "$(timestamp) [openHABian] Migrating ZRAM config... "
+    echo -n "$(timestamp) [openHABian] Migrating zram config... "
     sed -i "s|/${from}|/${to}|g" "$ztab"
     sed -i "s|${from}|${to}|g" "$zramService"
   fi
 
   # shellcheck disable=SC2154
-  [[ "$zraminstall" != "disable" ]] && if cond_redirect systemctl restart zram-config.service; then echo "OK"; else echo "FAILED (restart ZRAM)"; return 1; fi
+  [[ "$zraminstall" != "disable" ]] && if cond_redirect systemctl restart zram-config.service; then echo "OK"; else echo "FAILED (restart zram)"; return 1; fi
 }
 
 ## Check for default system password and if found issue a warning and suggest

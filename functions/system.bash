@@ -252,7 +252,7 @@ create_mount() {
 ##
 srv_bind_mounts() {
   if [[ -f /etc/ztab ]] && [[ $(systemctl is-active zram-config.service) == "active" ]]; then
-    echo -n "$(timestamp) [openHABian] Stopping ZRAM service... "
+    echo -n "$(timestamp) [openHABian] Stopping zram service... "
     if cond_redirect zram-config "stop"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
@@ -269,7 +269,7 @@ srv_bind_mounts() {
   if cond_redirect create_mount "/usr/share/openhab/addons" "addons"; then echo "OK"; else echo "FAILED (addons)"; return 1; fi
 
   if [[ -f /etc/ztab ]]; then
-    echo -n "$(timestamp) [openHABian] Restarting ZRAM service... "
+    echo -n "$(timestamp) [openHABian] Restarting zram service... "
     if cond_redirect systemctl restart zram-config.service; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 }
@@ -312,7 +312,7 @@ permissions_corrections() {
   if [[ -f /etc/mosquitto/mosquitto.conf ]]; then
     if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 640 750; then echo "FAILED (mosquitto passwd permissions)"; retval=1; fi
     if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions)"; retval=1; fi
-    if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions on ZRAM)"; retval=1; fi
+    if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions on zram)"; retval=1; fi
   fi
   if ! cond_redirect setfacl --recursive --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access lists)"; retval=1; fi
   # not sure if still needed. Let's see if removing this causes any user issues
@@ -321,12 +321,12 @@ permissions_corrections() {
 
   if cond_redirect fix_permissions /var/log/unattended-upgrades root:root 644 755; then echo "OK"; else echo "FAILED (unattended upgrades logdir)"; retval=1; fi
   if cond_redirect fix_permissions /var/log/samba root:root 640 750; then echo "OK"; else echo "FAILED (samba logdir)"; retval=1; fi
-  if cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 640 750; then echo "OK"; else echo "FAILED (samba logdir on ZRAM)"; retval=1; fi
+  if cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 640 750; then echo "OK"; else echo "FAILED (samba logdir on zram)"; retval=1; fi
 
   if cond_redirect fix_permissions /opt/zram/persistence.bind "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (persistence)"; retval=1; fi
 
   if cond_redirect fix_permissions /var/log/openhab "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (openhab log)"; retval=1; fi
-  if cond_redirect fix_permissions /opt/zram/log.bind/openhab "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (openhab log on ZRAM)"; retval=1; fi
+  if cond_redirect fix_permissions /opt/zram/log.bind/openhab "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (openhab log on zram)"; retval=1; fi
 
   if [[ -d /etc/homegear ]]; then
     echo -n "$(timestamp) [openHABian] Applying additional file permissions recommendations for Homegear... "
@@ -394,7 +394,7 @@ misc_system_settings() {
 }
 
 ## Change system swap size dependent on free space on '/swap' on SD
-## ('/var/swap' per default) only used after ZRAM swap is full if ZRAM is enabled.
+## ('/var/swap' per default) only used after zram swap is full if zram is enabled.
 ##
 ##    change_swapsize()
 ##

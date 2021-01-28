@@ -9,7 +9,7 @@ You can change branches at any time use menu option 01.
 In the darkest of times (midwinter for most of us), openHAB 3 was released.
 See [documentation](docs/openhabian.md#on-openhab3) and [www.openhab.org](http://www.openhab.org) for details.
 
-Merry Christmas and a healthy New Year !
+Merry Christmas and a healthy New Year!
 
 
 ## WiFi hotspot ## November 14, 2020
@@ -122,9 +122,9 @@ happen to the stable branch in batches, whenever the poor daring people to use
 You can switch branches at any time using the menu option 01.
 
 
-## ZRAM per default
-Swap, logs and persistence files are now put into ZRAM per default.
-See [ZRAM status thread](https://community.openhab.org/t/zram-status/80996) for
+## zram per default
+Swap, logs and persistence files are now put into zram per default.
+See [zram status thread](https://community.openhab.org/t/zram-status/80996) for
 more information.
 
 

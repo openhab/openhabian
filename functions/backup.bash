@@ -282,7 +282,7 @@ amanda_setup() {
   local backupPass
   local backupPass1
   local backupPass2
-  local queryText="You are about to install the Amanda backup solution.\\nDocumentation is available at '/opt/openhabian/docs/openhabian-amanda.md' or https://github.com/openhab/openhabian/blob/master/docs/openhabian-amanda.md\\nHave you read this document? If not, please do so now, as you will need to follow the instructions provided there in order to successfully complete installation of Amanda.\\n\\nProceeding will setup a backup mechanism to allow for saving your openHAB setup and modifications to either USB attached or Amazon cloud storage.\\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an pre-prepared replacement in case of card failures.\\n\\nWARNING: running this setup will overwrite any previous Amanda backup configurations.\\n\\nWould you like to begin setup?"
+  local queryText="You are about to install the Amanda backup solution.\\nDocumentation is available at '/opt/openhabian/docs/openhabian-amanda.md' or https://github.com/openhab/openhabian/blob/main/docs/openhabian-amanda.md\\nHave you read this document? If not, please do so now, as you will need to follow the instructions provided there in order to successfully complete installation of Amanda.\\n\\nProceeding will setup a backup mechanism to allow for saving your openHAB setup and modifications to either USB attached or Amazon cloud storage.\\nYou can add your own files/directories to be backed up, and you can store and create clones of your openHABian SD card to have an pre-prepared replacement in case of card failures.\\n\\nWARNING: running this setup will overwrite any previous Amanda backup configurations.\\n\\nWould you like to begin setup?"
   local successText="Setup was successful.\\n\\nAmanda backup tool is now taking backups around 01:00. For further readings, start at http://wiki.zmanda.com/index.php/User_documentation."
 
   echo -n "$(timestamp) [openHABian] Beginning setup of the Amanda backup system... "
@@ -380,7 +380,7 @@ mirror_SD() {
       if [[ "$destSize" -lt "$srcSize" ]]; then
         echo "FAILED (cannot duplicate internal SD card ${src}, it is larger than external ${dest})"
         if [[ -z "$INTERACTIVE" ]]; then return 1; fi
-        repartitionText="One or more of the selected destination partition(s) are smaller than their equivalents on the internal SD card so you cannot simply replicate that. The physical size is sufficient though.\\n\\nDo you want the destination ${dest} to be overwritten to match the partitions of the internal SD card ?"
+        repartitionText="One or more of the selected destination partition(s) are smaller than their equivalents on the internal SD card so you cannot simply replicate that. The physical size is sufficient though.\\n\\nDo you want the destination ${dest} to be overwritten to match the partitions of the internal SD card?"
         if ! (whiptail --title "Repartition $dest" --yes-button "Repartition" --no-button "Cancel" --yesno "$repartitionText" 12 116); then echo "CANCELED"; return 0; fi
       fi
       sfdisk -d /dev/mmcblk0 | sfdisk --force "$dest"

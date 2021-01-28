@@ -11,7 +11,7 @@ install_wireguard() {
   local textInstallation
 
   configdir="/etc/wireguard"
-  textReady="In order to access your system from the Internet using Wireguard, you need to setup a couple of prerequisites. Do so now if you have not already done so.\\nYou need to have a (dynamically adapting) DNS name point to your router. Get it from any of the free providers such as DuckDNS or selfhost.de.\\nYou also need to forward an UDP port from the router to your system to allow for establishing the VPN (default 51900/UDP).\\nYou need to have this information available and your router should be setup to forward the VPN port. Are you ready to proceed ?"
+  textReady="In order to access your system from the Internet using Wireguard, you need to setup a couple of prerequisites. Do so now if you have not already done so.\\nYou need to have a (dynamically adapting) DNS name point to your router. Get it from any of the free providers such as DuckDNS or selfhost.de.\\nYou also need to forward an UDP port from the router to your system to allow for establishing the VPN (default 51900/UDP).\\nYou need to have this information available and your router should be setup to forward the VPN port. Are you ready to proceed?"
   textInstallation="We will now install Wireguard VPN on your system. That'll take some time.\\n\\nMake use of this waiting time to install the client side part.\\nYou need to install the Wireguard client from either http://www.wireguard.com/install to your local PC or from PlayStore/AppStore to your mobile device.\\nopenHABian will display a QR code at the end of this installation to let you easily transfer the configuration."
 
   if [[ $1 == "remove" ]]; then
@@ -156,10 +156,10 @@ setup_wireguard() {
 
   # iface=eth0 or wlan0
   if [[ -n "$INTERACTIVE" ]]; then
-    if ! iface=$(whiptail --title "VPN interface" --inputbox "Which interface do you want to setup the VPN on ?" 10 60 "$iface" 3>&1 1>&2 2>&3); then return 1; fi
-    if ! defaultNetwork=$(whiptail --title "VPN network" --inputbox "What's the IP network to be assigned to the VPN ?\\nSpecify the first 3 octets." 10 60 "$defaultNetwork" 3>&1 1>&2 2>&3); then return 1; fi
-    if ! dynDNS=$(whiptail --title "dynamic domain name" --inputbox "Which dynamic DNS name is your router running found as from the Internet ?" 10 60 3>&1 1>&2 2>&3); then return 1; fi
-    if ! port=$(whiptail --title "VPN port" --inputbox "Which port do you want to expose for establishing the VPN ?" 10 60 "$port" 3>&1 1>&2 2>&3); then return 1; fi
+    if ! iface=$(whiptail --title "VPN interface" --inputbox "Which interface do you want to setup the VPN on?" 10 60 "$iface" 3>&1 1>&2 2>&3); then return 1; fi
+    if ! defaultNetwork=$(whiptail --title "VPN network" --inputbox "What's the IP network to be assigned to the VPN?\\nSpecify the first 3 octets." 10 60 "$defaultNetwork" 3>&1 1>&2 2>&3); then return 1; fi
+    if ! dynDNS=$(whiptail --title "dynamic domain name" --inputbox "Which dynamic DNS name is your router running found as from the Internet?" 10 60 3>&1 1>&2 2>&3); then return 1; fi
+    if ! port=$(whiptail --title "VPN port" --inputbox "Which port do you want to expose for establishing the VPN?" 10 60 "$port" 3>&1 1>&2 2>&3); then return 1; fi
   fi
   create_wireguard_config "$iface" "$port" "$defaultNetwork" "$dynDNS"
   if [[ -n "$INTERACTIVE" ]]; then
