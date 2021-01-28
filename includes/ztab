@@ -19,9 +19,15 @@
 # page-cluster 0 means tuning to singular pages rather than the default 3 which
 # caches 8 for HDD tuning, which can lower latency.
 #
+<<<<<<< HEAD
 # swappiness 150 because the improved performance of zram allows more usage
 # without any adverse affects from the default of 60. It can be raised up to 200
 # which will improve performance in high memory pressure situations.
+=======
+# swappiness 80 because the improved performance of zram allows more usage
+# without any adverse affects from the default of 60. It can be raised up to 100
+# but that will increase process queue on intense loads such as boot time.
+>>>>>>> febbbeb5d (Update all documentation for clarity and accuracy (#1443))
 #
 # target_dir is the directory you wish to hold in zram, and the original will be
 # moved to a bind mount 'bind_dir' and is synchronized on start, stop, and write
@@ -34,11 +40,18 @@
 # only live logs in zram. Usually in '/opt' or '/var', name optional.
 #
 # If you need multiple zram swaps or zram directories, just create another entry
+<<<<<<< HEAD
 # in this file. To do this simply add the new entries to this file, if you need
 # to edit an active zram device you must stop zram with
 # 'sudo systemctl stop zram-config.service' and then edit any entries you need
 # to. Once finished, start zram using 'sudo systemctl start zram-config.service'
 # which will only add the new entries if zram is already running.
+=======
+# in this file.
+# To do this safely, first stop zram using 'zram-config "stop"',
+# then edit this file.
+# Once finished, restart zram using 'systemctl restart zram-config.service'.
+>>>>>>> febbbeb5d (Update all documentation for clarity and accuracy (#1443))
 
 # swap	alg		mem_limit	disk_size	swap_priority	page-cluster	swappiness
 swap	lzo-rle		200M		500M		75		0		150

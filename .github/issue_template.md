@@ -13,9 +13,12 @@ bar to let you see closed issues). Please follow the guidelines outlined in the
 Please provide all of the output provided by utilizing the `debugmode=maximum`
 parameter in the `/etc/openhabian.conf` file. For more information on how to
 accomplish this, please see [openhabian-DEBUG.md](https://github.com/openhab/openhabian/blob/main/docs/openhabian-DEBUG.md#create-a-debug-log).
+<<<<<<< HEAD
 ```
 place logs here
 ```
+=======
+>>>>>>> febbbeb5d (Update all documentation for clarity and accuracy (#1443))
 
 ## System information:
 Please tell us what OS you are running (Raspberry Pi OS, Debian, Ubuntu), what
