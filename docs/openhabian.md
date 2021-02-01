@@ -73,7 +73,6 @@ Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 G
 Also get another 32 GB or larger SD card and a USB card reader to make use of the ["auto backup" feature](docs/openhabian.md#Auto-Backup).
 
 ### Hardware support
-
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware.
 Anything x86 based may work or not.
 Anything else ARM based such as ODroids, OrangePis and the like may work or not.
@@ -96,12 +95,12 @@ However, that does not make your box a "supported" one as we don't have it avail
 So there remains a risk that future openHABian releases will fail to work on your SBC because we changed a thing that broke support for your HW - unintentionally, however inevitably.
 
 For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md/#fake-hardware-mode) to 'simulate' RPi hardware and Raspi OS.
-If that still doesn't work for you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try.
 
+### OS support
 Going beyond what the RPi image provides, as a manually installed set of scripts, we support running openHABian on x86 hardware on generic Debian.
 On ARM, we only support Raspberry Pi OS.
 These are what we develop and test openHABian against.
-We do **not** actively **support Ubuntu** so no promises but we provide code "as-is" that is known to run on there.
+We provide code that is reported "as-is" to run on Ubuntu but we do **not support Ubuntu** so please don't open issues for this (PRs then again are welcome).
 Several optional components though, such as WireGuard or Homegear, are known to expose problems.
 
 We expect you to use the current stable distribution: 'buster' for Raspberry Pi OS (ARM) and Debian (x86), with 'focal' for Ubuntu (x86).
