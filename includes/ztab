@@ -1,8 +1,8 @@
 # Use '#' to comment out any line, add new drives with the first column
 # providing the drive type and then drive details separated by tab characters.
 #
-# All algorithms in '/proc/crypto' are supported but only lzo, lzo-rle, lz4, and
-# zstd have zramctl text strings; lz4 is the fastest with zstd having much
+# All algorithms in /proc/crypto are supported but only lzo-rle, lzo, lz4, and
+# zstd have zramctl text strings; lzo-rle is the fastest with zstd having much
 # better text compression.
 #
 # mem_limit is the compressed memory limit and will set a hard memory limit for
@@ -34,15 +34,15 @@
 #
 # If you need multiple zram swaps or zram directories, just create another entry
 # in this file.
-# To do this safely, first stop zram using 'zram-config "stop"',
-# then edit this file.
-# Once finished, restart zram using 'systemctl restart zram-config.service'.
+# To do this safely, first stop zram using 'sudo zram-config "stop"', then edit
+# this file.
+# Once finished, restart zram using 'sudo systemctl start zram-config.service'.
 
 # swap	alg		mem_limit	disk_size	swap_priority	page-cluster	swappiness
 swap	lzo-rle		200M		600M		75		0		80
 
 # dir	alg		mem_limit	disk_size	target_dir			bind_dir
-dir	lzo-rle		150M		1000M		/var/lib/openhab/persistence	/persistence.bind
+dir	zstd		300M		900M		/var/lib/openhab/persistence	/persistence.bind
 
 # log	alg		mem_limit	disk_size	target_dir		bind_dir		oldlog_dir
-log	lzo-rle		150M		500M		/var/log		/log.bind
+log	zstd		200M		600M		/var/log		/log.bind
