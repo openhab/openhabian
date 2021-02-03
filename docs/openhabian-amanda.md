@@ -91,7 +91,7 @@ Read and understand the Amanda docs.
     If you have the drive1 link point to the slot3 directory, it effectively means that tape 3 is currently inserted in drive 1).
 *   Amanda was built on top of UNIX and makes use of its user and rights system, so it is very useful and you should familiarize yourself with that.
     As a general good UNIX practice, you shouldn’t use functional users such as “backup” (the OS uses functional users to execute tasks with specific access rights) for administration tasks.
-    Use your personal user instead (that you have created that at the beginning of your openHABian installation or `openhabian` by default).
+    Use your personal user instead (that you have created at the beginning of your openHABian installation or `openhabian` by default).
     Installation tasks including post-package-installation changes (edits) of the Amanda config files, require to use the `root` user.
     Any ordinary user (such as your personal one) can execute commands on behalf of root (and with root permission) by prepending `sudo` to the command.
     As yourself, prepend "sudo -u backup" to execute the following commands as the "backup" user.
@@ -113,7 +113,7 @@ HEADS UP: You need to provide your storage BEFORE you install Amanda.
 
 That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
 Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage, read up on it NOW.
-Various tutorial can be found on the net such as <https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux>.
+Various tutorials can be found on the net such as <https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux>.
 The internet is your friend, but make sure you ask search for specific things such as “how to mount a NAS disk on a Raspberry Pi” to match your use case.
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously exported (= shared, i.e. made available for mounting) on that directory.
 This is your mountpoint.
