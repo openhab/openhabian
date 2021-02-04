@@ -30,7 +30,7 @@ openHABian requires a minimum of 1GB of RAM to run well. While you can get away 
 openHABian requires you to provide direct Internet access.
 Using private IP addresses is fine as long as your router properly provides NAT (Network Address Translation) services.
 Either Ethernet or WiFi is supported at install time, however, Ethernet tends to be more reliable and WiFi requires user configuration prior to the first boot of openHABian.
-To configure WiFi, simply edit the `wifi_psk=` and `wifi_ssid=` fields in the `boot/openhabian.conf` file on your new SD card.
+To configure WiFi, simply edit the `wifi_password=` and `wifi_ssid=` fields in the `boot/openhabian.conf` file on your new SD card.
 
 Your router (or a different device) needs to to provide properly configured DHCP services so your openHABian box gets an IP address assigned when you boot it for the first time.
 The DHCP server also has to announce which DNS resolver to use so your box knows how to translate DNS names into IP addresses.

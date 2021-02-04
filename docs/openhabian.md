@@ -355,7 +355,7 @@ This will be included with your administration user's `.ssh/authorized_keys` and
 
 If you own a RPi3, RPi3+, RPi4, a RPi0W or any other model with a compatible WiFi dongle you can set up and use openHABian via WiFi only.
 For the WiFi based setup to work, you'll need to make your SSID and password known to the system before the first boot.
-So in addition to the setup instructions given above, uncomment and complete the lines reading `wifi_ssid=""` and `wifi_psk=""` in `openhabian.conf`.
+So in addition to the setup instructions given above, uncomment and complete the lines reading `wifi_ssid=""` and `wifi_password=""` in `openhabian.conf`.
 
 #### WiFi Hotspot
 

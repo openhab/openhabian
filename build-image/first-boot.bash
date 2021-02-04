@@ -123,7 +123,7 @@ else
 
   wifiCountry="$wifi_country"
   wifiSSID="$wifi_ssid"
-  wifiPassword="$wifi_psk"
+  wifiPassword="$wifi_password"
 
   # Check if the country code is valid, valid country codes are followed by spaces in /usr/share/zoneinfo/zone.tab
   if grep -qs "^${wifiCountry^^}[[:space:]]" /usr/share/zoneinfo/zone.tab; then
