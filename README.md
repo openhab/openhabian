@@ -50,7 +50,7 @@ We'll be happy to include that in openHABian so you can use your box with openHA
 However, that does not make your box a "supported" one as we don't have it available for our further development and testing.
 So there remains a risk that future openHABian releases will fail to work on your SBC because we changed a thing that broke support for your HW - unintentionally so however inevitable.
 
-For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md/#fake-hardware-mode) to 'simulate' RPi hardware and Raspi OS. If that still doesn't work for you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try.
+For ARM hardware that we don't support, you can try any of the [fake hardware parameters](docs/openhabian.md/#fake-hardware-mode) to 'simulate' RPi hardware and Raspi OS. If that still doesn't work for you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try.
 
 ## OS support
 Going beyond what the RPi image provides, as a manually installed set of scripts, we support running openHABian on x86 hardware on generic Debian.
@@ -82,7 +82,7 @@ Please check the [official documentation article](https://www.openhab.org/docs/i
 
 If you want to install openHABian on non-supported hardware, you can actually fake it to make openHABian treat your box as if it was one of the supported ones.
 Needless to say that that may work out or not, but it's worth a try.
-See [openhabian](openhabian.md) for how to edit openhabian.conf before booting.
+See [openhabian](docs/openhabian.md) for how to edit openhabian.conf before booting.
 Set the `hw`, `hwarch` and `release` parameters to match your system best.
 
 ## Development
