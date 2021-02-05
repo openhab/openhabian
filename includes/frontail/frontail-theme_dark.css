@@ -24,6 +24,7 @@ body {
 .navbar .form-control-sm {
   background-color: #0f0f0f;
   border: 0;
+  color: #efefef;
 }
 
 .navbar .btn-sm {
