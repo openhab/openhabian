@@ -8,9 +8,9 @@ source: https://github.com/openhab/openhabian/blob/main/docs/openhabian.md
 
 <!-- Attention authors: Do not edit directly. Please add your changes to the source repository -->
 
-::: tip [TLDR](https://www.howtogeek.com/435266/what-does-tldr-mean-and-how-do-you-use-it/)
-Jump to [install instructions](#raspberry-pi-prepackaged-sd-card-image).
-Please read the _full_ docs before you ask for help.
+::: tip TLDR
+([what does TLDR mean?](https://www.howtogeek.com/435266/what-does-tldr-mean-and-how-do-you-use-it/))
+You may directly jump to [install instructions](#raspberry-pi-prepackaged-sd-card-image) but please note that we expect you to have read these _full_ docs when you ask for help.
 :::
 
 # openHABian - Hassle-free openHAB Setup
@@ -70,7 +70,7 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 ### Hardware recommendation
 
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB of RAM, a 3A power supply and a 16 GB SD card.
-Also get another 32 GB or larger SD card and a USB card reader to make use of the ["auto backup" feature](docs/openhabian.md#Auto-Backup).
+Also get another 32 GB or larger SD card and a USB card reader to make use of the ["auto backup" feature](openhabian.md#auto-backup).
 
 ### Hardware support
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware.
@@ -289,7 +289,7 @@ This is the right time to prepare your system for disasters such as getting hit 
     But you can use this option to migrate your system to a safe medium such as an SSD or HDD.
     See \[menu option 37\].
 3.  Use the openHAB integrated [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively backup/restore your openHAB **config** \[menu option 50/51\].
-4.  Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, documentation [here](https://github.com/openhab/openhabian/blob/main/docs/openhabian-amanda.md).
+4.  Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, documentation [here](openhabian-amanda.md).
     See \[menu option 52\].
 
 Standard openHABian install enables zram by default (#1).
