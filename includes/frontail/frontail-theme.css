@@ -1,0 +1,63 @@
+body {
+  background-color: #efefef;
+  font-size: 14px;
+  padding-top: 90px;
+}
+
+.navbar {
+  background-color: #e64a19;
+  border: 0;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.15);
+}
+
+.navbar .navbar-text {
+  color: #efefef;
+  font-size: 14px;
+}
+
+.navbar .navbar-text::before {
+  content: "openHAB Log Viewer (frontail)\A";
+  font-size: 21px;
+  white-space: pre;
+}
+
+.navbar .form-control-sm {
+  background-color: #efefef;
+  border: 0;
+  color: #484848;
+}
+
+.navbar .btn-sm {
+  border-color: #efefef;
+  color: #efefef;
+}
+
+.log {
+  background: inherit;
+  border: 0;
+  color: #484848;
+  font-size: 0.95em;
+  padding: 0;
+  white-space: pre-wrap;
+}
+
+.log .inner-line {
+  margin-bottom: 0;
+  margin-left: 288pt;
+  padding: 0 15px;
+  text-indent: -288pt;
+}
+
+.log .inner-line:empty::after {
+  content: '.';
+  visibility: hidden;
+}
+
+.log .no-indent .inner-line {
+  margin-left: 0;
+  text-indent: 0;
+}
+
+.log .line-selected {
+  background-color: #c6c6c6;
+}
