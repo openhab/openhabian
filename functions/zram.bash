@@ -63,21 +63,21 @@ init_zram_mounts() {
 
     if [[ -f /etc/systemd/system/find3server.service ]]; then
       echo -n "$(timestamp) [openHABian] Adding FIND3 to zram... "
-      if cond_redirect sed -i '/^.*persistence.bind$/a dir	lz4	100M		350M		/opt/find3/server/main		/find3.bind' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
+      if cond_redirect sed -i '/^.*persistence.*$/a dir	lz4	100M		350M		/opt/find3/server/main		/find3.bind' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
     fi
     if ! openhab_is_installed; then
       echo -n "$(timestamp) [openHABian] Removing openHAB persistence from zram... "
-      if cond_redirect sed -i '/persistence.bind/d' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
+      if cond_redirect sed -i '/^.*persistence.*$/d' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
     else
       if [[ -f $disklistFileDir ]]; then
         echo -n "$(timestamp) [openHABian] Adding zram to Amanda local backup... "
         if ! cond_redirect sed -i '/zram/d' "$disklistFileDir"; then echo "FAILED (old config)"; return 1; fi
-        if (echo "${HOSTNAME}  /opt/zram/persistence.bind    comp-user-tar" >> "$disklistFileDir"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
+        if (echo "${HOSTNAME}  /var/lib/openhab/persistence  comp-user-tar" >> "$disklistFileDir"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
       fi
       if [[ -f $disklistFileAWS ]]; then
         echo -n "$(timestamp) [openHABian] Adding zram to Amanda AWS backup... "
         if ! cond_redirect sed -i '/zram/d' "$disklistFileAWS"; then echo "FAILED (old config)"; return 1; fi
-        if (echo "${HOSTNAME}  /opt/zram/persistence.bind    comp-user-tar" >> "$disklistFileAWS"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
+        if (echo "${HOSTNAME}  /var/lib/openhab/persistence  comp-user-tar" >> "$disklistFileAWS"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
       fi
     fi
 
