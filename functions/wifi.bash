@@ -101,7 +101,7 @@ configure_wifi() {
     if ! cond_redirect ip link set wlan0 down; then echo "FAILED (down)"; return 1; fi
     if cond_redirect ip link set wlan0 up; then echo "OK (reboot now)"; else echo "FAILED (up)"; return 1; fi
 
-    whiptail --title "Operation successful" --msgbox "Setup was successful. The credentials provided were not tested. Please reboot now." 7 80
+    whiptail --title "Operation successful" --msgbox "Setup was successful. The credentials provided were not tested. Please reboot now." 8 80
   elif [[ $1 == "disable" ]]; then
     if (whiptail --title "WiFi is currently enabled" --defaultno --yesno "$enabledText" 10 80); then
       cond_redirect enable_disable_wifi "disable"
