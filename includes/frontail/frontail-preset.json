@@ -4,20 +4,20 @@
     "[WARN ]": "color: orange;",
     "[INFO ]": "color: green;",
     "Node is DEAD": "color: red;",
-    "[GroupItemStateChangedEvent]": "color: #0026FF; font-weight: bold;",
-    "[ItemStateChangedEvent     ]": "color: #0026FF;",
-    "[vent.ItemStateChangedEvent]": "color: #0026FF;",
-    "[ItemCommandEvent          ]": "color: #00137F;",
-    "[ome.event.ItemCommandEvent]": "color: #00137F;",
-    "[hingStatusInfoChangedEvent]": "color: #007F46;",
-    "received command ON": "color: black;",
-    "received command OFF": "color: black;",
-    "received command": "color: black;"
+    "[GroupItemStateChangedEvent]": "color: #0026ff; font-weight: bold;",
+    "[ItemStateChangedEvent     ]": "color: #0026ff;",
+    "[vent.ItemStateChangedEvent]": "color: #0026ff;",
+    "[ItemCommandEvent          ]": "color: #00137f;",
+    "[ome.event.ItemCommandEvent]": "color: #00137f;",
+    "[hingStatusInfoChangedEvent]": "color: #007f46;",
+    "received command ON": "color: black; font-weight: bold;",
+    "received command OFF": "color: black; font-weight: bold;",
+    "received command": "color: black; font-weight: bold;"
   },
   "lines": {
-    "/var/log/openhab/openhab.log": "text-align: right; font-size: 0.8em; border-top: 2px solid #F8F8F8;",
-    "/var/log/openhab/events.log": "text-align: right; font-size: 0.8em; border-top: 2px solid #F8F8F8;",
-    "ERROR": "background-color: #F3BFBF;",
-    "model.script": "background-color: #A6CFFD; font-weight: bold;"
+    ".log": "text-align: right; font-size: 0.8em; border-top: 2px solid #c6c6c6;",
+    "ERROR": "background-color: #f3bfbf;",
+    "model.script": "background-color: #a6cffd; font-weight: bold;"
+    "ModelRepositoryImpl": "background-color: #a6cffd; font-weight: bold"
   }
 }

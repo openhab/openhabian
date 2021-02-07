@@ -87,9 +87,10 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Optional Components" 21 116 14 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Optional Components" 22 116 15 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer light"      "openHAB Log Viewer webapp (frontail): light theme" \
     "   | Log Viewer dark"       "openHAB Log Viewer webapp (frontail): dark theme" \
+    "   | Add log to frontail"   "Add a custom log to openHAB Log Viewer (frontail)" \
     "22 | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     "23 | Mosquitto"             "MQTT broker Eclipse Mosquitto" \
     "24 | InfluxDB+Grafana"      "A powerful persistence and graphing solution" \
@@ -108,6 +109,7 @@ show_main_menu() {
     case "$choice2" in
       21\ *) frontail_setup "light";;
       *Log\ Viewer\ dark*) frontail_setup "dark";;
+      *Add\ log\ to\ frontail*) add_frontail_log;;
       22\ *) miflora_setup ;;
       23\ *) mqtt_setup ;;
       24\ *) influxdb_grafana_setup ;;
