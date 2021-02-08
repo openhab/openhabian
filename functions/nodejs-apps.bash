@@ -6,9 +6,9 @@
 ##    nodejs_setup()
 ##
 nodejs_setup() {
-  if [[ -x $(command -v npm) ]] && [[ $(node --version) == "v12"* ]] && ! is_armv6l; then return 0; fi
+  if [[ -x $(command -v npm) ]] && [[ $(node --version) == "v14"* ]] && ! is_armv6l; then return 0; fi
 
-  local link="https://unofficial-builds.nodejs.org/download/release/v12.19.1/node-v12.19.1-linux-armv6l.tar.xz"
+  local link="https://unofficial-builds.nodejs.org/download/release/v14.15.4/node-v14.15.4-linux-armv6l.tar.xz"
   local myDistro
   local temp
 
@@ -30,8 +30,8 @@ nodejs_setup() {
       if ! add_keys "https://deb.nodesource.com/gpgkey/nodesource.gpg.key"; then return 1; fi
 
       echo -n "$(timestamp) [openHABian] Adding NodeSource repository to apt... "
-      echo "deb https://deb.nodesource.com/node_12.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
-      echo "deb-src https://deb.nodesource.com/node_12.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
+      echo "deb https://deb.nodesource.com/node_14.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
+      echo "deb-src https://deb.nodesource.com/node_14.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
       if [[ -n $PREOFFLINE ]]; then
         if cond_redirect apt-get --quiet update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
       else
@@ -68,7 +68,7 @@ frontail_setup() {
     frontailTheme="openhab" # set to default light theme when no user input
   fi
 
-  if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v12"* ]] || is_armv6l; then
+  if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v14"* ]] || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -125,7 +125,7 @@ nodered_setup() {
 
   local temp
 
-  if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v12"* ]] || is_armv6l; then
+  if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v14"* ]] || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
