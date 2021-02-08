@@ -137,7 +137,7 @@ custom_frontail_log() {
     for log in "${addLog[@]}"; do
       if [[ -f $log ]]; then
         echo -n "$(timestamp) [openHABian] Adding '${log}' to frontail... "
-        if ! cond_redirect sed -i -e "/^ExecStart/s/$/ ${log}/" "$frontailService"; then echo "FAILED (add log)"; return 1; fi
+        if ! cond_redirect sed -i -e "/^ExecStart/ s|$| ${log}|" "$frontailService"; then echo "FAILED (add log)"; return 1; fi
         if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
         if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
       else
@@ -153,7 +153,7 @@ custom_frontail_log() {
     readarray -t array < <(grep -e "^ExecStart.*$" "$frontailService" | awk '{for (i=12; i<=NF; i++) {printf "%s\n\n", $i}}')
     ((count=${#array[@]} + 6))
     removeLog="$(whiptail --title "Select log to remove" --cancel-button Cancel --ok-button Select --menu "\\nPlease choose the log that you would like to remove from frontail:\\n" "$count" 80 0 "${array[@]}" 3>&1 1>&2 2>&3)"
-    if ! cond_redirect sed -i -e "s|${removeLog}[[:space:]]||" "$frontailService"; then echo "FAILED (remove log)"; return 1; fi
+    if ! cond_redirect sed -i -e "s|${removeLog}||" -e '/^ExecStart/ s|[[:space:]]\+| |g' "$frontailService"; then echo "FAILED (remove log)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
   fi
