@@ -131,7 +131,7 @@ custom_frontail_log() {
     if [[ -n $INTERACTIVE ]]; then
       if ! addLog="$(whiptail --title "Enter file path" --inputbox "\\nEnter the path to the logfile that you would like to add to frontail:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     else
-      addLog="$2"
+      if [[ -n $2 ]]; then addLog="$2"; else return 0; fi
     fi
 
     for log in "${addLog[@]}"; do
