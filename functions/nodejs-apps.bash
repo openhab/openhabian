@@ -105,7 +105,10 @@ frontail_setup() {
   if ! cond_redirect chmod 644 /etc/systemd/system/frontail.service; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now frontail.service; then echo "FAILED (enable service)"; return 1; fi
-  if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi # restart the service to make the change visible
+  if [[ -z $BATS_TEST_DIRNAME ]]; then
+    # Restart the service to make the change visible, but not in BATS as it does not play nice with systemd
+    if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  fi
 
   if openhab_is_installed; then
     dashboard_add_tile "frontail"
