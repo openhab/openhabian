@@ -112,33 +112,50 @@ frontail_setup() {
   fi
 }
 
-## Function for adding a user specifed log to frontail
+## Function for adding/removing a user specifed log to/from frontail
 ##
-##    add_frontail_log()
+##    custom_frontail_log()
 ##
-add_frontail_log() {
-  if [[ -z $INTERACTIVE ]]; then
+custom_frontail_log() {
+  local frontailService="/etc/systemd/system/frontail.service"
+  local addLog
+  local removeLog
+  local array
+
+  if ! [[ -f $frontailService ]]; then
+    whiptail --title "Frontail not installed" --msgbox "Frontail is not installed!\\n\\nCanceling operation!" 9 80
     return 0
   fi
 
-  local frontailService="/etc/systemd/system/frontail.service"
-  local newLog
-
-  if [[ -f $frontailService ]]; then
-    if ! newLog="$(whiptail --title "Enter file path" --inputbox "\\nEnter the path to the logfile that you would like to add to frontail:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-
-    if [[ -f $newLog ]]; then
-      echo -n "$(timestamp) [openHABian] Adding '${newLog}' to frontail... "
-      if ! cond_redirect sed -i -e "/^ExecStart/s/$/ ${newLog}/" $frontailService; then echo "FAILED (add log)"; return 1; fi
-      if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-      if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  if [[ $1 == "add" ]]; then
+    if [[ -n $INTERACTIVE ]]; then
+      if ! addLog="$(whiptail --title "Enter file path" --inputbox "\\nEnter the path to the logfile that you would like to add to frontail:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     else
-      whiptail --title "File does not exist" --msgbox "The specifed file path does not exist!\\n\\nCanceling operation!" 9 80
-      return 0
+      addLog="$2"
     fi
-  else
-    whiptail --title "Frontail not installed" --msgbox "Frontail is not installed!\\n\\nCanceling operation!" 9 80
-    return 0
+
+    for log in "${addLog[@]}"; do
+      if [[ -f $log ]]; then
+        echo -n "$(timestamp) [openHABian] Adding '${log}' to frontail... "
+        if ! cond_redirect sed -i -e "/^ExecStart/s/$/ ${log}/" "$frontailService"; then echo "FAILED (add log)"; return 1; fi
+        if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+        if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+      else
+        if [[ -n $INTERACTIVE ]]; then
+          whiptail --title "File does not exist" --msgbox "The specifed file path does not exist!\\n\\nCanceling operation!" 9 80
+          return 0
+        else
+          echo "$(timestamp) [openHABian] Adding '${log}' to frontail... FAILED (file does not exist)"
+        fi
+      fi
+    done
+  elif [[ $1 == "remove" ]] && [[ -n $INTERACTIVE ]]; then
+    readarray -t array < <(grep -e "^ExecStart.*$" "$frontailService" | awk '{for (i=12; i<=NF; i++) {printf "%s\n\n", $i}}')
+    ((count=${#array[@]} + 6))
+    removeLog="$(whiptail --title "Select log to remove" --cancel-button Cancel --ok-button Select --menu "\\nPlease choose the log that you would like to remove from frontail:\\n" "$count" 80 0 "${array[@]}" 3>&1 1>&2 2>&3)"
+    if ! cond_redirect sed -i -e "s|${removeLog}[[:space:]]||" "$frontailService"; then echo "FAILED (remove log)"; return 1; fi
+    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+    if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
   fi
 }
 
