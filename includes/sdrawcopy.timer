@@ -1,9 +1,9 @@
 [Unit]
-#Description=Run SD raw dump 1st of month
 Description=Run SD raw dump semiannually
+Requires=sdrawcopy.service
 
 [Timer]
-#OnCalendar=*-*-01 01:15:00
+Unit=sdrawcopy.service
 OnCalendar=*-01,07-01 01:15:00
 Persistent=true
 

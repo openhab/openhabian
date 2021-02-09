@@ -1,12 +1,12 @@
 [Unit]
-Description=Periodic FireMotD stats regeneration
+Description=FireMotD system updates check (randomly execute between 0:00:00 and 5:59:59)
 After=network.target network-online.target
+Wants=firemotd.timer
 
 [Service]
 Type=oneshot
 User=root
 Group=root
-RemainAfterExit=no
 ExecStart=/usr/local/bin/FireMotD -S -D all &> /dev/null
 
 [Install]

@@ -1,7 +1,9 @@
 [Unit]
-Description=Make backup of Amanda database
+Description=Make nightly backup of Amanda database
+Requires=amandaBackupDB.service
 
 [Timer]
+Unit=amandaBackupDB.service
 OnCalendar=*-*-* 01:55
 RandomizedDelaySec=10m
 Persistent=true
