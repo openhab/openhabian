@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2034
+# shellcheck disable=SC2034,2154
 
 # openHABian - hassle-free openHAB installation and configuration tool
 # for the Raspberry Pi and other Linux systems
@@ -113,6 +113,7 @@ if [[ -n "$UNATTENDED" ]]; then
   add_admin_ssh_key
   clean_config_userpw
   frontail_setup "${frontailtheme:-light}"
+  custom_log "add" "$custom_log_files"
   zram_setup
   exim_setup
   install_tailscale "install" && setup_tailscale

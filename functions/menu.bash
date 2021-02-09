@@ -87,27 +87,31 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Optional Components" 21 116 14 --cancel-button Back --ok-button Execute \
-    "21 | Log Viewer light"      "openHAB Log Viewer webapp (frontail): light theme" \
-    "   | Log Viewer dark"       "openHAB Log Viewer webapp (frontail): dark theme" \
-    "22 | miflora-mqtt-daemon"   "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
-    "23 | Mosquitto"             "MQTT broker Eclipse Mosquitto" \
-    "24 | InfluxDB+Grafana"      "A powerful persistence and graphing solution" \
-    "25 | Node-RED"              "Flow-based programming for the Internet of Things" \
-    "26 | Homegear"              "Homematic specific, the CCU2 emulation software Homegear" \
-    "27 | knxd"                  "KNX specific, the KNX router/gateway daemon knxd" \
-    "28 | 1wire"                 "1wire specific, owserver and related packages" \
-    "29 | FIND 3"                "Framework for Internal Navigation and Discovery" \
-    "   | Monitor Mode"          "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
-    "2A | Telldus Core"          "Telldus Core service for Tellstick USB devices" \
-    "2B | Install HABApp"        "Python 3 integration and rule engine for openHAB" \
-    "   | Remove HABApp"         "Remove HABApp from this system" \
+    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Optional Components" 23 118 16 --cancel-button Back --ok-button Execute \
+    "21 | Log Viewer light"       "openHAB Log Viewer webapp (frontail): light theme" \
+    "   | Log Viewer dark"        "openHAB Log Viewer webapp (frontail): dark theme" \
+    "   | Add log to viewer"      "Add a custom log to openHAB Log Viewer (frontail)" \
+    "   | Remove log from viewer" "Remove a custom log from openHAB Log Viewer (frontail)" \
+    "22 | miflora-mqtt-daemon"    "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
+    "23 | Mosquitto"              "MQTT broker Eclipse Mosquitto" \
+    "24 | InfluxDB+Grafana"       "A powerful persistence and graphing solution" \
+    "25 | Node-RED"               "Flow-based programming for the Internet of Things" \
+    "26 | Homegear"               "Homematic specific, the CCU2 emulation software Homegear" \
+    "27 | knxd"                   "KNX specific, the KNX router/gateway daemon knxd" \
+    "28 | 1wire"                  "1wire specific, owserver and related packages" \
+    "29 | FIND 3"                 "Framework for Internal Navigation and Discovery" \
+    "   | Monitor Mode"           "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
+    "2A | Telldus Core"           "Telldus Core service for Tellstick USB devices" \
+    "2B | Install HABApp"         "Python 3 integration and rule engine for openHAB" \
+    "   | Remove HABApp"          "Remove HABApp from this system" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
     case "$choice2" in
       21\ *) frontail_setup "light";;
       *Log\ Viewer\ dark*) frontail_setup "dark";;
+      *Add\ log\ to\ viewer*) custom_frontail_log "add";;
+      *Remove\ log\ from\ viewer*) custom_frontail_log "remove";;
       22\ *) miflora_setup ;;
       23\ *) mqtt_setup ;;
       24\ *) influxdb_grafana_setup ;;
@@ -118,8 +122,8 @@ show_main_menu() {
       29\ *) find3_setup ;;
       *Monitor\ Mode) setup_monitor_mode ;;
       2A\ *) telldus_core_setup ;;
-      2B\ *) habapp_setup install;;
-      *Remove\ HABApp*) habapp_setup remove;;
+      2B\ *) habapp_setup "install";;
+      *Remove\ HABApp*) habapp_setup "remove";;
       "") return 0 ;;
       *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
