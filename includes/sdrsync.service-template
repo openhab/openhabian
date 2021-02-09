@@ -1,5 +1,5 @@
 [Unit]
-Description=Run SD rsync daily except on 1st of month (when a raw dump is made)
+Description=Run SD rsync daily except semiannually (when a raw dump is made)
 After=network.target network-online.target
 Wants=sdrsync.timer
 
