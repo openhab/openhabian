@@ -357,11 +357,11 @@ mirror_SD() {
     echo "FAILED (bad destination)"
     return 1
   fi
-  if [[ $(mount | grep "$dest" &>/dev/null) ]]; then
+  if mount | grep -q "$dest"; then
     echo "FAILED (destination mounted)"
     return 1
   fi
-  if [[ ! -d $syncMount ]]; then
+  if ! [[ -d $syncMount ]]; then
     mkdir -p "$syncMount"
   fi
 
@@ -486,7 +486,7 @@ setup_mirror_SD() {
     echo "FAILED (bad destination)"
     return 1
   fi
-  if [[ $(mount | grep "$dest" &>/dev/null) ]]; then
+  if mount | grep -q "$dest"; then
     echo "FAILED (destination mounted)"
     return 1
   fi
