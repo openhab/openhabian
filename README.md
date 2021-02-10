@@ -2,6 +2,7 @@
 -   <https://www.openhab.org/docs/installation/openhabian.html>
 
 # openHABian - Hassle-free openHAB Setup
+![GitHub](https://img.shields.io/github/license/openhab/openhabian)
 ![ShellCheck](https://github.com/openhab/openhabian/workflows/ShellCheck/badge.svg)
 ![BATS](https://github.com/openhab/openhabian/workflows/BATS/badge.svg)
 ![Installation](https://github.com/openhab/openhabian/workflows/Installation/badge.svg)
