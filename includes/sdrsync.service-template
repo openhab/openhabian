@@ -1,6 +1,7 @@
 [Unit]
-Description=mount external card reader device and rsync / over there
+Description=Run SD rsync daily except semiannually (when a raw dump is made)
 After=network.target network-online.target
+Wants=sdrsync.timer
 
 [Service]
 Type=oneshot

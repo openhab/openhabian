@@ -1,6 +1,7 @@
 [Unit]
-Description=nightly Amanda backup: %CONFIG
+Description=Perform nightly Amanda backup: %CONFIG
 After=network.target network-online.target
+Wants=amdump-%CONFIG.timer
 
 [Service]
 Type=oneshot

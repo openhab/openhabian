@@ -1,7 +1,9 @@
 [Unit]
-Description=Daily start of Amanda backup
+Description=Perform nightly Amanda backup: %CONFIG
+Requires=amdump-%CONFIG.service
 
 [Timer]
+Unit=amdump-%CONFIG.service
 OnCalendar=*-*-* 00:55
 RandomizedDelaySec=10m
 Persistent=true

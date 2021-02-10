@@ -82,7 +82,7 @@ firemotd_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up FireMotD apt updates count service... "
   cond_echo "\\nMake FireMotD check for new updates every night... "
-  if ! cond_redirect cp "${BASEDIR}"/includes/firemotd.* "$targetDir"; then echo "FAILED"; return 1; fi
+  if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/firemotd.* "$targetDir"; then echo "FAILED (install service/timer)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now firemotd.timer &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
   cond_echo "\\nMake FireMotD check for new updates after using apt... "

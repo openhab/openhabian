@@ -2,9 +2,6 @@
 Description=Homegear Management
 After=homegear.service
 
-[Install]
-WantedBy=multi-user.target
-
 [Service]
 Type=simple
 User=homegear
@@ -20,3 +17,5 @@ TasksMax=infinity
 LimitCORE=infinity
 KillMode=process
 
+[Install]
+WantedBy=multi-user.target

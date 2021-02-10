@@ -1,10 +1,11 @@
 [Unit]
-Description=Run SD rsync daily except on 1st of month (when a raw dump is made)
-#Description=Run SD rsync once a week
+Description=Run SD rsync daily except semiannually (when a raw dump is made)
+Requires=sdrsync.service
 
 [Timer]
-OnCalendar=*-*-02..31 02:00:00 
-#OnCalendar=*-*-02,09,16,23 02:00:00
+Unit=sdrsync.service
+OnCalendar=*-02..06,08..12-* 02:00:00
+OnCalendar=*-01,07-02..31 02:00:00
 RandomizedDelaySec=10m
 Persistent=true
 

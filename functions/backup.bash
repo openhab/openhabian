@@ -244,17 +244,18 @@ create_amanda_config() {
   done
   echo "OK"
 
-  if ! sed -e "s|%CONFIG|${config}|g" "${BASEDIR:-/opt/openhabian}"/includes/amdump.service-template >"${serviceTargetDir}/amdump-${config}.service"; then echo "FAILED (create Amanda ${config} backup service)"; return 1; fi
-  if ! cp "${BASEDIR:-/opt/openhabian}"/includes/amdump.timer "${serviceTargetDir}/amdump-${config}.timer"; then echo "FAILED (create Amanda ${config} timer)"; return 1; fi
+  if ! sed -e "s|%CONFIG|${config}|g" "${BASEDIR:-/opt/openhabian}"/includes/amdump.service-template > "${serviceTargetDir}/amdump-${config}.service"; then echo "FAILED (create Amanda ${config} backup service)"; return 1; fi
+  if ! sed -e "s|%CONFIG|${config}|g" "${BASEDIR:-/opt/openhabian}"/includes/amdump.timer-template > "${serviceTargetDir}/amdump-${config}.timer"; then echo "FAILED (create Amanda ${config} timer)"; return 1; fi
+  if ! cond_redirect chmod 644 "${serviceTargetDir}/amdump-${config}.*"; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now "amdump-${config}.timer"; then echo "FAILED (amdump-${config} timer enable)"; return 1; fi
   if [[ $tapeType == "DIRECTORY" ]]; then
-    # shellcheck disable=SC2154
-    if ! sed -e "s|%STORAGE|${storageLoc}|g" "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.service-template >"${serviceTargetDir}"/amandaBackupDB.service; then echo "FAILED (create Amanda DB backup service)"; return 1; fi
-    if ! cp "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.timer "${serviceTargetDir}"/; then echo "FAILED (create Amanda DB timer)"; return 1; fi
-    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! cond_redirect mkdir -p "$storageLoc"/amanda-backups; then echo "FAILED (create amanda-backups)"; return 1; fi
     if ! cond_redirect chown --recursive "$backupUser":backup "$storageLoc"/amanda-backups; then echo "FAILED (chown amanda-backups)"; return 1; fi
+    if ! sed -e "s|%STORAGE|${storageLoc}|g" "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.service-template > "$serviceTargetDir"/amandaBackupDB.service; then echo "FAILED (create Amanda DB backup service)"; return 1; fi
+    if ! cond_redirect chmod 644 "${serviceTargetDir}"/amandaBackupDB.service; then echo "FAILED (permissions)"; return 1; fi
+    if ! install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.timer "${serviceTargetDir}"; then echo "FAILED (create Amanda DB backup timer)"; return 1; fi
+    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! cond_redirect systemctl enable --now "amandaBackupDB.timer"; then echo "FAILED (Amanda DB backup timer enable)"; return 1; fi
   fi
 }
@@ -335,7 +336,7 @@ mirror_SD() {
   local src="/dev/mmcblk0"
   local dest="${2:-${backupdrive}}"
   local start
-  local destPartsLargeEnough=true
+  local destPartsLargeEnough="true"
   local storageDir="${storagedir:-/storage}"
   local syncMount="${storageDir}/syncmount"
   local dirty="no"
@@ -346,26 +347,25 @@ mirror_SD() {
   if [[ $# -eq 1 ]] && [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
     # shellcheck disable=SC2154
-    dest="/dev/$retval"
+    dest="/dev/${retval}"
   fi
-  if [[ "${src}" == "${dest}" ]]; then
+  if [[ $src == "$dest" ]]; then
     echo "FAILED (source = destination)"
     return 1
   fi
-  if ! [[ $(blockdev --getsize64 "${dest}") ]]; then
+  if ! [[ $(blockdev --getsize64 "$dest") ]]; then
     echo "FAILED (bad destination)"
     return 1
   fi
-  # shellcheck disable=SC2143
-  if [[ $(mount | grep "${dest}" &>/dev/null) ]]; then
+  if mount | grep -q "$dest"; then
     echo "FAILED (destination mounted)"
     return 1
   fi
-  if [[ ! -d $syncMount ]]; then
+  if ! [[ -d $syncMount ]]; then
     mkdir -p "$syncMount"
   fi
 
-  if [[ "$1" == "raw" ]]; then
+  if [[ $1 == "raw" ]]; then
     for i in 1 2; do
       srcSize="$(blockdev --getsize64 "$src"p${i})"
       destSize="$(blockdev --getsize64 "$dest"${i})"
@@ -374,7 +374,7 @@ mirror_SD() {
         destPartsLargeEnough=false
       fi
     done
-    if ! [[ "$destPartsLargeEnough" == "true" ]]; then
+    if ! [[ $destPartsLargeEnough == "true" ]]; then
       srcSize="$(blockdev --getsize64 "$src")"
       destSize="$(blockdev --getsize64 "$dest")"
       if [[ "$destSize" -lt "$srcSize" ]]; then
@@ -389,16 +389,16 @@ mirror_SD() {
     echo "Taking a raw partition copy, be prepared this may take long such as 20-30 minutes for a 16 GB SD card"
     if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1" status=progress; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
     if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
-    origPartUUID=$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')
-    if ! partUUID=$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }'); then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
+    origPartUUID="$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')"
+    if ! partUUID="$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }')"; then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
     if ! cond_redirect tune2fs "${dest}2" -U random; then echo "FAILED (set random UUID)"; dirty="yes"; fi
     while umount -q "${dest}1"; do : ; done
     mount "${dest}1" "$syncMount"
-    sed -i "s|${origPartUUID}|${partUUID}|g" "${syncMount}"/cmdline.txt
+    sed -i "s|${origPartUUID}|${partUUID}|g" "$syncMount"/cmdline.txt
     umount "$syncMount"
     while umount -q "${dest}2"; do : ; done
     mount "${dest}2" "$syncMount"
-    sed -i "s|${origPartUUID}|${partUUID}|g" "${syncMount}"/etc/fstab
+    sed -i "s|${origPartUUID}|${partUUID}|g" "$syncMount"/etc/fstab
     [[ -f "${syncMount}/etc/systemd/system/${storageDir}".mount ]] && sed -i 's|^What=.*|What=/dev/mmcblk0p3|g' "${syncMount}/etc/systemd/system/${storageDir}".mount
     umount "$syncMount"
     if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "OK (dirty bit on fsck ${dest}2 is normal)"; dirty="yes"; fi
@@ -423,7 +423,7 @@ mirror_SD() {
       dest="${dest}2"
     fi
     mount "$dest" "$syncMount"
-    if ! (mountpoint -q "${syncMount}"); then echo "FAILED (${dest} is not mounted as ${syncMount})"; return 1; fi
+    if ! (mountpoint -q "$syncMount"); then echo "FAILED (${dest} is not mounted as ${syncMount})"; return 1; fi
     cond_redirect rsync --one-file-system -avRh "/" "$syncMount"
     if ! (umount "$syncMount" &> /dev/null); then
       sleep 1
@@ -447,7 +447,7 @@ setup_mirror_SD() {
   local srcSize
   local destSize
   local minBackupSize
-  local serviceTargetDir="/etc/systemd/system/"
+  local serviceTargetDir="/etc/systemd/system"
   local storageDir="${storagedir:-/storage}"
   local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
   local infoText1="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will *copy* your system root from your SD card to a USB attached card writer device. Are you sure"
@@ -455,14 +455,14 @@ setup_mirror_SD() {
 
   echo -n "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... "
 
-  if [[ "$1" == "remove" ]]; then
+  if [[ $1 == "remove" ]]; then
     cond_redirect systemctl disable sdrsync.service sdrawcopy.service sdrsync.timer sdrawcopy.timer
-    rm -f ${serviceTargetDir}/sdr*.{service,timer}
+    rm -f "$serviceTargetDir"/sdr*.{service,timer}
     cond_redirect systemctl -q daemon-reload &> /dev/null
     return 0
   fi
 
-  if [[ "$1" != "install" ]]; then echo "FAILED"; return 1; fi
+  if [[ $1 != "install" ]]; then echo "FAILED"; return 1; fi
 
   if ! is_pi; then
     if [[ -n "$INTERACTIVE" ]]; then
@@ -471,24 +471,22 @@ setup_mirror_SD() {
     echo "FAILED"; return 1
   fi
 
-  mkdir -p "${storageDir}"
+  mkdir -p "$storageDir"
   if cond_redirect apt-get install --yes gdisk; then echo "OK"; else echo "FAILED (install gdisk)"; return 1; fi
   if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/set-partuuid /usr/local/sbin; then echo "FAILED (install set-partuuid)"; return 1; fi
 
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
-    if [[ -z "$retval" ]]; then return 0; fi
+    if [[ -z $retval ]]; then return 0; fi
     dest="/dev/${retval}"
   else
-    # shellcheck disable=SC2154
-    dest="${backupdrive}"
+    dest="$backupdrive"
   fi
-  if [[ ! $(blockdev --getsize64 "${dest}") ]]; then
+  if ! [[ $(blockdev --getsize64 "$dest") ]]; then
     echo "FAILED (bad destination)"
     return 1
   fi
-  # shellcheck disable=SC2143
-  if [[ $(mount | grep "${dest}" &>/dev/null) ]]; then
+  if mount | grep -q "$dest"; then
     echo "FAILED (destination mounted)"
     return 1
   fi
@@ -517,17 +515,18 @@ setup_mirror_SD() {
     (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk --force "$dest"
     partprobe
     cond_redirect mke2fs -F -t ext4 "${dest}3"
-    # shellcheck disable=SC2154
-    if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount > "${serviceTargetDir}"/"${mountUnit}"; then echo "FAILED (create storage mount)"; fi
-    if ! cond_redirect systemctl enable --now "${mountUnit}"; then echo "FAILED (enable storage mount)"; return 1; fi
+    if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount-template > "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (create storage mount)"; fi
+    if ! cond_redirect chmod 644 "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (permissions)"; return 1; fi
+    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+    if ! cond_redirect systemctl enable --now "$mountUnit"; then echo "FAILED (enable storage mount)"; return 1; fi
   fi
-  mirror_SD "raw" "${dest}"
+  mirror_SD "raw" "$dest"
 
-  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service_template > "${serviceTargetDir}"/sdrawcopy.service; then echo "FAILED (create raw SD copy service)"; fi
-  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service_template > "${serviceTargetDir}"/sdrsync.service; then echo "FAILED (create rsync service)"; fi
-  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${serviceTargetDir}"/; then echo "OK"; else rm -f "${serviceTargetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
+  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service-template > "$serviceTargetDir"/sdrawcopy.service; then echo "FAILED (create raw SD copy service)"; fi
+  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service-template > "$serviceTargetDir"/sdrsync.service; then echo "FAILED (create rsync service)"; fi
+  if cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${serviceTargetDir}"; then echo "OK"; else rm -f "${serviceTargetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
   if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/mirror_SD /usr/local/sbin; then echo "FAILED (install mirror_SD)"; return 1; fi
-  cond_redirect systemctl -q daemon-reload &> /dev/null
+  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now sdrawcopy.timer sdrsync.timer; then echo "FAILED (enable timed SD sync start)"; return 1; fi
 
   echo "OK"

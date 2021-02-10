@@ -1,6 +1,7 @@
 [Unit]
-Description=nightly backup: Amanda config, DB, logs
+Description=Make nightly backup of Amanda database
 After=network.target network-online.target
+Wants=amandaBackupDB.timer
 
 [Service]
 Type=oneshot
