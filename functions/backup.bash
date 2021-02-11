@@ -487,7 +487,8 @@ setup_mirror_SD() {
     echo "FAILED (bad destination)"
     return 1
   fi
-  if mount | grep -q "$dest"; then
+  # shellcheck disable=SC2016
+  if mount | grep -Eq '$dest[12]'; then
     echo "FAILED (destination mounted)"
     return 1
   fi
