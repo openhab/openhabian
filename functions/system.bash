@@ -20,7 +20,8 @@ whiptail_check() {
 system_upgrade() {
   echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
   export DEBIAN_FRONTEND=noninteractive
-  if ! cond_redirect apt-get upgrade --yes; then echo "FAILED"; return 1; fi
+  # bad packages may require interactive input despite of this setting so do not mask output (no cond_redirect)
+  if ! apt-get upgrade --yes; then echo "FAILED"; return 1; fi
   if cond_redirect java_install_or_update "${java_opt:-Zulu11-32}"; then echo "OK"; else echo "FAILED"; return 1; fi
   unset DEBIAN_FRONTEND
 }
