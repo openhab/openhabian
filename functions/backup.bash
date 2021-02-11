@@ -357,7 +357,7 @@ mirror_SD() {
     echo "FAILED (bad destination)"
     return 1
   fi
-  if mount | grep -Eq "$dest[12]"; then
+  if mount | grep -Eq '$dest[12]'; then
     echo "FAILED (destination mounted)"
     return 1
   fi
