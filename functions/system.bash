@@ -21,7 +21,7 @@ system_upgrade() {
   echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
   export DEBIAN_FRONTEND=noninteractive
   # bad packages may require interactive input despite of this setting so do not mask output (no cond_redirect)
-  if ! apt-get upgrade --yes; then echo "FAILED"; return 1; fi
+  if ! apt-get upgrade --yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; then echo "FAILED"; return 1; fi
   if cond_redirect java_install_or_update "${java_opt:-Zulu8-32}"; then echo "OK"; else echo "FAILED"; return 1; fi
   unset DEBIAN_FRONTEND
 }
