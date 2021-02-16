@@ -7,6 +7,7 @@ Wants=firemotd.timer
 Type=oneshot
 User=root
 Group=root
+RemainAfterExit=no
 ExecStart=/usr/local/bin/FireMotD -S -D all &> /dev/null
 
 [Install]
