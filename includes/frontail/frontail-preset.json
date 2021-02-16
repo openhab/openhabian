@@ -17,7 +17,7 @@
   "lines": {
     ".log": "text-align: right; font-size: 0.8em; border-top: 2px solid #c6c6c6;",
     "ERROR": "background-color: #f3bfbf;",
-    "model.script": "background-color: #a6cffd; font-weight: bold;"
+    "model.script": "background-color: #a6cffd; font-weight: bold;",
     "ModelRepositoryImpl": "background-color: #a6cffd; font-weight: bold"
   }
 }
