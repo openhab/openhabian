@@ -134,7 +134,7 @@ create_amanda_config() {
   local storageText
   local tapeChanger
   local tapeType
-  local serviceTargetDir="/etc/systemd/system/"
+  local serviceTargetDir="/etc/systemd/system"
 
   config="$1"
   backupUser="$2"
@@ -246,7 +246,7 @@ create_amanda_config() {
 
   if ! sed -e "s|%CONFIG|${config}|g" "${BASEDIR:-/opt/openhabian}"/includes/amdump.service-template > "${serviceTargetDir}/amdump-${config}.service"; then echo "FAILED (create Amanda ${config} backup service)"; return 1; fi
   if ! sed -e "s|%CONFIG|${config}|g" "${BASEDIR:-/opt/openhabian}"/includes/amdump.timer-template > "${serviceTargetDir}/amdump-${config}.timer"; then echo "FAILED (create Amanda ${config} timer)"; return 1; fi
-  if ! cond_redirect chmod 644 "${serviceTargetDir}/amdump-${config}.*"; then echo "FAILED (permissions)"; return 1; fi
+  if ! cond_redirect chmod 644 "${serviceTargetDir}/amdump-${config}".*; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now "amdump-${config}.timer"; then echo "FAILED (amdump-${config} timer enable)"; return 1; fi
   if [[ $tapeType == "DIRECTORY" ]]; then
