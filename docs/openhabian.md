@@ -386,23 +386,30 @@ Mind you that if you intend to open an issue, we need you to provide the output 
 
 #### Auto-backup
 
-You might want to setup openHABian to automatically backup and mirror your internal SD card to an external unit.
-We suggest to use another SD card in an external card writer device so that in case your internal SD card fails, you can switch SD cards to get the system back up running fast.
-Note most "16GB" cards are not _exactly_ 16 GB and your new one mustn't have less bytes than the old one so openHABian enforces the second card to have at least twice the size of your internal card.
-We make use of that extra space as storage for the backup system.
+Auto backup is a marketing name for two distinct features that you can deploy in one go at *unattended* installation time on a RPi (when you deploy the image).
+Technically it is a "low-cost" version of disk mirroring PLUS the setup of the Amanda backup system that has been available in a long time.
+So don't let the name confuse you. If you didn't choose to set this up at installation time, you can also individually select these via openhabian-config` menu options 53 (mirroring) and 52 (Amanda).
+Note mirroring is untested (and hardly makes sense to deploy) if you don't run RPi hardware but Amanda is well meant to be used as the backup system and is known to work on any hardware.
 
-To setup right at installation time:
+To setup openHABian to automatically backup and mirror your internal SD card to an external storage unit, we suggest to use another SD card in an external card writer device so that in case your internal SD card fails, you can switch SD cards to get the system back up running fast.
+Note most "16GB" cards are not _exactly_ 16 GB and your new one mustn't have less bytes than the old one so openHABian enforces the second card to have at least twice the size of your internal card.
+We can make use of that extra space as storage for the backup system.
+
+To setup mirroring right at installation time:
 Define `backupdrive=/dev/sdX` (replace X with the proper character) to enable this functionality right during unattended installation.
-You may change `storagedir=/storage` to any other name.
 The first attached disk type device is usually called `/dev/sda`.
-openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space to a storage partition.
+Use `storagecapacity=xxx` to override how much space to consume at most for Amanda backup storage (in MB).
+openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space to another partition that you can use for storage.
+NOTE: if you do and _if_ the remaining space is sufficient, selecting this will also result in setting up the Amanda backup system on that extra space.
+Note you can change where it stores its backup data via `storagedir=/storage`, but you cannot unselect the Amanda setup at this stage.
+If you want to setup mirroring only and Amanda anywhere else but on the extra SD space, you must not use unattended installation method (i.e. do not define `backupdrive`).
+You can still setup both, mirroring and Amanda, separately at any later time using the 53 (mirroring) and 52 (Amanda) menu options.
+
 Full mirroring will take place semiannually and for the 2nd partition (Linux root), changes will be synced once every day.
 See `systemctl list-timers`, timers are defined in `/etc/systemd/system/sd*.timer`.
-The unattended install routine will also setup Amanda to take daily backups and store them to that third partition.
-Use `storagecapacity=xxx` to override how much space to consume at most for Amanda backup storage (in MB).
-If you choose to skip this during system installation, you can still setup both, mirroring and Amanda, at any later time using the 5X menu options.
 
 Menu 5X provides interactive access to the aforementioned functions:
+`52 Amanda System Backup` will will prepare an existing directory as your backup storage and make Amanda launch once a day. See the separate [Amanda setup document](openhabian-amanda.md).
 `53 Setup SD monitoring` prepares the partitions on an SD card and sets up timers to execute both, a full mirroring and complementary rsync 'diff' runs in a backup schedule.
 `54 Raw copy SD` is a one-time raw copy (mirror) run.
 `55 Sync SD` proagates (syncs) differences from your main SD card to your external card.
