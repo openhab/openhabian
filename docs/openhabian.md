@@ -396,7 +396,7 @@ Define `backupdrive=/dev/sdX` (replace X with the proper character) to enable th
 You may change `storagedir=/storage` to any other name.
 The first attached disk type device is usually called `/dev/sda`.
 openHABian will create partitions 1 and 2 to be mirrors of your internal card and will assign the remaining space to a storage partition.
-Full mirroring will take place semiannually and for the 2nd partition (Linux root), changes will be synced once a week.
+Full mirroring will take place semiannually and for the 2nd partition (Linux root), changes will be synced once every day.
 See `systemctl list-timers`, timers are defined in `/etc/systemd/system/sd*.timer`.
 The unattended install routine will also setup Amanda to take daily backups and store them to that third partition.
 Use `storagecapacity=xxx` to override how much space to consume at most for Amanda backup storage (in MB).
@@ -526,16 +526,15 @@ I've just installed openHABian and now I'm confused.
 No fancy login screen, no windows, no mouse support.
 What did I get into?
 
-You are not the first one to get confused about the **intended use case of openHABian**.
+You are not the first one to get confused about the intended use case of openHABian.
 Maybe it helps to not think of the RPi as a PC as we know it.
 An RPi is not (well, not _necessarily_) to be used with a keyboard and display.
 Its intended use case is to sit in a corner and provide a service reliably 24 hours a day, 7 days a week.
-You already own a **powerful PC or Mac** to work on.
-It would be a shame to have a powerful computer at your fingertips and then have to **restrict yourself** to a very limited graphical frontend on another device, wouldn't you agree?
+You already own a powerful PC or Mac to work on.
 
 What we actually want openHABian to be is a **dedicated, headless system** to **reliably run openHAB** and to **expose all interfaces** needed to interact and configure it (MainUI, HABPanel, openHAB LogViewer, Samba Network Shares, openHABian Configuration Tool, SSH, you-name-it).
 If you know how to work with these interfaces, you are set for a way better experience than the alternatives.
-The main challenge is to **get used to the Linux command line**, not even a GUI (like Pixel, see below) will relieve you from that in the long run.
+The main challenge is to **get used to the Linux command line**, not even a GUI will relieve you from that in the long run.
 If you are not willing to teach yourself a few fundamental Linux skills you will not become happy with any Linux system and should resort to a e.g. Windows machine.
 However as you are willing to tinker with smart home technology, I'm sure you are ready to **teach yourself new stuff** and expand your experience.
 
