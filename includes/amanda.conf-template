@@ -8,7 +8,7 @@ tapecycle %TAPES tapes                        # Dump to this number of different
 runtapes 10                                   # Number of virtual containers to use at most per backup run
 tpchanger %TAPECHANGER
 taper-parallel-write 2
-autolabel "openHABian-%CONFIG-%%%" empty
+autolabel "openHABian-%CONFIG-%%" empty
 tapelist "%CONFIGDIR/tapelist"                # The tapelist file
 tapetype %TAPETYPE
 infofile "/var/lib/amanda/%CONFIG/curinfo"    # Database directory
