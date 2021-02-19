@@ -454,10 +454,8 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 -   Tellstick core
 
 ## Troubleshooting
-
 If you're having problems with getting openHABian to install properly, check out the [debug guide](openhabian-DEBUG.md). It's also available on your system as `/opt/openhabian/docs/openhabian-DEBUG.md`.
-Do not hesitate to ask for help on the [openHABian community forum](https://community.openhab.org/) when the debug guide doesn't help.
-Remember to [mind the rules](https://community.openhab.org/t/how-to-ask-a-good-question-help-us-help-you/58396) please.
+You can ask for help on the [openHABian community forum](https://community.openhab.org/) when the debug guide doesn't help but please first, read and [mind the rules](https://community.openhab.org/t/how-to-ask-a-good-question-help-us-help-you/58396).
 
 If you want to get involved, you found a bug, or just want to see what's planned for the future, visit us on GitHub:
 
@@ -465,15 +463,12 @@ If you want to get involved, you found a bug, or just want to see what's planned
 
 <a id="changelog"></a>
 ### Where can I find a changelog for openHABian?
-
 Official announcements are co-located with the download links [here](https://github.com/openhab/openhabian/releases).
 If you want to stay in touch with all the latest code changes under the hood, see [commit history](https://github.com/openhab/openhabian/commits/main) for openHABian.
 You'll also see commits "fly by" when executing the "Update" function within the openHABian Configuration Tool.
 
 <a id="successful"></a>
 ### Did my Installation succeed? What to do in case of a problem?
-
-Don't panic ;-)
 openHABian setup will take 15 up to 45 minutes to complete all steps, depending on your device's performance and your internet connection.
 
 Watch the progress on the console or the web interface at <https://yourIP/> or <http://openhabian/> if that name has become available.
