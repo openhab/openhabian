@@ -99,7 +99,7 @@ Read and understand the Amanda docs.
 # Installation
 
 These notes were written for an interactive installation run.
-Note openHABian comes with the new ["auto backup" feature](https://github.com/openhab/openhabian/blob/main/docs/openhabian.md#auto-backup).
+Note openHABian provides the new ["auto backup" feature](https://github.com/openhab/openhabian/blob/main/docs/openhabian.md#auto-backup).
 It'll essentially mirror your internal SD card to another (bigger) card in an external card reader and uses the remaining space as your Amanda storage area.
 We highly recommend you to make use of this feature on initial openHABian installation, but you can also setup Amanda later on as well.
 
