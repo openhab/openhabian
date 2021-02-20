@@ -225,7 +225,7 @@ install_tailscale() {
 ##
 setup_tailscale() {
   local preAuthKey=${preauthkey}
-  local consoleProperties="${OPENHAB_USERDATA:-/var/lib/openhab2}/etc/org.apache.karaf.shell.cfg"
+  local consoleProperties="${OPENHAB_USERDATA:-/var/lib/openhab}/etc/org.apache.karaf.shell.cfg"
   local tailscaleIP
 
   if [[ -n $UNATTENDED ]] && [[ -z $preAuthKey ]]; then
