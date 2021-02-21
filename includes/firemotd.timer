@@ -3,7 +3,7 @@ Description=FireMotD system updates check (randomly execute between 0:00:00 and 
 Requires=firemotd.service
 
 [Timer]
-Unit=firemot.service
+Unit=firemotd.service
 OnCalendar=*-*-* 00:00
 RandomizedDelaySec=6h
 Persistent=true
