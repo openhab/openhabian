@@ -161,7 +161,7 @@ You will see the following welcome screen:
 Going beyond what the RPi image provides, you can also openHABian on x86 hardware on top of any existing Debian installation.
 Please note that the unattended install is tailored to work for Raspberries.
 We cannot test HW/OS combos beyond RPis upfront so there is no promise for this work.
-See the [Hardware and OS section](#hardware-and-os-support) for details on supported hardware and OSs before you proceed.
+See the [Hardware](#hardware) and [OS](os-support) sections for details on supported hardware and OSs before you proceed.
 Note that although the core parts of openHABian were reported to work on there, Ubuntu is not supported and untested.
 If you try and fail, please help and drop us a note on Github with debug log enabled, see [DEBUG guide](openhabian-DEBUG.md).
 
