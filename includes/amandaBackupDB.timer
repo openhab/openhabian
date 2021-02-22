@@ -1,6 +1,5 @@
 [Unit]
 Description=Make nightly backup of Amanda database
-Requires=amandaBackupDB.service
 
 [Timer]
 Unit=amandaBackupDB.service

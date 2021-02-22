@@ -1,6 +1,5 @@
 [Unit]
 Description=Perform nightly Amanda backup: %CONFIG
-Requires=amdump-%CONFIG.service
 
 [Timer]
 Unit=amdump-%CONFIG.service
