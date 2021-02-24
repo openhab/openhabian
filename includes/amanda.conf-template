@@ -32,10 +32,11 @@ define application-tool app_amraw {
 define application-tool app_amgtar {
     plugin "amgtar"
 
-    property        "NORMAL" ": socket ignored$"
-    property append "NORMAL" "file changed as we read it$"
-    property append "NORMAL" ": directory is on a different filesystem; not dumped$"
-    property append "NORMAL" ": File removed before we read it$"
+    property        "ONE-FILE-SYSTEM" "NO"
+    property        "NORMAL"          ": socket ignored$"
+    property append "NORMAL"          "file changed as we read it$"
+    property append "NORMAL"          ": directory is on a different filesystem; not dumped$"
+    property append "NORMAL"          ": File removed before we read it$"
 }
 
 define dumptype global {
