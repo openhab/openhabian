@@ -51,6 +51,7 @@ jobs:
          run: |
            sudo -E bash -c set
            sudo -E ./ci-setup.bash github
+           sudo apt-get update
            sudo apt-get install --yes qemu binfmt-support qemu-user-static
        - name: Set up Docker Buildx
          id: buildx
