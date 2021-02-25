@@ -284,7 +284,7 @@ This is the right time to prepare your system for disasters such as getting hit 
     Get an UPS.
     Zram is enabled by default for swap, logs and persistence data.
     You can toggle use in \[menu option 38\].
-2.  You can have openHABian mirror your SD card i.e. have it create a live copy. See [auto backup](#Auto-backup) documentation. You can activate mirroring using \[menu option 53\]
+2.  You can have openHABian mirror your SD card i.e. have it create a live copy. See [auto backup](#auto-backup) documentation. You can activate mirroring using \[menu option 53\]
 3.  Move the root filesystem to USB-attached memory.
     WARNING: USB sticks are as susceptible to flash wear-out as SD cards are, making zram the better choice for a standard Pi to run off its internal SD card.
     But you can use this option to migrate your system to a safe medium such as an SSD or HDD.
@@ -385,11 +385,11 @@ See [Troubleshooting](#troubleshooting) section if you run into trouble installi
 If you want to turn on debug mode edit `openhabian.conf` and set the `debugmode=` parameter to either `off`, `on` or `maximum`.
 Mind you that if you intend to open an issue, we need you to provide the output of `debugmode=maximum` so if you're in interactive mode, set your terminal to record output.
 
-#### Auto-backup
+#### Auto backup
 
 Auto backup is a marketing name for two distinct features that you can deploy in one go at *unattended* installation time on a RPi (when you deploy the image).
 Technically it is a "low-cost" version of disk mirroring PLUS the setup of the Amanda backup system which all by itself has been available in a long time.
-So don't let the name confuse you. If you didn't choose to set this up at installation time, you can also individually select these via openhabian-config` menu options 53 (mirroring) and 52 (Amanda).
+So don't let the name confuse you. If you didn't choose to set this up at installation time, you can also individually select these functions via `openhabian-config` menu options 53 (mirroring) and 52 (Amanda).
 Note mirroring is untested (and hardly makes sense to deploy) if you don't run RPi hardware but Amanda is well meant to be used as the backup system and is known to work on any hardware.
 
 To setup openHABian to automatically backup and mirror your internal SD card to an external storage unit, we suggest to use another SD card in an external card writer device so that in case your internal SD card fails, you can switch SD cards to get the system back up running fast.
