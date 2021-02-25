@@ -18,7 +18,7 @@ whiptail_check() {
 ##    system_upgrade()
 ##
 system_upgrade() {
-  echo -n "$(timestamp) [openHABian] Updating repositories and upgrading installed packages... "
+  echo "$(timestamp) [openHABian] Updating repositories and upgrading installed packages..."
   export DEBIAN_FRONTEND=noninteractive
   # bad packages may require interactive input despite of this setting so do not mask output (no cond_redirect)
   if ! apt-get upgrade --yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; then echo "FAILED"; return 1; fi
