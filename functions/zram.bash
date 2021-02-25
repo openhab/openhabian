@@ -27,8 +27,6 @@ install_zram_code() {
 init_zram_mounts() {
   if ! is_arm; then return 0; fi
 
-  local disklistFileAWS="/etc/amanda/openhab-aws/disklist"
-  local disklistFileDir="/etc/amanda/openhab-dir/disklist"
   local introText="You are about to activate the zram feature.\\nBe aware you do this at your own risk of data loss.\\nPlease check out the \"zram status\" thread at https://community.openhab.org/t/zram-status/80996 before proceeding."
   local lowMemText="Your system has less than 1 GB of RAM. It is definitely NOT recommended to run zram (AND openHAB) on your box. If you proceed now you will do so at your own risk!"
   local zramInstallLocation="/opt/zram"
@@ -65,21 +63,6 @@ init_zram_mounts() {
       echo -n "$(timestamp) [openHABian] Adding FIND3 to zram... "
       if cond_redirect sed -i '/^.*persistence.*$/a dir	lz4	100M		350M		/opt/find3/server/main		/find3.bind' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
     fi
-    if ! openhab_is_installed; then
-      echo -n "$(timestamp) [openHABian] Removing openHAB persistence from zram... "
-      if cond_redirect sed -i '/^.*persistence.*$/d' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
-    else
-      if [[ -f $disklistFileDir ]]; then
-        echo -n "$(timestamp) [openHABian] Adding zram to Amanda local backup... "
-        if ! cond_redirect sed -i '/zram/d' "$disklistFileDir"; then echo "FAILED (old config)"; return 1; fi
-        if (echo "${HOSTNAME}  /var/lib/openhab/persistence  comp-user-tar" >> "$disklistFileDir"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
-      fi
-      if [[ -f $disklistFileAWS ]]; then
-        echo -n "$(timestamp) [openHABian] Adding zram to Amanda AWS backup... "
-        if ! cond_redirect sed -i '/zram/d' "$disklistFileAWS"; then echo "FAILED (old config)"; return 1; fi
-        if (echo "${HOSTNAME}  /var/lib/openhab/persistence  comp-user-tar" >> "$disklistFileAWS"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
-      fi
-    fi
 
     echo -n "$(timestamp) [openHABian] Setting up zram service... "
     if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
@@ -105,15 +88,6 @@ init_zram_mounts() {
     if ! cond_redirect rm -rf /usr/local/share/zram-config; then echo "FAILED (zram-config share)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
     if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
-
-    if [[ -f "$disklistFileDir" ]]; then
-      echo -n "$(timestamp) [openHABian] Removing zram from Amanda local backup... "
-      if cond_redirect sed -i -e '/zram/d' "$disklistFileDir"; then echo "OK"; else echo "FAILED (old config)"; return 1; fi
-    fi
-    if [[ -f "$disklistFileAWS" ]]; then
-      echo -n "$(timestamp) [openHABian] Removing zram from Amanda AWS backup... "
-      if cond_redirect sed -i -e '/zram/d' "$disklistFileAWS"; then echo "OK"; else echo "FAILED (old config)"; return 1; fi
-    fi
   else
     echo "$(timestamp) [openHABian] Refusing to install zram as it is already installed, please uninstall and then try again... EXITING"
     return 1
