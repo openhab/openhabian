@@ -446,7 +446,7 @@ setup_mirror_SD() {
   local dest
   local srcSize
   local destSize
-  local minStorageSize=4294967296                   # 4 GB
+  local minStorageSize=4000000000                  # 4 GB
   local serviceTargetDir="/etc/systemd/system"
   local storageDir="${storagedir:-/storage}"
   local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
@@ -509,7 +509,7 @@ setup_mirror_SD() {
 
   mountUnit="$(basename "${storageDir}").mount"
   systemctl stop "${mountUnit}"
-  if sfdisk -d ${src}$ | grep -q "^${src}p3"; then
+  if sfdisk -d ${src} | grep -q "^${src}p3"; then
     # copy partition table with all 3 partitions
     sfdisk -d /dev/mmcblk0 | sfdisk --force "$dest"
   else
