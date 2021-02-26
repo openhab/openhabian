@@ -32,6 +32,7 @@ define application-tool app_amraw {
 define application-tool app_amgtar {
     plugin "amgtar"
 
+    property        "COMMAND-OPTIONS" "--exclude-from=/opt/openhabian/includes/amanda-exclude-list"
     property        "ONE-FILE-SYSTEM" "NO"
     property        "NORMAL"          ": socket ignored$"
     property append "NORMAL"          "file changed as we read it$"
