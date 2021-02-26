@@ -365,7 +365,7 @@ mirror_SD() {
 
   if [[ $1 == "raw" ]]; then
     for i in 1 2 3; do
-      sfdisk -d ${src}|grep -q "^${src}p${i}" || continue
+      sfdisk -d ${src} | grep -q "^${src}p${i}" || continue
       srcSize="$(blockdev --getsize64 "$src"p${i})"
       destSize="$(blockdev --getsize64 "$dest"${i})"
       if [[ "$destSize" -lt "$srcSize" ]]; then
