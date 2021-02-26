@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2012
 
 ## Create a backup of the current openHAB configuration using openHAB's builtin tool
 ##
@@ -49,6 +48,7 @@ restore_openhab_config() {
 
   echo -n "$(timestamp) [openHABian] Beginning restoration of openHAB backup... "
   if [[ -n "$INTERACTIVE" ]]; then
+    # shellcheck disable=SC2012
     readarray -t backupList < <(ls -alh "${backupPath}"/openhab*-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
     if [[ -z "${backupList[*]}" ]]; then
       whiptail --title "Could not find backup!" --msgbox "We could not find any configuration backup file in the storage directory $backupPath" 8 80
@@ -446,7 +446,7 @@ setup_mirror_SD() {
   local dest
   local srcSize
   local destSize
-  local minBackupSize
+  local minStorageSize=4294967296                   # 4 GB
   local serviceTargetDir="/etc/systemd/system"
   local storageDir="${storagedir:-/storage}"
   local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
@@ -494,7 +494,7 @@ setup_mirror_SD() {
 
   infoText="$infoText1 $dest $infoText2"
   srcSize="$(blockdev --getsize64 /dev/mmcblk0)"
-  minBackupSize="$((195 * srcSize / 100))"    # to accomodate for slight differences in SD sizes
+  minStorageSize="$((minStorageSize + srcSize))"    # to accomodate for slight differences in SD sizes
   destSize="$(blockdev --getsize64 "$dest")"
   if [[ "$destSize" -lt "$srcSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
@@ -507,19 +507,24 @@ setup_mirror_SD() {
     if ! (whiptail --title "Copy internal SD to $dest" --yes-button "Continue" --no-button "Back" --yesno "$infoText" 12 116); then echo "CANCELED"; return 0; fi
   fi
 
-  if [[ "$destSize" -ge "$srcSize" ]]; then
-    mountUnit="$(basename "${storageDir}").mount"
-    systemctl stop "${mountUnit}"
-    # copy partition table
-    start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)"
-    ((destSize-=start))
-    (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk --force "$dest"
-    partprobe
-    cond_redirect mke2fs -F -t ext4 "${dest}3"
-    if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount-template > "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (create storage mount)"; fi
-    if ! cond_redirect chmod 644 "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (permissions)"; return 1; fi
-    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
-    if ! cond_redirect systemctl enable --now "$mountUnit"; then echo "FAILED (enable storage mount)"; return 1; fi
+  mountUnit="$(basename "${storageDir}").mount"
+  systemctl stop "${mountUnit}"
+  if sfdisk -d ${src}$ | grep -q "^${src}p3"; then
+    # copy partition table with all 3 partitions
+    sfdisk -d /dev/mmcblk0 | sfdisk --force "$dest"
+  else
+    if [[ "$destSize" -ge "$minStorageSize" ]]; then
+      # create 3rd partition and filesystem on dest
+      start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)"
+      ((destSize-=start))
+      (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk --force "$dest"
+      partprobe
+      cond_redirect mke2fs -F -t ext4 "${dest}3"
+      if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount-template > "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (create storage mount)"; fi
+      if ! cond_redirect chmod 644 "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (permissions)"; return 1; fi
+      if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+      if ! cond_redirect systemctl enable --now "$mountUnit"; then echo "FAILED (enable storage mount)"; return 1; fi
+    fi
   fi
   mirror_SD "raw" "$dest"
 
@@ -532,7 +537,7 @@ setup_mirror_SD() {
 
   echo "OK"
 
-  if [[ -z $INTERACTIVE ]] && [[ "$destSize" -ge "$minBackupSize" ]]; then
+  if [[ -z $INTERACTIVE ]] && [[ "$destSize" -ge "$minStorageSize" ]]; then
     amanda_install
     create_amanda_config "${storageconfig:-openhab-dir}" "backup" "${adminmail:-root@${HOSTNAME}}" "${storagetapes:-15}" "${storagecapacity:-1024}" "${storageDir}"
   fi
