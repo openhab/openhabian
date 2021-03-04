@@ -36,7 +36,7 @@ It provides:
 
 Out of the box, the openHABian image provides:
 
--   Hassle-free setup without a display or keyboard, connected via Ethernet or [WiFi](#wifi-based-setup-notes)
+-   Hassle-free setup without a display or keyboard, connected via Ethernet or [Wi-Fi](#wi-fi-based-setup-notes)
 -   The latest stable version of openHAB
 -   Zulu Embedded OpenJDK Java 8, 11 or AdoptOpenJDK
 -   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
@@ -56,7 +56,7 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 
 -   Switch between openHAB versions 2 and 3 and select the latest _Release_, _Milestone_, and _SNAPSHOT_ [build versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
 -   Install and Setup a [reverse proxy](security.html##running-openhab-behind-a-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
--   Manually set up a WiFi connection
+-   Manually set up a Wi-Fi connection
 -   Setup [Backup](#availability-and-backup) for your system
 -   Easily install and preconfigure [Optional Components](#optional-components) of your choice
 -   Configure Raspberry Pi specific functions
@@ -136,7 +136,7 @@ The whole process will take a few minutes, then openHAB and all other tools need
 
 -   [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is _xz_ compressed)
 -   Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/) or official [Raspberry Pi Imager](https://www.raspberrypi.org/software/), both able to directly work with _xz_ files
--   Insert the SD card into your Raspberry Pi, connect your Ethernet cable - [WiFi is also supported](#wifi-based-setup-notes) - and power on
+-   Insert the SD card into your Raspberry Pi, connect your Ethernet cable - [Wi-Fi is also supported](#wi-fi-based-setup-notes) - and power on
 -   Wait approximately **15-45 minutes** for openHABian to do its magic, you can watch the install progress from within your browser.
 -   The system will be accessible by its IP or via the local DNS name `openhabian` (or whatever you changed 'hostname' in `openhabian.conf` to)
 -   Connect to the openHAB UI at [http://openhabian:8080](http://openhabian:8080)
@@ -352,16 +352,16 @@ You can also make use of this if you don't use the image but unattended installa
 Make the `adminkeyurl` point to an URL to contain a public SSH key.
 This will be included with your administration user's `.ssh/authorized_keys` and the openHAB console so the admin user (yourself, usually) can login after installation.
 
-#### WiFi based setup notes
+#### Wi-Fi based setup notes
 
-If you own a RPi3, RPi3+, RPi4, a RPi0W or any other model with a compatible WiFi dongle you can set up and use openHABian via WiFi only.
-For the WiFi based setup to work, you'll need to make your SSID and password known to the system before the first boot.
+If you own a RPi3, RPi3+, RPi4, a RPi0W or any other model with a compatible Wi-Fi dongle you can set up and use openHABian via Wi-Fi only.
+For the Wi-Fi based setup to work, you'll need to make your SSID and password known to the system before the first boot.
 So in addition to the setup instructions given above, uncomment and complete the lines reading `wifi_ssid=""` and `wifi_password=""` in `openhabian.conf`.
 
-#### WiFi Hotspot
+#### Wi-Fi Hotspot
 
-Whenever the WiFi interface wlan0 exists but does not have connectivity, openHABian will launch a **Hotspot**.
-When you use your mobile phone to scan for WiFi networks, you should be seeing a new network called `openHABian-<n>`.
+Whenever the Wi-Fi interface wlan0 exists but does not have connectivity, openHABian will launch a **Hotspot**.
+When you use your mobile phone to scan for Wi-Fi networks, you should be seeing a new network called `openHABian-<n>`.
 Connecting will work without a password. Once connected, open your browser and point it at `http://raspberrypi.local` or `http://comitup-<n>`.
 This may or may not work for your mobile browser as it requires Bonjour/ZeroConf abilities.
 If you cannot connect to this address, go to `http://10.41.0.1`.
@@ -372,7 +372,7 @@ Try to ping the new system's hostname (default is `openhabian`) or check DHCP on
 For more information on this feature see [comitup-cli](https://davesteele.github.io/comitup/).
 You can use `sudo comitup-cli` inside openHABian to change networks and eventually remove network credentials.
 Note the hotspot may not only become available during installation: it will remain on standby and will show up again every time your `wlan0` interface is losing connectivity.
-The hotspot feature is known to work on RPi-0W, RPi-3, and RPi-4 but is known to often expose problems with WiFi USB adapters.
+The hotspot feature is known to work on RPi-0W, RPi-3, and RPi-4 but is known to often expose problems with Wi-Fi USB adapters.
 
 #### Disable zram
 
