@@ -183,7 +183,7 @@ install_tailscale() {
 
   if [[ -n "$UNATTENDED" ]]; then
     # shellcheck disable=SC2154
-    if [[ ! -v "${preauthkey}" ]]; then echo "$(timestamp) [openHABian] tailscale VPN installation... SKIPPED (no preauthkey defined)"; return 1; fi
+    if [[ ! -v preauthkey ]]; then echo "$(timestamp) [openHABian] tailscale VPN installation... SKIPPED (no preauthkey defined)"; return 1; fi
   fi
 
   if [[ "$1" == "remove" ]]; then
