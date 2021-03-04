@@ -58,6 +58,7 @@ init_zram_mounts() {
     if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/ztab /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
     if cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
+    echo "ReadWritePaths=/usr/local/share/zram-config/log" >> /lib/systemd/system/logrotate.service
 
     if [[ -f /etc/systemd/system/find3server.service ]]; then
       echo -n "$(timestamp) [openHABian] Adding FIND3 to zram... "
@@ -81,6 +82,7 @@ init_zram_mounts() {
     if ! cond_redirect zram-config "stop"; then echo "FAILED (stop zram)"; return 1; fi
     if ! cond_redirect systemctl disable zram-config.service; then echo "FAILED (disable service)"; return 1; fi
     if ! cond_redirect rm -f /etc/systemd/system/zram-config.service; then echo "FAILED (remove service)"; return 1; fi
+    if ! cond_redirect sed -i '\|^ReadWritePaths=/usr/local/share/zram-config/log$|d' /lib/systemd/system/logrotate.service; then echo "FAILED (sed)"; return 1; fi
     if ! running_in_docker && ! running_on_github; then
       if ! cond_redirect systemctl unmask unattended-upgrades.service; then echo "FAILED (unmask unattended upgrades service)"; return 1; fi
     fi
