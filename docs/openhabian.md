@@ -390,15 +390,21 @@ Mind you that if you intend to open an issue, we need you to provide the output 
 Auto backup is a marketing name for two distinct features that you can deploy in one go at *unattended* installation time on a RPi (when you deploy the image).
 Technically it is a "low-cost" version of disk mirroring PLUS the setup of the Amanda backup system which all by itself has been available in a long time.
 So don't let the name confuse you. If you didn't choose to set this up at installation time, you can also individually select these functions via `openhabian-config` menu options 53 (mirroring) and 52 (Amanda).
-Note mirroring is untested (and hardly makes sense to deploy) if you don't run RPi hardware but Amanda is well meant to be used as the backup system and is known to work on any hardware.
+Note mirroring is untested (and hardly makes sense to deploy) if you don't run RPi hardware while Amanda is known to work on a lot of other hardware and is well meant to be used as the backup system there as well.
 
 To setup openHABian to automatically backup and mirror your internal SD card to an external storage unit, we suggest to use another SD card in an external card writer device so that in case your internal SD card fails, you can switch SD cards to get the system back up running fast.
-Note most "16GB" cards are not _exactly_ 16 GB and your new one mustn't have less bytes than the old one so openHABian enforces the second card to have at least twice the size of your internal card.
-We can make use of that extra space as storage for the backup system.
-HEADS UP: To setup mirroring will only work if the destination SD card is truely LARGER than the internal one. You must not buy and try to use two equal cards !
-Also be aware that the storage partition will not be mirrored so don't take _mirrors_ of the _mirror_ else it'll choke on bootup trying to mount the storage partition.
 
-To setup mirroring right at installation time:
+We recommend to put in another card that has at least _twice_ the size of the internal card. We can make use of that extra space as storage for the backup system.
+Note most "16GB" cards are not _exactly_ 16 GB and your mirror mustn't have less bytes than the internal one so at setup time, openHABian ensures the second card has at least the same size as your internal card.
+
+::: tip No Do-It-Yourself mirroring
+Please be aware that the storage partition will not be mirrored
+Note you must NOT use `dd` or any other tool to copy a SD card or partition on your own. If you do and boot with source and destination cards plugged in, they will have the same partition IDs and this will likely mess up and can irreversibly devastate your whole system. Use the `blkid` command in shell to see those IDs.
+So don't take _mirrors_ of the _mirror_.
+Also be aware that only the first two partitions are mirrored - the third one will never be mirrored even if you have set that up for use as backup area.
+:::
+
+To setup mirroring right during unattended installation of a RPi (using the image flash method):
 Define `backupdrive=/dev/sdX` (replace X with the proper character) to enable this functionality right during unattended installation.
 The first attached disk type device is usually called `/dev/sda`.
 Use `storagecapacity=xxx` to override how much space to consume at most for Amanda backup storage (in MB).
@@ -410,6 +416,7 @@ You can still setup both, mirroring and Amanda, separately at any later time usi
 
 Full mirroring will take place semiannually and for the 2nd partition (Linux root), changes will be synced once every day.
 See `systemctl list-timers`, timers are defined in `/etc/systemd/system/sd*.timer`.
+
 
 Menu 5X provides interactive access to the aforementioned functions:
 `52 Amanda System Backup` will will prepare an existing directory as your backup storage and make Amanda launch once a day. See the separate [Amanda setup document](openhabian-amanda.md).
