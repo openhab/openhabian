@@ -114,7 +114,7 @@ if [[ -n "$UNATTENDED" ]]; then
   permissions_corrections
   clean_config_userpw
   frontail_setup "${frontailtheme:-light}"
-  custom_log "add" "$custom_log_files"
+  custom_frontail_log "add" "$custom_log_files"
   zram_setup
   exim_setup
   setup_mirror_SD "install"
