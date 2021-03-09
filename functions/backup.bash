@@ -159,7 +159,8 @@ create_amanda_config() {
   if ! cond_redirect mkdir -p "$configDir" "$databaseDir" "$logDir" "$indexDir"; then echo "FAILED (create directories)"; return 1; fi
   if ! cond_redirect touch "$configDir"/tapelist; then echo "FAILED (touch tapelist)"; return 1; fi
   if ! (echo -e "${HOSTNAME} ${backupUser}\\n${HOSTNAME} root amindexd amidxtaped\\nlocalhost ${backupUser}\\nlocalhost root amindexd amidxtaped" > "$amandaHosts"); then echo "FAILED (Amanda hosts)"; return 1; fi
-  if ! (echo -e "amgtar:gnutar_path=/usr/bin/tar\\n" >> "$amandaSecurityConf"); then echo "FAILED (amanda-security.conf)"; return 1; fi
+  if is_aarch64; then GNUTAR=/bin/tar; else GNUTAR=/usr/bin/tar; fi
+  if ! (echo -e "amgtar:gnutar_path=$GNUTAR\\n" >> "$amandaSecurityConf"); then echo "FAILED (amanda-security.conf)"; return 1; fi
   if ! cond_redirect chown --recursive "$backupUser":backup "$amandaHosts" "$configDir" "$databaseDir" "$indexDir" /var/log/amanda; then echo "FAILED (chown)"; return 1; fi
   if [[ $config == "openhab-dir" ]]; then
     if ! cond_redirect chown --recursive "$backupUser":backup "$storageLoc"; then echo "FAILED (chown)"; return 1; fi
