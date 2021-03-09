@@ -320,14 +320,12 @@ permissions_corrections() {
   #if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; retval=1; fi
   #if ! cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "FAILED"; retval=1; fi
 
-  if cond_redirect fix_permissions /var/log/unattended-upgrades root:root 644 755; then echo "OK"; else echo "FAILED (unattended upgrades logdir)"; retval=1; fi
-  if cond_redirect fix_permissions /var/log/samba root:root 640 750; then echo "OK"; else echo "FAILED (samba logdir)"; retval=1; fi
-  if cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 640 750; then echo "OK"; else echo "FAILED (samba logdir on zram)"; retval=1; fi
-
-  if cond_redirect fix_permissions /opt/zram/persistence.bind "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (persistence)"; retval=1; fi
-
-  if cond_redirect fix_permissions /var/log/openhab "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (openhab log)"; retval=1; fi
-  if cond_redirect fix_permissions /opt/zram/log.bind/openhab "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (openhab log on zram)"; retval=1; fi
+  if ! cond_redirect fix_permissions /var/log/unattended-upgrades root:root 644 755; then echo "FAILED (unattended upgrades logdir)"; retval=1; fi
+  if ! cond_redirect fix_permissions /var/log/samba root:root 640 750; then echo "FAILED (samba logdir)"; retval=1; fi
+  if ! cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 640 750; then echo "FAILED (samba logdir on zram)"; retval=1; fi
+  if ! cond_redirect fix_permissions /opt/zram/persistence.bind "openhab:${username:-openhabian}" 664 775; then echo "FAILED (persistence)"; retval=1; fi
+  if ! cond_redirect fix_permissions /var/log/openhab "openhab:${username:-openhabian}" 664 775; then echo "FAILED (openhab log)"; retval=1; fi
+  if ! cond_redirect fix_permissions /opt/zram/log.bind/openhab "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (openhab log on zram)"; retval=1; fi
 
   if [[ -d /etc/homegear ]]; then
     echo -n "$(timestamp) [openHABian] Applying additional file permissions recommendations for Homegear... "
