@@ -101,6 +101,7 @@ if [[ -n "$UNATTENDED" ]]; then
   bashrc_copy
   vimrc_copy
   install_tailscale "install" && setup_tailscale
+  misc_system_settings
   add_admin_ssh_key
   firemotd_setup
   java_install_or_update "${java_opt:-Zulu11-32}"
@@ -109,7 +110,6 @@ if [[ -n "$UNATTENDED" ]]; then
   nano_openhab_syntax
   multitail_openhab_scheme
   srv_bind_mounts
-  misc_system_settings
   samba_setup
   permissions_corrections
   clean_config_userpw
