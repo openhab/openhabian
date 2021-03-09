@@ -100,6 +100,8 @@ if [[ -n "$UNATTENDED" ]]; then
   needed_packages
   bashrc_copy
   vimrc_copy
+  install_tailscale "install" && setup_tailscale
+  add_admin_ssh_key
   firemotd_setup
   java_install_or_update "${java_opt:-Zulu11-32}"
   openhab_setup "openHAB3" "stable"
@@ -110,13 +112,11 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   samba_setup
   permissions_corrections
-  add_admin_ssh_key
   clean_config_userpw
   frontail_setup "${frontailtheme:-light}"
   custom_log "add" "$custom_log_files"
   zram_setup
   exim_setup
-  install_tailscale "install" && setup_tailscale
   setup_mirror_SD "install"
   install_cleanup
 else
