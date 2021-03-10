@@ -126,7 +126,7 @@ exim_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Mail Transfer Agent ... "
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Mail Transfer Agent installation" --yes-button "Begin" --no-button "Cancel" --yesno "$introText" 17 80); then echo "CANCELED"; return 0; fi
-    if dpkg-reconfigure exim4-config; then echo "OK"; else echo "CANCELED"; return 0; fi
+    if ! dpkg-reconfigure exim4-config; then echo "CANCELED"; return 0; fi
 
     if ! smarthost="$(whiptail --title "Enter public mail service smarthost to relay your mails to" --inputbox "\\nEnter the list of smarthost(s) to use your account for. Do not append port numbers." 9 80 "smtp.gmail.com" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     if ! smartport="$(whiptail --title "port number of the smarthost to relay your mails to" --inputbox "\\nEnter the port number of the smarthost to use" 9 80 "587" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
