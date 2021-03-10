@@ -36,7 +36,7 @@ OHPKG="openhab"
 OHVERSION="$(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties)"
 OHBUILD="$(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)"
 
-echo -e "\\n$(sed -e 's|$OHVERSION|'"${OHVERSION}"'|g' -e 's|$OHBUILD|'"${OHBUILD}"'|g' -e 's|${HOSTNAME}|'"${HOSTNAME}"'|g' /opt/openhabian/includes/${OHPKG}logo)\\n"
+echo -e "\\n$(sed -e 's|$OHVERSION|'"${OHVERSION}"'|g' -e 's|$OHBUILD|'"${OHBUILD}"'|g' -e 's|${HOSTNAME}|'"${HOSTNAME}"'|g' /opt/openhabian/includes/storm.house-logo)\\n"
 
 if [[ -f "$HOME"/.profile ]]; then source "$HOME"/.profile; fi
 
