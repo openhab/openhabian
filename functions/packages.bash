@@ -114,7 +114,7 @@ exim_setup() {
 
   if ! dpkg -s 'mailutils' 'exim4' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing MTA required packages (mailutils, exim4, dnsutils)... "
-    if cond_redirect apt-get install --yes exim4 mailutils; then echo "OK"; else echo "FAILED"; return 1; fi
+    if ! cond_redirect apt-get install --yes exim4 mailutils; then echo "FAILED"; return 1; fi
   fi
   if cond_redirect install_dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
 
@@ -123,10 +123,10 @@ exim_setup() {
   introText="We will guide you through the install of exim4 as the mail transfer agent on your system and configure it to relay mails through a public service such as Google gmail.\\n\\nThe values you need to enter after closing this window are documented here:\\n\\nhttps://www.openhab.org/docs/installation/openhabian-exim.html\\n\\nOpen that URL in a browser now. Your interface addresses are ${interfaces}.\\nYou will be able to repeat the whole installation if required by selecting the openHABian menu for MTA again."
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
-  echo -n "$(timestamp) [openHABian] Beginning Mail Transfer Agent setup... "
+  echo -n "$(timestamp) [openHABian] Setting up Mail Transfer Agent ... "
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Mail Transfer Agent installation" --yes-button "Begin" --no-button "Cancel" --yesno "$introText" 17 80); then echo "CANCELED"; return 0; fi
-    if dpkg-reconfigure exim4-config; then echo "OK"; else echo "CANCELED"; return 0; fi
+    if ! dpkg-reconfigure exim4-config; then echo "CANCELED"; return 0; fi
 
     if ! smarthost="$(whiptail --title "Enter public mail service smarthost to relay your mails to" --inputbox "\\nEnter the list of smarthost(s) to use your account for. Do not append port numbers." 9 80 "smtp.gmail.com" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     if ! smartport="$(whiptail --title "port number of the smarthost to relay your mails to" --inputbox "\\nEnter the port number of the smarthost to use" 9 80 "587" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi

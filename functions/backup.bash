@@ -440,7 +440,7 @@ mirror_SD() {
 ##
 setup_mirror_SD() {
   if [[ -n "$UNATTENDED" ]] && [[ -z "$backupdrive" ]]; then
-    echo "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... CANCELED (no configuration provided)"
+    echo "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... SKIPPED (no configuration provided)"
     return 0
   fi
 

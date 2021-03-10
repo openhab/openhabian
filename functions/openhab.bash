@@ -117,6 +117,7 @@ openhab_setup() {
   dashboard_add_tile "openhabiandocs"
 
   # see https://github.com/openhab/openhab-core/issues/1937
+  echo -n "$(timestamp) [openHABian] Restarting openHAB service to play it safe... "
   if cond_redirect systemctl restart ${ohPkgName}.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
