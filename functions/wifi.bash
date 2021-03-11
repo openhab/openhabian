@@ -133,6 +133,9 @@ setup_hotspot() {
     if ! cond_redirect apt-get --quiet update; then echo "FAILED (update apt lists)"; return 1; fi
 
     if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
+    # shellcheck disable=SC2154
+    sed -i -e "s|ap_password:.*$|ap_password: ${hotspotpw}|g" /etc/comitup.conf
+
     if cond_redirect apt install --yes -o Dpkg::Options::=--force-confdef comitup; then echo "OK"; else echo "FAILED"; return 1; fi
     echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
