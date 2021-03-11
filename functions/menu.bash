@@ -174,9 +174,9 @@ show_main_menu() {
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "openHAB Related" 17 116 10 --cancel-button Back --ok-button Execute \
-    "41 | openHAB release"        "Install or switch to the latest openHAB release" \
-    "   | openHAB testing"        "Install or switch to the latest openHAB testing build" \
-    "   | openHAB snapshot"       "Install or switch to the latest openHAB SNAPSHOT build" \
+    "41 | openHAB Stable"         "Install or switch to the latest openHAB Stable Release" \
+    "   | openHAB Milestone"      "Install or switch to the latest openHAB Milestone Build" \
+    "   | openHAB Snapshot"       "Install or switch to the latest openHAB Snapshot Build" \
     "42 | Upgrade to openHAB 3"   "Upgrade OS environment to openHAB 3 release" \
     "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 stable (DANGEROUS)" \
     "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
@@ -191,8 +191,8 @@ show_main_menu() {
     # shellcheck disable=SC2154
     case "$choice2" in
       41\ *) openhab_setup "$version" "stable";;
-      *openHAB\ testing) openhab_setup "$version" "testing";;
-      *openHAB\ snapshot) openhab_setup "$version" "unstable";;
+      *openHAB\ Milestone) openhab_setup "$version" "testing";;
+      *openHAB\ Snapshot) openhab_setup "$version" "unstable";;
       42\ *) migrate_installation "openHAB3" && openhabian_update "openHAB3";;
       *Downgrade\ to\ openHAB\ 2) migrate_installation "openHAB2" && openhabian_update "stable";;
       43\ *) openhab_shell_interfaces;;
