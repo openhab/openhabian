@@ -42,6 +42,12 @@ teardown_file() {
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Grafana installation successful.${COL_DEF}" >&3
 
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Grafana parameter allow_embedding...${COL_DEF}" >&3
+  run grep -q -e "^allow_embedding = true" /etc/grafana/grafana.ini
+  if [ "$status" -ne 0 ]; then echo -e "# ${COL_RED}$(timestamp) [openHABian] Grafana parameter allow_embedding missing.${COL_DEF}" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Grafana parameter allow_embedding successful.${COL_DEF}" >&3
+
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Grafana service is running...${COL_DEF}" >&3
   run systemctl is-active --quiet grafana-server.service
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi

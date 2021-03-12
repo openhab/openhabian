@@ -276,6 +276,14 @@ grafana_install(){
   cond_echo "\\nUpdating Grafana configuration... "
   if ! cond_redirect sed -i -e '/^# disable user signup \/ registration/ { n ; s/^;allow_sign_up = true/allow_sign_up = false/ }' /etc/grafana/grafana.ini; then echo "FAILED (no user signup)"; return 1; fi
   if ! cond_redirect sed -i -e '/^# enable anonymous access/ { n ; s/^;enabled = false/enabled = true/ }' /etc/grafana/grafana.ini; then echo "FAILED (anonymous access)"; return 1; fi
+  if ! cond_redirect sed -i 's/^[[:space:]]*[;]*[[:space:]]*allow_embedding[[:space:]]*=[[:space:]]*[a-z]*/allow_embedding = true/' /etc/grafana/grafana.ini; then echo "FAILED (allow_embedding)"; return 1; fi
+  if ! grep -q "^allow_embedding =" /etc/grafana/grafana.ini; then
+    if ! grep -q "^[[:space:]]*\[security\]" /etc/grafana/grafana.ini; then
+      if ! cond_redirect echo -e "\n[security]\nallow_embedding = true" >> /etc/grafana/grafana.ini; then echo "FAILED (allow_embedding)"; return 1; fi
+    else
+      if ! cond_redirect sed -i -e 's/^[[:space:]]*\[security\]/\[security\]\nallow_embedding = true/' /etc/grafana/grafana.ini; then echo "FAILED (allow_embedding)"; return 1; fi
+    fi
+  fi
 
   cond_echo "\\nRestarting Grafana... "
   if ! cond_redirect systemctl restart grafana-server.service; then echo "FAILED (restart service)"; return 1; fi
