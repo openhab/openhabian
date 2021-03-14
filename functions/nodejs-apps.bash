@@ -88,7 +88,7 @@ frontail_setup() {
   fi
 
   frontail_download "/opt"
-  cd /opt/frontail || echo "FAILED (cd)"; return 1
+  cd /opt/frontail || (echo "FAILED (cd)"; return 1)
   if ! cond_redirect npm install --force -g; then echo "FAILED (install)"; return 1; fi
   if cond_redirect npm update --force -g; then echo "OK"; else echo "FAILED (update)"; return 1; fi
 
