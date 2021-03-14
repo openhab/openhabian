@@ -6,7 +6,7 @@ PartOf=openhab.service
 
 [Service]
 Type=simple
-ExecStart=%FRONTAILBASE/bin/frontail --disable-usage-stats --ui-highlight --ui-highlight-preset %FRONTAILBASE/preset/%FRONTAILTHEME.json --theme %FRONTAILTHEME --lines 2000 --number 200 /var/log/openhab/openhab.log /var/log/openhab/events.log
+ExecStart=%FRONTAILBASE/bin/frontail --disable-usage-stats --ui-highlight --ui-highlight-preset %FRONTAILBASE/preset/openhab_AEM.json --theme openhab_AEM --lines 2000 --number 200 /var/log/openhab/openhab.log /var/log/openhab/events.log
 Restart=always
 User=frontail
 Group=openhab

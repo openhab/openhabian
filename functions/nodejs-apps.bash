@@ -48,6 +48,21 @@ nodejs_setup() {
   fi
 }
 
+## Function for downloading FireMotD to current system
+##
+##    frontail_download(String prefix)
+##
+frontail_download() {
+  echo -n "$(timestamp) [openHABian] Downloading frontail... "
+  if ! [[ -d "${1}/frontail" ]]; then
+    cond_echo "\\nFresh Installation... "
+    if cond_redirect git clone https://github.com/Interstellar0verdrive/frontail_AEM.git "${1}/frontail"; then echo "OK"; else echo "FAILED (git clone)"; return 1; fi
+  else
+    cond_echo "\\nUpdate... "
+    if cond_redirect update_git_repo "${1}/frontail" "master"; then echo "OK"; else echo "FAILED (update git repo)"; return 1; fi
+  fi
+}
+
 ## Function for installing frontail to enable the openHAB log viewer web application.
 ##
 ##    frontail_setup()
@@ -56,17 +71,6 @@ nodejs_setup() {
 frontail_setup() {
   local frontailBase
   local frontailUser="frontail"
-  local frontailTheme
-
-  # ask for light or dark theme
-  if [[ $1 == "light" ]]; then
-    frontailTheme="openhab"
-  elif [[ $1 == "dark" ]]; then
-    frontailTheme="openhab_dark"
-  else
-    echo "$(timestamp) [openHABian] openHAB Log Viewer Theme option vas not valid, setting to default light theme... "
-    frontailTheme="openhab" # set to default light theme when no user input
-  fi
 
   if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v14"* ]] || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
@@ -76,32 +80,20 @@ frontail_setup() {
   frontailBase="$(npm list -g | head -n 1)/node_modules/frontail"
 
   if ! (id -u ${frontailUser} &> /dev/null || cond_redirect useradd --groups "${username:-openhabian}",openhab -s /bin/bash -d /var/tmp ${frontailUser}); then echo "FAILED (adduser)"; return 1; fi
-  if [[ -x $(command -v frontail) ]]; then
-    echo -n "$(timestamp) [openHABian] Updating openHAB Log Viewer (frontail)... "
-    if cond_redirect npm update --force -g frontail; then echo "OK"; else echo "FAILED"; return 1; fi
-  else
-    echo -n "$(timestamp) [openHABian] Installing openHAB Log Viewer (frontail)... "
-    if [[ -d $frontailBase ]]; then
-      cond_echo "Removing any old installations..."
-      cond_redirect npm uninstall -g frontail
-    fi
 
-    if ! cond_redirect npm install --force -g frontail; then echo "FAILED (install)"; return 1; fi
-    if cond_redirect npm update --force -g frontail; then echo "OK"; else echo "FAILED (update)"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Installing openHAB Log Viewer (frontail)... "
+  if [[ -d $frontailBase ]]; then
+    cond_echo "Removing any old installations..."
+    cond_redirect npm uninstall -g frontail
   fi
 
-  echo -n "$(timestamp) [openHABian] Configuring openHAB Log Viewer (frontail)... "
-  if ! cond_redirect mkdir -p "$frontailBase"/preset "$frontailBase"/web/assets/styles; then echo "FAILED (create directory)"; return 1; fi
-  if ! cond_redirect rm -rf "${frontailBase:?}"/preset/* "${frontailBase:?}"/web/assets/styles/*; then echo "FAILED (clean directory)"; return 1; fi
-  if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail/frontail-preset.json "$frontailBase"/preset/openhab.json; then echo "FAILED (copy light presets)"; return 1; fi
-  if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail/frontail-preset_dark.json "$frontailBase"/preset/openhab_dark.json; then echo "FAILED (copy dark presets)"; return 1; fi
-  if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail/index.html "$frontailBase"/web/index.html; then echo "FAILED (copy webpage)"; return 1; fi
-  if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail/bootstrap.min.css "$frontailBase"/web/assets/styles/bootstrap.min.css; then echo "FAILED (copy bootstrap)"; return 1; fi
-  if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail/frontail-theme.css "$frontailBase"/web/assets/styles/openhab.css; then echo "FAILED (copy light theme)"; return 1; fi
-  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/frontail/frontail-theme_dark.css "$frontailBase"/web/assets/styles/openhab_dark.css; then echo "OK"; else echo "FAILED (copy dark theme)"; return 1; fi
+  frontail_download "/opt"
+  cd /opt/frontail || echo "FAILED (cd)"; return 1
+  if ! cond_redirect npm install --force -g; then echo "FAILED (install)"; return 1; fi
+  if cond_redirect npm update --force -g; then echo "OK"; else echo "FAILED (update)"; return 1; fi
 
-  echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service, theme:" ${frontailTheme} "... "
-  if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" -e "s|%FRONTAILTHEME|${frontailTheme}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi;
+  echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service... "
+  if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi;
   if ! cond_redirect chmod 644 /etc/systemd/system/frontail.service; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now frontail.service; then echo "FAILED (enable service)"; return 1; fi

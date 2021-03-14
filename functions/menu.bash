@@ -88,8 +88,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "20"* ]]; then
     choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Optional Components" 23 118 16 --cancel-button Back --ok-button Execute \
-    "21 | Log Viewer light"       "openHAB Log Viewer webapp (frontail): light theme" \
-    "   | Log Viewer dark"        "openHAB Log Viewer webapp (frontail): dark theme" \
+    "21 | Log Viewer"             "openHAB Log Viewer webapp (frontail)" \
     "   | Add log to viewer"      "Add a custom log to openHAB Log Viewer (frontail)" \
     "   | Remove log from viewer" "Remove a custom log from openHAB Log Viewer (frontail)" \
     "22 | miflora-mqtt-daemon"    "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
@@ -108,8 +107,7 @@ show_main_menu() {
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
     case "$choice2" in
-      21\ *) frontail_setup "light";;
-      *Log\ Viewer\ dark*) frontail_setup "dark";;
+      21\ *) frontail_setup;;
       *Add\ log\ to\ viewer*) custom_frontail_log "add";;
       *Remove\ log\ from\ viewer*) custom_frontail_log "remove";;
       22\ *) miflora_setup ;;
