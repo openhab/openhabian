@@ -158,7 +158,7 @@ influxdb_grafana_setup() {
 
   if [[ $integrationOH == "true" ]]; then
     echo -n "$(timestamp) [openHABian] Connecting InfluxDB to openHAB... "
-    if ! cond_redirect curl --request POST --header "Accept: application/json" --header "Content-Type: application/json" "http://localhost:${OPENHAB_HTTP_PORT:-8080}/rest/extensions/influxdb/install"; then echo "FAILED"; return 1; fi
+    if ! cond_redirect curl --request POST --header "Accept: application/json" --header "Content-Type: application/json" "http://localhost:${OPENHAB_HTTP_PORT:-8080}/rest/extensions/persistence-influxdb/install"; then echo "FAILED"; return 1; fi
     {
       echo "url=${influxDBAddress}"; \
       echo "user=${influxDBUsernameOH}"; \
