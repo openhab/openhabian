@@ -30,6 +30,8 @@ source "$(dirname "$0")"/functions/helpers.bash
 source "$(dirname "$0")"/functions/java-jre.bash
 # shellcheck source=functions/packages.bash
 source "$(dirname "$0")"/functions/packages.bash
+# shellcheck source=functions/packages.bash
+source "$(dirname "$0")"/functions/nodejs-apps.bash
 # shellcheck source=functions/zram.bash
 source "$(dirname "$0")"/functions/zram.bash
 
@@ -411,6 +413,12 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64beta" ]
   (
     echo_process "Downloading FireMotD..."
     firemotd_download "${buildFolder}/root/opt" &> /dev/null
+  )
+
+  # Cache frontail for offline install.
+  (
+    echo_process "Downloading frontail..."
+    frontail_download "${buildFolder}/root/opt" &> /dev/null
   )
 
   sync
