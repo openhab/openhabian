@@ -59,7 +59,7 @@ needed_packages() {
   then echo "OK"; else echo "FAILED"; return 1; fi
 
   if is_pizerow || is_pithree || is_pithreeplus || is_pifour && [[ -z $PREOFFLINE ]]; then
-    if cond_redirect apt-get install --yes python3-smbus; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes python3-smbus python3-serial; then echo "OK"; else echo "FAILED"; return 1; fi
     echo -n "$(timestamp) [openHABian] Installing pigpio package... "
     if cond_redirect apt-get install --yes pigpio; then echo "OK"; else echo "FAILED"; return 1; fi
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
