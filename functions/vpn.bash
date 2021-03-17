@@ -210,7 +210,7 @@ install_tailscale() {
   # Add tailscale's GPG key
   add_keys https://pkgs.tailscale.com/stable/raspbian/buster.gpg
   # Add the tailscale repository
-  curl https://pkgs.tailscale.com/stable/raspbian/buster.list | tee /etc/apt/sources.list.d/tailscale.list
+  wget -qO /etc/apt/sources.list.d/tailscale.list https://pkgs.tailscale.com/stable/raspbian/buster.list
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   # Install tailscale
   if cond_redirect apt-get install --yes tailscale; then echo "OK"; else echo "FAILED (install tailscale)"; return 1; fi
