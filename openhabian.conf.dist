@@ -71,6 +71,7 @@ zraminstall=enable
 
 # start comitup hotspot if internet is not reachable
 hotspot=enable
+hotspotpw=openhabian
 
 # external SD card device to backup and mirror the internal SD card to
 # backupdrive=/dev/sda

@@ -46,9 +46,9 @@ jobs:
        - name: Build openHABian 32bit image
          id: build
          run: |
-           sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" ./openhabian.conf.dist
-           #sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.USERPW}}|g" ./includes/comitup.conf
            sudo -E ./ci-setup.bash github .pi-raspios32
+           sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios32.conf
+           sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
            sudo -E ./build.bash rpi
            echo "::set-output name=file::$(ls openhabian-*.img.xz)"
        - name: Archive openHABian 32bit image
@@ -81,9 +81,9 @@ jobs:
        - name: Build openHABian 64bit image
          id: build
          run: |
-           sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" ./openhabian.conf.dist
-           #sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.USERPW}}|g" ./includes/comitup.conf
            sudo -E ./ci-setup.bash github .pi-raspios64beta
+           sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios64beta.conf
+           sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
            sudo -E ./build.bash rpi64
            echo "::set-output name=file::$(ls openhabian-*.img.xz)"
        - name: Archive openHABian 64bit image
