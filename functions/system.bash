@@ -59,6 +59,7 @@ needed_packages() {
   then echo "OK"; else echo "FAILED"; return 1; fi
 
   if is_pizerow || is_pithree || is_pithreeplus || is_pifour && [[ -z $PREOFFLINE ]]; then
+    if cond_redirect apt-get install --yes python3-smbus python3-serial; then echo "OK"; else echo "FAILED"; return 1; fi
     echo -n "$(timestamp) [openHABian] Installing pigpio package... "
     if cond_redirect apt-get install --yes pigpio; then echo "OK"; else echo "FAILED"; return 1; fi
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
@@ -384,8 +385,13 @@ misc_system_settings() {
     if ! cond_redirect systemd-tmpfiles --create --prefix /var/log/journal; then echo "FAILED (systemd-tmpfiles)"; return 1; fi
     cond_echo "Keeping at most 30 days of systemd journal entries"
     if ! cond_redirect journalctl --vacuum-time=30d; then echo "FAILED (journalctl)"; return 1; fi
+
     # run at full CPU when needed
     echo 'GOVERNOR="ondemand"'> /etc/default/cpufrequtils
+
+    # enable I2C port
+    if ! grep -qs "^[[:space:]]*dtparam=i2c_arm=on" /boot/config.txt; then echo "dtparam=i2c_arm=on" >> /boot/config; fi
+    cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/INA219.py /usr/local/bin/waveshare_ups
   fi
   # A distinguishable apt User-Agent
   cond_echo "Setting a distinguishable apt User-Agent"
