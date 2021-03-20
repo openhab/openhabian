@@ -551,6 +551,7 @@ fix_permissions() {
       [[ -d $1 ]] && if ! (find "$1" -type d -print0 | xargs -0 chmod "$4"); then return 1; fi
     fi
   fi
+  return 0
 }
 
 ## install package to set CPU usage governor to ondemand (run at maximum CPU speed if beneficial)
