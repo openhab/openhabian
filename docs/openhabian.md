@@ -10,7 +10,7 @@ source: https://github.com/openhab/openhabian/blob/main/docs/openhabian.md
 
 ::: tip TLDR
 ([what does TLDR mean?](https://www.howtogeek.com/435266/what-does-tldr-mean-and-how-do-you-use-it/))
-You may directly jump to [install instructions](#raspberry-pi-prepackaged-sd-card-image) but please note that we expect you to have read these _full_ docs when you ask for help.
+You may jump to [install instructions](#raspberry-pi-prepackaged-sd-card-image) but please note that we expect you to have read the _full_ docs _before_ you ask for help.
 :::
 
 # openHABian - Hassle-free openHAB Setup
@@ -101,20 +101,16 @@ Going beyond what the RPi image provides, as a manually installed set of scripts
 On ARM, we only support Raspberry Pi OS.
 These are what we develop and test openHABian against.
 We provide code that is reported "as-is" to run on Ubuntu but we do **not support Ubuntu** so please don't open issues for this (PRs then again are welcome).
-Several optional components though, such as WireGuard or Homegear, are known to expose problems.
+Several optional components though, such as WireGuard or Homegear, are known to expose problems on Ubuntu.
 
 We expect you to use the current stable distribution: 'buster' for Raspberry Pi OS (ARM) and Debian (x86), with 'focal' for Ubuntu (x86).
 To install openHABian on anything older or newer may work or not.
 If you encounter issues, you may need to upgrade first or to live with the consequences of running an OS on the edge of software development.
 
-Either way, please note that you're on your own when it comes to configuring and installing the HW with the proper OS yourself.
-
 ### 64 bit?
 
 RPi3 and 4 have a 64 bit processor and you may want to run openHAB in 64 bit.
-We provide a 64bit version of the image but it is unsupported so use it at your own risk.
-Please don't ask for support if it does not work for you.
-It's just provided as-is.
+We provide a 64bit version of the image but it is unsupported and just provided as-is so use it at your own risk.
 Be aware that to run in 64 bit has a major drawback: increased memory usage.
 That is not a good idea on a heavily memory constrained platform like a RPi.
 Also remember openHABian makes use of Raspberry Pi OS which as per today still is a 32 bit OS.
@@ -158,7 +154,7 @@ You will see the following welcome screen:
 <a id="manual-setup"></a>
 ### Other Linux Systems (add openHABian just like any other software)
 
-Going beyond what the RPi image provides, you can also openHABian on x86 hardware on top of any existing Debian installation.
+Going beyond what the RPi image provides, you can also install openHABian on x86 hardware on top of any existing Debian installation.
 Please note that the unattended install is tailored to work for Raspberries.
 We cannot test HW/OS combos beyond RPis upfront so there is no promise for this work.
 See the [Hardware](#hardware) and [OS](os-support) sections for details on supported hardware and OSs before you proceed.
