@@ -293,6 +293,11 @@ permissions_corrections() {
     return 1
   fi
 
+  # Set Java and arping file capabilites
+  cond_echo "Setting Java and arping file capabilites"
+  if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' "$(realpath "$(command -v java)")"; then echo "FAILED (setcap java)"; fi
+  if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping; then echo "FAILED (setcap arping)"; fi
+
   for pGroup in "${groups[@]}"; do
     if grep -qs "^[[:space:]]*${pGroup}:" /etc/group; then
       if ! cond_redirect usermod --append --groups "$pGroup" openhab ; then echo "FAILED (openhab ${pGroup})"; retval=1; fi
@@ -359,10 +364,6 @@ permissions_corrections() {
 ##
 misc_system_settings() {
   echo -n "$(timestamp) [openHABian] Applying miscellaneous system settings... "
-  # Set Java and arping file capabilites
-  cond_echo "Setting Java and arping file capabilites"
-  if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' "$(realpath "$(command -v java)")"; then echo "FAILED (setcap java)"; fi
-  if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping; then echo "FAILED (setcap arping)"; fi
 
   # Add README.txt note to the end user's home folder
   cond_echo "Creating a README note for end user's home folder"
