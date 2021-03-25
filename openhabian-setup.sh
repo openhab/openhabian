@@ -111,12 +111,12 @@ if [[ -n "$UNATTENDED" ]]; then
   multitail_openhab_scheme
   srv_bind_mounts
   samba_setup
-  permissions_corrections
   clean_config_userpw
-  frontail_setup "${frontailtheme:-light}"
+  frontail_setup
   custom_frontail_log "add" "$custom_log_files"
   zram_setup
   exim_setup
+  permissions_corrections
   setup_mirror_SD "install"
   install_cleanup
 else

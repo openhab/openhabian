@@ -67,7 +67,6 @@ frontail_download() {
 ##
 ##    frontail_setup()
 ##
-##  	$1 is the theme, valid options are: light and dark
 frontail_setup() {
   local frontailBase
   local frontailUser="frontail"

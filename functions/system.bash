@@ -319,19 +319,21 @@ permissions_corrections() {
   if [[ -f /etc/mosquitto/mosquitto.conf ]]; then
     if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 640 750; then echo "FAILED (mosquitto passwd permissions)"; retval=1; fi
     if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions)"; retval=1; fi
-    if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions on zram)"; retval=1; fi
+    if [[ -f /etc/ztab ]]; then
+      if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions on zram)"; retval=1; fi
+    fi
   fi
   if ! cond_redirect setfacl --recursive --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access lists)"; retval=1; fi
-  # not sure if still needed. Let's see if removing this causes any user issues
-  #if ! cond_redirect setfacl -R -m g::rwX "${openhabFolders[@]}"; then echo "FAILED (set file access)"; retval=1; fi
-  #if ! cond_redirect setfacl -R -m d:g::rwX "${openhabFolders[@]}"; then echo "FAILED"; retval=1; fi
 
   if ! cond_redirect fix_permissions /var/log/unattended-upgrades root:root 644 755; then echo "FAILED (unattended upgrades logdir)"; retval=1; fi
   if ! cond_redirect fix_permissions /var/log/samba root:root 640 750; then echo "FAILED (samba logdir)"; retval=1; fi
-  if ! cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 640 750; then echo "FAILED (samba logdir on zram)"; retval=1; fi
-  if ! cond_redirect fix_permissions /opt/zram/persistence.bind "openhab:${username:-openhabian}" 664 775; then echo "FAILED (persistence)"; retval=1; fi
   if ! cond_redirect fix_permissions /var/log/openhab "openhab:${username:-openhabian}" 664 775; then echo "FAILED (openhab log)"; retval=1; fi
-  if ! cond_redirect fix_permissions /opt/zram/log.bind/openhab "openhab:${username:-openhabian}" 664 775; then echo "OK"; else echo "FAILED (openhab log on zram)"; retval=1; fi
+  if [[ -f /etc/ztab ]]; then
+    if ! cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 640 750; then echo "FAILED (samba logdir on zram)"; retval=1; fi
+    if ! cond_redirect fix_permissions /opt/zram/persistence.bind "openhab:${username:-openhabian}" 664 775; then echo "FAILED (persistence on zram)"; retval=1; fi
+    if ! cond_redirect fix_permissions /opt/zram/log.bind/openhab "openhab:${username:-openhabian}" 664 775; then echo "FAILED (openhab log on zram)"; retval=1; fi
+  fi
+  echo "OK"
 
   if [[ -d /etc/homegear ]]; then
     echo -n "$(timestamp) [openHABian] Applying additional file permissions recommendations for Homegear... "

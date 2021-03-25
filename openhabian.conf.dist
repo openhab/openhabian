@@ -62,10 +62,6 @@ debugmode=off
 # Valid arguments: "Adopt11", "Zulu11-32", or "Zulu11-64"
 java_opt=Zulu11-32
 
-# openHAB Log Viewer (frontail) theme
-# Valid arguments: "light", "dark"
-frontailtheme=light
-
 # install zram per default, set to "disable" to skip installation
 zraminstall=enable
 
