@@ -592,7 +592,7 @@ nginx_setup() {
       if ! uncomment "#WEBROOT" /etc/nginx/sites-enabled/openhab; then return 1; fi
       if ! nginx -t; then echo "FAILED (nginx configuration test)"; return 1; fi
       if ! cond_redirect systemctl -q reload nginx.service &> /dev/null; then echo "FAILED (nginx reload)"; return 1; fi
-      if cond_redirect certbot certonly --webroot -w /var/www/"$domain" -d "$domain"; then echo "OK"; else echo "FAILED"; return 1; fi
+      if certbot certonly --webroot -w /var/www/"$domain" -d "$domain"; then echo "OK"; else echo "FAILED"; return 1; fi
       certPath="/etc/letsencrypt/live/${domain}/fullchain.pem"
       keyPath="/etc/letsencrypt/live/${domain}/privkey.pem"
     else
