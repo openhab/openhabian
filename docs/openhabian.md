@@ -280,7 +280,7 @@ This is the right time to prepare your system for disasters such as getting hit 
     Get an UPS.
     Zram is enabled by default for swap, logs and persistence data.
     You can toggle use in \[menu option 38\].
-2.  You can have openHABian mirror your SD card i.e. have it create a live copy. See [auto backup](#auto-backup) documentation. You can activate mirroring using \[menu option 53\]
+2.  You can have openHABian mirror your SD card. See [auto backup](#auto-backup) documentation. You can activate mirroring using \[menu option 53\].
 3.  Move the root filesystem to USB-attached memory.
     WARNING: USB sticks are as susceptible to flash wear-out as SD cards are, making zram the better choice for a standard Pi to run off its internal SD card.
     But you can use this option to migrate your system to a safe medium such as an SSD or HDD.
@@ -300,16 +300,14 @@ This function will rename the rules files so they get ignored by the starting op
 You can toggle to use this feature in menu option 44.
 
 ## Setup notes
+### On openHAB 2 and 3
 
-### On openHAB 3
-
-Starting with its general release, openHABian will install **openHAB 3** by default.
-There's some big changes also to openHABian such as to install Java 11 and to use changed file and directory names.
+openHABian will install **openHAB 3** by default.
+When openHAB3 was released, there have been some big changes also to openHABian such as to install Java 11 and to use changed file and directory names.
 Most directory names `... /openhab2/ ...` will become `... /openhab/ ...` (NOTE: not `openhab3`) plus there's changes in a number of places, often subtle ones like the name of Samba export shares to change.
 For openHABian users running openHAB 2.X, `openhabian-config` offers to migrate the openHABian environment and install openHAB3 for you.
 Menu option 42 will do the upgrade.
-Be aware that it isn't the universal answer to all your migration needs - there is ONLY an openHAB upgrade path.
-You cannot downgrade from openHAB 3 to openHAB 2.
+Be aware that it isn't the [answer to the ultimate question](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#The_Answer_to_the_Ultimate_Question_of_Life,_the_Universe,_and_Everything_is_42): there is ONLY an openHAB upgrade path, you cannot downgrade from openHAB 3 to openHAB 2.
 
 ::: warning No downgrades
 Take an openHAB config backup BEFORE you upgrade from openHAB v2 to v3. You should also take a system level backup!
@@ -394,10 +392,9 @@ We recommend to put in another card that has at least _twice_ the size of the in
 Note most "16GB" cards are not _exactly_ 16 GB and your mirror mustn't have less bytes than the internal one so at setup time, openHABian ensures the second card has at least the same size as your internal card.
 
 ::: tip No Do-It-Yourself mirroring
-Please be aware that the storage partition will not be mirrored
 Note you must NOT use `dd` or any other tool to copy a SD card or partition on your own. If you do and boot with source and destination cards plugged in, they will have the same partition IDs and this will likely mess up and can irreversibly devastate your whole system. Use the `blkid` command in shell to see those IDs.
 So don't take _mirrors_ of the _mirror_.
-Also be aware that only the first two partitions are mirrored - the third one will never be mirrored even if you have set that up for use as backup area.
+Also be aware that only the first two partitions are mirrored - the storage (3rd) parition will never be mirrored even if you have set that up for use as backup area.
 :::
 
 To setup mirroring right during unattended installation of a RPi (using the image flash method):
