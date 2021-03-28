@@ -28,8 +28,7 @@ on:
 
 jobs:
   amd64-zulu11-64:
-    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     services:
       registry:
         image: registry:2
@@ -63,8 +62,7 @@ jobs:
            docker exec -i "openhabian-amd64" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash'
          shell: bash
   rpi3-zulu11-32:
-    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     services:
       registry:
         image: registry:2
@@ -101,8 +99,7 @@ jobs:
            docker exec -i "openhabian-rpi3" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash'
          shell: bash
   rpi3-zulu11-64:
-    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     services:
       registry:
         image: registry:2
@@ -139,8 +136,7 @@ jobs:
            docker exec -i "openhabian-rpi3-64" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash'
          shell: bash
   rpi2-adopt11:
-    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     services:
       registry:
         image: registry:2

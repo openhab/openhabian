@@ -36,8 +36,7 @@ on:
 
 jobs:
   rpi4-bats:
-    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     services:
       registry:
         image: registry:2
@@ -76,8 +75,7 @@ jobs:
            docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "destructive-." .'
          shell: bash
   amd64-bats:
-    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     services:
       registry:
         image: registry:2

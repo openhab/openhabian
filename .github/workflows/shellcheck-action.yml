@@ -17,8 +17,7 @@ on:
 
 jobs:
   shellcheck:
-    # Using latest Ubuntu (not the GitHub Actions default) to get latest tool versions in GitHub Actions environment
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
        - name: Checkout repository
