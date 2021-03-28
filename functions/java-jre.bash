@@ -380,7 +380,6 @@ java_alternatives_reset() {
   update-alternatives --quiet --remove-all rmiregistry &> /dev/null
   update-alternatives --quiet --remove-all unpack200 &> /dev/null
   update-alternatives --quiet --remove-all jexec &> /dev/null
-  update-alternatives --quiet --remove-all javac &> /dev/null # TODO: remove sometime late 2020
 }
 
 ## Check if Java Zulu is already in the filesystem
