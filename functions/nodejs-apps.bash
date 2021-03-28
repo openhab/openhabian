@@ -8,7 +8,7 @@
 nodejs_setup() {
   if [[ -x $(command -v npm) ]] && [[ $(node --version) == "v14"* ]] && ! is_armv6l; then return 0; fi
 
-  local link="https://unofficial-builds.nodejs.org/download/release/v14.15.4/node-v14.15.4-linux-armv6l.tar.xz"
+  local link="https://unofficial-builds.nodejs.org/download/release/v14.16.0/node-v14.16.0-linux-armv6l.tar.xz"
   local myDistro
   local temp
 
