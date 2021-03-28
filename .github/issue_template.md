@@ -1,7 +1,6 @@
 ---
 name: openHABian issue template
 about: A template issue for the openHABian repository.
-labels: new
 ---
 ## Issue information:
 Please be as detailed as possible to help us help you. Also, please be sure to
@@ -14,8 +13,14 @@ bar to let you see closed issues). Please follow the guidelines outlined in the
 Please provide all of the output provided by utilizing the `debugmode=maximum`
 parameter in the `/etc/openhabian.conf` file. For more information on how to
 accomplish this, please see [openhabian-DEBUG.md](https://github.com/openhab/openhabian/blob/main/docs/openhabian-DEBUG.md#create-a-debug-log).
+```
+place logs here
+```
 
 ## System information:
 Please tell us what OS you are running (Raspberry Pi OS, Debian, Ubuntu), what
 HW you are running on (Raspberry Pi, amd64). Also include the output of
 `cat /etc/os-release` and `uname -m`.
+```
+place output here
+```
