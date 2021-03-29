@@ -253,8 +253,11 @@ else
 fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/smart-house-config
+<<<<<<< HEAD
 install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/openhab-cli /usr/bin/openhab-cli
 install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/restore /usr/share/openhab/runtime/bin/restore
+=======
+>>>>>>> ae78683 (smart-house-config -> openhabian-config)
 
 # shellcheck disable=SC2154
 echo "$(timestamp) [openHABian] Starting execution of 'openhabian-config unattended'... OK"
