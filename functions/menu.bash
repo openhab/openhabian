@@ -5,21 +5,19 @@ show_about() {
 
   OHPKG="openhab"
   version=$(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
-  whiptail --title "About openHABian and $(basename "$0")" --msgbox "openHABian Configuration Tool — $(get_git_revision)
-openHAB ${version} - $(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
-\\nThis tool provides a little help to make your openHAB experience as comfortable as possible.
-Make sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
-\\nMenu 01 will allow you to select the standard (\"openHAB\") or the very latest (\"main\") openHABian version.
+  whiptail --title "About storm.house and smart-house-config" --msgbox "storm.house Configuration Tool $(get_git_revision)
+openHAB $(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties) - $(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
+This tool provides a little help to make your openHAB experience as comfortable as possible.
+\\nMake sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
 Menu 02 will upgrade all of your OS and applications to the latest versions.
-Menu 03 will install or upgrade openHAB to the latest version available.
-Menu 10 provides a number of system tweaks. These are already active after a standard installation.
-Menu 20 allows you to install some supported optional components often used with openHAB.
-Menu 30 allows you to change system configuration options to match your hardware.
-Menu 40 allows you to select the standard release, milestone or very latest development version of openHAB.
+Menu 03 will update storm.house EMS to the latest versions.
+Menu 10 provides a number of system tweaks. These are already active after a standard installation while
+Menu 30 allows for changing system configuration to match your hardware.
+Note that the raspi-config tool was intentionally removed to not interfere with smart-house-config.
+Menu 40 to select the standard release, milestone or very latest development version of openHAB
 Menu 50 provides options to backup and restore either your openHAB configuration or the whole system.
 \\nVisit these sites for more information:
   - Documentation: https://www.openhab.org/docs/installation/openhabian.html
-  - Development: https://github.com/openhab/openhabian
   - Discussion: https://community.openhab.org/t/13379" 25 116
   RET=$?
   if [ $RET -eq 255 ]; then
@@ -32,16 +30,15 @@ show_main_menu() {
   local choice
   local version
 
-
-  choice=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Setup Options" 24 118 16 --cancel-button Exit --ok-button Execute \
-  "00 | About openHABian"        "Information about the openHABian project and this tool" \
+  choice=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Exit --ok-button Execute \
+  "00 | About smart-house"       "Information about this tool" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Update all OS software packages (but not openHAB) to latest versions" \
   "03 | Install openHAB"         "Install or upgrade to latest openHAB (including Java)" \
   "04 | Import config"           "Import an openHAB configuration from file or URL" \
   "" "" \
-  "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
+  "10 | Apply Improvements"      "Apply the latest improvements to the basic setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
   "30 | System Settings"         "A range of system and hardware related configuration steps ►" \
   "40 | openHAB Related"         "Switch the installed openHAB version or apply tweaks ►" \
@@ -87,9 +84,9 @@ show_main_menu() {
     import_openhab_config
 
   elif [[ "$choice" == "10"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Apply Improvements" 24 118 16 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
-    "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
+    "12 | Bash&Vim Settings"      "Update customized settings for bash, vim and nano" \
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
     "14 | Fix Permissions"        "Update file permissions of commonly used files and folders" \
     "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
@@ -169,12 +166,11 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "System Settings" 24 118 16 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "System Settings" 24 118 17 --cancel-button Back --ok-button Execute \
     "31 | Change hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set system locale"      "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
     "33 | Set system timezone"    "Change your timezone, execute if it's not '$(printf "%(%H:%M)T\\n" "-1")' now" \
     "34 | Change passwords"       "Change passwords for Samba, openHAB Console or the system user" \
-<<<<<<< HEAD
     "35 | Serial port"            "Prepare serial ports for peripherals like RaZberry, ZigBee adapters etc" \
     "36 | Disable framebuffer"    "Disable framebuffer on RPi to minimize memory usage" \
     "   | Enable framebuffer"     "Enable framebuffer (standard setting)" \
@@ -184,18 +180,8 @@ show_main_menu() {
     "39 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
     "3A | Setup Exim Mail Relay"  "Install Exim4 to relay mails via public email provider" \
     "3B | Setup Tailscale VPN"    "Establish or join a WireGuard based VPN using the Tailscale service" \
-=======
-    "35 | Serial port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
-    "36 | WiFi setup"             "Configure wireless network connection" \
-    "   | Disable WiFi"           "Disable wireless network connection" \
-    "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
-    "38 | Use zram"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
-    "   | Uninstall zram"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
-    "39 | Setup Exim Mail Relay"  "Install Exim4 to relay mails via public email provider" \
-    "3A | Setup Tailscale VPN"    "Establish or join a WireGuard based VPN using the Tailscale service" \
->>>>>>> febbbeb5d (Update all documentation for clarity and accuracy (#1443))
     "   | Remove Tailscale VPN"   "Remove the Tailscale VPN service" \
-    "   | Install WireGuard"      "Setup WireGuard to enable secure remote access to this openHABian system" \
+    "   | Install WireGuard"      "Setup WireGuard to enable secure remote access to this system" \
     "   | Remove WireGuard"       "Remove WireGuard VPN from this system" \
     "3C | Setup UPS (nut)"        "Setup a Uninterruptable Power Supply for this system using Network UPS Tools" \
     3>&1 1>&2 2>&3)
@@ -211,17 +197,11 @@ show_main_menu() {
       36\ *) use_framebuffer "disable" ;;
       *Enable\ framebuffer) use_framebuffer "enable" ;;
       38\ *) init_zram_mounts "install" ;;
-<<<<<<< HEAD
       *Update\ zram) init_zram_mounts ;;
       *Uninstall\ zram) init_zram_mounts "uninstall" ;;
       39\ *) move_root2usb ;;
       3A\ *) exim_setup ;;
       3B\ *) if install_tailscale install; then setup_tailscale; fi;;
-=======
-      *Uninstall\ zram) init_zram_mounts "uninstall" ;;
-      39\ *) exim_setup ;;
-      3A\ *) if install_tailscale install; then setup_tailscale; fi;;
->>>>>>> febbbeb5d (Update all documentation for clarity and accuracy (#1443))
       *Remove\ Tailscale*) install_tailscale remove;;
       *Install\ WireGuard*) if install_wireguard install; then setup_wireguard; fi;;
       *Remove\ WireGuard*) install_wireguard remove;;
