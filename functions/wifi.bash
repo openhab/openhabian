@@ -116,7 +116,7 @@ configure_wifi() {
 }
 
 
-## Install comitup WiFi hotspot demon
+## Install comitup WiFi hotspot daemon
 ## Valid arguments: "setup" or "disable"
 ## see https://davesteele.github.io/comitup/ppa.html and
 ## https://gist.github.com/jjsanderson/ab2407ab5fd07feb2bc5e681b14a537a
