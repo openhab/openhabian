@@ -413,7 +413,7 @@ See `systemctl list-timers`, timers are defined in `/etc/systemd/system/sd*.time
 
 Menu 5X provides interactive access to the aforementioned functions:
 `52 Amanda System Backup` will will prepare an existing directory as your backup storage and make Amanda launch once a day. See the separate [Amanda setup document](openhabian-amanda.md).
-`53 Setup SD monitoring` prepares the partitions on an SD card and sets up timers to execute both, a full mirroring and complementary rsync 'diff' runs in a backup schedule.
+`53 Setup SD mirroring` prepares the partitions on an SD card and sets up timers to execute both, a full mirroring and complementary rsync 'diff' runs in a backup schedule.
 `54 Raw copy SD` is a one-time raw copy (mirror) run.
 `55 Sync SD` proagates (syncs) differences from your main SD card to your external card.
 
