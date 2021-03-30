@@ -397,7 +397,7 @@ So don't take _mirrors_ of the _mirror_.
 Also be aware that only the first two partitions are mirrored - the storage (3rd) parition will never be mirrored even if you have set that up for use as backup area.
 :::
 
-To setup mirroring right during unattended installation of a RPi (using the image flash method):
+To setup mirroring right during unattended installation of a RPi (using the image flash method):<br>
 Define `backupdrive=/dev/sdX` (replace X with the proper character) to enable this functionality right during unattended installation.
 The first attached disk type device is usually called `/dev/sda`.
 Use `storagecapacity=xxx` to override how much space to consume at most for Amanda backup storage (in MB).
@@ -411,9 +411,9 @@ Full mirroring will take place semiannually and for the 2nd partition (Linux roo
 See `systemctl list-timers`, timers are defined in `/etc/systemd/system/sd*.timer`.
 
 
-Menu 5X provides interactive access to the aforementioned functions:
+Menu 5X provides interactive access to the aforementioned functions:<br>
 `52 Amanda System Backup` will will prepare an existing directory as your backup storage and make Amanda launch once a day. See the separate [Amanda setup document](openhabian-amanda.md).
-`53 Setup SD mirroring` prepares the partitions on an SD card and sets up timers to execute both, a full mirroring and complementary rsync 'diff' runs in a backup schedule.
+`53 Setup SD mirroring` prepares the partitions on an SD card and sets up timers to execute both, a full mirroring and complementary rsync 'diff' runs.
 `54 Raw copy SD` is a one-time raw copy (mirror) run.
 `55 Sync SD` proagates (syncs) differences from your main SD card to your external card.
 
