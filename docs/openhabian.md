@@ -119,6 +119,20 @@ reliably work on 64 bit.
 
 On x86 hardware, 64 bit is the standard.
 
+### Networking
+
+The scripted use (i.e. the non-image version) of openHABian does not change anything about your OS' networking setup (except if you deploy a VPN from the menu, of course) so you have to take care of that yourself.
+For image based installations, openHABian re-uses the TCP/IP networking setup Raspberry Pi OS is coming with. This is documented over here:
+https://www.raspberrypi.org/documentation/configuration/tcpip/.
+Read this to understand the process and prerequisites to proper networking such as a mandatory DHCP server and that you can NOT setup openHABian with a static IP address (unless you do that by specifiying your Pi's MAC address on your DHCP server).
+See also there what that `169.*` IP address is about in case you see it on your system (it means DHCP didn't work).
+
+When you boot a flashed image for the first time, openHABian will setup and use the Ethernet port if that one is connected with a cable to your LAN.
+It'll also use the `wifi_ssid` and `wifi_password` parameters from `/etc/openhabian.conf` to determine whether and how to setup the Wi-Fi interface.
+After these stages it checks for connectivity to the Internet and if that fails, it'll open a [Wi-Fi hotspot](openhabian.md#Wi-Fi Hotspot) that lets you manually connect your system to a WLAN (Wi-Fi) of yours to jumpstart networking.
+Remember that once the hotspot is started, it'll hide once you have successfully used it to connect your Wi-Fi interface but it'll return should your Wi-Fi connectivity break down.
+
+
 ## Raspberry Pi prepackaged SD card image
 
 **Flash, plug, wait, enjoy:**
@@ -363,12 +377,12 @@ This may or may not work for your mobile browser as it requires Bonjour/ZeroConf
 If you cannot connect to this address, go to `http://10.41.0.1`.
 On that page you can select the SSID of the network you want to connect your system to.
 Provide the password and press the button.
-Note that as soon as you do, the wlan0 IP address changes so your mobile browser will not be able to provide you any feedback if that worked out.
+Note that as soon as you do, the wlan0 IP address of your system changes so your mobile browser will not be able to provide you any feedback if that worked out.
 Try to ping the new system's hostname (default is `openhabian`) or check DHCP on your router if your openHABian system appeared there.
-For more information on this feature see [comitup-cli](https://davesteele.github.io/comitup/).
 You can use `sudo comitup-cli` inside openHABian to change networks and eventually remove network credentials.
 Note the hotspot may not only become available during installation: it will remain on standby and will show up again every time your `wlan0` interface is losing connectivity.
-The hotspot feature is known to work on RPi-0W, RPi-3, and RPi-4 but is known to often expose problems with Wi-Fi USB adapters.
+For more information on hotspot functions see [comitup-cli](https://davesteele.github.io/comitup/). Most behavior can be tweaked by setting parameters (such as a default password) in `/etc/comitup.conf`.
+The hotspot feature is known to work on RPi0W, RPi3, and RPi4 but is known to often expose problems with Wi-Fi USB adapters.
 
 #### Disable zram
 
