@@ -124,8 +124,10 @@ On x86 hardware, 64 bit is the standard.
 The scripted use (i.e. the non-image version) of openHABian does not change anything about your OS' networking setup (except if you deploy a VPN from the menu, of course) so you have to take care of that yourself.
 For image based installations, openHABian re-uses the TCP/IP networking setup Raspberry Pi OS is coming with. This is documented over here:
 https://www.raspberrypi.org/documentation/configuration/tcpip/.
-Read this to understand the process and prerequisites to proper networking such as a mandatory DHCP server and that you can NOT setup openHABian with a static IP address (unless you do that by specifiying your Pi's MAC address on your DHCP server).
 See also there what that `169.*` IP address is about in case you see it on your system (it means DHCP didn't work).
+A properly working DHCP server is a mandatory prerequisite to openHABian networking setup.
+Note it is NOT supported to setup openHABian with a static IP address as described in the Raspberry Pi OS documentation as that can interfere with openHABian functionality.
+If you want to have a fixed address, configure your DHCP server to respond with that IP to requests from your Pi's MAC address.
 
 When you boot a flashed image for the first time, openHABian will setup and use the Ethernet port if that one is connected with a cable to your LAN.
 It'll also use the `wifi_ssid` and `wifi_password` parameters from `/etc/openhabian.conf` to determine whether and how to setup the Wi-Fi interface.
