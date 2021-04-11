@@ -122,12 +122,16 @@ On x86 hardware, 64 bit is the standard.
 ### Networking
 
 The scripted use (i.e. the non-image version) of openHABian does not change anything about your OS' networking setup (except if you deploy a VPN from the menu, of course) so you have to take care of that yourself.
-For image based installations, openHABian re-uses the TCP/IP networking setup Raspberry Pi OS is coming with. This is documented over here:
-https://www.raspberrypi.org/documentation/configuration/tcpip/.
-See also there what that `169.*` IP address is about in case you see it on your system (it means DHCP didn't work).
-A properly working DHCP server is a mandatory prerequisite to openHABian networking setup.
+For image based installations, openHABian re-uses the TCP/IP networking setup Raspberry Pi OS is coming with.
+
+A properly working DHCP server is a mandatory prerequisite to openHABian's networking setup.
+We recommend you configure your DHCP server to always assign the same IP based based on your Pi's MAC address.
+That'll effectively get you a fixed IP address.
+Most DHCP servers are part of your Internet router and have an option to allow for this type of mapping.
+For example in AVM Fritz!boxes (popular in Germany), it's a simple checkbox you can tick - note it only appears after the address was assigned to a client (your openHABian box) for the first time.
 Note it is NOT supported to setup openHABian with a static IP address as described in the Raspberry Pi OS documentation as that can interfere with openHABian functionality.
-If you want to have a fixed address, configure your DHCP server to respond with that IP to requests from your Pi's MAC address.
+For reference, the RPi OS process is documented over here: https://www.raspberrypi.org/documentation/configuration/tcpip/.
+If you are getting an `169.*` IP address it means DHCP didn't work.
 
 When you boot a flashed image for the first time, openHABian will setup and use the Ethernet port if that one is connected with a cable to your LAN.
 It'll also use the `wifi_ssid` and `wifi_password` parameters from `/etc/openhabian.conf` to determine whether and how to setup the Wi-Fi interface.
