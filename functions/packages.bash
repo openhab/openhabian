@@ -203,6 +203,9 @@ homegear_setup() {
 
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
+  if [[ "$myRelease" == "n/a" ]]; then
+    myRelease=${osrelease:-buster}
+  fi
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
   if [[ -n $INTERACTIVE ]]; then

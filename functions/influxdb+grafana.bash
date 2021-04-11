@@ -201,6 +201,9 @@ influxdb_install() {
     myOS="$(lsb_release -si)"
   fi
   myRelease="$(lsb_release -sc)"
+  if [[ "$myRelease" == "n/a" ]]; then
+    myRelease=${osrelease:-buster}
+  fi
 
   if ! dpkg -s 'influxdb' &> /dev/null; then
     if ! add_keys "https://repos.influxdata.com/influxdb.key"; then return 1; fi
@@ -278,8 +281,8 @@ grafana_install(){
   if ! cond_redirect sed -i -e '/^# enable anonymous access/ { n ; s/^;enabled = false/enabled = true/ }' /etc/grafana/grafana.ini; then echo "FAILED (anonymous access)"; return 1; fi
   if ! cond_redirect sed -i 's/^[[:space:]]*[;]*[[:space:]]*allow_embedding[[:space:]]*=[[:space:]]*[a-z]*/allow_embedding = true/' /etc/grafana/grafana.ini; then echo "FAILED (allow_embedding)"; return 1; fi
   if ! grep -q "^allow_embedding =" /etc/grafana/grafana.ini; then
-    if ! grep -q "^[[:space:]]*\[security\]" /etc/grafana/grafana.ini; then
-      if ! cond_redirect echo -e "\n[security]\nallow_embedding = true" >> /etc/grafana/grafana.ini; then echo "FAILED (allow_embedding)"; return 1; fi
+    if ! grep -q "^[[:space:]]*\\[security\\]" /etc/grafana/grafana.ini; then
+      if ! cond_redirect echo -e "\\n[security]\\nallow_embedding = true" >> /etc/grafana/grafana.ini; then echo "FAILED (allow_embedding)"; return 1; fi
     else
       if ! cond_redirect sed -i -e 's/^[[:space:]]*\[security\]/\[security\]\nallow_embedding = true/' /etc/grafana/grafana.ini; then echo "FAILED (allow_embedding)"; return 1; fi
     fi
