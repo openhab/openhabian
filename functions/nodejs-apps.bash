@@ -18,6 +18,9 @@ nodejs_setup() {
   fi
 
   myDistro="$(lsb_release -sc)"
+  if [[ "$myDistro" == "n/a" ]]; then
+    myDistro=${osrelease:-buster}
+  fi
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   if [[ -z $PREOFFLINE ]] && is_armv6l; then
