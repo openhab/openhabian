@@ -2,8 +2,8 @@ org "openHABian %CONFIG"                      # Organization name for reports
 mailto "%ADMINMAIL"                           # Email address to receive reports
 dumpuser "%BACKUPUSER"                        # User to run dumps under
 netusage 90000 Kbps                           # Bandwidth limit, 90M
-dumpcycle 14                                  # Backup cycle is 14 days
-runspercycle 14                               # Run 14 times within dumpcycle of 2 weeks
+dumpcycle 7                                   # do a full dump once a week
+runspercycle 7                                # Run 7 times within dumpcycle i.e. each day
 tapecycle %TAPES tapes                        # Dump to this number of different tapes during the cycle
 runtapes 10                                   # Number of virtual containers to use at most per backup run
 tpchanger %TAPECHANGER
