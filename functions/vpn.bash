@@ -180,6 +180,8 @@ install_tailscale() {
   local installText="We will install the tailscale VPN client on your system. Use it to securely interconnect multiple openHAB(ian) instances.\\nSee https://tailscale.com/blog/how-tailscale-works/ for a comprehensive explanation how it creates a secure VPN. For personal use, you can get a free solo service from tailscale.com."
   local removeText="We will remove the tailscale VPN client from your system.\\n\\nDouble-check ~/.ssh/authorized_keys and eventually remove the admin key."
   local serviceTargetDir="/lib/systemd/system"
+  local sudoersFile="011_openhab-tailscale"
+  local sudoersPath="/etc/sudoers.d"
 
   if [[ -n "$UNATTENDED" ]]; then
     # shellcheck disable=SC2154
@@ -195,7 +197,7 @@ install_tailscale() {
     rm -f ${serviceTargetDir}/tailscale*
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! apt-get purge --yes tailscale; then echo "FAILED (purge tailscale)"; return 1; fi
-    if ! rm -f /etc/apt/sources.list.d/tailscale.list; then echo "FAILED (purge tailscale)"; return 1; fi
+    if ! rm -f /etc/apt/sources.list.d/tailscale.list "${sudoersPath}/${sudoersFile}"; then echo "FAILED (purge tailscale)"; return 1; fi
     return 0
   fi
 
@@ -214,6 +216,7 @@ install_tailscale() {
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   # Install tailscale
   if cond_redirect apt-get install --yes tailscale; then echo "OK"; else echo "FAILED (install tailscale)"; return 1; fi
+  cp "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
 
   return 0
 }
