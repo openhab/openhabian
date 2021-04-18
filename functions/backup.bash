@@ -447,14 +447,15 @@ setup_mirror_SD() {
   fi
 
   local dest
-  local srcSize
   local destSize
-  local minStorageSize=4000000000                  # 4 GB
-  local serviceTargetDir="/etc/systemd/system"
-  local storageDir="${storagedir:-/storage}"
-  local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
   local infoText1="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will *copy* your system root from your SD card to a USB attached card writer device. Are you sure"
   local infoText2="is an SD card writer device equipped with a dispensible SD card? Are you sure, this will destroy all data on that card and you want to proceed writing to this device?"
+  local minStorageSize=4000000000                  # 4 GB
+  local sdIncludesDir="${BASEDIR:-/opt/openhabian}/includes/SD"
+  local serviceTargetDir="/etc/systemd/system"
+  local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
+  local srcSize
+  local storageDir="${storagedir:-/storage}"
 
   echo -n "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... "
 
@@ -476,7 +477,7 @@ setup_mirror_SD() {
 
   mkdir -p "$storageDir"
   if cond_redirect apt-get install --yes gdisk; then echo "OK"; else echo "FAILED (install gdisk)"; return 1; fi
-  if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/set-partuuid /usr/local/sbin; then echo "FAILED (install set-partuuid)"; return 1; fi
+  if ! cond_redirect install -m 755 "${sdIncludesDir}/set-partuuid" /usr/local/sbin; then echo "FAILED (install set-partuuid)"; return 1; fi
 
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
@@ -523,7 +524,7 @@ setup_mirror_SD() {
       (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk --force "$dest"
       partprobe
       cond_redirect mke2fs -F -t ext4 "${dest}3"
-      if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${BASEDIR:-/opt/openhabian}"/includes/storage.mount-template > "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (create storage mount)"; fi
+      if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${sdIncludesDir}/storage.mount-template" > "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (create storage mount)"; fi
       if ! cond_redirect chmod 644 "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (permissions)"; return 1; fi
       if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
       if ! cond_redirect systemctl enable --now "$mountUnit"; then echo "FAILED (enable storage mount)"; return 1; fi
@@ -531,10 +532,10 @@ setup_mirror_SD() {
   fi
   mirror_SD "raw" "$dest"
 
-  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrawcopy.service-template > "$serviceTargetDir"/sdrawcopy.service; then echo "FAILED (create raw SD copy service)"; fi
-  if ! sed -e "s|%DEST|${dest}|g" "${BASEDIR:-/opt/openhabian}"/includes/sdrsync.service-template > "$serviceTargetDir"/sdrsync.service; then echo "FAILED (create rsync service)"; fi
-  if cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/sd*.timer "${serviceTargetDir}"; then echo "OK"; else rm -f "${serviceTargetDir}/sdr*.service"; echo "FAILED (setup copy timers)"; return 1; fi
-  if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/mirror_SD /usr/local/sbin; then echo "FAILED (install mirror_SD)"; return 1; fi
+  if ! sed -e "s|%DEST|${dest}|g" "${sdIncludesDir}/sdrawcopy.service-template" > "${serviceTargetDir}/sdrawcopy.service"; then echo "FAILED (create raw SD copy service)"; fi
+  if ! sed -e "s|%DEST|${dest}|g" "${sdIncludesDir}/sdrsync.service-template" > "${serviceTargetDir}/sdrsync.service"; then echo "FAILED (create rsync service)"; fi
+  if cond_redirect install -m 644 -t "${serviceTargetDir}" "${sdIncludesDir}"/sdr*.timer; then echo "OK"; else rm -f "$serviceTargetDir"/sdr*.{service,timer}; echo "FAILED (setup copy timers)"; return 1; fi
+  if ! cond_redirect install -m 755 "${sdIncludesDir}/mirror_SD" /usr/local/sbin; then echo "FAILED (install mirror_SD)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now sdrawcopy.timer sdrsync.timer; then echo "FAILED (enable timed SD sync start)"; return 1; fi
 
