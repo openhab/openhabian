@@ -19,6 +19,7 @@ find3_setup() {
   local disklistFileAWS="/etc/amanda/openhab-aws/disklist"
   local disklistFileDir="/etc/amanda/openhab-dir/disklist"
   local find3Dir="/opt/find3"
+  local find3IncludesDir="${BASEDIR:-/opt/openhabian}/includes/find3"
   local findPass1
   local findPass2
   local introText="Framework for Internal Navigation and Discovery (FIND) version 3 will be installed to allow for the indoor localization of Bluetooth and WiFi devices.\\n\\nThis will install the FIND3 server and 'find3-cli-scanner' which allows for fingerprint collection.\\n\\nYou must manually activate 'find3-cli-scanner', for more information see:\\nhttps://www.internalpositioning.com/doc/cli-scanner.md\\n\\nThere is also an Android app for collecting fingerprints. There is no iOS app for fingerprint collection, for details on why see:\\nhttps://www.internalpositioning.com/doc/faq.md#iphone\\n\\nFor more information see:\\nhttps://www.internalpositioning.com/doc/"
@@ -110,10 +111,10 @@ find3_setup() {
   echo -n "$(timestamp) [openHABian] Setting up FIND3 service... "
   if ! (id -u find3 &> /dev/null || cond_redirect useradd --groups openhabian find3); then echo "FAILED (adduser)"; return 1; fi
   if ! cond_redirect chown -R "find3:${username:-openhabian}" /opt/find3; then echo "FAILED (permissions)"; return 1; fi
-  if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/find3ai.service /etc/systemd/system/find3ai.service; then echo "FAILED (copy service)"; return 1; fi
-  if ! (sed -e 's|%FIND3_PORT|8003|g' "${BASEDIR:-/opt/openhabian}"/includes/find3server.service > /etc/systemd/system/find3server.service); then echo "FAILED (service file creation)"; return 1; fi
+  if ! cond_redirect install -m 644 "${find3IncludesDir}/find3ai.service" /etc/systemd/system/find3ai.service; then echo "FAILED (copy service)"; return 1; fi
+  if ! (sed -e 's|%FIND3_PORT|8003|g' "${find3IncludesDir}/find3server.service" > /etc/systemd/system/find3server.service); then echo "FAILED (service file creation)"; return 1; fi
   if ! cond_redirect chmod 644 /etc/systemd/system/find3server.service; then echo "FAILED (permissions)"; return 1; fi
-  if ! (sed -e 's|%MQTT_SERVER|'"${MQTT_SERVER}"'|g; s|%MQTT_ADMIN|'"${MQTT_ADMIN}"'|g; s|%MQTT_PASS|'"${MQTT_PASS}"'|g' "${BASEDIR:-/opt/openhabian}"/includes/find3server > /etc/default/find3server); then echo "FAILED (service configuration creation)"; return 1; fi
+  if ! (sed -e 's|%MQTT_SERVER|'"${MQTT_SERVER}"'|g; s|%MQTT_ADMIN|'"${MQTT_ADMIN}"'|g; s|%MQTT_PASS|'"${MQTT_PASS}"'|g' "${find3IncludesDir}/find3server" > /etc/default/find3server); then echo "FAILED (service configuration creation)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now find3ai.service; then echo "FAILED (enable find3ai)"; return 1; fi
   if cond_redirect systemctl enable --now find3server.service; then echo "OK"; else echo "FAILED (enable find3server)"; return 1; fi
