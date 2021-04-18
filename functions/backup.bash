@@ -115,26 +115,28 @@ amanda_install() {
 ##                         String awsSecretKey)
 ##
 create_amanda_config() {
-  local config
-  local backupUser
   local adminMail
-  local tapes
-  local tapeSize
-  local storageLoc
-  local awsSite
-  local awsBucket
+  local amandaHosts="/var/backups/.amandahosts"
+  local amandaSecurityConf="/etc/amanda-security.conf"
+  local amandaIncludesDir="${BASEDIR:-/opt/openhabian}/includes/amanda"
   local awsAccessKey
+  local awsBucket
   local awsSecretKey
-  local amandaHosts
+  local awsSite
+  local backupUser
+  local config
   local configDir
   local databaseDir
-  local dumpType
+  local dumpType="comp-user-tar"
   local indexDir
   local logDir
+  local serviceTargetDir="/etc/systemd/system"
+  local storageLoc
   local storageText
   local tapeChanger
+  local tapes
+  local tapeSize
   local tapeType
-  local serviceTargetDir="/etc/systemd/system"
 
   config="$1"
   backupUser="$2"
@@ -146,32 +148,29 @@ create_amanda_config() {
   awsBucket="$8"
   awsAccessKey="$9"
   awsSecretKey="${10}"
-  amandaSecurityConf="/etc/amanda-security.conf"
-  amandaHosts="/var/backups/.amandahosts"
   configDir="/etc/amanda/${config}"
   databaseDir="/var/lib/amanda/${config}/curinfo"
-  dumpType="comp-user-tar"
   indexDir="/var/lib/amanda/${config}/index"
   logDir="/var/log/amanda/${config}"
   storageText="We need to prepare (\"label\") your storage media.\\n\\nFor permanent storage such as USB or NAS mounted storage, as well as for cloud based storage, we will create ${tapes} virtual containers."
 
   echo -n "$(timestamp) [openHABian] Creating Amanda filesystem... "
   if ! cond_redirect mkdir -p "$configDir" "$databaseDir" "$logDir" "$indexDir"; then echo "FAILED (create directories)"; return 1; fi
-  if ! cond_redirect touch "$configDir"/tapelist; then echo "FAILED (touch tapelist)"; return 1; fi
+  if ! cond_redirect touch "${configDir}/tapelist"; then echo "FAILED (touch tapelist)"; return 1; fi
   ip=$(dig +short "$HOSTNAME")
   revip=$(host "${ip}" | cut -d' ' -f1)
   if [[ -n "$revip" ]]; then (echo -e "${ip} ${backupUser} amdump\\n${revip} ${backupUser} amdump" > "$amandaHosts"); fi
   if ! (echo -e "${HOSTNAME} ${backupUser} amdump\\n${HOSTNAME} root amindexd amidxtaped\\nlocalhost ${backupUser}\\nlocalhost root amindexd amidxtaped" >> "$amandaHosts"); then echo "FAILED (Amanda hosts)"; return 1; fi
   if is_aarch64; then GNUTAR=/bin/tar; else GNUTAR=/usr/bin/tar; fi
   if ! (echo -e "amgtar:gnutar_path=$GNUTAR\\n" >> "$amandaSecurityConf"); then echo "FAILED (amanda-security.conf)"; return 1; fi
-  if ! cond_redirect chown --recursive "$backupUser":backup "$amandaHosts" "$configDir" "$databaseDir" "$indexDir" /var/log/amanda; then echo "FAILED (chown)"; return 1; fi
+  if ! cond_redirect chown --recursive "${backupUser}:backup" "$amandaHosts" "$configDir" "$databaseDir" "$indexDir" /var/log/amanda; then echo "FAILED (chown)"; return 1; fi
   if [[ $config == "openhab-dir" ]]; then
-    if ! cond_redirect chown --recursive "$backupUser":backup "$storageLoc"; then echo "FAILED (chown)"; return 1; fi
+    if ! cond_redirect chown --recursive "${backupUser}:backup" "$storageLoc"; then echo "FAILED (chown)"; return 1; fi
     if ! cond_redirect chmod --recursive g+rxw "$storageLoc"; then echo "FAILED (chmod)"; return 1; fi
-    if ! cond_redirect mkdir -p "$storageLoc"/slots; then echo "FAILED (create slots)"; return 1; fi     # folder needed for following symlinks
-    if ! cond_redirect chown --recursive "$backupUser":backup "$storageLoc"/slots; then echo "FAILED (chown slots)"; return 1; fi
-    if ! cond_redirect ln -sf "$storageLoc"/slots "$storageLoc"/slots/drive0; then echo "FAILED (link drive0)"; return 1; fi
-    if ! cond_redirect ln -sf "$storageLoc"/slots "$storageLoc"/slots/drive1; then echo "FAILED (link drive1)"; return 1; fi    # tape-parallel-write 2 so we need 2 virtual drives
+    if ! cond_redirect mkdir -p "${storageLoc}/slots"; then echo "FAILED (create slots)"; return 1; fi     # folder needed for following symlinks
+    if ! cond_redirect chown --recursive "${backupUser}:backup" "${storageLoc}/slots"; then echo "FAILED (chown slots)"; return 1; fi
+    if ! cond_redirect ln -sf "${storageLoc}/slots" "${storageLoc}/slots/drive0"; then echo "FAILED (link drive0)"; return 1; fi
+    if ! cond_redirect ln -sf "${storageLoc}/slots" "${storageLoc}/slots/drive1"; then echo "FAILED (link drive1)"; return 1; fi    # tape-parallel-write 2 so we need 2 virtual drives
     tapeChanger="\"chg-disk:${storageLoc}/slots\"    # The tape-changer glue script"
     tapeType="DIRECTORY"
   elif [[ $config == "openhab-AWS" ]]; then
@@ -181,9 +180,9 @@ create_amanda_config() {
     echo "FAILED (invalid configuration: ${config})"
     return 1
   fi
-  if ! (sed -e 's|%CONFIGDIR|'"${configDir}"'|g; s|%CONFIG|'"${config}"'|g; s|%ADMINMAIL|'"${adminMail}"'|g; s|%TAPESIZE|'"${tapeSize}"'|g; s|%TAPETYPE|'"${tapeType}"'|g; s|%TAPECHANGER|'"${tapeChanger}"'|g; s|%TAPES|'"${tapes}"'|g; s|%BACKUPUSER|'"${backupUser}"'|g' "${BASEDIR:-/opt/openhabian}"/includes/amanda.conf-template > "$configDir"/amanda.conf); then echo "FAILED (amanda config)"; return 1; fi
+  if ! sed -e 's|%CONFIGDIR|'"${configDir}"'|g; s|%CONFIG|'"${config}"'|g; s|%ADMINMAIL|'"${adminMail}"'|g; s|%TAPESIZE|'"${tapeSize}"'|g; s|%TAPETYPE|'"${tapeType}"'|g; s|%TAPECHANGER|'"${tapeChanger}"'|g; s|%TAPES|'"${tapes}"'|g; s|%BACKUPUSER|'"${backupUser}"'|g' "${amandaIncludesDir}/amanda.conf-template" > "${configDir}/amanda.conf"; then echo "FAILED (amanda config)"; return 1; fi
   if [[ -z $adminMail ]]; then
-    if ! cond_redirect sed -i -e '/mailto/d' "$configDir"/amanda.conf; then echo "FAILED (remove mailto)"; return 1; fi
+    if ! cond_redirect sed -i -e '/mailto/d' "${configDir}/amanda.conf"; then echo "FAILED (remove mailto)"; return 1; fi
   fi
   if [[ $config = "openhab-AWS" ]]; then
     {
@@ -193,39 +192,39 @@ create_amanda_config() {
       echo "device_property \"S3_ACCESS_KEY\" \"${awsAccessKey}\"    # Your S3 Access Key"; \
       echo "device_property \"S3_SECRET_KEY\" \"${awsSecretKey}\"    # Your S3 Secret Key"; \
       echo "device_property \"S3_SSL\" \"YES\"    # cURL needs to have S3 Certification Authority in its CA list. If connection fails, try setting this to NO"
-    } >> "$configDir"/amanda.conf
+    } >> "${configDir}/amanda.conf"
   fi
-  if cond_redirect chmod 644 "$configDir"/amanda.conf; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
+  if cond_redirect chmod 644 "${configDir}/amanda.conf"; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Creating Amanda configuration... "
   if [[ $config == "openhab-dir" ]]; then
-    if ! cond_redirect rm -f "$configDir"/disklist; then echo "FAILED (clean disklist)"; return 1; fi
+    if ! cond_redirect rm -f "${configDir}/disklist"; then echo "FAILED (clean disklist)"; return 1; fi
     # Don't backup full SD by default as this can cause issues with large cards
     if [[ -n $INTERACTIVE ]]; then
       if (whiptail --title "Backup raw SD card" --defaultno --yes-button "Yes" --no-button "No" --yesno "Do you want to create raw disk backups of your SD card?\\n\\nThis is only recommended if your SD card is 16GB or less, otherwise this can take too long.\\n\\nYou can change this at any time by editing:\\n'${configDir}/disklist'" 13 80); then
-        echo "${HOSTNAME}  /dev/mmcblk0                  comp-amraw" >> "$configDir"/disklist
+        echo "${HOSTNAME}  /dev/mmcblk0                  comp-amraw" >> "${configDir}/disklist"
       fi
     fi
   fi
   {
     echo "${HOSTNAME}  /boot                         ${dumpType}"; \
     echo "${HOSTNAME}  /etc                          ${dumpType}"
-  } >> "$configDir"/disklist
+  } >> "${configDir}/disklist"
   if [[ -d /var/lib/openhab ]]; then
-    echo "${HOSTNAME}  /var/lib/openhab              ${dumpType}" >> "$configDir"/disklist
+    echo "${HOSTNAME}  /var/lib/openhab              ${dumpType}" >> "${configDir}/disklist"
   fi
   if [[ -d /var/lib/homegear ]]; then
-    echo "${HOSTNAME}  /var/lib/homegear             ${dumpType}" >> "$configDir"/disklist
+    echo "${HOSTNAME}  /var/lib/homegear             ${dumpType}" >> "${configDir}/disklist"
   fi
   if [[ -d /opt/find3/server/main ]]; then
-    echo "${HOSTNAME}  /opt/find3/server/main        ${dumpType}" >> "$configDir"/disklist
+    echo "${HOSTNAME}  /opt/find3/server/main        ${dumpType}" >> "${configDir}/disklist"
   fi
   {
     echo "index_server \"localhost\""; \
     echo "tapedev \"changer\""; \
     echo "auth \"local\""
-  } > "$configDir"/amanda-client.conf
-  if cond_redirect chmod 644 "$configDir"/disklist "$configDir"/amanda-client.conf; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
+  } > "${configDir}/amanda-client.conf"
+  if cond_redirect chmod 644 "${configDir}/disklist" "${configDir}/amanda-client.conf"; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Preparing storage location... "
   if [[ -n $INTERACTIVE ]]; then
@@ -234,7 +233,7 @@ create_amanda_config() {
   until [[ $tapes -le 0 ]]; do
     if [[ $config == "openhab-dir" ]]; then
       if ! cond_redirect mkdir -p "${storageLoc}/slots/slot${tapes}"; then echo "FAILED (slot${tapes})"; return 1; fi
-      if ! cond_redirect chown --recursive "$backupUser":backup "${storageLoc}/slots/slot${tapes}"; then echo "FAILED (chown slot${tapes})"; return 1; fi
+      if ! cond_redirect chown --recursive "${backupUser}:backup" "${storageLoc}/slots/slot${tapes}"; then echo "FAILED (chown slot${tapes})"; return 1; fi
     elif [[ $config == "openhab-AWS" ]]; then
       if ! cond_redirect su - "$backupUser" -c "amlabel ${config} ${config}-${tapes} slot $(printf "%02d" "${tapes}")"; then echo "FAILED (amlabel)"; return 1; fi
     else
@@ -245,17 +244,17 @@ create_amanda_config() {
   done
   echo "OK"
 
-  if ! sed -e "s|%CONFIG|${config}|g" "${BASEDIR:-/opt/openhabian}"/includes/amdump.service-template > "${serviceTargetDir}/amdump-${config}.service"; then echo "FAILED (create Amanda ${config} backup service)"; return 1; fi
-  if ! sed -e "s|%CONFIG|${config}|g" "${BASEDIR:-/opt/openhabian}"/includes/amdump.timer-template > "${serviceTargetDir}/amdump-${config}.timer"; then echo "FAILED (create Amanda ${config} timer)"; return 1; fi
+  if ! sed -e "s|%CONFIG|${config}|g" "${amandaIncludesDir}/amdump.service-template" > "${serviceTargetDir}/amdump-${config}.service"; then echo "FAILED (create Amanda ${config} backup service)"; return 1; fi
+  if ! sed -e "s|%CONFIG|${config}|g" "${amandaIncludesDir}/amdump.timer-template" > "${serviceTargetDir}/amdump-${config}.timer"; then echo "FAILED (create Amanda ${config} timer)"; return 1; fi
   if ! cond_redirect chmod 644 "${serviceTargetDir}/amdump-${config}".*; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now "amdump-${config}.timer"; then echo "FAILED (amdump-${config} timer enable)"; return 1; fi
   if [[ $tapeType == "DIRECTORY" ]]; then
-    if ! cond_redirect mkdir -p "$storageLoc"/amanda-backups; then echo "FAILED (create amanda-backups)"; return 1; fi
-    if ! cond_redirect chown --recursive "$backupUser":backup "$storageLoc"/amanda-backups; then echo "FAILED (chown amanda-backups)"; return 1; fi
-    if ! sed -e "s|%STORAGE|${storageLoc}|g" "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.service-template > "$serviceTargetDir"/amandaBackupDB.service; then echo "FAILED (create Amanda DB backup service)"; return 1; fi
-    if ! cond_redirect chmod 644 "${serviceTargetDir}"/amandaBackupDB.service; then echo "FAILED (permissions)"; return 1; fi
-    if ! install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/amandaBackupDB.timer "${serviceTargetDir}"; then echo "FAILED (create Amanda DB backup timer)"; return 1; fi
+    if ! cond_redirect mkdir -p "${storageLoc}/amanda-backups"; then echo "FAILED (create amanda-backups)"; return 1; fi
+    if ! cond_redirect chown --recursive "${backupUser}:backup" "${storageLoc}/amanda-backups"; then echo "FAILED (chown amanda-backups)"; return 1; fi
+    if ! sed -e "s|%STORAGE|${storageLoc}|g" "${amandaIncludesDir}/amandaBackupDB.service-template" > "${serviceTargetDir}/amandaBackupDB.service"; then echo "FAILED (create Amanda DB backup service)"; return 1; fi
+    if ! cond_redirect chmod 644 "${serviceTargetDir}/amandaBackupDB.service"; then echo "FAILED (permissions)"; return 1; fi
+    if ! install -m 644 "${amandaIncludesDir}/amandaBackupDB.timer" "${serviceTargetDir}"; then echo "FAILED (create Amanda DB backup timer)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! cond_redirect systemctl enable --now "amandaBackupDB.timer"; then echo "FAILED (Amanda DB backup timer enable)"; return 1; fi
   fi
