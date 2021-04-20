@@ -62,7 +62,7 @@ openhab_setup() {
   elif [[ $2 == "stable" ]]; then
     introText="You are about to install or change to the latest stable $1 release.\\n\\nPlease be aware that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
     successText="The stable release of $1 is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
-    repo="deb https://dl.bintray.com/openhab/apt-repo2 stable main"
+    repo="deb https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main"
   elif [[ $2 == "testing" ]]; then
     introText="You are about to install or change to the latest milestone (testing) $1 build. It contains the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue.\\n\\nPlease be aware that downgrading from a newer build is not officially supported.\\n\\nPlease consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
     successText="The testing release of $1 is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
@@ -85,7 +85,7 @@ openhab_setup() {
   fi
 
   if running_in_docker || [[ -z $OFFLINE ]]; then
-    if ! add_keys "https://bintray.com/user/downloadSubjectPublicKey?username=openhab"; then return 1; fi
+    if ! add_keys https://openhab.jfrog.io/artifactory/api/gpg/key/public; then return 1; fi
 
     rm -f /etc/apt/sources.list.d/${ohPkgName}*.list
     echo "$repo" > /etc/apt/sources.list.d/${ohPkgName}.list
