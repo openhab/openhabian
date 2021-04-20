@@ -1,0 +1,14 @@
+name: 'PR Name Enforcer'
+on:
+    pull_request:
+        types: [opened, edited, reopened]
+
+jobs:
+    enforce:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: derkinderfietsen/pr-name-enforcer@v1.4
+              with:
+                  repo-token: '${{ secrets.GITHUB_TOKEN }}'
+                  regex: '/^[A-Z0-9].*$/g'
