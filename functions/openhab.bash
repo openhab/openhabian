@@ -85,7 +85,7 @@ openhab_setup() {
   fi
 
   if running_in_docker || [[ -z $OFFLINE ]]; then
-    if ! add_keys "https://bintray.com/user/downloadSubjectPublicKey?username=openhab"; then return 1; fi
+    if ! add_keys https://openhab.jfrog.io/artifactory/api/gpg/key/public; then return 1; fi
 
     rm -f /etc/apt/sources.list.d/${ohPkgName}*.list
     echo "$repo" > /etc/apt/sources.list.d/${ohPkgName}.list
