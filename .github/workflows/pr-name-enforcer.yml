@@ -11,4 +11,4 @@ jobs:
             - uses: derkinderfietsen/pr-name-enforcer@v1.4
               with:
                   repo-token: '${{ secrets.GITHUB_TOKEN }}'
-                  regex: '/^[A-Z0-9].*$/g'
+                  regex: '^[A-Z0-9].*$'
