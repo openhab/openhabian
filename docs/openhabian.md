@@ -222,7 +222,7 @@ We try to make install options independent of each other but there may be depend
 The following instructions are developed for a Raspberry Pi but should be applicable to all hardware / all openHABian environments.
 Once connected to the command line console of your system, please execute the openHABian configuration tool by typing the following command:
 
-(Hint: sudo executes a command with elevated rights and will hence ask for your password: `openhabian`).
+(Hint: sudo executes a command with elevated rights and will hence ask for your password. The default is `openhabian`).
 
 ``` bash
 sudo openhabian-config
@@ -333,7 +333,7 @@ Be aware that it isn't the [answer to the ultimate question](https://en.wikipedi
 Take an openHAB config backup BEFORE you upgrade from openHAB v2 to v3. You should also take a system level backup!
 :::
 
-Menu option 42 can also do the downgrade and change the environment back to match openHAB 2 **BUT** it'll ONLY exchange the binary packages.
+Menu option 42 can also do the downgrade and change the *environment* back to match openHAB 2 **BUT** it'll ONLY exchange the binary packages.
 There is no migration to change your configuration back to a openHAB 2 compatible one.
 So it is essential that you take a backup before you upgrade.
 You will have to restore your setup from that backup after a downgrade using menu option 51 or by manually using `openhab-cli restore <archive file>`.
