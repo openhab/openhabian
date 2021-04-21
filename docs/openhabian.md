@@ -37,15 +37,14 @@ It provides:
 Out of the box, the openHABian image provides:
 
 -   Hassle-free setup without a display or keyboard, connected via Ethernet or [Wi-Fi](#wi-fi-based-setup-notes)
--   The latest stable version of openHAB
+-   All versions of openHAB to select from, including the latest stable one as the default
 -   Zulu Embedded OpenJDK Java 8, 11 or AdoptOpenJDK
 -   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
 -   Web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
 -   Samba file sharing [pre-configured to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
--   Useful Linux packages pre-installed, including `vim, mc, screen, htop, ...`
+-   Lots of useful Linux packages and settings pre-installed
 -   Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
--   Customized Bash shell experience, settings and openHAB syntax highlighting for [vim](https://github.com/cyberkov/openhab-vim) and [nano](https://github.com/airix1/openhabnano)
--   [Mosquitto](https://mosquitto.org) MQTT broker
+-   The [Mosquitto](https://mosquitto.org) MQTT broker
 -   The [InfluxDB](https://www.influxdata.com/) database to store home automation data and [Grafana](https://grafana.com/) to visualize it
 -   FIND, the [Framework for Internal Navigation and Discovery](https://www.internalpositioning.com/)
 -   [Tailscale](https://tailscale.com/blog/how-tailscale-works/) VPN and [WireGuard](https://www.wireguard.com/) for remote VPN access
@@ -54,16 +53,15 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 
 ![openHABian-config menu](images/openHABian-config.png)
 
--   Switch between openHAB versions 2 and 3 and select the latest _Release_, _Milestone_, and _SNAPSHOT_ [build versions](https://www.openhab.org/docs/installation/linux.html#changing-versions)
--   Install and Setup a [reverse proxy](security.html##running-openhab-behind-a-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
--   Manually set up a Wi-Fi connection
--   Setup [Backup](#availability-and-backup) for your system
--   Easily install and preconfigure [Optional Components](#optional-components) of your choice
+-   Install and setup a [reverse proxy](security.html##running-openhab-behind-a-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
+-   Comprehensive [backup](#availability-and-backup) for your system
+-   Easily install and preconfigure [optional components](#optional-components) of your choice
 -   Configure Raspberry Pi specific functions
     -   Prepare the serial port for the use with extension boards like RaZberry, Enocean Pi, ...
     -   Use zram to mitigate SD wear due to excessive writes
     -   Move the system partition to an external USB stick or drive
-    -   ... and much more
+  
+... and much more
 
 ## Hardware
 
@@ -109,7 +107,7 @@ If you encounter issues, you may need to upgrade first or to live with the conse
 
 ### 64 bit?
 
-RPi3 and 4 have a 64 bit processor and you may want to run openHAB in 64 bit.
+RPi 3 and 4 have a 64 bit processor and you may want to run openHAB in 64 bit.
 We provide a 64bit version of the image but it is unsupported and just provided as-is so use it at your own risk.
 Be aware that to run in 64 bit has a major drawback: increased memory usage.
 That is not a good idea on a heavily memory constrained platform like a RPi.
@@ -135,7 +133,7 @@ If you are getting an `169.*` IP address it means DHCP didn't work.
 
 When you boot a flashed image for the first time, openHABian will setup and use the Ethernet port if that one is connected with a cable to your LAN.
 It'll also use the `wifi_ssid` and `wifi_password` parameters from `/etc/openhabian.conf` to determine whether and how to setup the Wi-Fi interface.
-After these stages it checks for connectivity to the Internet and if that fails, it'll open a [Wi-Fi hotspot](openhabian.md#Wi-Fi Hotspot) that lets you manually connect your system to a WLAN (Wi-Fi) of yours to jumpstart networking.
+After these stages it checks for connectivity to the Internet and if that fails, it'll open a [Wi-Fi hotspot](#Wi-Fi Hotspot) that lets you manually connect your system to a WLAN (Wi-Fi) of yours to jumpstart networking.
 Remember that once the hotspot is started, it'll hide once you have successfully used it to connect your Wi-Fi interface but it'll return should your Wi-Fi connectivity break down.
 
 
