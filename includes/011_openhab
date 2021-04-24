@@ -1,0 +1,1 @@
+openhab ALL=(ALL) NOPASSWD: /usr/bin/tailscale,/usr/sbin/reboot
