@@ -14,7 +14,7 @@ Fortunately,
 
 ***A home automation enthusiast doesn't have to be a Linux enthusiast!***
 
-openHABian is here to provide a **self-configuring** Linux system setup to meet the needs of every openHAB user, in two flavours:
+openHABian is here to provide a **self-configuring** Linux system setup to meet the needs of every openHAB user, in two flavors:
 
 *   A **SD-card image pre-configured with openHAB** for all *Raspberry Pi* models
 *   As a set of scripts that sets up openHAB and tools on any Debian based system
@@ -51,7 +51,7 @@ We'll be happy to include that in openHABian so you can use your box with openHA
 However, that does not make your box a "supported" one as we don't have it available for our further development and testing.
 So there remains a risk that future openHABian releases will fail to work on your SBC because we changed a thing that broke support for your HW - unintentionally so however inevitable.
 
-For ARM hardware that we don't support, you can try any of the [fake hardware parameters](docs/openhabian.md/#fake-hardware-mode) to 'simulate' RPi hardware and Raspi OS. If that still doesn't work for you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try.
+For ARM hardware that we don't support, you can try any of the [fake hardware parameters](docs/openhabian.md/#fake-hardware-mode) to 'simulate' RPi hardware and Raspberry Pi OS. If that still doesn't work for you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try.
 
 ## OS support
 Going beyond what the RPi image provides, as a manually installed set of scripts, we support running openHABian on x86 hardware on generic Debian.

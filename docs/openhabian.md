@@ -38,7 +38,7 @@ Out of the box, the openHABian image provides:
 
 -   Hassle-free setup without a display or keyboard, connected via Ethernet or [Wi-Fi](#wi-fi-based-setup-notes)
 -   All versions of openHAB to select from, including the latest stable one as the default
--   Zulu Embedded OpenJDK Java 8, 11 or AdoptOpenJDK
+-   Zulu Embedded OpenJDK Java 11 or AdoptOpenJDK
 -   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
 -   Web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
 -   Samba file sharing [pre-configured to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
@@ -60,7 +60,7 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
     -   Prepare the serial port for the use with extension boards like RaZberry, Enocean Pi, ...
     -   Use zram to mitigate SD wear due to excessive writes
     -   Move the system partition to an external USB stick or drive
-  
+
 ... and much more
 
 ## Hardware
@@ -92,7 +92,7 @@ We'll be happy to include that in openHABian so you can use your box with openHA
 However, that does not make your box a "supported" one as we don't have it available for our further development and testing.
 So there remains a risk that future openHABian releases will fail to work on your SBC because we changed a thing that broke support for your HW - unintentionally, however inevitably.
 
-For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md/#fake-hardware-mode) to 'simulate' RPi hardware and Raspi OS.
+For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md/#fake-hardware-mode) to 'simulate' RPi hardware and Raspberry Pi OS.
 
 ### OS support
 Going beyond what the RPi image provides, as a manually installed set of scripts, we support running openHABian on x86 hardware on generic Debian.
@@ -128,12 +128,12 @@ That'll effectively get you a fixed IP address.
 Most DHCP servers are part of your Internet router and have an option to allow for this type of mapping.
 For example in AVM Fritz!boxes (popular in Germany), it's a simple checkbox you can tick - note it only appears after the address was assigned to a client (your openHABian box) for the first time.
 Note it is NOT supported to setup openHABian with a static IP address as described in the Raspberry Pi OS documentation as that can interfere with openHABian functionality.
-For reference, the RPi OS process is documented over here: https://www.raspberrypi.org/documentation/configuration/tcpip/.
+For reference, the RPi OS process is documented over here: <https://www.raspberrypi.org/documentation/configuration/tcpip/>.
 If you are getting an `169.*` IP address it means DHCP didn't work.
 
 When you boot a flashed image for the first time, openHABian will setup and use the Ethernet port if that one is connected with a cable to your LAN.
 It'll also use the `wifi_ssid` and `wifi_password` parameters from `/etc/openhabian.conf` to determine whether and how to setup the Wi-Fi interface.
-After these stages it checks for connectivity to the Internet and if that fails, it'll open a [Wi-Fi hotspot](#Wi-Fi Hotspot) that lets you manually connect your system to a WLAN (Wi-Fi) of yours to jumpstart networking.
+After these stages it checks for connectivity to the Internet and if that fails, it'll open a [Wi-Fi hotspot](#Wi-Fi-Hotspot) that lets you manually connect your system to a WLAN (Wi-Fi) of yours to jumpstart networking.
 Remember that once the hotspot is started, it'll hide once you have successfully used it to connect your Wi-Fi interface but it'll return should your Wi-Fi connectivity break down.
 
 
@@ -175,9 +175,8 @@ You will see the following welcome screen:
 Going beyond what the RPi image provides, you can also install openHABian on x86 hardware on top of any existing Debian installation.
 Please note that the unattended install is tailored to work for Raspberries.
 We cannot test HW/OS combos beyond RPis upfront so there is no promise for this work.
-See the [Hardware](#hardware) and [OS](os-support) sections for details on supported hardware and OSs before you proceed.
-Note that although the core parts of openHABian were reported to work on there, Ubuntu is not supported and untested.
-If you try and fail, please help and drop us a note on Github with debug log enabled, see [DEBUG guide](openhabian-DEBUG.md).
+Note that although the core parts of openHABian were reported to work on Ubuntu, it is not supported and untested.
+If you try and fail, please help and drop us a note on GitHub with debug log enabled, see [DEBUG guide](openhabian-DEBUG.md).
 
 Start with a fresh installation of your operating system, login and run
 
@@ -301,7 +300,7 @@ This is the right time to prepare your system for disasters such as getting hit 
 2.  You can have openHABian mirror your SD card. See [auto backup](#auto-backup) documentation. You can activate mirroring using \[menu option 53\].
 3.  Move the root filesystem to USB-attached devices.
     WARNING 1: USB sticks are as susceptible to flash wear-out as SD cards are, making zram the better choice for a standard Pi to run off its internal SD card.
-    WARNING 2: It will NOT work out of the box to also *boot* from the USB device.
+    WARNING 2: It will NOT work out of the box to also _boot_ from the USB device.
     As a Linux or openHAB beginner, you should NOT try this.
     Using this is NOT recommended to anyone except those to **know** Linux well enough **to manually apply** all the required modifications.
     See \[menu option 37\].
@@ -333,7 +332,7 @@ Be aware that it isn't the [answer to the ultimate question](https://en.wikipedi
 Take an openHAB config backup BEFORE you upgrade from openHAB v2 to v3. You should also take a system level backup!
 :::
 
-Menu option 42 can also do the downgrade and change the *environment* back to match openHAB 2 **BUT** it'll ONLY exchange the binary packages.
+Menu option 42 can also do the downgrade and change the _environment_ back to match openHAB 2 **BUT** it'll ONLY exchange the binary packages.
 There is no migration to change your configuration back to a openHAB 2 compatible one.
 So it is essential that you take a backup before you upgrade.
 You will have to restore your setup from that backup after a downgrade using menu option 51 or by manually using `openhab-cli restore <archive file>`.
@@ -361,7 +360,7 @@ Raspberry Pi OS images include a Linux user (`pi`) that you can use for openHAB 
 openHABian renames the user to what you specify in the `username` parameter and assigns the `userpw` password first, then it proceeds and makes various settings that are either useful (such as some aliases) or required to run openHAB.
 You can also make use of this if you don't use the image but unattended installation on non-RPi hardware, openHABian will then _create_ that user for you if it does not yet exist.
 
-#### admin key
+#### Admin key
 
 Make the `adminkeyurl` point to an URL to contain a public SSH key.
 This will be included with your administration user's `.ssh/authorized_keys` and the openHAB console so the admin user (yourself, usually) can login after installation.
@@ -401,7 +400,7 @@ Mind you that if you intend to open an issue, we need you to provide the output 
 
 #### Auto backup
 
-Auto backup is a marketing name for two distinct features that you can deploy in one go at *unattended* installation time on a RPi (when you deploy the image).
+Auto backup is a marketing name for two distinct features that you can deploy in one go at _unattended_ installation time on a RPi (when you deploy the image).
 Technically it is a "low-cost" version of disk mirroring PLUS the setup of the Amanda backup system which all by itself has been available in a long time.
 So don't let the name confuse you. If you didn't choose to set this up at installation time, you can also individually select these functions via `openhabian-config` menu options 53 (mirroring) and 52 (Amanda).
 Note mirroring is untested (and hardly makes sense to deploy) if you don't run RPi hardware while Amanda is known to work on a lot of other hardware and is well meant to be used as the backup system there as well.
