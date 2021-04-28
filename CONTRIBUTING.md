@@ -41,7 +41,7 @@ Any install routine for a new feature must
 *   Be tested to execute with a) 'install' and b) 'remove' string arguments,
 resulting in installation or removal, respectively.
 
-Please provide BATS test cases for new features to be executed on every build.
+Please provide [BATS](https://github.com/bats-core/bats-core) test cases for new features to be executed on every build.
 The minimum test set to provide is a test to run an unattended installation and automatically validate the feature is working _in principle_.
 See [Test Architecture](#test-architecture) below.
 Of course, more and more specific test cases are always welcome.
@@ -101,7 +101,7 @@ then you just add a line to every git commit message:
 Signed-off-by: Joe Smith <joe.smith@email.com>
 ```
 
-using your real name (sorry, no pseudonyms or anonymous contributions) and an e-mail address under which you can be reached (sorry, no github noreply e-mail addresses (such as username@users.noreply.github.com) or other non-reachable addresses are allowed).
+using your real name (sorry, no pseudonyms or anonymous contributions) and an e-mail address under which you can be reached (sorry, no GitHub no-reply e-mail addresses (such as username@users.noreply.github.com) or other non-reachable addresses are allowed).
 
 #### Small patch exception
 
@@ -126,7 +126,7 @@ Universally formatted code promotes ease of writing, reading, and maintenance.
 *   Use two (2) spaces when indenting code.
 *   Use `local variable` declarations of variables wherever possible.
     Always start a function with the declarations of variables.
-    The only exception you may have before that is 'short cut' checks that exit the function early if there's conditions in effect that prohibit to proceedwith executing the function.
+    The only exception you may have before that is 'short cut' checks that exit the function early if there's conditions in effect that prohibit to proceed with executing the function.
 *   Use the short form `local variable=value` to define constants.
 *   When using colored output, always use the colors defined in `helpers.bash`.
     For example, `${COL_RED}`, additionally always be sure to reset to standard color at the end of your output statement by using `${COL_DEF}`.
@@ -157,9 +157,9 @@ Testing is based on three pillars:
 
 A) _Installation of base system_
 
-B) _Test Cases using [BATS](https://github.com/bats-core/bats-core)_
+B) _Test Cases using BATS_
 
-C) _Static analysis using the [ShellCheck](https://www.shellcheck.net/) linter_
+C) _Static analysis using the ShellCheck linter_
 
 ### Test installation
 Test installations are done continuously using Docker on GitHub and by testing on actual hardware, eg. Raspberry Pi.
@@ -198,7 +198,7 @@ docker stop openhabian-install
 Notice that the "Docker system" mimics a hardware SD-card installation with the command `./build.bash local-test`.
 
 ### Test Cases
-The test cases are further divided into three categories and can be individually invoked by the [BATS](https://github.com/bats-core/bats-core) framework.
+The test cases are further divided into three categories and can be individually invoked by the BATS framework.
 The tests' categories can be identified in the naming of the test.
 The tests' code are held in a corresponding file to the code itself.
 For example, code would reside in `helpers.bash` with tests in `helpers.bats`.
@@ -214,7 +214,7 @@ docker run --privileged --rm --name "openhabian-bats" -d openhabian/bats-openhab
 Now that we have a functioning Docker container, the categories are as follows:
 
 #### Development Tests `development-<name>`
-These tests run first and allow you to test the fuctionality of code you are actively developing quickly.
+These tests run first and allow you to test the functionality of code you are actively developing quickly.
 
 ``` bash
 docker exec -i "openhabian-bats" bash -c 'bats --tap --recursive --filter "development-." .'
@@ -222,7 +222,7 @@ docker exec -i "openhabian-bats" bash -c 'bats --tap --recursive --filter "devel
 
 #### Unit Tests `unit-<name>`
 These tests do not alter the host system, the test is executed and is isolated to a specific function.
-These tests are not required on a installed base system of openHABian.
+These tests are not required on an installed base system of openHABian.
 
 ``` bash
 docker exec -i "openhabian-bats" bash -c 'bats --tap --recursive --filter "unit-." .'
@@ -245,7 +245,7 @@ docker exec -i "openhabian-bats" bash -c 'bats --tap --recursive --filter "destr
 ```
 
 ### Linter
-The [ShellCheck](https://www.shellcheck.net/) linter can be run by using the following commands:
+The ShellCheck linter can be run by using the following commands:
 
 ``` bash
 shellcheck -x -s bash openhabian-setup.sh
@@ -254,7 +254,7 @@ shellcheck -x -s bash build-image/*.bash
 shellcheck -x -s bash build.bash ci-setup.bash
 ```
 
-To run the [ShellCheck](https://www.shellcheck.net/) tests automatically run:
+To run the ShellCheck tests automatically run:
 
 ``` bash
 ./test.bash shellcheck

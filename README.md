@@ -83,14 +83,14 @@ Please check the [official documentation article](https://www.openhab.org/docs/i
 
 If you want to install openHABian on non-supported hardware, you can actually fake it to make openHABian treat your box as if it was one of the supported ones.
 Needless to say that that may work out or not, but it's worth a try.
-See [openhabian](docs/openhabian.md) for how to edit openhabian.conf before booting.
+See [openhabian](docs/openhabian.md) for how to edit `openhabian.conf` before booting.
 Set the `hw`, `hwarch` and `release` parameters to match your system best.
 
 ## Development
 openHABian is foremost a collection of `bash` scripts versioned and deployed using git.
 In the current state the scripts can only be invoked through the terminal menu system [whiptail](https://en.wikibooks.org/wiki/Bash_Shell_Scripting/Whiptail).
 There is a longterm need to better separate the UI part from the script code.
-A work has started to define conventions and further explain the code base in the document [CONTRIBUTING](CONTRIBUTING.md) along with development guidelines in general.
+A work has started to define conventions and further explain the code base in the document [CONTRIBUTING.md](CONTRIBUTING.md) along with development guidelines in general.
 
 A good place to look at to start to understand the code is the file `openhabian-setup.sh`.
 
@@ -123,7 +123,7 @@ Testing is done continuously with GitHub Actions using the test framework [BATS]
 As the tests focus on installing software, a [Docker](https://www.docker.com/) solution is used for easy build-up and teardown.
 
 To run the test suite on a `amd64` platform execute the commands below.
-[Docker](https://www.docker.com/) and [ShellCheck](https://www.shellcheck.net/) need to be installed first.
+Docker and ShellCheck need to be installed first.
 For more details regarding the tests see [Test Architecture](https://github.com/openhab/openhabian/blob/main/CONTRIBUTING.md#test-architecture) in CONTRIBUTING.md.
 
 ``` bash
@@ -141,7 +141,7 @@ docker exec -i "openhabian-install" bash -c "./build.bash local-test && mv ~/.pr
 docker stop openhabian-install
 ```
 
-The [ShellCheck](https://www.shellcheck.net/) linter can be run by using the following commands:
+The ShellCheck linter can be run by using the following commands:
 
 ``` bash
 shellcheck -x -s bash openhabian-setup.sh
