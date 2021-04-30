@@ -8,6 +8,7 @@
 ![Installation](https://github.com/openhab/openhabian/workflows/Installation/badge.svg)
 ![Build](https://github.com/openhab/openhabian/workflows/Build/badge.svg)
 
+<img align="right" width="220" src="./logo.svg" />
 
 Setting up a fully working Linux system with all needed packages and useful tooling is a boring, lengthy albeit challenging task.
 Fortunately,
@@ -20,7 +21,7 @@ openHABian is here to provide a **self-configuring** Linux system setup to meet 
 *   As a set of scripts that sets up openHAB and tools on any Debian based system
 
 ## openHAB versions 2 and 3
-openHABian was created to provide a seamless User eXperience with openHAB.
+openHABian was created to provide a seamless User experience with openHAB.
 Now that openHAB 3 is released to the public, we have incorporated changes to run on and migrate to openHAB 3 from within openHABian.
 
 ## Hardware recommendation
