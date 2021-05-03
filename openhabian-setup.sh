@@ -102,7 +102,6 @@ if [[ -n "$UNATTENDED" ]]; then
   vimrc_copy
   install_tailscale "install" && setup_tailscale
   misc_system_settings
-  fix_openhab_repo
   add_admin_ssh_key
   firemotd_setup
   java_install_or_update "${java_opt:-Zulu11-32}"
@@ -126,6 +125,7 @@ else
   load_create_config
   openhabian_console_check
   openhabian_update_check
+  fix_openhab_repo
   while show_main_menu; do
     true
   done
