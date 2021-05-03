@@ -307,8 +307,9 @@ dashboard_add_tile() {
 fix_openhab_repo() {
   local warningText="Due to bintray shutdown of services, there is an immediate need to change the openhab stable repository configuration.\\nBintray repo in /etc/apt/sourceslist.d/openhab.list needs to be replaced by Artifactory.\\n\\nDo you want this to be replaced now ?"
 
-  if ! (whiptail --title "Repository replacement" --yes-button "Continue" --no-button "Cancel" --yesno "$warningText" 10 80); then echo "CANCELED"; return 0; fi
-  rm /etc/apt/sources.list.d/openhab2.list
+  echo -n "$(timestamp) [openHABian] Offering to replace outdated bintray repository with artifactory repo... "
+  if ! (whiptail --title "Repository replacement" --yes-button "Replace" --no-button "Skip" --yesno "$warningText" 10 80); then echo "SKIPPED"; return 0; fi
+  cond_redirect rm -f /etc/apt/sources.list.d/openhab2.list
   sed -ie 's#https://dl.bintray.com/openhab/apt-repo2#https://openhab.jfrog.io/artifactory/openhab-linuxpkg#g' /etc/apt/sources.list.d/openhab.list
 }
 
