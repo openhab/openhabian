@@ -126,6 +126,7 @@ else
   load_create_config
   openhabian_console_check
   openhabian_update_check
+  fix_openhab_repo
   if [[ -n "$MIGRATION" ]]; then
     bashrc_copy
   fi
