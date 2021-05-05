@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 show_about() {
-  whiptail --title "About openHABian and openhabian-config" --msgbox "openHABian Configuration Tool $(get_git_revision)
+  whiptail --title "About openHABian and openhabian-config" --msgbox "openHABian Configuration Tool — $(get_git_revision)
 This tool provides a little help to make your openHAB experience as comfortable as possible.
 \\nMake sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
 \\nMenu 01 to select the standard (\"stable\") or the very latest (\"master\") openHABian version.
@@ -28,7 +28,7 @@ show_main_menu() {
   local choice
   local version
 
-  choice=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Exit --ok-button Execute \
+  choice=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Setup Options" 18 116 11 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
@@ -65,7 +65,7 @@ show_main_menu() {
     openhab_setup openHAB3 "stable"
 
   elif [[ "$choice" == "10"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
     "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
@@ -83,11 +83,11 @@ show_main_menu() {
       15\ *) firemotd_setup ;;
       16\ *) samba_setup ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Optional Components" 23 118 16 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Optional Components" 23 118 16 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer"             "openHAB Log Viewer webapp (frontail)" \
     "   | Add log to viewer"      "Add a custom log to openHAB Log Viewer (frontail)" \
     "   | Remove log from viewer" "Remove a custom log from openHAB Log Viewer (frontail)" \
@@ -123,11 +123,11 @@ show_main_menu() {
       2B\ *) habapp_setup "install";;
       *Remove\ HABApp*) habapp_setup "remove";;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "System Settings" 24 118 17 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "System Settings" 24 118 17 --cancel-button Back --ok-button Execute \
     "31 | Change hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set system locale"      "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
     "33 | Set system timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
@@ -167,11 +167,11 @@ show_main_menu() {
       *Install\ WireGuard*) if install_wireguard install; then setup_wireguard; fi;;
       *Remove\ WireGuard*) install_wireguard remove;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "openHAB Related" 17 116 10 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 17 116 10 --cancel-button Back --ok-button Execute \
     "41 | openHAB Stable"         "Install or switch to the latest openHAB Stable Release" \
     "   | openHAB Milestone"      "Install or switch to the latest openHAB Milestone Build" \
     "   | openHAB Snapshot"       "Install or switch to the latest openHAB Snapshot Build" \
@@ -199,11 +199,11 @@ show_main_menu() {
       *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
       *AdoptOpenJDK\ 11) update_config_java "Adopt11" && java_install_or_update "Adopt11";;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
 
   elif [[ "$choice" == "50"* ]]; then
-    choice2=$(whiptail --title "Welcome to the openHABian Configuration Tool $(get_git_revision)" --menu "Backup/Restore" 14 116 7 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Backup/Restore" 14 116 7 --cancel-button Back --ok-button Execute \
     "50 | Backup openHAB config"      "Backup the current active openHAB configuration" \
     "51 | Restore an openHAB config"  "Restore a previous openHAB configuration from backup" \
     "52 | Amanda System Backup"       "Set up Amanda to comprehensively backup your complete openHABian box" \
@@ -222,7 +222,7 @@ show_main_menu() {
       54\ *) mirror_SD "raw" ;;
       55\ *) mirror_SD "diff" ;;
       "") return 0 ;;
-      *) whiptail --msgbox "A not supported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
+      *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
   else
     whiptail --msgbox "Error: unrecognized option \"$choice\"" 10 60

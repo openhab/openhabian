@@ -6,14 +6,14 @@
 ##
 get_git_revision() {
   local branch
-  local latestTag
+  local commitDate
   local shorthash
 
   branch="$(git -C "${BASEDIR:-/opt/openhabian}" rev-parse --abbrev-ref HEAD)"
-  latestTag="$(git -C "${BASEDIR:-/opt/openhabian}" describe --tags --abbrev=0)"
+  commitDate="$(git -C "${BASEDIR:-/opt/openhabian}" log --pretty=format:'%aI' -n 1)"
   shorthash="$(git -C "${BASEDIR:-/opt/openhabian}" log --pretty=format:'%h' -n 1)"
 
-  echo "[${branch}]${latestTag}(${shorthash})"
+  echo "[${branch}]{${commitDate}}(${shorthash})"
 }
 
 ## Cleanup apt after installation.
