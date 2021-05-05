@@ -41,6 +41,6 @@ jobs:
          shell: bash
        - name: "ShellCheck build.bash and ci-setup.bash"
          run: |
-           echo "ShellCheck build.bash..."
-           if shellcheck -x -s bash build.bash ci-setup.bash; then echo "OK"; else echo "FAILED"; exit 1; fi
+           echo "ShellCheck build.bash and ci-setup.bash..."
+           if shellcheck -x -s bash build.bash tests/ci-setup.bash; then echo "OK"; else echo "FAILED"; exit 1; fi
          shell: bash

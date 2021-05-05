@@ -3,7 +3,7 @@ name: Installation
 on:
   push:
     paths-ignore:
-      - 'Dockerfile.*-BATS'
+      - 'tests/Dockerfile.*-BATS'
       - '**.md'
       - '**.txt'
       - '**.html'
@@ -15,7 +15,7 @@ on:
       - '.github/workflows/shellcheck-action.yml'
   pull_request:
     paths-ignore:
-      - 'Dockerfile.*-BATS'
+      - 'tests/Dockerfile.*-BATS'
       - '**.md'
       - '**.txt'
       - '**.html'
@@ -41,7 +41,7 @@ jobs:
        - name: Setup environment
          run: |
            sudo -E bash -c set
-           sudo -E ./ci-setup.bash github
+           sudo -E ./tests/ci-setup.bash github
            sed -i 's|^java_opt=.*$|java_opt=Zulu11-64|' build-image/openhabian.conf
        - name: Set up Docker Buildx
          id: buildx
@@ -52,7 +52,7 @@ jobs:
          uses: docker/build-push-action@v2
          with:
            context: ./
-           file: ./Dockerfile.amd64-installation
+           file: ./tests/Dockerfile.amd64-installation
            builder: ${{ steps.buildx.outputs.name }}
            tags: localhost:5000/openhabian/amd64-openhabian:latest
            push: true
@@ -75,7 +75,7 @@ jobs:
        - name: Setup environment
          run: |
            sudo -E bash -c set
-           sudo -E ./ci-setup.bash github
+           sudo -E ./tests/ci-setup.bash github
            sudo apt-get update
            sudo apt-get install --yes qemu binfmt-support qemu-user-static
            sed -i 's|^java_opt=.*$|java_opt=Zulu11-32|' build-image/openhabian.conf
@@ -88,7 +88,7 @@ jobs:
          uses: docker/build-push-action@v2
          with:
            context: ./
-           file: ./Dockerfile.rpi3-installation
+           file: ./tests/Dockerfile.rpi3-installation
            builder: ${{ steps.buildx.outputs.name }}
            tags: localhost:5000/openhabian/rpi3-openhabian:latest
            push: true
@@ -112,7 +112,7 @@ jobs:
        - name: Setup environment
          run: |
            sudo -E bash -c set
-           sudo -E ./ci-setup.bash github
+           sudo -E ./tests/ci-setup.bash github
            sudo apt-get update
            sudo apt-get install --yes qemu binfmt-support qemu-user-static
            sed -i 's|^java_opt=.*$|java_opt=Zulu11-64|' build-image/openhabian.conf
@@ -125,7 +125,7 @@ jobs:
          uses: docker/build-push-action@v2
          with:
            context: ./
-           file: ./Dockerfile.rpi3-64-installation
+           file: ./tests/Dockerfile.rpi3-64-installation
            builder: ${{ steps.buildx.outputs.name }}
            tags: localhost:5000/openhabian/rpi3-64-openhabian:latest
            push: true
@@ -149,7 +149,7 @@ jobs:
        - name: Setup environment
          run: |
            sudo -E bash -c set
-           sudo -E ./ci-setup.bash github
+           sudo -E ./tests/ci-setup.bash github
            sudo apt-get update
            sudo apt-get install --yes qemu binfmt-support qemu-user-static
            sed -i 's|^java_opt=.*$|java_opt=Adopt11|' build-image/openhabian.conf
@@ -162,7 +162,7 @@ jobs:
          uses: docker/build-push-action@v2
          with:
            context: ./
-           file: ./Dockerfile.rpi2-installation
+           file: ./tests/Dockerfile.rpi2-installation
            builder: ${{ steps.buildx.outputs.name }}
            tags: localhost:5000/openhabian/rpi2-openhabian:latest
            push: true

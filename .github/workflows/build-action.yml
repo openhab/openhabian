@@ -45,7 +45,7 @@ jobs:
        - name: Build openHABian 32bit image
          id: build
          run: |
-           sudo -E ./ci-setup.bash github .pi-raspios32
+           sudo -E ./tests/ci-setup.bash github .pi-raspios32
            sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios32.conf
            sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
            sudo -E ./build.bash rpi
@@ -79,7 +79,7 @@ jobs:
        - name: Build openHABian 64bit image
          id: build
          run: |
-           sudo -E ./ci-setup.bash github .pi-raspios64beta
+           sudo -E ./tests/ci-setup.bash github .pi-raspios64beta
            sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios64beta.conf
            sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
            sudo -E ./build.bash rpi64

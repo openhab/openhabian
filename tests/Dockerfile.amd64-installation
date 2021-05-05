@@ -1,7 +1,4 @@
-# Note RPi3 base (first RPi to have aarch64 available) WITH 64bit OS
-FROM balenalib/raspberrypi3-64-debian:buster-build
-
-RUN [ "cross-build-start" ]
+FROM balenalib/amd64-debian:buster-build
 
 # Install Systemd
 RUN apt-get update -qq && \
@@ -26,8 +23,8 @@ RUN systemctl mask \
     graphical.target \
     kmod-static-nodes.service
 
-COPY docker-tests/entry.sh /usr/bin/entry.sh
-COPY docker-tests/resin.service /etc/systemd/system/resin.service
+COPY ../tests/docker-tests/entry.sh /usr/bin/entry.sh
+COPY ../tests/docker-tests/resin.service /etc/systemd/system/resin.service
 RUN systemctl enable /etc/systemd/system/resin.service
 
 STOPSIGNAL 37
@@ -37,15 +34,13 @@ RUN git clone https://github.com/gdraheim/docker-systemctl-replacement && \
     cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
 
 RUN rm -f /sbin/runlevel
-COPY docker-tests/runlevel /sbin/runlevel
+COPY ../tests/docker-tests/runlevel /sbin/runlevel
 RUN chmod 755 /sbin/runlevel
 
-COPY . /opt/openhabian/
-COPY build-image/openhabian.conf /etc/openhabian.conf
+COPY .. /opt/openhabian/
+COPY ../build-image/openhabian.conf /etc/openhabian.conf
 
 WORKDIR /opt/openhabian/
-COPY docker-tests/start.sh ./
+COPY ../tests/docker-tests/start.sh ./
 
 CMD ["bash", "start.sh"]
-
-RUN [ "cross-build-end" ]
