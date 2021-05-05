@@ -34,8 +34,8 @@ RUN systemctl mask \
     graphical.target \
     kmod-static-nodes.service
 
-COPY docker-tests/entry.sh /usr/bin/entry.sh
-COPY docker-tests/resin.service /etc/systemd/system/resin.service
+COPY ../tests/docker-tests/entry.sh /usr/bin/entry.sh
+COPY ../tests/docker-tests/resin.service /etc/systemd/system/resin.service
 RUN systemctl enable /etc/systemd/system/resin.service
 
 STOPSIGNAL 37
@@ -53,12 +53,12 @@ RUN adduser openhabian --gecos "openHABian,,," --disabled-password && \
     echo "openhabian:openhabian" | chpasswd && \
     echo "openhab:openhabian" | chpasswd
 
-COPY . /opt/openhabian/
-COPY build-image/openhabian.conf /etc/openhabian.conf
+COPY .. /opt/openhabian/
+COPY ../build-image/openhabian.conf /etc/openhabian.conf
 
 WORKDIR /opt/openhabian/
 RUN apt-get update
-COPY docker-tests/start.sh ./
+COPY ../tests/docker-tests/start.sh ./
 
 CMD ["bash", "start.sh"]
 
