@@ -305,7 +305,7 @@ dashboard_add_tile() {
 ##    fix_openhab_repo
 ##
 fix_openhab_repo() {
-  local warningText="Due to bintray shutdown of services, there is an immediate need to change the openhab stable repository configuration.\\nBintray repo in /etc/apt/sourceslist.d/openhab.list needs to be replaced by Artifactory.\\n\\nDo you want this to be replaced now?"
+  local warningText="Due to bintray shutdown of services, there is an immediate need to change the openhab stable repository configuration.\\nBintray repo in /etc/apt/sources.list.d/openhab.list needs to be replaced by Artifactory.\\n\\nDo you want this to be replaced now?"
 
   if ! grep -qs 'https://dl.bintray.com/openhab/apt-repo2' /etc/apt/sources.list.d/openhab.list; then return; fi
 
