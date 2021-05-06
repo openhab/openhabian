@@ -128,7 +128,7 @@ Docker and ShellCheck need to be installed first.
 For more details regarding the tests see [Test Architecture](https://github.com/openhab/openhabian/blob/main/CONTRIBUTING.md#test-architecture) in CONTRIBUTING.md.
 
 ``` bash
-docker build --tag openhabian/bats-openhabian -f Dockerfile.ubuntu-BATS .
+docker build --tag openhabian/bats-openhabian -f tests/Dockerfile.ubuntu-BATS .
 docker run --privileged --rm --name "openhabian-bats" -d openhabian/bats-openhabian
 docker exec -i "openhabian-bats" bash -c 'bats --tap --recursive --filter "development-." .'
 docker exec -i "openhabian-bats" bash -c 'bats --tap --recursive --filter "unit-." .'
@@ -136,7 +136,7 @@ docker exec -i "openhabian-bats" bash -c 'bats --tap --recursive --filter "insta
 docker exec -i "openhabian-bats" bash -c 'bats --tap --recursive --filter "destructive-." .'
 docker stop openhabian-bats
 
-docker build --tag openhabian/install-openhabian -f Dockerfile.amd64-installation .
+docker build --tag openhabian/install-openhabian -f tests/Dockerfile.amd64-installation .
 docker run --privileged --rm --name "openhabian-install" -d openhabian/install-openhabian
 docker exec -i "openhabian-install" bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash"
 docker stop openhabian-install
@@ -148,7 +148,7 @@ The ShellCheck linter can be run by using the following commands:
 shellcheck -x -s bash openhabian-setup.sh
 shellcheck -x -s bash functions/*.bash
 shellcheck -x -s bash build-image/*.bash
-shellcheck -x -s bash build.bash ci-setup.bash
+shellcheck -x -s bash build.bash tests/ci-setup.bash
 ```
 
 
