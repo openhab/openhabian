@@ -170,7 +170,7 @@ To begin, first make a Docker container for your platform.
 An example Docker container build for `amd64` would look like:
 
 ``` bash
-docker build --tag openhabian/install-openhabian -f ./tests/Dockerfile.amd64-installation .
+docker build --tag openhabian/install-openhabian -f tests/Dockerfile.amd64-installation .
 ```
 
 While not a problem in the final container-less deployment, with more than one container running, all but one of them will have a `systemd` running with a PID other than 1.
@@ -207,7 +207,7 @@ To begin, first make a Docker container for your platform.
 An example Docker container build for `amd64` would look like:
 
 ``` bash
-docker build --tag openhabian/bats-openhabian -f ./tests/Dockerfile.ubuntu-BATS .
+docker build --tag openhabian/bats-openhabian -f tests/Dockerfile.ubuntu-BATS .
 docker run --privileged --rm --name "openhabian-bats" -d openhabian/bats-openhabian
 ```
 
@@ -251,13 +251,13 @@ The ShellCheck linter can be run by using the following commands:
 shellcheck -x -s bash openhabian-setup.sh
 shellcheck -x -s bash functions/*.bash
 shellcheck -x -s bash build-image/*.bash
-shellcheck -x -s bash build.bash ci-setup.bash
+shellcheck -x -s bash build.bash tests/ci-setup.bash
 ```
 
 To run the ShellCheck tests automatically run:
 
 ``` bash
-./test.bash shellcheck
+tests/test.bash shellcheck
 ```
 
 ## Community Guidelines
