@@ -4,7 +4,7 @@ show_about() {
   whiptail --title "About openHABian and openhabian-config" --msgbox "openHABian Configuration Tool — $(get_git_revision)
 This tool provides a little help to make your openHAB experience as comfortable as possible.
 \\nMake sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
-\\nMenu 01 to select the standard (\"stable\") or the very latest (\"master\") openHABian version.
+\\nMenu 01 to select the standard (\"openHAB3\") or the very latest (\"main\") openHABian version.
 Menu 40 to select the standard release, milestone or very latest development version of openHAB and
 Menu 03 to install or upgrade it.
 Menu 02 will upgrade all of your OS and applications to the latest versions, including openHAB.
