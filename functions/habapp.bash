@@ -33,19 +33,24 @@ habapp_setup() {
 
   echo -n "$(timestamp) [openHABian] Creating venv ... "
   if ! cond_redirect cd "$installFolder"; then echo "FAILED"; return 1; fi
-  if cond_redirect python3 -m venv "$venvName"; then echo "OK"; else echo "FAILED"; return 1; fi
+  if ! cond_redirect python3 -m venv "$venvName"; then echo "FAILED"; return 1; fi
+  if ! cond_redirect chown -R "openhab:${username:-openhabian}" "${installFolder}/${venvName}"; then echo "FAILED"; return 1; fi
+  if cond_redirect chmod -R 775 "${installFolder}/${venvName}"; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Installing HABApp ... "
   if ! cond_redirect cd "$venvName"; then echo "FAILED"; return 1; fi
   if ! cond_redirect source bin/activate; then echo "FAILED"; return 1; fi
 
+  # We need to upgrade pip otherwise some dependencies won't install
+  if ! cond_redirect python3 -m pip install --upgrade pip; then echo "FAILED"; return 1; fi
+  # Install HABApp with the new pip version
   if ! cond_redirect python3 -m pip install --upgrade habapp; then echo "FAILED"; return 1; fi
   if cond_redirect deactivate; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Creating HABApp configuration folder ... "
   if ! cond_redirect mkdir -p "$configFolder"; then echo "FAILED"; return 1; fi
   if ! cond_redirect chown -R "openhab:${username:-openhabian}" "$configFolder"; then echo "FAILED"; return 1; fi
-  if cond_redirect chmod -R 775 "$configFolder"; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect fix_permissions "$configFolder" 775 775; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up HABApp as a service ... "
   if ! (sed -e 's|%USERNAME|'"${username}"'|g' "${BASEDIR:-/opt/openhabian}"/includes/habapp.service > ${serviceFile}); then echo "FAILED (install habapp service)"; return 1; fi
