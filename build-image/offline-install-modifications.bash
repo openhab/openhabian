@@ -15,8 +15,8 @@ apt-get --quiet upgrade --yes
 apt-get --quiet install --download-only --yes libattr1-dev libc6 libstdc++6 \
   zlib1g make openhab openhab-addons samba amanda-common amanda-server \
   amanda-client exim4 dnsutils mailutils gdisk screen vim nano mc vfu \
-  bash-completion htop curl wget multitail git util-linux bzip2 zip unzip \
-  xz-utils software-properties-common man-db whiptail acl usbutils dirmngr \
+  bash-completion coreutils htop curl wget multitail git util-linux bzip2 zip \
+  unzip xz-utils software-properties-common man-db whiptail acl usbutils dirmngr \
   arping apt-transport-https bc sysstat jq moreutils avahi-daemon python3 \
   python3-pip python3-wheel python3-setuptools avahi-autoipd fontconfig \
   comitup dns-root-data dnsmasq-base javascript-common libcairo2 \
