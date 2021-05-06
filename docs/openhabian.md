@@ -195,7 +195,7 @@ apt-get install git
 # download, link and create config file
 git clone -b openHAB3 https://github.com/openhab/openhabian.git /opt/openhabian
 ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
-cp /opt/openhabian/openhabian.conf.dist /etc/openhabian.conf
+cp /opt/openhabian/build-image/openhabian.conf /etc/openhabian.conf
 ```
 
 Edit `/etc/openhabian.conf` to match your needs, then finally use

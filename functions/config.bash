@@ -24,7 +24,7 @@ load_create_config() {
   else
     echo -n "$(timestamp) [openHABian] Setting up and loading configuration file '$configFile' in manual setup... "
     if input="$(whiptail --title "openHABian Configuration Tool - Manual Setup" --inputbox "$questionText" 14 80 3>&1 1>&2 2>&3)" && id -u "$input" &> /dev/null; then
-      if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/openhabian.conf.dist "$configFile"; then echo "FAILED (copy configuration)"; exit 1; fi
+      if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/build-image/openhabian.conf "$configFile"; then echo "FAILED (copy configuration)"; exit 1; fi
       if ! cond_redirect sed -i -e 's|^username=.*$|username='"${input}"'|g' "$configFile"; then echo "FAILED (configure admin username)"; exit 1; fi
     else
       echo "FAILED"

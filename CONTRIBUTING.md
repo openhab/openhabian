@@ -164,13 +164,13 @@ C) _Static analysis using the ShellCheck linter_
 ### Test installation
 Test installations are done continuously using Docker on GitHub and by testing on actual hardware, eg. Raspberry Pi.
 A Docker installation can be performed by three commands.
-Firstly a Docker image is built where the `openhabian` code is injected (see `Dockerfile.*` for details).
+Firstly a Docker image is built where the `openhabian` code is injected (see `tests/Dockerfile.*` for details).
 
 To begin, first make a Docker container for your platform.
 An example Docker container build for `amd64` would look like:
 
 ``` bash
-docker build --tag openhabian/install-openhabian -f Dockerfile.amd64-installation .
+docker build --tag openhabian/install-openhabian -f ./tests/Dockerfile.amd64-installation .
 ```
 
 While not a problem in the final container-less deployment, with more than one container running, all but one of them will have a `systemd` running with a PID other than 1.
@@ -206,8 +206,8 @@ For example, code would reside in `helpers.bash` with tests in `helpers.bats`.
 To begin, first make a Docker container for your platform.
 An example Docker container build for `amd64` would look like:
 
-```
-docker build --tag openhabian/bats-openhabian -f Dockerfile.ubuntu-BATS .
+``` bash
+docker build --tag openhabian/bats-openhabian -f ./tests/Dockerfile.ubuntu-BATS .
 docker run --privileged --rm --name "openhabian-bats" -d openhabian/bats-openhabian
 ```
 

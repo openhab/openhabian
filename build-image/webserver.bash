@@ -12,7 +12,7 @@ isWebRunning="$(ps -ef | pgrep python3)"
 if [[ "$1" = "start" ]]; then
   mkdir -p "${TMPDIR:-/tmp}"/webserver
   ln -sf /boot/first-boot.log "${TMPDIR:-/tmp}"/webserver/first-boot.txt
-  cp /opt/openhabian/includes/install-log.html "${TMPDIR:-/tmp}"/webserver/index.html
+  cp /opt/openhabian/includes/webserver/install-log.html "${TMPDIR:-/tmp}"/webserver/index.html
   (cd "${TMPDIR:-/tmp}"/webserver || exit 1; python3 -m http.server "$port" &> /dev/null &)
 fi
 
@@ -24,7 +24,7 @@ fi
 
 if [[ $1 == "inst_done" ]]; then
   mkdir -p "${TMPDIR:-/tmp}"/webserver
-  sed 's|%HOSTNAME|'"${HOSTNAME:-openhabian}"'|g' /opt/openhabian/includes/install-complete.html > "${TMPDIR:-/tmp}"/webserver/index.html
+  sed 's|%HOSTNAME|'"${HOSTNAME:-openhabian}"'|g' /opt/openhabian/includes/webserver/install-complete.html > "${TMPDIR:-/tmp}"/webserver/index.html
 fi
 
 if [[ $1 == "cleanup" ]]; then

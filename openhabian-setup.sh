@@ -11,7 +11,7 @@
 
 configFile="/etc/openhabian.conf"
 if ! [[ -f $configFile ]]; then
-  cp /opt/openhabian/openhabian.conf.dist "$configFile"
+  cp /opt/openhabian/build-image/openhabian.conf "$configFile"
 fi
 
 # Find the absolute script location dir (e.g. BASEDIR=/opt/openhabian)

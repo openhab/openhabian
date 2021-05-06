@@ -8,7 +8,7 @@
 ![Installation](https://github.com/openhab/openhabian/workflows/Installation/badge.svg)
 ![Build](https://github.com/openhab/openhabian/workflows/Build/badge.svg)
 
-<img align="right" width="220" src="./logo.svg" />
+<img align="right" width="220" src="./docs/images/logo.svg" />
 
 Setting up a fully working Linux system with all needed packages and useful tooling is a boring, lengthy albeit challenging task.
 Fortunately,

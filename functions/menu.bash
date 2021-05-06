@@ -15,7 +15,7 @@ Menu 50 provides options to backup and restore either your openHAB configuration
 Note backups are NOT active per default so remember to set them up right at the beginning of your journey.
 \\nVisit these sites for more information:
   - Documentation: https://www.openhab.org/docs/installation/openhabian.html
-  - Development: http://github.com/openhab/openhabian
+  - Development: https://github.com/openhab/openhabian
   - Discussion: https://community.openhab.org/t/13379" 25 116
   RET=$?
   if [ $RET -eq 255 ]; then

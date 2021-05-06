@@ -120,7 +120,7 @@ setup_ntp() {
 
   if [[ $1 == "enable" ]]; then
     echo -n "$(timestamp) [openHABian] Enabling time synchronization using NTP... "
-    if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/50-timesyncd.conf /lib/dhcpcd/dhcpcd-hooks/; then echo "FAILED (copy)"; return 1; fi
+    if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/generic/50-timesyncd.conf /lib/dhcpcd/dhcpcd-hooks/; then echo "FAILED (copy)"; return 1; fi
     if cond_redirect timedatectl set-ntp true; then echo "OK"; else echo "FAILED (enable)"; return 1; fi
   elif [[ $1 == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Disabling time synchronization using NTP... "
@@ -208,9 +208,9 @@ hostname_change() {
 ##
 bashrc_copy() {
   echo -n "$(timestamp) [openHABian] Adding slightly tuned bash configuration files to system... "
-  if ! cp "${BASEDIR:-/opt/openhabian}"/includes/bash.bashrc /etc/bash.bashrc; then echo "FAILED (user bashrc)"; return 1; fi
-  if ! cp "${BASEDIR:-/opt/openhabian}"/includes/bashrc-root /root/.bashrc; then echo "FAILED (root bashrc)"; return 1; fi
-  if ! cp "${BASEDIR:-/opt/openhabian}"/includes/bash_profile /home/"${username:-openhabian}"/.bash_profile; then echo "FAILED (user bash_profile)"; return 1; fi
+  if ! cp "${BASEDIR:-/opt/openhabian}"/includes/generic/bash.bashrc /etc/bash.bashrc; then echo "FAILED (user bashrc)"; return 1; fi
+  if ! cp "${BASEDIR:-/opt/openhabian}"/includes/generic/bashrc-root /root/.bashrc; then echo "FAILED (root bashrc)"; return 1; fi
+  if ! cp "${BASEDIR:-/opt/openhabian}"/includes/generic/bash_profile /home/"${username:-openhabian}"/.bash_profile; then echo "FAILED (user bash_profile)"; return 1; fi
   if chown "${username:-openhabian}:${username:-openhabian}" /home/"${username:-openhabian}"/.bash_profile; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
 }
 

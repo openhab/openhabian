@@ -111,7 +111,7 @@ openhab_setup() {
 
   openhab_misc
   create_systemd_dependencies
-  if ! [[ "$1" == "openHAB3" ]]; then
+  if ! [[ $ohPkgName == "openhab" ]]; then
     delayed_rules "yes"
   fi
   dashboard_add_tile "openhabiandocs"
@@ -314,4 +314,3 @@ fix_openhab_repo() {
   cond_redirect rm -f /etc/apt/sources.list.d/openhab2.list
   sed -ie 's#https://dl.bintray.com/openhab/apt-repo2#https://openhab.jfrog.io/artifactory/openhab-linuxpkg#g' /etc/apt/sources.list.d/openhab.list
 }
-

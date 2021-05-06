@@ -38,7 +38,7 @@ openhabian_announcements() {
   local readNews
 
   newsFile="${BASEDIR:-/opt/openhabian}/NEWS.md"
-  readNews="${BASEDIR:-/opt/openhabian}/docs/LASTNEWS.md"
+  readNews="${BASEDIR:-/opt/openhabian}/docs/CHANGELOG.md"
 
   if ! cmp --silent "$newsFile" "$readNews" &> /dev/null; then
     # shellcheck disable=SC2086
@@ -75,16 +75,16 @@ store_in_conf() {
   sed -i "s|^${1}=.*$|$1=${!1}|g" "$configFile"
 }
 
-## Check openhabian.conf against openhabian.conf.dist for need to add parameters
+## Check openhabian.conf against build-image/openhabian.conf for need to add parameters
 ## Add a parameter if it's missing or keep it if user provided.
-## Cycling through openhabian.conf.dist will ensure all current and future params are checked for
+## Cycling through build-image/openhabian.conf will ensure all current and future params are checked for
 ## Run on every start (to ensure params are up to date at any time)
 ##
 ##    update_openhabian_conf()
 ##
 update_openhabian_conf() {
   local configFile="/etc/openhabian.conf"
-  local referenceConfig="/opt/openhabian/openhabian.conf.dist"
+  local referenceConfig="/opt/openhabian/build-image/openhabian.conf"
 
   cp $configFile ${configFile}.BAK
   while read -r line; do
