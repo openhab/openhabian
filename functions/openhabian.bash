@@ -440,3 +440,30 @@ create_user_and_group() {
     cond_redirect usermod --append --groups openhab,sudo "$userName" &> /dev/null
   fi
 }
+
+## import initial configuration
+##
+##    import_openhab_config()
+##
+## valid argument: file name to import using openhab-cli
+##
+import_openhab_config() {
+  local initialConfig=${initialconfig:-/boot/initial.zip}
+  local restoreFile=${initialConfig}
+
+  if [[ $# -eq 1 ]]; then
+    initialConfig=$1
+  fi
+  if [[ "$initialConfig" =~ http:* ]]; then
+    restoreFile="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
+    cond_redirect wget -qO "$restoreFile" "$initialConfig"
+  fi
+
+  if [[ -n $UNATTENDED ]] && [[ ! -f $initialConfig ]]; then
+     echo "$(timestamp) [openHABian] Importing initial openHAB configuration... SKIPPED (no config provided as $initialConfig)"
+     return 0
+  fi
+
+  restore_openhab_config "$restoreFile"
+}
+

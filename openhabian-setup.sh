@@ -106,6 +106,7 @@ if [[ -n "$UNATTENDED" ]]; then
   firemotd_setup
   java_install_or_update "${java_opt:-Zulu11-32}"
   openhab_setup "openHAB3" "stable"
+  import_openhab_config
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme

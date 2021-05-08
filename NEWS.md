@@ -1,6 +1,9 @@
 Hit tab to unselect buttons and scroll through the text using UP/DOWN or PGUP/PGDN.
 All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md` for you to lookup.
 
+## new config option initialconfig ## May 8, 2021
+to automatically import an openHAB3 configuration from file or URL
+
 ## Removal of `master` branch ## May 6, 2021
 As now the `master` branch has been removed and will no longer work in any
 installations, please use menu option 01 to switch the the `stable` branch if
@@ -17,10 +20,3 @@ moved to using Artifactory as our hosting service, `openhabian-config` will ask
 you on startup about automatically replacing the openHAB stable repository for
 you. Check `/etc/apt/sources.list.d/*` afterwards for any other APT repositories
 using Bintray as they will not be automatically replaced.
-
-## Future of master branch ## January 20, 2021
-We will no longer make regular updates to the master branch as we migrate away
-from supporting openHAB 2. As such in the coming months we will make bug fixes
-directly to the `stable` branch for openHA 2. With that said, please migrate off
-of the `master` branch as it will be deleted soon. You can change branches at
-any time using menu option 01.
