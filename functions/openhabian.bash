@@ -441,11 +441,11 @@ create_user_and_group() {
   fi
 }
 
-## import initial configuration
+## Import initial configuration
 ##
 ##    import_openhab_config()
 ##
-## valid argument: file name to import using openhab-cli
+## Valid argument: file name or URL to import using openhab-cli
 ##
 import_openhab_config() {
   local initialConfig=${initialconfig:-/boot/initial.zip}
