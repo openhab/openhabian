@@ -451,6 +451,7 @@ import_openhab_config() {
   local initialConfig=${initialconfig:-/boot/initial.zip}
   local restoreFile=${initialConfig}
 
+  echo -n "$(timestamp) [openHABian] Importing initial openHAB configuration... "
   if [[ $# -eq 1 ]]; then
     initialConfig=$1
   fi
@@ -460,10 +461,11 @@ import_openhab_config() {
   fi
 
   if [[ -n $UNATTENDED ]] && [[ ! -f $initialConfig ]]; then
-     echo "$(timestamp) [openHABian] Importing initial openHAB configuration... SKIPPED (no config provided as $initialConfig)"
+     echo "SKIPPED (no config provided as $initialConfig)"
      return 0
   fi
 
   restore_openhab_config "$restoreFile"
+  echo "$OK"
 }
 
