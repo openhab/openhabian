@@ -1,5 +1,6 @@
 ## New `openhabian.conf` option `initialconfig` ## May 9, 2021
-This new option allows to automatically import an openHAB3 backup from a file or URL.
+This new option allows to automatically import an openHAB 3 backup from a file
+or URL.
 
 ## Removal of `master` branch ## May 6, 2021
 As now the `master` branch has been removed and will no longer work in any

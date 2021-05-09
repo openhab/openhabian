@@ -1,8 +1,10 @@
-Hit tab to unselect buttons and scroll through the text using UP/DOWN or PGUP/PGDN.
-All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md` for you to lookup.
+Hit tab to unselect buttons and scroll through the text using UP/DOWN or
+PGUP/PGDN. All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md`
+for you to lookup.
 
 ## New `openhabian.conf` option `initialconfig` ## May 9, 2021
-This new option allows to automatically import an openHAB3 backup from a file or URL.
+This new option allows to automatically import an openHAB 3 backup from a file
+or URL.
 
 ## Removal of `master` branch ## May 6, 2021
 As now the `master` branch has been removed and will no longer work in any
