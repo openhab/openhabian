@@ -42,7 +42,7 @@ openhabian_announcements() {
 
   if ! cmp --silent "$newsFile" "$readNews" &> /dev/null; then
     # shellcheck disable=SC2086
-    if (whiptail --title "openHABian announcements" --yes-button "Stop displaying" --no-button "Keep displaying" --defaultno --scrolltext --yesno "$(cat $newsFile)" 27 100); then
+    if (whiptail --title "openHABian announcements" --yes-button "Stop displaying" --no-button "Keep displaying" --defaultno --scrolltext --yesno "$(cat $newsFile)" 27 84); then
       cp "$newsFile" "$readNews"
     fi
   fi
@@ -468,4 +468,3 @@ import_openhab_config() {
   restore_openhab_config "$restoreFile"
   echo "$OK"
 }
-
