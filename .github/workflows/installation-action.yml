@@ -40,7 +40,6 @@ jobs:
          uses: actions/checkout@v2
        - name: Setup environment
          run: |
-           sudo -E bash -c set
            sudo -E ./tests/ci-setup.bash github
            sed -i 's|^java_opt=.*$|java_opt=Zulu11-64|' build-image/openhabian.conf
        - name: Set up Docker Buildx
@@ -74,11 +73,12 @@ jobs:
          uses: actions/checkout@v2
        - name: Setup environment
          run: |
-           sudo -E bash -c set
            sudo -E ./tests/ci-setup.bash github
-           sudo apt-get update
-           sudo apt-get install --yes qemu binfmt-support qemu-user-static
            sed -i 's|^java_opt=.*$|java_opt=Zulu11-32|' build-image/openhabian.conf
+       - name: Set up QEMU
+         uses: docker/setup-qemu-action@v1
+         with:
+           platforms: arm
        - name: Set up Docker Buildx
          id: buildx
          uses: docker/setup-buildx-action@v1
@@ -94,7 +94,6 @@ jobs:
            push: true
        - name: openHABian installation test with 32bit Azul Java 11 on a virtual RPi3
          run: |
-           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
            docker run --name "openhabian-rpi3" -d localhost:5000/openhabian/rpi3-openhabian
            docker exec -i "openhabian-rpi3" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash'
          shell: bash
@@ -111,11 +110,12 @@ jobs:
          uses: actions/checkout@v2
        - name: Setup environment
          run: |
-           sudo -E bash -c set
            sudo -E ./tests/ci-setup.bash github
-           sudo apt-get update
-           sudo apt-get install --yes qemu binfmt-support qemu-user-static
            sed -i 's|^java_opt=.*$|java_opt=Zulu11-64|' build-image/openhabian.conf
+       - name: Set up QEMU
+         uses: docker/setup-qemu-action@v1
+         with:
+           platforms: arm64
        - name: Set up Docker Buildx
          id: buildx
          uses: docker/setup-buildx-action@v1
@@ -131,7 +131,6 @@ jobs:
            push: true
        - name: openHABian installation test with 64bit Azul Java 11 on a virtual RPi3
          run: |
-           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
            docker run --name "openhabian-rpi3-64" -d localhost:5000/openhabian/rpi3-64-openhabian
            docker exec -i "openhabian-rpi3-64" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash'
          shell: bash
@@ -148,11 +147,12 @@ jobs:
          uses: actions/checkout@v2
        - name: Setup environment
          run: |
-           sudo -E bash -c set
            sudo -E ./tests/ci-setup.bash github
-           sudo apt-get update
-           sudo apt-get install --yes qemu binfmt-support qemu-user-static
            sed -i 's|^java_opt=.*$|java_opt=Adopt11|' build-image/openhabian.conf
+       - name: Set up QEMU
+         uses: docker/setup-qemu-action@v1
+         with:
+           platforms: arm
        - name: Set up Docker Buildx
          id: buildx
          uses: docker/setup-buildx-action@v1
@@ -168,7 +168,6 @@ jobs:
            push: true
        - name: openHABian installation test with AdoptOpenJDK Java 11 on a virtual RPi2
          run: |
-           docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
            docker run --name "openhabian-rpi2" -d localhost:5000/openhabian/rpi2-openhabian
            docker exec -i "openhabian-rpi2" bash -c './build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash'
          shell: bash
