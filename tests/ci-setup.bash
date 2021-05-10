@@ -33,6 +33,6 @@ if [[ $1 == "github" ]]; then
     fi
     repoURL="https://github.com/${username}/${reponame}.git"
   fi
-  sed -i 's|repositoryurl=.*$|repositoryurl='"${repoURL}"'|' build-image/openhabian"${2}".conf
-  sed -i 's|clonebranch=.*$|clonebranch='"${repoBranch}"'|' build-image/openhabian"${2}".conf
+  sed -i 's|repositoryurl=.*$|repositoryurl='"${repoURL}"'|' build-image/*.conf
+  sed -i 's|clonebranch=.*$|clonebranch='"${repoBranch}"'|' build-image/*.conf
 fi
