@@ -693,7 +693,7 @@ telldus_core_setup() {
 deconz_setup() {
   local port=8081
   local introText="This will install deCONZ as a web service, the companion app to support Dresden Elektronik Conbee and Raspbee Zigbee controllers.\\nUse the web interface on port 8081 to pair your sensors.\\nNote the port is changed to 8081 as the default 80 wouldn't be right with openHAB itself running on 8080."
-  local successText="The deCONZ API plugin and the Phoscon the companion app were successfully installed on your system.\\nUse the web interface on port ${port} to pair your sensors with Conbee or Raspbee Zigbee controllers.\\nNote the port changed from its default 80 to 8081."
+  local successText="The deCONZ API plugin and the Phoscon companion web app were successfully installed on your system.\\nUse the web interface on port ${port} to pair your sensors with Conbee or Raspbee Zigbee controllers.\\nNote the port changed from its default 80 to 8081."
   local repo="/etc/apt/sources.list.d/deconz.list"
 
 
@@ -717,11 +717,12 @@ deconz_setup() {
   echo -n "$(timestamp) [openHABian] Installing deCONZ ... "
   if cond_redirect apt-get install --yes deconz; then echo "OK"; else echo "FAILED (install deCONZ package)"; return 1; fi
 
+  # remove unneeded parts so they cannot interfere with openHABian
   cond_redirect systemctl disable --now deconz-gui.service deconz-homebridge.service deconz-homebridge-install.service deconz-init.service deconz-wifi.service
   cond_redirect rm -f "/lib/systemd/system/deconz-{homebridge,homebridge-install,init,wifi}.service"
   cond_redirect systemctl daemon-reload
+
   # change default port deconz runs on (80)
-  # Apache install needed ??
   if cond_redirect sed -i -e 's|http-port=80$|http-port='"${port}"'|g' /lib/systemd/system/deconz.service; then echo "OK"; else echo "FAILED (replace port in service start)"; return 1; fi
   cond_redirect systemctl restart deconz.service
 
