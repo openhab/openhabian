@@ -187,10 +187,6 @@ influxdb_install() {
   local myOS
   local myRelease
 
-  if ! [[ -x $(command -v lsb_release) ]]; then
-    echo -n "$(timestamp) [openHABian] Installing InfluxDB required packages (lsb-release)... "
-    if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
-  fi
 
   address="http://localhost:8086"
   adminUsername="$1"
