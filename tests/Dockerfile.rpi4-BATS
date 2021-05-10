@@ -3,7 +3,7 @@ FROM balenalib/raspberrypi4-64-debian:buster-build
 
 RUN [ "cross-build-start" ]
 
-# Install Systemd
+# Install systemd
 # Additionally, BATS tests on a minimal install will require additional packages
 # to run properly:
 # - lsb-release (influx, homegear)
@@ -16,12 +16,9 @@ RUN apt-get update -qq && \
         apt-transport-https gnupg acl && \
     rm -rf /var/lib/apt/lists/*
 
-ENV container docker
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DOCKER=1
 
-# We never want these to run in a container
-# Feel free to edit the list but this is the one we used
 RUN systemctl mask \
     dev-hugepages.mount \
     sys-fs-fuse-connections.mount \
@@ -34,32 +31,25 @@ RUN systemctl mask \
     graphical.target \
     kmod-static-nodes.service
 
-COPY ../tests/docker-tests/entry.sh /usr/bin/entry.sh
-COPY ../tests/docker-tests/resin.service /etc/systemd/system/resin.service
-RUN systemctl enable /etc/systemd/system/resin.service
+ENTRYPOINT ["./tests/entry.sh"]
 
-STOPSIGNAL 37
-ENTRYPOINT ["/usr/bin/entry.sh"]
+RUN git clone https://github.com/gdraheim/docker-systemctl-replacement && \
+    cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
 
+# Setup openHABian environment
 RUN git clone https://github.com/bats-core/bats-core.git && \
     cd bats-core && \
     ./install.sh /usr/local
-
-RUN git clone https://github.com/gdraheim/docker-systemctl-replacement
-RUN cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
 
 RUN adduser openhabian --gecos "openHABian,,," --disabled-password && \
     adduser openhab --gecos "openHABian,,," --disabled-password && \
     echo "openhabian:openhabian" | chpasswd && \
     echo "openhab:openhabian" | chpasswd
 
-COPY .. /opt/openhabian/
-COPY ../build-image/openhabian.conf /etc/openhabian.conf
-
+COPY . /opt/openhabian/
 WORKDIR /opt/openhabian/
-RUN apt-get update
-COPY ../tests/docker-tests/start.sh ./
+RUN install -m 755 ./tests/runlevel /sbin/runlevel
 
-CMD ["bash", "start.sh"]
+CMD ["bash", "./tests/start.sh"]
 
 RUN [ "cross-build-end" ]
