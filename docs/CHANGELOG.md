@@ -1,3 +1,9 @@
+## deCONZ / Phoscon companion app added ## May 10, 2021
+There's a new menu option to install the deCONZ software / Phoscon companion app
+to support the popular Dresden Elektronik Conbee and Raspbee ZigBee controllers.
+Note you will need to use the [deconz binding](https://www.openhab.org/addons/bindings/deconz/)
+and pair your devices using the Phoscon web interface running on port 8081.
+
 ## New `openhabian.conf` option `initialconfig` ## May 9, 2021
 This new option allows to automatically import an openHAB 3 backup from a file
 or URL.
