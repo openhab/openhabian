@@ -196,11 +196,6 @@ homegear_setup() {
   local myRelease
   local successText="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
 
-  if ! [[ -x $(command -v lsb_release) ]]; then
-    echo -n "$(timestamp) [openHABian] Installing Homegear required packages (lsb-release)... "
-    if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
-  fi
-
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
   if [[ "$myRelease" == "n/a" ]]; then
@@ -689,3 +684,55 @@ telldus_core_setup() {
     whiptail --title "Operation successful" --msgbox "$successText" 16 80
   fi
 }
+
+## Function for installing deCONZ, the companion web app to the popular Conbee/Raspbee Zigbee controller
+## The function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    deconz_setup(int port)
+##
+## Valid argument: port to run Phoscon app on
+##
+deconz_setup() {
+  local port=${1:-8081}
+  local introText="This will install deCONZ as a web service, the companion app to support Dresden Elektronik Conbee and Raspbee Zigbee controllers.\\nUse the web interface on port 8081 to pair your sensors.\\nNote the port is changed to 8081 as the default 80 wouldn't be right with openHAB itself running on 8080."
+  local successText="The deCONZ API plugin and the Phoscon companion web app were successfully installed on your system.\\nUse the web interface on port ${port} to pair your sensors with Conbee or Raspbee Zigbee controllers.\\nNote the port has been changed from its default 80 to 8081."
+  local repo="/etc/apt/sources.list.d/deconz.list"
+
+
+  if ! (whiptail --title "deCONZ installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then return 0; fi
+
+  if ! add_keys "http://phoscon.de/apt/deconz.pub.key"; then return 1; fi
+
+  myOS="$(lsb_release -si)"
+  myRelease="$(lsb_release -sc)"
+  if [[ "$myRelease" == "n/a" ]]; then
+    myRelease=${osrelease:-buster}
+  fi
+
+  if is_x86_64; then
+    arch="[arch=amd64] "
+  fi
+  echo "deb ${arch}http://phoscon.de/apt/deconz ${myRelease} main" > $repo
+
+  echo -n "$(timestamp) [openHABian] Preparing deCONZ repository ... "
+  if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; fi
+  echo -n "$(timestamp) [openHABian] Installing deCONZ ... "
+  if cond_redirect apt-get install --yes deconz; then echo "OK"; else echo "FAILED (install deCONZ package)"; return 1; fi
+
+  if [[ -n $INTERACTIVE ]]; then
+    if ! port="$(whiptail --title "Enter Phoscon port number" --inputbox "\\nPlease enter the port you want the Phoscon web application to run on:" 11 80 "$port" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+  fi
+  # remove unneeded parts so they cannot interfere with openHABian
+  cond_redirect systemctl disable --now deconz-gui.service deconz-homebridge.service deconz-homebridge-install.service deconz-init.service deconz-wifi.service
+  cond_redirect rm -f "/lib/systemd/system/deconz-{homebridge,homebridge-install,init,wifi}.service"
+  cond_redirect systemctl daemon-reload
+
+  # change default port deconz runs on (80)
+  if ! cond_redirect sed -i -e 's|http-port=80$|http-port='"${port}"'|g' /lib/systemd/system/deconz.service; then echo "FAILED (replace port in service start)"; return 1; fi
+  if cond_redirect systemctl restart deconz.service; then echo "OK"; else echo "FAILED (service restart with modified port)"; return 1; fi
+
+  if [[ -n $INTERACTIVE ]]; then
+    whiptail --title "deCONZ install successfull" --msgbox "$successText" 11 80
+  fi
+}
+

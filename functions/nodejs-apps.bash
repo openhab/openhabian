@@ -12,10 +12,6 @@ nodejs_setup() {
   local myDistro
   local temp
 
-  if ! [[ -x $(command -v lsb_release) ]]; then
-    echo -n "$(timestamp) [openHABian] Installing NodeJS prerequsites (lsb-release)... "
-    if cond_redirect apt-get install --yes lsb-release; then echo "OK"; else echo "FAILED"; return 1; fi
-  fi
 
   myDistro="$(lsb_release -sc)"
   if [[ "$myDistro" == "n/a" ]]; then

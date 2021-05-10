@@ -98,10 +98,11 @@ show_main_menu() {
     "26 | Homegear"               "Homematic specific, the CCU2 emulation software Homegear" \
     "27 | knxd"                   "KNX specific, the KNX router/gateway daemon knxd" \
     "28 | 1wire"                  "1wire specific, owserver and related packages" \
-    "29 | FIND 3"                 "Framework for Internal Navigation and Discovery" \
+    "29 | deCONZ"                 "deCONZ / Phoscon companion app for Conbee/Raspbee controller" \
+    "2A | FIND 3"                 "Framework for Internal Navigation and Discovery" \
     "   | Monitor Mode"           "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
-    "2A | Telldus Core"           "Telldus Core service for Tellstick USB devices" \
-    "2B | Install HABApp"         "Python 3 integration and rule engine for openHAB" \
+    "2B | Telldus Core"           "Telldus Core service for Tellstick USB devices" \
+    "2C | Install HABApp"         "Python 3 integration and rule engine for openHAB" \
     "   | Remove HABApp"          "Remove HABApp from this system" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
@@ -117,10 +118,11 @@ show_main_menu() {
       26\ *) homegear_setup ;;
       27\ *) knxd_setup ;;
       28\ *) 1wire_setup ;;
-      29\ *) find3_setup ;;
+      29\ *) deconz_setup ;;
+      2A\ *) find3_setup ;;
       *Monitor\ Mode) setup_monitor_mode ;;
-      2A\ *) telldus_core_setup ;;
-      2B\ *) habapp_setup "install";;
+      2B\ *) telldus_core_setup ;;
+      2C\ *) habapp_setup "install";;
       *Remove\ HABApp*) habapp_setup "remove";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;

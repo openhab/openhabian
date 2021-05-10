@@ -35,9 +35,10 @@ basic_packages() {
   if [[ -x $(command -v raspi-config) ]]; then
     if ! cond_redirect apt-get purge --yes raspi-config; then echo "FAILED (remove raspi-config)"; return 1; fi
   fi
+
   if cond_redirect apt-get install --yes screen vim nano mc vfu bash-completion coreutils \
-    htop curl wget multitail git util-linux bzip2 zip unzip xz-utils cpufrequtils \
-    software-properties-common man-db whiptail acl usbutils dirmngr arping apt-utils; \
+    htop curl wget multitail git util-linux bzip2 zip unzip xz-utils cpufrequtils lsb-release \
+    software-properties-common man-db whiptail acl usbutils dirmngr arping; \
   then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
