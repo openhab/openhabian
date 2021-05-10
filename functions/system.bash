@@ -37,7 +37,7 @@ basic_packages() {
   fi
   if cond_redirect apt-get install --yes screen vim nano mc vfu bash-completion coreutils \
     htop curl wget multitail git util-linux bzip2 zip unzip xz-utils cpufrequtils \
-    software-properties-common man-db whiptail acl usbutils dirmngr arping; \
+    software-properties-common man-db whiptail acl usbutils dirmngr arping apt-utils; \
   then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 

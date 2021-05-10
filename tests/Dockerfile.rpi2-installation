@@ -3,17 +3,14 @@ FROM balenalib/raspberry-pi2-debian:buster-build
 
 RUN [ "cross-build-start" ]
 
-# Install Systemd
-RUN apt-get update -qq && \
-    apt-get install --yes -qq --no-install-recommends systemd systemd-sysv apt-utils && \
-    rm -rf /var/lib/apt/lists/*
-
-ENV container docker
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DOCKER=1
 
-# We never want these to run in a container
-# Feel free to edit the list but this is the one we used
+# Install systemd
+RUN apt-get update -qq && \
+    apt-get install --yes -qq --no-install-recommends systemd systemd-sysv && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN systemctl mask \
     dev-hugepages.mount \
     sys-fs-fuse-connections.mount \
@@ -26,26 +23,16 @@ RUN systemctl mask \
     graphical.target \
     kmod-static-nodes.service
 
-COPY ../tests/docker-tests/entry.sh /usr/bin/entry.sh
-COPY ../tests/docker-tests/resin.service /etc/systemd/system/resin.service
-RUN systemctl enable /etc/systemd/system/resin.service
-
-STOPSIGNAL 37
-ENTRYPOINT ["/usr/bin/entry.sh"]
+ENTRYPOINT ["./tests/entry.sh"]
 
 RUN git clone https://github.com/gdraheim/docker-systemctl-replacement && \
     cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
 
-RUN rm -f /sbin/runlevel
-COPY ../tests/docker-tests/runlevel /sbin/runlevel
-RUN chmod 755 /sbin/runlevel
-
-COPY .. /opt/openhabian/
-COPY ../build-image/openhabian.conf /etc/openhabian.conf
-
+# Setup openHABian environment
+COPY . /opt/openhabian/
 WORKDIR /opt/openhabian/
-COPY ../tests/docker-tests/start.sh ./
+RUN install -m 755 ./tests/runlevel /sbin/runlevel
 
-CMD ["bash", "start.sh"]
+CMD ["bash", "./tests/start.sh"]
 
 RUN [ "cross-build-end" ]
