@@ -10,6 +10,8 @@ teardown_file() {
 
 # Leave disabled unless actively developing for HABapp as it takes ~20 minutes to run on GitHub Actions
 @test "inactive-habapp_install" {
+  local logfile="/etc/openhab/habapp/HABApp.log"
+
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] HABApp installation starting...${COL_DEF}" >&3
   run habapp_setup install 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
@@ -24,6 +26,12 @@ teardown_file() {
   if [ "$status" -ne 0 ]; then systemctl status habapp.service; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] HABApp service is running.${COL_DEF}" >&3
+
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if HABApp logfile was created...${COL_DEF}" >&3
+  run test -f logfile 3>&-
+  if [ "$status" -eq 0 ]; then echo "$output" >&3; fi
+  [ "$status" -ne 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Logfile found.${COL_DEF}" >&3
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] HABApp removal starting...${COL_DEF}" >&3
   run habapp_setup remove 3>&-

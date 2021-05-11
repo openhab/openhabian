@@ -361,6 +361,11 @@ permissions_corrections() {
     fi
   fi
 
+  if [[ -d /opt/habapp ]]; then
+    echo -n "$(timestamp) [openHABian] Applying additional file permissions recommendations for HABApp... "
+    if cond_redirect fix_permissions "/opt/habapp" 775 775; then echo "OK"; else echo "FAILED (HABApp venv permissions)"; retval=1; fi
+  fi
+
   return $retval
 }
 
