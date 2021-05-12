@@ -8,8 +8,8 @@
 *.conf text
 
 # Binary files
-*.jpg binary
+*.png binary
 
 #Linguist
 includes/smb.conf linguist-language=ini
-includes/*.service linguist-language=ini
+*.service linguist-language=ini
