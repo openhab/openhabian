@@ -563,9 +563,9 @@ prepare_serial_port() {
 ##
 ##
 ezspUtility_setup() {
-  local repo=https://github.com/Elelabs/elelabs-zigbee-ezsp-utility
-  local destdir=/usr/share/openhab
-  local target=Elelabs_EzspFwUtility.py
+  local repo="https://github.com/Elelabs/elelabs-zigbee-ezsp-utility"
+  local destdir="/usr/share/openhab"
+  local target="Elelabs_EzspFwUtility.py"
   local successText="The ELElabs python tool to flash Ember chipset ZigBee controllers has been successfully installed as ${destdir}/${target}.\\n\\nSee https://github.com/Elelabs/elelabs-zigbee-ezsp-utility#how-to how to use it."
 
 
