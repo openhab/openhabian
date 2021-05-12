@@ -140,7 +140,7 @@ docker stop openhabian-bats
 
 docker build --tag openhabian/install-openhabian -f tests/Dockerfile.amd64-installation .
 docker run --privileged --rm --name "openhabian-install" -d openhabian/install-openhabian
-docker exec -i "openhabian-install" bash -c "./build.bash local-test && mv ~/.profile ~/.bash_profile && /boot/first-boot.bash"
+docker exec -i "openhabian-install" bash -c "./build.bash local-test && /boot/first-boot.bash"
 docker stop openhabian-install
 ```
 
