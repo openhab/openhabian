@@ -564,17 +564,18 @@ prepare_serial_port() {
 ##
 ezspUtility_setup() {
   local repo="https://github.com/Elelabs/elelabs-zigbee-ezsp-utility"
+  local emberfwrepo="https://github.com/xsp1989/zigbeeFirmware.git"     # for iTead (Sonoff) sticks
   local destdir="/usr/share/openhab"
   local target="Elelabs_EzspFwUtility.py"
   local successText="The ELElabs python tool to flash Ember chipset ZigBee controllers has been successfully installed as ${destdir}/${target}.\\n\\nSee https://github.com/Elelabs/elelabs-zigbee-ezsp-utility#how-to how to use it."
+  local temp
 
 
   temp="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo -n "$(timestamp) [openHABian] Installing ELElabs firmware flash tool ... "
   cond_redirect git clone "$repo" "$temp"
-  git clone https://github.com/xsp1989/zigbeeFirmware.git /tmp/zbfw
-  if ! cond_redirect pip3 install -r ${temp}/requirements.txt; then echo "FAILED (install .py)"; return 1; fi
+  if ! cond_redirect pip3 install -r ${temp}/requirements.txt; then echo "FAILED (install python requirements)"; return 1; fi
   if cond_redirect install -o openhabian -g openhabian -m 755 $target $destdir; then echo "OK" else echo "FAILED (install .py)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
