@@ -34,16 +34,21 @@ install_cleanup() {
 openhabian_announcements() {
   if [[ -z $INTERACTIVE ]]; then return 1; fi
 
+  local altReadNews
   local newsFile
   local readNews
 
+  altReadNews="${TMPDIR:-/tmp}/NEWS.md"
   newsFile="${BASEDIR:-/opt/openhabian}/NEWS.md"
-  readNews="${BASEDIR:-/opt/openhabian}/docs/CHANGELOG.md"
+  readNews="${BASEDIR:-/opt/openhabian}/docs/NEWS.md"
 
   if ! cmp --silent "$newsFile" "$readNews" &> /dev/null; then
-    # shellcheck disable=SC2086
-    if (whiptail --title "openHABian announcements" --yes-button "Stop displaying" --no-button "Keep displaying" --defaultno --scrolltext --yesno "$(cat $newsFile)" 27 84); then
-      cp "$newsFile" "$readNews"
+    # Check if the file has changed since last openHABian update (git update deletes first file)
+    if ! cmp --silent "$newsFile" "$altReadNews" &> /dev/null; then
+      # shellcheck disable=SC2086
+      if (whiptail --title "openHABian announcements" --yes-button "Stop displaying" --no-button "Keep displaying" --defaultno --scrolltext --yesno "$(cat $newsFile)" 27 84); then
+        cp "$newsFile" "$readNews"
+      fi
     fi
   fi
 }
@@ -222,6 +227,8 @@ openhabian_update() {
   fi
 
   shorthashBefore="$(git -C "${BASEDIR:-/opt/openhabian}" log --pretty=format:'%h' -n 1)"
+  # Enable persistence for NEWS display (git update will delete the file otherwise)
+  mv "${BASEDIR:-/opt/openhabian}"/docs/NEWS.md "${TMPDIR:-/tmp}"/NEWS.md
   if ! cond_redirect update_git_repo "${BASEDIR:-/opt/openhabian}" "$branch"; then echo "FAILED (update git repo)"; return 1; fi
   shorthashAfter="$(git -C "${BASEDIR:-/opt/openhabian}" log --pretty=format:'%h' -n 1)"
 
