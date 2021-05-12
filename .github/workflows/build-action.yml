@@ -38,7 +38,7 @@ jobs:
            sudo apt-get install --yes libarchive-zip-perl dos2unix systemd-container qemu-user-static qemu-utils
            echo "::set-output name=image::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
        - name: Cache Raspberry Pi OS image
-         uses: actions/cache@v2
+         uses: actions/cache@v2.1.5
          with:
            path: ${{ steps.setup.outputs.image }}
            key: ${{ steps.setup.outputs.image }}
@@ -72,7 +72,7 @@ jobs:
            sudo apt-get install --yes libarchive-zip-perl dos2unix systemd-container qemu-user-static qemu-utils
            echo "::set-output name=image::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
        - name: Cache Raspberry Pi OS image
-         uses: actions/cache@v2
+         uses: actions/cache@v2.1.5
          with:
            path: ${{ steps.setup.outputs.image }}
            key: ${{ steps.setup.outputs.image }}
