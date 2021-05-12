@@ -21,7 +21,7 @@ openHABian is here to provide a **self-configuring** Linux system setup to meet 
 *   As a set of scripts that sets up openHAB and tools on any Debian based system
 
 ## openHAB versions 2 and 3
-openHABian was created to provide a seamless User experience with openHAB.
+openHABian was created to provide a seamless user experience with openHAB.
 Now that openHAB 3 is released to the public, we have incorporated changes to run on and migrate to openHAB 3 from within openHABian.
 Please note that openHAB 2 support is no longer actively maintained and will only receive select patches deemed necessary by the maintainers of the openHABian project.
 If you need openHAB 2 support please use the `stable` branch of openHABian, you can switch branches at any time using menu option 01 in `openhabian-config`.
