@@ -90,11 +90,8 @@ find3_setup() {
 
   if [[ -f /etc/ztab ]] && ! grep -qs "/find3.bind" /etc/ztab; then
     echo -n "$(timestamp) [openHABian] Adding FIND3 to zram... "
-    if ! cond_redirect mv /etc/ztab "${TMPDIR:-/tmp}"; then echo "FAILED (move old configuration)"; return 1; fi
-    if ! (echo "dir	lz4	100M		350M		/opt/find3/server/main		/find3.bind" > /etc/ztab); then echo "FAILED (temporary configuration creation)"; return 1; fi
+    if ! cond_redirect sed -i '/^.*persistence.bind$/a dir	zstd		150M		350M		/opt/find3/server/main		/find3.bind' "${TMPDIR:-/tmp}"/ztab; then echo "FAILED (sed)"; return 1; fi
     if ! cond_redirect zram-config "start"; then echo "FAILED (start temporary configuration)"; return 1; fi
-    if ! cond_redirect sed -i '/^.*persistence.bind$/a dir	lz4	100M		350M		/opt/find3/server/main		/find3.bind' "${TMPDIR:-/tmp}"/ztab; then echo "FAILED (sed)"; return 1; fi
-    if cond_redirect mv "${TMPDIR:-/tmp}"/ztab /etc; then echo "OK"; else echo "FAILED (move new configuration)"; return 1; fi
   fi
 
   if [[ -f $disklistFileDir ]]; then

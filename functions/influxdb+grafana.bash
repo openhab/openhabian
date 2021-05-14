@@ -215,6 +215,11 @@ influxdb_install() {
   # Disable authentication, to allow changes in existing installations
   if ! cond_redirect sed -i -e 's|auth-enabled = true|# auth-enabled = false|g' /etc/influxdb/influxdb.conf; then echo "FAILED (disable authentication)"; return 1; fi
   if ! zram_dependency install influxdb; then return 1; fi
+  if [[ -f /etc/ztab ]] && ! grep -qs "/influxdb.bind" /etc/ztab; then
+    echo -n "$(timestamp) [openHABian] Adding InfluxDB to zram... "
+    if ! cond_redirect sed -i '/^.*persistence.bind$/a dir	zstd		150M		350M		/var/lib/influxdb		/influxdb.bind' /etc/ztab; then echo "FAILED (sed)"; return 1; fi
+    if ! cond_redirect zram-config "start"; then echo "FAILED (start temporary configuration)"; return 1; fi
+  fi
   if cond_redirect systemctl enable --now influxdb.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up InfluxDB... "
