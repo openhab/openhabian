@@ -39,10 +39,10 @@
 # Once finished, restart zram using 'sudo systemctl start zram-config.service'.
 
 # swap	alg		mem_limit	disk_size	swap_priority	page-cluster	swappiness
-swap	lzo-rle		200M		600M		75		0		80
+swap	lzo-rle		200M		450M		75		0		80
 
 # dir	alg		mem_limit	disk_size	target_dir			bind_dir
-dir	zstd		300M		900M		/var/lib/openhab/persistence	/persistence.bind
+dir	zstd		150M		350M		/var/lib/openhab/persistence	/persistence.bind
 
 # log	alg		mem_limit	disk_size	target_dir		bind_dir		oldlog_dir
-log	zstd		200M		600M		/var/log		/log.bind
+log	zstd		200M		450M		/var/log		/log.bind
