@@ -5,7 +5,7 @@ for you to lookup.
 ## Telldus Core service removed ## May 20, 2021
 The Telldus Core service has now been removed from openHABian, and will no
 longer receive active support from the openHABian developers. Existing
-installations will be unaffected. The service was removed as it had become to
+installations will be unaffected. The service was removed as it had become too
 difficult to maintain as a result of it requiring packages that are no longer
 provided by the Debian distribution used in openHABian. If you would like to
 install it on your own please see [this](https://community.openhab.org/t/89856)
