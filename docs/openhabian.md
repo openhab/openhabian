@@ -41,7 +41,7 @@ Out of the box, the openHABian image provides:
 -   Zulu Embedded OpenJDK Java 11 or AdoptOpenJDK
 -   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
 -   Web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
--   Samba file sharing [pre-configured to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
+-   Samba file sharing [pre-configured ready to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
 -   Lots of useful Linux packages and settings pre-installed
 -   Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
 -   The [Mosquitto](https://mosquitto.org) MQTT broker
@@ -471,7 +471,6 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 -   [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
 -   [FIND](https://www.internalpositioning.com/) - the Framework for Internal Navigation and Discovery
 -   Mi Flora MQTT demon
--   Tellstick core
 
 ## Troubleshooting
 If you're having problems with getting openHABian to install properly, check out the [debug guide](openhabian-DEBUG.md). It's also available on your system as `/opt/openhabian/docs/openhabian-DEBUG.md`.

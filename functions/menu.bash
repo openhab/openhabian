@@ -101,8 +101,7 @@ show_main_menu() {
     "29 | deCONZ"                 "deCONZ / Phoscon companion app for Conbee/Raspbee controller" \
     "2A | FIND 3"                 "Framework for Internal Navigation and Discovery" \
     "   | Monitor Mode"           "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
-    "2B | Telldus Core"           "Telldus Core service for Tellstick USB devices" \
-    "2C | Install HABApp"         "Python 3 integration and rule engine for openHAB" \
+    "2B | Install HABApp"         "Python 3 integration and rule engine for openHAB" \
     "   | Remove HABApp"          "Remove HABApp from this system" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
@@ -121,8 +120,7 @@ show_main_menu() {
       29\ *) deconz_setup ;;
       2A\ *) find3_setup ;;
       *Monitor\ Mode) setup_monitor_mode ;;
-      2B\ *) telldus_core_setup ;;
-      2C\ *) habapp_setup "install";;
+      2B\ *) habapp_setup "install";;
       *Remove\ HABApp*) habapp_setup "remove";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
