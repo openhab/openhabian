@@ -471,7 +471,6 @@ You'll find all of these in the [openHABian Configuration Tool](#openhabian-conf
 -   [OWServer](http://owfs.org/index.php?page=owserver_protocol) - 1wire control system
 -   [FIND](https://www.internalpositioning.com/) - the Framework for Internal Navigation and Discovery
 -   Mi Flora MQTT demon
--   Tellstick core
 
 ## Troubleshooting
 If you're having problems with getting openHABian to install properly, check out the [debug guide](openhabian-DEBUG.md). It's also available on your system as `/opt/openhabian/docs/openhabian-DEBUG.md`.

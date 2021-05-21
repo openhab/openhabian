@@ -12,7 +12,6 @@ teardown_file() {
   unset BASEDIR
   systemctl kill homegear.service || true
   systemctl kill mosquitto.service || true
-  systemctl kill telldusd.service || true
 }
 
 @test "destructive-homegear_install" {
@@ -67,15 +66,4 @@ teardown_file() {
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] 1wire installation successful.${COL_DEF}" >&3
-}
-
-@test "destructive-telldus_install" {
-  if is_aarch64; then skip "Not executing Telldus test because it currently does not support aarch64/arm64."; fi
-  if is_ubuntu; then skip "Not executing Telldus test because it currently does not support Ubuntu."; fi
-
-  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Telldus Core installation starting...${COL_DEF}" >&3
-  run telldus_core_setup 3>&-
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Telldus Core installation successful.${COL_DEF}" >&3
 }
