@@ -24,7 +24,7 @@ samba_setup() {
   echo "OK"
 
   echo -n "$(timestamp) [openHABian] Setting up Samba service... "
-  if ! cond_redirect mkdir -p /var/log/samba /var/run/samba; then echo "FAILED (create directories)"; return 1; fi
+  if ! cond_redirect mkdir -p /var/log/samba /run/samba; then echo "FAILED (create directories)"; return 1; fi
   if ! cond_redirect sed -i -E -e '/PIDFile/d; /NotifyAccess/ a PIDFile=smbd.pid\nRuntimeDirectory=samba' "$serviceFile"; then echo "FAILED"; return 1; fi
   if ! zram_dependency install nmbd smbd; then return 1; fi
   if cond_redirect systemctl enable --now smbd.service &> /dev/null; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
@@ -735,4 +735,3 @@ deconz_setup() {
     whiptail --title "deCONZ install successfull" --msgbox "$successText" 11 80
   fi
 }
-
