@@ -467,7 +467,7 @@ import_openhab_config() {
     cond_redirect wget -qO "$restoreFile" "$initialConfig"
   fi
 
-  if [[ -n $UNATTENDED ]] && [[ ! -f $initialConfig ]]; then
+  if [[ -n $UNATTENDED ]] && [[ ! -f $restoreFile ]]; then
      echo "SKIPPED (no config provided as $initialConfig)"
      return 0
   fi
