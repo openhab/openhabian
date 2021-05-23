@@ -461,7 +461,7 @@ import_openhab_config() {
   echo -n "$(timestamp) [openHABian] Getting initial openHAB configuration... "
   if [[ "$initialConfig" =~ http:* ]]; then
     restoreFile="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
-    if ! cond_redirect wget -nv -O "$restoreFile" "$initialConfig"; then echo "FAILED (download file)"; rm -f $restoreFile; return 1; fi
+    if ! cond_redirect wget -nv -O "$restoreFile" "$initialConfig"; then echo "FAILED (download file)"; rm -f "$restoreFile"; return 1; fi
   fi
   if [[ -n $UNATTENDED ]] && ! [[ -f $restoreFile ]]; then
      echo "SKIPPED (no config backup found at ${initialConfig})"
