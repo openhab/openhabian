@@ -455,23 +455,19 @@ create_user_and_group() {
 ## Valid argument: file name or URL to import using openhab-cli
 ##
 import_openhab_config() {
-  local initialConfig=${initialconfig:-/boot/initial.zip}
-  local restoreFile=${initialConfig}
+  local initialConfig="${1:-${initialconfig:-/boot/initial.zip}}"
+  local restoreFile="${initialConfig}"
 
-  echo -n "$(timestamp) [openHABian] Importing initial openHAB configuration... "
-  if [[ $# -eq 1 ]]; then
-    initialConfig=$1
-  fi
+  echo -n "$(timestamp) [openHABian] Getting initial openHAB configuration... "
   if [[ "$initialConfig" =~ http:* ]]; then
     restoreFile="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
-    cond_redirect wget -qO "$restoreFile" "$initialConfig"
+    if ! cond_redirect wget -nv -O "$restoreFile" "$initialConfig"; then echo "FAILED (download file)"; rm -f $restoreFile; return 1; fi
   fi
-
-  if [[ -n $UNATTENDED ]] && [[ ! -f $restoreFile ]]; then
-     echo "SKIPPED (no config provided as $initialConfig)"
+  if [[ -n $UNATTENDED ]] && ! [[ -f $restoreFile ]]; then
+     echo "SKIPPED (no config backup found at ${initialConfig})"
      return 0
   fi
+  echo "OK"
 
-  restore_openhab_config "$restoreFile"
-  echo "$OK"
+  if ! restore_openhab_config "$restoreFile"; then return 1; fi
 }

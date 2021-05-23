@@ -16,7 +16,9 @@ backup_openhab_config() {
 
   echo -n "$(timestamp) [openHABian] Beginning openHAB backup... "
   if [[ -n "$INTERACTIVE" ]] && [[ $# == 0 ]]; then
-    if ! (whiptail --title "openHAB backup" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 10 80); then echo "SKIPPED"; return 0; fi
+    if (whiptail --title "openHAB backup" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 10 80); then echo "OK"; else echo "SKIPPED"; return 0; fi
+  else
+    echo "OK"
   fi
 
   echo -n "$(timestamp) [openHABian] Creating openHAB backup... "
@@ -61,6 +63,7 @@ restore_openhab_config() {
   else
     if ! [[ -s "$1" ]]; then echo "FAILED (restore config $1)"; return 1; fi
     filePath="$1"
+    echo "OK"
   fi
 
   echo -n "$(timestamp) [openHABian] Restoring openHAB backup... "
