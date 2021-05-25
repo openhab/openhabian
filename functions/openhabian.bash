@@ -49,6 +49,8 @@ openhabian_announcements() {
       if (whiptail --title "openHABian announcements" --yes-button "Stop displaying" --no-button "Keep displaying" --defaultno --scrolltext --yesno "$(cat $newsFile)" 27 84); then
         cp "$newsFile" "$readNews"
       fi
+    else 
+      cp "$newsFile" "$readNews"
     fi
   fi
 }
