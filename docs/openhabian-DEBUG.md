@@ -20,7 +20,7 @@ To record output in this case, you need to configure your terminal client to rec
 In PuTTy there's a field called 'Lines of scrollback' under the 'Window' option in settings that you should increase to at least some thousand lines else you might not capture everything you need to.
 Configure any other terminal client likewise.
 
-Keep in mind that parts of the following information such as for example WiFi and IPv6 setup don't apply to manually installed systems because they happen at or before boot time.
+Keep in mind that parts of the following information such as for example Wi-Fi and IPv6 setup don't apply to manually installed systems because they happen at or before boot time.
 
 ## Prerequisites
 First, please make sure you use the proper host hardware that is supported as per [README](https://github.com/openhab/openhabian/blob/main/README.md).
@@ -29,8 +29,8 @@ openHABian requires a minimum of 1GB of RAM to run well. While you can get away 
 
 openHABian requires you to provide direct Internet access.
 Using private IP addresses is fine as long as your router properly provides NAT (Network Address Translation) services.
-Either Ethernet or WiFi is supported at install time, however, Ethernet tends to be more reliable and WiFi requires user configuration prior to the first boot of openHABian.
-To configure WiFi, simply edit the `wifi_password=` and `wifi_ssid=` fields in the `boot/openhabian.conf` file on your new SD card.
+Either Ethernet or WiFi is supported at install time. WiFi requires either user configuration prior to the first boot of openHABian or to use the [hotspot](openhabian.md#wi-fi-hotspot) which will be launched whenever there's no Internet connectivity.
+To configure WiFi, edit the `wifi_password=`, `wifi_ssid=` and `wifi_country=`fields in the `boot/openhabian.conf` file on your new SD card.
 
 Your router (or a different device) needs to to provide properly configured DHCP services so your openHABian box gets an IP address assigned when you boot it for the first time.
 The DHCP server also has to announce which DNS resolver to use so your box knows how to translate DNS names into IP addresses.
@@ -38,18 +38,20 @@ It also needs to announce which IP address to use as the default gateway to the 
 Finally, the DHCP server should also announce the NTP server(s) to use for proper time services.
 Lack thereof will not break the installation procedure but can lead to all sorts of long term issues so we recommend to setup DHCP to announce a reachable and working NTP server.
 
+A note on fixed IP addressing: openHABian does NOT support these as it'll interfere with the other methods to configure networking. If you want to have a static IP, instead get the MAC address of your box and configure your DHCP server to map that MAC to the very specific IP you would like to use.
+
 A note on IPv6: openHABian was reported failing to boot in some environments that make use of IPv6.
 If basic IP initialization fails (you cannot `ping` your box) or installation gets stuck trying to download software packages, you might want to try disabling IPv6.
 You can also do that before the very first install attempt if you're sure you don't need any IPv6 connectivity on your openHABian box.
 See [this section of openhabian.md](https://github.com/openhab/openhabian/blob/main/docs/openhabian.md#ipv6-notes) how to disable IPv6 on your system.
 Note that this is just a summary to cover the most commonly encountered cases.
-The full boot procedure and how to obtain IP addresses, DNS resolver, default route and NTP server addresses are highly complex and widely customizable and a comprehensive description on how to properly configure your Internet access and router are out of scope of openHABian.
+The full boot procedure and how to obtain IP addresses, DNS resolver, default route and NTP server addresses are highly complex and widely customizable and a comprehensive description on how to properly configure your Internet access and router are out of scope of openHABian docs.
 Please use an internet search to find more on your own.
 
 ## Install
 Proceed to installation: Etch-Burn-d(isk)d(ump)-Flash-whatever the image to an SD card.
 
-NOW, read [openhabian.md](https://github.com/openhab/openhabian/blob/main/docs/openhabian.md#openhabianconf)how to mount your SD card and how to modify the openHABian config file.
+NOW, read [openhabian.md](https://github.com/openhab/openhabian/blob/main/docs/openhabian.md#openhabianconf) how to mount your SD card and how to modify the openHABian config file.
 Some parameters are self-explanatory but please nonetheless read the full explanation in the linked document.
 Given that you're already reading the debug guide, the most important parameter to set is likely `debugmode=maximum`.
 Once you have passed the first time boot initialization phase and you can login to the system, `/etc/openhabian.conf` will be used from there on.
