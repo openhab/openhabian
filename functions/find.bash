@@ -91,7 +91,7 @@ find3_setup() {
   if ! zram_dependency install find3server find3ai; then return 1; fi
   if [[ -f /etc/ztab ]] && ! grep -qs "/find3.bind" /etc/ztab; then
     echo -n "$(timestamp) [openHABian] Adding FIND3 to zram... "
-    if ! cond_redirect sed -i '/^.*persistence.bind$/a dir	zstd		150M		350M		/opt/find3/server/main		/find3.bind' "${TMPDIR:-/tmp}"/ztab; then echo "FAILED (sed)"; return 1; fi
+    if ! cond_redirect sed -i '/^.*persistence.bind$/a dir	zstd		150M		350M		/opt/find3/server/main		/find3.bind' /etc/ztab; then echo "FAILED (sed)"; return 1; fi
     if ! cond_redirect zram-config "start"; then echo "FAILED (start temporary configuration)"; return 1; fi
   fi
 
@@ -148,8 +148,11 @@ go_setup() {
     if cond_redirect apt-get install --yes golang-go; then echo "OK"; else echo "FAILED"; return 1; fi
   else
     echo "deb http://deb.debian.org/debian buster-backports main" > /etc/apt/sources.list.d/golang.list
-    if ! cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC; then echo "FAILED (add keys)"; return 1; fi
-    if ! cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138; then echo "FAILED (add keys)"; return 1; fi
+    if ! cond_redirect wget -nv -O debian-keyring.deb http://ftp.us.debian.org/debian/pool/main/d/debian-keyring/debian-keyring_2019.02.25_all.deb; then echo "FAILED (get keyring)"; return 1; fi
+    if ! cond_redirect wget -nv -O debian-archive-keyring.deb http://ftp.us.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2019.1+deb10u1_all.deb; then echo "FAILED (get archive keyring)"; return 1; fi
+    if ! cond_redirect dpkg -i debian-keyring.deb; then echo "FAILED (add keyring)"; return 1; fi
+    if ! cond_redirect dpkg -i debian-archive-keyring.deb; then echo "FAILED (add archive keyring)"; return 1; fi
+    rm -f debian-keyring.deb debian-archive-keyring.deb
 
     echo -e "Package: *\\nPin: release a=buster-backports\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-buster-backports
 
