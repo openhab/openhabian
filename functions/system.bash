@@ -24,6 +24,7 @@ system_upgrade() {
   if ! apt-get upgrade --yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; then echo "FAILED"; return 1; fi
   if java_install_or_update "${java_opt:-Zulu11-32}"; then echo "OK"; else echo "FAILED"; return 1; fi
   unset DEBIAN_FRONTEND
+  cond_redirect systemctl start firemotd.service
 }
 
 ## Function for installing basic Linux packages.
