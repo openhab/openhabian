@@ -152,9 +152,6 @@ openhab_shell_interfaces() {
       fi
     done
   fi
-  if [[ -z $sshPass ]]; then
-    sshPass="habopen"
-  fi
 
   if ! cond_redirect sed -i -e 's|^sshHost = 127.0.0.1.*$|sshHost = 0.0.0.0|g' /var/lib/openhab/etc/org.apache.karaf.shell.cfg; then echo "FAILED (sshHost)"; return 1; fi
   if cond_redirect sed -i -e 's|openhab = .*,|openhab = '"${sshPass}"',|g' /var/lib/openhab/etc/users.properties; then echo "OK"; else echo "FAILED (sshPass)"; return 1; fi
