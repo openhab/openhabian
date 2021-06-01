@@ -1,0 +1,14 @@
+dir=openhab
+alias rcd='cd /etc/${dir}/rules'
+alias ecd='cd /var/lib/${dir}/etc'
+alias jscd='cd /var/lib/${dir}/jsondb'
+alias icd='cd /etc/${dir}/items'
+alias scd='cd /etc/${dir}/sitemaps'
+alias vil='vi + /var/log/${dir}/openhab.log'
+alias vie='vi + /var/log/${dir}/events.log'
+alias tl='tail -F /var/log/${dir}/openhab.log'
+alias te='tail -F /var/log/${dir}/events.log'
+alias runtime='openhab-cli info|grep Version; echo -n "running   "; ps -o etime= -p "$(cat ${OPENHAB_USERDATA}/tmp/karaf.pid)"'
+
+function tg() { tail -f $2 | egrep "$1"; }
+
