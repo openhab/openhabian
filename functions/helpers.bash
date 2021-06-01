@@ -87,13 +87,13 @@ update_git_repo() {
 ##
 get_public_ip() {
   local pubIP
-  local localName1=myip.opendns.com
-  local localName2=o-o.myaddr.l.google.com
+  local localName1="myip.opendns.com"
+  local localName2="o-o.myaddr.l.google.com"
 
   if ! [[ -x $(command -v dig) ]]; then return 1; fi
   if [[ $# -eq 1 ]]; then
-    localName1=$1
-    localName2=$2
+    localName1="$1"
+    localName2="$2"
   fi
   if ! pubIP="$(dig +short "${localName1}" @resolver1.opendns.com | tail -1)"; then return 1; fi
   if [[ -z $pubIP ]]; then
