@@ -107,6 +107,7 @@ if [[ -n "$UNATTENDED" ]]; then
   java_install_or_update "${java_opt:-Zulu11-32}"
   openhab_setup "openHAB3" "stable"
   import_openhab_config
+  openhab_shell_interfaces
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme

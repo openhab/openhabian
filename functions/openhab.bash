@@ -133,7 +133,7 @@ openhab_setup() {
 openhab_shell_interfaces() {
   local introText
   local sshPass
-  local sshPass1
+  local sshPass1="habopen"
   local sshPass2
   local successText
 
@@ -143,22 +143,18 @@ openhab_shell_interfaces() {
 
   if [[ -n $INTERACTIVE ]]; then
     while [[ -z $sshPass ]]; do
-      if ! sshPass1="$(whiptail --title "Authentication setup" --passwordbox "$introText" 15 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! sshPass1="$(whiptail --title "Authentication setup" --passwordbox "$introText" 15 80 "$sshPass1" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
       if ! sshPass2="$(whiptail --title "Authentication setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-      if [[ $sshPass1 == "$sshPass2" ]] && [[ ${#sshPass1} -ge 8 ]] && [[ ${#sshPass2} -ge 8 ]]; then
+      if [[ $sshPass1 == "$sshPass2" ]] && [[ ${#sshPass1} -ge 7 ]] && [[ ${#sshPass2} -ge 7 ]]; then
         sshPass="$sshPass1"
       else
-        whiptail --title "Authentication setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
+        whiptail --title "Authentication setup" --msgbox "Password mismatched, or less than 7 characters... Please try again!" 7 80
       fi
     done
-  fi
-  if [[ -z $sshPass ]]; then
-    sshPass="habopen"
   fi
 
   if ! cond_redirect sed -i -e 's|^#.*sshHost = 0.0.0.0.*$|org.apache.karaf.shell:sshHost = 0.0.0.0|g' /etc/openhab/services/runtime.cfg; then echo "FAILED (sshHost)"; return 1; fi
   if cond_redirect sed -i -e 's|openhab = .*,|openhab = '"${sshPass}"',|g' /var/lib/openhab/etc/users.properties; then echo "OK"; else echo "FAILED (sshPass)"; return 1; fi
-  cond_redirect systemctl restart openhab.service
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation successful!" --msgbox "$successText" 15 80
