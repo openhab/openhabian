@@ -287,6 +287,7 @@ permissions_corrections() {
   local groups=("audio" "bluetooth" "dialout" "gpio" "tty")
   local openhabFolders=("/etc/openhab" "/var/lib/openhab" "/var/log/openhab" "/usr/share/openhab")
   local openhabHome="/var/lib/openhab"
+  local backupsFolder="${OPENHAB_BACKUPS:-/var/lib/openhab/backups}"
   local retval=0
 
   echo -n "$(timestamp) [openHABian] Applying file permissions recommendations... "
@@ -315,7 +316,12 @@ permissions_corrections() {
   if [[ -d "$openhabHome"/.ssh ]]; then
     if ! cond_redirect chmod --recursive go-rwx "$openhabHome"/.ssh; then echo "FAILED (set .ssh access)"; retval=1; fi
   fi
-
+  if ! [[ -d "$backupsFolder" ]]; then
+    mkdir -p "$backupsFolder"
+  fi
+  if ! cond_redirect chown "${username:-openhabian}:${username:-openhabian}" "$backupsFolder"; then echo "FAILED (chown backups folder)"; retval=1; fi
+  if ! cond_redirect chmod g+s "$backupsFolder"; then echo "FAILED (setgid backups folder)"; retval=1; fi
+  
   if ! cond_redirect fix_permissions  "/home/${username:-openhabian}" "${username:-openhabian}:${username:-openhabian}"; then echo "FAILED (${username:-openhabian} chown $HOME)"; retval=1; fi
 
   if [[ -f /etc/mosquitto/mosquitto.conf ]]; then
