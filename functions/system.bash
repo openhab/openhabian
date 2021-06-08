@@ -319,7 +319,7 @@ permissions_corrections() {
   if ! [[ -d "$backupsFolder" ]]; then
     mkdir -p "$backupsFolder"
   fi
-  if ! cond_redirect chown "${username:-openhabian}:${username:-openhabian}" "$backupsFolder"; then echo "FAILED (chown backups folder)"; retval=1; fi
+  if ! cond_redirect chown openhab:openhab "$backupsFolder"; then echo "FAILED (chown backups folder)"; retval=1; fi
   if ! cond_redirect chmod g+s "$backupsFolder"; then echo "FAILED (setgid backups folder)"; retval=1; fi
   
   if ! cond_redirect fix_permissions  "/home/${username:-openhabian}" "${username:-openhabian}:${username:-openhabian}"; then echo "FAILED (${username:-openhabian} chown $HOME)"; retval=1; fi
