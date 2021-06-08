@@ -26,8 +26,8 @@ change_password() {
   whipParams+=("Amanda backup"   "User account: \"backup\" used for managing backup configuration" OFF)
   if [[ -f /etc/nginx/.htpasswd ]]; then
     nginxUsername="$(cut -d: -f1 /etc/nginx/.htpasswd | head -1)"
-    accounts+=("Ngnix proxy")
-    whipParams+=("Ngnix proxy"     "Nginx user: \"${nginxUsername}\" used for logging into openHAB web services" OFF)
+    accounts+=("Nginx proxy")
+    whipParams+=("Nginx proxy"     "Nginx user: \"${nginxUsername}\" used for logging into openHAB web services" OFF)
   fi
   if [[ -f /etc/influxdb/influxdb.conf ]]; then
     accounts+=("InfluxDB")
@@ -77,7 +77,7 @@ change_password() {
     echo -n "$(timestamp) [openHABian] Changing password for Linux account \"backup\"... "
     if echo "backup:${pass}" | cond_redirect chpasswd; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  if [[ $chosenAccounts == *"Ngnix proxy"* ]]; then
+  if [[ $chosenAccounts == *"Nginx proxy"* ]]; then
     echo -n "$(timestamp) [openHABian] Changing password for Nginx web authentication account \"${nginxUsername}\"... "
     if echo "$pass" | htpasswd -i /etc/nginx/.htpasswd "${nginxUsername}"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
