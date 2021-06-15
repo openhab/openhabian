@@ -54,7 +54,6 @@ firemotd_setup() {
   if running_in_docker || running_on_github; then return 0; fi
 
   local firemotdDir="/opt/FireMotD"
-  local targetDir="/etc/systemd/system/"
 
   if ! dpkg -s 'bc' 'sysstat' 'jq' 'moreutils' 'make' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing FireMotD required packages (bc, sysstat, jq, moreutils)... "
@@ -82,7 +81,7 @@ firemotd_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up FireMotD apt updates count service... "
   cond_echo "\\nMake FireMotD check for new updates every night... "
-  if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/firemotd/firemotd.* "$targetDir"; then echo "FAILED (install service/timer)"; return 1; fi
+  if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/firemotd/firemotd.* /etc/systemd/system/; then echo "FAILED (install service/timer)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now firemotd.timer &> /dev/null; then echo "FAILED (service enable)"; return 1; fi
   cond_echo "\\nMake FireMotD check for new updates after using apt... "
