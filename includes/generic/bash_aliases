@@ -6,10 +6,15 @@ alias icd='cd /etc/${dir}/items'
 alias lcd='cd /var/log/${dir}/'
 alias rcd='cd /etc/${dir}/rules'
 alias scd='cd /etc/${dir}/sitemaps'
+alias jcd='cd /etc/${dir}/automation/jsr223/python/personal'
 alias vil='vi + /var/log/${dir}/openhab.log'
 alias vie='vi + /var/log/${dir}/events.log'
+#alias vil='vi /var/lib/${dir}/etc/org.ops4j.pax.logging.cfg'
+alias vis='vi /etc/${dir}/sitemaps/home.sitemap'
 alias tl='tail -F /var/log/${dir}/openhab.log'
+#alias tl="tail -F /var/log/${dir}/openhab.log  | sed --unbuffered -e 's/\(.*\[ERROR.*\)/\o033[1;31m\1\o033[0;39m/' -e 's/\(.*\[WARN.*\)/\o033[1;33m\1\o033[0;39m/' -e 's/\(.*\[INFO.*\)/\o033[1;32m\1\o033[0;39m/' -e 's/\(.*\[DEBUG.*\)/\o033[1;34m\1\o033[0;39m/' -e 's/\(.*\[TRACE.*\)/\o033[1;35m\1\o033[0;39m/'"
 alias te='tail -F /var/log/${dir}/events.log'
+alias q='tail -F /var/log/${dir}/openhab.log|egrep -i "queue length =|queue - size|seriali|Added to queue|xcept|nexpected|features|ing model|oading script|site|Initialisierung"'
 alias runtime='openhab-cli info|grep Version; echo -n "running   "; ps -o etime= -p "$(cat ${OPENHAB_USERDATA}/tmp/karaf.pid)"'
 
 function tg() { tail -f $2 | egrep "$1"; }
