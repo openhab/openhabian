@@ -292,7 +292,7 @@ grafana_install(){
 
   cond_echo "\\nRestarting Grafana... "
   if ! cond_redirect systemctl restart grafana-server.service; then echo "FAILED (restart service)"; return 1; fi
-  if (curl -4 --retry 6 --retry-connrefused --silent --head http://localhost:3000); then echo "OK"; else echo "FAILED (wait for Grafana to start)"; return 1; fi
+  if (curl -4 -m 120 --retry 20 --retry-connrefused --silent --head http://localhost:3000); then echo "OK"; else echo "FAILED (wait for Grafana to start)"; return 1; fi
 }
 
 ## Function to output Grafana debugging information
