@@ -226,7 +226,7 @@ influxdb_install() {
   echo -n "$(timestamp) [openHABian] Setting up InfluxDB... "
 
   cond_echo "\\nConfigure InfluxDB admin account... "
-  if ! cond_redirect curl --retry 6 --retry-connrefused --insecure "${address}/query" --data-urlencode "q=CREATE USER ${adminUsername} WITH PASSWORD '${adminPassword}' WITH ALL PRIVILEGES"; then echo "FAILED (create admin user)"; return 1; fi
+  if ! cond_redirect curl -m 120 --retry 20 --retry-connrefused --insecure "${address}/query" --data-urlencode "q=CREATE USER ${adminUsername} WITH PASSWORD '${adminPassword}' WITH ALL PRIVILEGES"; then echo "FAILED (create admin user)"; return 1; fi
   if ! cond_redirect curl --insecure "${address}/query" --data-urlencode "q=SET PASSWORD FOR ${adminUsername} = '${adminPassword}'"; then echo "FAILED (admin password)"; return 1; fi # Set password here because create might have failed if user existed before
 
   cond_echo "\\nDisable InfluxDB external access... "
