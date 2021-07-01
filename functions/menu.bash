@@ -1,18 +1,19 @@
 #!/usr/bin/env bash
 
 show_about() {
+  if openhab3_is_installed; then OHPKG="openhab"; else OHPKG="openhab2"; fi
   whiptail --title "About openHABian and openhabian-config" --msgbox "openHABian Configuration Tool — $(get_git_revision)
-This tool provides a little help to make your openHAB experience as comfortable as possible.
-\\nMake sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
-\\nMenu 01 to select the standard (\"openHAB3\") or the very latest (\"main\") openHABian version.
-Menu 40 to select the standard release, milestone or very latest development version of openHAB and
-Menu 03 to install or upgrade it.
+openHAB $(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties) - $(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
+\\nThis tool provides a little help to make your openHAB experience as comfortable as possible.
+Make sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
+\\nMenu 01 will allow you to select the standard (\"openHAB3\") or the very latest (\"main\") openHABian version.
 Menu 02 will upgrade all of your OS and applications to the latest versions, including openHAB.
-Menu 10 provides a number of system tweaks. These are already active after a standard installation while
-Menu 30 allows for changing system configuration to match your hardware.
-Note that the raspi-config tool was intentionally removed to not interfere with openhabian-config.
+Menu 03 will install or upgrade openHAB to the latest version available.
+Menu 10 provides a number of system tweaks. These are already active after a standard installation.
+Menu 20 allows you to install some supported optional components often used with openHAB.
+Menu 30 allows you to change system configuration options to match your hardware.
+Menu 40 allows you to select the standard release, milestone or very latest development version of openHAB.
 Menu 50 provides options to backup and restore either your openHAB configuration or the whole system.
-Note backups are NOT active per default so remember to set them up right at the beginning of your journey.
 \\nVisit these sites for more information:
   - Documentation: https://www.openhab.org/docs/installation/openhabian.html
   - Development: https://github.com/openhab/openhabian
