@@ -223,7 +223,7 @@ homegear_setup() {
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/homegear-management.service /etc/systemd/system/homegear-management.service; then echo "FAILED (copy service)"; return 1; fi
   if ! cond_redirect rm -f /lib/systemd/system/homegear*; then echo "FAILED (clean default service)"; return 1; fi
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /etc/systemd/system/homegear*; fi
-  if ! zram_dependency install homegear homegear-management; then return 1; fi
+  if ! zram_dependency install homegear homegear-nodes-core homegear-management wiringpi; then return 1; fi
   if ! cond_redirect systemctl enable --now homegear.service homegear-management.service; then echo "FAILED (enable service)"; return 1; fi
 
   if [[ -f $disklistFileDir ]]; then

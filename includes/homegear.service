@@ -12,6 +12,8 @@ LimitRTPRIO=100
 TasksMax=infinity
 LimitCORE=infinity
 ExecStart=/usr/bin/homegear
+ExecStartPre=/usr/bin/gpio export 18 out
+ExecStop=/usr/bin/gpio unexport 18
 
 [Install]
 WantedBy=multi-user.target
