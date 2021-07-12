@@ -188,6 +188,7 @@ etckeeper_setup() {
 ##    homegear_setup()
 ##
 homegear_setup() {
+    set -x
   local disklistFileAWS="/etc/amanda/openhab-aws/disklist"
   local disklistFileDir="/etc/amanda/openhab-dir/disklist"
   local introText="This will install Homegear, the Homematic CCU2 emulation software, using the latest stable release available from the official repository."
@@ -240,6 +241,7 @@ homegear_setup() {
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation successful" --msgbox "$successText" 14 80
   fi
+  set +x
 }
 
 ## Function for installing MQTT Eclipse Mosquitto through the official repository.
