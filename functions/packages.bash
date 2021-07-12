@@ -225,6 +225,7 @@ homegear_setup() {
   if ! cond_redirect rm -f /lib/systemd/system/homegear*; then echo "FAILED (clean default service)"; return 1; fi
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /etc/systemd/system/homegear*; fi
   if ! zram_dependency install homegear homegear-management wiringpi; then return 1; fi
+  if [[ -s /etc/ztab ]] && ! mkdir -p /opt/zram/log.bind/homegear /var/log/homegear && chown homegear /opt/zram/log.bind/homegear /var/log/homegear; then echo "FAILED (create zram logdir)"; return 1; fi
   if ! cond_redirect systemctl enable --now homegear.service homegear-management.service; then echo "FAILED (enable service)"; return 1; fi
 
   if [[ -f $disklistFileDir ]]; then
@@ -285,9 +286,8 @@ mqtt_setup() {
     if ! cond_redirect sed -i -e '/allow_anonymous/d' /etc/mosquitto/mosquitto.conf; then echo "FAILED"; return 1; fi
     if cond_redirect rm -f /etc/mosquitto/passwd; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  cond_redirect mkdir -p /var/log/mosquitto
-  cond_redirect chown mosquitto /var/log/mosquitto
   grep -qs "/log.bind" /etc/ztab && if ! zram_dependency install mosquitto; then return 1; fi
+  if [[ -s /etc/ztab ]] && ! mkdir -p /opt/zram/log.bind/mosquitto /var/log/mosquitto && chown mosquitto /opt/zram/log.bind/mosquitto /var/log/mosquitto; then echo "FAILED (create zram logdir)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up MQTT service... "
   if ! cond_redirect usermod --append --groups mosquitto "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} mosquitto)"; return 1; fi
   if cond_redirect systemctl enable --now mosquitto.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
@@ -306,7 +306,7 @@ knxd_setup() {
   local introText="This will install kndx as your EIB/KNX IP gateway and router to support your KNX bus system.\\n\\nNOTE: Typically, you don't need this if you connect via an IP interface or router to your KNX installation. This package is to turn an USB or serial interface into an IP interface.\\n\\nNOTE: openHABian changed from building and installing latest source to installing the knxd package provided by several distributions."
   local missingText="Setup could not find knxd package.\\n\\nopenHABian changed from building and installing latest source to installing the knxd package provided by several distrubutions. In case you have an installation of openHABian on a custom Linux which does not provide knxd package, you could try to installation routine we used before as described at 'Michels Tech Blog': https://bit.ly/3dzeoKh"
   local errorText="Installation of knxd package failed, see console log for details."
-  local successText="Installation was successful.\\n\\nPlease edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help' or see /usr/share/doc/knxd/.\\n\\nIntegration into openHAB is described here: https://github.com/openhab/openhab/wiki/KNX-Binding"
+  local successText="Installation was successful.\\n\\nPlease edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help' or see /usr/share/doc/knxd/.\\n\\nSee also the openHAB KNX binding's documentation."
   local temp
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
