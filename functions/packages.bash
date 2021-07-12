@@ -188,7 +188,6 @@ etckeeper_setup() {
 ##    homegear_setup()
 ##
 homegear_setup() {
-    set -x
   local disklistFileAWS="/etc/amanda/openhab-aws/disklist"
   local disklistFileDir="/etc/amanda/openhab-dir/disklist"
   local introText="This will install Homegear, the Homematic CCU2 emulation software, using the latest stable release available from the official repository."
@@ -224,7 +223,7 @@ homegear_setup() {
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/homegear-management.service /etc/systemd/system/homegear-management.service; then echo "FAILED (copy service)"; return 1; fi
   if ! cond_redirect rm -f /lib/systemd/system/homegear*; then echo "FAILED (clean default service)"; return 1; fi
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /etc/systemd/system/homegear*; fi
-  if ! zram_dependency install homegear homegear-management; then return 1; fi
+  if ! zram_dependency install homegear homegear-management wiringpi; then return 1; fi
   if ! cond_redirect systemctl enable --now homegear.service homegear-management.service; then echo "FAILED (enable service)"; return 1; fi
 
   if [[ -f $disklistFileDir ]]; then
@@ -241,7 +240,6 @@ homegear_setup() {
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation successful" --msgbox "$successText" 14 80
   fi
-  set +x
 }
 
 ## Function for installing MQTT Eclipse Mosquitto through the official repository.
