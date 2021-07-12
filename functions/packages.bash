@@ -221,7 +221,7 @@ homegear_setup() {
   echo -n "$(timestamp) [openHABian] Setting up Homegear service... "
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/homegear.service /etc/systemd/system/homegear.service; then echo "FAILED (copy service)"; return 1; fi
   if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/homegear-management.service /etc/systemd/system/homegear-management.service; then echo "FAILED (copy service)"; return 1; fi
-  if ! cond_redirect install -m 755 "${BASEDIR}/includes/homegear_init" /usr/local/sbin; then echo "FAILED (install homegear_init script)"; return 1; fi
+  if ! cond_redirect install -m 755 "${BASEDIR}/includes/rpi_init" /usr/local/sbin; then echo "FAILED (install rpi_init script)"; return 1; fi
   if ! cond_redirect rm -f /lib/systemd/system/homegear*; then echo "FAILED (clean default service)"; return 1; fi
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /etc/systemd/system/homegear*; fi
   if ! zram_dependency install homegear homegear-management wiringpi; then return 1; fi
