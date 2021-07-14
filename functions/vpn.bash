@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2154
+
 ## Install wireguard from unstable Debian as long as it is not in the Raspbian repo
 ## Valid arguments: "install" or "remove"
 ##
@@ -184,7 +186,6 @@ install_tailscale() {
   local sudoersPath="/etc/sudoers.d"
 
   if [[ -n "$UNATTENDED" ]]; then
-    # shellcheck disable=SC2154
     if [[ ! -v preauthkey ]]; then echo "$(timestamp) [openHABian] tailscale VPN installation... SKIPPED (no preauthkey defined)"; return 1; fi
   fi
 
@@ -227,7 +228,6 @@ install_tailscale() {
 ##   setup_tailscale(String action)
 ##
 setup_tailscale() {
-  # shellcheck disable=SC2154
   local preAuthKey=${preauthkey}
   local tags="${tstags}"
   local consoleProperties="${OPENHAB_USERDATA:-/var/lib/openhab}/etc/org.apache.karaf.shell.cfg"
@@ -243,7 +243,6 @@ setup_tailscale() {
 
   # if ${tags}/${tstags} is empty, this will reset existing tags
   if ! tailscale up --authkey "${preAuthKey}" --advertise-tags="${tags}"; then echo "FAILED (join tailscale VPN)"; return 1; fi
-  # shellcheck disable=SC2154
   [[ -n "$adminmail" ]] && tailscale status | mail -s "openHABian client joined tailscale VPN" "$adminmail"
   tailscaleIP=$(ip a show tailscale0 | awk '/inet / { print substr($2,1,length($2)-3)}')
   if [[ -n "$tailscaleIP"  ]]; then
