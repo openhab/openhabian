@@ -228,6 +228,8 @@ install_tailscale() {
 ##
 setup_tailscale() {
   local preAuthKey=${preauthkey}
+  # shellcheck disable=SC2154
+  local tags=${tstags}
   local consoleProperties="${OPENHAB_USERDATA:-/var/lib/openhab}/etc/org.apache.karaf.shell.cfg"
   local tailscaleIP
 
@@ -239,7 +241,8 @@ setup_tailscale() {
     if ! preAuthKey="$(whiptail --title "Enter pre auth key" --inputbox "\\nIf you have not received / created the tailscale pre auth key at this stage, please do so now or tell your administrator to. This can be done on the admin console. There's a menu option on the tailscale Windows client to lead you there.\\n\\nPlease enter the tailscale pre auth key for this system:" 11 80 "$preAuthKey" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
 
-  if ! tailscale up --authkey "${preAuthKey}"; then echo "FAILED (join tailscale VPN)"; return 1; fi
+  # if $tstags is empty, this will reset existing tags
+  if ! tailscale up --authkey "${preAuthKey}" --advertise-tags="${tags}"; then echo "FAILED (join tailscale VPN)"; return 1; fi
   # shellcheck disable=SC2154
   [[ -n "$adminmail" ]] && tailscale status | mail -s "openHABian client joined tailscale VPN" "$adminmail"
   tailscaleIP=$(ip a show tailscale0 | awk '/inet / { print substr($2,1,length($2)-3)}')
