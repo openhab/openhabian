@@ -63,7 +63,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
-    openhab_setup openHAB3 "stable"
+    migrate_installation "openHAB3"
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
