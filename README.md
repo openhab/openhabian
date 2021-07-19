@@ -20,7 +20,7 @@ openHABian is here to provide a **self-configuring** Linux system setup to meet 
 *   A **SD-card image pre-configured with openHAB** for all *Raspberry Pi* models
 *   As a set of scripts that sets up openHAB and tools on any Debian based system
 
-## a note on dedication
+### a note on dedication and commitment
 We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
 Everybody wants his home automation to be stable and most people install a *dedicated* RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation. Reasonably so, this is our clear recommendation.
 Saving another 50 bucks is not worth putting the reliable day-to-day operations of your home at risk.
