@@ -1,4 +1,4 @@
-﻿As an **openHABian end user**, please check out the official openHAB documentation:  
+﻿As an **openHAB end user** looking for a system to run on, please check out the official documentation:  
 -   <https://www.openhab.org/docs/installation/openhabian.html>
 
 # openHABian - Hassle-free openHAB Setup
@@ -20,17 +20,32 @@ openHABian is here to provide a **self-configuring** Linux system setup to meet 
 *   A **SD-card image pre-configured with openHAB** for all *Raspberry Pi* models
 *   As a set of scripts that sets up openHAB and tools on any Debian based system
 
-## openHAB versions 2 and 3
-openHABian was created to provide a seamless user experience with openHAB.
-Now that openHAB 3 is released to the public, we have incorporated changes to run on and migrate to openHAB 3 from within openHABian.
-Please note that openHAB 2 support is no longer actively maintained and will only receive select patches deemed necessary by the maintainers of the openHABian project.
-If you need openHAB 2 support please use the `stable` branch of openHABian, you can switch branches at any time using menu option 01 in `openhabian-config`.
+## a note on dedication
+We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
+Everybody wants his home automation to be stable and most people install a *dedicated* RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation. Reasonably so, this is our clear recommendation.
+Saving another 50 bucks is not worth putting the reliable day-to-day operations of your home at risk.
 
-## Hardware recommendation
+Then again that being said, those who insist to *can* use openHABian as the starting point for their 'generic' server and run
+whatever software else on top. There's no genuine reason why this wouldn't work.
+The openHABian image is really just Raspberry Pi OS (lite) under the hood and openHABian is "just" some scripts that install a number of packages and configures the system in a specific way, optimized to run openHAB.
+
+What you must not do, though, is to mess with system packages and config *and* expect anyone to help you with that.
+Let's clearly state this as well: when you deliberately decide to make manual changes to the OS software packages and configuration (i.e. outside of `openhabian-config`), you will be on your own. Your setup is untested, and noone but you knows about your changes.
+openHABian maintainers are really committed to providing you with a fine user experience, but this takes enourmous efforts you don't get to see as a user.
+So if you choose to deviate from standard openHABian installations and run into problems thereafter, don't be unfair: don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum. Thank you.
+
+### a note on openHAB version 2
+openHABian was created to provide a seamless user experience with the current openHAB software. That is version 3.X.
+openHAB 2 will continue to work on openHABian, but openHAB 2 support is no longer actively maintained and the software will only receive select patches deemed necessary by the maintainers of the project.
+If you need openHAB 2 support please use the `stable` branch of openHABian, you can switch branches at any time using menu option 01 in `openhabian-config`.
+The image will install openHAB 3 by default, to change before installation, set `clonebranch=stable` in `openhabian.conf`.
+
+## Hardware
+### Our recommendation
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB, a 3 A power supply and a 16 GB SD card.
 Also get another 32 GB or larger SD card and a USB card reader to make use of the ["auto backup" feature](docs/openhabian.md#Auto-Backup).
 
-## Hardware support
+### Supported hardware
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware.
 Anything x86 based may work or not.
 Anything else ARM based such as ODroids, OrangePis and the like may work or not.
