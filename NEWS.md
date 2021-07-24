@@ -2,6 +2,13 @@ Hit tab to unselect buttons and scroll through the text using UP/DOWN or
 PGUP/PGDN. All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md`
 for you to lookup.
 
+## Install openHAB function changed ## July 23, 2021
+Menu option 03 "Install or upgrade to openHAB release 3" was changed to now
+actually do what most users have been expecting it to: it now also upgrades
+the environment to work with openHAB3 and installs openHAB3 "stable" version.
+Previously, you had to additionally use menu option 42 to migrate the
+environment.
+
 ## Telldus Core service removed ## May 20, 2021
 The Telldus Core service has now been removed from openHABian, and will no
 longer receive active support from the openHABian developers. Existing
