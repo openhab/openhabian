@@ -33,8 +33,8 @@ show_main_menu() {
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
-  "02 | Upgrade System"          "Upgrade all installed software packages (incl. openHAB) to their latest version" \
-  "03 | Install openHAB"         "Install or upgrade to openHAB release 3" \
+  "02 | Upgrade System"          "Update all installed software packages (incl. openHAB) to their latest version" \
+  "03 | Install openHAB"         "Install or upgrade to openHAB 3" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
