@@ -151,6 +151,8 @@ openhab_shell_interfaces() {
         whiptail --title "Authentication setup" --msgbox "Password mismatched, or less than 7 characters... Please try again!" 7 80
       fi
     done
+  else
+    sshPass="habopen"
   fi
 
   if ! cond_redirect sed -i -e 's|^#.*sshHost = 0.0.0.0.*$|org.apache.karaf.shell:sshHost = 0.0.0.0|g' /etc/openhab/services/runtime.cfg; then echo "FAILED (sshHost)"; return 1; fi
