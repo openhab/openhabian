@@ -103,7 +103,7 @@ Please check the [official documentation article](https://www.openhab.org/docs/i
 
 If you want to install openHABian on non-supported hardware, you can actually fake it to make openHABian treat your box as if it was one of the supported ones.
 Needless to say that that may work out or not, but it's worth a try.
-See [openhabian](docs/openhabian.md) for how to edit `openhabian.conf` before booting.
+See [`openhabian.conf`](docs/openhabian.md#openhabianconf) for how to edit `openhabian.conf` before booting.
 Set the `hw`, `hwarch` and `release` parameters to match your system best.
 
 ## Development

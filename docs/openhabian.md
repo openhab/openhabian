@@ -415,7 +415,7 @@ Note most "16GB" cards are not _exactly_ 16 GB and your mirror mustn't have less
 
 ::: tip NO Do-It-Yourself mirroring
 Note you must NOT use `dd` or any other tool such as 'Win32 disk imager' to copy an SD card or partition on your own. If you do and boot with source and destination cards plugged in, they will have the same partition IDs and this will likely mess up things and can irreversibly devastate your whole system. Use the `blkid` command in shell to see those IDs. This also means you must not take _mirrors_ of the _mirror_.
-Also be aware that only the first two partitions are mirrored - the storage (3rd) parition will never be mirrored even if you have set that up for use as your backup area.
+Also be aware that only the first two partitions are mirrored - the storage (3rd) partition will never be mirrored even if you have set that up for use as your backup area.
 :::
 
 To setup mirroring right during unattended installation of a RPi (using the image flash method):<br>
@@ -428,7 +428,7 @@ You can change where it stores its backup data via `storagedir=/storage`, but yo
 If you want to setup mirroring only and Amanda anywhere else but on the extra SD space, you must not choose unattended installation method (i.e. do not define `backupdrive`).
 You can still setup both, mirroring and Amanda, separately at any later time using the 53 (mirroring) and 52 (Amanda) menu options.
 
-Full mirroring will take place semiannually and for the 2nd partition (Linux root), changes will be synced once every day.
+Full mirroring of the full SD card will take place semiannually and only for the 2nd partition (Linux root), changes will be synced once every day.
 See `systemctl list-timers`, timers are defined in `/etc/systemd/system/sd*.timer`.
 
 
