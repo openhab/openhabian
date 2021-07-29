@@ -1,5 +1,5 @@
 # Assumes at least ARMv71 but not ARMv8 (aarch64) yet
-FROM balenalib/raspberry-pi2-debian:bullseye-build
+FROM balenalib/raspberry-pi2-debian:buster-build
 
 RUN [ "cross-build-start" ]
 
