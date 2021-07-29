@@ -196,10 +196,10 @@ influxdb_install() {
   else
     myOS="$(lsb_release -si)"
   fi
-  myRelease="$(lsb_release -sc)"
-  if [[ "$myRelease" == "n/a" ]]; then
-    myRelease=${osrelease:-buster}
-  fi
+  #myRelease="$(lsb_release -sc)"
+  #if [[ "$myRelease" == "n/a" ]]; then
+  myRelease=${osrelease:-buster}        # no InfluxDB bullseye repo available
+  #fi
 
   if ! dpkg -s 'influxdb' &> /dev/null; then
     if ! add_keys "https://repos.influxdata.com/influxdb.key"; then return 1; fi
