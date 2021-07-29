@@ -1,5 +1,5 @@
 # Note RPi4 base WITH 64bit OS
-FROM balenalib/raspberrypi4-64-debian:buster-build
+FROM balenalib/raspberrypi4-64-debian:bullseye-build
 
 RUN [ "cross-build-start" ]
 
