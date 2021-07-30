@@ -196,10 +196,10 @@ influxdb_install() {
   else
     myOS="$(lsb_release -si)"
   fi
-  #myRelease="$(lsb_release -sc)"
-  #if [[ "$myRelease" == "n/a" ]]; then
-  myRelease=${osrelease:-buster}        # no InfluxDB bullseye repo available
-  #fi
+  myRelease="$(lsb_release -sc)"
+  if [[ "$myRelease" == "n/a" ]]; then
+    myRelease=${osrelease:-buster}
+  fi
 
   if ! dpkg -s 'influxdb' &> /dev/null; then
     if ! add_keys "https://repos.influxdata.com/influxdb.key"; then return 1; fi
@@ -253,7 +253,11 @@ grafana_install(){
   if ! dpkg -s 'grafana' &> /dev/null; then
     if ! add_keys "https://packages.grafana.com/gpg.key"; then return 1; fi
 
-    echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list
+    if is_bullseye; then
+      echo "deb https://packages.grafana.com/oss/deb beta main" > /etc/apt/sources.list.d/grafana.list
+    else
+      echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list
+    fi
 
     echo -n "$(timestamp) [openHABian] Installing Grafana... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
