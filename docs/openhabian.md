@@ -103,7 +103,7 @@ These are what we develop and test openHABian against.
 We provide code that is reported "as-is" to run on Ubuntu but we do **not support Ubuntu** so please don't open issues for this (PRs then again are welcome).
 Several optional components though, such as WireGuard or Homegear, are known to expose problems on Ubuntu.
 
-We expect you to use the current stable distribution: 'buster' for Raspberry Pi OS (ARM) and Debian (x86), with 'focal' for Ubuntu (x86).
+We expect you to use the current stable distribution: 'buster' for Raspberry Pi OS (ARM) and Debian (x86).
 To install openHABian on anything older or newer may work or not.
 If you encounter issues, you may need to upgrade first or to live with the consequences of running an OS on the edge of software development.
 
