@@ -210,7 +210,11 @@ homegear_setup() {
 
   if ! add_keys "https://apt.homegear.eu/Release.key"; then return 1; fi
 
-  echo "deb https://apt.homegear.eu/${myOS}/ ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
+  if is_bullseye; then
+    echo "deb https://aptnightly.homegear.eu/${myOS} ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
+  else
+    echo "deb https://apt.homegear.eu/${myOS}/ ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
+  fi
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi

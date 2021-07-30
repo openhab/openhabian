@@ -197,14 +197,15 @@ influxdb_install() {
     myOS="$(lsb_release -si)"
   fi
   myRelease="$(lsb_release -sc)"
-  #if [[ "$myRelease" == "n/a" ]]; then
+  if is_bullseye || [[ "$myRelease" == "n/a" ]]; then
     myRelease=${osrelease:-buster}
-  #fi
+  fi
 
   if ! dpkg -s 'influxdb' &> /dev/null; then
     if ! add_keys "https://repos.influxdata.com/influxdb.key"; then return 1; fi
 
-    echo "deb https://repos.influxdata.com/${myOS,,} ${myRelease,,} stable" > /etc/apt/sources.list.d/influxdb.list
+    #echo "deb https://repos.influxdata.com/${myOS,,} ${myRelease,,} stable" > /etc/apt/sources.list.d/influxdb.list
+    echo "deb https://repos.influxdata.com/debian ${myRelease} stable" > /etc/apt/sources.list.d/influxdb.list
 
     echo -n "$(timestamp) [openHABian] Installing InfluxDB... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
