@@ -1,0 +1,267 @@
+#!/bin/sh
+
+## This is a utility script to simplify the use of openHAB
+## Intended to be used with a packaged install (.deb/.rpm)
+## License information available at /usr/share/openhab/LICENSE.txt by default
+echo ""
+usage() {
+  echo "Usage:  openhab-cli command [options]"
+  echo ""
+  echo "Possible commands:"
+  echo "  backup [--full] [filename]   -- Stores the current configuration of openHAB."
+  echo "  clean-cache                  -- Cleans the openHAB temporary folders."
+  echo "  console                      -- Opens the openHAB console."
+  echo "  info                         -- Displays distribution information."
+  echo "  reset-ownership              -- Gives openHAB control of its own directories."
+  echo "  restore [--textconfig] [--uiconfig] filename"
+  echo "                               -- Restores openHAB configuration from a backup."
+  echo "  showlogs                     -- Displays the log messages of openHAB."
+  echo "  start [--debug]              -- Starts openHAB in the terminal."
+  echo "  status                       -- Checks to see if openHAB is running."
+  echo "  stop                         -- Stops any running instance of openHAB."
+  echo ""
+  exit 2
+}
+
+# Script requires options, list them if none given
+if [ "$#" -eq "0" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
+  usage
+fi
+
+# Some functions require root
+checkRoot() {
+  if [ "$(id -u)" -ne 0 ]; then
+    optionName="$1"
+    echo ""
+    echo "This option needs to run as root! (e.g. use 'sudo openhab-cli $optionName')" >&2
+    echo ""
+    exit 1
+  fi
+}
+
+# For testing if override functions exist
+isFunction() {
+  command -V "$1" 2>/dev/null | grep -qwi function
+}
+
+checkRunning() {
+  if [ ! -z "$(pgrep -f "openhab.*java")" ]; then
+    echo "openHAB is running! Please stop the process before continuing." >&2
+    echo ""
+    exit 1
+  fi
+}
+
+confirmAction() {
+  printf "\nOkay to Continue? [y/N]: "
+  read -r answer
+  case "$answer" in
+  [Yy]*)
+    ;;
+  *)
+    echo "Cancelling..."
+    echo ""
+    exit 0
+    ;;
+  esac
+}
+
+# Load the default directory paths and any possible custom ones set
+if [ -r /etc/profile.d/openhab.sh ]; then
+  . /etc/profile.d/openhab.sh
+elif [ -r /etc/default/openhab ]; then
+  . /etc/default/openhab
+fi
+
+# Load the override scripts to replace full commands
+if [ -r /etc/openhab-cli/command-overrides.sh ]; then
+  . /etc/openhab-cli/command-overrides.sh
+fi
+
+option="$1"
+shift
+
+# Select between options
+case "$option" in
+
+  "backup")
+    # Run the pre-made backup script
+    "$OPENHAB_RUNTIME/bin/backup" "$@"
+    ;;
+
+  "clean-cache")
+    echo "This command will delete the temporary files within openHAB."
+    echo "May resolve issues with addon installation and configuration."
+    checkRoot "$option"
+    checkRunning
+    echo "The next start of openHAB will take a bit longer."
+    confirmAction
+    rm -rf "${OPENHAB_USERDATA:?}"/tmp
+    rm -rf "${OPENHAB_USERDATA:?}"/cache
+    ;;
+
+  "console"|"client")
+    # Check if override function exists
+    if isFunction console_override; then
+      console_override
+    else
+      "$OPENHAB_RUNTIME/bin/client" "$@"
+    fi
+    ;;
+
+  "info")
+    openHABVersion="$(awk '/openhab-distro/{print $3}' "$OPENHAB_USERDATA/etc/version.properties")"
+    if test "${openHABVersion#*SNAPSHOT}" != "SNAPSHOT"; then
+      buildNumber="($(awk '/build-no/{print $4}' "$OPENHAB_USERDATA/etc/version.properties"))"
+    fi
+    pid="$(pgrep -f "openhab.*java")"
+    if [ -n "$pid" ]; then
+      uid=$(awk '/^Uid:/{print $2}' "/proc/$pid/status")
+      openHABUser="$(getent passwd "$uid" | awk -F: '{print $1}')"
+      userStatus="(Active Process $pid)"
+    elif [ -n "$OPENHAB_USER" ]; then
+      openHABUser="$OPENHAB_USER"
+      userStatus="(Environment Variable Set)"
+    else
+      openHABUser="$(ls -ld "$OPENHAB_HOME" | awk '{print $3}')"
+      userStatus="(Owner of home directory)"
+    fi
+    groupsList="$(id -Gn "$openHABUser")"
+    localIP="$(hostname -I | awk '{print $1}')"
+    printf "%-12s %s %s\\n\\n" "Version:" "$openHABVersion" "$buildNumber"
+    printf "%-12s %s %s\\n" "User:" "$openHABUser" "$userStatus"
+    printf "%-12s %s\\n\\n" "User Groups:" "$groupsList"
+    printf "%-12s %-16s | %-27s | %s\\n" "Directories:" "Folder Name" "Path" "User:Group"
+    printf "%-12s %-16s | %-27s | %s\\n" " " "-----------" "----" "----------"
+    for folderName in "OPENHAB_HOME" "OPENHAB_RUNTIME" "OPENHAB_USERDATA" "OPENHAB_CONF" "OPENHAB_LOGDIR" "OPENHAB_BACKUPS"
+    do
+      folderPath=$(printenv $folderName)
+      if [ -d "$folderPath" ]; then
+        folderUserGroup=$(ls -ld "$folderPath" | awk '{print $3 ":" $4}')
+        printf "%-12s %-16s | %-27s | %s\\n" " " "$folderName" "$folderPath" "$folderUserGroup"
+      fi
+    done
+    printf "\\n"
+    printf "%-12s %s\\n" "URLs:" "http://$localIP:$OPENHAB_HTTP_PORT"
+    printf  "%-12s %s\\n\\n" "" "https://$localIP:$OPENHAB_HTTPS_PORT"
+    ;;
+
+  "reset-ownership")
+    # Check to see if an override function exists
+    if isFunction reset-ownership_override; then
+      reset-ownership_override
+    else
+      echo "This command gives openHAB control of its own directories."
+      echo "May resolve permission errors during startup or configuration."
+      checkRoot "$option"
+      echo "openHAB directories will be owned by openhab:openhab"
+      confirmAction
+      # Recursively change each directory
+      chown -R openhab:openhab "${OPENHAB_HOME:?}" "${OPENHAB_USERDATA:?}" "${OPENHAB_CONF:?}" "${OPENHAB_LOGDIR:?}"
+    fi
+    ;;
+
+
+  "restart"|"start"|"status"|"stop")
+    # Deamon scripts already exist, encourage the user to use them.
+    if [ "$option" = "status" ];then
+      optionVerb="find the status of"
+    else
+      optionVerb="$option"
+    fi
+
+    # Find the appropriate daemon tool
+    if [ -x "/bin/systemctl" ] && [ -f "/usr/lib/systemd/system/openhab.service" ]; then
+      echo "A systemd service configuration exists..."
+      echo "Use 'sudo /bin/systemctl $option openhab.service' to $optionVerb an openHAB service"
+    elif [ -x "/etc/init.d/openhab" ]; then
+      echo "An init.d script exists..."
+      if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
+        echo "Use 'sudo invoke-rc.d openhab $option' to $optionVerb an openHAB service."
+      else
+        echo "Use 'sudo /etc/init.d/openhab $option' to $optionVerb an openHAB service."
+      fi
+    fi
+
+    # Then, do as asked with the 'manual' openHAB scripts...
+    if [ "$option" = "start" ]; then
+      checkRoot "$option"
+      echo "Launching an instance in this terminal.."
+      if [ "$1" = "--debug" ] || [ "$1" = "-d" ]; then
+        "$OPENHAB_HOME/start_debug.sh"
+      else
+        "$OPENHAB_HOME/start.sh"
+      fi
+
+    # Karaf script will stop an instance or warn the user if nothing is running.
+    elif [ "$option" = "stop" ]; then
+      checkRoot "$option"
+      echo "Stopping any instance of openHAB..."
+      "$OPENHAB_RUNTIME/bin/stop"
+
+    # If openHAB is running, echo the PID.
+    elif [ "$option" = "status" ]; then
+      existingPID="$(pgrep -f "openhab.*java")"
+      if [ -z "$existingPID" ]; then
+        echo "openHAB is not running."
+      else
+        existingTime="$(ps -o etime= -p "$existingPID")"
+        echo "openHAB is running with PID: $existingPID and has been running for $existingTime"
+      fi
+    fi
+    ;;
+
+  "restore")
+    # Run some basic checks before running the restore script
+    checkRoot "$option"
+    bText="0"
+    bUI="0"
+    args="$@"
+    while [ "$1" != "" ]; do
+      case $1 in
+        -h | --help)
+          usage
+          exit 0
+          ;;
+        --textconfig)
+          bText="1"
+          ;;
+        --uiconfig)
+          bUI="1"
+          ;;
+        *)
+          filename="$1"
+          ;;
+      esac
+      shift
+    done
+    # no need to stop OH for --[text|ui]config
+    if [ "$bText" = "0" -a "$bUI" = "0" -o "$bUI" = "1" ]; then
+      checkRunning
+    fi
+    # The restore script asks the user to confirm so no need to do it here.
+    if [ -f "$filename" ]; then
+      echo "Starte $OPENHAB_RUNTIME/bin/restore $args"
+      "$OPENHAB_RUNTIME/bin/restore" $args
+    else
+      echo "Restore needs a valid backup file to continue."
+      echo "  e.g. 'sudo openhab-cli restore backup.zip'"
+    fi
+    ;;
+
+  "showlogs"|"logs")
+    # Check if an override function exists
+    if isFunction showlogs_override; then
+      showlogs_override
+    else
+      # Tail all log files in the openHAB log directory
+      tail -f "${OPENHAB_LOGDIR:?}"/*.log
+    fi
+    ;;
+
+  *)
+    # Default to showing available commands
+    echo "Unrecognised command: $option"
+    usage
+    ;;
+esac
