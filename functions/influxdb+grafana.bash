@@ -191,6 +191,7 @@ influxdb_install() {
   address="http://localhost:8086"
   adminUsername="$1"
   adminPassword="$2"
+  # shellcheck disable=SC2034
   if is_pi; then
     myOS="Debian"
   else
