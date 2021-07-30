@@ -449,6 +449,8 @@ setup_mirror_SD() {
     return 0
   fi
 
+  local src="/dev/mmcblk0"
+  local srcSize
   local dest
   local destSize
   local infoText1="DANGEROUS OPERATION, USE WITH PRECAUTION!\\n\\nThis will *copy* your system root from your SD card to a USB attached card writer device. Are you sure"
@@ -457,7 +459,6 @@ setup_mirror_SD() {
   local sdIncludesDir="${BASEDIR:-/opt/openhabian}/includes/SD"
   local serviceTargetDir="/etc/systemd/system"
   local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
-  local srcSize
   local storageDir="${storagedir:-/storage}"
 
   echo -n "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... "
@@ -500,7 +501,7 @@ setup_mirror_SD() {
   fi
 
   infoText="$infoText1 $dest $infoText2"
-  srcSize="$(blockdev --getsize64 /dev/mmcblk0)"
+  srcSize="$(blockdev --getsize64 "$src")"
   minStorageSize="$((minStorageSize + srcSize))"    # to ensure we can use the extra storage for backup
   destSize="$(blockdev --getsize64 "$dest")"
   if [[ "$destSize" -lt "$srcSize" ]]; then
@@ -516,9 +517,9 @@ setup_mirror_SD() {
 
   mountUnit="$(basename "${storageDir}").mount"
   systemctl stop "${mountUnit}"
-  if sfdisk -d ${src} | grep -q "^${src}p3"; then
+  if sfdisk -d $src | grep -q "^${src}p3"; then
     # copy partition table with all 3 partitions
-    sfdisk -d /dev/mmcblk0 | sfdisk --force "$dest"
+    sfdisk -d $src | sfdisk --force "$dest"
   else
     if [[ "$destSize" -ge "$minStorageSize" ]]; then
       # create 3rd partition and filesystem on dest
