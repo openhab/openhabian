@@ -193,7 +193,7 @@ influxdb_install() {
   adminPassword="$2"
   # shellcheck disable=SC2034
   if is_pi; then
-    myOS="Debian"
+    myOS="debian"
   else
     myOS="$(lsb_release -si)"
   fi
@@ -205,8 +205,7 @@ influxdb_install() {
   if ! dpkg -s 'influxdb' &> /dev/null; then
     if ! add_keys "https://repos.influxdata.com/influxdb.key"; then return 1; fi
 
-    #echo "deb https://repos.influxdata.com/${myOS,,} ${myRelease,,} stable" > /etc/apt/sources.list.d/influxdb.list
-    echo "deb https://repos.influxdata.com/debian ${myRelease} stable" > /etc/apt/sources.list.d/influxdb.list
+    echo "deb https://repos.influxdata.com/${myOS,,} ${myRelease,,} stable" > /etc/apt/sources.list.d/influxdb.list
 
     echo -n "$(timestamp) [openHABian] Installing InfluxDB... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
@@ -245,7 +244,7 @@ influxdb_install() {
 
 ## Install local Grafana installation
 ##
-##    influxdb_install(String admin_password)
+##    grafana_install(String admin_password)
 ##
 grafana_install(){
   local adminPassword
