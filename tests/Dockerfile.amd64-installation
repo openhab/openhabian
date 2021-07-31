@@ -1,4 +1,4 @@
-FROM balenalib/amd64-debian:buster-build
+FROM balenalib/amd64-debian:bullseye-build
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DOCKER=1

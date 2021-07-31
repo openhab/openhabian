@@ -3,7 +3,7 @@
 ## Function to install and configure InfluxDB and Grafana, and integrate them with openHAB.
 ## This function can only be invoked in INTERACTIVE with userinterface.
 ##
-##    influxdb_grafana_setup()
+##    ebetanfluxdb_grafana_setup()
 ##
 influxdb_grafana_setup() {
   if [[ -z $INTERACTIVE ]]; then
@@ -191,13 +191,14 @@ influxdb_install() {
   address="http://localhost:8086"
   adminUsername="$1"
   adminPassword="$2"
+  # shellcheck disable=SC2034
   if is_pi; then
-    myOS="Debian"
+    myOS="debian"
   else
     myOS="$(lsb_release -si)"
   fi
   myRelease="$(lsb_release -sc)"
-  if [[ "$myRelease" == "n/a" ]]; then
+  if is_bullseye || [[ "$myRelease" == "n/a" ]]; then
     myRelease=${osrelease:-buster}
   fi
 
@@ -243,7 +244,7 @@ influxdb_install() {
 
 ## Install local Grafana installation
 ##
-##    influxdb_install(String admin_password)
+##    grafana_install(String admin_password)
 ##
 grafana_install(){
   local adminPassword
@@ -253,7 +254,11 @@ grafana_install(){
   if ! dpkg -s 'grafana' &> /dev/null; then
     if ! add_keys "https://packages.grafana.com/gpg.key"; then return 1; fi
 
-    echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list
+    if is_bullseye; then
+      echo "deb https://packages.grafana.com/oss/deb beta main" > /etc/apt/sources.list.d/grafana.list
+    else
+      echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list
+    fi
 
     echo -n "$(timestamp) [openHABian] Installing Grafana... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
