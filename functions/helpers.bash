@@ -563,3 +563,15 @@ set_cpu_speed() {
   echo 'GOVERNOR="ondemand"' > /etc/default/cpufrequtils
   echo ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
 }
+
+
+## check if InfluxDB is installed
+##
+##    iinfluxdb_is_installed
+##
+influxdb_is_installed() {
+  if [[ -d /var/lib/influxdb ]]; then return 0; fi
+  return 1
+}
+
+
