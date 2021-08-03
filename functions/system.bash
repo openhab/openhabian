@@ -336,6 +336,10 @@ permissions_corrections() {
   if ! cond_redirect fix_permissions /var/log/unattended-upgrades root:root 644 755; then echo "FAILED (unattended upgrades logdir)"; retval=1; fi
   if ! cond_redirect fix_permissions /var/log/samba root:root 640 750; then echo "FAILED (samba logdir)"; retval=1; fi
   if ! cond_redirect fix_permissions /var/log/openhab "openhab:${username:-openhabian}" 664 775; then echo "FAILED (openhab log)"; retval=1; fi
+
+  if influxdb_is_installed; then
+    chmod +x /usr/lib/influxdb/scripts/influxd-systemd-start.sh
+  fi
   if [[ -f /etc/ztab ]]; then
     if [[ -d /var/log/grafana ]]; then
       if ! cond_redirect fix_permissions /opt/zram/log.bind/grafana root:root 644 755; then echo "FAILED (grafana logdir on zram)"; retval=1; fi
