@@ -70,11 +70,11 @@ openhab_setup() {
   fi
 
   if [[ $2 == "unstable" ]]; then
-    echo -n "$(timestamp) [openHABian] Beginning install of latest $1 snapshot (unstable)... "
+    echo -n "$(timestamp) [openHABian] Beginning install of latest $1 snapshot build (unstable)... "
   elif [[ $2 == "stable" ]]; then
     echo -n "$(timestamp) [openHABian] Beginning install of latest $1 release (stable)... "
   elif [[ $2 == "testing" ]]; then
-    echo -n "$(timestamp) [openHABian] Beginning install of latest $1 milestone release (testing)... "
+    echo -n "$(timestamp) [openHABian] Beginning install of latest $1 milestone build (testing)... "
   fi
 
   if [[ -n $INTERACTIVE ]]; then
