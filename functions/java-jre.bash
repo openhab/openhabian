@@ -122,8 +122,8 @@ java_zulu_stable() {
   local updateText
   local consoleText
 
-  updateText="Updating Java may result in issues as it has not recieved extensive testing to verify compatibility.\\n\\nIf you wish to continue and encounter any errors please let us know so we can look into them to improve future compatibility."
-  consoleText="[openHABian] WARNING: Untested Java Version, you may experience issues as this version of Java has not recieved extensive testing to verify compatibility."
+  updateText="Updating Java may result in issues as it has not received extensive testing to verify compatibility.\\n\\nIf you wish to continue and encounter any errors please let us know so we can look into them to improve future compatibility."
+  consoleText="[openHABian] WARNING: Untested Java Version, you may experience issues as this version of Java has not received extensive testing to verify compatibility."
 
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --defaultno --title "Untested Version of Java" --no-button "Back" --yes-button "Continue" --yesno "$updateText" 11 80); then echo "CANCELED"; return 0; fi
