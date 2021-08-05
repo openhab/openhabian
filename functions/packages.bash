@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2120
+
+# shellcheck disable=SC2120,SC2154
 
 ## Function for installing samba for remote access of folders.
 ## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.

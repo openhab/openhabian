@@ -160,6 +160,7 @@ create_amanda_config() {
   echo -n "$(timestamp) [openHABian] Creating Amanda filesystem... "
   if ! cond_redirect mkdir -p "$configDir" "$databaseDir" "$logDir" "$indexDir"; then echo "FAILED (create directories)"; return 1; fi
   if ! cond_redirect touch "${configDir}/tapelist"; then echo "FAILED (touch tapelist)"; return 1; fi
+  # shellcheck disable=SC2154
   ip=$(dig +short "$hostname")
   revip=$(host "${ip}" | cut -d' ' -f1)
   if [[ -n "$revip" ]]; then (echo -e "${ip} ${backupUser} amdump\\n${revip} ${backupUser} amdump" > "$amandaHosts"); fi

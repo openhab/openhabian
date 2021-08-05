@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2154
+
 ## Function for installing FIND to allow for indoor localization of WiFi devices.
 ## This function can only be invoked in INTERACTIVE with userinterface.
 ##
