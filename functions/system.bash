@@ -192,7 +192,7 @@ hostname_change() {
     fi
   else
     echo -n "$(timestamp) [openHABian] Setting hostname of the base system based on openhabian.conf... "
-    newHostname="${hostname:-openhab}"
+    newHostname="${hostname:-openhabian}"
   fi
 
   if ! cond_redirect hostnamectl set-hostname "$newHostname"; then echo "FAILED (hostnamectl)"; return 1; fi
