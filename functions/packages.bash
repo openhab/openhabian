@@ -310,7 +310,7 @@ knxd_setup() {
   local introText="This will install kndx as your EIB/KNX IP gateway and router to support your KNX bus system.\\n\\nNOTE: Typically, you don't need this if you connect via an IP interface or router to your KNX installation. This package is to turn an USB or serial interface into an IP interface.\\n\\nNOTE: openHABian changed from building and installing latest source to installing the knxd package provided by several distributions."
   local missingText="Setup could not find knxd package.\\n\\nopenHABian changed from building and installing latest source to installing the knxd package provided by several distrubutions. In case you have an installation of openHABian on a custom Linux which does not provide knxd package, you could try to installation routine we used before as described at 'Michels Tech Blog': https://bit.ly/3dzeoKh"
   local errorText="Installation of knxd package failed, see console log for details."
-  local successText="Installation was successful.\\n\\nPlease edit '/etc/default/knxd' to meet your interface requirements. For further information on knxd options, please type 'knxd --help' or see /usr/share/doc/knxd/.\\n\\nSee also the openHAB KNX binding's documentation."
+  local successText="Installation was successful.\\n\\nPlease edit '/etc/knxd.conf' to meet your interface requirements. For further information on knxd options, please type 'knxd --help' or see /usr/share/doc/knxd/.\\n\\nSee also the openHAB KNX binding's documentation."
   local temp
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
