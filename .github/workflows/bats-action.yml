@@ -65,7 +65,7 @@ jobs:
            builder: ${{ steps.buildx.outputs.name }}
            tags: localhost:5000/openhabian/rpi4-openhabian:latest
            push: true
-       - name: BATS tests on virtual 64bit RPi4 running Debian Buster
+       - name: BATS tests on virtual 64bit RPi4 running Debian Bullseye
          run: |
            docker run --name "openhabian-rpi4" -d localhost:5000/openhabian/rpi4-openhabian
            docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "development-." .'
