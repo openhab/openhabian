@@ -3,7 +3,7 @@
 ## Function to install and configure InfluxDB and Grafana, and integrate them with openHAB.
 ## This function can only be invoked in INTERACTIVE with userinterface.
 ##
-##    ebetanfluxdb_grafana_setup()
+##    influxdb_grafana_setup()
 ##
 influxdb_grafana_setup() {
   if [[ -z $INTERACTIVE ]]; then
@@ -198,6 +198,7 @@ influxdb_install() {
     myOS="$(lsb_release -si)"
   fi
   myRelease="$(lsb_release -sc)"
+  #  TODO remove override to buster when bullseye repo for influxdb is available
   if is_bullseye || [[ "$myRelease" == "n/a" ]]; then
     myRelease=${osrelease:-buster}
   fi

@@ -210,6 +210,7 @@ homegear_setup() {
 
   if ! add_keys "https://apt.homegear.eu/Release.key"; then return 1; fi
 
+  #  TODO remove override to nightly when bullseye repo has the correct packages
   if is_bullseye; then
     echo "deb https://aptnightly.homegear.eu/${myOS} ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
   else
