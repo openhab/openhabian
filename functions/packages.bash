@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2120
+
+# shellcheck disable=SC2120,SC2154
 
 ## Function for installing samba for remote access of folders.
 ## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
@@ -117,8 +118,8 @@ exim_setup() {
   fi
   if cond_redirect install_dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
 
-  interfaces="$(dig +short "$HOSTNAME" | tr '\n' ';')127.0.0.1;::1"
-  relaynets="$(dig +short "$HOSTNAME" | cut -d'.' -f1-3).0/24"
+  interfaces="$(dig +short "$hostname" | tr '\n' ';')127.0.0.1;::1"
+  relaynets="$(dig +short "$hostname" | cut -d'.' -f1-3).0/24"
   introText="We will guide you through the install of exim4 as the mail transfer agent on your system and configure it to relay mails through a public service such as Google gmail.\\n\\nThe values you need to enter after closing this window are documented here:\\n\\nhttps://www.openhab.org/docs/installation/openhabian-exim.html\\n\\nOpen that URL in a browser now. Your interface addresses are ${interfaces}.\\nYou will be able to repeat the whole installation if required by selecting the openHABian menu for MTA again."
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
@@ -236,12 +237,12 @@ homegear_setup() {
   if [[ -f $disklistFileDir ]]; then
     echo -n "$(timestamp) [openHABian] Adding Homegear to Amanda local backup... "
     if ! cond_redirect sed -i -e '/homegear/d' "$disklistFileDir"; then echo "FAILED (old config)"; return 1; fi
-    if (echo "${HOSTNAME}  /var/lib/homegear             comp-user-tar" >> "$disklistFileDir"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
+    if (echo "${hostname}  /var/lib/homegear             comp-user-tar" >> "$disklistFileDir"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
   fi
   if [[ -f $disklistFileAWS ]]; then
     echo -n "$(timestamp) [openHABian] Adding Homegear to Amanda AWS backup... "
     if ! cond_redirect sed -i -e '/homegear/d' "$disklistFileAWS"; then echo "FAILED (old config)"; return 1; fi
-    if (echo "${HOSTNAME}  /var/lib/homegear             comp-user-tar" >> "$disklistFileAWS"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
+    if (echo "${hostname}  /var/lib/homegear             comp-user-tar" >> "$disklistFileAWS"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
   fi
 
   if [[ -n $INTERACTIVE ]]; then

@@ -237,7 +237,7 @@ else
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-config unattended' completed."
 echo "$(timestamp) [openHABian] First time setup successfully finished. Rebooting your system!"
-echo "$(timestamp) [openHABian] After rebooting the openHAB dashboard will be available at: http://${HOSTNAME:-openhabian}:8080"
+echo "$(timestamp) [openHABian] After rebooting the openHAB dashboard will be available at: http://${hostname:-openhabian}:8080"
 echo "$(timestamp) [openHABian] After rebooting to gain access to a console, simply reconnect using ssh."
 sleep 12
 if [[ -x $(command -v python3) ]]; then bash /boot/webserver.bash "inst_done"; fi

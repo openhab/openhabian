@@ -163,7 +163,8 @@ create_amanda_config() {
   ip=$(dig +short "$HOSTNAME")
   revip=$(host "${ip}" | cut -d' ' -f1)
   if [[ -n "$revip" ]]; then (echo -e "${ip} ${backupUser} amdump\\n${revip} ${backupUser} amdump" > "$amandaHosts"); fi
-  if ! (echo -e "${HOSTNAME} ${backupUser} amdump\\n${HOSTNAME} root amindexd amidxtaped\\nlocalhost ${backupUser}\\nlocalhost root amindexd amidxtaped" >> "$amandaHosts"); then echo "FAILED (Amanda hosts)"; return 1; fi
+  # shellcheck disable=SC2154
+  if ! (echo -e "${hostname} ${backupUser} amdump\\n${hostname} root amindexd amidxtaped\\nlocalhost ${backupUser}\\nlocalhost root amindexd amidxtaped" >> "$amandaHosts"); then echo "FAILED (Amanda hosts)"; return 1; fi
   if is_aarch64; then GNUTAR=/bin/tar; else GNUTAR=/usr/bin/tar; fi
   if ! (echo -e "amgtar:gnutar_path=$GNUTAR\\n" >> "$amandaSecurityConf"); then echo "FAILED (amanda-security.conf)"; return 1; fi
   if ! cond_redirect chown --recursive "${backupUser}:backup" "$amandaHosts" "$configDir" "$databaseDir" "$indexDir" /var/log/amanda; then echo "FAILED (chown)"; return 1; fi
@@ -205,22 +206,22 @@ create_amanda_config() {
     # Don't backup full SD by default as this can cause issues with large cards
     if [[ -n $INTERACTIVE ]]; then
       if (whiptail --title "Backup raw SD card" --defaultno --yes-button "Yes" --no-button "No" --yesno "Do you want to create raw disk backups of your SD card?\\n\\nThis is only recommended if your SD card is 16GB or less, otherwise this can take too long.\\n\\nYou can change this at any time by editing:\\n'${configDir}/disklist'" 13 80); then
-        echo "${HOSTNAME}  /dev/mmcblk0                  comp-amraw" >> "${configDir}/disklist"
+        echo "${hostname}  /dev/mmcblk0                  comp-amraw" >> "${configDir}/disklist"
       fi
     fi
   fi
   {
-    echo "${HOSTNAME}  /boot                         ${dumpType}"; \
-    echo "${HOSTNAME}  /etc                          ${dumpType}"
+    echo "${hostname}  /boot                         ${dumpType}"; \
+    echo "${hostname}  /etc                          ${dumpType}"
   } >> "${configDir}/disklist"
   if [[ -d /var/lib/openhab ]]; then
-    echo "${HOSTNAME}  /var/lib/openhab              ${dumpType}" >> "${configDir}/disklist"
+    echo "${hostname}  /var/lib/openhab              ${dumpType}" >> "${configDir}/disklist"
   fi
   if [[ -d /var/lib/homegear ]]; then
-    echo "${HOSTNAME}  /var/lib/homegear             ${dumpType}" >> "${configDir}/disklist"
+    echo "${hostname}  /var/lib/homegear             ${dumpType}" >> "${configDir}/disklist"
   fi
   if [[ -d /opt/find3/server/main ]]; then
-    echo "${HOSTNAME}  /opt/find3/server/main        ${dumpType}" >> "${configDir}/disklist"
+    echo "${hostname}  /opt/find3/server/main        ${dumpType}" >> "${configDir}/disklist"
   fi
   {
     echo "index_server \"localhost\""; \
@@ -311,7 +312,7 @@ amanda_setup() {
     tapes="15"
     if ! tapeSize="$(whiptail --title "Storage capacity" --inputbox "\\nHow much storage do you want to dedicate to your backup in megabytes?\\n\\nRecommendation: 2-3 times the amount of data to be backed up." 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     ((tapeSize/=tapes))
-    if ! create_amanda_config "$config" "$backupUser" "${adminmail:-root@${HOSTNAME}}" "$tapes" "$tapeSize" "$storageLoc"; then return 1; fi
+    if ! create_amanda_config "$config" "$backupUser" "${adminmail:-root@${hostname}}" "$tapes" "$tapeSize" "$storageLoc"; then return 1; fi
     whiptail --title "Amanda config setup successful" --msgbox "$successText" 10 80
   fi
   if (whiptail --title "Backup using Amazon AWS" --yes-button "Yes" --no-button "No"  --defaultno --yesno "Would you like to setup a backup mechanism based on Amazon Web Services?\\n\\nYou can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. For hints see http://markelov.org/wiki/index.php?title=Backup_with_Amanda:_tape,_NAS,_Amazon_S3#Amazon_S3\\nPlease setup your S3 bucket on Amazon Web Services NOW if you have not done so. Remember the name has to be unique in AWS namespace." 14 90); then
@@ -323,7 +324,7 @@ amanda_setup() {
     tapes="15"
     if ! tapeSize="$(whiptail --title "Storage capacity" --inputbox "\\nHow much storage do you want to dedicate to your backup in megabytes?\\n\\nRecommendation: 2-3 times the amount of data to be backed up." 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     ((tapeSize/=tapes))
-    if ! create_amanda_config "$config" "$backupUser" "${adminmail:-root@${HOSTNAME}}" "$tapes" "$tapeSize" "AWS" "$awsSite" "$awsBucket" "$awsAccessKey" "$awsSecretKey"; then return 1; fi
+    if ! create_amanda_config "$config" "$backupUser" "${adminmail:-root@${hostname}}" "$tapes" "$tapeSize" "AWS" "$awsSite" "$awsBucket" "$awsAccessKey" "$awsSecretKey"; then return 1; fi
     whiptail --title "Amanda config setup successful" --msgbox "$successText" 10 80
   fi
 }
@@ -547,6 +548,6 @@ setup_mirror_SD() {
 
   if [[ -z $INTERACTIVE ]] && [[ "$destSize" -ge "$minStorageSize" ]]; then
     amanda_install
-    create_amanda_config "${storageconfig:-openhab-dir}" "backup" "${adminmail:-root@${HOSTNAME}}" "${storagetapes:-15}" "${storagecapacity:-1024}" "${storageDir}"
+    create_amanda_config "${storageconfig:-openhab-dir}" "backup" "${adminmail:-root@${hostname}}" "${storagetapes:-15}" "${storagecapacity:-1024}" "${storageDir}"
   fi
 }

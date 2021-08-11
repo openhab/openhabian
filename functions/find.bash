@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2154
+
 ## Function for installing FIND to allow for indoor localization of WiFi devices.
 ## This function can only be invoked in INTERACTIVE with userinterface.
 ##
@@ -28,7 +30,7 @@ find3_setup() {
   local MQTT_SERVER
   local mqttMissingText="FIND3 requires an MQTT broker to run, but Mosquitto could not be found on this system.\\n\\nYou can configure FIND to use any existing MQTT broker (in the next step) or you can go back and install Mosquitto from the openHABian menu.\\n\\nDo you want to continue with the FIND3 installation?"
   local mqttPass="/etc/mosquitto/passwd"
-  local successText="FIND3 setup was successful.\\n\\nSettings can be configured in '/etc/default/find3server'. Be sure to restart the service after.\\n\\nYou must manually activate 'find3-cli-scanner', for more information see:\\nhttps://www.internalpositioning.com/doc/cli-scanner.md\\n\\nThere is also an Android app for collecting fingerprints. There is no iOS app for fingerprint collection, for details on why see:\\nhttps://www.internalpositioning.com/doc/faq.md#iphone\\n\\nCheck out your FIND3 server's dashboard at: http://${HOSTNAME}:8003\\n\\nFor more information see:\\nhttps://www.internalpositioning.com/doc/"
+  local successText="FIND3 setup was successful.\\n\\nSettings can be configured in '/etc/default/find3server'. Be sure to restart the service after.\\n\\nYou must manually activate 'find3-cli-scanner', for more information see:\\nhttps://www.internalpositioning.com/doc/cli-scanner.md\\n\\nThere is also an Android app for collecting fingerprints. There is no iOS app for fingerprint collection, for details on why see:\\nhttps://www.internalpositioning.com/doc/faq.md#iphone\\n\\nCheck out your FIND3 server's dashboard at: http://${hostname}:8003\\n\\nFor more information see:\\nhttps://www.internalpositioning.com/doc/"
 
   echo -n "$(timestamp) [openHABian] Beginning setup of FIND3, the Framework for Internal Navigation and Discovery... "
 
@@ -98,12 +100,12 @@ find3_setup() {
   if [[ -f $disklistFileDir ]]; then
     echo -n "$(timestamp) [openHABian] Adding FIND3 to Amanda local backup... "
     if ! cond_redirect sed -i -e '/find3/d' "$disklistFileDir"; then echo "FAILED (old config)"; return 1; fi
-    if (echo "${HOSTNAME}  /opt/find3/server/main        comp-user-tar" >> "$disklistFileDir"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
+    if (echo "${hostname}  /opt/find3/server/main        comp-user-tar" >> "$disklistFileDir"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
   fi
   if [[ -f $disklistFileAWS ]]; then
     echo -n "$(timestamp) [openHABian] Adding FIND3 to Amanda AWS backup... "
     if ! cond_redirect sed -i -e '/find3/d' "$disklistFileAWS"; then echo "FAILED (old config)"; return 1; fi
-    if (echo "${HOSTNAME}  /opt/find3/server/main        comp-user-tar" >> "$disklistFileAWS"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
+    if (echo "${hostname}  /opt/find3/server/main        comp-user-tar" >> "$disklistFileAWS"); then echo "OK"; else echo "FAILED (new config)"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up FIND3 service... "

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# shellcheck disable=SC2154
+
 ## Generate systemd dependencies for zram, Frontail and others to start together with OH
 ## This is done using /etc/systemd/system/openhab.service.d/override.conf
 ##
@@ -138,7 +140,7 @@ openhab_shell_interfaces() {
   local successText
 
   introText="\\nThe openHAB remote console is a powerful tool for every openHAB user. For details see https://www.openhab.org/docs/administration/console.html\\n\\nThis menu option will make the console available on all interfaces of your system. Please provide a secure password for this connection. Blank input will get you the default password \"habopen\"."
-  successText="The openHAB remote console was successfully activated on all interfaces and openHAB has been restarted. You can reach the console using\\n\\nssh openhab@$HOSTNAME -p 8101\\n\\nBe aware that the first connection attempt may take a few minutes or may result in a timeout due to key generation.\\nThe default password is \"habopen\"."
+  successText="The openHAB remote console was successfully activated on all interfaces and openHAB has been restarted. You can reach the console using\\n\\nssh openhab@$hostname -p 8101\\n\\nBe aware that the first connection attempt may take a few minutes or may result in a timeout due to key generation.\\nThe default password is \"habopen\"."
   echo -n "$(timestamp) [openHABian] Activating the openHAB console on all interfaces... "
 
   if [[ -n $INTERACTIVE ]]; then
