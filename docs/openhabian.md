@@ -151,9 +151,9 @@ The whole process will take a few minutes, then openHAB and all other tools need
 **Setup:**
 
 -   [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is _xz_ compressed)
--   Write the image to your SD card (e.g. with [Etcher](https://www.balena.io/etcher/) or official [Raspberry Pi Imager](https://www.raspberrypi.org/software/), both able to directly work with _xz_ files
+-   Write the image to your SD card using the official [Raspberry Pi Imager](https://www.raspberrypi.org/software/). Alternatively, you can use [Etcher](https://www.balena.io/etcher/). Both able to directly work with _xz_ files.
 -   Insert the SD card into your Raspberry Pi, connect your Ethernet cable - [Wi-Fi is also supported](#wi-fi-based-setup-notes) - and power on
--   Wait approximately **15-45 minutes** for openHABian to do its magic, you can watch the install progress from within your browser.
+-   Wait approximately **15-45 minutes** for openHABian to do its magic, you can watch the install progress from within your browser
 -   The system will be accessible by its IP or via the local DNS name `openhabian` (or whatever you changed 'hostname' in `openhabian.conf` to)
 -   Connect to the openHAB UI at [http://openhabian:8080](http://openhabian:8080)
 -   [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
