@@ -184,6 +184,7 @@ install_tailscale() {
   local serviceTargetDir="/lib/systemd/system"
   local sudoersFile="011_openhab-tailscale"
   local sudoersPath="/etc/sudoers.d"
+  local keyName="tailscale"
 
   if [[ -n "$UNATTENDED" ]]; then
     if [[ ! -v preauthkey ]]; then echo "$(timestamp) [openHABian] tailscale VPN installation... SKIPPED (no preauthkey defined)"; return 1; fi
@@ -211,9 +212,9 @@ install_tailscale() {
   fi
   echo "$(timestamp) [openHABian] Installing tailscale VPN... "
   # Add tailscale's GPG key
-  add_keys https://pkgs.tailscale.com/stable/raspbian/buster.gpg
+  add_keys "https://pkgs.tailscale.com/stable/raspbian/buster.gpg" "$keyName"
   # Add the tailscale repository
-  wget -qO /etc/apt/sources.list.d/tailscale.list https://pkgs.tailscale.com/stable/raspbian/buster.list
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://pkgs.tailscale.com/stable/raspbian buster main" > /etc/apt/sources.list.d/tailscale.list
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   # Install tailscale
   if cond_redirect apt-get install --yes tailscale; then echo "OK"; else echo "FAILED (install tailscale)"; return 1; fi
