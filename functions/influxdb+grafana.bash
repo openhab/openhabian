@@ -181,16 +181,13 @@ influxdb_grafana_setup() {
 ##    influxdb_install(String adminUsername, String adminPassword)
 ##
 influxdb_install() {
-  local address
-  local adminUsername
-  local adminPassword
+  local address="http://localhost:8086"
+  local adminPassword="$2"
+  local adminUsername="$1"
+  local keyName="influxdb"
   local myOS
   local myRelease
 
-
-  address="http://localhost:8086"
-  adminUsername="$1"
-  adminPassword="$2"
   # shellcheck disable=SC2034
   if is_pi; then
     myOS="debian"
@@ -204,9 +201,9 @@ influxdb_install() {
   fi
 
   if ! dpkg -s 'influxdb' &> /dev/null; then
-    if ! add_keys "https://repos.influxdata.com/influxdb.key"; then return 1; fi
+    if ! add_keys "https://repos.influxdata.com/influxdb.key" "$keyName"; then return 1; fi
 
-    echo "deb https://repos.influxdata.com/${myOS,,} ${myRelease,,} stable" > /etc/apt/sources.list.d/influxdb.list
+    echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://repos.influxdata.com/${myOS,,} ${myRelease,,} stable" > /etc/apt/sources.list.d/influxdb.list
 
     echo -n "$(timestamp) [openHABian] Installing InfluxDB... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
@@ -248,17 +245,16 @@ influxdb_install() {
 ##    grafana_install(String admin_password)
 ##
 grafana_install(){
-  local adminPassword
-
-  adminPassword="$1"
+  local adminPassword="$1"
+  local keyName="grafana"
 
   if ! dpkg -s 'grafana' &> /dev/null; then
-    if ! add_keys "https://packages.grafana.com/gpg.key"; then return 1; fi
+    if ! add_keys "https://packages.grafana.com/gpg.key" "$keyName"; then return 1; fi
 
     if is_bullseye; then
-      echo "deb https://packages.grafana.com/oss/deb beta main" > /etc/apt/sources.list.d/grafana.list
+      echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.grafana.com/oss/deb beta main" > /etc/apt/sources.list.d/grafana.list
     else
-      echo "deb https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list
+      echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list
     fi
 
     echo -n "$(timestamp) [openHABian] Installing Grafana... "

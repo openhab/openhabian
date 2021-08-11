@@ -279,10 +279,12 @@ java_zulu_update_available() {
 ##    java_zulu_enterprise_apt(String ver)
 ##
 java_zulu_enterprise_apt() {
-  if ! add_keys "https://www.azul.com/files/0xB1998361219BD9C9.txt"; then return 1; fi
+  local keyName="zulu_enterprise"
+
+  if ! add_keys "https://www.azul.com/files/0xB1998361219BD9C9.txt" "$keyName"; then return 1; fi
 
   echo -n "$(timestamp) [openHABian] Adding Zulu repository to apt... "
-  if ! echo "deb http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list; then echo "FAILED"; return 1; fi
+  if ! echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list; then echo "FAILED"; return 1; fi
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
   if openhab_is_running; then
@@ -329,15 +331,17 @@ java_zulu_install_crypto_extension() {
 ##    adoptopenjdk_fetch_apt()
 ##
 adoptopenjdk_fetch_apt() {
+  local keyName="adoptopenjdk"
+
   if ! dpkg -s 'software-properties-common' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK prerequisites (software-properties-common)... "
     if ! cond_redirect apt-get install --yes software-properties-common; then echo "FAILED"; return 1; fi
   fi
 
-  if ! add_keys "https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public"; then return 1; fi
+  if ! add_keys "https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public" "$keyName"; then return 1; fi
 
   echo -n "$(timestamp) [openHABian] Adding AdoptOpenJDK repository to apt... "
-  echo "deb https://adoptopenjdk.jfrog.io/adoptopenjdk/deb buster main" > /etc/apt/sources.list.d/adoptopenjdk.list
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://adoptopenjdk.jfrog.io/adoptopenjdk/deb bullseye main" > /etc/apt/sources.list.d/adoptopenjdk.list
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Fetching AdoptOpenJDK... "

@@ -191,6 +191,7 @@ homegear_setup() {
   local disklistFileAWS="/etc/amanda/openhab-aws/disklist"
   local disklistFileDir="/etc/amanda/openhab-dir/disklist"
   local introText="This will install Homegear, the Homematic CCU2 emulation software, using the latest stable release available from the official repository."
+  local keyName="homegear"
   local myOS
   local myRelease
   local successText="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
@@ -208,13 +209,13 @@ homegear_setup() {
     echo "OK"
   fi
 
-  if ! add_keys "https://apt.homegear.eu/Release.key"; then return 1; fi
+  if ! add_keys "https://apt.homegear.eu/Release.key" "$keyName"; then return 1; fi
 
   #  TODO remove override to nightly when bullseye repo has the correct packages
   if is_bullseye; then
-    echo "deb https://aptnightly.homegear.eu/${myOS} ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
+    echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://aptnightly.homegear.eu/${myOS} ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
   else
-    echo "deb https://apt.homegear.eu/${myOS}/ ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
+    echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS}/ ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
   fi
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
@@ -632,7 +633,8 @@ nginx_setup() {
 ## Valid argument: port to run Phoscon app on
 ##
 deconz_setup() {
-  local port=${1:-8081}
+  local port="${1:-8081}"
+  local keyName="deconz"
   local introText="This will install deCONZ as a web service, the companion app to support Dresden Elektronik Conbee and Raspbee Zigbee controllers.\\nUse the web interface on port 8081 to pair your sensors.\\nNote the port is changed to 8081 as the default 80 wouldn't be right with openHAB itself running on 8080."
   local successText="The deCONZ API plugin and the Phoscon companion web app were successfully installed on your system.\\nUse the web interface on port ${port} to pair your sensors with Conbee or Raspbee Zigbee controllers.\\nNote the port has been changed from its default 80 to 8081."
   local repo="/etc/apt/sources.list.d/deconz.list"
@@ -640,7 +642,7 @@ deconz_setup() {
 
   if ! (whiptail --title "deCONZ installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then return 0; fi
 
-  if ! add_keys "http://phoscon.de/apt/deconz.pub.key"; then return 1; fi
+  if ! add_keys "http://phoscon.de/apt/deconz.pub.key" "$keyName"; then return 1; fi
 
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
@@ -651,7 +653,7 @@ deconz_setup() {
   if is_x86_64; then
     arch="[arch=amd64] "
   fi
-  echo "deb ${arch}http://phoscon.de/apt/deconz ${myRelease} main" > $repo
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] ${arch}http://phoscon.de/apt/deconz ${myRelease} main" > $repo
 
   echo -n "$(timestamp) [openHABian] Preparing deCONZ repository ... "
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; fi

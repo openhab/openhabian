@@ -6,10 +6,10 @@ export DEBIAN_FRONTEND="noninteractive"
 export PREOFFLINE="1"
 
 source /opt/openhabian/functions/helpers.bash
-add_keys https://openhab.jfrog.io/artifactory/api/gpg/key/public
-echo "deb https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main" > /etc/apt/sources.list.d/openhab.list
-add_keys https://davesteele.github.io/key-366150CE.pub.txt
-echo "deb http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.list
+add_keys "https://openhab.jfrog.io/artifactory/api/gpg/key/public" "openhab"
+echo "deb [signed-by=/usr/share/keyrings/openhab.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main" > /etc/apt/sources.list.d/openhab.list
+add_keys "https://davesteele.github.io/key-366150CE.pub.txt" "comitup"
+echo "deb [signed-by=/usr/share/keyrings/comitup.gpg] http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.list
 apt-get --quiet update
 apt-get --quiet upgrade --yes
 apt-get --quiet install --download-only --yes libattr1-dev libc6 libstdc++6 \

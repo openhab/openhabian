@@ -42,18 +42,15 @@ cond_echo() {
 ## Add keys to apt for new package sources
 ## Valid Arguments: URL
 ##
-##    add_keys(String url)
+##    add_keys(String url, String keyFile)
 ##
 add_keys() {
-  local repoKey
-
-  repoKey="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
+  local repoKey="/usr/share/keyrings/${2}.gpg"
 
   echo -n "$(timestamp) [openHABian] Adding required keys to apt... "
-  cond_redirect wget -qO "$repoKey" "$1"
-  if cond_redirect apt-key add "$repoKey"; then
+
+  if curl -fsSL "$1" | gpg --dearmor > "$repoKey"; then
     echo "OK"
-    rm -f "$repoKey"
   else
     echo "FAILED"
     rm -f "$repoKey"
@@ -573,5 +570,3 @@ influxdb_is_installed() {
   if [[ -d /var/lib/influxdb ]]; then return 0; fi
   return 1
 }
-
-
