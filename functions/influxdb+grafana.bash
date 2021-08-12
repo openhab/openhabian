@@ -251,12 +251,8 @@ grafana_install(){
   if ! dpkg -s 'grafana' &> /dev/null; then
     if ! add_keys "https://packages.grafana.com/gpg.key" "$keyName"; then return 1; fi
 
-    if is_bullseye; then
-      echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.grafana.com/oss/deb beta main" > /etc/apt/sources.list.d/grafana.list
-    else
-      echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list
-    fi
-
+    echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list
+    
     echo -n "$(timestamp) [openHABian] Installing Grafana... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     if cond_redirect apt-get install --yes grafana; then echo "OK"; else echo "FAILED"; return 1; fi
