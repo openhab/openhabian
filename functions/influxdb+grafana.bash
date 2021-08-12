@@ -267,7 +267,7 @@ grafana_install(){
   if ! cond_redirect mkdir -p /var/run/grafana; then echo "FAILED (mkdir)"; return 1; fi
   if ! cond_redirect chmod -R 0750 /var/run/grafana; then echo "FAILED (chmod)"; return 1; fi
   if ! cond_redirect chown -R grafana:grafana /var/run/grafana; then echo "FAILED (chown)"; return 1; fi
-  if ! zram_dependency install grafana; then return 1; fi
+  if ! zram_dependency install grafana-server; then return 1; fi
   if [[ -s /etc/ztab ]] && ! mkdir -p /opt/zram/log.bind/grafana /var/log/grafana && chown grafana /opt/zram/log.bind/grafana /var/log/grafana; then echo "FAILED (create zram logdir)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now grafana-server.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
