@@ -252,7 +252,7 @@ grafana_install(){
     if ! add_keys "https://packages.grafana.com/gpg.key" "$keyName"; then return 1; fi
 
     echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list
-    
+
     echo -n "$(timestamp) [openHABian] Installing Grafana... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     if cond_redirect apt-get install --yes grafana; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -260,10 +260,10 @@ grafana_install(){
 
   echo -n "$(timestamp) [openHABian] Setting up Grafana service... "
   # Workaround for strange behavior in CI
-  if ! cond_redirect mkdir -p /var/run/grafana; then echo "FAILED (mkdir)"; return 1; fi
-  if ! cond_redirect chmod -R 0750 /var/run/grafana; then echo "FAILED (chmod)"; return 1; fi
-  if ! cond_redirect chown -R grafana:grafana /var/run/grafana; then echo "FAILED (chown)"; return 1; fi
-  if ! zram_dependency install grafana-server; then return 1; fi
+  if ! cond_redirect mkdir -p /run/grafana; then echo "FAILED (mkdir)"; return 1; fi
+  if ! cond_redirect chmod -R 0750 /run/grafana; then echo "FAILED (chmod)"; return 1; fi
+  if ! cond_redirect chown -R grafana:grafana /run/grafana; then echo "FAILED (chown)"; return 1; fi
+  if ! zram_dependency install grafana grafana-server; then return 1; fi
   if [[ -s /etc/ztab ]] && ! mkdir -p /opt/zram/log.bind/grafana /var/log/grafana && chown grafana /opt/zram/log.bind/grafana /var/log/grafana; then echo "FAILED (create zram logdir)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now grafana-server.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
