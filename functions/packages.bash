@@ -199,8 +199,9 @@ homegear_setup() {
 
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
-  if [[ "$myRelease" == "n/a" ]]; then
-    myRelease=${osrelease:-buster}
+  #  TODO remove override to buster when bullseye repo has the correct packages
+  if is_bullseye || [[ "$myRelease" == "n/a" ]]; then
+    myRelease="${osrelease:-buster}"
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
@@ -212,12 +213,7 @@ homegear_setup() {
 
   if ! add_keys "https://apt.homegear.eu/Release.key" "$keyName"; then return 1; fi
 
-  #  TODO remove override to nightly when bullseye repo has the correct packages
-  if is_bullseye; then
-    echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://aptnightly.homegear.eu/${myOS} ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
-  else
-    echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS}/ ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
-  fi
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS}/ ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
