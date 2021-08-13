@@ -199,8 +199,8 @@ homegear_setup() {
 
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
-  #  TODO remove override to buster when bullseye repo has the correct packages
-  if is_bullseye || [[ "$myRelease" == "n/a" ]]; then
+
+  if [[ "$myRelease" == "n/a" ]]; then
     myRelease="${osrelease:-buster}"
   fi
 
@@ -217,7 +217,18 @@ homegear_setup() {
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then
+    echo "OK"
+  else
+    # TODO remove this once Homegear devs get their rear in gear
+    if is_bullseye; then
+      echo "FAILED (Homegear on Bullseye is not currently working, complain to the Homegear developers not us)"
+      return 0
+    else
+      echo "FAILED"
+      return 1
+    fi
+  fi
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permissions... "
   if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
   if cond_redirect adduser openhab homegear; then echo "OK"; else echo "FAILED"; return 1; fi
