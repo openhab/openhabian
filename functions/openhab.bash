@@ -300,18 +300,3 @@ dashboard_add_tile() {
 
   if echo -e "\\norg.openhab.core.ui.tiles:${application}-link-name=${tileDesc}\\norg.openhab.core.ui.tiles:${application}-link-url=${tileURL}\\norg.openhab.core.ui.tiles:${application}-link-imageurl=${tileImg}" >> "$dashboardConfig"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
-
-## Replace outdated bintray repo
-##
-##    fix_openhab_repo
-##
-fix_openhab_repo() {
-  local warningText="Due to bintray shutdown of services, there is an immediate need to change the openhab stable repository configuration.\\nBintray repo in /etc/apt/sources.list.d/openhab.list needs to be replaced by Artifactory.\\n\\nDo you want this to be replaced now?"
-
-  if ! grep -qs 'https://dl.bintray.com/openhab/apt-repo2' /etc/apt/sources.list.d/openhab.list; then return; fi
-
-  echo -n "$(timestamp) [openHABian] Offering to replace outdated bintray repository with artifactory repo... "
-  if ! (whiptail --title "Repository replacement" --yes-button "Replace" --no-button "Skip" --yesno "$warningText" 10 80); then echo "SKIPPED"; return 0; fi
-  cond_redirect rm -f /etc/apt/sources.list.d/openhab2.list
-  sed -ie 's#https://dl.bintray.com/openhab/apt-repo2#https://openhab.jfrog.io/artifactory/openhab-linuxpkg#g' /etc/apt/sources.list.d/openhab.list
-}
