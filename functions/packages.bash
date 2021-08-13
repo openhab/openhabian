@@ -300,7 +300,7 @@ mqtt_setup() {
     if ! cond_redirect sed -i -e '/allow_anonymous/d' /etc/mosquitto/mosquitto.conf; then echo "FAILED"; return 1; fi
     if cond_redirect rm -f /etc/mosquitto/passwd; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  grep -qs "/log.bind" /etc/ztab && if ! zram_dependency install mosquitto; then return 1; fi
+  if ! zram_dependency install mosquitto; then return 1; fi
   if [[ -s /etc/ztab ]] && ! mkdir -p /opt/zram/log.bind/mosquitto /var/log/mosquitto && chown mosquitto /opt/zram/log.bind/mosquitto /var/log/mosquitto; then echo "FAILED (create zram logdir)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up MQTT service... "
   if ! cond_redirect usermod --append --groups mosquitto "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} mosquitto)"; return 1; fi
