@@ -34,15 +34,15 @@ It provides:
 
 ## Features
 
-Out of the box, the openHABian image provides:
+Out of the box, the openHABian image provides lots of useful Linux tools:
 
 -   Hassle-free setup without a display or keyboard, connected via Ethernet or [Wi-Fi](#wi-fi-based-setup-notes)
 -   All versions of openHAB to select from, including the latest stable one as the default
 -   Zulu Embedded OpenJDK Java 11 or AdoptOpenJDK
 -   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
+-   [SD card mirroring](openhabian.md#auto-backup) and [Amanda Backup](openhabian-amanda.md) to boost system availability
 -   Web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
 -   Samba file sharing [pre-configured ready to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
--   Lots of useful Linux packages and settings pre-installed
 -   Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
 -   The [Mosquitto](https://mosquitto.org) MQTT broker
 -   The [InfluxDB](https://www.influxdata.com/) database to store home automation data and [Grafana](https://grafana.com/) to visualize it
@@ -365,7 +365,7 @@ You can also make use of this if you don't use the image but unattended installa
 #### Admin key
 
 Make the `adminkeyurl` point to an URL to contain a public SSH key.
-This will be included with your administration user's `.ssh/authorized_keys` and the openHAB console so the admin user (yourself, usually) can login after installation.
+This will be included with your administration user's `.ssh/authorized_keys` and the openHAB console so the admin user (yourself, usually) can login right after installation  without a password. This helps with automating deployments.
 
 #### Wi-Fi based setup notes
 
@@ -377,7 +377,7 @@ So in addition to the setup instructions given above, uncomment and complete the
 
 When your openHABian box does not get Internet connectivity through either Ethernet or WI-Fi (if configured), openHABian will launch a **Hotspot**.
 Use your mobile phone to scan for Wi-Fi networks, you should be seeing a new network called `openHABian-<n>`.
-Connecting will work without a password. Once connected, most smarthpones will transfer you to a web page.
+Connecting will work without a password. Once connected, most smartphones will transfer you to a web page.
 If this does not happen on your mobile device, open your browser on the mobile and point it at `http://raspberrypi.local` or `http://comitup-<n>`.
 This may or may not work for your mobile browser as it requires Bonjour/ZeroConf abilities.
 If you cannot connect to this address, go to `http://10.41.0.1`.
