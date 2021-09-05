@@ -445,12 +445,6 @@ mirror_SD() {
 ##   setup_mirror_SD()
 ##
 setup_mirror_SD() {
-  if ! cond_redirect install -m 755 "${sdIncludesDir}/set-partuuid" /usr/local/sbin; then echo "FAILED (install set-partuuid)"; return 1; fi
-  if [[ -n "$UNATTENDED" ]] && [[ -z "$backupdrive" ]]; then
-    echo "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... SKIPPED (no configuration provided)"
-    return 0
-  fi
-
   local src="/dev/mmcblk0"
   local srcSize
   local dest
@@ -463,8 +457,14 @@ setup_mirror_SD() {
   local sizeError="your destination SD card device does not have enough space"
   local storageDir="${storagedir:-/storage}"
 
+  if ! cond_redirect install -m 755 "${sdIncludesDir}/set-partuuid" /usr/local/sbin; then echo "FAILED (install set-partuuid)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... "
 
+  if [[ -n "$UNATTENDED" ]] && [[ -z "$backupdrive" ]]; then
+    echo "SKIPPED (no configuration provided)"
+    return 0
+  fi
+  
   if [[ $1 == "remove" ]]; then
     cond_redirect systemctl disable sdrsync.service sdrawcopy.service sdrsync.timer sdrawcopy.timer
     rm -f "$serviceTargetDir"/sdr*.{service,timer}
