@@ -131,7 +131,7 @@ show_main_menu() {
     choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "System Settings" 24 118 17 --cancel-button Back --ok-button Execute \
     "31 | Change hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set system locale"      "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
-    "33 | Set system timezone"    "Change the your timezone, execute if it's not '$(date +%H:%M)' now" \
+    "33 | Set system timezone"    "Change your timezone, execute if it's not '$(date +%H:%M)' now" \
     "   | Enable NTP"             "Enable time synchronization via systemd-timesyncd to NTP servers" \
     "   | Disable NTP"            "Disable time synchronization via systemd-timesyncd to NTP servers" \
     "34 | Change passwords"       "Change passwords for Samba, openHAB Console or the system user" \
