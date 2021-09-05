@@ -445,6 +445,7 @@ mirror_SD() {
 ##   setup_mirror_SD()
 ##
 setup_mirror_SD() {
+  if ! cond_redirect install -m 755 "${sdIncludesDir}/set-partuuid" /usr/local/sbin; then echo "FAILED (install set-partuuid)"; return 1; fi
   if [[ -n "$UNATTENDED" ]] && [[ -z "$backupdrive" ]]; then
     echo "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... SKIPPED (no configuration provided)"
     return 0
@@ -459,7 +460,7 @@ setup_mirror_SD() {
   local minStorageSize=4000000000                  # 4 GB
   local sdIncludesDir="${BASEDIR:-/opt/openhabian}/includes/SD"
   local serviceTargetDir="/etc/systemd/system"
-  local sizeError="your destination SD card device does not have enough space, it needs to have at least twice as much as the source"
+  local sizeError="your destination SD card device does not have enough space"
   local storageDir="${storagedir:-/storage}"
 
   echo -n "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... "
@@ -482,8 +483,7 @@ setup_mirror_SD() {
 
   mkdir -p "$storageDir"
   if cond_redirect apt-get install --yes gdisk; then echo "OK"; else echo "FAILED (install gdisk)"; return 1; fi
-  if ! cond_redirect install -m 755 "${sdIncludesDir}/set-partuuid" /usr/local/sbin; then echo "FAILED (install set-partuuid)"; return 1; fi
-
+  
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
     if [[ -z $retval ]]; then return 0; fi
@@ -503,7 +503,7 @@ setup_mirror_SD() {
 
   infoText="$infoText1 $dest $infoText2"
   srcSize="$(blockdev --getsize64 "$src")"
-  minStorageSize="$(((minStorageSize + srcSize) / 2))"    # to ensure we can use the extra storage for backup
+  minStorageSize="$(((minStorageSize + srcSize) / 2))"    # to ensure we have at least 4GB AND as much space as the source card
   destSize="$(blockdev --getsize64 "$dest")"
   if [[ "$destSize" -lt "$srcSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
