@@ -438,7 +438,7 @@ Menu 5X provides interactive access to the aforementioned functions:<br>
 `54 Raw copy SD` is a one-time raw copy (mirror) run.
 `55 Sync SD` proagates (syncs) differences from your main SD card to your external card.
 
-Should you need to switch over to your backup card, get another new SD card that matches the size of the broken card and use menu option 54 to copy your active backup card back to the new one and switch cards back as soon as possible.
+In case of failure of your primary SD card, replace the broken SD card in the internal slot with your backup card from the external reader. Get another SD card that matches the size of the backup (now in internal slot) card and use menu option 54 to copy your active backup card back to the new one.
 
 #### Tailscale VPN network
 
