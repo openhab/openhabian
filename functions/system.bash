@@ -271,6 +271,7 @@ srv_bind_mounts() {
   if ! cond_redirect create_mount "/usr/share/openhab" "sys"; then echo "FAILED (sys)"; return 1; fi
   if ! cond_redirect create_mount "/etc/openhab" "conf"; then echo "FAILED (conf)"; return 1; fi
   if ! cond_redirect create_mount "/var/lib/openhab" "userdata"; then echo "FAILED (userdata)"; return 1; fi
+  if ! cond_redirect create_mount "/var/log/openhab" "log"; then echo "FAILED (log)"; return 1; fi
   if cond_redirect create_mount "/usr/share/openhab/addons" "addons"; then echo "OK"; else echo "FAILED (addons)"; return 1; fi
 
   if [[ -f /etc/ztab ]]; then
