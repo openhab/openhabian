@@ -121,11 +121,12 @@ On x86 hardware, 64 bit is the standard.
 
 ### Networking
 
-The scripted use (i.e. the non-image version) of openHABian does not change anything about your OS' networking setup (except if you deploy a VPN from the menu, of course) so you have to take care of that yourself.
+You need to prepare your local network so you eventually need to configure your Internet router before an openHABian installation.
 For image based installations, openHABian re-uses the TCP/IP networking setup Raspberry Pi OS is coming with.
+The non-image (script-only) version of openHABian does not change anything about your existing OS' networking setup so you have to take care of that and prepare it yourself.
 
-A properly working DHCP server is a mandatory prerequisite to openHABian's networking setup.
-We recommend you configure your DHCP server to always assign the same IP based based on your Pi's MAC address.
+A working DHCP server is a mandatory prerequisite to openHABian's networking setup.
+We recommend you configure your DHCP server to always assign the same IP based based on your RPi's MAC address.
 That'll effectively get you a fixed IP address.
 Most DHCP servers are part of your Internet router and have an option to allow for this type of mapping.
 For example in AVM Fritz!boxes (popular in Germany), it's a simple checkbox you can tick - note it only appears after the address was assigned to a client (your openHABian box) for the first time.
@@ -145,31 +146,29 @@ Remember that once the hotspot is started, it'll hide once you have successfully
 The provided image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/software/operating-systems/#raspberry-pi-os-32-bit) (previously called Raspbian) standard system.
 openHABian is designed as a headless system, you will not need a display or a keyboard.
 On first boot, the system will set up openHAB, its tools and settings.
-Packages will be downloaded in their newest version and configured.
-The whole process will take a few minutes, then openHAB and all other tools needed to get started will be ready to use without further configuration steps.
+Packages will be downloaded in their *newest* version and configured.
+The whole process will take some minutes, then openHAB and all other tools required to get started will be ready to use without further configuration steps.
 
-**Setup:**
+**Installation:**
 
+-   Make sure you meet the [hardware prerequisites](#hardware) first
+-   [Prepare your local router](#networking)
 -   [Download the latest "openHABian" SD card image file](https://github.com/openhab/openhabian/releases) (Note: the file is _xz_ compressed)
--   Write the image to your SD card using the official [Raspberry Pi Imager](https://www.raspberrypi.org/software/). Alternatively, you can use [Etcher](https://www.balena.io/etcher/). Both able to directly work with _xz_ files.
--   Insert the SD card into your Raspberry Pi, connect your Ethernet cable - [Wi-Fi is also supported](#wi-fi-based-setup-notes) - and power on
--   Wait approximately **15-45 minutes** for openHABian to do its magic, you can watch the install progress from within your browser
--   The system will be accessible by its IP or via the local DNS name `openhabian` (or whatever you changed 'hostname' in `openhabian.conf` to)
+-   Write the image to your SD card using the official [Raspberry Pi Imager](https://www.raspberrypi.org/software/). Alternatively, you can use [Etcher](https://www.balena.io/etcher/).
+-   Optionally, you can change a number of parameters *now* to affect the installation. See this section (https://www.openhab.org/docs/installation/openhabian.html#openhabian-conf). As a beginner or if in doubt what an option does, don't change anything.
+-   Insert the SD card into your Raspberry Pi. Connect your Ethernet or [configure Wi-Fi](#wi-fi-based-setup-notes) if you want to use that. Power on and wait approximately 15-45 minutes for openHABian to do its magic. The system will be accessible by its IP or via the local DNS name `openhabian` and you can watch the install progress in your browser. If for whatever reason networking does not work, openHABian will launch a [hotspot](#Wi-Fi-Hotspot) so if you see that, something's up with your networking.
 -   Connect to the openHAB UI at [http://openhabian:8080](http://openhabian:8080)
 -   [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
 -   Connect to the openHAB Log Viewer (frontail): [http://openhabian:9001](http://openhabian:9001)
--   If you encounter any setup problem, [please continue here](#successful)
+-   **If you encounter any setup problem, [please continue here](#successful)**
 
-You can stop reading for the time being, openHABian has installed and configured your openHAB system and you can start to use it right away.
-If you want to get in touch with the system or want to install one of the previously mentioned optional features, come back here later.
-
-Ready for more?
+When openHABian has installed and configured your openHAB system, you can start to use it right away.
 [Connect to your Raspberry Pi SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) using the username `openhabian` and password `openhabian`.
-You will see the following welcome screen:
+You should be seeing a welcome screen like the following:
 
 ![openHABian login screen](images/openHABian-SSH-MotD.png)
 
-➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below!
+➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below.
 
 <a id="manual-setup"></a>
 ### Other Linux Systems (add openHABian just like any other software)
@@ -462,7 +461,7 @@ In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` 
 
 ## Optional Components
 
-openHABian comes with a number of additional routines to quickly install and set up home automation related software.
+openHABian comes with a number of additional tools to quickly install and set up home automation related software.
 You'll find all of these in the [openHABian Configuration Tool](#openhabian-configuration-tool)
 
 -   [Frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openhabian:9001](http://openhabian:9001)
@@ -498,7 +497,7 @@ Double-check the IP address and name with your router while you wait.
 If there is absolutely no output for more than 10 minutes, your installation has failed in the first initialization phase.
 There probably is a problem with the way your router or local network are setup.
 Read on in the [Troubleshooting](#troubleshooting) section or move on to the [DEBUG guide](openhabian-DEBUG.md).
-You can set `debugmode=on` (or even = `maximum`) right on first install, too, to get to see what openHABian is doing.
+You can set `debugmode=maximum` in `openhabian.conf` right on first install, too, to get to see what openHABian is doing
 
 After a few minutes of boot up time, you can [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device.
 During the setup process you'll be redirected to the live progress report of the setup (you can Ctrl-C to get into the shell).
