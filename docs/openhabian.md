@@ -461,8 +461,8 @@ In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` 
 
 ## Optional Components
 
-openHABian comes with a number of additional tools to quickly install and set up home automation related software.
-You'll find all of these in the [openHABian Configuration Tool](#openhabian-configuration-tool)
+openHABian comes with a number of additional tools to quickly install and set up additional home automation related software.
+You'll find all of these in the [openHABian Configuration Tool](#openhabian-configuration-tool), menu option 20.
 
 -   [Frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openhabian:9001](http://openhabian:9001)
 -   [InfluxDB and Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openhabian:3000](http://openhabian:3000)
