@@ -503,7 +503,7 @@ setup_mirror_SD() {
 
   infoText="$infoText1 $dest $infoText2"
   srcSize="$(blockdev --getsize64 "$src")"
-  minStorageSize="$(((minStorageSize + srcSize) / 2))"    # to ensure we have at least 4GB AND as much space as the source card
+  minStorageSize="$((minStorageSize + srcSize))"    # to ensure we have at least 4GB for storage partition plus space for the main partitions
   destSize="$(blockdev --getsize64 "$dest")"
   if [[ "$destSize" -lt "$srcSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
