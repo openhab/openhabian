@@ -1,8 +1,10 @@
 dir=openhab
-alias rcd='cd /etc/${dir}/rules'
+alias bcd='cd /var/lib/${dir}/backups'
 alias ecd='cd /var/lib/${dir}/etc'
 alias jscd='cd /var/lib/${dir}/jsondb'
 alias icd='cd /etc/${dir}/items'
+alias lcd='cd /var/log/${dir}/'
+alias rcd='cd /etc/${dir}/rules'
 alias scd='cd /etc/${dir}/sitemaps'
 alias vil='vi + /var/log/${dir}/openhab.log'
 alias vie='vi + /var/log/${dir}/events.log'
