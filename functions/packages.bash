@@ -659,9 +659,9 @@ deconz_setup() {
   fi
 
   if is_x86_64; then
-    arch="[arch=amd64] "
+    arch=" [arch=amd64]"
   fi
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] ${arch}http://phoscon.de/apt/deconz ${myRelease} main" > $repo
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg${arch}] http://phoscon.de/apt/deconz ${myRelease} main" > $repo
 
   echo -n "$(timestamp) [openHABian] Preparing deCONZ repository ... "
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; fi
