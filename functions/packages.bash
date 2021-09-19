@@ -217,7 +217,7 @@ homegear_setup() {
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then
+  if cond_redirect apt-get install --yes wiringpi homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then
     echo "OK"
   else
     # TODO remove this once Homegear devs get their rear in gear
