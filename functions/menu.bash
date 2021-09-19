@@ -83,8 +83,24 @@ show_main_menu() {
   elif [[ "$choice" == "04"* ]]; then
     import_openhab_config
 
+<<<<<<< HEAD
   elif [[ "$choice" == "05"* ]]; then
     setup_pv_config
+=======
+  elif [[ "$choice" == "04"* ]]; then
+    #choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Select EMS configuration" 8 116 2 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu " " 9 116 2 --cancel-button Back --ok-button Execute \
+    "01 | Kostal Inverter"        "Setup EMS to use a Kostal inverter" \
+    "   | Sungrow Inverter"       "Setup EMS to use a Sungrow inverter" \
+    3>&1 1>&2 2>&3)
+    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    #wait_for_apt_to_finish_update
+    case "$choice2" in
+      01\ *) setup_inverter_config Kostal ;;
+      *Sungrow*) setup_inverter_config Sungrow ;;
+      "") return 0 ;;
+      *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
+    esac
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
