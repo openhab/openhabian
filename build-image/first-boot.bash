@@ -233,7 +233,8 @@ if (openhabian-config unattended); then
   rm -f /opt/openHABian-install-inprogress
   touch /opt/openHABian-install-successful
 else
-  echo "$(timestamp) [openHABian] We tried to get your system installed, but without proper internet connectivity this may not have worked properly."
+  echo "$(timestamp) [openHABian] We tried our best to get your system installed, but this may not have worked properly."
+  dpkg --configure -a
 fi
 echo "$(timestamp) [openHABian] Execution of 'openhabian-config unattended' completed."
 echo "$(timestamp) [openHABian] First time setup successfully finished. Rebooting your system!"
