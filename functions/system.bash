@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## Function for checking for and installing whiptail.
-## This enables the diplay of the interactive menu used by openHABian.
+## This enables the display of the interactive menu used by openHABian.
 ##
 ##    whiptail_check()
 ##
