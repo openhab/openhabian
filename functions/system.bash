@@ -313,7 +313,7 @@ permissions_corrections() {
   cond_redirect chown --silent openhab:openhab /srv /opt
   cond_redirect chmod --silent ugo+w /srv
   if ! cond_redirect chown --recursive openhab:openhab "${openhabFolders[@]}"; then echo "FAILED (openhab folders)"; retval=1; fi
-  if ! cond_redirect chmod --recursive ug+wX /opt "${openhabFolders[@]}"; then echo "FAILED (folders)"; retval=1; fi
+  if ! cond_redirect chmod --recursive u+wX,g+swX /opt "${openhabFolders[@]}"; then echo "FAILED (folders)"; retval=1; fi
   if [[ -d "$openhabHome"/.ssh ]]; then
     if ! cond_redirect chmod --recursive go-rwx "$openhabHome"/.ssh; then echo "FAILED (set .ssh access)"; retval=1; fi
   fi
