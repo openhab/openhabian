@@ -796,4 +796,3 @@ setup_license() {
 
   rm -f $tmp1 $tmp2
 }
-
