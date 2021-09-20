@@ -139,7 +139,7 @@ setup_ntp() {
 ##    locale_setting()
 ##
 locale_setting() {
-  local locale
+  local syslocale
 
   if ! dpkg -s 'locales' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing locales from apt... "
@@ -163,8 +163,8 @@ locale_setting() {
     if ! cond_redirect dpkg-reconfigure --frontend=noninteractive locales; then echo "FAILED (reconfigure locales)"; return 1; fi
   fi
 
-  if ! locale="$(grep "^[[:space:]]*LANG=" /etc/default/locale | sed 's|LANG=||g')"; then echo "FAILED"; return 1; fi
-  if cond_redirect update-locale LANG="${locale:-${system_default_locale:-en_US.UTF-8}}" LC_ALL="${locale:-${system_default_locale:-en_US.UTF-8}}" LC_CTYPE="${locale:-${system_default_locale:-en_US.UTF-8}}" LANGUAGE="${locale:-${system_default_locale:-en_US.UTF-8}}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
+  if ! syslocale="$(grep "^[[:space:]]*LANG=" /etc/default/locale | sed 's|LANG=||g')"; then echo "FAILED"; return 1; fi
+  if cond_redirect update-locale LANG="${system_default_locale:-${syslocale:-en_US.UTF-8}}" LC_ALL="${system_default_locale:-${syslocale:-en_US.UTF-8}}" LC_CTYPE="${system_default_locale:-${syslocale:-en_US.UTF-8}}" LANGUAGE="${system_default_locale:-${syslocale:-en_US.UTF-8}}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Change locale" --msgbox "For the locale change to take effect, please reboot your system now." 7 80
