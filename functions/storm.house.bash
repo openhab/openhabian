@@ -21,6 +21,7 @@ setup_inverter_config() {
 
   for component in things items rules; do
     cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1,,}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/inverter.${component}"
+    chown "${username:-openhabian}:${username:-openhabian}" "${OPENHAB_CONF:-/etc/openhab}/${component}/inverter.${component}"
   done
 
   sed -ie "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/inverter.things"
