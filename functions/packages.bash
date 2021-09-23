@@ -516,7 +516,7 @@ nginx_setup() {
     fi
   fi
 
-  if (whiptail --title "Secure certificate setup" --yesno "Would you like to secure your openHAB interface with HTTPS?" 7 80); then secure="true"; echo "OK"; else echo "CANCELED"; return 0; fi
+  if (whiptail --title "Secure certificate setup" --yesno "Would you like to secure your openHAB interface with HTTPS?" 7 80); then secure="true"; echo "OK"; else echo "CANCELED"; fi
 
   if [[ $auth == "true" ]]; then
     authText="Authentication Enabled\\n- Username: ${nginxUsername}"
