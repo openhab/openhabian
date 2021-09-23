@@ -346,8 +346,11 @@ permissions_corrections() {
       if ! cond_redirect fix_permissions /opt/zram/log.bind/grafana root:root 644 755; then echo "FAILED (grafana logdir on zram)"; retval=1; fi
     fi
     if ! cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 640 750; then echo "FAILED (samba logdir on zram)"; retval=1; fi
-    if ! cond_redirect fix_permissions /opt/zram/persistence.bind "openhab:${username:-openhabian}" 664 775; then echo "FAILED (persistence on zram)"; retval=1; fi
     if ! cond_redirect fix_permissions /opt/zram/log.bind/openhab "openhab:${username:-openhabian}" 664 775; then echo "FAILED (openhab log on zram)"; retval=1; fi
+    if influxdb_is_installed; then
+       cond_redirect fix_permissions /opt/zram/influxdb.bind root:root 664 775; then echo "FAILED (InfluxDB storage on zram)"; retval=1; fi
+    fi
+    if ! cond_redirect fix_permissions /opt/zram/persistence.bind "openhab:${username:-openhabian}" 664 775; then echo "FAILED (persistence on zram)"; retval=1; fi
   fi
   echo "OK"
 
