@@ -200,7 +200,7 @@ influxdb_install() {
     myRelease=${osrelease:-buster}
   fi
 
-  if ! dpkg -s 'influxdb' &> /dev/null; then
+  if ! influxdb_is_installed; then
     if ! add_keys "https://repos.influxdata.com/influxdb.key" "$keyName"; then return 1; fi
 
     echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://repos.influxdata.com/${myOS,,} ${myRelease,,} stable" > /etc/apt/sources.list.d/influxdb.list
@@ -214,7 +214,7 @@ influxdb_install() {
   # Disable authentication, to allow changes in existing installations
   if ! cond_redirect sed -i -e 's|auth-enabled = true|# auth-enabled = false|g' /etc/influxdb/influxdb.conf; then echo "FAILED (disable authentication)"; return 1; fi
   if ! zram_dependency install influxdb; then return 1; fi
-  if [[ -s /etc/ztab ]] && ! grep -qs "/influxdb.bind" /etc/ztab; then
+  if zram_is_installed && ! grep -qs "/influxdb.bind" /etc/ztab; then
     echo -n "$(timestamp) [openHABian] Adding InfluxDB to zram... "
     if ! mkdir -p /opt/zram/influxdb.bind/influxdb /var/lib/influxdb && chown influxdb /opt/zram/influxdb.bind/influxdb /var/lib/influxdb; then echo "FAILED (create zram database directory)"; return 1; fi
     if ! cond_redirect sed -i '/^.*persistence.bind$/a dir	zstd		150M		350M		/var/lib/influxdb		/influxdb.bind' /etc/ztab; then echo "FAILED (editing ztab)"; return 1; fi
@@ -248,7 +248,7 @@ grafana_install(){
   local adminPassword="$1"
   local keyName="grafana"
 
-  if ! dpkg -s 'grafana' &> /dev/null; then
+  if ! grafana_is_installed; then
     if ! add_keys "https://packages.grafana.com/gpg.key" "$keyName"; then return 1; fi
 
     echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list
@@ -264,7 +264,7 @@ grafana_install(){
   if ! cond_redirect chmod -R 0750 /run/grafana; then echo "FAILED (chmod)"; return 1; fi
   if ! cond_redirect chown -R grafana:grafana /run/grafana; then echo "FAILED (chown)"; return 1; fi
   if ! zram_dependency install grafana-server; then return 1; fi
-  if [[ -s /etc/ztab ]] && ! mkdir -p /opt/zram/log.bind/grafana /var/log/grafana && chown grafana /opt/zram/log.bind/grafana /var/log/grafana; then echo "FAILED (create zram logdir)"; return 1; fi
+  if zram_is_installed && ! mkdir -p /opt/zram/log.bind/grafana /var/log/grafana && chown grafana /opt/zram/log.bind/grafana /var/log/grafana; then echo "FAILED (create zram logdir)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now grafana-server.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 

@@ -107,7 +107,7 @@ amanda_install() {
 
   if cond_redirect chsh --shell /bin/bash "$backupUser"; then echo "OK"; else echo "FAILED (chsh ${backupUser})"; return 1; fi
 
-  if ! dpkg -s 'amanda-common' 'amanda-server' 'amanda-client' &> /dev/null; then
+  if ! amanda_is_installed; then
     echo -n "$(timestamp) [openHABian] Installing Amanda backup system... "
     if cond_redirect apt-get install --yes amanda-common amanda-server amanda-client; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -472,7 +472,7 @@ setup_mirror_SD() {
     echo "SKIPPED (no configuration provided)"
     return 0
   fi
-  
+
   if [[ $1 == "remove" ]]; then
     cond_redirect systemctl disable sdrsync.service sdrawcopy.service sdrsync.timer sdrawcopy.timer
     rm -f "$serviceTargetDir"/sdr*.{service,timer}
@@ -491,7 +491,7 @@ setup_mirror_SD() {
 
   mkdir -p "$storageDir"
   if cond_redirect apt-get install --yes gdisk; then echo "OK"; else echo "FAILED (install gdisk)"; return 1; fi
-  
+
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
     if [[ -z $retval ]]; then return 0; fi

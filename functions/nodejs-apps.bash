@@ -6,7 +6,7 @@
 ##    nodejs_setup()
 ##
 nodejs_setup() {
-  if [[ -x $(command -v npm) ]] && [[ $(node --version) == "v14"* ]] && ! is_armv6l; then return 0; fi
+  if node_is_installed || ! is_armv6l; then return 0; fi
 
   local keyName="nodejs"
   local link="https://unofficial-builds.nodejs.org/download/release/v14.17.5/node-v14.17.5-linux-armv6l.tar.xz"
@@ -71,7 +71,7 @@ frontail_setup() {
   local frontailBase
   local frontailUser="frontail"
 
-  if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v14"* ]] || is_armv6l; then
+  if ! node_is_installed || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -163,7 +163,7 @@ nodered_setup() {
 
   local temp
 
-  if ! [[ -x $(command -v npm) ]] || [[ $(node --version) != "v14"* ]] || is_armv6l; then
+  if ! node_is_installed || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
