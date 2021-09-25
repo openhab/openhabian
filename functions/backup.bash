@@ -48,6 +48,7 @@ restore_openhab_config() {
   local backupPath="${OPENHAB_BACKUPS:-/var/lib/openhab/backups}"
   local filePath
   local fileSelect
+  local storageText="Only text input files *.things *.items *.rules will be restored from the backup zipfile.\\nConfig elements that were defined using the GUI will not be restored."
 
   echo -n "$(timestamp) [openHABian] Choosing openHAB backup zipfile to restore from... "
   if [[ -n "$INTERACTIVE" ]]; then
@@ -68,7 +69,10 @@ restore_openhab_config() {
 
   echo -n "$(timestamp) [openHABian] Restoring openHAB backup... "
   if [[ "$1" == "textonly" ]]; then
-    if ! (yes | cond_redirect "${OPENHAB_RUNTIME:-/usr/share/openhab/runtime}/bin/restore --textonly $filePath"); then echo "FAILED (restore)"; return 1; fi
+    if [[ -n "$INTERACTIVE" ]]; then
+      if ! (whiptail --title "Restore text config only" --yes-button "Continue" --no-button "Cancel" --yesno "$storageText" 10 80); then echo "CANCELED"; return 0; fi
+    fi
+    if ! (yes | cond_redirect "${OPENHAB_RUNTIME:-/usr/share/openhab/runtime}"/bin/restore --textonly "$filePath"); then echo "FAILED (restore)"; return 1; fi
   else
     if ! cond_redirect systemctl stop openhab.service; then echo "FAILED (stop openHAB)"; return 1; fi
     if ! (yes | cond_redirect openhab-cli restore "$filePath"); then echo "FAILED (restore)"; return 1; fi
