@@ -218,7 +218,7 @@ show_main_menu() {
     case "$choice2" in
       50\ *) backup_openhab_config ;;
       51\ *) restore_openhab_config ;;
-      *Restore\ text\ only*) restore_openhab_config "--textonly" ;;
+      *Restore\ text\ only*) restore_openhab_config "textonly" ;;
       52\ *) wait_for_apt_to_finish_update && amanda_setup ;;
       53\ *) setup_mirror_SD "install" ;;
       *Remove\ SD\ mirroring*) setup_mirror_SD "remove" ;;

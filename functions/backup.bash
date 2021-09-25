@@ -67,7 +67,7 @@ restore_openhab_config() {
   fi
 
   echo -n "$(timestamp) [openHABian] Restoring openHAB backup... "
-  if [[ "$1" == "--textonly" ]]; then
+  if [[ "$1" == "textonly" ]]; then
     if ! (yes | cond_redirect "${OPENHAB_RUNTIME:-/usr/share/openhab/runtime}/bin/restore --textonly $filePath"); then echo "FAILED (restore)"; return 1; fi
   else
     if ! cond_redirect systemctl stop openhab.service; then echo "FAILED (stop openHAB)"; return 1; fi
