@@ -48,7 +48,6 @@ restore_openhab_config() {
   local backupPath="${OPENHAB_BACKUPS:-/var/lib/openhab/backups}"
   local filePath
   local fileSelect
-  local introText="This will restore a backup of your openHAB configuration using openHAB's builtin backup tool.\\n\\nWould you like to continue?"
 
   echo -n "$(timestamp) [openHABian] Choosing openHAB backup zipfile to restore from... "
   if [[ -n "$INTERACTIVE" ]]; then
@@ -59,7 +58,6 @@ restore_openhab_config() {
       echo "CANCELED"
       return 0
     fi
-    if ! (whiptail --title "Restore openHAB backup" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 10 80); then echo "CANCELED"; return 0; fi
     if fileSelect="$(whiptail --title "Choose openHAB configuration to restore" --cancel-button "Cancel" --ok-button "Continue" --notags --menu "\\nSelect your backup from most current 20 files below:" 22 80 13 "${backupList[@]}" 3>&1 1>&2 2>&3)"; then echo "OK"; else echo "CANCELED"; return 0; fi
     filePath="${backupPath}/${fileSelect}"
   else
@@ -69,8 +67,8 @@ restore_openhab_config() {
   fi
 
   echo -n "$(timestamp) [openHABian] Restoring openHAB backup... "
-  if [[ ${1} == "--textonly" ]]; then
-    if ! (cond_redirect "${OPENHAB_RUNTIME:-/usr/share/openhab/runtime}/bin/restore" "$filePath"); then echo "FAILED (restore)"; return 1; fi
+  if [[ "$1" == "--textonly" ]]; then
+    if ! (yes | cond_redirect "${OPENHAB_RUNTIME:-/usr/share/openhab/runtime}/bin/restore --textonly $filePath"); then echo "FAILED (restore)"; return 1; fi
   else
     if ! cond_redirect systemctl stop openhab.service; then echo "FAILED (stop openHAB)"; return 1; fi
     if ! (yes | cond_redirect openhab-cli restore "$filePath"); then echo "FAILED (restore)"; return 1; fi
