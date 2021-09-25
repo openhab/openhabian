@@ -481,8 +481,7 @@ memory_split() {
 ##
 use_framebuffer() {
   if ! is_pi; then return 0; fi
-  # TODO
-  # menu option
+
   sed -i '^[[:space:]]*max_framebuffers' /boot/config.txt
   if [[ ${1:-${framebuffer:-enable}} == "enable" ]]; then
     /usr/bin/tvservice -p   # switches HDMI back on

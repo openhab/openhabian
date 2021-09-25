@@ -128,7 +128,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "System Settings" 24 118 17 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "System Settings" 26 118 19 --cancel-button Back --ok-button Execute \
     "31 | Change hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set system locale"      "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
     "33 | Set system timezone"    "Change your timezone, execute if it's not '$(date +%H:%M)' now" \
@@ -159,10 +159,10 @@ show_main_menu() {
       *Disable\ NTP) setup_ntp "disable" ;;
       34\ *) change_password ;;
       35\ *) prepare_serial_port ;;
-      36\ *) use_framebuffer disable;;
-      *Enable\ framebuffer) use_framebuffer enable ;;
-      37\ *) configure_wifi setup;;
-      *Disable\ WiFi) configure_wifi disable ;;
+      36\ *) use_framebuffer "disable" ;;
+      *Enable\ framebuffer) use_framebuffer "enable" ;;
+      37\ *) configure_wifi setup ;;
+      *Disable\ WiFi) configure_wifi "disable" ;;
       38\ *) init_zram_mounts "install" ;;
       *Uninstall\ zram) init_zram_mounts "uninstall" ;;
       39\ *) move_root2usb ;;
