@@ -321,9 +321,6 @@ knxd_setup() {
   local missingText="Setup could not find knxd package.\\n\\nopenHABian changed from building and installing latest source to installing the knxd package provided by several distrubutions. In case you have an installation of openHABian on a custom Linux which does not provide knxd package, you could try to installation routine we used before as described at 'Michels Tech Blog': https://bit.ly/3dzeoKh"
   local errorText="Installation of knxd package failed, see console log for details."
   local successText="Installation was successful.\\n\\nPlease edit '/etc/knxd.conf' to meet your interface requirements. For further information on knxd options, please type 'knxd --help' or see /usr/share/doc/knxd/.\\n\\nSee also the openHAB KNX binding's documentation."
-  local temp
-
-  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   echo -n "$(timestamp) [openHABian] Beginning setup of knxd package... "
   if [[ -n $INTERACTIVE ]]; then
