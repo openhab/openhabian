@@ -471,6 +471,26 @@ memory_split() {
   else
     if echo "gpu_mem=16" >> /boot/config.txt; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
+
+  sed -i '/^dtoverlay=vc4-fkms-v3d/d' /boot/config.txt
+}
+
+## disable or enable framebuffer to provide the maximum amount of memory for Linux operations.
+##
+##    use_framebuffer()
+##
+use_framebuffer() {
+  if ! is_pi; then return 0; fi
+  # TODO
+  # menu option
+  sed -i '^[[:space:]]*max_framebuffers' /boot/config.txt
+  if [[ ${1:-${framebuffer:-enable}} == "enable" ]]; then
+    /usr/bin/tvservice -p   # switches HDMI back on
+    echo "max_framebuffers=1" >> /boot/config.txt
+  elif [[ ${1:-${framebuffer:-enable}} == "disable" ]]; then
+    /usr/bin/tvservice -o   # switches HDMI off
+    echo "max_framebuffers=0" >> /boot/config.txt
+  fi
 }
 
 ## Enable audio output on the RPi

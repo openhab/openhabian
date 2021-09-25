@@ -136,13 +136,15 @@ show_main_menu() {
     "   | Disable NTP"            "Disable time synchronization via systemd-timesyncd to NTP servers" \
     "34 | Change passwords"       "Change passwords for Samba, openHAB Console or the system user" \
     "35 | Serial port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
-    "36 | WiFi setup"             "Configure wireless network connection" \
+    "36 | Disable framebuffer"    "Disable framebuffer on RPi to minimize memory usage" \
+    "   | Enable framebuffer"     "Enable framebuffer (standard setting)" \
+    "37 | WiFi setup"             "Configure wireless network connection" \
     "   | Disable WiFi"           "Disable wireless network connection" \
-    "37 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
     "38 | Use zram"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
     "   | Uninstall zram"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
-    "39 | Setup Exim Mail Relay"  "Install Exim4 to relay mails via public email provider" \
-    "3A | Setup Tailscale VPN"    "Establish or join a WireGuard based VPN using the Tailscale service" \
+    "39 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
+    "3A | Setup Exim Mail Relay"  "Install Exim4 to relay mails via public email provider" \
+    "3B | Setup Tailscale VPN"    "Establish or join a WireGuard based VPN using the Tailscale service" \
     "   | Remove Tailscale VPN"   "Remove the Tailscale VPN service" \
     "   | Install WireGuard"      "Setup WireGuard to enable secure remote access to this openHABian system" \
     "   | Remove WireGuard"       "Remove WireGuard VPN from this system" \
@@ -157,13 +159,15 @@ show_main_menu() {
       *Disable\ NTP) setup_ntp "disable" ;;
       34\ *) change_password ;;
       35\ *) prepare_serial_port ;;
-      36\ *) configure_wifi setup;;
+      36\ *) use_framebuffer disable;;
+      *Enable\ framebuffer) use_framebuffer enable ;;
+      37\ *) configure_wifi setup;;
       *Disable\ WiFi) configure_wifi disable ;;
-      37\ *) move_root2usb ;;
       38\ *) init_zram_mounts "install" ;;
       *Uninstall\ zram) init_zram_mounts "uninstall" ;;
-      39\ *) exim_setup ;;
-      3A\ *) if install_tailscale install; then setup_tailscale; fi;;
+      39\ *) move_root2usb ;;
+      3A\ *) exim_setup ;;
+      3B\ *) if install_tailscale install; then setup_tailscale; fi;;
       *Remove\ Tailscale*) install_tailscale remove;;
       *Install\ WireGuard*) if install_wireguard install; then setup_wireguard; fi;;
       *Remove\ WireGuard*) install_wireguard remove;;
