@@ -50,7 +50,7 @@ restore_openhab_config() {
   local fileSelect
   local introText="This will restore a backup of your openHAB configuration using openHAB's builtin backup tool.\\n\\nWould you like to continue?"
 
-  echo -n "$(timestamp) [openHABian] Beginning restoration of openHAB backup... "
+  echo -n "$(timestamp) [openHABian] Choosing openHAB backup zipfile to restore from... "
   if [[ -n "$INTERACTIVE" ]]; then
     # shellcheck disable=SC2012
     readarray -t backupList < <(ls -alh "${backupPath}"/openhab*-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
@@ -69,9 +69,13 @@ restore_openhab_config() {
   fi
 
   echo -n "$(timestamp) [openHABian] Restoring openHAB backup... "
-  if ! cond_redirect systemctl stop openhab.service; then echo "FAILED (stop openHAB)"; return 1; fi
-  if ! (yes | cond_redirect openhab-cli restore "$filePath"); then echo "FAILED (restore)"; return 1; fi
-  if cond_redirect systemctl restart openhab.service; then echo "OK"; else echo "FAILED (restart openHAB)"; return 1; fi
+  if [[ ${1} == "--textonly" ]]; then
+    if ! (cond_redirect "${OPENHAB_RUNTIME:-/usr/share/openhab/runtime}/bin/restore" "$filePath"); then echo "FAILED (restore)"; return 1; fi
+  else
+    if ! cond_redirect systemctl stop openhab.service; then echo "FAILED (stop openHAB)"; return 1; fi
+    if ! (yes | cond_redirect openhab-cli restore "$filePath"); then echo "FAILED (restore)"; return 1; fi
+    if cond_redirect systemctl restart openhab.service; then echo "OK"; else echo "FAILED (restart openHAB)"; return 1; fi
+  fi
 
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Operation successful!" --msgbox "Restoration of selected openHAB configuration was successful!" 7 80

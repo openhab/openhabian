@@ -206,7 +206,8 @@ show_main_menu() {
   elif [[ "$choice" == "50"* ]]; then
     choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Backup/Restore" 14 116 7 --cancel-button Back --ok-button Execute \
     "50 | Backup openHAB config"      "Backup the current active openHAB configuration" \
-    "51 | Restore an openHAB config"  "Restore a previous openHAB configuration from backup" \
+    "51 | Restore an openHAB config"  "Restore an openHAB configuration from backup zipfile" \
+    "   | Restore text only config"   "Restore text only configuration without restarting" \
     "52 | Amanda System Backup"       "Set up Amanda to comprehensively backup your complete openHABian box" \
     "53 | Setup SD mirroring"         "Setup mirroring of internal to external SD card" \
     "   | Remove SD mirroring"        "Disable mirroring of SD cards" \
@@ -217,6 +218,7 @@ show_main_menu() {
     case "$choice2" in
       50\ *) backup_openhab_config ;;
       51\ *) restore_openhab_config ;;
+      *Restore\ text\ only*) restore_openhab_config "--textonly" ;;
       52\ *) wait_for_apt_to_finish_update && amanda_setup ;;
       53\ *) setup_mirror_SD "install" ;;
       *Remove\ SD\ mirroring*) setup_mirror_SD "remove" ;;
