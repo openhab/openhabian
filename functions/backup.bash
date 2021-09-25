@@ -66,10 +66,16 @@ restore_openhab_config() {
       if fileSelect="$(whiptail --title "Choose openHAB configuration to restore" --cancel-button "Cancel" --ok-button "Continue" --notags --menu "\\nSelect your backup from most current 20 files below:" 22 80 13 "${backupList[@]}" 3>&1 1>&2 2>&3)"; then echo "OK"; else echo "CANCELED"; return 0; fi
       filePath="${backupPath}/${fileSelect}"
     fi
+    if fileSelect="$(whiptail --title "Choose openHAB configuration to restore" --cancel-button "Cancel" --ok-button "Continue" --notags --menu "\\nSelect your backup from most current 20 files below:" 22 80 13 "${backupList[@]}" 3>&1 1>&2 2>&3)"; then echo "OK"; else echo "CANCELED"; return 0; fi
+    filePath="${backupPath}/${fileSelect}"
+  else
+    if ! [[ -s "$1" ]]; then echo "FAILED (restore config $1)"; return 1; fi
+    filePath="$1"
+    echo "OK"
   fi
 
   echo -n "$(timestamp) [openHABian] Restoring openHAB backup... "
-  if [[ "$2" == "textonly" ]]; then
+  if [[ "$1" == "textonly" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
       if ! (whiptail --title "Restore text config only" --yes-button "Continue" --no-button "Cancel" --yesno "$storageText" 10 80); then echo "CANCELED"; return 0; fi
     fi
