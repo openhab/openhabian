@@ -480,9 +480,14 @@ memory_split() {
 ##    use_framebuffer()
 ##
 use_framebuffer() {
-  if ! is_pi; then return 0; fi
+  if ! is_pi; then 
+    if [[ -n $INTERACTIVE ]]; then
+      whiptail --title "Change framebuffer" --msgbox "Frame buffer parameters can only be changed on Raspberry Pi systems." 7 80
+    fi
+    return 0;
+  fi
 
-  sed -i '^[[:space:]]*max_framebuffers' /boot/config.txt
+  sed -i '/^[[:space:]]*max_framebuffers/d' /boot/config.txt
   if [[ ${1:-${framebuffer:-enable}} == "enable" ]]; then
     /usr/bin/tvservice -p   # switches HDMI back on
     echo "max_framebuffers=1" >> /boot/config.txt
