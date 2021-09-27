@@ -543,9 +543,9 @@ prepare_serial_port() {
     optionTwo="OFF"
   fi
 
-  echo -n "$(timestamp) [openHABian] Beginning configuration of serial console for serial port peripherals... "
+  echo -n "$(timestamp) [openHABian] Configuring serial port for peripherals... "
   if selection=$(whiptail --title "Prepare serial port" --checklist --separate-output "$introText" 19 75 2 \
-  "1"  "(RPi)     Disable serial console"      $optionOne \
+  "1"  "(all RPi) Disable serial console to give room for HATs"      $optionOne \
   "2"  "(RPi3/4)  move Bluetooth to mini UART" $optionTwo \
   3>&1 1>&2 2>&3); then echo "OK"; else echo "CANCELED"; return 0; fi
 
