@@ -14,7 +14,7 @@ setup_inverter_config() {
 
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "$invertertype" ]]; then
-      invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 10 80 0 "Kostal" "Kostal Plenticore" "Sungrow" "Sungrow SH RT" 3>&1 1>&2 2>&3)"
+      invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 10 80 0 "Kostal" "Kostal Plenticore" "Sungrow" "Sungrow SH RT" "SolarEdge" "SolarEdge SE" 3>&1 1>&2 2>&3)"
     fi
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then return 1; fi
   fi
