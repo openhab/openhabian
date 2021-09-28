@@ -2,6 +2,12 @@ Hit tab to unselect buttons and scroll through the text using UP/DOWN or
 PGUP/PGDN. All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md`
 for you to lookup.
 
+## Forward web proxy ## September 28, 2021
+Installing nginx (menu option 44) will now provide a *forward* proxy on port
+8888 in addition to the reverse proxy setup it has been providing.
+Configure this as a manual proxy in your browser to access devices in remote
+(VPN) locations by their IP.
+
 ## Install openHAB function changed ## July 23, 2021
 Menu option 03 "Install or upgrade to openHAB 3" has been changed to now
 actually do what it claims it will do: only install or upgrade to openHAB 3, it
