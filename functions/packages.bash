@@ -277,7 +277,7 @@ mqtt_setup() {
     echo "OK"
   fi
 
-  if ! mqtt_is_installed; then
+  if ! mosquitto_is_installed; then
     echo -n "$(timestamp) [openHABian] Installing MQTT... "
     if cond_redirect apt-get install --yes mosquitto mosquitto-clients; then echo "OK"; else echo "FAILED"; return 1; fi
     apt-get install --fix-broken --yes
@@ -302,7 +302,7 @@ mqtt_setup() {
   fi
   if ! zram_dependency install mosquitto; then return 1; fi
   if zram_is_installed && ! mkdir -p /opt/zram/log.bind/mosquitto /var/log/mosquitto && chown mosquitto /opt/zram/log.bind/mosquitto /var/log/mosquitto; then echo "FAILED (create zram logdir)"; return 1; fi
-  echo -n "$(timestamp) [openHABian] Setting up MQTT service... "
+  echo -n "$(timestamp) [openHABian] Setting up MQTT Eclipse Mosquitto broker service... "
   if ! cond_redirect usermod --append --groups mosquitto "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} mosquitto)"; return 1; fi
   if cond_redirect systemctl enable --now mosquitto.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 

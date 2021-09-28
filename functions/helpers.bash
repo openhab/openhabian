@@ -632,11 +632,11 @@ homegear_is_installed() {
   return 1
 }
 
-## Check if mqtt is installed
+## Check if mosquitto is installed
 ##
-##    mqtt_is_installed
+##    mosquitto_is_installed
 ##
-mqtt_is_installed() {
+mosquitto_is_installed() {
   if dpkg -s 'mosquitto' 'mosquitto-clients' &> /dev/null; then return 0; fi
   return 1
 }

@@ -330,7 +330,7 @@ permissions_corrections() {
   if ! cond_redirect fix_permissions /var/log/samba root:root 640 750; then echo "FAILED (samba logdir)"; retval=1; fi
   if ! cond_redirect fix_permissions /var/log/openhab "openhab:${username:-openhabian}" 664 775; then echo "FAILED (openhab log)"; retval=1; fi
 
-  if mqtt_is_installed; then
+  if mosquitto_is_installed; then
     if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 640 750; then echo "FAILED (mosquitto passwd permissions)"; retval=1; fi
     if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions)"; retval=1; fi
   fi
@@ -344,7 +344,7 @@ permissions_corrections() {
     if grafana_is_installed; then
       if ! cond_redirect fix_permissions /opt/zram/log.bind/grafana root:root 644 755; then echo "FAILED (grafana logdir on zram)"; retval=1; fi
     fi
-    if mqtt_is_installed; then
+    if mosquitto_is_installed; then
       if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions on zram)"; retval=1; fi
     fi
     if ! cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 640 750; then echo "FAILED (samba logdir on zram)"; retval=1; fi
