@@ -450,7 +450,7 @@ create_user_and_group() {
   fi
 }
 
-## Import initial configuration
+## Import configuration
 ##
 ##    import_openhab_config()
 ##
@@ -459,6 +459,11 @@ create_user_and_group() {
 import_openhab_config() {
   local initialConfig="${1:-${initialconfig:-/boot/initial.zip}}"
   local restoreFile="${initialConfig}"
+
+
+  if [[ -n $INTERACTIVE ]]; then
+    if ! initialconfig=$(whiptail --title "Import configuration" --inputbox "Enter the full filename or URL to retrieve the configuration file from." 9 80 "$initialconfig" 3>&1 1>&2 2>&3); then return 1; fi
+  fi
 
   echo -n "$(timestamp) [openHABian] Getting initial openHAB configuration... "
   if [[ "$initialConfig" =~ http:* ]]; then
