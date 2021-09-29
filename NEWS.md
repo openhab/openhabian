@@ -23,9 +23,3 @@ difficult to maintain as a result of it requiring packages that are no longer
 provided by the Debian distribution used in openHABian. If you would like to
 install it on your own please see [this](https://community.openhab.org/t/89856)
 forum thread for some guidance.
-
-## deCONZ / Phoscon companion app added ## May 10, 2021
-There's a new menu option to install the deCONZ software / Phoscon companion app
-to support the popular Dresden Elektronik Conbee and Raspbee ZigBee controllers.
-Note you will need to use the [deconz binding](https://www.openhab.org/addons/bindings/deconz/)
-and pair your devices using the Phoscon web interface running on port 8081.
