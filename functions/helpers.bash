@@ -558,11 +558,148 @@ set_cpu_speed() {
 }
 
 
-## check if InfluxDB is installed
+## Functions to check it a given supported program is installed should be placed below here
+
+## Check if amanda is installed
 ##
-##    iinfluxdb_is_installed
+##    amanda_is_installed
+##
+amanda_is_installed() {
+  if dpkg -s 'amanda-common' 'amanda-server' 'amanda-client' &> /dev/null; then return 0; fi
+  return 1
+}
+
+## Check if InfluxDB is installed
+##
+##    influxdb_is_installed
 ##
 influxdb_is_installed() {
-  if [[ -d /var/lib/influxdb ]]; then return 0; fi
+  if dpkg -s 'influxdb' &> /dev/null && [[ -d /var/lib/influxdb ]]; then return 0; fi
+  return 1
+}
+
+## Check if Grafana is installed
+##
+##    grafana_is_installed
+##
+grafana_is_installed() {
+  if dpkg -s 'grafana' &> /dev/null && [[ -s /etc/grafana/grafana.ini ]]; then return 0; fi
+  return 1
+}
+
+## Check if node is installed
+##
+##    node_is_installed
+##
+node_is_installed() {
+  if [[ -x $(command -v npm) ]] || [[ $(node --version) == "v14"* ]]; then return 0; fi
+  return 1
+}
+
+## Check if samba is installed
+##
+##    samba_is_installed
+##
+samba_is_installed() {
+  if dpkg -s 'samba' &> /dev/null && [[ -s /etc/samba/smb.conf ]]; then return 0; fi
+  return 1
+}
+
+## Check if firemotd is installed
+##
+##    firemotd_is_installed
+##
+firemotd_is_installed() {
+  if [[ -d /opt/firemotd ]] && [[ -x $(command -v FireMotD) ]]; then return 0; fi
+  return 1
+}
+
+## Check if exim is installed
+##
+##    exim_is_installed
+##
+exim_is_installed() {
+  if dpkg -s 'mailutils' 'exim4' &> /dev/null; then return 0; fi
+  return 1
+}
+
+## Check if homegear is installed
+##
+##    homegear_is_installed
+##
+homegear_is_installed() {
+  if dpkg -s 'homegear' &> /dev/null && [[ -d /var/lib/homegear ]]; then return 0; fi
+  return 1
+}
+
+## Check if mosquitto is installed
+##
+##    mosquitto_is_installed
+##
+mosquitto_is_installed() {
+  if dpkg -s 'mosquitto' 'mosquitto-clients' &> /dev/null; then return 0; fi
+  return 1
+}
+
+## Check if knxd is installed
+##
+##    knxd_is_installed
+##
+knxd_is_installed() {
+  if dpkg -s 'knxd' &> /dev/null; then return 0; fi
+  return 1
+}
+
+## Check if 1wire is installed
+##
+##    1wire_is_installed
+##
+1wire_is_installed() {
+  if dpkg -s 'owserver' 'ow-shell' &> /dev/null; then return 0; fi
+  return 1
+}
+
+## Check if miflora is installed
+##
+##    miflora_is_installed
+##
+miflora_is_installed() {
+  if [[ -d /opt/miflora-mqtt-daemon ]] && [[ -s /etc/systemd/system/miflora.service ]]; then return 0; fi
+  return 1
+}
+
+## Check if nginx is installed
+##
+##    nginx_is_installed
+##
+nginx_is_installed() {
+  if dpkg -s 'nginx' && [[ -s /etc/nginx/sites-enabled/openhab ]]; then return 0; fi
+  return 1
+}
+
+## Check if deconz is installed
+##
+##    deconz_is_installed
+##
+deconz_is_installed() {
+  if dpkg -s 'deconz' && [[ -s /lib/systemd/system/deconz.service ]]; then return 0; fi
+  return 1
+}
+
+## Check if zram is installed
+##
+##    zram_is_installed
+##
+zram_is_installed() {
+  if [[ -s /etc/ztab ]] && [[ -d /opt/zram ]]; then return 0; fi
+  return 1
+}
+
+## Check if habapp is installed
+##
+##    habapp_is_installed
+##
+habapp_is_installed() {
+  if [[ -x $(command -v habapp) ]] && [[ -s /etc/systemd/system/habapp.service ]]; then return 0; fi
   return 1
 }

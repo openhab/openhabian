@@ -324,37 +324,36 @@ permissions_corrections() {
   if ! cond_redirect chmod g+s "$backupsFolder"; then echo "FAILED (setgid backups folder)"; retval=1; fi
 
   if ! cond_redirect fix_permissions  "/home/${username:-openhabian}" "${username:-openhabian}:${username:-openhabian}"; then echo "FAILED (${username:-openhabian} chown $HOME)"; retval=1; fi
-
-  if [[ -f /etc/mosquitto/mosquitto.conf ]]; then
-    if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 640 750; then echo "FAILED (mosquitto passwd permissions)"; retval=1; fi
-    if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions)"; retval=1; fi
-    if [[ -f /etc/ztab ]]; then
-      if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions on zram)"; retval=1; fi
-    fi
-  fi
   if ! cond_redirect setfacl --recursive --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access lists)"; retval=1; fi
 
   if ! cond_redirect fix_permissions /var/log/unattended-upgrades root:root 644 755; then echo "FAILED (unattended upgrades logdir)"; retval=1; fi
   if ! cond_redirect fix_permissions /var/log/samba root:root 640 750; then echo "FAILED (samba logdir)"; retval=1; fi
   if ! cond_redirect fix_permissions /var/log/openhab "openhab:${username:-openhabian}" 664 775; then echo "FAILED (openhab log)"; retval=1; fi
 
+  if mosquitto_is_installed; then
+    if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 640 750; then echo "FAILED (mosquitto passwd permissions)"; retval=1; fi
+    if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions)"; retval=1; fi
+  fi
   if influxdb_is_installed; then
     chmod +x /usr/lib/influxdb/scripts/influxd-systemd-start.sh
   fi
-  if [[ -f /etc/ztab ]]; then
-    if [[ -d /var/log/grafana ]]; then
-      if ! cond_redirect fix_permissions /opt/zram/log.bind/grafana root:root 644 755; then echo "FAILED (grafana logdir on zram)"; retval=1; fi
-    fi
-    if ! cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 640 750; then echo "FAILED (samba logdir on zram)"; retval=1; fi
-    if ! cond_redirect fix_permissions /opt/zram/log.bind/openhab "openhab:${username:-openhabian}" 664 775; then echo "FAILED (openhab log on zram)"; retval=1; fi
+  if zram_is_installed; then
     if influxdb_is_installed; then
        if ! cond_redirect fix_permissions /opt/zram/influxdb.bind root:root 664 775; then echo "FAILED (InfluxDB storage on zram)"; retval=1; fi
     fi
+    if grafana_is_installed; then
+      if ! cond_redirect fix_permissions /opt/zram/log.bind/grafana root:root 644 755; then echo "FAILED (grafana logdir on zram)"; retval=1; fi
+    fi
+    if mosquitto_is_installed; then
+      if ! cond_redirect fix_permissions /opt/zram/log.bind/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions on zram)"; retval=1; fi
+    fi
+    if ! cond_redirect fix_permissions /opt/zram/log.bind/samba root:root 640 750; then echo "FAILED (samba logdir on zram)"; retval=1; fi
+    if ! cond_redirect fix_permissions /opt/zram/log.bind/openhab "openhab:${username:-openhabian}" 664 775; then echo "FAILED (openhab log on zram)"; retval=1; fi
     if ! cond_redirect fix_permissions /opt/zram/persistence.bind "openhab:${username:-openhabian}" 664 775; then echo "FAILED (persistence on zram)"; retval=1; fi
   fi
   echo "OK"
 
-  if [[ -d /etc/homegear ]]; then
+  if homegear_is_installed; then
     echo -n "$(timestamp) [openHABian] Applying additional file permissions recommendations for Homegear... "
     if ! cond_redirect chown --recursive root:root /etc/homegear; then echo "FAILED (chown)"; retval=1; fi
     if ! (find /etc/homegear -type d -print0 | xargs -0 chmod 755); then echo "FAILED (chmod directories)"; retval=1; fi

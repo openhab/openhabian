@@ -49,7 +49,7 @@ openhabian_announcements() {
       if (whiptail --title "openHABian announcements" --yes-button "Stop displaying" --no-button "Keep displaying" --defaultno --scrolltext --yesno "$(cat $newsFile)" 27 84); then
         cp "$newsFile" "$readNews"
       fi
-    else 
+    else
       cp "$newsFile" "$readNews"
     fi
   fi
@@ -300,7 +300,7 @@ migrate_installation() {
 
   javaVersion="$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')"
   # shellcheck disable=SC2154
-  [[ "$zraminstall" != "disable" ]] && [[ -s /etc/ztab ]] && if cond_redirect zram-config "stop"; then echo "OK"; else echo "FAILED (stop zram)"; return 1; fi
+  [[ "$zraminstall" != "disable" ]] && zram_is_installed && if cond_redirect zram-config "stop"; then echo "OK"; else echo "FAILED (stop zram)"; return 1; fi
   backup_openhab_config
 
   if [[ -z "$javaVersion" ]] || [[ "${javaVersion}" -lt "11" ]]; then
@@ -352,7 +352,7 @@ migrate_installation() {
   sed -i "s|${from}/|${to}/|g" $homegearService
   echo "OK"
 
-  if [[ -s /etc/ztab ]]; then
+  if zram_is_installed; then
     echo -n "$(timestamp) [openHABian] Migrating zram config... "
     sed -i "s|/${from}|/${to}|g" "$ztab"
     sed -i "s|${from}|${to}|g" "$zramService"

@@ -10,7 +10,7 @@
 samba_setup() {
   local serviceFile="/lib/systemd/system/smbd.service"
 
-  if ! [[ -x $(command -v samba) ]]; then
+  if ! samba_is_installed; then
     echo -n "$(timestamp) [openHABian] Installing Samba... "
     if cond_redirect apt-get install --yes samba; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -112,7 +112,7 @@ exim_setup() {
   local logrotateFile="/etc/logrotate.d/exim4"
   local introText
 
-  if ! dpkg -s 'mailutils' 'exim4' &> /dev/null; then
+  if ! exim_is_installed; then
     echo -n "$(timestamp) [openHABian] Installing MTA required packages (mailutils, exim4, dnsutils)... "
     if ! cond_redirect apt-get install --yes exim4 mailutils; then echo "FAILED"; return 1; fi
   fi
@@ -239,7 +239,7 @@ homegear_setup() {
   if ! cond_redirect rm -f /lib/systemd/system/homegear*; then echo "FAILED (clean default service)"; return 1; fi
   if running_in_docker; then sed -i '/RuntimeDirectory/d' /etc/systemd/system/homegear*; fi
   if ! zram_dependency install homegear homegear-management wiringpi; then return 1; fi
-  if [[ -s /etc/ztab ]] && ! mkdir -p /opt/zram/log.bind/homegear /var/log/homegear && chown homegear /opt/zram/log.bind/homegear /var/log/homegear; then echo "FAILED (create zram logdir)"; return 1; fi
+  if zram_is_installed && ! mkdir -p /opt/zram/log.bind/homegear /var/log/homegear && chown homegear /opt/zram/log.bind/homegear /var/log/homegear; then echo "FAILED (create zram logdir)"; return 1; fi
   if ! cond_redirect systemctl enable --now homegear.service homegear-management.service; then echo "FAILED (enable service)"; return 1; fi
 
   if [[ -f $disklistFileDir ]]; then
@@ -277,7 +277,7 @@ mqtt_setup() {
     echo "OK"
   fi
 
-  if ! dpkg -s 'mosquitto' 'mosquitto-clients' &> /dev/null; then
+  if ! mosquitto_is_installed; then
     echo -n "$(timestamp) [openHABian] Installing MQTT... "
     if cond_redirect apt-get install --yes mosquitto mosquitto-clients; then echo "OK"; else echo "FAILED"; return 1; fi
     apt-get install --fix-broken --yes
@@ -301,8 +301,8 @@ mqtt_setup() {
     if cond_redirect rm -f /etc/mosquitto/passwd; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if ! zram_dependency install mosquitto; then return 1; fi
-  if [[ -s /etc/ztab ]] && ! mkdir -p /opt/zram/log.bind/mosquitto /var/log/mosquitto && chown mosquitto /opt/zram/log.bind/mosquitto /var/log/mosquitto; then echo "FAILED (create zram logdir)"; return 1; fi
-  echo -n "$(timestamp) [openHABian] Setting up MQTT service... "
+  if zram_is_installed && ! mkdir -p /opt/zram/log.bind/mosquitto /var/log/mosquitto && chown mosquitto /opt/zram/log.bind/mosquitto /var/log/mosquitto; then echo "FAILED (create zram logdir)"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Setting up MQTT Eclipse Mosquitto broker service... "
   if ! cond_redirect usermod --append --groups mosquitto "${username:-openhabian}"; then echo "FAILED (${username:-openhabian} mosquitto)"; return 1; fi
   if cond_redirect systemctl enable --now mosquitto.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
