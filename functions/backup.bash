@@ -53,7 +53,11 @@ restore_openhab_config() {
   echo -n "$(timestamp) [openHABian] Choosing openHAB backup zipfile to restore from... "
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ $# -gt 0 ]]; then
-      if ! [[ -s "$1" ]]; then echo "FAILED (restore config $1)"; return 1; fi
+      if ! [[ -s "$1" ]]; then
+        echo "FAILED (restore config $1)"
+        whiptail --title "Restore failed" --msgbox "Restoration of selected openHAB configuration failed." 7 80
+        return 1
+      fi
       filePath="$1"
       echo "OK"
     else
