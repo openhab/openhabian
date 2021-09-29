@@ -88,7 +88,6 @@ show_main_menu() {
     setup_pv_config
     setup_wb_config
 
-  elif [[ "$choice" == "04"* ]]; then
     #choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Select EMS configuration" 8 116 2 --cancel-button Back --ok-button Execute \
     choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu " " 9 116 2 --cancel-button Back --ok-button Execute \
     "01 | Kostal Inverter"        "Setup EMS to use a Kostal inverter" \
