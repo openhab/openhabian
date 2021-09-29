@@ -183,7 +183,7 @@ show_main_menu() {
     "42 | Upgrade to openHAB 3"   "Upgrade OS environment to openHAB 3 release" \
     "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 stable (DANGEROUS)" \
     "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
-    "44 | Reverse Proxy"          "Setup Nginx with password authentication and/or HTTPS access" \
+    "44 | Nginx Proxy"            "Setup reverse and forward web proxy" \
     "45 | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider" \
     "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider" \
     "   | AdoptOpenJDK 11"        "Install AdoptOpenJDK 11 as primary Java provider" \
