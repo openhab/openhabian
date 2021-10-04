@@ -52,23 +52,29 @@ restore_openhab_config() {
 
   echo -n "$(timestamp) [openHABian] Choosing openHAB backup zipfile to restore from... "
   if [[ -n "$INTERACTIVE" ]]; then
-    # shellcheck disable=SC2012
-    readarray -t backupList < <(ls -alh "${backupPath}"/openhab*-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
-    if [[ -z "${backupList[*]}" ]]; then
-      whiptail --title "Could not find backup!" --msgbox "We could not find any configuration backup file in the storage directory $backupPath" 8 80
-      echo "CANCELED"
-      return 0
+    if [[ $# -gt 0 ]]; then
+      if ! [[ -s "$1" ]]; then
+        echo "FAILED (restore config $1)"
+        whiptail --title "Restore failed" --msgbox "Restoration of selected openHAB configuration failed." 7 80
+        return 1
+      fi
+      filePath="$1"
+      echo "OK"
+    else
+      # shellcheck disable=SC2012
+      readarray -t backupList < <(ls -alh "${backupPath}"/openhab*-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
+      if [[ -z "${backupList[*]}" ]]; then
+        whiptail --title "Could not find backup!" --msgbox "We could not find any configuration backup file in the storage directory $backupPath" 8 80
+        echo "CANCELED"
+        return 0
+      fi
+      if fileSelect="$(whiptail --title "Choose openHAB configuration to restore" --cancel-button "Cancel" --ok-button "Continue" --notags --menu "\\nSelect your backup from most current 20 files below:" 22 80 13 "${backupList[@]}" 3>&1 1>&2 2>&3)"; then echo "OK"; else echo "CANCELED"; return 0; fi
+      filePath="${backupPath}/${fileSelect}"
     fi
-    if fileSelect="$(whiptail --title "Choose openHAB configuration to restore" --cancel-button "Cancel" --ok-button "Continue" --notags --menu "\\nSelect your backup from most current 20 files below:" 22 80 13 "${backupList[@]}" 3>&1 1>&2 2>&3)"; then echo "OK"; else echo "CANCELED"; return 0; fi
-    filePath="${backupPath}/${fileSelect}"
-  else
-    if ! [[ -s "$1" ]]; then echo "FAILED (restore config $1)"; return 1; fi
-    filePath="$1"
-    echo "OK"
   fi
 
   echo -n "$(timestamp) [openHABian] Restoring openHAB backup... "
-  if [[ "$1" == "textonly" ]]; then
+  if [[ "$2" == "textonly" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
       if ! (whiptail --title "Restore text config only" --yes-button "Continue" --no-button "Cancel" --yesno "$storageText" 10 80); then echo "CANCELED"; return 0; fi
     fi
