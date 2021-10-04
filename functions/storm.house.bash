@@ -13,14 +13,14 @@ setup_inverter_config() {
   fi
 
   if [[ -n "$INTERACTIVE" ]]; then
-    if [[ -z "$invertertype" ]]; then
-      invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 10 80 0 "Kostal" "Kostal Plenticore" "Sungrow" "Sungrow SH RT" "SolarEdge" "SolarEdge SE" 3>&1 1>&2 2>&3)"
+    if [[ -z "${1:-$invertertype}" ]]; then
+      if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 12 80 0 "kostal" "Kostal Plenticore" "sungrow" "Sungrow SH RT" "solaredge" "SolarEdge SE" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
     fi
-    if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then return 1; fi
+    if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
 
   for component in things items rules; do
-    cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1,,}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/inverter.${component}"
+    cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/inverter.${component}"
     chown "${username:-openhabian}:${username:-openhabian}" "${OPENHAB_CONF:-/etc/openhab}/${component}/inverter.${component}"
   done
 
@@ -28,7 +28,7 @@ setup_inverter_config() {
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "Operation successful" --msgbox "The Energy Management System is now setup to use a $1 inverter." 8 80
+    whiptail --title "Operation successful" --msgbox "The Energy Management System is now setup to use a ${1:-${invertertype}} inverter." 8 80
   fi
 }
 
