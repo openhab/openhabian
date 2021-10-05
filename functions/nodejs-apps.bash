@@ -6,7 +6,10 @@
 ##    nodejs_setup()
 ##
 nodejs_setup() {
-  if node_is_installed || ! is_armv6l; then return 0; fi
+  if node_is_installed ; then return 0; fi
+  if ! is_armv6l; then
+    if ! cond_redirect apt-get install --yes npm; then echo "FAILED (npm install)"; return 1; fi
+  fi
 
   local keyName="nodejs"
   local link="https://unofficial-builds.nodejs.org/download/release/v14.17.5/node-v14.17.5-linux-armv6l.tar.xz"
