@@ -41,9 +41,9 @@ nodejs_setup() {
 
     echo -n "$(timestamp) [openHABian] Installing NodeJS... "
     if [[ -n $PREOFFLINE ]]; then
-      if cond_redirect apt-get --quiet install --download-only --yes nodejs npm; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get --quiet install --download-only --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
     else
-      if cond_redirect apt-get install --yes nodejs npm; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
   fi
 }
