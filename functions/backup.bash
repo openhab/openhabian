@@ -253,7 +253,7 @@ create_amanda_config() {
       if ! cond_redirect mkdir -p "${storageLoc}/slots/slot${tapes}"; then echo "FAILED (slot${tapes})"; return 1; fi
       if ! cond_redirect chown --recursive "${backupUser}:backup" "${storageLoc}/slots/slot${tapes}"; then echo "FAILED (chown slot${tapes})"; return 1; fi
     elif [[ $config == "openhab-AWS" ]]; then
-      if ! cond_redirect su - "$backupUser" -c "amlabel ${config} ${config}-${tapes} slot $(printf "%02d" "${tapes}")"; then echo "FAILED (amlabel)"; return 1; fi
+      if ! cond_redirect su - "$backupUser" -c "amlabel ${config} ${config}-$(printf "%02d" "${tapes}") slot ${tapes}"; then echo "FAILED (amlabel)"; return 1; fi
     else
       echo "FAILED (invalid configuration: ${config})"
       return 1
