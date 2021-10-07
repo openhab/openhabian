@@ -52,10 +52,10 @@ openhab_setup() {
   local repo
   local successText
 
-  if [[ "$1" == "openHAB3" ]]; then
-     ohPkgName="openhab"
-  else
+  if [[ "$1" == "openHAB2" ]] || [[ "$1" == "stable" ]]; then
      ohPkgName="openhab2"
+  else
+     ohPkgName="openhab"
   fi
 
   if [[ $2 == "unstable" ]]; then
