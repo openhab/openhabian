@@ -90,8 +90,8 @@ openhab_setup() {
   if running_in_docker || [[ -z $OFFLINE ]]; then
     if ! add_keys "https://openhab.jfrog.io/artifactory/api/gpg/key/public" "$keyName"; then return 1; fi
 
-    rm -f /etc/apt/sources.list.d/${ohPkgName}*.list
-    echo "$repo" > /etc/apt/sources.list.d/${ohPkgName}.list
+    rm -f /etc/apt/sources.list.d/openhab*.list
+    echo "$repo" > /etc/apt/sources.list.d/openhab.list
 
     echo -n "$(timestamp) [openHABian] Installing selected $1 version... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
