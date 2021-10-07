@@ -63,8 +63,31 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 
 ... and much more
 
-## Hardware
+## On openHAB 2 and 3
 
+openHABian will install **openHAB 3** by default.
+When openHAB3 was released, there have been some big changes also to openHABian such as to install Java 11 and to use changed file and directory names so you cannot simple upgrade the packages without adapting the rest of your server system, the openHABian installation that is.
+
+## upgrading openHAB 2 to openHAB 3
+For openHABian users running openHAB 2.X, `openhabian-config` offers to migrate the openHABian environment and install openHAB3 for you.
+Menu option 42 will do the upgrade.
+Be aware that it isn't the [answer to the ultimate question](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#The_Answer_to_the_Ultimate_Question_of_Life,_the_Universe,_and_Everything_is_42): there is ONLY an openHAB upgrade path, you cannot downgrade from openHAB 3 to openHAB 2.
+
+::: warning No downgrades
+Take an openHAB config backup BEFORE you upgrade from openHAB v2 to v3. You should also take a system level backup!
+:::
+
+Menu option 42 can also do the downgrade and change the _environment_ back to match openHAB 2 **BUT** it'll ONLY exchange the binary packages.
+There is no migration to change your configuration back to a openHAB 2 compatible one.
+So it is essential that you take a backup before you upgrade.
+You will have to restore your setup from that backup after a downgrade using menu option 51 or by manually using `openhab-cli restore <archive file>`.
+Note option 42 will also not downgrade Java.
+openHAB 2 however is known to run with Java 11 as well.
+
+### deploy openHAB 2 
+You can deploy openHABian to install openHAB 2 from the beginning: set `clonebranch=stable` in `openhabian.conf`.
+
+## Hardware
 ### Hardware recommendation
 
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB of RAM, a 3A power supply and a 16 GB SD card.
@@ -320,26 +343,6 @@ This function will rename the rules files so they get ignored by the starting op
 You can toggle to use this feature in menu option 44.
 
 ## Setup notes
-### On openHAB 2 and 3
-
-openHABian will install **openHAB 3** by default.
-When openHAB3 was released, there have been some big changes also to openHABian such as to install Java 11 and to use changed file and directory names.
-Most directory names `... /openhab2/ ...` will become `... /openhab/ ...` (NOTE: not `openhab3`) plus there's changes in a number of places, often subtle ones like the name of Samba export shares to change.
-For openHABian users running openHAB 2.X, `openhabian-config` offers to migrate the openHABian environment and install openHAB3 for you.
-Menu option 42 will do the upgrade.
-Be aware that it isn't the [answer to the ultimate question](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#The_Answer_to_the_Ultimate_Question_of_Life,_the_Universe,_and_Everything_is_42): there is ONLY an openHAB upgrade path, you cannot downgrade from openHAB 3 to openHAB 2.
-
-::: warning No downgrades
-Take an openHAB config backup BEFORE you upgrade from openHAB v2 to v3. You should also take a system level backup!
-:::
-
-Menu option 42 can also do the downgrade and change the _environment_ back to match openHAB 2 **BUT** it'll ONLY exchange the binary packages.
-There is no migration to change your configuration back to a openHAB 2 compatible one.
-So it is essential that you take a backup before you upgrade.
-You will have to restore your setup from that backup after a downgrade using menu option 51 or by manually using `openhab-cli restore <archive file>`.
-Note option 42 will also not downgrade Java.
-openHAB 2 however is known to run with Java 11 as well.
-
 ### `openhabian.conf`
 
 You can actually set a number of parameters _before_ you run an unattended installation.
