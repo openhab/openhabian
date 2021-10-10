@@ -2,7 +2,7 @@
 # shellcheck disable=SC1117,SC2119,SC2120,SC2016
 
 ## Install appropriate Java version based on current choice.
-## Valid arguments: "Adopt11", "Zulu11-32", or "Zulu11-64"
+## Valid arguments: "Adopt11", "Adopt17", "Zulu11-32", "Zulu11-64", "Zulu17-32", or "Zulu17-64"
 ##
 ##    java_install_or_update(String type)
 ##
@@ -19,8 +19,10 @@ java_install_or_update() {
       java_zulu_install "${cached_java_opt:-Zulu11-32}"
     fi
     if [[ $1 == "Adopt11" ]]; then
-      adoptopenjdk_install_apt
-    elif [[ $1 != "Adopt11" ]]; then
+      adoptopenjdk_install_apt "11"
+    elif [[ $1 == "Adopt17" ]]; then
+      adoptopenjdk_install_apt "17"
+    elif [[ $1 != "Adopt11" ]] && [[ $1 != "Adopt17" ]]; then
       if [[ "$(java -version 2>&1 > /dev/null)" == *"AdoptOpenJDK"* ]] && java_zulu_dir; then
         java_zulu_install "$1"
       fi
@@ -28,7 +30,7 @@ java_install_or_update() {
     if [[ $1 == "Zulu11-64" ]]; then
       if is_aarch64 || is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
         if is_x86_64; then
-          java_zulu_enterprise_apt
+          java_zulu_enterprise_apt "11"
         else
           if cond_redirect java_zulu_update_available "Zulu11-64"; then
             java_zulu_prerequisite "Zulu11-64"
@@ -56,18 +58,60 @@ java_install_or_update() {
           fi
         fi
       fi
-    elif [[ $1 != "Adopt11" ]]; then # Default to 32-bit installation
-      if cond_redirect java_zulu_update_available "Zulu11-32"; then
-        java_zulu_prerequisite "Zulu11-32"
-        if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
-          java_zulu_stable "Zulu11-32"
+    elif [[ $1 == "Zulu17-64" ]]; then
+      if is_aarch64 || is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
+        if is_x86_64; then
+          java_zulu_enterprise_apt "17"
         else
-          java_zulu_fetch "Zulu11-32"
-          java_zulu_install "Zulu11-32"
+          if cond_redirect java_zulu_update_available "Zulu17-64"; then
+            java_zulu_prerequisite "Zulu17-64"
+            if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
+              java_zulu_stable "Zulu17-64"
+            else
+              java_zulu_fetch "Zulu17-64"
+              java_zulu_install "Zulu17-64"
+            fi
+          fi
         fi
+      else
+        if [[ -n $INTERACTIVE ]]; then
+          whiptail --title "Incompatible hardware detected" --msgbox "Zulu OpenJDK 64-bit: this option does not currently work on your platform.\\n\\nDefaulting to Java Zulu 11 32-bit installation." 9 80
+        else
+          echo "$(timestamp) [openHABian] Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to Java Zulu 11 32-bit installation."
+          if cond_redirect java_zulu_update_available "Zulu17-32"; then
+            java_zulu_prerequisite "Zulu17-32"
+            if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
+              java_zulu_stable "Zulu17-32"
+            else
+              java_zulu_fetch "Zulu17-32"
+              java_zulu_install "Zulu17-32"
+            fi
+          fi
+        fi
+      fi
+    elif [[ $1 == "Zulu17-32" ]]; then
+      if cond_redirect java_zulu_update_available "Zulu17-32"; then
+        java_zulu_prerequisite "Zulu17-32"
+        if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
+          java_zulu_stable "Zulu17-32"
+        else
+          java_zulu_fetch "Zulu17-32"
+          java_zulu_install "Zulu17-32"
+        fi
+      fi
+    elif [[ $1 != "Adopt11" ]] && [[ $1 != "Adopt17" ]]; then # Default to 32-bit installation
+    if cond_redirect java_zulu_update_available "Zulu11-32"; then
+      java_zulu_prerequisite "Zulu11-32"
+      if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
+        java_zulu_stable "Zulu11-32"
+      else
+        java_zulu_fetch "Zulu11-32"
+        java_zulu_install "Zulu11-32"
       fi
     fi
   fi
+fi
+
   if [[ -x $(command -v java) ]]; then
     cond_redirect java -version
   else
@@ -76,13 +120,13 @@ java_install_or_update() {
 }
 
 ## Install Java Zulu prerequisites (libc, libstdc++, zlib1g)
-## Valid arguments: "Zulu11-32" or "Zulu11-64"
+## Valid arguments: "Zulu11-64" or "Zulu17-64"
 ##
 ##    java_zulu_prerequisite(String type)
 ##
 java_zulu_prerequisite() {
   echo -n "$(timestamp) [openHABian] Installing Java Zulu prerequisites (libc, libstdc++, zlib1g)... "
-  if [[ $1 == "Zulu11-64" ]]; then
+  if [[ $1 == "Zulu11-64" ]] || [[ $1 == "Zulu17-64" ]]; then
     if is_aarch64 && [[ $(getconf LONG_BIT) == 64 ]]; then
       if dpkg -s 'libc6:arm64' 'libstdc++6:arm64' 'zlib1g:arm64' &> /dev/null; then echo "OK"; return 0; fi
       dpkg --add-architecture arm64
@@ -114,7 +158,7 @@ java_zulu_prerequisite() {
 }
 
 ## Use special handling when installing Zulu on the stable branch
-## Valid arguments: "Zulu11-32" or "Zulu11-64"
+## Valid arguments: "Zulu11-32", "Zulu11-64", "Zulu17-32", "Zulu17-64"
 ##
 ##    java_zulu_stable(String type)
 ##
@@ -135,7 +179,7 @@ java_zulu_stable() {
 }
 
 ## Install Java Zulu directly from fetched files
-## Valid arguments: "Zulu11-32", or "Zulu11-64"
+## Valid arguments: "Zulu11-32", "Zulu11-64", "Zulu17-32", "Zulu17-64"
 ##
 ##    java_zulu_install(String type)
 ##
@@ -148,8 +192,12 @@ java_zulu_install() {
 
   if [[ $1 == "Zulu11-32" ]]; then
     echo -n "$(timestamp) [openHABian] Installing Java Zulu 11 32-Bit OpenJDK... "
+  elif [[ $1 == "Zulu17-32" ]]; then
+    echo -n "$(timestamp) [openHABian] Installing Java Zulu 17 32-Bit OpenJDK... "
   elif [[ $1 == "Zulu11-64" ]]; then
     echo -n "$(timestamp) [openHABian] Installing Java Zulu 11 64-Bit OpenJDK... "
+  elif [[ $1 == "Zulu17-64" ]]; then
+    echo -n "$(timestamp) [openHABian] Installing Java Zulu 17 64-Bit OpenJDK... "
   else
     echo "$(timestamp) [openHABian] Installing something that probably won't work... FAILED"
     return 1
@@ -195,12 +243,26 @@ java_zulu_fetch() {
     else
       downloadLink="$(curl "${link}&jdk_version=11&arch=x86&hw_bitness=32&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
     fi
+  elif [[ $1 == "Zulu17-32" ]]; then
+    echo -n "$(timestamp) [openHABian] Downloading Java Zulu 17 32-Bit OpenJDK... "
+    if is_arm; then
+      downloadLink="$(curl "${link}&jdk_version=17&arch=arm&hw_bitness=32&abi=hard_float" -s -L -I -o /dev/null -w '%{url_effective}')"
+    else
+      downloadLink="$(curl "${link}&jdk_version=17&arch=x86&hw_bitness=32&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
+    fi
   elif [[ $1 == "Zulu11-64" ]]; then
     echo -n "$(timestamp) [openHABian] Downloading Java Zulu 11 64-Bit OpenJDK... "
     if is_arm; then
       downloadLink="$(curl "${link}&jdk_version=11&arch=arm&hw_bitness=64" -s -L -I -o /dev/null -w '%{url_effective}')"
     else
       downloadLink="$(curl "${link}&jdk_version=11&arch=x86&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
+    fi
+  elif [[ $1 == "Zulu17-64" ]]; then
+    echo -n "$(timestamp) [openHABian] Downloading Java Zulu 17 64-Bit OpenJDK... "
+    if is_arm; then
+      downloadLink="$(curl "${link}&jdk_version=17&arch=arm&hw_bitness=64" -s -L -I -o /dev/null -w '%{url_effective}')"
+    else
+      downloadLink="$(curl "${link}&jdk_version=17&arch=x86&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
     fi
   fi
   if [[ -z $downloadLink ]]; then echo "FAILED (download link)"; return 1; fi
@@ -247,6 +309,14 @@ java_zulu_update_available() {
       requestedArch="i686"
       availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter")"
     fi
+  elif [[ $1 == "Zulu17-32" ]]; then
+    if is_arm; then
+      requestedArch="aarch32hf"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=17&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter")"
+    else
+      requestedArch="i686"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=17&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter")"
+    fi
   elif [[ $1 == "Zulu11-64" ]]; then
     if is_arm; then
       requestedArch="aarch64"
@@ -254,6 +324,14 @@ java_zulu_update_available() {
     else
       requestedArch="x64"
       availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter")"
+    fi
+  elif [[ $1 == "Zulu17-64" ]]; then
+    if is_arm; then
+      requestedArch="aarch64"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=17&arch=arm&hw_bitness=64" | jq -r "$filter")"
+    else
+      requestedArch="x64"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=17&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter")"
     fi
   fi
   if [[ -z $requestedArch ]] || [[ -z $availableVersion ]]; then echo "FAILED (java update available)"; return 1; fi
@@ -269,7 +347,8 @@ java_zulu_update_available() {
 }
 
 ## Install Azul's Java Zulu Enterprise using APT repository.
-## Package manager distributions are only available on x86-64bit platforms when checked in January 2021
+## Package manager distributions are only available on x86-64bit platforms when checked in October 2021
+## Valid arguments: "11" or "17"
 ##
 ##    java_zulu_enterprise_apt(String ver)
 ##
@@ -285,9 +364,9 @@ java_zulu_enterprise_apt() {
   if openhab_is_running; then
     cond_redirect systemctl stop openhab.service
   fi
-  if ! dpkg -s 'zulu-11' &> /dev/null; then
-    echo -n "$(timestamp) [openHABian] Installing Zulu 11 Enterprise 64-Bit OpenJDK... "
-    if cond_redirect apt-get install --yes zulu-11; then echo "OK"; else echo "FAILED"; return 1; fi
+  if ! dpkg -s 'zulu-'"${1}" &> /dev/null; then
+    echo -n "$(timestamp) [openHABian] Installing Zulu ${1} Enterprise 64-Bit OpenJDK... "
+    if cond_redirect apt-get install --yes zulu-${1}; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if openhab_is_installed; then
     cond_redirect systemctl restart openhab.service
@@ -322,8 +401,9 @@ java_zulu_install_crypto_extension() {
 }
 
 ## Fetch AdoptOpenJDK using APT repository.
+## Valid arguments: "11" or "17"
 ##
-##    adoptopenjdk_fetch_apt()
+##    adoptopenjdk_fetch_apt(String ver)
 ##
 adoptopenjdk_fetch_apt() {
   local keyName="adoptopenjdk"
@@ -339,27 +419,28 @@ adoptopenjdk_fetch_apt() {
   echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://adoptopenjdk.jfrog.io/adoptopenjdk/deb bullseye main" > /etc/apt/sources.list.d/adoptopenjdk.list
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
-  echo -n "$(timestamp) [openHABian] Fetching AdoptOpenJDK... "
-  if cond_redirect apt-get install --download-only --yes adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Fetching AdoptOpenJDK ${1}... "
+  if cond_redirect apt-get install --download-only --yes "adoptopenjdk-${1}-hotspot-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Install AdoptOpenJDK using APT repository.
+## Valid arguments: "11" or "17"
 ##
-##    adoptopenjdk_install_apt()
+##    adoptopenjdk_install_apt(String ver)
 ##
 adoptopenjdk_install_apt() {
   if openhab_is_running; then
     cond_redirect systemctl stop openhab.service
   fi
-  if ! dpkg -s 'adoptopenjdk-11-hotspot-jre' &> /dev/null; then # Check if already is installed
+  if ! dpkg -s 'adoptopenjdk-'"${1}"'-hotspot-jre' &> /dev/null; then # Check if already is installed
     adoptopenjdk_fetch_apt
-    echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK 11... "
+    echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK ${1}... "
     cond_redirect java_alternatives_reset
-    if cond_redirect apt-get install --yes adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
-  elif dpkg -s 'adoptopenjdk-11-hotspot-jre' &> /dev/null; then
-    echo -n "$(timestamp) [openHABian] Reconfiguring AdoptOpenJDK 11... "
+    if cond_redirect apt-get install --yes "adoptopenjdk-${1}-hotspot-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
+  elif dpkg -s 'adoptopenjdk-'"${1}"'-hotspot-jre' &> /dev/null; then
+    echo -n "$(timestamp) [openHABian] Reconfiguring AdoptOpenJDK ${1}... "
     cond_redirect java_alternatives_reset
-    if cond_redirect dpkg-reconfigure adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect dpkg-reconfigure "adoptopenjdk-${1}-hotspot-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if openhab_is_installed; then
     cond_redirect systemctl restart openhab.service
