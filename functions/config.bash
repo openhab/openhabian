@@ -46,7 +46,7 @@ clean_config_userpw() {
 }
 
 ## Update requested version of Java in '$configFile'.
-## Valid arguments: "Adopt11", "Zulu11-32", or "Zulu11-64"
+## Valid arguments: "Adopt11", "Zulu11-32", "Zulu11-64", "Zulu17-32", or "Zulu17-64"
 ##
 ##    update_config_java(String type)
 ##
@@ -60,6 +60,15 @@ update_config_java() {
       fi
       if ! cond_redirect sed -i -e 's|^java_opt.*$|java_opt=Zulu11-32|' "$configFile"; then return 1; fi
     fi
+  elif [[ $1 == "Zulu17-64" ]]; then
+      if ! is_aarch64 || ! is_x86_64 && ! [[ $(getconf LONG_BIT) == 64 ]]; then
+        if [[ -n $INTERACTIVE ]]; then
+          whiptail --title "Incompatible hardware detected" --msgbox "Zulu OpenJDK 64-bit: this option does not currently work on your platform.\\n\\nDefaulting to Java Zulu 17 32-bit installation." 9 80
+        else
+          echo "Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to Java Zulu 17 32-bit installation."
+        fi
+        if ! cond_redirect sed -i -e 's|^java_opt.*$|java_opt=Zulu17-32|' "$configFile"; then return 1; fi
+      fi
   else
     if ! cond_redirect sed -i -e 's|^java_opt.*$|java_opt='"${1}"'|' "$configFile"; then return 1; fi
   fi
