@@ -182,7 +182,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 17 116 10 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 19 116 12 --cancel-button Back --ok-button Execute \
     "41 | openHAB Release"        "Install or switch to the latest openHAB Release" \
     "   | openHAB Milestone"      "Install or switch to the latest openHAB Milestone Build" \
     "   | openHAB Snapshot"       "Install or switch to the latest openHAB Snapshot Build" \
@@ -192,6 +192,8 @@ show_main_menu() {
     "44 | Nginx Proxy"            "Setup reverse and forward web proxy" \
     "45 | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider" \
     "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider" \
+    "   | Zulu 17 OpenJDK 32-bit" "Install Zulu 17 32-bit OpenJDK as primary Java provider" \
+    "   | Zulu 17 OpenJDK 64-bit" "Install Zulu 17 64-bit OpenJDK as primary Java provider" \
     "   | AdoptOpenJDK 11"        "Install AdoptOpenJDK 11 as primary Java provider" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
@@ -208,6 +210,8 @@ show_main_menu() {
       44\ *) nginx_setup;;
       *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
       *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
+      *Zulu\ 17\ OpenJDK\ 32-bit) update_config_java "Zulu17-32" && java_install_or_update "Zulu17-32";;
+      *Zulu\ 17\ OpenJDK\ 64-bit) update_config_java "Zulu17-64" && java_install_or_update "Zulu17-64";;
       *AdoptOpenJDK\ 11) update_config_java "Adopt11" && java_install_or_update "Adopt11";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;

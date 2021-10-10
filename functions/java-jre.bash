@@ -2,7 +2,7 @@
 # shellcheck disable=SC1117,SC2119,SC2120,SC2016
 
 ## Install appropriate Java version based on current choice.
-## Valid arguments: "Adopt11", "Adopt17", "Zulu11-32", "Zulu11-64", "Zulu17-32", or "Zulu17-64"
+## Valid arguments: "Adopt11", "Zulu11-32", "Zulu11-64", "Zulu17-32", or "Zulu17-64"
 ##
 ##    java_install_or_update(String type)
 ##
@@ -19,10 +19,8 @@ java_install_or_update() {
       java_zulu_install "${cached_java_opt:-Zulu11-32}"
     fi
     if [[ $1 == "Adopt11" ]]; then
-      adoptopenjdk_install_apt "11"
-    elif [[ $1 == "Adopt17" ]]; then
-      adoptopenjdk_install_apt "17"
-    elif [[ $1 != "Adopt11" ]] && [[ $1 != "Adopt17" ]]; then
+      adoptopenjdk_install_apt
+    elif [[ $1 != "Adopt11" ]]; then
       if [[ "$(java -version 2>&1 > /dev/null)" == *"AdoptOpenJDK"* ]] && java_zulu_dir; then
         java_zulu_install "$1"
       fi
@@ -99,7 +97,7 @@ java_install_or_update() {
           java_zulu_install "Zulu17-32"
         fi
       fi
-    elif [[ $1 != "Adopt11" ]] && [[ $1 != "Adopt17" ]]; then # Default to 32-bit installation
+    elif [[ $1 != "Adopt11" ]]; then # Default to 32-bit installation
     if cond_redirect java_zulu_update_available "Zulu11-32"; then
       java_zulu_prerequisite "Zulu11-32"
       if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
@@ -401,9 +399,8 @@ java_zulu_install_crypto_extension() {
 }
 
 ## Fetch AdoptOpenJDK using APT repository.
-## Valid arguments: "11" or "17"
 ##
-##    adoptopenjdk_fetch_apt(String ver)
+##    adoptopenjdk_fetch_apt()
 ##
 adoptopenjdk_fetch_apt() {
   local keyName="adoptopenjdk"
@@ -419,28 +416,27 @@ adoptopenjdk_fetch_apt() {
   echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://adoptopenjdk.jfrog.io/adoptopenjdk/deb bullseye main" > /etc/apt/sources.list.d/adoptopenjdk.list
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
-  echo -n "$(timestamp) [openHABian] Fetching AdoptOpenJDK ${1}... "
-  if cond_redirect apt-get install --download-only --yes "adoptopenjdk-${1}-hotspot-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Fetching AdoptOpenJDK... "
+  if cond_redirect apt-get install --download-only --yes adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Install AdoptOpenJDK using APT repository.
-## Valid arguments: "11" or "17"
 ##
-##    adoptopenjdk_install_apt(String ver)
+##    adoptopenjdk_install_apt()
 ##
 adoptopenjdk_install_apt() {
   if openhab_is_running; then
     cond_redirect systemctl stop openhab.service
   fi
-  if ! dpkg -s 'adoptopenjdk-'"${1}"'-hotspot-jre' &> /dev/null; then # Check if already is installed
+  if ! dpkg -s 'adoptopenjdk-11-hotspot-jre' &> /dev/null; then # Check if already is installed
     adoptopenjdk_fetch_apt
-    echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK ${1}... "
+    echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK 11... "
     cond_redirect java_alternatives_reset
-    if cond_redirect apt-get install --yes "adoptopenjdk-${1}-hotspot-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
-  elif dpkg -s 'adoptopenjdk-'"${1}"'-hotspot-jre' &> /dev/null; then
-    echo -n "$(timestamp) [openHABian] Reconfiguring AdoptOpenJDK ${1}... "
+    if cond_redirect apt-get install --yes adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
+  elif dpkg -s 'adoptopenjdk-11-hotspot-jre' &> /dev/null; then
+    echo -n "$(timestamp) [openHABian] Reconfiguring AdoptOpenJDK 11... "
     cond_redirect java_alternatives_reset
-    if cond_redirect dpkg-reconfigure "adoptopenjdk-${1}-hotspot-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect dpkg-reconfigure adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if openhab_is_installed; then
     cond_redirect systemctl restart openhab.service

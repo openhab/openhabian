@@ -74,11 +74,3 @@ load helpers.bash
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] AdoptOpenJDK 11 Java installation successful.${COL_DEF}" >&3
 }
-
-@test "installation-java_install_adopt17" {
-  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] AdoptOpenJDK 17 Java installation is being (test-)installed...${COL_DEF}" >&3
-  run adoptopenjdk_install_apt "17" 3>&-
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] AdoptOpenJDK 17 Java installation successful.${COL_DEF}" >&3
-}
