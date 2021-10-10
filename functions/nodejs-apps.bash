@@ -6,7 +6,7 @@
 ##    nodejs_setup()
 ##
 nodejs_setup() {
-  if node_is_installed || ! is_armv6l; then return 0; fi
+  if node_is_installed && ! is_armv6l; then return 0; fi
 
   local keyName="nodejs"
   local link="https://unofficial-builds.nodejs.org/download/release/v14.18.0/node-v14.18.0-linux-armv6l.tar.xz"
