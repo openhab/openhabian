@@ -53,19 +53,19 @@ load helpers.bash
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Zulu 17 64-bit Java installation successful.${COL_DEF}" >&3
 }
 
-@test "installation-java_install_zulu17-32bit" {
-  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zulu 17 32-bit Java installation is being (test-)installed...${COL_DEF}" >&3
-  run java_zulu_prerequisite "Zulu17-32" 3>&-
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
-  run java_zulu_fetch "Zulu17-32" 3>&-
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
-  run java_zulu_install "Zulu17-32" 3>&-
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Zulu 17 32-bit Java installation successful.${COL_DEF}" >&3
-}
+# @test "installation-java_install_zulu17-32bit" {
+#   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zulu 17 32-bit Java installation is being (test-)installed...${COL_DEF}" >&3
+#   run java_zulu_prerequisite "Zulu17-32" 3>&-
+#   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+#   [ "$status" -eq 0 ]
+#   run java_zulu_fetch "Zulu17-32" 3>&-
+#   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+#   [ "$status" -eq 0 ]
+#   run java_zulu_install "Zulu17-32" 3>&-
+#   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+#   [ "$status" -eq 0 ]
+#   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Zulu 17 32-bit Java installation successful.${COL_DEF}" >&3
+# }
 
 @test "installation-java_install_adopt11" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] AdoptOpenJDK 11 Java installation is being (test-)installed...${COL_DEF}" >&3
