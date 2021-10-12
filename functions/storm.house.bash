@@ -126,6 +126,8 @@ setup_inv_config() {
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
 
+   if ! cond_redirect install -m 755 "${sdIncludesDir}/setup_inverter" /usr/local/sbin; then echo "FAILED (install setup_inverter)"; return 1; fi
+
   for component in things items rules; do
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}"
     destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
