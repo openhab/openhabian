@@ -7,6 +7,9 @@
 ##    setup_inverter_config(String inverter type,String inverter IP)
 ##
 setup_inverter_config() {
+  local sdIncludesDir="${BASEDIR:-/opt/openhabian}/includes/SD"
+
+
   if [[ -n "$UNATTENDED" ]]; then
     echo -n "$(timestamp) [storm.house] inverter installation... "
     if [[ ! -v invertertype ]]; then echo "SKIPPED (no inverter defined)"; return 1; fi
@@ -18,6 +21,8 @@ setup_inverter_config() {
     fi
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
+
+   if ! cond_redirect install -m 755 "${sdIncludesDir}/setup_inverter" /usr/local/sbin; then echo "FAILED (install setup_inverter)"; return 1; fi
 
   for component in things items rules; do
     cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/inverter.${component}"
