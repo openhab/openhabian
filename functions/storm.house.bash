@@ -17,7 +17,7 @@ setup_inverter_config() {
 
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$invertertype}" ]]; then
-      if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 12 80 0 "kostal" "Kostal Plenticore" "sungrow" "Sungrow SH RT" "solaredge" "SolarEdge SE" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
+      if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 13 80 0 "sunspec" "generisch, SunSpec kompatibel" "kostal" "Kostal Plenticore" "sungrow" "Sungrow SH RT" "solaredge" "SolarEdge SE" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
     fi
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
@@ -31,7 +31,7 @@ setup_inverter_config() {
     chown "${username:-openhabian}:${username:-openhabian}" "${OPENHAB_CONF:-/etc/openhab}/${component}/inverter.${component}"
   done
 
-  sed -ie "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/inverter.things"
+  sed -i "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/inverter.things"
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
