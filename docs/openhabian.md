@@ -64,9 +64,15 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 ... and much more
 
 ## On openHAB 2 and 3
-
 openHABian will install **openHAB 3** by default.
 When openHAB3 was released, there have been some big changes also to openHABian such as to install Java 11 and to use changed file and directory names so you cannot simple upgrade the packages without adapting the rest of your server system, the openHABian installation that is.
+openHAB 2 will continue to work on openHABian, but openHAB 2 support is no longer actively maintained and the software will only receive select patches deemed necessary by the maintainers of the project.
+If you need openHAB 2 support please use the `stable` branch of openHABian.
+You can switch branches using menu option 01 in `openhabian-config` but ATTENTION you cannot up- or downgrade this way and you cannot arbitrarily change versions.
+There's a high risk you mess up your system if you do.
+
+### deploy openHAB 2
+The image will install openHAB 3 by default, to have it install openHAB 2 right from the beginning, set` clonebranch=stable` in `openhabian.conf` before first boot.
 
 ## upgrading openHAB 2 to openHAB 3
 For openHABian users running openHAB 2.X, `openhabian-config` offers to migrate the openHABian environment and install openHAB3 for you.
@@ -84,8 +90,16 @@ You will have to restore your setup from that backup after a downgrade using men
 Note option 42 will also not downgrade Java.
 openHAB 2 however is known to run with Java 11 as well.
 
-### deploy openHAB 2 
-You can deploy openHABian to install openHAB 2 from the beginning: set `clonebranch=stable` in `openhabian.conf`.
+### *A note on dedication and commitment*
+
+*We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
+Everybody wants his home automation to be stable and most people install a dedicated RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation.
+Reasonably so, this is our clear recommendation. Saving another 50 bucks is not worth putting the reliable day-to-day operations of your home at risk.*
+
+*Then again that being said, those who insist to can use openHABian as the starting point for their 'generic' server and run whatever software else on top.
+There's no genuine reason why this wouldn't work. The openHABian image is really just Raspberry Pi OS (lite) under the hood and openHABian is "just" some scripts that install a number of packages and configures the system in a specific way, optimized to run openHAB.*
+
+*What you must not do, though, is to mess with system packages and config and expect anyone to help you with that. Let's clearly state this as well: when you deliberately decide to make manual changes to the OS software packages and configuration (i.e. outside of openhabian-config), you will be on your own. Your setup is untested, and no-one but you knows about your changes. openHABian maintainers are really committed to providing you with a fine user experience, but this takes enormous efforts you don't get to see as a user. So if you choose to deviate from standard openHABian installations and run into problems thereafter, don't be unfair: don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum.*
 
 ## Hardware
 ### Hardware recommendation
