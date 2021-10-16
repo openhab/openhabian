@@ -101,7 +101,6 @@ show_main_menu() {
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
->>>>>>> 7787112 (Add menu 05 to setup storm.house EMS inverter config)
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
