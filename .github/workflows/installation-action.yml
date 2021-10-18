@@ -37,7 +37,7 @@ jobs:
 
     steps:
        - name: Checkout repository
-         uses: actions/checkout@v2.3.4
+         uses: actions/checkout@v2.3.5
        - name: Setup environment
          run: |
            sudo -E ./tests/ci-setup.bash github
@@ -70,7 +70,7 @@ jobs:
 
     steps:
        - name: Checkout repository
-         uses: actions/checkout@v2.3.4
+         uses: actions/checkout@v2.3.5
        - name: Setup environment
          run: |
            sudo -E ./tests/ci-setup.bash github
@@ -107,7 +107,7 @@ jobs:
 
     steps:
        - name: Checkout repository
-         uses: actions/checkout@v2.3.4
+         uses: actions/checkout@v2.3.5
        - name: Setup environment
          run: |
            sudo -E ./tests/ci-setup.bash github
@@ -144,7 +144,7 @@ jobs:
 
     steps:
        - name: Checkout repository
-         uses: actions/checkout@v2.3.4
+         uses: actions/checkout@v2.3.5
        - name: Setup environment
          run: |
            sudo -E ./tests/ci-setup.bash github
