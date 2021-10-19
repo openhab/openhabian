@@ -126,8 +126,8 @@ setup_inv_config() {
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
 
-  if [[ ! -f /usr/local/sbin/setup_inverter ]]; then
-    if ! cond_redirect install -m 755 "${includesDir}/setup_inverter" /usr/local/sbin; then echo "FAILED (install setup_inverter)"; return 1; fi
+  if [[ ! -f /usr/local/sbin/setup_pv ]]; then
+    if ! cond_redirect install -m 755 "${includesDir}/setup_pv" /usr/local/sbin; then echo "FAILED (install setup_pv)"; return 1; fi
   fi
 
   for component in things items rules; do
