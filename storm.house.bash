@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-<<<<<<< HEAD
 ## #1=bat & #2=hybrid -> pv=#1 & bat=#1, ansonsten was definiert wurde
 ## #1=meter & #2=inverter -> meter=#1, ansonsten was definiert wurde
 
@@ -33,17 +32,6 @@ setup_pv_config() {
   local muser
   local mpass
   local serial
-=======
-## Generate/copy openHAB config for a PV inverter and optional a meter, too
-## Valid Arguments: none | kostal | sungrow | solaredge | fronius
-##                  IP address of inverter
-##     (optional)   IP address of meter
-##
-##    setup_inverter_config(String inverter type,String inverter IP,String meter IP)
-##
-setup_pv_config() {
-  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
->>>>>>> 2da72a7f3 (setup_pv statt nur inverter jetzt auch samt smart meter)
 
 
   if [[ -n "$UNATTENDED" ]]; then
@@ -262,7 +250,6 @@ setup_wb_config() {
     if [[ -z "${1:-$wallboxtype}" ]]; then echo "SKIPPED (no wallbox defined)"; return 1; fi
   fi
 
-<<<<<<< HEAD
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$wallboxtype}" ]]; then
       if ! wallboxtype="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 12 80 0 "abl" "ABL eMH1" "go-e" "go-E Charger" "keba" "KEBA KeContact P20/P30 und BMW Wallboxen" "wbcustom" "manuelle Konfiguration" "demo" "Demo-Konfiguration mit zwei fake E-Autos" 3>&1 1>&2 2>&3)"; then unset wallboxtype wallboxip cartype1 carname1; return 1; fi
@@ -336,30 +323,10 @@ setup_wb_config() {
   fi
   if [[ ${1:-${wallboxtype}} == "demo" ]]; then
     rm -f "$evccConfig"
-=======
-  if [[ ! -f /usr/local/sbin/setup_inverter ]]; then
-    if ! cond_redirect install -m 755 "${includesDir}/setup_inverter" /usr/local/sbin; then echo "FAILED (install setup_inverter)"; return 1; fi
-  fi
-
-  for component in things items rules; do
-    if [[ ${1:-${invertertype}} == "none" ]]; then
-      rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-    else
-      cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-      chown "${username:-openhabian}:${username:-openhabian}" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-    fi
-  done
-
-  sed -i "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
-  
-  if [[ $# -gt 2 ]]; then
-      sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
->>>>>>> 2da72a7f3 (setup_pv statt nur inverter jetzt auch samt smart meter)
   fi
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
-<<<<<<< HEAD
     whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System steuert jetzt eine ${1:-${wallboxtype}} Wallbox." 8 80
   fi
 }
@@ -749,9 +716,6 @@ retrieve_license() {
     ems_lic disable
   else
     ems_lic enable
-=======
-    whiptail --title "Operation successful" --msgbox "The Energy Management System is now setup to use a ${1:-${invertertype}} PV inverter." 8 80
->>>>>>> 2da72a7f3 (setup_pv statt nur inverter jetzt auch samt smart meter)
   fi
 }
 
