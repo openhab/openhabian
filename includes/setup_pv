@@ -8,5 +8,5 @@ source $CONFIGFILE
 source ${BASEDIR}/functions/helpers.bash
 source ${BASEDIR}/functions/storm.house.bash
 
-setup_inverter_config "$@"
+setup_pv_config "$@"
 

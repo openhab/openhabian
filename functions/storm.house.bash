@@ -127,7 +127,7 @@ setup_inv_config() {
   fi
 
   if [[ ! -f /usr/local/sbin/setup_inverter ]]; then
-    if ! cond_redirect install -m 755 "${sdIncludesDir}/setup_inverter" /usr/local/sbin; then echo "FAILED (install setup_inverter)"; return 1; fi
+    if ! cond_redirect install -m 755 "${includesDir}/setup_inverter" /usr/local/sbin; then echo "FAILED (install setup_inverter)"; return 1; fi
   fi
 
   for component in things items rules; do
