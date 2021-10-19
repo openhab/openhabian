@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-<<<<<<< HEAD
 ## Generate/copy openHAB config for a PV inverter and optional a meter, too
 ## Valid Arguments: manuell | kostal | sungrow | solaredge | fronius
 ##                  IP address of inverter
@@ -47,17 +46,5 @@ setup_pv_config() {
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Operation successful" --msgbox "The Energy Management System is now setup to use a ${1:-${invertertype}} PV inverter." 8 80
   fi
-=======
-## Generate/copy openHAB config for a PV inverter
-## Valid Arguments: kostal, sungrow
-##
-##    setup_inverter_config(String inverter)
-##
-setup_inverter_config() {
-  for component in things items rules; do
-    cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1,,}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/"
-  done
-  whiptail --title "Operation successful" --msgbox "The Energy Management System is now setup to use a $1 inverter." 8 80
->>>>>>> 56fcb89 (Add menu 04 to setup storm.house EMS inverter config)
 }
 
