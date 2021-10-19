@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
-## Generate/copy openHAB config for a PV inverter
-## Valid Arguments: kostal | sungrow
-##                  IP address
+## Generate/copy openHAB config for a PV inverter and optional a meter, too
+## Valid Arguments: none | kostal | sungrow | solaredge | fronius
+##                  IP address of inverter
+##     (optional)   IP address of meter
 ##
-##    setup_inverter_config(String inverter type,String inverter IP)
+##    setup_inverter_config(String inverter type,String inverter IP,String meter IP)
 ##
-setup_inverter_config() {
-  local sdIncludesDir="${BASEDIR:-/opt/openhabian}/includes/SD"
+setup_pv_config() {
+  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
 
 
   if [[ -n "$UNATTENDED" ]]; then
@@ -23,23 +24,27 @@ setup_inverter_config() {
   fi
 
   if [[ ! -f /usr/local/sbin/setup_inverter ]]; then
-    if ! cond_redirect install -m 755 "${sdIncludesDir}/setup_inverter" /usr/local/sbin; then echo "FAILED (install setup_inverter)"; return 1; fi
+    if ! cond_redirect install -m 755 "${includesDir}/setup_inverter" /usr/local/sbin; then echo "FAILED (install setup_inverter)"; return 1; fi
   fi
 
   for component in things items rules; do
     if [[ ${1:-${invertertype}} == "none" ]]; then
-      rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/inverter.${component}"
+      rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
     else
-      cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/inverter.${component}"
-      chown "${username:-openhabian}:${username:-openhabian}" "${OPENHAB_CONF:-/etc/openhab}/${component}/inverter.${component}"
+      cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
+      chown "${username:-openhabian}:${username:-openhabian}" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
     fi
   done
 
-  sed -i "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/inverter.things"
+  sed -i "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
+  
+  if [[ $# -gt 2 ]]; then
+      sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
+  fi
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "Operation successful" --msgbox "The Energy Management System is now setup to use a ${1:-${invertertype}} inverter." 8 80
+    whiptail --title "Operation successful" --msgbox "The Energy Management System is now setup to use a ${1:-${invertertype}} PV inverter." 8 80
   fi
 }
 
