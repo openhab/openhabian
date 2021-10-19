@@ -29,7 +29,7 @@ setup_pv_config() {
   fi
 
   for component in things items rules; do
-    if [[ ${1:-${invertertype}} == "manuell" ]]; then
+    if [[ ${1:-${invertertype}} == "none" ]]; then
       rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
     else
       cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
