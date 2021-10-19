@@ -303,8 +303,8 @@ setup_wb_config() {
     if [[ -z "${1:-$wallboxtype}" ]]; then echo "SKIPPED (no wallbox defined)"; return 1; fi
   fi
 
-  if [[ ! -f /usr/local/sbin/setup_inverter ]]; then
-    if ! cond_redirect install -m 755 "${includesDir}/setup_inverter" /usr/local/sbin; then echo "FAILED (install setup_inverter)"; return 1; fi
+  if [[ ! -f /usr/local/sbin/setup_pv ]]; then
+    if ! cond_redirect install -m 755 "${includesDir}/setup_pv" /usr/local/sbin; then echo "FAILED (install setup_pv)"; return 1; fi
   fi
 
   for component in things items rules; do
