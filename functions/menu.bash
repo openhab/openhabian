@@ -139,7 +139,7 @@ show_main_menu() {
     "   | Enable NTP"             "Enable time synchronization via systemd-timesyncd to NTP servers" \
     "   | Disable NTP"            "Disable time synchronization via systemd-timesyncd to NTP servers" \
     "34 | Change passwords"       "Change passwords for Samba, openHAB Console or the system user" \
-    "35 | Serial port"            "Prepare serial ports for peripherals like Razberry, SCC, Pine64 ZWave, ..." \
+    "35 | Serial port"            "Prepare serial ports for peripherals like RaZberry, ZigBee adapters etc" \
     "36 | Disable framebuffer"    "Disable framebuffer on RPi to minimize memory usage" \
     "   | Enable framebuffer"     "Enable framebuffer (standard setting)" \
     "37 | WiFi setup"             "Configure wireless network connection" \
