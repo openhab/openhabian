@@ -212,7 +212,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "50"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Backup/Restore" 14 116 7 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Backup/Restore" 15 116 8 --cancel-button Back --ok-button Execute \
     "50 | Backup openHAB config"      "Backup the current active openHAB configuration" \
     "51 | Restore an openHAB config"  "Restore an openHAB configuration from backup zipfile" \
     "   | Restore text only config"   "Restore text only configuration without restarting" \
