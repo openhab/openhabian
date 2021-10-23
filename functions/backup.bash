@@ -46,7 +46,7 @@ restore_openhab_config() {
 
   local backupList
   local backupPath="${OPENHAB_BACKUPS:-/var/lib/openhab/backups}"
-  local filePath
+  local filePath=${1:-${initialconfig:-/boot/initial.zip}}
   local fileSelect
   local storageText="Only text input files *.things *.items *.rules will be restored from the backup zipfile.\\nConfig elements that were defined using the GUI will not be restored."
 
