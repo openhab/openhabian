@@ -139,6 +139,7 @@ setup_hotspot() {
     if cond_redirect apt install --yes -o Dpkg::Options::=--force-confdef comitup; then echo "OK"; else echo "FAILED"; return 1; fi
     echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
+    install -m 644 includes/generic/100-disable-wifi-mac-randomization.conf /etc/NetworkManager/conf.d/
   elif [[ $1 == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Uninstalling hotspot... "
     if cond_redirect apt purge --yes comitup; then echo "OK"; else echo "FAILED"; return 1; fi
