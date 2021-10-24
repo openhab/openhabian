@@ -13,7 +13,8 @@ setup_pv_config() {
 
   if [[ -n "$UNATTENDED" ]]; then
     echo -n "$(timestamp) [storm.house] inverter installation... "
-    if [[ ! -v invertertype ]]; then echo "SKIPPED (no inverter defined)"; return 1; fi
+    if [[ -z "${1:-$invertertype}" ]]; then echo "SKIPPED (no inverter defined)"; return 1; fi
+    #if [[ ! -v invertertype ]]; then echo "SKIPPED (no inverter defined)"; return 1; fi
   fi
 
   if [[ -n "$INTERACTIVE" ]]; then
