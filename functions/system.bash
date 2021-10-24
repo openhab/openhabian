@@ -313,7 +313,7 @@ permissions_corrections() {
   cond_redirect chown --silent openhab:openhab /srv /opt
   cond_redirect chmod --silent ugo+w /srv
   if ! cond_redirect chown --recursive openhab:openhab "${openhabFolders[@]}"; then echo "FAILED (openhab folders)"; retval=1; fi
-  if ! cond_redirect chmod --recursive u+wX,g+swX /opt "${openhabFolders[@]}"; then echo "FAILED (folders)"; retval=1; fi
+  if ! cond_redirect chmod --recursive u+wX,g+wX /opt "${openhabFolders[@]}"; then echo "FAILED (folders)"; retval=1; fi
   if [[ -d "$openhabHome"/.ssh ]]; then
     if ! cond_redirect chmod --recursive go-rwx "$openhabHome"/.ssh; then echo "FAILED (set .ssh access)"; retval=1; fi
   fi
@@ -321,7 +321,7 @@ permissions_corrections() {
     mkdir -p "$backupsFolder"
   fi
   if ! cond_redirect chown openhab:openhab "$backupsFolder"; then echo "FAILED (chown backups folder)"; retval=1; fi
-  if ! cond_redirect chmod g+s "$backupsFolder"; then echo "FAILED (setgid backups folder)"; retval=1; fi
+  if ! cond_redirect chmod g+s "$backupsFolder ${openhabFolders[@]"; then echo "FAILED (setgid backups folder)"; retval=1; fi
 
   if ! cond_redirect fix_permissions  "/home/${username:-openhabian}" "${username:-openhabian}:${username:-openhabian}"; then echo "FAILED (${username:-openhabian} chown $HOME)"; retval=1; fi
   if ! cond_redirect setfacl --recursive --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access lists)"; retval=1; fi
