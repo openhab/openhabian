@@ -14,7 +14,6 @@ setup_pv_config() {
   if [[ -n "$UNATTENDED" ]]; then
     echo -n "$(timestamp) [storm.house] inverter installation... "
     if [[ -z "${1:-$invertertype}" ]]; then echo "SKIPPED (no inverter defined)"; return 1; fi
-    #if [[ ! -v invertertype ]]; then echo "SKIPPED (no inverter defined)"; return 1; fi
   fi
 
   if [[ -n "$INTERACTIVE" ]]; then
@@ -33,7 +32,7 @@ setup_pv_config() {
       rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
     else
       cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-      chown "${username:-openhabian}:${username:-openhabian}" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
+      chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
     fi
   done
 
