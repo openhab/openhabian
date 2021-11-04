@@ -210,13 +210,11 @@ java_zulu_fetch() {
   fi
   if [[ -z $downloadLink ]]; then echo "FAILED (download link)"; return 1; fi
 
-  shopt -s extglob
   if ! mkdir -p "$jdkInstallLocation"; then echo "FAILED (create directory)"; return 1; fi
   if ! cond_redirect wget -nv -O "${jdkInstallLocation}/zulu.tar.gz" "$downloadLink"; then echo "FAILED (download)"; rm -f "${jdkInstallLocation}/zulu.tar.gz"; return 1; fi
-  if ! rm -rf !("$jdkInstallLocation"/*.tar.gz); then echo "FAILED (clean directory)"; return 1; fi
+  if ! find "$jdkInstallLocation" ! -name "zulu.tar.gz" -exec rm -rf {} \;; then echo "FAILED (clean directory)"; return 1; fi
   if ! cond_redirect tar -xpzf "${jdkInstallLocation}/zulu.tar.gz" -C "$jdkInstallLocation"; then echo "FAILED (extract)"; return 1; fi
   if cond_redirect rm -f "${jdkInstallLocation}/zulu.tar.gz"; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
-  shopt -u extglob
 }
 
 ## Check if a newer version of Java Zulu is available.
