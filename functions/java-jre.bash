@@ -216,7 +216,7 @@ java_zulu_fetch() {
   if ! cond_redirect wget -nv -O "$temp" "$downloadLink"; then echo "FAILED (download)"; rm -f "$temp"; return 1; fi
   if ! cond_redirect tar -xpzf "$temp" -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "$(find "$jdkInstallLocation" -maxdepth 1 -type d -printf '%T@\t%p\n' | sort | tail -n 1 | sed 's/[0-9]*\.[0-9]*\t//')"; rm -f "$temp"; return 1; fi
   if ! rm -rf "$(find "$jdkInstallLocation" -maxdepth 1 -type d -printf '%T@\t%p\n' | sort -r | tail -n 1 | sed 's/[0-9]*\.[0-9]*\t//')"; then echo "FAILED (clean directory)"; return 1; fi
-  if cond_redirect rm -f "$temp"; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
+  if rm -f "$temp"; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
 }
 
 ## Check if a newer version of Java Zulu is available.
