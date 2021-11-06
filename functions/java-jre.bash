@@ -189,9 +189,11 @@ java_zulu_fetch() {
   local downloadLink
   local jdkInstallLocation
   local link
+  local temp
 
   jdkInstallLocation="${2}/opt/jdk"
   link="https://api.azul.com/zulu/download/community/v1.0/bundles/latest/binary/?os=linux&ext=tar.gz&javafx=false"
+  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
   if [[ $1 == "Zulu11-32" ]]; then
     echo -n "$(timestamp) [openHABian] Downloading Java Zulu 11 32-Bit OpenJDK... "
@@ -211,10 +213,10 @@ java_zulu_fetch() {
   if [[ -z $downloadLink ]]; then echo "FAILED (download link)"; return 1; fi
 
   if ! mkdir -p "$jdkInstallLocation"; then echo "FAILED (create directory)"; return 1; fi
-  if ! rm -rf "${jdkInstallLocation:?}"/*; then echo "FAILED (clean directory)"; return 1; fi
-  if ! cond_redirect wget -nv -O "$jdkInstallLocation"/zulu.tar.gz "$downloadLink"; then echo "FAILED (download)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
-  if ! cond_redirect tar -xpzf "$jdkInstallLocation"/zulu.tar.gz -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "${jdkInstallLocation:?}"/*; return 1; fi
-  if cond_redirect rm -rf "$jdkInstallLocation"/zulu.tar.gz; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
+  if ! cond_redirect wget -nv -O "$temp" "$downloadLink"; then echo "FAILED (download)"; rm -f "$temp"; return 1; fi
+  if ! cond_redirect tar -xpzf "$temp" -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "$(find "$jdkInstallLocation" -maxdepth 1 -type d -printf '%T@\t%p\n' | sort | tail -n 1 | sed 's/[0-9]*\.[0-9]*\t//')"; rm -f "$temp"; return 1; fi
+  if ! rm -rf "$(find "$jdkInstallLocation" -maxdepth 1 -type d -printf '%T@\t%p\n' | sort -r | tail -n 1 | sed 's/[0-9]*\.[0-9]*\t//')"; then echo "FAILED (clean directory)"; return 1; fi
+  if rm -f "$temp"; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
 }
 
 ## Check if a newer version of Java Zulu is available.
