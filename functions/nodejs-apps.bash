@@ -16,7 +16,7 @@ nodejs_setup() {
 
   myDistro="$(lsb_release -sc)"
   if [[ "$myDistro" == "n/a" ]]; then
-    myDistro=${osrelease:-buster}
+    myDistro=${osrelease:-bullseye}
   fi
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 

@@ -106,7 +106,7 @@ There's no genuine reason why this wouldn't work. The openHABian image is really
 
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB of RAM, a 3A power supply and a 16 GB SD card.
 Because of the higher limit of write cycles, an SD card designed for Dashcams is preferable.
-Most manufacturers name them with a postfix like "Endurance" (e.g. "SanDisk MAX ENDURANCE" or "Kingston High Endurance"). 
+Most manufacturers name them with a postfix like "Endurance" (e.g. "SanDisk MAX ENDURANCE" or "Kingston High Endurance").
 Also get another 32 GB or larger SD card and a USB card reader to make use of the ["auto backup" feature](openhabian.md#auto-backup).
 
 ### Hardware support
@@ -140,7 +140,7 @@ These are what we develop and test openHABian against.
 We provide code that is reported "as-is" to run on Ubuntu but we do **not support Ubuntu** so please don't open issues for this (PRs then again are welcome).
 Several optional components though, such as WireGuard or Homegear, are known to expose problems on Ubuntu.
 
-We expect you to use the current stable distribution: 'buster' for Raspberry Pi OS (ARM) and Debian (x86).
+We expect you to use the current stable distribution: 'bullseye' for Raspberry Pi OS (ARM) and Debian (x86).
 To install openHABian on anything older or newer may work or not.
 If you encounter issues, you may need to upgrade first or to live with the consequences of running an OS on the edge of software development.
 

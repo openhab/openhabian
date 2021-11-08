@@ -201,7 +201,7 @@ homegear_setup() {
   myRelease="$(lsb_release -sc)"
 
   if [[ "$myRelease" == "n/a" ]]; then
-    myRelease="${osrelease:-buster}"
+    myRelease="${osrelease:-bullseye}"
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
@@ -652,7 +652,7 @@ deconz_setup() {
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
   if [[ "$myRelease" == "n/a" ]]; then
-    myRelease=${osrelease:-buster}
+    myRelease=${osrelease:-bullseye}
   fi
 
   if is_x86_64; then

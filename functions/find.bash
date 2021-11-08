@@ -149,17 +149,21 @@ go_setup() {
     fi
     if cond_redirect apt-get install --yes golang-go; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    echo "deb http://deb.debian.org/debian buster-backports main" > /etc/apt/sources.list.d/golang.list
-    if ! cond_redirect wget -nv -O debian-keyring.deb http://ftp.us.debian.org/debian/pool/main/d/debian-keyring/debian-keyring_2019.02.25_all.deb; then echo "FAILED (get keyring)"; return 1; fi
-    if ! cond_redirect wget -nv -O debian-archive-keyring.deb http://ftp.us.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2019.1+deb10u1_all.deb; then echo "FAILED (get archive keyring)"; return 1; fi
-    if ! cond_redirect dpkg -i debian-keyring.deb; then echo "FAILED (add keyring)"; return 1; fi
-    if ! cond_redirect dpkg -i debian-archive-keyring.deb; then echo "FAILED (add archive keyring)"; return 1; fi
-    rm -f debian-keyring.deb debian-archive-keyring.deb
+    if is_buster; then
+      echo "deb http://deb.debian.org/debian buster-backports main" > /etc/apt/sources.list.d/golang.list
+      if ! cond_redirect wget -nv -O debian-keyring.deb http://ftp.us.debian.org/debian/pool/main/d/debian-keyring/debian-keyring_2019.02.25_all.deb; then echo "FAILED (get keyring)"; return 1; fi
+      if ! cond_redirect wget -nv -O debian-archive-keyring.deb http://ftp.us.debian.org/debian/pool/main/d/debian-archive-keyring/debian-archive-keyring_2019.1+deb10u1_all.deb; then echo "FAILED (get archive keyring)"; return 1; fi
+      if ! cond_redirect dpkg -i debian-keyring.deb; then echo "FAILED (add keyring)"; return 1; fi
+      if ! cond_redirect dpkg -i debian-archive-keyring.deb; then echo "FAILED (add archive keyring)"; return 1; fi
+      rm -f debian-keyring.deb debian-archive-keyring.deb
 
-    echo -e "Package: *\\nPin: release a=buster-backports\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-buster-backports
+      echo -e "Package: *\\nPin: release a=buster-backports\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-buster-backports
 
-    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-    if cond_redirect apt-get install --yes --target-release "buster-backports" golang-go; then echo "OK"; else echo "FAILED"; return 1; fi
+      if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+      if cond_redirect apt-get install --yes --target-release "buster-backports" golang-go; then echo "OK"; else echo "FAILED"; return 1; fi
+    else
+      if cond_redirect apt-get install --yes golang-go; then echo "OK"; else echo "FAILED"; return 1; fi
+    fi
   fi
 }
 
