@@ -195,9 +195,8 @@ influxdb_install() {
     myOS="$(lsb_release -si)"
   fi
   myRelease="$(lsb_release -sc)"
-  #  TODO remove override to buster when bullseye repo for influxdb is available
-  if is_bullseye || [[ "$myRelease" == "n/a" ]]; then
-    myRelease=${osrelease:-buster}
+  if [[ "$myRelease" == "n/a" ]]; then
+    myRelease=${osrelease:-bullseye}
   fi
 
   if ! influxdb_is_installed; then
