@@ -1,3 +1,8 @@
+## Update zram-config ## November 7, 2021
+The ability to update zram-config without having to uninstall and reinstall has
+been added. Use menu option 38 and select "Update zram" to update your existing
+installation without losing any configuration settings.
+
 ## Forward web proxy ## September 28, 2021
 Installing nginx (menu option 44) will now provide a *forward* proxy on port
 8888 in addition to the reverse proxy setup it has been providing.
