@@ -15,7 +15,7 @@ install_zram_code() {
   if [[ -d "${1}/zram-config" ]]; then
     if cond_redirect update_git_repo "${1}/zram-config" "openHAB"; then echo "OK"; else echo "FAILED (update zram)"; return 1; fi
   else
-    if cond_redirect git clone --recurse-submodules --branch "openHAB" "$zramGit" "$1"/zram-config; then echo "OK"; else echo "FAILED (clone zram)"; return 1; fi
+    if cond_redirect git clone --branch "openHAB" "$zramGit" "$1"/zram-config; then echo "OK"; else echo "FAILED (clone zram)"; return 1; fi
   fi
 }
 
@@ -42,8 +42,8 @@ init_zram_mounts() {
     fi
 
     if ! dpkg -s 'make' 'libattr1-dev' &> /dev/null; then
-      echo -n "$(timestamp) [openHABian] Installing zram required packages (make, libattr1-dev)... "
-      if cond_redirect apt-get install --yes make libattr1-dev; then echo "OK"; else echo "FAILED"; return 1; fi
+      echo -n "$(timestamp) [openHABian] Installing zram required package (make)... "
+      if cond_redirect apt-get install --yes make; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
 
     install_zram_code "$zramInstallLocation"
