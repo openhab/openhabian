@@ -65,7 +65,7 @@ show_main_menu() {
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
     migrate_installation "openHAB3"
-  
+
   elif [[ "$choice" == "04"* ]]; then
     import_openhab_config
 
@@ -145,6 +145,7 @@ show_main_menu() {
     "37 | WiFi setup"             "Configure wireless network connection" \
     "   | Disable WiFi"           "Disable wireless network connection" \
     "38 | Use zram"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
+    "   | Update zram"            "Update a currently installed zram instance" \
     "   | Uninstall zram"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
     "39 | Move root to USB"       "Move the system root from the SD card to a USB device (SSD or stick)" \
     "3A | Setup Exim Mail Relay"  "Install Exim4 to relay mails via public email provider" \
@@ -168,6 +169,7 @@ show_main_menu() {
       37\ *) configure_wifi setup ;;
       *Disable\ WiFi) configure_wifi "disable" ;;
       38\ *) init_zram_mounts "install" ;;
+      *Update\ zram) init_zram_mounts ;;
       *Uninstall\ zram) init_zram_mounts "uninstall" ;;
       39\ *) move_root2usb ;;
       3A\ *) exim_setup ;;

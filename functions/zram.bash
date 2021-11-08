@@ -98,8 +98,28 @@ init_zram_mounts() {
     if ! cond_redirect rm -rf /usr/local/share/zram-config; then echo "FAILED (zram-config share)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
     if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
+  elif [[ -f /etc/ztab ]]; then
+    echo -n "$(timestamp) [openHABian] Updating zram service... "
+    if ! cond_redirect zram-config "stop"; then echo "FAILED (stop zram)"; return 1; fi
+
+    install_zram_code "$zramInstallLocation"
+
+    echo -n "$(timestamp) [openHABian] Updating OverlayFS... "
+    if ! cond_redirect make --always-make --directory="$zramInstallLocation"/zram-config/overlayfs-tools; then echo "FAILED (make overlayfs)"; return 1; fi
+    if ! cond_redirect mkdir -p /usr/local/lib/zram-config/; then echo "FAILED (create directory)"; return 1; fi
+    if cond_redirect install -m 755 "$zramInstallLocation"/zram-config/overlayfs-tools/overlay /usr/local/lib/zram-config/overlay; then echo "OK"; else echo "FAILED (install overlayfs)"; return 1; fi
+
+    echo -n "$(timestamp) [openHABian] Updating zram... "
+    if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
+    if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
+    if cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
+    if ! grep -qs "ReadWritePaths=/usr/local/share/zram-config/log" /lib/systemd/system/logrotate.service; then
+      echo "ReadWritePaths=/usr/local/share/zram-config/log" >> /lib/systemd/system/logrotate.service
+    fi
+
+    if cond_redirect systemctl start zram-config.service; then echo "OK"; else echo "FAILED (start service)"; return 1; fi
   else
-    echo "$(timestamp) [openHABian] Refusing to install zram as it is already installed, please uninstall and then try again... EXITING"
+    echo "$(timestamp) [openHABian] Refusing to update zram as it is not installed, please install and then try again... EXITING"
     return 1
   fi
 }
