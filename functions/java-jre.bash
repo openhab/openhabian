@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1117,SC2119,SC2120
+# shellcheck disable=SC1117,SC2119,SC2120,SC2016
 
 ## Install appropriate Java version based on current choice.
 ## Valid arguments: "Adopt11", "Zulu11-32", or "Zulu11-64"
@@ -158,16 +158,9 @@ java_zulu_install() {
   if openhab_is_running; then
     cond_redirect systemctl stop openhab.service
   fi
-  cond_redirect java_alternatives_reset
 
-  cond_redirect update-alternatives --install /usr/bin/java java "$jdkBin"/java 1000000
-  cond_redirect update-alternatives --install /usr/bin/jjs jjs "$jdkBin"/jjs 1000000
-  cond_redirect update-alternatives --install /usr/bin/keytool keytool "$jdkBin"/keytool 1000000
-  cond_redirect update-alternatives --install /usr/bin/pack200 pack200 "$jdkBin"/pack200 1000000
-  cond_redirect update-alternatives --install /usr/bin/rmid rmid "$jdkBin"/rmid 1000000
-  cond_redirect update-alternatives --install /usr/bin/rmiregistry rmiregistry "$jdkBin"/rmiregistry 1000000
-  cond_redirect update-alternatives --install /usr/bin/unpack200 unpack200 "$jdkBin"/unpack200 1000000
-  cond_redirect update-alternatives --install /usr/bin/jexec jexec "$jdkLib"/jexec 1000000
+  java_alternatives_reset
+  cond_redirect find "$jdkBin" -maxdepth 1 -perm -111 -type f -exec bash -c 'update-alternatives --install  /usr/bin/$(basename {}) $(basename {}) {} 1000000' \;
   echo "$jdkLib" > /etc/ld.so.conf.d/java.conf
   echo "$jdkLib"/jli >> /etc/ld.so.conf.d/java.conf
   echo "$jdkLib"/client >> /etc/ld.so.conf.d/java.conf
@@ -215,7 +208,7 @@ java_zulu_fetch() {
   if ! mkdir -p "$jdkInstallLocation"; then echo "FAILED (create directory)"; return 1; fi
   if ! cond_redirect wget -nv -O "$temp" "$downloadLink"; then echo "FAILED (download)"; rm -f "$temp"; return 1; fi
   if ! cond_redirect tar -xpzf "$temp" -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "${jdkInstallLocation:?}/$(basename "$downloadLink" | sed -e 's/.tar.gz//')"; rm -f "$temp"; return 1; fi
-  if ! find "$jdkInstallLocation" -mindepth 1 -path "./$(basename "$downloadLink" | sed -e 's/.tar.gz//')" -o -prune -exec rm -rf {} \;; then echo "FAILED (clean directory)"; return 1; fi
+  if ! cond_redirect find "$jdkInstallLocation" -mindepth 1 -path "./$(basename "$downloadLink" | sed -e 's/.tar.gz//')" -o -prune -exec rm -rf {} \;; then echo "FAILED (clean directory)"; return 1; fi
   if rm -f "$temp"; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
 }
 
@@ -378,14 +371,11 @@ adoptopenjdk_install_apt() {
 ##    java_alternatives_reset()
 ##
 java_alternatives_reset() {
-  update-alternatives --quiet --remove-all java &> /dev/null
-  update-alternatives --quiet --remove-all jjs &> /dev/null
-  update-alternatives --quiet --remove-all keytool &> /dev/null
-  update-alternatives --quiet --remove-all pack200 &> /dev/null
-  update-alternatives --quiet --remove-all rmid &> /dev/null
-  update-alternatives --quiet --remove-all rmiregistry &> /dev/null
-  update-alternatives --quiet --remove-all unpack200 &> /dev/null
-  update-alternatives --quiet --remove-all jexec &> /dev/null
+  local jdkBin
+
+  jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
+
+  cond_redirect find "$jdkBin" -maxdepth 1 -perm -111 -type f -exec bash -c 'update-alternatives --quiet --remove-all $(basename {})' \;
 }
 
 ## Check if Java Zulu is already in the filesystem
