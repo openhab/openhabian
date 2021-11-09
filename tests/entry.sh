@@ -2,30 +2,39 @@
 
 set -m
 
+# This command only works in privileged container
+
 if ip link add dummy0 type dummy &> /dev/null; then
-	ip link delete dummy0 &> /dev/null || true
-	PRIVILEGED="true"
+	PRIVILEGED=true
+	# clean the dummy0 link
+    ip link delete dummy0 &> /dev/null
 else
-	PRIVILEGED="false"
+	PRIVILEGED=false
 fi
 
 # Send SIGTERM to child processes of PID 1.
-signal_handler() {
+function signal_handler() {
 	kill "$pid"
 }
 
-start_udev() {
+function start_udev() {
 	if [ "$UDEV" == "on" ]; then
-		if command -v udevd &>/dev/null; then
-			unshare --net udevd --daemon &> /dev/null
-		else
-			unshare --net /lib/systemd/systemd-udevd --daemon &> /dev/null
+		if [ "$INITSYSTEM" != "on" ]; then
+			if command -v udevd &>/dev/null; then
+				unshare --net udevd --daemon &> /dev/null
+			else
+				unshare --net /lib/systemd/systemd-udevd --daemon &> /dev/null
+			fi
+			udevadm trigger &> /dev/null
 		fi
-		udevadm trigger &> /dev/null
+	else
+		if [ "$INITSYSTEM" == "on" ]; then
+			systemctl mask systemd-udevd
+		fi
 	fi
 }
 
-mount_dev() {
+function mount_dev() {
 	tmp_dir='/tmp/tmpmount'
 	mkdir -p "$tmp_dir"
 	mount -t devtmpfs none "$tmp_dir"
@@ -47,23 +56,43 @@ mount_dev() {
 	mount -t debugfs nodev /sys/kernel/debug
 }
 
-init() {
-	# trap the stop signal then send SIGTERM to user processes
-	trap signal_handler SIGRTMIN+3 SIGTERM
+function init_systemd() {
+	GREEN='\033[0;32m'
+	echo -e "${GREEN}Systemd init system enabled."
+	for var in $(compgen -e); do
+		printf '%q=%q\n' "$var" "${!var}"
+	done > /etc/docker.env
+	echo 'source /etc/docker.env' >> ~/.bashrc
 
-	# echo error message, when executable file doesn't exist.
-	if CMD=$(command -v "$1" 2>/dev/null); then
-		shift
-		"$CMD" "$@" &
-		pid=$!
-		wait "$pid"
-		exit_code=$?
-		fg &> /dev/null || exit "$exit_code"
-	else
-		echo "Command not found: $1"
-		exit 1
-	fi
+	printf '#!/bin/bash\n exec ' > /etc/balenaApp.sh
+	printf '%q ' "$@" >> /etc/balenaApp.sh
+	chmod +x /etc/balenaApp.sh
+
+	mkdir -p /etc/systemd/system/balena.service.d
+	cat <<-EOF > /etc/systemd/system/balena.service.d/override.conf
+		[Service]
+		WorkingDirectory=$(pwd)
+	EOF
+
+	sleep infinity &
+	exec env DBUS_SYSTEM_BUS_ADDRESS=unix:path=/run/dbus/system_bus_socket SYSTEMD_LOG_LEVEL=info /sbin/init quiet systemd.show_status=0
 }
+
+INITSYSTEM=$(echo "$INITSYSTEM" | awk '{print tolower($0)}')
+
+case "$INITSYSTEM" in
+	'1' | 'true')
+		INITSYSTEM='on'
+	;;
+esac
+
+UDEV=$(echo "$UDEV" | awk '{print tolower($0)}')
+
+case "$UDEV" in
+	'1' | 'true')
+		UDEV='on'
+	;;
+esac
 
 if $PRIVILEGED; then
 	# Only run this in privileged container
@@ -71,4 +100,6 @@ if $PRIVILEGED; then
 	start_udev
 fi
 
-init "$@"
+if [ "$INITSYSTEM" = "on" ]; then
+	init_systemd "$@"
+fi
