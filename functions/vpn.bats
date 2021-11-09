@@ -15,6 +15,10 @@ teardown_file() {
   if is_ubuntu; then skip "Not executing Wireguard test because it currently does not support Ubuntu."; fi
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN installation starting...${COL_DEF}" >&3
+  echo "osrelease = $osrelease" 
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN installation starting...${COL_DEF}" >&3
+  cat /etc/*release)
+
   run install_wireguard install 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
