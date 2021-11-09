@@ -41,12 +41,6 @@ install_wireguard() {
     whiptail --title "Wireguard VPN installed" --msgbox "$textInstallation" 15 85
   fi
 
-  echo "debug OS:" >&3
-  if is_pi; then echo "is_pi" >&3; else echo "is NOT pi" >&3; fi
-  if is_raspbian; then echo "is_raspbian" >&3; else echo "is NOT raspbian" >&3; fi
-  if is_raspios; then echo "is_raspios" >&3; else echo "is NOT raspios" >&3; fi
-  if is_debian; then echo "is_debian" >&3; else echo "is NOT debian" >&3; fi
-
   if is_ubuntu; then
     add-apt-repository ppa:wireguard/wireguard
   else
@@ -64,7 +58,8 @@ install_wireguard() {
       # headers required for wireguard-dkms module to be built "live"
       cond_redirect apt-get install --yes raspberrypi-kernel-headers
     else
-      if is_debian && is_buster; then
+#      if is_debian && is_buster; then
+      if is_debian; then
         echo 'deb http://deb.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/wireguard.list
       else
         echo "FAILED (unsupported OS)"; return 1
