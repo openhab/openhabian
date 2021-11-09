@@ -17,6 +17,10 @@ teardown_file() {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN installation starting...${COL_DEF}" >&3
   echo "osrelease = $osrelease" >&3
   cat /etc/*release >&3
+  if is_pi; then echo "is_pi" >&3; else echo "is NOT pi" >&3
+  if is_raspbian; then echo "is_raspbian" >&3; else echo "is NOT raspbian" >&3
+  if is_raspios; then echo "is_raspios" >&3; else echo "is NOT raspios" >&3
+  if is_debian; then echo "is_debian" >&3; else echo "is NOT debian" >&3
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN installation starting...${COL_DEF}" >&3
 
   run install_wireguard install 3>&-
