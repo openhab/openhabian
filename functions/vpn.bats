@@ -16,8 +16,8 @@ teardown_file() {
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN installation starting...${COL_DEF}" >&3
   echo "osrelease = $osrelease" 
+  cat /etc/*release
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Wireguard VPN installation starting...${COL_DEF}" >&3
-  cat /etc/*release)
 
   run install_wireguard install 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
