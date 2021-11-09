@@ -321,7 +321,7 @@ permissions_corrections() {
     mkdir -p "$backupsFolder"
   fi
   if ! cond_redirect chown openhab:openhab "$backupsFolder"; then echo "FAILED (chown backups folder)"; retval=1; fi
-  if ! cond_redirect chmod g+s "$backupsFolder ${openhabFolders[*]}"; then echo "FAILED (setgid backups folder)"; retval=1; fi
+  if ! cond_redirect chmod g+s "$backupsFolder"; then echo "FAILED (setgid backups folder)"; retval=1; fi
 
   if ! cond_redirect fix_permissions  "/home/${username:-openhabian}" "${username:-openhabian}:${username:-openhabian}"; then echo "FAILED (${username:-openhabian} chown $HOME)"; retval=1; fi
   if ! cond_redirect setfacl --recursive --remove-all "${openhabFolders[@]}"; then echo "FAILED (reset file access lists)"; retval=1; fi
@@ -333,9 +333,6 @@ permissions_corrections() {
   if mosquitto_is_installed; then
     if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 640 750; then echo "FAILED (mosquitto passwd permissions)"; retval=1; fi
     if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions)"; retval=1; fi
-  fi
-  if influxdb_is_installed; then
-    chmod +x /usr/lib/influxdb/scripts/influxd-systemd-start.sh
   fi
   if zram_is_installed; then
     if influxdb_is_installed; then
@@ -479,7 +476,7 @@ memory_split() {
 ##    use_framebuffer()
 ##
 use_framebuffer() {
-  if ! is_pi; then 
+  if ! is_pi; then
     if [[ -n $INTERACTIVE ]]; then
       whiptail --title "Change framebuffer" --msgbox "Frame buffer parameters can only be changed on Raspberry Pi systems." 7 80
     fi
