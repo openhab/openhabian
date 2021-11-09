@@ -214,8 +214,8 @@ java_zulu_fetch() {
 
   if ! mkdir -p "$jdkInstallLocation"; then echo "FAILED (create directory)"; return 1; fi
   if ! cond_redirect wget -nv -O "$temp" "$downloadLink"; then echo "FAILED (download)"; rm -f "$temp"; return 1; fi
-  if ! cond_redirect tar -xpzf "$temp" -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "${jdkInstallLocation:?}/$(basename $downloadLink | sed -e 's/.tar.gz//')"; rm -f "$temp"; return 1; fi
-  if ! find "$jdkInstallLocation" -mindepth 1 -path "./$(basename $downloadLink | sed -e 's/.tar.gz//')" -o -prune -exec rm -rf {} \;; then echo "FAILED (clean directory)"; return 1; fi
+  if ! cond_redirect tar -xpzf "$temp" -C "$jdkInstallLocation"; then echo "FAILED (extract)"; rm -rf "${jdkInstallLocation:?}/$(basename "$downloadLink" | sed -e 's/.tar.gz//')"; rm -f "$temp"; return 1; fi
+  if ! find "$jdkInstallLocation" -mindepth 1 -path "./$(basename "$downloadLink" | sed -e 's/.tar.gz//')" -o -prune -exec rm -rf {} \;; then echo "FAILED (clean directory)"; return 1; fi
   if rm -f "$temp"; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
 }
 
