@@ -471,7 +471,7 @@ import_openhab_config() {
     if ! cond_redirect wget -nv -O "$restoreFile" "$initialConfig"; then echo "FAILED (download file)"; rm -f "$restoreFile"; return 1; fi
   fi
   if [[ -n $UNATTENDED ]] && ! [[ -f $restoreFile ]]; then
-     echo "SKIPPED (no config backup found at ${initialConfig})"
+     echo "SKIPPED (backup not found at ${initialConfig})"
      return 0
   fi
   echo "OK"
