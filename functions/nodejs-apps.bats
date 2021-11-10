@@ -16,8 +16,6 @@ teardown_file() {
 }
 
 @test "installation-frontail_install" {
-  if is_ubuntu; then skip "Not executing Frontail test because it currently does not support Ubuntu."; fi
-
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Frontail installation starting...${COL_DEF}" >&3
   run frontail_setup 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
