@@ -468,7 +468,7 @@ memory_split() {
     if echo "gpu_mem=16" >> /boot/config.txt; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  sed -i '/^dtoverlay=vc4-fkms-v3d/d' /boot/config.txt
+  sed -i '/^dtoverlay=vc4-f\?kms-v3d/d' /boot/config.txt
 }
 
 ## disable or enable framebuffer to provide the maximum amount of memory for Linux operations.
