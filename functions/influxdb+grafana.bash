@@ -258,10 +258,6 @@ grafana_install(){
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up Grafana service... "
-  # Workaround for strange behavior in CI
-  if ! cond_redirect mkdir -p /run/grafana; then echo "FAILED (mkdir)"; return 1; fi
-  if ! cond_redirect chmod -R 0750 /run/grafana; then echo "FAILED (chmod)"; return 1; fi
-  if ! cond_redirect chown -R grafana:grafana /run/grafana; then echo "FAILED (chown)"; return 1; fi
   if ! cond_redirect zram_dependency install grafana-server; then return 1; fi
   if zram_is_installed && ! mkdir -p /opt/zram/log.bind/grafana /var/log/grafana && chown grafana /opt/zram/log.bind/grafana /var/log/grafana; then echo "FAILED (create zram logdir)"; return 1; fi
   if cond_redirect systemctl enable --now grafana-server.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
