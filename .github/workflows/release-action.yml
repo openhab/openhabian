@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+       - name: Checkout repository
+         uses: actions/checkout@v2.4.0
+         with:
+           repository: ${{ github.event.pull_request.head.repo.full_name }}
+           ref: ${{ github.event.pull_request.head.ref }}
+       - name: Setup environment
+         id: setup
+         run: |
+           sudo -E bash -c set
+           sudo apt-get update
+           sudo apt-get install --yes libarchive-zip-perl dos2unix systemd-container qemu-user-static qemu-utils
+           echo "::set-output name=image32::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
+           echo "::set-output name=image64::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
+       - name: Cache Raspberry Pi OS image32
+         uses: actions/cache@v2.1.6
+         with:
+           path: ${{ steps.setup.outputs.image32 }}
+           key: ${{ steps.setup.outputs.image32 }}
+       - name: Cache Raspberry Pi OS image64
+         uses: actions/cache@v2.1.6
+         with:
+           path: ${{ steps.setup.outputs.image64 }}
+           key: ${{ steps.setup.outputs.image64 }}
+       - name: Build openHABian 32bit image
+         id: build32
+         run: |
+           sudo -E ./tests/ci-setup.bash github .pi-raspios32
+           sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios32.conf
+           sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
+           sudo -E ./build.bash rpi
+           echo "::set-output name=file::$(ls openhabian-pi-raspios32*.img.xz)"
+       - name: Build openHABian 64bit image
+         id: build64
+         run: |
+           sudo -E ./tests/ci-setup.bash github .pi-raspios64beta
+           sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios64beta.conf
+           sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
+           sudo -E ./build.bash rpi64
+           echo "::set-output name=file::$(ls openhabian-pi-raspios64beta*.img.xz)"
+       - name: Create release template
+         uses: "marvinpinto/action-automatic-releases@v1.2.1"
+         with:
+           repo_token: "${{ secrets.GITHUB_TOKEN }}"
+           title: "openHABian $GITHUB_REF"
+           prerelease: false
+           draft: true
+           files: |
+             ${{ steps.build32.outputs.file }}
+             ${{ steps.build64.outputs.file }}
