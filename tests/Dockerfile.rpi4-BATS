@@ -1,8 +1,6 @@
 # Note RPi4 base WITH 64bit OS
 FROM balenalib/raspberrypi4-64-debian:bullseye-build
 
-RUN [ "cross-build-start" ]
-
 # Install systemd
 # Additionally, BATS tests on a minimal install will require additional packages
 # to run properly:
@@ -53,5 +51,3 @@ WORKDIR /opt/openhabian/
 RUN install -m 755 ./tests/runlevel /sbin/runlevel
 
 CMD ["bash", "./tests/start.sh"]
-
-RUN [ "cross-build-end" ]

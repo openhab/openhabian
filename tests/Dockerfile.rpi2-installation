@@ -1,8 +1,6 @@
 # Assumes at least ARMv71 but not ARMv8 (aarch64) yet
 FROM balenalib/raspberry-pi2-debian:bullseye-build
 
-RUN [ "cross-build-start" ]
-
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DOCKER=1
 ENV UDEV=on
@@ -36,5 +34,3 @@ WORKDIR /opt/openhabian/
 RUN install -m 755 ./tests/runlevel /sbin/runlevel
 
 CMD ["bash", "./tests/start.sh"]
-
-RUN [ "cross-build-end" ]
