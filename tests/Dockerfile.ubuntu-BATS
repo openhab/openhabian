@@ -1,5 +1,10 @@
 FROM balenalib/amd64-ubuntu:focal-build
 
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
+ENV DOCKER=1
+ENV UDEV=1
+ENV INITSYSTEM=1
+
 # Install systemd
 # Additionally, BATS tests on a minimal install will require additional packages
 # to run properly:
@@ -12,11 +17,6 @@ RUN apt-get update -qq && \
         git wget python3 python3-pip apt-utils jq lsb-release unzip \
         apt-transport-https gnupg acl && \
     rm -rf /var/lib/apt/lists/*
-
-ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
-ENV DOCKER=1
-ENV UDEV=on
-ENV INITSYSTEM=on
 
 RUN systemctl mask \
     dev-hugepages.mount \
@@ -31,9 +31,6 @@ RUN systemctl mask \
     kmod-static-nodes.service
 
 ENTRYPOINT ["./tests/entry.sh"]
-
-RUN git clone https://github.com/gdraheim/docker-systemctl-replacement && \
-    cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
 
 # Setup openHABian environment
 RUN git clone https://github.com/bats-core/bats-core.git && \

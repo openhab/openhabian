@@ -57,7 +57,7 @@ jobs:
            push: true
        - name: openHABian installation test with 64 bit Azul Java 11 on a native amd64
          run: |
-           docker run --name "openhabian-amd64" -d localhost:5000/openhabian/amd64-openhabian
+           docker run --privileged --rm --name "openhabian-amd64" -d localhost:5000/openhabian/amd64-openhabian
            docker exec -i "openhabian-amd64" bash -c './build.bash local-test && /boot/first-boot.bash'
          shell: bash
   rpi3-zulu11-32:
@@ -94,7 +94,7 @@ jobs:
            push: true
        - name: openHABian installation test with 32bit Azul Java 11 on a virtual RPi3
          run: |
-           docker run --name "openhabian-rpi3" -d localhost:5000/openhabian/rpi3-openhabian
+           docker run --privileged --rm --name "openhabian-rpi3" -d localhost:5000/openhabian/rpi3-openhabian
            docker exec -i "openhabian-rpi3" bash -c './build.bash local-test && /boot/first-boot.bash'
          shell: bash
   rpi3-zulu11-64:
@@ -131,7 +131,7 @@ jobs:
            push: true
        - name: openHABian installation test with 64bit Azul Java 11 on a virtual RPi3
          run: |
-           docker run --name "openhabian-rpi3-64" -d localhost:5000/openhabian/rpi3-64-openhabian
+           docker run --privileged --rm --name "openhabian-rpi3-64" -d localhost:5000/openhabian/rpi3-64-openhabian
            docker exec -i "openhabian-rpi3-64" bash -c './build.bash local-test && /boot/first-boot.bash'
          shell: bash
   rpi2-adopt11:
@@ -168,6 +168,6 @@ jobs:
            push: true
        - name: openHABian installation test with AdoptOpenJDK Java 11 on a virtual RPi2
          run: |
-           docker run --name "openhabian-rpi2" -d localhost:5000/openhabian/rpi2-openhabian
+           docker run --privileged --rm --name "openhabian-rpi2" -d localhost:5000/openhabian/rpi2-openhabian
            docker exec -i "openhabian-rpi2" bash -c './build.bash local-test && /boot/first-boot.bash'
          shell: bash

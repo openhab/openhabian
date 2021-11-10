@@ -3,11 +3,14 @@ FROM balenalib/raspberry-pi2-debian:bullseye-build
 
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DOCKER=1
-ENV UDEV=on
-ENV INITSYSTEM=on
+ENV UDEV=1
+ENV INITSYSTEM=1
 
 # Install systemd
-RUN apt-get update -qq && \
+RUN echo "deb http://raspbian.raspberrypi.org/raspbian/ bullseye main contrib non-free rpi" >> /etc/apt/sources.list && \
+    echo "deb https://archive.raspberrypi.org/debian/ bullseye main" > /etc/apt/sources.list.d/raspi.list && \
+    apt-key adv --batch --keyserver keyserver.ubuntu.com --recv-key 0x9165938D90FDDD2E && \
+    apt-get update -qq && \
     apt-get install --yes -qq --no-install-recommends systemd systemd-sysv && \
     rm -rf /var/lib/apt/lists/*
 
@@ -24,9 +27,6 @@ RUN systemctl mask \
     kmod-static-nodes.service
 
 ENTRYPOINT ["./tests/entry.sh"]
-
-RUN git clone https://github.com/gdraheim/docker-systemctl-replacement && \
-    cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
 
 # Setup openHABian environment
 COPY . /opt/openhabian/

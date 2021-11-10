@@ -1,6 +1,11 @@
 # Note RPi4 base WITH 64bit OS
 FROM balenalib/raspberrypi4-64-debian:bullseye-build
 
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
+ENV DOCKER=1
+ENV UDEV=1
+ENV INITSYSTEM=1
+
 # Install systemd
 # Additionally, BATS tests on a minimal install will require additional packages
 # to run properly:
@@ -8,16 +13,14 @@ FROM balenalib/raspberrypi4-64-debian:bullseye-build
 # - apt-transport-https (homegear, AdoptOpenJDK)
 # - unzip (java)
 # those packages would normally be included in our standard install
-RUN apt-get update -qq && \
+RUN echo "deb http://raspbian.raspberrypi.org/raspbian/ bullseye main contrib non-free rpi" >> /etc/apt/sources.list && \
+    echo "deb https://archive.raspberrypi.org/debian/ bullseye main" > /etc/apt/sources.list.d/raspi.list && \
+    apt-key adv --batch --keyserver keyserver.ubuntu.com --recv-key 0x9165938D90FDDD2E && \
+    apt-get update -qq && \
     apt-get install --yes -qq --no-install-recommends systemd systemd-sysv \
         git wget python3 python3-pip apt-utils jq lsb-release unzip \
         apt-transport-https gnupg acl && \
     rm -rf /var/lib/apt/lists/*
-
-ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
-ENV DOCKER=1
-ENV UDEV=on
-ENV INITSYSTEM=on
 
 RUN systemctl mask \
     dev-hugepages.mount \
@@ -32,9 +35,6 @@ RUN systemctl mask \
     kmod-static-nodes.service
 
 ENTRYPOINT ["./tests/entry.sh"]
-
-RUN git clone https://github.com/gdraheim/docker-systemctl-replacement && \
-    cp docker-systemctl-replacement/files/docker/systemctl3.py /bin/systemctl
 
 # Setup openHABian environment
 RUN git clone https://github.com/bats-core/bats-core.git && \

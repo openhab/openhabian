@@ -67,11 +67,12 @@ jobs:
            push: true
        - name: BATS tests on virtual 64bit RPi4 running Debian Bullseye
          run: |
-           docker run --name "openhabian-rpi4" -d localhost:5000/openhabian/rpi4-openhabian
+           docker run --privileged --rm --name "openhabian-rpi4" -d localhost:5000/openhabian/rpi4-openhabian
            docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "development-." .'
            docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "unit-." .'
            docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "installation-." .'
            docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "destructive-." .'
+           docker stop "openhabian-rpi4"
          shell: bash
   amd64-bats:
     runs-on: ubuntu-latest
@@ -101,9 +102,10 @@ jobs:
            push: true
        - name: BATS tests on virtual 64bit x86 running Ubuntu Focal Fossa
          run: |
-           docker run --name "openhabian-ubuntu" -d localhost:5000/openhabian/ubuntu-openhabian
+           docker run --privileged --rm --name "openhabian-ubuntu" -d localhost:5000/openhabian/ubuntu-openhabian
            docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "development-." .'
            docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "unit-." .'
            docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "installation-." .'
            docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "destructive-." .'
+           docker stop "openhabian-ubuntu"
          shell: bash

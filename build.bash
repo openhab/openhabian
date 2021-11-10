@@ -262,7 +262,7 @@ elif [ "$1" == "local-test" ]; then
   fi
   chmod +x /boot/first-boot.bash
   chmod +x /boot/webserver.bash
-  echo_process "Local system ready for installation test. Run 'systemctl start openhabian-installer' or reboot to initiate!"
+  echo_process "Local system ready for installation test.\n                                     Run 'systemctl start openhabian-installer' or reboot to initiate!"
   exit 0
 else
   usage
