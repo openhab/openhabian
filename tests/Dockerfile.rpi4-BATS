@@ -13,9 +13,7 @@ ENV INITSYSTEM=1
 # - apt-transport-https (homegear, AdoptOpenJDK)
 # - unzip (java)
 # those packages would normally be included in our standard install
-RUN echo "deb http://raspbian.raspberrypi.org/raspbian/ bullseye main contrib non-free rpi" >> /etc/apt/sources.list && \
-    echo "deb https://archive.raspberrypi.org/debian/ bullseye main" > /etc/apt/sources.list.d/raspi.list && \
-    apt-key adv --batch --keyserver keyserver.ubuntu.com --recv-key 0x9165938D90FDDD2E && \
+RUN echo "deb https://archive.raspberrypi.org/debian/ bullseye main" > /etc/apt/sources.list.d/raspi.list && \
     apt-get update -qq && \
     apt-get install --yes -qq --no-install-recommends systemd systemd-sysv \
         git wget python3 python3-pip apt-utils jq lsb-release unzip \
