@@ -1,7 +1,6 @@
 # Note RPi3 base (first RPi to have aarch64 available) WITH 64bit OS
 FROM balenalib/raspberrypi3-64-debian:bullseye-build
 
-ENV container docker
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DOCKER=1
 ENV UDEV=1
@@ -35,5 +34,3 @@ ENTRYPOINT ["./tests/entry.sh"]
 COPY . /opt/openhabian/
 WORKDIR /opt/openhabian/
 RUN install -m 755 ./tests/runlevel /sbin/runlevel
-
-CMD ["bash", "./tests/start.sh"]

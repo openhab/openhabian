@@ -1,6 +1,5 @@
 FROM balenalib/generic-debian:bullseye-build
 
-ENV container docker
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DOCKER=1
 ENV UDEV=1
@@ -38,7 +37,7 @@ STOPSIGNAL 37
 ENTRYPOINT ["./tests/entry.sh"]
 
 # Setup openHABian environment
-RUN git clone https://github.com/bats-core/bats-core.git && \
+RUN git clone https://github.com/bats-core/bats-core.git --branch v1.5.0 && \
     cd bats-core && \
     ./install.sh /usr/local
 
@@ -50,5 +49,3 @@ RUN adduser openhabian --gecos "openHABian,,," --disabled-password && \
 COPY . /opt/openhabian/
 WORKDIR /opt/openhabian/
 RUN install -m 755 ./tests/runlevel /sbin/runlevel
-
-CMD ["bash", "./tests/start.sh"]
