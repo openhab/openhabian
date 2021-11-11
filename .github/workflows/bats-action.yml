@@ -64,6 +64,8 @@ jobs:
            file: ./tests/Dockerfile.rpi4-BATS
            builder: ${{ steps.buildx.outputs.name }}
            tags: localhost:5000/openhabian/rpi4-openhabian:latest
+           cache-from: type=gha
+           cache-to: type=gha,mode=max
            push: true
        - name: BATS tests on virtual 64bit RPi4 running Debian Bullseye
          run: |
@@ -99,6 +101,8 @@ jobs:
            file: ./tests/Dockerfile.amd64-BATS
            builder: ${{ steps.buildx.outputs.name }}
            tags: localhost:5000/openhabian/amd64-openhabian:latest
+           cache-from: type=gha
+           cache-to: type=gha,mode=max
            push: true
        - name: BATS tests on virtual amd64 running Debian Bullseye
          run: |

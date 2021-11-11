@@ -54,6 +54,8 @@ jobs:
            file: ./tests/Dockerfile.amd64-installation
            builder: ${{ steps.buildx.outputs.name }}
            tags: localhost:5000/openhabian/amd64-openhabian:latest
+           cache-from: type=gha
+           cache-to: type=gha,mode=max
            push: true
        - name: openHABian installation test with 64 bit Azul Java 11 on a native amd64
          run: |
@@ -91,6 +93,8 @@ jobs:
            file: ./tests/Dockerfile.rpi3-installation
            builder: ${{ steps.buildx.outputs.name }}
            tags: localhost:5000/openhabian/rpi3-openhabian:latest
+           cache-from: type=gha
+           cache-to: type=gha,mode=max
            push: true
        - name: openHABian installation test with 32bit Azul Java 11 on a virtual RPi3
          run: |
@@ -128,6 +132,8 @@ jobs:
            file: ./tests/Dockerfile.rpi3-64-installation
            builder: ${{ steps.buildx.outputs.name }}
            tags: localhost:5000/openhabian/rpi3-64-openhabian:latest
+           cache-from: type=gha
+           cache-to: type=gha,mode=max
            push: true
        - name: openHABian installation test with 64bit Azul Java 11 on a virtual RPi3
          run: |
@@ -165,6 +171,8 @@ jobs:
            file: ./tests/Dockerfile.rpi2-installation
            builder: ${{ steps.buildx.outputs.name }}
            tags: localhost:5000/openhabian/rpi2-openhabian:latest
+           cache-from: type=gha
+           cache-to: type=gha,mode=max
            push: true
        - name: openHABian installation test with AdoptOpenJDK Java 11 on a virtual RPi2
          run: |
