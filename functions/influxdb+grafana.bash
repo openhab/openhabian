@@ -265,6 +265,7 @@ grafana_install(){
   echo -n "$(timestamp) [openHABian] Setting up Grafana... "
   cond_echo "\\nWait for Grafana to start... "
   cond_redirect systemctl status grafana-server.service
+  cond_redirect grafana_debug_info
   if ! cond_redirect curl -4 --retry 6 --retry-connrefused --insecure --head http://localhost:3000; then echo "FAILED (wait for Grafana to start)"; return 1; fi
 
   # Password reset required if Grafana password was already set before (not first-time install)
