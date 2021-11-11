@@ -1,5 +1,6 @@
 FROM balenalib/amd64-ubuntu:focal-build
 
+ENV container docker
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DOCKER=1
 ENV UDEV=1
@@ -30,6 +31,10 @@ RUN systemctl mask \
     graphical.target \
     kmod-static-nodes.service
 
+COPY ./tests/balena.service /etc/systemd/system/balena.service
+RUN systemctl enable /etc/systemd/system/balena.service
+
+STOPSIGNAL 37
 ENTRYPOINT ["./tests/entry.sh"]
 
 # Setup openHABian environment
@@ -45,5 +50,3 @@ RUN adduser openhabian --gecos "openHABian,,," --disabled-password && \
 COPY . /opt/openhabian/
 WORKDIR /opt/openhabian/
 RUN install -m 755 ./tests/runlevel /sbin/runlevel
-
-CMD ["bash", "./tests/start.sh"]
