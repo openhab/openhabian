@@ -64,7 +64,7 @@ init_systemd() {
 	done > /etc/docker.env
 	echo 'source /etc/docker.env' >> ~/.bashrc
 
-	printf '#!/bin/bash\n exec ' > /etc/balenaApp.sh
+	printf '#!/usr/bin/env bash\n exec ' > /etc/balenaApp.sh
 	printf '%q ' "$@" >> /etc/balenaApp.sh
 	chmod +x /etc/balenaApp.sh
 

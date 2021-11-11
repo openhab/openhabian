@@ -35,3 +35,5 @@ ENTRYPOINT ["./tests/entry.sh"]
 COPY . /opt/openhabian/
 WORKDIR /opt/openhabian/
 RUN install -m 755 ./tests/runlevel /sbin/runlevel
+
+CMD ["bash", "./tests/start.sh"]

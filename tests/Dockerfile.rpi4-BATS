@@ -52,3 +52,5 @@ RUN adduser openhabian --gecos "openHABian,,," --disabled-password && \
 COPY . /opt/openhabian/
 WORKDIR /opt/openhabian/
 RUN install -m 755 ./tests/runlevel /sbin/runlevel
+
+CMD ["bash", "./tests/start.sh"]
