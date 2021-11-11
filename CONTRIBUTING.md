@@ -203,7 +203,7 @@ To begin, first make a Docker container for your platform.
 An example Docker container build for `amd64` would look like:
 
 ``` bash
-docker build --tag openhabian/bats-openhabian -f tests/Dockerfile.ubuntu-BATS .
+docker build --tag openhabian/bats-openhabian -f tests/Dockerfile.amd64-BATS .
 docker run --privileged --rm --name "openhabian-bats" -d openhabian/bats-openhabian
 ```
 

@@ -1,4 +1,4 @@
-FROM balenalib/amd64-ubuntu:focal-build
+FROM balenalib/generic-debian:bullseye-build
 
 ENV container docker
 ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn

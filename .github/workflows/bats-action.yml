@@ -96,16 +96,16 @@ jobs:
          uses: docker/build-push-action@v2.7.0
          with:
            context: .
-           file: ./tests/Dockerfile.ubuntu-BATS
+           file: ./tests/Dockerfile.amd64-BATS
            builder: ${{ steps.buildx.outputs.name }}
-           tags: localhost:5000/openhabian/ubuntu-openhabian:latest
+           tags: localhost:5000/openhabian/amd64-openhabian:latest
            push: true
-       - name: BATS tests on virtual 64bit x86 running Ubuntu Focal Fossa
+       - name: BATS tests on virtual amd64 running Debian Bullseye
          run: |
-           docker run --privileged --rm --name "openhabian-ubuntu" -d localhost:5000/openhabian/ubuntu-openhabian
-           docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "development-." .'
-           docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "unit-." .'
-           docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "installation-." .'
-           docker exec -i "openhabian-ubuntu" bash -c 'bats --tap --recursive --filter "destructive-." .'
-           docker stop "openhabian-ubuntu"
+           docker run --privileged --rm --name "openhabian-amd64" -d localhost:5000/openhabian/amd64-openhabian
+           docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "development-." .'
+           docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "unit-." .'
+           docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "installation-." .'
+           docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "destructive-." .'
+           docker stop "openhabian-amd64"
          shell: bash
