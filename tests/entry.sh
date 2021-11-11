@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -m
 
@@ -13,11 +13,11 @@ else
 fi
 
 # Send SIGTERM to child processes of PID 1.
-function signal_handler() {
+signal_handler() {
 	kill "$pid"
 }
 
-function start_udev() {
+start_udev() {
 	if [ "$UDEV" == "on" ]; then
 		if [ "$INITSYSTEM" != "on" ]; then
 			if command -v udevd &>/dev/null; then
@@ -34,7 +34,7 @@ function start_udev() {
 	fi
 }
 
-function mount_dev() {
+mount_dev() {
 	tmp_dir='/tmp/tmpmount'
 	mkdir -p "$tmp_dir"
 	mount -t devtmpfs none "$tmp_dir"
@@ -56,7 +56,7 @@ function mount_dev() {
 	mount -t debugfs nodev /sys/kernel/debug
 }
 
-function init_systemd() {
+init_systemd() {
 	GREEN='\033[0;32m'
 	echo -e "${GREEN}Systemd init system enabled."
 	for var in $(compgen -e); do
