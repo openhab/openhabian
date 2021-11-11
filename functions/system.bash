@@ -298,7 +298,7 @@ permissions_corrections() {
   fi
 
   # Set Java and arping file capabilites
-  cond_echo "Setting Java and arping file capabilites"
+  cond_echo "\\nSetting Java and arping file capabilites"
   if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' "$(realpath "$(command -v java)")"; then echo "FAILED (setcap java)"; fi
   if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping; then echo "FAILED (setcap arping)"; fi
 
