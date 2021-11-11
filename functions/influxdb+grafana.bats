@@ -35,7 +35,7 @@ teardown_file() {
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] InfluxDB service is responding.${COL_DEF}" >&3
 }
 
-@test "development-grafana_install" {
+@test "destructive-grafana_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Grafana installation starting...${COL_DEF}" >&3
   run grafana_install "Password1234" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
