@@ -1,0 +1,13 @@
+[Unit]
+Description=Balena User Application
+
+[Service]
+EnvironmentFile=/etc/docker.env
+ExecStart=/etc/balenaApp.sh
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/console
+Restart=on-failure
+
+[Install]
+WantedBy=basic.target
