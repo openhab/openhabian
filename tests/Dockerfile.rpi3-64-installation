@@ -1,36 +1,14 @@
 # Note RPi3 base (first RPi to have aarch64 available) WITH 64bit OS
 FROM balenalib/raspberrypi3-64-debian:bullseye-build
 
-ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DOCKER=1
-ENV UDEV=1
-ENV INITSYSTEM=1
 
-# Install systemd
-RUN echo "deb https://archive.raspberrypi.org/debian/ bullseye main" > /etc/apt/sources.list.d/raspi.list && \
-    apt-get update -qq && \
-    apt-get install --yes -qq --no-install-recommends systemd systemd-sysv && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN systemctl mask \
-    dev-hugepages.mount \
-    sys-fs-fuse-connections.mount \
-    sys-kernel-config.mount \
-    display-manager.service \
-    getty@.service \
-    systemd-logind.service \
-    systemd-remount-fs.service \
-    getty.target \
-    graphical.target \
-    kmod-static-nodes.service
-
-COPY ./tests/balena.service /etc/systemd/system/balena.service
-RUN systemctl enable /etc/systemd/system/balena.service
-
-STOPSIGNAL 37
-ENTRYPOINT ["./tests/entry.sh"]
+RUN git clone https://github.com/gdraheim/docker-systemctl-replacement && \
+    cp docker-systemctl-replacement/files/docker/systemctl3.py /usr/bin/systemctl
 
 # Setup openHABian environment
 COPY . /opt/openhabian/
 WORKDIR /opt/openhabian/
 RUN install -m 755 ./tests/runlevel /sbin/runlevel
+
+ENTRYPOINT ["/usr/bin/systemctl"]

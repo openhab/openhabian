@@ -104,7 +104,7 @@ jobs:
            cache-from: type=gha
            cache-to: type=gha,mode=max
            push: true
-       - name: BATS tests on virtual amd64 running Debian Bullseye
+       - name: BATS tests on generic Debian Bullseye 64bit
          run: |
            docker run --privileged --rm --name "openhabian-amd64" -d localhost:5000/openhabian/amd64-openhabian
            docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "development-." .'
