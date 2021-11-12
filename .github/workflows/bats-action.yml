@@ -69,7 +69,7 @@ jobs:
            push: true
        - name: BATS tests on virtual 64bit RPi4 running Debian Bullseye
          run: |
-           docker run --privileged --rm --name "openhabian-rpi4" -d localhost:5000/openhabian/rpi4-openhabian
+           docker run --rm --name "openhabian-rpi4" -d localhost:5000/openhabian/rpi4-openhabian
            docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "development-." .'
            docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "unit-." .'
            docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "installation-." .'
@@ -106,7 +106,7 @@ jobs:
            push: true
        - name: BATS tests on generic Debian Bullseye 64bit
          run: |
-           docker run --privileged --rm --name "openhabian-amd64" -d localhost:5000/openhabian/amd64-openhabian
+           docker run --rm --name "openhabian-amd64" -d localhost:5000/openhabian/amd64-openhabian
            docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "development-." .'
            docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "unit-." .'
            docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "installation-." .'

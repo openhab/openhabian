@@ -14,8 +14,6 @@ teardown_file() {
 }
 
 @test "destructive-influxDB_install" {
-  if is_ubuntu; then skip "Not executing influxDB test because it currently does not support Ubuntu."; fi
-
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] InfluxDB installation starting...${COL_DEF}" >&3
   run influxdb_install "admin" "Password1234" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
