@@ -252,9 +252,7 @@ elif [ "$1" == "local-test" ]; then
   cp ./build-image/webserver.bash /boot/webserver.bash
   cp ./build-image/openhabian.conf /boot/openhabian.conf
   cp ./build-image/openhabian-installer.service /etc/systemd/system/
-  if ! running_in_docker; then
-    ln -sf /etc/systemd/system/openhabian-installer.service /etc/systemd/system/multi-user.target.wants/openhabian-installer.service
-  fi
+  ln -sf /etc/systemd/system/openhabian-installer.service /etc/systemd/system/multi-user.target.wants/openhabian-installer.service
   rm -f /opt/openHABian-install-successful
   rm -f /opt/openHABian-install-inprogress
   # Use local filesystem's version of openHABian

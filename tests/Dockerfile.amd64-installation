@@ -2,6 +2,10 @@ FROM balenalib/amd64-debian:bullseye-build
 
 ENV DOCKER=1
 
+RUN apt-get update -qq && \
+    apt-get install --yes -qq --no-install-recommends python3 python3-pip && \
+    rm -rf /var/lib/apt/lists/*
+
 RUN git clone https://github.com/gdraheim/docker-systemctl-replacement && \
     cp docker-systemctl-replacement/files/docker/systemctl3.py /usr/bin/systemctl
 
