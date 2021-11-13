@@ -115,7 +115,7 @@ find3_setup() {
   if ! (sed -e 's|%FIND3_PORT|8003|g' "${find3IncludesDir}/find3server.service" > /etc/systemd/system/find3server.service); then echo "FAILED (service file creation)"; return 1; fi
   if ! cond_redirect chmod 644 /etc/systemd/system/find3server.service; then echo "FAILED (permissions)"; return 1; fi
   if ! (sed -e 's|%MQTT_SERVER|'"${MQTT_SERVER}"'|g; s|%MQTT_ADMIN|'"${MQTT_ADMIN}"'|g; s|%MQTT_PASS|'"${MQTT_PASS}"'|g' "${find3IncludesDir}/find3server" > /etc/default/find3server); then echo "FAILED (service configuration creation)"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now find3ai.service; then echo "FAILED (enable find3ai)"; return 1; fi
   if cond_redirect systemctl enable --now find3server.service; then echo "OK"; else echo "FAILED (enable find3server)"; return 1; fi
 

@@ -20,7 +20,7 @@ install_wireguard() {
     echo -n "$(timestamp) [openHABian] Removing Wireguard service... "
     if ! cond_redirect systemctl stop wg-quick@wg0.service; then echo "FAILED (stop service)"; return 1; fi
     if ! rm -f /lib/systemd/system/wg-quick*; then echo "OK"; else echo "FAILED (remove service)"; return 1; fi
-    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+    if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Uninstalling Wireguard... "
     if ! cond_redirect apt-get remove --yes wireguard wireguard-dkms wireguard-tools; then echo "FAILED"; return 1; fi
@@ -199,7 +199,7 @@ install_tailscale() {
     echo "$(timestamp) [openHABian] Removing tailscale VPN... "
     cond_redirect systemctl disable tailscaled.service
     rm -f ${serviceTargetDir}/tailscale*
-    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+    if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! apt-get purge --yes tailscale; then echo "FAILED (purge tailscale)"; return 1; fi
     if ! rm -f /etc/apt/sources.list.d/tailscale.list "${sudoersPath}/${sudoersFile}"; then echo "FAILED (purge tailscale)"; return 1; fi
     return 0

@@ -75,7 +75,7 @@ init_zram_mounts() {
 
     echo -n "$(timestamp) [openHABian] Setting up zram service... "
     if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
-    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+    if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
 
     if ! running_in_docker && ! running_on_github; then
       if ! cond_redirect systemctl mask unattended-upgrades.service; then echo "FAILED (mask unattended upgrades service)"; return 1; fi
@@ -90,7 +90,7 @@ init_zram_mounts() {
     if ! running_in_docker && ! running_on_github; then
       if ! cond_redirect systemctl unmask unattended-upgrades.service; then echo "FAILED (unmask unattended upgrades service)"; return 1; fi
     fi
-    if cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "OK"; else echo "FAILED (daemon-reload)"; return 1; fi
+    if cond_redirect systemctl -q daemon-reload; then echo "OK"; else echo "FAILED (daemon-reload)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Removing zram... "
     if ! cond_redirect rm -f /usr/local/sbin/zram-config; then echo "FAILED (zram-config)"; return 1; fi

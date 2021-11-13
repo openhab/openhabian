@@ -22,7 +22,7 @@ get_git_revision() {
 ##
 install_cleanup() {
   echo -n "$(timestamp) [openHABian] Cleaning up... "
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect apt-get clean; then echo "FAILED (apt-get clean)"; return 1; fi
   if cond_redirect apt-get autoremove --yes; then echo "OK"; else echo "FAILED"; return 1; fi
 }
@@ -345,7 +345,7 @@ migrate_installation() {
   echo -n "$(timestamp) [openHABian] Migrating frontail... "
   sed -i "s|${from}/|${to}/|g" $frontailService
   sed -i "s|${from}/|${to}/|g" $frontailJSON
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart frontail)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Migrating homegear... "

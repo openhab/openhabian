@@ -16,7 +16,7 @@ habapp_setup() {
     echo -n "$(timestamp) [openHABian] Removing HABApp service ... "
     if ! cond_redirect systemctl disable --now habapp.service; then echo "FAILED (disable service)"; return 1; fi
     if ! rm -f /etc/systemd/system/habapp.service; then echo "FAILED (remove service)"; return 1; fi
-    if cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "OK"; else  echo "FAILED (daemon-reload)"; return 1; fi
+    if cond_redirect systemctl -q daemon-reload; then echo "OK"; else  echo "FAILED (daemon-reload)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Uninstalling HABApp ... "
     if rm -rf "${installFolder:?}/${venvName:?}/"; then echo "OK"; else echo "FAILED"; return 1; fi

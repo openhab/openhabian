@@ -265,7 +265,7 @@ create_amanda_config() {
   if ! sed -e "s|%CONFIG|${config}|g" "${amandaIncludesDir}/amdump.service-template" > "${serviceTargetDir}/amdump-${config}.service"; then echo "FAILED (create Amanda ${config} backup service)"; return 1; fi
   if ! sed -e "s|%CONFIG|${config}|g" "${amandaIncludesDir}/amdump.timer-template" > "${serviceTargetDir}/amdump-${config}.timer"; then echo "FAILED (create Amanda ${config} timer)"; return 1; fi
   if ! cond_redirect chmod 644 "${serviceTargetDir}/amdump-${config}".*; then echo "FAILED (permissions)"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now "amdump-${config}.timer"; then echo "FAILED (amdump-${config} timer enable)"; return 1; fi
   if [[ $tapeType == "DIRECTORY" ]]; then
     if ! cond_redirect mkdir -p "${storageLoc}/amanda-backups"; then echo "FAILED (create amanda-backups)"; return 1; fi
@@ -273,7 +273,7 @@ create_amanda_config() {
     if ! sed -e "s|%STORAGE|${storageLoc}|g" "${amandaIncludesDir}/amandaBackupDB.service-template" > "${serviceTargetDir}/amandaBackupDB.service"; then echo "FAILED (create Amanda DB backup service)"; return 1; fi
     if ! cond_redirect chmod 644 "${serviceTargetDir}/amandaBackupDB.service"; then echo "FAILED (permissions)"; return 1; fi
     if ! install -m 644 "${amandaIncludesDir}/amandaBackupDB.timer" "${serviceTargetDir}"; then echo "FAILED (create Amanda DB backup timer)"; return 1; fi
-    if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+    if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
     if ! cond_redirect systemctl enable --now "amandaBackupDB.timer"; then echo "FAILED (Amanda DB backup timer enable)"; return 1; fi
   fi
 }
@@ -484,7 +484,7 @@ setup_mirror_SD() {
   if [[ $1 == "remove" ]]; then
     cond_redirect systemctl disable sdrsync.service sdrawcopy.service sdrsync.timer sdrawcopy.timer
     rm -f "$serviceTargetDir"/sdr*.{service,timer}
-    cond_redirect systemctl -q daemon-reload &> /dev/null
+    cond_redirect systemctl -q daemon-reload
     return 0
   fi
 
@@ -547,7 +547,7 @@ setup_mirror_SD() {
       cond_redirect mke2fs -F -t ext4 "${dest}3"
       if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${sdIncludesDir}/storage.mount-template" > "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (create storage mount)"; fi
       if ! cond_redirect chmod 644 "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (permissions)"; return 1; fi
-      if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+      if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
       if ! cond_redirect systemctl enable --now "$mountUnit"; then echo "FAILED (enable storage mount)"; return 1; fi
     fi
   fi
@@ -557,7 +557,7 @@ setup_mirror_SD() {
   if ! sed -e "s|%DEST|${dest}|g" "${sdIncludesDir}/sdrsync.service-template" > "${serviceTargetDir}/sdrsync.service"; then echo "FAILED (create rsync service)"; fi
   if cond_redirect install -m 644 -t "${serviceTargetDir}" "${sdIncludesDir}"/sdr*.timer; then echo "OK"; else rm -f "$serviceTargetDir"/sdr*.{service,timer}; echo "FAILED (setup copy timers)"; return 1; fi
   if ! cond_redirect install -m 755 "${sdIncludesDir}/mirror_SD" /usr/local/sbin; then echo "FAILED (install mirror_SD)"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now sdrawcopy.timer sdrsync.timer; then echo "FAILED (enable timed SD sync start)"; return 1; fi
 
   echo "OK"
