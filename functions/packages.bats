@@ -14,7 +14,6 @@ teardown_file() {
 }
 
 @test "destructive-homegear_install" {
-  if is_ubuntu; then skip "Not executing Homegear test because it currently does not support Ubuntu."; fi
   if is_bullseye; then skip "Not executing Homegear test because it currently does not support Bullseye."; fi
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Homegear installation starting...${COL_DEF}" >&3

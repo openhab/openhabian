@@ -251,7 +251,8 @@ if running_in_docker; then
   if [[ -f "$PID" ]]; then
     ps -auxq "$(cat "$PID")" | awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
   else
-    echo -e "\\n${COL_RED}Karaf PID missing, openHAB process not running (yet?)."
+    echo -e "\\n${COL_RED}Karaf PID missing, openHAB process not running (yet?).${COL_DEF}"
+    exit 1
   fi
   echo -e "$COL_DEF"
 fi

@@ -1,6 +1,6 @@
-# Note RPi4 base WITH 64bit OS
-FROM balenalib/raspberrypi4-64-debian:bullseye-build
+FROM balenalib/generic-debian:bullseye-build
 
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DOCKER=1
 
 # BATS tests on a minimal install will require additional packages

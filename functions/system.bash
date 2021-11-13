@@ -38,7 +38,7 @@ basic_packages() {
 
   if cond_redirect apt-get install --yes screen vim nano mc vfu bash-completion coreutils \
     htop curl wget multitail git util-linux bzip2 zip unzip xz-utils cpufrequtils lsb-release \
-    software-properties-common man-db whiptail acl usbutils dirmngr arping; \
+    software-properties-common man-db whiptail acl usbutils dirmngr arping apt-utils; \
   then echo "OK"; else echo "FAILED"; exit 1; fi
 }
 
@@ -298,7 +298,7 @@ permissions_corrections() {
   fi
 
   # Set Java and arping file capabilites
-  cond_echo "Setting Java and arping file capabilites"
+  cond_echo "\\nSetting Java and arping file capabilites"
   if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' "$(realpath "$(command -v java)")"; then echo "FAILED (setcap java)"; fi
   if ! cond_redirect setcap 'cap_net_raw,cap_net_admin=+eip cap_net_bind_service=+ep' /usr/sbin/arping; then echo "FAILED (setcap arping)"; fi
 

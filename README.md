@@ -148,8 +148,8 @@ Docker and ShellCheck need to be installed first.
 For more details regarding the tests see [Test Architecture](https://github.com/openhab/openhabian/blob/main/CONTRIBUTING.md#test-architecture) in CONTRIBUTING.md.
 
 ``` bash
-docker build --tag openhabian/bats-openhabian -f tests/Dockerfile.ubuntu-BATS .
-docker run --privileged --rm --name "openhabian-bats" -d openhabian/bats-openhabian
+docker build --tag openhabian/bats-openhabian -f tests/Dockerfile.amd64-BATS .
+docker run --rm --name "openhabian-bats" -d openhabian/bats-openhabian
 docker exec -i "openhabian-bats" bash -c 'bats --tap --recursive --filter "development-." .'
 docker exec -i "openhabian-bats" bash -c 'bats --tap --recursive --filter "unit-." .'
 docker exec -i "openhabian-bats" bash -c 'bats --tap --recursive --filter "installation-." .'

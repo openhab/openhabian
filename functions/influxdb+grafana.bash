@@ -258,17 +258,13 @@ grafana_install(){
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up Grafana service... "
-  # Workaround for strange behavior in CI
-  if ! cond_redirect mkdir -p /run/grafana; then echo "FAILED (mkdir)"; return 1; fi
-  if ! cond_redirect chmod -R 0750 /run/grafana; then echo "FAILED (chmod)"; return 1; fi
-  if ! cond_redirect chown -R grafana:grafana /run/grafana; then echo "FAILED (chown)"; return 1; fi
   if ! cond_redirect zram_dependency install grafana-server; then return 1; fi
   if zram_is_installed && ! mkdir -p /opt/zram/log.bind/grafana /var/log/grafana && chown grafana /opt/zram/log.bind/grafana /var/log/grafana; then echo "FAILED (create zram logdir)"; return 1; fi
   if cond_redirect systemctl enable --now grafana-server.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up Grafana... "
   cond_echo "\\nWait for Grafana to start... "
-  if ! (curl -4 --retry 6 --retry-connrefused --silent --head http://localhost:3000); then echo "FAILED (wait for Grafana to start)"; return 1; fi
+  if ! cond_redirect curl -4 --retry 6 --retry-connrefused --insecure --head http://localhost:3000; then echo "FAILED (wait for Grafana to start)"; return 1; fi
 
   # Password reset required if Grafana password was already set before (not first-time install)
   cond_echo "\\nResetting Grafana admin password... "
@@ -289,7 +285,7 @@ grafana_install(){
 
   cond_echo "\\nRestarting Grafana... "
   if ! cond_redirect systemctl restart grafana-server.service; then echo "FAILED (restart service)"; return 1; fi
-  if (curl -4 -m 120 --retry 20 --retry-connrefused --silent --head http://localhost:3000); then echo "OK"; else echo "FAILED (wait for Grafana to start)"; return 1; fi
+  if cond_redirect curl -4 --retry 6 --retry-connrefused --insecure --head http://localhost:3000; then echo "OK"; else echo "FAILED (wait for Grafana to start)"; return 1; fi
 }
 
 ## Function to output Grafana debugging information

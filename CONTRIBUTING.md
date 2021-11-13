@@ -173,11 +173,7 @@ An example Docker container build for `amd64` would look like:
 docker build --tag openhabian/install-openhabian -f tests/Dockerfile.amd64-installation .
 ```
 
-While not a problem in the final container-less deployment, with more than one container running, all but one of them will have a `systemd` running with a PID other than 1.
-That will break openHABian in a number of locations when we use `systemctl` to start/stop/check `systemd` controlled services.
-This is why we replace the `systemctl` binary in `Dockerfile.*` during testing.`systemctl.py` is a Python replacement that does not complain about `systemd` running with an arbitrary PID.
-
-This is done by executing:
+The container is run by executing:
 
 ``` bash
 docker run --privileged --rm --name "openhabian-install" -d openhabian/install-openhabian
@@ -207,8 +203,8 @@ To begin, first make a Docker container for your platform.
 An example Docker container build for `amd64` would look like:
 
 ``` bash
-docker build --tag openhabian/bats-openhabian -f tests/Dockerfile.ubuntu-BATS .
-docker run --privileged --rm --name "openhabian-bats" -d openhabian/bats-openhabian
+docker build --tag openhabian/bats-openhabian -f tests/Dockerfile.amd64-BATS .
+docker run --rm --name "openhabian-bats" -d openhabian/bats-openhabian
 ```
 
 Now that we have a functioning Docker container, the categories are as follows:
