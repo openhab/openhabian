@@ -2,7 +2,6 @@
 
 load habapp.bash
 load helpers.bash
-load openhab.bash
 
 teardown_file() {
   systemctl kill habapp.service || true

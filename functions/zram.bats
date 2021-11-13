@@ -2,7 +2,6 @@
 
 load zram.bash
 load helpers.bash
-load openhab.bash
 
 teardown_file() {
   systemctl kill zram-config.service || true
