@@ -82,6 +82,14 @@ check_zram_removal() {
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Availability of zram mounts verified.${COL_DEF}" >&3
+  run init_zram_mounts "update" 3>&-
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Update of zram mounts succeeded.${COL_DEF}" >&3
+  run check_zram_mounts
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Availability of updated zram mounts verified.${COL_DEF}" >&3
   run init_zram_mounts "uninstall" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
@@ -90,14 +98,4 @@ check_zram_removal() {
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Uninstall of zram mounts verified - none remaining.${COL_DEF}" >&3
-  run init_zram_mounts "install" 3>&-
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Second installation of zram mounts succeeded.${COL_DEF}" >&3
-  run check_zram_mounts
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Availability of 2nd zram mounts verified.${COL_DEF}" >&3
-
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Installation and availability of zram mounts verified.${COL_DEF}" >&3
 }
