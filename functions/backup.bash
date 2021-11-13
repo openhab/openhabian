@@ -294,6 +294,7 @@ amanda_setup() {
   local tapes
   local tapeSize
   local storageLoc
+  local adminMail="${adminmail:-root@${hostname}}"
   local awsSite
   local awsBucket
   local awsAccessKey
@@ -320,13 +321,14 @@ amanda_setup() {
 
   if ! amanda_install "$backupPass"; then return 1; fi
 
+  if ! adminMail="$(whiptail --title "Reporting address" --inputbox "\\nEnter a mail address to have Amanda send reports to:" 9 80 "${adminMail}" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   if (whiptail --title "Backup using locally attached storage" --yes-button "Yes" --no-button "No" --yesno "Would you like to setup a backup mechanism based on locally attached or NAS mounted storage?" 8 80); then
     config="openhab-dir"
     if ! storageLoc="$(whiptail --title "Storage directory" --inputbox "\\nWhat is the directory backups should be stored in?\\n\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick, HDD, or a NFS/CIFS share." 13 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     tapes="15"
     if ! tapeSize="$(whiptail --title "Storage capacity" --inputbox "\\nHow much storage do you want to dedicate to your backup in megabytes?\\n\\nRecommendation: 2-3 times the amount of data to be backed up." 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     ((tapeSize/=tapes))
-    if ! create_amanda_config "$config" "$backupUser" "${adminmail:-root@${hostname}}" "$tapes" "$tapeSize" "$storageLoc"; then return 1; fi
+    if ! create_amanda_config "$config" "$backupUser" "${adminMail}" "$tapes" "$tapeSize" "$storageLoc"; then return 1; fi
     whiptail --title "Amanda config setup successful" --msgbox "$successText" 10 80
   fi
   if (whiptail --title "Backup using Amazon AWS" --yes-button "Yes" --no-button "No"  --defaultno --yesno "Would you like to setup a backup mechanism based on Amazon Web Services?\\n\\nYou can get 5 GB of S3 cloud storage for free on https://aws.amazon.com/. For hints see http://markelov.org/wiki/index.php?title=Backup_with_Amanda:_tape,_NAS,_Amazon_S3#Amazon_S3\\nPlease setup your S3 bucket on Amazon Web Services NOW if you have not done so. Remember the name has to be unique in AWS namespace." 14 90); then
