@@ -321,7 +321,7 @@ amanda_setup() {
 
   if ! amanda_install "$backupPass"; then return 1; fi
 
-  if ! adminMail="$(whiptail --title "Reporting address" --inputbox "\\nEnter a mail address to have Amanda send reports to:" 9 80 "${adminmail}" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+  if ! adminMail="$(whiptail --title "Reporting address" --inputbox "\\nEnter a mail address to have Amanda send reports to:" 9 80 "${adminMail}" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   if (whiptail --title "Backup using locally attached storage" --yes-button "Yes" --no-button "No" --yesno "Would you like to setup a backup mechanism based on locally attached or NAS mounted storage?" 8 80); then
     config="openhab-dir"
     if ! storageLoc="$(whiptail --title "Storage directory" --inputbox "\\nWhat is the directory backups should be stored in?\\n\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick, HDD, or a NFS/CIFS share." 13 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
