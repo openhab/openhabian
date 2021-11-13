@@ -2,7 +2,6 @@
 
 load nodejs-apps.bash
 load helpers.bash
-load openhab.bash
 
 setup_file() {
   export BASEDIR="${BATS_TEST_DIRNAME}/.."

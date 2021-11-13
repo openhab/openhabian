@@ -2,7 +2,6 @@
 
 load java-jre.bash
 load helpers.bash
-load openhab.bash
 
 @test "installation-java_install_zulu11-64bit" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zulu 11 64-bit Java installation is being (test-)installed...${COL_DEF}" >&3

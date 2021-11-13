@@ -198,40 +198,6 @@ multitail_openhab_scheme() {
   if cond_redirect sed -i -e 's|^# misc.*$|# openHAB logs\\ninclude:/etc/multitail.openhab.conf\\n#\\n# misc|g' /etc/multitail.conf; then echo "OK"; else echo "FAILED (include)"; return 1; fi
 }
 
-## Function to check if openHAB 2 is installed on the current system. Returns
-## 0 / true if openHAB is installed and 1 / false if not.
-##
-##    openhab2_is_installed()
-##
-openhab2_is_installed() {
-  if [[ $(dpkg -s 'openhab2' 2> /dev/null | grep Status | cut -d' ' -f2) == "install" ]]; then return 0; else return 1; fi
-}
-## Function to check if openHAB 3 is installed on the current system. Returns
-## 0 / true if openHAB is installed and 1 / false if not.
-##
-##    openhab3_is_installed()
-##
-openhab3_is_installed() {
-  if [[ $(dpkg -s 'openhab' 2> /dev/null | grep Status | cut -d' ' -f2) == "install" ]]; then return 0; else return 1; fi
-}
-## Function to check if openHAB is installed on the current system. Returns
-## 0 / true if openHAB is installed and 1 / false if not.
-##
-##    openhab_is_installed()
-##
-openhab_is_installed() {
-  if openhab2_is_installed || openhab3_is_installed; then return 0; else return 1; fi
-}
-
-## Function to check if openHAB is running on the current system. Returns
-## 0 / true if openHAB is running and 1 / false if not.
-##
-##    openhab_is_running()
-##
-openhab_is_running() {
-  if openhab_is_installed && [[ $(systemctl is-active openhab) == "active" ]]; then return 0; else return 1; fi
-}
-
 ## Optimize openHAB Java for low memory SBC's and set HTTP/HTTPS ports
 ##
 ##    openhab_misc()

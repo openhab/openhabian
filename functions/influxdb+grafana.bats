@@ -2,7 +2,6 @@
 
 load influxdb+grafana.bash
 load helpers.bash
-load openhab.bash
 
 setup_file() {
   export DEBIAN_FRONTEND="noninteractive"
