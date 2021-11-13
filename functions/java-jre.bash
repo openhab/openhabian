@@ -279,7 +279,7 @@ java_zulu_enterprise_apt() {
   if ! add_keys "https://www.azul.com/files/0xB1998361219BD9C9.txt" "$keyName"; then return 1; fi
 
   echo -n "$(timestamp) [openHABian] Adding Zulu repository to apt... "
-  if ! echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] http://repos.azulsystems.com/debian stable main" > /etc/apt/sources.list.d/zulu-enterprise.list; then echo "FAILED"; return 1; fi
+  if ! echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://repos.azul.com/zulu/deb/ stable main" > /etc/apt/sources.list.d/zulu-enterprise.list; then echo "FAILED"; return 1; fi
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
 
   if openhab_is_running; then
