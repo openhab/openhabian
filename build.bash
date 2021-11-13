@@ -258,7 +258,7 @@ elif [ "$1" == "local-test" ]; then
   # Use local filesystem's version of openHABian
   # shellcheck disable=SC2016
   if ! running_in_docker; then
-    sed -i 's|$(eval "$(openhabian_update &> /dev/null)") -eq 0|true|' /boot/first-boot.bash
+    sed -i 's|$(eval "$(openhabian_update "${clonebranch:-openHAB3}" &> /dev/null)") -eq 0|true|' /boot/first-boot.bash
   fi
   chmod +x /boot/first-boot.bash
   chmod +x /boot/webserver.bash
