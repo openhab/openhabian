@@ -90,7 +90,7 @@ find3_setup() {
   if ! cond_redirect cd $find3Dir/server/ai; then echo "FAILED (cd)"; return 1; fi
   if cond_redirect python3 -m pip install -r requirements.txt; then echo "OK"; else echo "FAILED (pip)"; return 1; fi
 
-  if ! zram_dependency install find3server find3ai; then return 1; fi
+  if ! cond_redirect zram_dependency install find3server find3ai; then return 1; fi
   if [[ -f /etc/ztab ]] && ! grep -qs "/find3.bind" /etc/ztab; then
     echo -n "$(timestamp) [openHABian] Adding FIND3 to zram... "
     if ! cond_redirect sed -i '/^.*persistence.bind$/a dir	zstd		150M		350M		/opt/find3/server/main		/find3.bind' /etc/ztab; then echo "FAILED (sed)"; return 1; fi

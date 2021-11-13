@@ -108,8 +108,7 @@ openhab_setup() {
   cond_redirect usermod -aG "$gid" "$username" &> /dev/null
 
   echo -n "$(timestamp) [openHABian] Setting up openHAB service... "
-  if ! zram_dependency install ${ohPkgName}; then return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload &> /dev/null; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! cond_redirect zram_dependency install ${ohPkgName}; then return 1; fi
   if cond_redirect systemctl enable ${ohPkgName}.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   openhab_misc
