@@ -57,6 +57,7 @@ init_zram_mounts() {
     if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
     if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/ztab /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
+    if ! cond_redirect ln -s /usr/local/share/zram-config/log /var/log/zram-config; then echo "FAILED (link directory)"; return 1; fi
     if cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
     echo "ReadWritePaths=/usr/local/share/zram-config/log" >> /lib/systemd/system/logrotate.service
 
@@ -96,6 +97,7 @@ init_zram_mounts() {
     if ! cond_redirect rm -f /usr/local/sbin/zram-config; then echo "FAILED (zram-config)"; return 1; fi
     if ! cond_redirect rm -f /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/share/zram-config; then echo "FAILED (zram-config share)"; return 1; fi
+    if ! cond_redirect rm -f /var/log/zram-config; then echo "FAILED (zram-config link)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
     if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
   elif [[ -f /etc/ztab ]]; then
@@ -112,6 +114,9 @@ init_zram_mounts() {
     echo -n "$(timestamp) [openHABian] Updating zram... "
     if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
     if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
+    if ! [[ -h /var/log/zram-config ]]; then
+      if ! cond_redirect ln -s /usr/local/share/zram-config/log /var/log/zram-config; then echo "FAILED (link directory)"; return 1; fi
+    fi
     if cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
     if ! grep -qs "ReadWritePaths=/usr/local/share/zram-config/log" /lib/systemd/system/logrotate.service; then
       echo "ReadWritePaths=/usr/local/share/zram-config/log" >> /lib/systemd/system/logrotate.service
