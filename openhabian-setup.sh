@@ -128,6 +128,7 @@ else
   openhabian_console_check
   openhabian_update_check
   fix_openhab_repo    # TODO: Remove sometime late 2021
+  bashrc_copy    # TODO: Remove sometime mid 2022
   while show_main_menu; do
     true
   done
