@@ -91,22 +91,21 @@ Note option 42 will also not downgrade Java.
 openHAB 2 however is known to run with Java 11 as well.
 
 ### *A note on dedication and commitment*
-
 *We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
 Everybody wants his home automation to be stable and most people install a dedicated RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation.
 Reasonably so, this is our clear recommendation. Saving another 50 bucks is not worth putting the reliable day-to-day operations of your home at risk.*
 
 *Then again that being said, those who insist to can use openHABian as the starting point for their 'generic' server and run whatever software else on top.
-There's no genuine reason why this wouldn't work. The openHABian image is really just Raspberry Pi OS (lite) under the hood and openHABian is "just" some scripts that install a number of packages and configures the system in a specific way, optimized to run openHAB.*
+There's no genuine reason why this wouldn't work. The openHABian image is really just Raspberry Pi OS (lite) under the hood and openHABian is "just" some scripts that install a number of packages and configure the system in a specific way, optimized to run openHAB.*
 
-*What you must not do, though, is to mess with system packages and config and expect anyone to help you with that. Let's clearly state this as well: when you deliberately decide to make manual changes to the OS software packages and configuration (i.e. outside of openhabian-config), you will be on your own. Your setup is untested, and no-one but you knows about your changes. openHABian maintainers are really committed to providing you with a fine user experience, but this takes enormous efforts you don't get to see as a user. So if you choose to deviate from standard openHABian installations and run into problems thereafter, don't be unfair: don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum.*
+<a id="befair"></a>
+*What you must not do, though, is to mess with the system, OS packages and config and expect anyone to help you with that. Let's clearly state this as well: when you deliberately decide to make manual changes to the OS software packages and configuration (i.e. outside of openhabian-config), you will be on your own. Your setup is untested, and no-one but you knows about your changes. openHABian maintainers are really committed to providing you with a fine user experience, but this takes enormous efforts you don't get to see as a user. So if you choose to deviate from the standard openHABian installation and run into problems thereafter, don't be unfair: don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum. Thank you !*
 
 ## Hardware
 ### Hardware recommendation
-
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB of RAM, a 3A power supply and a 16 GB SD card.
-Because of the higher limit of write cycles, an SD card designed for Dashcams is preferable.
-Most manufacturers name them with a postfix like "Endurance" (e.g. "SanDisk MAX ENDURANCE" or "Kingston High Endurance").
+Prefer getting a card named with a postfix like "Endurance" (e.g. "SanDisk MAX ENDURANCE" or "Kingston High Endurance") because it
+can handle more write cycles hence it'll be more enduring under openHAB\'s use conditions.
 Also get another 32 GB or larger SD card and a USB card reader to make use of the ["auto backup" feature](openhabian.md#auto-backup).
 
 ### Hardware support
@@ -145,7 +144,6 @@ To install openHABian on anything older or newer may work or not.
 If you encounter issues, you may need to upgrade first or to live with the consequences of running an OS on the edge of software development.
 
 ### 64 bit?
-
 RPi 3 and 4 have a 64 bit processor and you may want to run openHAB in 64 bit.
 We provide a 64bit version of the image but it is unsupported and just provided as-is so use it at your own risk.
 Be aware that to run in 64 bit has a major drawback: increased memory usage.
@@ -157,7 +155,6 @@ reliably work on 64 bit.
 On x86 hardware, 64 bit is the standard.
 
 ### Networking
-
 You need to prepare your local network so you eventually need to configure your Internet router before an openHABian installation.
 For image based installations, openHABian re-uses the TCP/IP networking setup Raspberry Pi OS is coming with.
 The non-image (script-only) version of openHABian does not change anything about your existing OS' networking setup so you have to take care of that and prepare it yourself.
@@ -209,7 +206,6 @@ You should be seeing a welcome screen like the following:
 
 <a id="manual-setup"></a>
 ### Other Linux Systems (add openHABian just like any other software)
-
 Going beyond what the RPi image provides, you can also install openHABian on x86 hardware on top of any existing Debian installation.
 Please note that the unattended install is tailored to work for Raspberries.
 We cannot test HW/OS combos beyond RPis upfront so there is no promise for this work.
