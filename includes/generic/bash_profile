@@ -1,6 +1,6 @@
 # ~/.bash_profile: executed by bash(1) for interactive shells.
 
-source /opt/openhabian/functions/openhab.bash
+source /opt/openhabian/functions/helpers.bash
 
 if [ -f "/opt/openHABian-install-failed" ]; then
   echo -e -n "\\n\e[31;01mAttention! \e[39;49;00m"
