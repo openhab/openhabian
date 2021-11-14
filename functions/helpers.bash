@@ -213,10 +213,6 @@ is_cm() {
   if is_cmone || is_cmthree || is_cmthreeplus || is_cmfour; then return 0; fi
   return 1
 }
-is_pine64() {
-  [[ $(uname -r) =~ "pine64-longsleep" ]]
-  return $?
-}
 is_arm() {
   if is_armv6l || is_armv7l || is_aarch64; then return 0; fi
   return 1;
@@ -282,25 +278,19 @@ is_raspios() {
   [[ "$(cat /boot/issue.txt)" =~ "Raspberry Pi reference" ]]
   return $?
 }
-# Debian/Raspbian, deprecated
-is_jessie() {
-  if [[ "$osrelease" == "jessie" ]]; then return 0; fi
-  [[ $(cat /etc/*release*) =~ "jessie" ]]
-  return $?
-}
-# Debian/Raspbian oldstable
+# Debian/Raspbian oldoldstable
 is_stretch() {
   if [[ "$osrelease" == "stretch" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "stretch" ]]
   return $?
 }
-# Debian/Raspbian stable
+# Debian/Raspbian oldstable
 is_buster() {
   if [[ "$osrelease" == "buster" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "buster" ]]
   return $?
 }
-# Debian/Raspbian testing
+# Debian/Raspbian stable
 is_bullseye() {
   if [[ "$osrelease" == "bullseye" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "bullseye" ]]
@@ -310,12 +300,6 @@ is_bullseye() {
 is_sid() {
   if [[ "$osrelease" == "sid" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "sid" ]]
-  return $?
-}
-# Ubuntu 14, deprecated
-is_trusty() {
-  if [[ "$osrelease" == "trusty" ]]; then return 0; fi
-  [[ $(cat /etc/*release*) =~ "trusty" ]]
   return $?
 }
 # Ubuntu 16, deprecated

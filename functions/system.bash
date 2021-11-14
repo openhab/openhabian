@@ -47,8 +47,6 @@ basic_packages() {
 ##    needed_packages()
 ##
 needed_packages() {
-  local bluetoothPackages="bluez python3-dev libbluetooth-dev raspberrypi-sys-mods pi-bluetooth"
-
   # Install apt-transport-https - update packages through https repository
   # Install bc/sysstat/jq/moreutils - needed for FireMotD
   # Install avahi-daemon - hostname based discovery on local networks
@@ -65,12 +63,9 @@ needed_packages() {
     echo -n "$(timestamp) [openHABian] Installing pigpio package... "
     if cond_redirect apt-get install --yes pigpio; then echo "OK"; else echo "FAILED"; return 1; fi
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
-    # phython3-bluez is not available in stretch so only add it if we are running on buster or later
-    if ! is_stretch; then
-      bluetoothPackages+=" python3-bluez"
-    fi
-    # shellcheck disable=SC2086
-    if cond_redirect apt-get install --yes $bluetoothPackages; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes bluez python3-dev libbluetooth-dev \
+      raspberrypi-sys-mods pi-bluetooth; \
+    then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 }
 
