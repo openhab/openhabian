@@ -18,7 +18,7 @@ if [[ $1 == "github" ]]; then
   repoURL="$(git remote get-url origin)"
   repoBranch="$(git rev-parse --abbrev-ref HEAD)"
 
-  if ! [[ $2 == "release" ]]; then
+  if ! git show-ref --tags "$2" --quiet; then
     sed -i 's#debugmode=.*$#debugmode=on#' build-image/openhabian.conf
   fi
 
