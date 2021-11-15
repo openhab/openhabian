@@ -54,6 +54,7 @@ jobs:
          with:
            repo_token: "${{ secrets.GITHUB_TOKEN }}"
            title: "openHABian $GITHUB_REF"
+           automatic_release_tag: "$GITHUB_REF"
            prerelease: false
            draft: true
            files: |
