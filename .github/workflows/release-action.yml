@@ -36,7 +36,7 @@ jobs:
        - name: Build openHABian 32bit image
          id: build32
          run: |
-           sudo -E ./tests/ci-setup.bash github .pi-raspios32
+           sudo -E ./tests/ci-setup.bash github release
            sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios32.conf
            sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
            sudo -E ./build.bash rpi
