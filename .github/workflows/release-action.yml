@@ -53,8 +53,8 @@ jobs:
          uses: "marvinpinto/action-automatic-releases@v1.2.1"
          with:
            repo_token: "${{ secrets.GITHUB_TOKEN }}"
-           title: "openHABian $GITHUB_REF"
-           automatic_release_tag: "$GITHUB_REF"
+           title: "openHABian ${{ github.ref_name }}"
+           automatic_release_tag: "${{ github.ref_name }}"
            prerelease: false
            draft: true
            files: |
