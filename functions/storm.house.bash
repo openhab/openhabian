@@ -44,7 +44,7 @@ setup_pv_config() {
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "Operation successful" --msgbox "The Energy Management System is now setup to use a ${1:-${invertertype}} PV inverter." 8 80
+    whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt einen ${1:-${invertertype}} Inverter." 8 80
   fi
 }
 
