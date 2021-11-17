@@ -498,7 +498,7 @@ setup_mirror_SD() {
   fi
 
   mkdir -p "$storageDir"
-  if cond_redirect apt-get install --yes gdisk; then echo "OK"; else echo "FAILED (install gdisk)"; return 1; fi
+  if ! cond_redirect apt-get install --yes gdisk; then echo "FAILED (install gdisk)"; return 1; fi
 
   if [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
@@ -555,7 +555,7 @@ setup_mirror_SD() {
 
   if ! sed -e "s|%DEST|${dest}|g" "${sdIncludesDir}/sdrawcopy.service-template" > "${serviceTargetDir}/sdrawcopy.service"; then echo "FAILED (create raw SD copy service)"; fi
   if ! sed -e "s|%DEST|${dest}|g" "${sdIncludesDir}/sdrsync.service-template" > "${serviceTargetDir}/sdrsync.service"; then echo "FAILED (create rsync service)"; fi
-  if cond_redirect install -m 644 -t "${serviceTargetDir}" "${sdIncludesDir}"/sdr*.timer; then echo "OK"; else rm -f "$serviceTargetDir"/sdr*.{service,timer}; echo "FAILED (setup copy timers)"; return 1; fi
+  if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${sdIncludesDir}"/sdr*.timer; then rm -f "$serviceTargetDir"/sdr*.{service,timer}; echo "FAILED (setup copy timers)"; return 1; fi
   if ! cond_redirect install -m 755 "${sdIncludesDir}/mirror_SD" /usr/local/sbin; then echo "FAILED (install mirror_SD)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now sdrawcopy.timer sdrsync.timer; then echo "FAILED (enable timed SD sync start)"; return 1; fi
