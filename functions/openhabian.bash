@@ -457,7 +457,7 @@ import_openhab_config() {
 
 
   if [[ -n $INTERACTIVE ]]; then
-    if ! initialconfig=$(whiptail --title "Import configuration" --inputbox "Enter the full filename or URL to retrieve the configuration file from." 9 80 "$initialconfig" 3>&1 1>&2 2>&3); then return 1; fi
+    if ! initialConfig=$(whiptail --title "Import configuration" --inputbox "Enter the full filename or URL to retrieve the configuration file from." 9 80 "$initialConfig" 3>&1 1>&2 2>&3); then return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Getting initial openHAB configuration... "
