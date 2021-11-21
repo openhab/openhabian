@@ -447,7 +447,7 @@ mirror_SD() {
     fi
     mount "$dest" "$syncMount"
     if ! (mountpoint -q "$syncMount"); then echo "FAILED (${dest} is not mounted as ${syncMount})"; return 1; fi
-    cond_redirect rsync --one-file-system --exclude={'/etc/fstab','/opt/zram','/srv/*'} --delete -avKRh "/" "$syncMount"
+    cond_redirect rsync --one-file-system --exclude={'/etc/fstab','/etc/systemd/system/*.mount','/opt/zram','/srv/*'} --delete -avKRh "/" "$syncMount"
     if ! (umount "$syncMount" &> /dev/null); then
       sleep 1
       umount -l "$syncMount" &> /dev/null
