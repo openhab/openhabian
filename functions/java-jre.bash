@@ -58,19 +58,7 @@ java_install_or_update() {
       fi
     elif [[ $1 == "Zulu17-64" ]]; then
       if is_aarch64 || is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
-        if is_x86_64; then
-          java_zulu_enterprise_apt "17"
-        else
-          if cond_redirect java_zulu_update_available "Zulu17-64"; then
-            java_zulu_prerequisite "Zulu17-64"
-            if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
-              java_zulu_stable "Zulu17-64"
-            else
-              java_zulu_fetch "Zulu17-64"
-              java_zulu_install "Zulu17-64"
-            fi
-          fi
-        fi
+        java_zulu_enterprise_apt "17"
       else
         if [[ -n $INTERACTIVE ]]; then
           whiptail --title "Incompatible hardware detected" --msgbox "Zulu OpenJDK 64-bit: this option does not currently work on your platform.\\n\\nDefaulting to Java Zulu 11 32-bit installation." 9 80
@@ -258,7 +246,7 @@ java_zulu_fetch() {
   elif [[ $1 == "Zulu17-64" ]]; then
     echo -n "$(timestamp) [openHABian] Downloading Java Zulu 17 64-Bit OpenJDK... "
     if is_arm; then
-      downloadLink="$(curl "${link}&jdk_version=17&arch=arm&hw_bitness=64" -s -L -I -o /dev/null -w '%{url_effective}')"
+      downloadLink="$(curl "${link}&jdk_version=17&arch=arm&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
     else
       downloadLink="$(curl "${link}&jdk_version=17&arch=x86&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
     fi
