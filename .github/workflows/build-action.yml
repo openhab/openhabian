@@ -41,12 +41,12 @@ jobs:
            echo "::set-output name=image32::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
            echo "::set-output name=image64::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
        - name: Cache Raspberry Pi OS 32bit image
-         uses: actions/cache@v2.1.6
+         uses: actions/cache@v2.1.7
          with:
            path: ${{ steps.setup.outputs.image32 }}
            key: ${{ steps.setup.outputs.image32 }}
        - name: Cache Raspberry Pi OS 64bit image
-         uses: actions/cache@v2.1.6
+         uses: actions/cache@v2.1.7
          with:
            path: ${{ steps.setup.outputs.image64 }}
            key: ${{ steps.setup.outputs.image64 }}
