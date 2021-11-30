@@ -291,7 +291,7 @@ setup_monitor_mode() {
   echo -n "$(timestamp) [openHABian] Installing nexutil... "
   if ! cond_redirect cd "${nexmonDir}/utilities/nexutil"; then echo "FAILED (cd)"; return 1; fi
   if ! cond_redirect make --directory="${nexmonDir}/utilities/nexutil"; then echo "FAILED (make)"; return 1; fi
-  if cond_redirect make --directory="${nexmonDir}/utilities/nexutil" install; then echo "OK"; else "FAILED (install)"; return 1; fi
+  if cond_redirect make --directory="${nexmonDir}/utilities/nexutil" install; then echo "OK"; else echo "FAILED (install)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation successful" --msgbox "$successText" 11 80
