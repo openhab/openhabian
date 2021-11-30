@@ -150,7 +150,7 @@ openhabian_update_check() {
   else
     echo -n "Updates available... "
     if (whiptail --title "openHABian update available" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 11 80); then echo "UPDATING"; else echo "SKIP"; return 0; fi
-    openhabian_update
+    openhabian_update "$branch"
   fi
   openhabian_announcements
   echo -n "$(timestamp) [openHABian] Switching to branch ${clonebranch:-openHAB3}... "
