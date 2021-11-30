@@ -2,11 +2,11 @@
 -   <https://www.openhab.org/docs/installation/openhabian.html>
 
 # openHABian - Hassle-free openHAB Setup
-![GitHub](https://img.shields.io/github/license/openhab/openhabian)
-![ShellCheck](https://github.com/openhab/openhabian/workflows/ShellCheck/badge.svg)
-![BATS](https://github.com/openhab/openhabian/workflows/BATS/badge.svg)
-![Installation](https://github.com/openhab/openhabian/workflows/Installation/badge.svg)
-![Build](https://github.com/openhab/openhabian/workflows/Build/badge.svg)
+[![GitHub](https://img.shields.io/github/license/openhab/openhabian)](https://github.com/openhab/openhabian/blob/main/LICENSE.md)
+[![ShellCheck](https://github.com/openhab/openhabian/actions/workflows/shellcheck-action.yml/badge.svg)](https://github.com/openhab/openhabian/actions/workflows/shellcheck-action.yml)
+[![BATS](https://github.com/openhab/openhabian/actions/workflows/bats-action.yml/badge.svg)](https://github.com/openhab/openhabian/actions/workflows/bats-action.yml)
+[![Installation](https://github.com/openhab/openhabian/actions/workflows/installation-action.yml/badge.svg)](https://github.com/openhab/openhabian/actions/workflows/installation-action.yml)
+[![Build](https://github.com/openhab/openhabian/actions/workflows/build-action.yml/badge.svg)](https://github.com/openhab/openhabian/actions/workflows/build-action.yml)
 
 <img align="right" width="220" src="./docs/images/logo.svg" />
 
@@ -22,7 +22,7 @@ openHABian is here to provide a **self-configuring** Linux system setup to meet 
 
 ### A note on dedication and commitment
 We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
-Everybody wants his home automation to be stable and most people install a *dedicated* RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation.
+Everybody wants their home automation to be stable and most people install a *dedicated* RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation.
 Reasonably so, this is our clear recommendation.
 Saving another 50 bucks is not worth putting the reliable day-to-day operations of your home at risk.
 
