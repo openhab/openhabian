@@ -26,7 +26,7 @@ configure_wifi() {
 
   echo -n "$(timestamp) [openHABian] Beginning WiFi configuration... "
 
-  if ! is_pizerow && ! is_pithree && ! is_pithreeplus && ! is_pifour; then
+  if ! is_pi_wlan; then
     if (whiptail --title "No WiFi hardware detected" --yesno "$questionText" 10 80); then echo "OK"; else echo "CANCELED"; return 0; fi
   else
     echo "OK"
@@ -42,7 +42,7 @@ configure_wifi() {
       fi
     fi
 
-    if is_pifour || is_pithree || is_pithreeplus || is_pizerow; then
+    if is_pi_wlan; then
       if ! dpkg -s 'firmware-brcm80211' &> /dev/null; then
         echo -n "$(timestamp) [openHABian] Installing WiFi firmware... "
         if cond_redirect apt-get install --yes firmware-brcm80211; then echo "OK"; else echo "FAILED"; return 1; fi
