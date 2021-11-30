@@ -33,7 +33,7 @@ timestamp() { date +"%F_%T_%Z"; }
 # Make sure only root can run our script
 echo -n "$(timestamp) [openHABian] Checking for root privileges... "
 if [[ $EUID -ne 0 ]]; then
-  echo ""
+  echo
   echo "This script must be run as root. Did you mean 'sudo openhabian-config'?" 1>&2
   echo "More info: https://www.openhab.org/docs/installation/openhabian.html"
   exit 1

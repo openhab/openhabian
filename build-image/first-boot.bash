@@ -169,7 +169,7 @@ if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --sile
   fi
   echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
   echo "                          We have launched a publicly accessible hotspot named $(grep ap_name: /etc/comitup.conf | cut -d' ' -f2)."
-  echo "                          Use your mobile to connect and go to http://raspberrypi.local or http://10.41.0.1/"
+  echo "                          Use a device to connect and go to http://raspberrypi.local or http://10.41.0.1/"
   echo "                          and select the WiFi network you want to connect your openHABian system to."
   echo "                          After about an hour, we will continue trying to get your system installed,"
   echo "                          but without proper Internet connectivity this is not guaranteed to work."
