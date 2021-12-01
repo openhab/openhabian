@@ -135,7 +135,7 @@ zram_setup() {
     return 1
   fi
   if is_arm; then
-    if ! has_lowmem && ! is_pione && ! is_cmone && ! is_pizero && ! is_pizerow; then
+    if ! has_lowmem && ! is_pione && ! is_cmone && ! is_pizero && ! is_pizerow && ! is_pizerow2; then
       echo -n "$(timestamp) [openHABian] Installing zram... "
       if cond_redirect init_zram_mounts "install"; then echo "OK"; else echo "FAILED"; return 1; fi
     else

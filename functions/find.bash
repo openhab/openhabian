@@ -172,7 +172,7 @@ go_setup() {
 ##    setup_monitor_mode()
 ##
 setup_monitor_mode() {
-  if ! is_pizerow && ! is_pithree && ! is_pithreeplus && ! is_pifour; then
+  if ! is_pi_wlan; then
     echo "$(timestamp) [openHABian] Incompatible hardware detected! Canceling Monitor Mode setup!"
     return 0
   fi

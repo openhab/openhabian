@@ -57,7 +57,7 @@ needed_packages() {
     avahi-autoipd fontconfig; \
   then echo "OK"; else echo "FAILED"; return 1; fi
 
-  if is_pizerow || is_pithree || is_pithreeplus || is_pifour && [[ -z $PREOFFLINE ]]; then
+  if is_pi_wlan && [[ -z $PREOFFLINE ]]; then
     echo -n "$(timestamp) [openHABian] Installing python3 serial package... "
     if cond_redirect apt-get install --yes python3-smbus python3-serial; then echo "OK"; else echo "FAILED"; return 1; fi
     echo -n "$(timestamp) [openHABian] Installing pigpio package... "
