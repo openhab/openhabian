@@ -218,6 +218,10 @@ is_pi_wlan() {
   if is_pifour || is_pi400 || is_pithreeplus || is_pithree || is_pizerow || is_pizerow2; then return 0; fi
   return 1
 }
+is_pi_bt() {
+  if is_pifour || is_pi400 || is_pithreeplus || is_pithree || is_pizerow || is_pizerow2; then return 0; fi
+  return 1
+}
 is_cm() {
   if is_cmone || is_cmthree || is_cmthreeplus || is_cmfour; then return 0; fi
   return 1

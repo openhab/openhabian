@@ -393,7 +393,7 @@ knxd_setup() {
 ##    miflora_setup()
 ##
 miflora_setup() {
-  if ! is_pi_wlan; then
+  if ! is_pi_bt; then
     echo "$(timestamp) [openHABian] Beginning setup of miflora-mqtt-daemon... SKIPPED (no Bluetooth support)"
     return 0
   fi
