@@ -183,11 +183,11 @@ show_main_menu() {
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 17 116 10 --cancel-button Back --ok-button Execute \
-    "41 | openHAB Stable"         "Install or switch to the latest openHAB Stable Release" \
+    "41 | openHAB Release"        "Install or switch to the latest openHAB Release" \
     "   | openHAB Milestone"      "Install or switch to the latest openHAB Milestone Build" \
     "   | openHAB Snapshot"       "Install or switch to the latest openHAB Snapshot Build" \
     "42 | Upgrade to openHAB 3"   "Upgrade OS environment to openHAB 3 release" \
-    "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 stable (DANGEROUS)" \
+    "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 (DANGEROUS)" \
     "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
     "44 | Nginx Proxy"            "Setup reverse and forward web proxy" \
     "45 | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider" \
