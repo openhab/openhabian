@@ -86,10 +86,11 @@ inject_build_repo() {
     echo_process "inject_build_repo() invoked without cloneString variable set, exiting...."
     exit 1
   fi
-  sed -i '$a /usr/bin/apt-get install --yes figlet &>/dev/null' "$1"
-  sed -i '$a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' "$1"
-  sed -i '$a chmod +rx /etc/update-motd.d/04-test-build-text' "$1"
-  sed -i '$a echo "$(timestamp) [openHABian] Warning! This is a test build."' "$1"
+
+  sed -i '/if (openhabian-config unattended); then/a echo "$(timestamp) [openHABian] Warning! This is a test build."' "$1"
+  sed -i '/if (openhabian-config unattended); then/a chmod +rx /etc/update-motd.d/04-test-build-text' "$1"
+  sed -i '/if (openhabian-config unattended); then/a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' "$1"
+  sed -i '/if (openhabian-config unattended); then/a apt-get install --yes figlet &> /dev/null' "$1"
   sed -i 's|^clonebranch=.*$|clonebranch='"${clonebranch:-openHAB3}"'|g' "/etc/openhabian.conf"
   sed -i 's|^repositoryurl=.*$|repositoryurl='"${repositoryurl:-https://github.com/openhab/openhabian.git}"'|g' "/etc/openhabian.conf"
 }
