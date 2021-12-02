@@ -56,8 +56,8 @@ NAS servers such as QNAP and Synology boxes will not work.
 Support for PINEA64 was dropped in this current release.
 
 We strongly recommend that users choose Raspberry Pi 2, 3 or 4 systems to have 1 GB of RAM or more.
-RPi 1 and 0/0W only have a single CPU core and 512 MB.
-This can be sufficient to run a smallish openHAB setup, but it will not be enough to run a full-blown system with many bindings and memory consuming openHABian features/components such as zram, InfluxDB or Grafana.
+All RPi 0 and 1 only have 512 MB. This can be sufficient to run a smallish openHAB setup, but it will not be enough to run a full-blown system with many bindings and memory consuming openHABian features/components such as zram, InfluxDB or Grafana.
+And all but the 0W2 have a single and lame CPU core only, turning their use into an ordeal.
 We do not actively prohibit installation on any hardware, including unsupported systems, but we might skip or deny to install specific extensions such as those memory hungry applications named above.
 
 Supporting hardware means testing every single patch and every release.
