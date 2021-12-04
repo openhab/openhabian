@@ -352,7 +352,7 @@ java_zulu_enterprise_apt() {
   fi
   if ! dpkg -s 'zulu-'"${1}" &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing Zulu ${1} Enterprise 64-Bit OpenJDK... "
-    if cond_redirect apt-get install --yes "zulu-${1}"; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes "zulu${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if openhab_is_installed; then
     cond_redirect systemctl restart openhab.service
