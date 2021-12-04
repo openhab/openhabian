@@ -83,8 +83,8 @@ Be aware that it isn't the [answer to the ultimate question](https://en.wikipedi
 Take an openHAB config backup BEFORE you upgrade from openHAB v2 to v3. You should also take a system level backup!
 :::
 
-Menu option 42 can also do the downgrade and change the _environment_ back to match openHAB 2 **BUT** it'll ONLY exchange the binary packages.
-There is no migration to change your configuration back to a openHAB 2 compatible one.
+Menu option 42 can also do the downgrade and change the _environment_ back to match openHAB 2 but ATTENTION it'll only exchange the OS setup and the openHAB packages.
+It will NOT migrate your configuration back to a openHAB 2 compatible one. There is no software that can do this for you.
 So it is essential that you take a backup before you upgrade.
 You will have to restore your setup from that backup after a downgrade using menu option 51 or by manually using `openhab-cli restore <archive file>`.
 Note option 42 will also not downgrade Java.
