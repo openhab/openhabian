@@ -172,7 +172,7 @@ jobs:
   #          push: true
   #      - name: openHABian installation test with 32bit Azul Java 17 on a virtual RPi3
   #        run: |
-  #          docker run --name "openhabian-rpi3" -d localhost:5000/openhabian/rpi3-openhabian
+  #          docker run --privileged --rm --name "openhabian-rpi3" -d localhost:5000/openhabian/rpi3-openhabian
   #          docker exec -i "openhabian-rpi3" bash -c './build.bash local-test && /boot/first-boot.bash'
   #        shell: bash
   rpi3-zulu17-64:
@@ -209,7 +209,7 @@ jobs:
            push: true
        - name: openHABian installation test with 64bit Azul Java 17 on a virtual RPi3
          run: |
-           docker run --name "openhabian-rpi3-64" -d localhost:5000/openhabian/rpi3-64-openhabian
+           docker run --privileged --rm --name "openhabian-rpi3-64" -d localhost:5000/openhabian/rpi3-64-openhabian
            docker exec -i "openhabian-rpi3-64" bash -c './build.bash local-test && /boot/first-boot.bash'
          shell: bash
   rpi2-adopt11:
