@@ -225,30 +225,30 @@ java_zulu_fetch() {
   if [[ $1 == "Zulu11-32" ]]; then
     echo -n "$(timestamp) [openHABian] Downloading Java Zulu 11 32-Bit OpenJDK... "
     if is_arm; then
-      downloadLink="$(curl "${link}&jdk_version=11&arch=arm&hw_bitness=32&abi=hard_float" -s -L -I -o /dev/null -w '%{url_effective}')"
+      downloadLink="$(curl "${link}&java_version=11&arch=arm&hw_bitness=32&abi=hard_float" -s -L -I -o /dev/null -w '%{url_effective}')"
     else
-      downloadLink="$(curl "${link}&jdk_version=11&arch=x86&hw_bitness=32&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
+      downloadLink="$(curl "${link}&java_version=11&arch=x86&hw_bitness=32&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
     fi
   elif [[ $1 == "Zulu17-32" ]]; then
     echo -n "$(timestamp) [openHABian] Downloading Java Zulu 17 32-Bit OpenJDK... "
     if is_arm; then
-      downloadLink="$(curl "${link}&jdk_version=17&arch=arm&hw_bitness=32&abi=hard_float" -s -L -I -o /dev/null -w '%{url_effective}')"
+      downloadLink="$(curl "${link}&java_version=17&arch=arm&hw_bitness=32&abi=hard_float" -s -L -I -o /dev/null -w '%{url_effective}')"
     else
-      downloadLink="$(curl "${link}&jdk_version=17&arch=x86&hw_bitness=32&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
+      downloadLink="$(curl "${link}&java_version=17&arch=x86&hw_bitness=32&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
     fi
   elif [[ $1 == "Zulu11-64" ]]; then
     echo -n "$(timestamp) [openHABian] Downloading Java Zulu 11 64-Bit OpenJDK... "
     if is_arm; then
-      downloadLink="$(curl "${link}&jdk_version=11&arch=arm&hw_bitness=64" -s -L -I -o /dev/null -w '%{url_effective}')"
+      downloadLink="$(curl "${link}&java_version=11&arch=arm&hw_bitness=64" -s -L -I -o /dev/null -w '%{url_effective}')"
     else
-      downloadLink="$(curl "${link}&jdk_version=11&arch=x86&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
+      downloadLink="$(curl "${link}&java_version=11&arch=x86&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
     fi
   elif [[ $1 == "Zulu17-64" ]]; then
     echo -n "$(timestamp) [openHABian] Downloading Java Zulu 17 64-Bit OpenJDK... "
     if is_arm; then
-      downloadLink="$(curl "${link}&jdk_version=17&arch=arm&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
+      downloadLink="$(curl "${link}&java_version=17&arch=arm&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
     else
-      downloadLink="$(curl "${link}&jdk_version=17&arch=x86&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
+      downloadLink="$(curl "${link}&java_version=17&arch=x86&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
     fi
   fi
   if [[ -z $downloadLink ]]; then echo "FAILED (download link)"; return 1; fi
@@ -282,42 +282,42 @@ java_zulu_update_available() {
     if cond_redirect apt-get install --yes jq; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  filter='[.jdk_version[] | tostring] | join(".")'
+  filter='[.java_version[] | tostring] | join(".")'
   jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
-  javaVersion="$("${jdkBin}"/java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1 | sed 's|+|.|g')"
+  javaVersion="$("${jdkBin}"/java --version | grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1 | sed 's|+|.|g')"
   link="https://api.azul.com/zulu/download/community/v1.0/bundles/latest/?os=linux&ext=tar.gz&javafx=false"
 
   if [[ $1 == "Zulu11-32" ]]; then
     if is_arm; then
       requestedArch="aarch32hf"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&java_version=11&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter")"
     else
       requestedArch="i686"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&java_version=11&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter")"
     fi
   elif [[ $1 == "Zulu17-32" ]]; then
     if is_arm; then
       requestedArch="aarch32hf"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=17&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&java_version=17&arch=arm&hw_bitness=32&abi=hard_float" | jq -r "$filter")"
     else
       requestedArch="i686"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=17&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&java_version=17&arch=x86&hw_bitness=32&bundle_type=jre" | jq -r "$filter")"
     fi
   elif [[ $1 == "Zulu11-64" ]]; then
     if is_arm; then
       requestedArch="aarch64"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=arm&hw_bitness=64" | jq -r "$filter")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&java_version=11&arch=arm&hw_bitness=64" | jq -r "$filter")"
     else
       requestedArch="x64"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&java_version=11&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter")"
     fi
   elif [[ $1 == "Zulu17-64" ]]; then
     if is_arm; then
       requestedArch="aarch64"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=17&arch=arm&hw_bitness=64" | jq -r "$filter")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&java_version=17&arch=arm&hw_bitness=64" | jq -r "$filter")"
     else
       requestedArch="x64"
-      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=17&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter")"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&java_version=17&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter")"
     fi
   fi
   if [[ -z $requestedArch ]] || [[ -z $availableVersion ]]; then echo "FAILED (java update available)"; return 1; fi
