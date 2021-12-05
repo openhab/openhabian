@@ -12,7 +12,7 @@ This document is meant to give a guiding hand to users when their openHABian ins
 Set `debugmode=maximum`in `/etc/openhabian.conf` and see `/boot/first-boot.log` for image installation else record the terminal output.
 :::
 
-**Do not ask for help on the forum unless you have _FULLY_ read this guide.**
+**Please do not ask for help on the forum unless you have _FULLY_ read this guide.**
 
 **Attention:**
 If you do not use the image but use `openhabian-config` manually - either to run `openhabian-config unattended` or interactive use -, **there is no logfile**.
@@ -25,9 +25,9 @@ Keep in mind that parts of the following information such as for example Wi-Fi a
 ## Prerequisites
 First, please make sure you use the proper host hardware that is supported as per [README](https://github.com/openhab/openhabian/blob/main/README.md).
 
-openHABian requires a minimum of 1GB of RAM to run well. While you can get away with a 512MB box like a RPi0W, you must not run anything other than openHAB itself, in particular do **not** run memory hogs such as InfluxDB or Grafana.
+openHABian requires a minimum of 1GB of RAM to run well. While you can get away with 512MB when your box has enough CPU power like a RPi0W2, you must not run anything other than openHAB itself, in particular do **not** run memory hogs such as InfluxDB or Grafana.
 
-openHABian requires you to provide direct Internet access.
+openHABian requires you to provide direct Internet access for the duration of the installation.
 Using private IP addresses is fine as long as your router properly provides NAT (Network Address Translation) services.
 Either Ethernet or WiFi is supported at install time. WiFi requires either user configuration prior to the first boot of openHABian or to use the [hotspot](openhabian.md#wi-fi-hotspot) which will be launched whenever there's no Internet connectivity.
 To configure WiFi, edit the `wifi_password=`, `wifi_ssid=` and `wifi_country=`fields in the `boot/openhabian.conf` file on your new SD card.
