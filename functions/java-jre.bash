@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## Install Java version from default repo
-## Valid arguments: "11"
+## Valid arguments: "11", "17"
 ##
 ## java_install(String version)
 ##
@@ -10,7 +10,7 @@ java_install() {
     cond_redirect systemctl stop openhab.service
   fi
 
-  if java_zulu_dir; then
+  if [[ -d /opt/jdk ]]; then
     java_alternatives_reset
     rm -rf /opt/jdk
   fi
@@ -46,7 +46,7 @@ openjdk_fetch_apt() {
 ##
 openjdk_install_apt() {
   if ! dpkg -s "openjdk-${1}-jre-headless" &> /dev/null; then # Check if already is installed
-    adoptopenjdk_fetch_apt "$1"
+    openjdk_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing OpenJDK ${1}... "
     cond_redirect java_alternatives_reset
     if cond_redirect apt-get install --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -68,17 +68,4 @@ java_alternatives_reset() {
 
   # shellcheck disable=SC2016
   cond_redirect find "$jdkBin" -maxdepth 1 -perm -111 -type f -exec bash -c 'update-alternatives --quiet --remove-all $(basename {})' \;
-}
-
-## Check if Java Zulu is already in the filesystem
-##
-##    java_zulu_dir()
-##
-java_zulu_dir() {
-  local dir
-
-  for dir in /opt/jdk/*; do
-    if [[ -d $dir ]]; then return 0; fi
-  done
-  return 1
 }
