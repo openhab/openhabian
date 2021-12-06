@@ -537,7 +537,7 @@ setup_mirror_SD() {
   else
     if [[ "$destSize" -ge "$minStorageSize" ]]; then
       # create 3rd partition and filesystem on dest
-      start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f7)"
+      start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f5)"
       ((destSize-=start))
       (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk --force "$dest"
       partprobe
