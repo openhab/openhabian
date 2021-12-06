@@ -539,7 +539,10 @@ setup_mirror_SD() {
       # create 3rd partition and filesystem on dest
       start="$(fdisk -l /dev/mmcblk0 | head -1 | cut -d' ' -f5)"
       ((destSize-=start))
-      (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSize}, type=83") | sfdisk --force "$dest"
+      ((start/=512))
+      destSizeSector=$destSize
+      ((destSizeSector/=512))
+      (sfdisk -d /dev/mmcblk0; echo "/dev/mmcblk0p3 : start=${start},size=${destSizeSector}, type=83") | sfdisk --force "$dest"
       partprobe
       cond_redirect mke2fs -F -t ext4 "${dest}3"
       if ! sed -e "s|%DEVICE|${dest}3|g" -e "s|%STORAGE|${storageDir}|g" "${sdIncludesDir}/storage.mount-template" > "${serviceTargetDir}/${mountUnit}"; then echo "FAILED (create storage mount)"; fi
