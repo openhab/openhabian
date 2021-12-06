@@ -6,13 +6,13 @@ on:
     paths:
       - '**.bash'
       - '**.sh'
-      - '!test.bash'
+      - '!tests/test.bash'
       - '.github/workflows/shellcheck-action.yml'
   pull_request:
     paths:
       - '**.bash'
       - '**.sh'
-      - '!test.bash'
+      - '!tests/test.bash'
       - '.github/workflows/shellcheck-action.yml'
 
 jobs:

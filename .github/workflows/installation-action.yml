@@ -10,9 +10,8 @@ on:
       - '**.css'
       - '**.bats'
       - 'docs/**'
-      - '.github/workflows/bats-action.yml'
-      - '.github/workflows/build-action.yml'
-      - '.github/workflows/shellcheck-action.yml'
+      - '.github/workflows/**'
+      - '!.github/workflows/installation-action.yml'
   pull_request:
     paths-ignore:
       - 'tests/Dockerfile.*-BATS'
@@ -22,9 +21,8 @@ on:
       - '**.css'
       - '**.bats'
       - 'docs/**'
-      - '.github/workflows/bats-action.yml'
-      - '.github/workflows/build-action.yml'
-      - '.github/workflows/shellcheck-action.yml'
+      - '.github/workflows/**'
+      - '!.github/workflows/installation-action.yml'
 
 jobs:
   amd64-zulu11-64:
