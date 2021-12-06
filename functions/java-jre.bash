@@ -7,6 +7,9 @@
 ##    java_install_or_update(String type)
 ##
 java_install_or_update() {
+  echo -n "$(timestamp) [openHABian] Installing Java... "
+  if cond_redirect apt-get install --yes openjdk-11-jre-headless; then echo "OK"; else echo "FAILED"; return 1; fi
+  return 0
   local branch
 
   branch="$(git -C "${BASEDIR:-/opt/openhabian}" rev-parse --abbrev-ref HEAD)"
@@ -64,13 +67,13 @@ java_install_or_update() {
           whiptail --title "Incompatible hardware detected" --msgbox "Zulu OpenJDK 64-bit: this option does not currently work on your platform.\\n\\nDefaulting to Java Zulu 11 32-bit installation." 9 80
         else
           echo "$(timestamp) [openHABian] Zulu OpenJDK 64-bit: this option does not currently work on your platform. Defaulting to Java Zulu 11 32-bit installation."
-          if cond_redirect java_zulu_update_available "Zulu17-32"; then
-            java_zulu_prerequisite "Zulu17-32"
+          if cond_redirect java_zulu_update_available "Zulu11-32"; then
+            java_zulu_prerequisite "Zulu11-32"
             if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
-              java_zulu_stable "Zulu17-32"
+              java_zulu_stable "Zulu11-32"
             else
-              java_zulu_fetch "Zulu17-32"
-              java_zulu_install "Zulu17-32"
+              java_zulu_fetch "Zulu11-32"
+              java_zulu_install "Zulu11-32"
             fi
           fi
         fi
