@@ -104,7 +104,7 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   add_admin_ssh_key
   firemotd_setup
-  java_install "$java_opt"
+  java_install "${java_opt:-11}"
   openhab_setup "${clonebranch:-openHAB3}" "stable"
   import_openhab_config
   openhab_shell_interfaces
