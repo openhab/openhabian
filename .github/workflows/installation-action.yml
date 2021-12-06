@@ -4,6 +4,8 @@ on:
   push:
     paths-ignore:
       - 'tests/Dockerfile.*-BATS'
+      - 'build.bash'
+      - 'build-image/offline-install-modifications.bash'
       - '**.md'
       - '**.txt'
       - '**.html'
@@ -15,6 +17,8 @@ on:
   pull_request:
     paths-ignore:
       - 'tests/Dockerfile.*-BATS'
+      - 'build.bash'
+      - 'build-image/offline-install-modifications.bash'
       - '**.md'
       - '**.txt'
       - '**.html'
