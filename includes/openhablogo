@@ -3,7 +3,7 @@
 \e[91m / _ \ / _ \ / _ \ / _ \ \e[97m| |_| |  / _ \  |  _ \ | | / _  \ / _ \ \e[0m
 \e[91m| (_) | (_) |  __/| | | |\e[97m|  _  | / ___ \ | |_) )| || (_) || | | |\e[0m
 \e[91m \___/|  __/ \___/|_| |_|\e[97m|_| |_|/_/   \_\|____/ |_| \__|_||_| | |\e[0m
-\e[91m      |_|                          \e[0m$OHVERSION - $OHBUILD          \e[0m
+\e[91m      |_|                  \e[0mopenHAB $OHVERSION - $OHBUILD          \e[0m
 
 Looking for a place to get started? Check out 'sudo openhabian-config' and the
 documentation at \e[94;04mhttps://www.openhab.org/docs/installation/openhabian.html\e[36;49;00m
