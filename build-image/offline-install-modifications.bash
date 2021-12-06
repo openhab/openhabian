@@ -25,7 +25,8 @@ apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \
   libxcb-shm0 libxrender1 modemmanager network-manager python3-blinker \
   python3-cairo python3-click python3-colorama python3-flask \
   python3-itsdangerous python3-jinja2 python3-markupsafe \
-  python3-networkmanager python3-pyinotify python3-simplejson python3-werkzeug
+  python3-networkmanager python3-pyinotify python3-simplejson python3-werkzeug \
+  openjdk-11-jre-headless
 source /opt/openhabian/functions/nodejs-apps.bash
 nodejs_setup
 apt-get --quiet autoremove --yes

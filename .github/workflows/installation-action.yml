@@ -25,7 +25,7 @@ on:
       - '!.github/workflows/installation-action.yml'
 
 jobs:
-  amd64-zulu11-64:
+  amd64-openjdk11:
     runs-on: ubuntu-latest
     services:
       registry:
@@ -39,7 +39,6 @@ jobs:
        - name: Setup environment
          run: |
            sudo -E ./tests/ci-setup.bash github
-           sed -i 's|^java_opt=.*$|java_opt=Zulu11-64|' build-image/openhabian.conf
        - name: Set up Docker Buildx
          id: buildx
          uses: docker/setup-buildx-action@v1.6.0
@@ -55,12 +54,12 @@ jobs:
            cache-from: type=gha
            cache-to: type=gha,mode=max
            push: true
-       - name: openHABian installation test with 64 bit Azul Java 11 on a native amd64
+       - name: openHABian installation test with OpenJDK 11 on native amd64
          run: |
            docker run --privileged --rm --name "openhabian-amd64" -d localhost:5000/openhabian/amd64-openhabian
            docker exec -i "openhabian-amd64" bash -c './build.bash local-test && /boot/first-boot.bash'
          shell: bash
-  rpi3-zulu11-32:
+  rpi3-openjdk11:
     runs-on: ubuntu-latest
     services:
       registry:
@@ -74,7 +73,6 @@ jobs:
        - name: Setup environment
          run: |
            sudo -E ./tests/ci-setup.bash github
-           sed -i 's|^java_opt=.*$|java_opt=Zulu11-32|' build-image/openhabian.conf
        - name: Set up QEMU
          uses: docker/setup-qemu-action@v1.2.0
          with:
@@ -94,12 +92,12 @@ jobs:
            cache-from: type=gha
            cache-to: type=gha,mode=max
            push: true
-       - name: openHABian installation test with 32bit Azul Java 11 on a virtual RPi3
+       - name: openHABian installation test with openJDK 11 on a virtual RPi3
          run: |
            docker run --privileged --rm --name "openhabian-rpi3" -d localhost:5000/openhabian/rpi3-openhabian
            docker exec -i "openhabian-rpi3" bash -c './build.bash local-test && /boot/first-boot.bash'
          shell: bash
-  rpi3-zulu11-64:
+  rpi3-64-openjdk11:
     runs-on: ubuntu-latest
     services:
       registry:
@@ -113,7 +111,6 @@ jobs:
        - name: Setup environment
          run: |
            sudo -E ./tests/ci-setup.bash github
-           sed -i 's|^java_opt=.*$|java_opt=Zulu11-64|' build-image/openhabian.conf
        - name: Set up QEMU
          uses: docker/setup-qemu-action@v1.2.0
          with:
@@ -133,121 +130,8 @@ jobs:
            cache-from: type=gha
            cache-to: type=gha,mode=max
            push: true
-       - name: openHABian installation test with 64bit Azul Java 11 on a virtual RPi3
+       - name: openHABian installation test with OpenJDK 11 on a virtual RPi3-64
          run: |
            docker run --privileged --rm --name "openhabian-rpi3-64" -d localhost:5000/openhabian/rpi3-64-openhabian
            docker exec -i "openhabian-rpi3-64" bash -c './build.bash local-test && /boot/first-boot.bash'
-         shell: bash
-  # rpi3-zulu17-32:
-  #   runs-on: ubuntu-latest
-  #   services:
-  #     registry:
-  #       image: registry:2
-  #       ports:
-  #         - 5000:5000
-  #
-  #   steps:
-  #      - name: Checkout repository
-  #        uses: actions/checkout@v2.3.4
-  #      - name: Setup environment
-  #        run: |
-  #          sudo -E ./tests/ci-setup.bash github
-  #          sed -i 's|^java_opt=.*$|java_opt=Zulu17-32|' build-image/openhabian.conf
-  #      - name: Set up QEMU
-  #        uses: docker/setup-qemu-action@v1.2.0
-  #        with:
-  #          platforms: arm
-  #      - name: Set up Docker Buildx
-  #        id: buildx
-  #        uses: docker/setup-buildx-action@v1.6.0
-  #        with:
-  #          driver-opts: network=host
-  #      - name: Build Docker image
-  #        uses: docker/build-push-action@v2.7.0
-  #        with:
-  #          context: .
-  #          file: ./tests/Dockerfile.rpi3-installation
-  #          builder: ${{ steps.buildx.outputs.name }}
-  #          tags: localhost:5000/openhabian/rpi3-openhabian:latest
-  #          push: true
-  #      - name: openHABian installation test with 32bit Azul Java 17 on a virtual RPi3
-  #        run: |
-  #          docker run --privileged --rm --name "openhabian-rpi3" -d localhost:5000/openhabian/rpi3-openhabian
-  #          docker exec -i "openhabian-rpi3" bash -c './build.bash local-test && /boot/first-boot.bash'
-  #        shell: bash
-  rpi3-zulu17-64:
-    runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-
-    steps:
-       - name: Checkout repository
-         uses: actions/checkout@v2.3.4
-       - name: Setup environment
-         run: |
-           sudo -E ./tests/ci-setup.bash github
-           sed -i 's|^java_opt=.*$|java_opt=Zulu17-64|' build-image/openhabian.conf
-       - name: Set up QEMU
-         uses: docker/setup-qemu-action@v1.2.0
-         with:
-           platforms: arm64
-       - name: Set up Docker Buildx
-         id: buildx
-         uses: docker/setup-buildx-action@v1.6.0
-         with:
-           driver-opts: network=host
-       - name: Build Docker image
-         uses: docker/build-push-action@v2.7.0
-         with:
-           context: .
-           file: ./tests/Dockerfile.rpi3-64-installation
-           builder: ${{ steps.buildx.outputs.name }}
-           tags: localhost:5000/openhabian/rpi3-64-openhabian:latest
-           push: true
-       - name: openHABian installation test with 64bit Azul Java 17 on a virtual RPi3
-         run: |
-           docker run --privileged --rm --name "openhabian-rpi3-64" -d localhost:5000/openhabian/rpi3-64-openhabian
-           docker exec -i "openhabian-rpi3-64" bash -c './build.bash local-test && /boot/first-boot.bash'
-         shell: bash
-  rpi2-adopt11:
-    runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-
-    steps:
-       - name: Checkout repository
-         uses: actions/checkout@v2.4.0
-       - name: Setup environment
-         run: |
-           sudo -E ./tests/ci-setup.bash github
-           sed -i 's|^java_opt=.*$|java_opt=Adopt11|' build-image/openhabian.conf
-       - name: Set up QEMU
-         uses: docker/setup-qemu-action@v1.2.0
-         with:
-           platforms: arm
-       - name: Set up Docker Buildx
-         id: buildx
-         uses: docker/setup-buildx-action@v1.6.0
-         with:
-           driver-opts: network=host
-       - name: Build Docker image
-         uses: docker/build-push-action@v2.7.0
-         with:
-           context: .
-           file: ./tests/Dockerfile.rpi2-installation
-           builder: ${{ steps.buildx.outputs.name }}
-           tags: localhost:5000/openhabian/rpi2-openhabian:latest
-           cache-from: type=gha
-           cache-to: type=gha,mode=max
-           push: true
-       - name: openHABian installation test with AdoptOpenJDK Java 11 on a virtual RPi2
-         run: |
-           docker run --privileged --rm --name "openhabian-rpi2" -d localhost:5000/openhabian/rpi2-openhabian
-           docker exec -i "openhabian-rpi2" bash -c './build.bash local-test && /boot/first-boot.bash'
          shell: bash

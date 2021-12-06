@@ -190,10 +190,7 @@ show_main_menu() {
     "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 (DANGEROUS)" \
     "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
     "44 | Nginx Proxy"            "Setup reverse and forward web proxy" \
-    "45 | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as primary Java provider" \
-    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as primary Java provider" \
-    "   | Zulu 17 OpenJDK 64-bit" "Install Zulu 17 64-bit OpenJDK as primary Java provider" \
-    "   | AdoptOpenJDK 11"        "Install AdoptOpenJDK 11 as primary Java provider" \
+    "45 | OpenJDK 11"             "Install OpenJDK 11 as Java provider" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -207,10 +204,7 @@ show_main_menu() {
       *Downgrade\ to\ openHAB\ 2) migrate_installation "openHAB2" && openhabian_update "stable";;
       43\ *) openhab_shell_interfaces;;
       44\ *) nginx_setup;;
-      *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
-      *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
-      *Zulu\ 17\ OpenJDK\ 64-bit) update_config_java "Zulu17-64" && java_install_or_update "Zulu17-64";;
-      *AdoptOpenJDK\ 11) update_config_java "Adopt11" && java_install_or_update "Adopt11";;
+      *OpenJDK\ 11) java_install "11";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
