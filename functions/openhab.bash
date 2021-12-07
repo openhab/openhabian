@@ -89,7 +89,7 @@ openhab_setup() {
     if ! add_keys https://openhab.jfrog.io/artifactory/api/gpg/key/public; then return 1; fi
 
     rm -f /etc/apt/sources.list.d/${ohPkgName}*.list
-    echo "$repo" > /etc/apt/sources.list.d/${ohPkgName}.list
+    echo "$repo" > /etc/apt/sources.list.d/openhab.list
 
     echo -n "$(timestamp) [openHABian] Installing selected openHAB version... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
