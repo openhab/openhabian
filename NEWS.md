@@ -2,6 +2,16 @@ Hit tab to unselect buttons and scroll through the text using UP/DOWN or
 PGUP/PGDN. All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md`
 for you to lookup.
 
+## Major Java provider switch ## December 11, 2021
+We have switched to supporting only the OpenJDK package provided by default from
+the APT repo for all new installations of openHABian. Existing installations
+will be unaffected, however you will no longer receive updates to your current
+Java install until you install Java from the new provider which you can do by
+running menu option 45.
+
+Experimental support for Java 17 has also been added along with this change. In
+the future once Adoptium (formerly AdoptOpenJDK) releases a Debian based package
+repository support for Adoptium Java installs will be added as well.
 
 ## Node-RED and openHAB 3 ## December 10, 2021
 We have updated the package of the Node-RED addon for openHAB 3 to
@@ -33,8 +43,3 @@ Noteworthy changes since last image release:
 
 Known bugs:
   * Homegear is currently broken on Bullseye (complain to their devs)
-
-## Update zram-config ## November 7, 2021
-The ability to update zram-config without having to uninstall and reinstall has
-been added. Use menu option 38 and select "Update zram" to update your existing
-installation without losing any configuration settings.
