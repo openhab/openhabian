@@ -101,7 +101,7 @@ openhab_setup() {
     echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "
     if cond_redirect apt-get install --yes --option Dpkg::Options::="--force-confnew" ${ohPkgName} ${ohPkgName}-addons; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  rm -f /etc/apt/sources.list.d/openhab2.list
+  rm -f /etc/apt/sources.list.d/openhab2.list     # to avoid conflict with repo file from pkg
 
   # shellcheck disable=SC2154
   gid="$(id -g "$username")"
