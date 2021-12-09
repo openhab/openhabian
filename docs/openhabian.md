@@ -71,10 +71,10 @@ If you need openHAB 2 support please use the `stable` branch of openHABian.
 You can switch branches using menu option 01 in `openhabian-config` but ATTENTION you cannot up- or downgrade this way and you cannot arbitrarily change versions.
 There's a high risk you mess up your system if you do.
 
-### deploy openHAB 2
+### Deploy openHAB 2
 The image will install openHAB 3 by default, to have it install openHAB 2 right from the beginning, set` clonebranch=stable` in `openhabian.conf` before first boot.
 
-## upgrading openHAB 2 to openHAB 3
+## Upgrading openHAB 2 to openHAB 3
 For openHABian users running openHAB 2.X, `openhabian-config` offers to migrate the openHABian environment and install openHAB3 for you.
 Menu option 42 will do the upgrade.
 Be aware that it isn't the [answer to the ultimate question](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#The_Answer_to_the_Ultimate_Question_of_Life,_the_Universe,_and_Everything_is_42): there is ONLY an openHAB upgrade path, you cannot downgrade from openHAB 3 to openHAB 2.
