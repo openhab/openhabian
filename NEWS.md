@@ -2,6 +2,15 @@ Hit tab to unselect buttons and scroll through the text using UP/DOWN or
 PGUP/PGDN. All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md`
 for you to lookup.
 
+
+## Node-RED and openHAB 3 ## December 10, 2021
+We have updated the package of the Node-RED addon for openHAB 3 to
+`node-red-contrib-openhab3` to better support openHAB 3 installations which use
+this addon.
+
+You can install it today using `openhabian-config` menu option 25, which will
+install / upgrade all necessary components for Node-RED operation.
+
 ## openHABian 1.7 ## December 1, 2021
 We have upgraded our base operating system to Raspberry Pi OS Bullseye.
 
@@ -29,9 +38,3 @@ Known bugs:
 The ability to update zram-config without having to uninstall and reinstall has
 been added. Use menu option 38 and select "Update zram" to update your existing
 installation without losing any configuration settings.
-
-## Forward web proxy ## September 28, 2021
-Installing nginx (menu option 44) will now provide a *forward* proxy on port
-8888 in addition to the reverse proxy setup it has been providing.
-Configure this as a manual proxy in your browser to access devices in remote
-(VPN) locations by their IP.

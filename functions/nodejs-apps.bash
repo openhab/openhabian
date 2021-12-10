@@ -191,8 +191,8 @@ nodered_setup() {
   echo -n "$(timestamp) [openHABian] Installing Node-RED addons... "
   if ! cond_redirect npm install -g node-red-contrib-bigtimer; then echo "FAILED (install bigtimer addon)"; return 1; fi
   if ! cond_redirect npm update -g node-red-contrib-bigtimer; then echo "FAILED (update bigtimer addon)"; return 1; fi
-  if ! cond_redirect npm install -g node-red-contrib-openhab2; then echo "FAILED (install openhab2 addon)"; return 1; fi
-  if cond_redirect npm update -g node-red-contrib-openhab2; then echo "OK"; else echo "FAILED (update openhab2 addon)"; return 1; fi
+  if ! cond_redirect npm install -g node-red-contrib-openhab3; then echo "FAILED (install openhab3 addon)"; return 1; fi
+  if cond_redirect npm update -g node-red-contrib-openhab3; then echo "OK"; else echo "FAILED (update openhab3 addon)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up Node-RED service... "
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi

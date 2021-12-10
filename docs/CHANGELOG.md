@@ -1,3 +1,11 @@
+## Node-RED and openHAB 3 ## December 10, 2021
+We have updated the package of the Node-RED addon for openHAB 3 to
+`node-red-contrib-openhab3` to better support openHAB 3 installations which use
+this addon.
+
+You can install it today using `openhabian-config` menu option 25, which will
+install / upgrade all necessary components for Node-RED operation.
+
 ## openHABian 1.7 ## December 1, 2021
 We have upgraded our base operating system to Raspberry Pi OS Bullseye.
 
