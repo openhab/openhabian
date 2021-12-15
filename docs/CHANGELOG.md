@@ -1,4 +1,4 @@
-## Major Java provider switch ## December 11, 2021
+## Major Java provider switch ## December 15, 2021
 We have switched to supporting only the OpenJDK package provided by default from
 the APT repo for all new installations of openHABian. Existing installations
 will be unaffected, however you will no longer receive updates to your current
