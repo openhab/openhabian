@@ -182,7 +182,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 16 116 9 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 18 116 11 --cancel-button Back --ok-button Execute \
     "41 | openHAB Release"        "Install or switch to the latest openHAB Release" \
     "   | openHAB Milestone"      "Install or switch to the latest openHAB Milestone Build" \
     "   | openHAB Snapshot"       "Install or switch to the latest openHAB Snapshot Build" \
@@ -192,6 +192,8 @@ show_main_menu() {
     "44 | Nginx Proxy"            "Setup reverse and forward web proxy" \
     "45 | OpenJDK 11"             "Install OpenJDK 11 as Java provider" \
     "   | OpenJDK 17"             "Install OpenJDK 17 as Java provider" \
+    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as Java provider (DEPRECATED)" \
+    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as Java provider (DEPRECATED)" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -207,6 +209,8 @@ show_main_menu() {
       44\ *) nginx_setup;;
       *OpenJDK\ 11) update_config_java "11" && java_install "11";;
       *OpenJDK\ 17) update_config_java "17" && java_install "17";;
+      *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
+      *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
