@@ -73,18 +73,11 @@ java_install_or_update() {
   branch="$(git -C "${BASEDIR:-/opt/openhabian}" rev-parse --abbrev-ref HEAD)"
 
   # Make sure we don't overwrite existing unsupported installations
-  if ! [[ -x $(command -v java) ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"Zulu"* ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"AdoptOpenJDK"* ]]; then
+  if ! [[ -x $(command -v java) ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"Zulu"* ]]; then
     if ! [[ -x $(command -v java) ]] && [[ "${cached_java_opt:-Zulu11-32}" == "${java_opt:-Zulu11-32}" ]] && [[ -n $UNATTENDED ]] && java_zulu_dir; then
       echo "$(timestamp) [openHABian] Installing cached version of Java to ensure that some form of Java is installed!"
       java_zulu_prerequisite "${cached_java_opt:-Zulu11-32}"
       java_zulu_install "${cached_java_opt:-Zulu11-32}"
-    fi
-    if [[ $1 == "Adopt11" ]]; then
-      adoptopenjdk_install_apt
-    elif [[ $1 != "Adopt11" ]]; then
-      if [[ "$(java -version 2>&1 > /dev/null)" == *"AdoptOpenJDK"* ]] && java_zulu_dir; then
-        java_zulu_install "$1"
-      fi
     fi
     if [[ $1 == "Zulu11-64" ]]; then
       if is_aarch64 || is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
@@ -117,7 +110,7 @@ java_install_or_update() {
           fi
         fi
       fi
-    elif [[ $1 != "Adopt11" ]]; then # Default to 32-bit installation
+    else # Default to 32-bit installation
       if cond_redirect java_zulu_update_available "Zulu11-32"; then
         java_zulu_prerequisite "Zulu11-32"
         if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
@@ -130,7 +123,7 @@ java_install_or_update() {
     fi
   fi
   if [[ -x $(command -v java) ]]; then
-    cond_redirect java -version
+    cond_redirect java --version
   else
     echo "$(timestamp) [openHABian] Somewhere, somehow, something went wrong and Java has not been installed. Until resolved, openHAB will be broken."
   fi
