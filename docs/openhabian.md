@@ -38,7 +38,7 @@ Out of the box, the openHABian image provides lots of useful Linux tools:
 
 -   Hassle-free setup without a display or keyboard, connected via Ethernet or [Wi-Fi](#wi-fi-based-setup-notes)
 -   All versions of openHAB to select from, including the latest stable one as the default
--   Zulu Embedded OpenJDK Java 11 or AdoptOpenJDK
+-   OpenJDK 11 or 17
 -   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
 -   [SD card mirroring](openhabian.md#auto-backup) and [Amanda Backup](openhabian-amanda.md) to boost system availability
 -   Web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
@@ -245,7 +245,7 @@ to install.
 We strongly recommend you to use the automated install but you actually _can_ walk through the interactive tool.
 Start `openhabian-config`.
 Get the bare minimum you will _need_ installed by selecting menu option 03.
-To install the recommended components that automated install will get in one go select menu options 33, 32, 31, 11, 12, 15, Zulu 11 OpenJDK 64-bit (in menu 4X), 13, 16, 14, 21, 38, 53, 52.
+To install the recommended components that automated install will get in one go select menu options 33, 32, 31, 11, 12, 15, OpenJDK 11 (in menu option 45), 13, 16, 14, 21, 38, 53, 52.
 We try to make install options independent of each other but there may be dependencies we are not aware of left so any other order may or may not work.
 
 ➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below

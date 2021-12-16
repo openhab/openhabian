@@ -1,3 +1,14 @@
+## Major Java provider switch ## December 15, 2021
+We have switched to supporting only the OpenJDK package provided by default from
+the APT repo for all new installations of openHABian. Existing installations
+will be unaffected, however you will no longer receive updates to your current
+Java install until you install Java from the new provider which you can do by
+running menu option 45.
+
+Experimental support for Java 17 has also been added along with this change. In
+the future once Adoptium (formerly AdoptOpenJDK) releases a Debian based package
+repository support for Adoptium Java installs will be added as well.
+
 ## Node-RED and openHAB 3 ## December 10, 2021
 We have updated the package of the Node-RED addon for openHAB 3 to
 `node-red-contrib-openhab3` to better support openHAB 3 installations which use

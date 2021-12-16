@@ -1,18 +1,15 @@
 FROM balenalib/generic-debian:bullseye-build
 
-ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=DontWarn
 ENV DOCKER=1
 
 # BATS tests on a minimal install will require additional packages
 # to run properly:
 # - lsb-release (influx, homegear)
-# - apt-transport-https (homegear, AdoptOpenJDK)
-# - unzip (java)
+# - apt-transport-https (homegear)
 # those packages would normally be included in our standard install
 RUN apt-get update -qq && \
     apt-get install --yes -qq --no-install-recommends git wget python3 \
-        python3-pip apt-utils jq lsb-release unzip apt-transport-https \
-        gnupg acl && \
+        python3-pip apt-utils jq lsb-release apt-transport-https gnupg acl && \
     rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/gdraheim/docker-systemctl-replacement && \

@@ -22,7 +22,6 @@ system_upgrade() {
   export DEBIAN_FRONTEND=noninteractive
   # bad packages may require interactive input despite of this setting so do not mask output (no cond_redirect)
   if ! apt-get upgrade --yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; then echo "FAILED"; return 1; fi
-  if java_install_or_update "${java_opt:-Zulu11-32}"; then echo "OK"; else echo "FAILED"; return 1; fi
   unset DEBIAN_FRONTEND
 }
 

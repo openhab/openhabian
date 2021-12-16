@@ -1,5 +1,63 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC1117,SC2119,SC2120,SC2016
+
+## Install Java version from default repo
+## Valid arguments: "11", "17"
+##
+## java_install(String version)
+##
+java_install() {
+  if openhab_is_running; then
+    cond_redirect systemctl stop openhab.service
+  fi
+
+  if [[ -d /opt/jdk ]]; then
+    java_alternatives_reset
+    rm -rf /opt/jdk
+  fi
+
+  openjdk_install_apt "$1"
+
+  if openhab_is_installed; then
+    cond_redirect systemctl restart openhab.service
+  fi
+}
+
+## Fetch OpenJDK using APT repository.
+##
+##    openjdk_fetch_apt()
+##
+openjdk_fetch_apt() {
+  if ! apt-cache show "openjdk-${1}-jre-headless" &> /dev/null; then
+    echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/java.list
+    cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
+    cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+
+    # important to avoid release mixing:
+    # prevent RPi from using the Debian distro for normal Raspbian packages
+    echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
+  fi
+  echo -n "$(timestamp) [openHABian] Fetching OpenJDK ${1}... "
+  if cond_redirect apt-get install --download-only --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+}
+
+## Install OpenJDK using APT repository.
+##
+##    openjdk_install_apt()
+##
+openjdk_install_apt() {
+  if ! dpkg -s "openjdk-${1}-jre-headless" &> /dev/null; then # Check if already is installed
+    openjdk_fetch_apt "$1"
+    echo -n "$(timestamp) [openHABian] Installing OpenJDK ${1}... "
+    cond_redirect java_alternatives_reset
+    if cond_redirect apt-get install --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+  elif dpkg -s "openjdk-${1}-jre-headless" &> /dev/null; then
+    echo -n "$(timestamp) [openHABian] Reconfiguring OpenJDK ${1}... "
+    cond_redirect java_alternatives_reset
+    if cond_redirect dpkg-reconfigure "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+}
+
+# LEGACY SECTION
 
 ## Install appropriate Java version based on current choice.
 ## Valid arguments: "Adopt11", "Zulu11-32", or "Zulu11-64"
@@ -7,23 +65,19 @@
 ##    java_install_or_update(String type)
 ##
 java_install_or_update() {
+  # Just in case it gets called with the new arguments
+  if [[ $1 -eq 11 ]] || [[ $1 -eq 17 ]]; then java_install "$1"; return 0; fi
+
   local branch
 
   branch="$(git -C "${BASEDIR:-/opt/openhabian}" rev-parse --abbrev-ref HEAD)"
 
   # Make sure we don't overwrite existing unsupported installations
-  if ! [[ -x $(command -v java) ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"Zulu"* ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"AdoptOpenJDK"* ]]; then
+  if ! [[ -x $(command -v java) ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"Zulu"* ]]; then
     if ! [[ -x $(command -v java) ]] && [[ "${cached_java_opt:-Zulu11-32}" == "${java_opt:-Zulu11-32}" ]] && [[ -n $UNATTENDED ]] && java_zulu_dir; then
       echo "$(timestamp) [openHABian] Installing cached version of Java to ensure that some form of Java is installed!"
       java_zulu_prerequisite "${cached_java_opt:-Zulu11-32}"
       java_zulu_install "${cached_java_opt:-Zulu11-32}"
-    fi
-    if [[ $1 == "Adopt11" ]]; then
-      adoptopenjdk_install_apt
-    elif [[ $1 != "Adopt11" ]]; then
-      if [[ "$(java -version 2>&1 > /dev/null)" == *"AdoptOpenJDK"* ]] && java_zulu_dir; then
-        java_zulu_install "$1"
-      fi
     fi
     if [[ $1 == "Zulu11-64" ]]; then
       if is_aarch64 || is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
@@ -56,7 +110,7 @@ java_install_or_update() {
           fi
         fi
       fi
-    elif [[ $1 != "Adopt11" ]]; then # Default to 32-bit installation
+    else # Default to 32-bit installation
       if cond_redirect java_zulu_update_available "Zulu11-32"; then
         java_zulu_prerequisite "Zulu11-32"
         if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
@@ -69,7 +123,7 @@ java_install_or_update() {
     fi
   fi
   if [[ -x $(command -v java) ]]; then
-    cond_redirect java -version
+    cond_redirect java --version
   else
     echo "$(timestamp) [openHABian] Somewhere, somehow, something went wrong and Java has not been installed. Until resolved, openHAB will be broken."
   fi
@@ -160,6 +214,7 @@ java_zulu_install() {
   fi
 
   java_alternatives_reset
+  # shellcheck disable=SC2016
   cond_redirect find "$jdkBin" -maxdepth 1 -perm -111 -type f -exec bash -c 'update-alternatives --install  /usr/bin/$(basename {}) $(basename {}) {} 1000000' \;
   echo "$jdkLib" > /etc/ld.so.conf.d/java.conf
   echo "$jdkLib"/jli >> /etc/ld.so.conf.d/java.conf
@@ -300,6 +355,7 @@ java_zulu_enterprise_apt() {
 ##
 ##    java_zulu_install_crypto_extension(String path)
 ##
+# shellcheck disable=SC2120
 java_zulu_install_crypto_extension() {
   if [[ -n $OFFLINE ]]; then
     echo "$(timestamp) [openHABian] Using cached Java Zulu CEK to enable unlimited cipher strength... OK"
@@ -321,63 +377,6 @@ java_zulu_install_crypto_extension() {
   cond_redirect rm -rf "$policyTempLocation"
 }
 
-## Fetch AdoptOpenJDK using APT repository.
-##
-##    adoptopenjdk_fetch_apt()
-##
-adoptopenjdk_fetch_apt() {
-  local keyName="adoptopenjdk"
-
-  if ! dpkg -s 'software-properties-common' &> /dev/null; then
-    echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK prerequisites (software-properties-common)... "
-    if ! cond_redirect apt-get install --yes software-properties-common; then echo "FAILED"; return 1; fi
-  fi
-
-  if ! add_keys "https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public" "$keyName"; then return 1; fi
-
-  echo -n "$(timestamp) [openHABian] Adding AdoptOpenJDK repository to apt... "
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://adoptopenjdk.jfrog.io/adoptopenjdk/deb bullseye main" > /etc/apt/sources.list.d/adoptopenjdk.list
-  if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
-
-  echo -n "$(timestamp) [openHABian] Fetching AdoptOpenJDK... "
-  if cond_redirect apt-get install --download-only --yes adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
-}
-
-## Install AdoptOpenJDK using APT repository.
-##
-##    adoptopenjdk_install_apt()
-##
-adoptopenjdk_install_apt() {
-  if openhab_is_running; then
-    cond_redirect systemctl stop openhab.service
-  fi
-  if ! dpkg -s 'adoptopenjdk-11-hotspot-jre' &> /dev/null; then # Check if already is installed
-    adoptopenjdk_fetch_apt
-    echo -n "$(timestamp) [openHABian] Installing AdoptOpenJDK 11... "
-    cond_redirect java_alternatives_reset
-    if cond_redirect apt-get install --yes adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
-  elif dpkg -s 'adoptopenjdk-11-hotspot-jre' &> /dev/null; then
-    echo -n "$(timestamp) [openHABian] Reconfiguring AdoptOpenJDK 11... "
-    cond_redirect java_alternatives_reset
-    if cond_redirect dpkg-reconfigure adoptopenjdk-11-hotspot-jre; then echo "OK"; else echo "FAILED"; return 1; fi
-  fi
-  if openhab_is_installed; then
-    cond_redirect systemctl restart openhab.service
-  fi
-}
-
-## Reset Java in update-alternatives
-##
-##    java_alternatives_reset()
-##
-java_alternatives_reset() {
-  local jdkBin
-
-  jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
-
-  cond_redirect find "$jdkBin" -maxdepth 1 -perm -111 -type f -exec bash -c 'update-alternatives --quiet --remove-all $(basename {})' \;
-}
-
 ## Check if Java Zulu is already in the filesystem
 ##
 ##    java_zulu_dir()
@@ -389,4 +388,17 @@ java_zulu_dir() {
     if [[ -d $dir ]]; then return 0; fi
   done
   return 1
+}
+
+## Reset Java in update-alternatives
+##
+##    java_alternatives_reset()
+##
+java_alternatives_reset() {
+  local jdkBin
+
+  jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
+
+  # shellcheck disable=SC2016
+  cond_redirect find "$jdkBin" -maxdepth 1 -perm -111 -type f -exec bash -c 'update-alternatives --quiet --remove-all $(basename {})' \;
 }

@@ -398,20 +398,6 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64beta" ]
     install_zram_code "${buildFolder}/root/opt/zram" &> /dev/null
   )
 
-  # Cache Java for offline install.
-  (
-    # Source config to set Java option correctly, this cache currently only works for Zulu.
-    # shellcheck disable=SC1090
-    source "${sourceFolder}/openhabian.${hwPlatform}.conf"
-
-    echo_process "Downloading Java..."
-    # Using variable hw intended for CI only to force use of arm packages.
-    # java_zulu_fetch takes version/bits as parameter, but internally uses is_arm
-    # to decide if x86/64 or arm packages are downloaded. Parameter works for 32 and 64bit.
-    hwarch="armv7l" java_zulu_fetch "${cached_java_opt:-Zulu11-32}" "$buildFolder"/root &> /dev/null
-    java_zulu_install_crypto_extension "$(find "$buildFolder"/root/opt/jdk/*/lib -type d -print -quit)/security" &> /dev/null
-  )
-
   # Cache FireMotD for offline install.
   (
     echo_process "Downloading FireMotD..."
