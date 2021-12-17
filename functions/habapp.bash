@@ -42,7 +42,7 @@ habapp_setup() {
   if ! cond_redirect source bin/activate; then echo "FAILED"; return 1; fi
 
   # We need to upgrade pip otherwise some dependencies won't install
-  if ! cond_redirect python3 -m pip install --upgrade pip; then echo "FAILED"; return 1; fi
+  if ! cond_redirect python3 -m pip install --upgrade pip setuptools; then echo "FAILED"; return 1; fi
   # Install HABApp with the new pip version
   if ! cond_redirect python3 -m pip install --upgrade habapp; then echo "FAILED"; return 1; fi
   if cond_redirect deactivate; then echo "OK"; else echo "FAILED"; return 1; fi
