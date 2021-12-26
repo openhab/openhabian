@@ -572,7 +572,7 @@ nginx_setup() {
   if cond_redirect sed -i -e 's|DOMAINNAME|'"${domain}"'|g' /etc/nginx/sites-enabled/openhab; then echo "OK"; else echo "FAILED (set domain name)"; return 1; fi
 
   if [[ $auth == "true" ]]; then
-    if openhab2_is_installed; then
+    if openhab_is_installed; then
       cond_echo "Setting up nginx password options..."
       echo -n "$(timestamp) [openHABian] Installing nginx password utilities... "
       if cond_redirect apt-get install --yes apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
