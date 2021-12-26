@@ -496,7 +496,7 @@ nginx_setup() {
   if openhab3_is_installed || (whiptail --title "Authentication setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
     auth="true"
   fi
-  if [[ "$auth" == "yes" ]]; then
+  if [[ "$auth" == "true" ]]; then
     if nginxUsername="$(whiptail --title "Authentication setup" --inputbox "\\nEnter a username to sign into openHAB:" 9 80 openhab 3>&1 1>&2 2>&3)"; then
       while [[ -z $nginxPass ]]; do
         if ! nginxPass1="$(whiptail --title "Authentication setup" --passwordbox "\\nEnter a password for ${nginxUsername}:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
