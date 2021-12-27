@@ -129,6 +129,8 @@ add_admin_ssh_key() {
     chown "${userName}:${userName}" "${keyFile}" "${keyFile}.NEW"
     chmod 600 "${keyFile}" "${keyFile}.NEW"
   fi
+  mkdir ~root/.ssh
+  chmod 700 ~root/.ssh
   cat "${keyFile}" >> ~root/.ssh/authorized_keys
   chmod 600 ~root/.ssh/authorized_keys
   (echo -n "openhab="; awk '{ printf $2 }' "${keyFile}"; echo ",_g_:admingroup") >> $karafKeys
