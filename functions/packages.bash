@@ -496,7 +496,7 @@ nginx_setup() {
   if openhab3_is_installed || (whiptail --title "Authentication setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
     auth="true"
   fi
-  if [[ "$auth" == "yes" ]]; then
+  if [[ "$auth" == "true" ]]; then
     if nginxUsername="$(whiptail --title "Authentication setup" --inputbox "\\nEnter a username to sign into openHAB:" 9 80 openhab 3>&1 1>&2 2>&3)"; then
       while [[ -z $nginxPass ]]; do
         if ! nginxPass1="$(whiptail --title "Authentication setup" --passwordbox "\\nEnter a password for ${nginxUsername}:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
@@ -572,13 +572,10 @@ nginx_setup() {
   if cond_redirect sed -i -e 's|DOMAINNAME|'"${domain}"'|g' /etc/nginx/sites-enabled/openhab; then echo "OK"; else echo "FAILED (set domain name)"; return 1; fi
 
   if [[ $auth == "true" ]]; then
-    if openhab2_is_installed; then
-      cond_echo "Setting up nginx password options..."
-      echo -n "$(timestamp) [openHABian] Installing nginx password utilities... "
-      if cond_redirect apt-get install --yes apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
-      if cond_redirect htpasswd -b -c /etc/nginx/.htpasswd "$nginxUsername" "$nginxPass"; then echo "OK"; else echo "FAILED (password file)"; return 1; fi
-      if ! uncomment "#OH2AUTH" /etc/nginx/sites-enabled/openhab; then return 1; fi
-    fi
+    echo -n "$(timestamp) [openHABian] Installing nginx password utilities... "
+    if cond_redirect apt-get install --yes apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect htpasswd -b -c /etc/nginx/.htpasswd "$nginxUsername" "$nginxPass"; then echo "OK"; else echo "FAILED (password file)"; return 1; fi
+    cond_echo "Setting up nginx password options..."
     if ! uncomment "#AUTH" /etc/nginx/sites-enabled/openhab; then return 1; fi
   fi
 
