@@ -192,8 +192,8 @@ show_main_menu() {
     "44 | Nginx Proxy"            "Setup reverse and forward web proxy" \
     "45 | OpenJDK 11"             "Install OpenJDK 11 as Java provider" \
     "   | OpenJDK 17"             "Install OpenJDK 17 as Java provider" \
-    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as Java provider (DEPRECATED)" \
-    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as Java provider (DEPRECATED)" \
+    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as Java provider" \
+    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as Java provider" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
