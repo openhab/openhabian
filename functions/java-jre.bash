@@ -73,7 +73,7 @@ java_install_or_update() {
   branch="$(git -C "${BASEDIR:-/opt/openhabian}" rev-parse --abbrev-ref HEAD)"
 
   # Make sure we don't overwrite existing unsupported installations
-  if ! [[ -x $(command -v java) ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"Zulu"* ]]; then
+  if ! [[ -x $(command -v java) ]] || [[ "$(java -version 2>&1 > /dev/null)" == *"Zulu"* ]] || dpkg -s 'openjdk-11-jre-headless' &> /dev/null || dpkg -s 'openjdk-17-jre-headless' &> /dev/null; then
     if ! [[ -x $(command -v java) ]] && [[ "${cached_java_opt:-Zulu11-32}" == "${java_opt:-Zulu11-32}" ]] && [[ -n $UNATTENDED ]] && java_zulu_dir; then
       echo "$(timestamp) [openHABian] Installing cached version of Java to ensure that some form of Java is installed!"
       java_zulu_prerequisite "${cached_java_opt:-Zulu11-32}"
