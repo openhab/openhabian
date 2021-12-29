@@ -455,10 +455,10 @@ In case of failure of your primary SD card, replace the broken SD card in the in
 #### Tailscale VPN network
 Tailscale is a management toolset to establish a WireGuard based VPN between multiple systems if you want to connect to openHAB(ian) instances outside your LAN over Internet.
 It'll take care to detect and open ports when you and your peers are located behind firewalls.
-[Download the client](https://tailscale.com/download) and eventually get the Solo service plan from Tailscale, that's free for private use.
-This free service will automatically be selected when you fire up your first VPN node.
+[Download the client](https://tailscale.com/download) and eventually get the Solo service plan from Tailscale, that's free for private use and will automatically be selected when you fire up your first VPN node.
 The Windows client has a link to the admin console where you can create pre-auth one-time keys.
 These you can put as the `preauthkey` into `openhabian.conf` to automatically deploy remote openHABian nodes (unattended install) and have them join the VPN.
+The `tstags` option allows you to specify tags for use in [Tailscale ACL](https://tailscale.com/kb/1018/acls/) definition.
 
 #### IPv6 notes
 You might encounter problems when you make use of IPv6 on some networks and systems. openHABian installation may stop or hang forever.
