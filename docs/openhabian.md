@@ -324,21 +324,23 @@ They can be changed from openHABian menu.
 ## Availability and Backup
 
 openHAB is designed to reliably run 24 hours a day, seven days a week - and so should be your server.
-This is the right time to prepare your system for disasters such as getting hit by the SD card wear-out/corruption problem which is quite common among users of single board computers such as Raspberry Pis. openHABian has a number of features built in to enhance resilience:
+This is the right time to prepare your system for disasters such as getting hit by the SD card wear-out/corruption problem which is quite common among users of single board computers such as Raspberry Pis. See [this community thread](https://community.openhab.org/t/corrupt-filesystems-every-2-3-month/13057/20) for more information.
 
-1.  The zram feature moves write intensive parts of openHABian into RAM to mitigate the risk of SD card corruption. See [community thread](https://community.openhab.org/t/zram-status/80996) for more up to date information.
-    WARNING: power failure will result in some data to get lost (albeit the system should continue to run).
-    Get an UPS.
+openHABian has a number of features built in to enhance resilience:
+
+1.  The Zram feature moves write intensive parts of openHABian into RAM to mitigate the risk of SD card corruption.
+    WARNING: power failure will result in some data to get lost (albeit the system should continue to run) so we recommend to also get an UPS.
     Zram is enabled by default for swap, logs and persistence data.
     You can toggle use in \[menu option 38\].
-2.  You can have openHABian mirror your SD card. See [auto backup](#auto-backup) documentation. You can activate mirroring using \[menu option 53\].
-3.  Move the root filesystem to USB-attached devices.
-    WARNING 1: USB sticks are as susceptible to flash wear-out as SD cards are, making zram the better choice for a standard Pi to run off its internal SD card.
-    WARNING 2: It will NOT work out of the box to also _boot_ from the USB device.
-    As a Linux or openHAB beginner, you should NOT try this.
-    Using this is NOT recommended to anyone except those to **know** Linux well enough **to manually apply** all the required modifications.
+2.  Mirror your SD card: see [auto backup](#auto-backup) documentation. You can activate mirroring using \[menu option 53\].
+3.  openHABian provides an option to move the root filesystem to USB-attached devices.
+    It does not work out of the box and is a completely untested option though.
+    Doing so is NOT recommended to anyone except those to know Linux well enough to manually apply all the required modifications.
     See \[menu option 37\].
-4.  Use the openHAB integrated [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively backup/restore your openHAB **config** \[menu option 50/51\].
+    WARNING 1: USB sticks are as susceptible to flash wear-out as SD cards are, making zram the better choice for a standard Pi to run off its internal SD card.
+    WARNING 2: various hardware it will NOT work out of the box to also _boot_ from the USB device.
+4.  Use the openHAB integrated [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively 
+    backup/restore your openHAB **config** \[menu option 50/51\].
 5.  Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, documentation [here](openhabian-amanda.md).
     See \[menu option 52\].
 
