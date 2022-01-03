@@ -305,7 +305,6 @@ amanda_setup() {
   echo -n "$(timestamp) [openHABian] Beginning setup of the Amanda backup system... "
   if (whiptail --title "Amanda backup installation" --yes-button "Continue" --no-button "Cancel" --defaultno --yesno "$queryText" 24 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
-  echo -n "$(timestamp) [openHABian] Configuring Amanda backup system prerequisites... "
   while [[ -z $backupPass ]]; do
     if ! backupPass1="$(whiptail --title "Authentication setup" --passwordbox "\\nEnter a password for ${backupUser}:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     if ! backupPass2="$(whiptail --title "Authentication setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
