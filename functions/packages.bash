@@ -203,7 +203,7 @@ homegear_setup() {
   if [[ "$myRelease" == "n/a" ]]; then
     myRelease="${osrelease:-bullseye}"
   fi
-  if [[ "$myOS" == "Raspbian" ]]; then
+  if [[ "$myOS" == "Raspbian" ]] || is_arm && running_in_docker; then  # Workaround for CI not actually reporting as Raspberry Pi OS
     myOS="raspberry_pi_os"
   fi
 
@@ -220,7 +220,7 @@ homegear_setup() {
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if is_raspi; then
+  if is_raspios; then
     if ! cond_redirect apt-get install --yes wiringpi; then echo "FAILED"; return 1; fi
   fi
   if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
