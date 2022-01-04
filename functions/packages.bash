@@ -220,7 +220,10 @@ homegear_setup() {
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if cond_redirect apt-get install --yes wiringpi homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
+  if is_raspi; then
+    if ! cond_redirect apt-get install --yes wiringpi; then echo "FAILED"; return 1; fi
+  fi
+  if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permissions... "
   if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
   if cond_redirect adduser openhab homegear; then echo "OK"; else echo "FAILED"; return 1; fi
