@@ -203,6 +203,9 @@ homegear_setup() {
   if [[ "$myRelease" == "n/a" ]]; then
     myRelease="${osrelease:-bullseye}"
   fi
+  if [[ "$myOS" == "Raspbian" ]]; then
+    myOS="raspberry_pi_os"
+  fi
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
   if [[ -n $INTERACTIVE ]]; then
@@ -213,22 +216,11 @@ homegear_setup() {
 
   if ! add_keys "https://apt.homegear.eu/Release.key" "$keyName"; then return 1; fi
 
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS}/ ${myRelease}/" > /etc/apt/sources.list.d/homegear.list
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS}/${myRelease}/homegear/stable/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if cond_redirect apt-get install --yes wiringpi homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then
-    echo "OK"
-  else
-    # TODO remove this once Homegear devs get their rear in gear
-    if is_bullseye; then
-      echo "FAILED (Homegear on Bullseye is not currently working, complain to the Homegear developers not us)"
-      return 0
-    else
-      echo "FAILED"
-      return 1
-    fi
-  fi
+  if cond_redirect apt-get install --yes wiringpi homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permissions... "
   if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
   if cond_redirect adduser openhab homegear; then echo "OK"; else echo "FAILED"; return 1; fi
