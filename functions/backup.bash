@@ -180,11 +180,9 @@ create_amanda_config() {
   if ! (echo -e "amgtar:gnutar_path=$GNUTAR\\n" >> "$amandaSecurityConf"); then echo "FAILED (amanda-security.conf)"; return 1; fi
   if ! cond_redirect chown --recursive "${backupUser}:backup" "$amandaHosts" "$configDir" "$databaseDir" "$indexDir" /var/log/amanda; then echo "FAILED (chown)"; return 1; fi
   if [[ $config == "openhab-dir" ]]; then
-    if ! cond_redirect sudo -u "${backupUser}" "touch ${storageLoc}/TEST"; then echo "FAILED (storage write access for user backup)"; return 1; fi
-    rm -f "${storageLoc}/TEST"
     if ! cond_redirect chown --recursive "${backupUser}:backup" "$storageLoc"; then echo "FAILED (chown)"; return 1; fi
     if ! cond_redirect chmod --recursive g+rxw "$storageLoc"; then echo "FAILED (chmod)"; return 1; fi
-    if ! cond_redirect mkdir -p "${storageLoc}/slots"; then echo "FAILED (create slots)"; return 1; fi     # folder needed for following symlinks
+    if ! cond_redirect sudo -u "${backupUser}" "mkdir ${storageLoc}/slots"; then echo "FAILED (storage write access for user backup - bad NAS uid mapping ?)"; return 1; fi
     if ! cond_redirect chown --recursive "${backupUser}:backup" "${storageLoc}/slots"; then echo "FAILED (chown slots)"; return 1; fi
     if ! cond_redirect ln -sf "${storageLoc}/slots" "${storageLoc}/slots/drive0"; then echo "FAILED (link drive0)"; return 1; fi
     if ! cond_redirect ln -sf "${storageLoc}/slots" "${storageLoc}/slots/drive1"; then echo "FAILED (link drive1)"; return 1; fi    # tape-parallel-write 2 so we need 2 virtual drives
