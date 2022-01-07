@@ -182,7 +182,7 @@ create_amanda_config() {
   if [[ $config == "openhab-dir" ]]; then
     if ! cond_redirect chown --recursive "${backupUser}:backup" "$storageLoc"; then echo "FAILED (chown)"; return 1; fi
     if ! cond_redirect chmod --recursive g+rxw "$storageLoc"; then echo "FAILED (chmod)"; return 1; fi
-    if ! cond_redirect mkdir -p "${storageLoc}/slots"; then echo "FAILED (create slots)"; return 1; fi     # folder needed for following symlinks
+    if ! cond_redirect sudo -u "${backupUser}" "mkdir ${storageLoc}/slots"; then echo "FAILED (storage write access for user backup - bad NAS uid mapping ?)"; return 1; fi
     if ! cond_redirect chown --recursive "${backupUser}:backup" "${storageLoc}/slots"; then echo "FAILED (chown slots)"; return 1; fi
     if ! cond_redirect ln -sf "${storageLoc}/slots" "${storageLoc}/slots/drive0"; then echo "FAILED (link drive0)"; return 1; fi
     if ! cond_redirect ln -sf "${storageLoc}/slots" "${storageLoc}/slots/drive1"; then echo "FAILED (link drive1)"; return 1; fi    # tape-parallel-write 2 so we need 2 virtual drives
@@ -321,6 +321,12 @@ amanda_setup() {
   if (whiptail --title "Backup using locally attached storage" --yes-button "Yes" --no-button "No" --yesno "Would you like to setup a backup mechanism based on locally attached or NAS mounted storage?" 8 80); then
     config="openhab-dir"
     if ! storageLoc="$(whiptail --title "Storage directory" --inputbox "\\nWhat is the directory backups should be stored in?\\n\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick, HDD, or a NFS/CIFS share." 13 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! cond_redirect sudo -u "${backupUser}" "touch ${storageLoc}/TEST"; then 
+        echo "FAILED (storage write access for user backup)"
+        whiptail --title "Amanda storage setup failed" --msgbox "Amanda storage setup failed.\\n\\nThe designated storage area ${storageLoc} you entered is not writeable for the Linux user ${backupUser}.\\nPlease ensure it is. If it is located on a NAS or NFS server, search the Amanda docs for the term no_root_squash." 10 80 3>&1 1>&2 2>&3
+        return 1
+    fi
+    rm -f "${storageLoc}/TEST"
     tapes="15"
     if ! tapeSize="$(whiptail --title "Storage capacity" --inputbox "\\nHow much storage do you want to dedicate to your backup in megabytes?\\n\\nRecommendation: 2-3 times the amount of data to be backed up." 11 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
     ((tapeSize/=tapes))
