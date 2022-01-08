@@ -474,6 +474,8 @@ setup_mirror_SD() {
   local serviceTargetDir="/etc/systemd/system"
   local sizeError="your destination SD card device does not have enough space"
   local storageDir="${storagedir:-/storage}"
+  local storageRemovalQuery="Do you also want to remove the storage mount for ${storageDir} ?\\nIf you do not but remove the physical device it is located on, you will have trouble every time you restart your system.\\nRemember though it might also contain data you might want to keep such as your Amanda backup data. If ${storageDir} is not where your mount is, stop now and enter your mountpoint in /etc/openhabian.conf as the storagedir= parameter ."
+  local svcname
 
   if ! cond_redirect install -m 755 "${sdIncludesDir}/set-partuuid" /usr/local/sbin; then echo "FAILED (install set-partuuid)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up automated SD mirroring and backup... "
@@ -486,6 +488,18 @@ setup_mirror_SD() {
   if [[ $1 == "remove" ]]; then
     cond_redirect systemctl disable sdrsync.service sdrawcopy.service sdrsync.timer sdrawcopy.timer
     rm -f "$serviceTargetDir"/sdr*.{service,timer}
+
+    # ATTENTION: the mountpoint may also have a different name than the default "/storage"
+    svcname="${storageDir//[\/]/\\x2d}.mount"     # replace / by \\x2d as required by systemd for full pathnames 
+    if [[ -f "$serviceTargetDir"/"$svcname" ]]; then
+        # ATTENTION: may not be desired to remove on SD mirror disabling because it may still be in use for Amanda storage => ask for confirmation
+        # [is there a possibility that this routine might be run non-interactively ?]
+        if (whiptail --title "Remove $storageDir" --yes-button "Remove" --no-button "Keep" --yesno "$storageRemovalQuery" 12 116); then 
+            cond_redirect systemctl disable --now "${svcname}"
+            rm -f "$serviceTargetDir"/"$svcname"
+        fi
+    fi
+
     cond_redirect systemctl -q daemon-reload
     return 0
   fi
