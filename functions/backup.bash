@@ -490,7 +490,7 @@ setup_mirror_SD() {
     rm -f "$serviceTargetDir"/sdr*.{service,timer}
 
     # ATTENTION: the mountpoint may also have a different name than the default "/storage"
-    svcname="${storageDir//[\/]/\\x2d}.mount"     # replace / by \\x2d as required by systemd for full pathnames 
+    svcname="${${storageDir:1}//[\/]/\\x2d}.mount"     # remove leading '/' and replace all '/' by \\x2d as required by systemd for full pathnames 
     if [[ -f "$serviceTargetDir"/"$svcname" ]]; then
         # ATTENTION: may not be desired to remove on SD mirror disabling because it may still be in use for Amanda storage => ask for confirmation
         # [is there a possibility that this routine might be run non-interactively ?]
