@@ -474,7 +474,7 @@ setup_mirror_SD() {
   local serviceTargetDir="/etc/systemd/system"
   local sizeError="your destination SD card device does not have enough space"
   local storageDir="${storagedir:-/storage}"
-  local storageRemovalQuery="Do you also want to remove the storage mount for ${storageDir}?\\nIf you do not but remove the physical device it is located on, you will have trouble every time you restart your system.\\nRemember though it might also contain data you might want to keep such as your Amanda backup data. If ${storageDir} is not where your mount is, stop now and enter your mountpoint in /etc/openhabian.conf as the `storagedir=parameter`."
+  local storageRemovalQuery="Do you also want to remove the storage mount for ${storageDir}?\\nIf you do not but remove the physical device it is located on, you will have trouble every time you restart your system.\\nRemember though it might also contain data you might want to keep such as your Amanda backup data. If ${storageDir} is not where your mount is, stop now and enter your mountpoint in /etc/openhabian.conf as the storagedir= parameter."
   local svcname
 
   if ! cond_redirect install -m 755 "${sdIncludesDir}/set-partuuid" /usr/local/sbin; then echo "FAILED (install set-partuuid)"; return 1; fi
