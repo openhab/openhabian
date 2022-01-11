@@ -321,7 +321,7 @@ amanda_setup() {
   if (whiptail --title "Backup using locally attached storage" --yes-button "Yes" --no-button "No" --yesno "Would you like to setup a backup mechanism based on locally attached or NAS mounted storage?" 8 80); then
     config="openhab-dir"
     if ! storageLoc="$(whiptail --title "Storage directory" --inputbox "\\nWhat is the directory backups should be stored in?\\n\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick, HDD, or a NFS/CIFS share." 13 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-    if ! cond_redirect sudo -u "${backupUser}" "touch ${storageLoc}/TEST"; then 
+    if ! cond_redirect sudo -u "${backupUser}" touch "${storageLoc}/TEST"; then 
         echo "FAILED (storage write access for user backup)"
         whiptail --title "Amanda storage setup failed" --msgbox "Amanda storage setup failed.\\n\\nThe designated storage area ${storageLoc} you entered is not writeable for the Linux user ${backupUser}.\\nPlease ensure it is. If it is located on a NAS or NFS server, search the Amanda docs for the term no_root_squash." 10 80 3>&1 1>&2 2>&3
         return 1
