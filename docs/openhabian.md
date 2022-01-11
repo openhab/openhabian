@@ -450,7 +450,7 @@ Menu 5X provides interactive access to the aforementioned functions:<br>
 `52 Amanda System Backup` will prepare an existing directory as your backup storage and make Amanda launch once a day. See the separate [Amanda setup document](openhabian-amanda.md).
 `53 Setup SD mirroring` prepares the partitions on an SD card and sets up timers to execute both, a full mirroring and complementary rsync 'diff' runs.
 `54 Raw copy SD` is a one-time raw copy (mirror) run.
-`55 Sync SD` proagates (syncs) differences from your main SD card to your external card.
+`55 Sync SD` propagates (syncs) differences from your main SD card to your external card.
 
 In case of failure of your primary SD card, replace the broken SD card in the internal slot with your backup card from the external reader. Get another SD card that matches the size of the backup (now in internal slot) card and use menu option 54 to copy your active backup card back to the new one.
 
