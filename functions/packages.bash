@@ -204,7 +204,7 @@ homegear_setup() {
     myRelease="${osrelease:-bullseye}"
   fi
   if [[ "$myOS" == "Raspbian" ]] || is_arm && running_in_docker; then  # Workaround for CI not actually reporting as Raspberry Pi OS
-    myOS="raspberry_pi_os"
+    myOS="debian"  # Workaround for Homegear's Raspios APT repo being broken
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
