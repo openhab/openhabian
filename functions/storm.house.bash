@@ -35,7 +35,11 @@ setup_pv_config() {
   local serial
 =======
 ## Generate/copy openHAB config for a PV inverter and optional a meter, too
+<<<<<<< HEAD
 ## Valid Arguments: none | kostal | sungrow | solaredge | fronius
+=======
+## Valid Arguments: manuellInverter | kostal | sungrow | solaredge | fronius
+>>>>>>> 8d17c5c5e (Wallbox in Einstellungen auswaehlbar machen)
 ##                  IP address of inverter
 ##     (optional)   IP address of meter
 ##
@@ -264,6 +268,7 @@ setup_wb_config() {
 
 <<<<<<< HEAD
   if [[ -n "$INTERACTIVE" ]]; then
+<<<<<<< HEAD
     if [[ -z "${1:-$wallboxtype}" ]]; then
       if ! wallboxtype="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 12 80 0 "abl" "ABL eMH1" "go-e" "go-E Charger" "keba" "KEBA KeContact P20/P30 und BMW Wallboxen" "wbcustom" "manuelle Konfiguration" "demo" "Demo-Konfiguration mit zwei fake E-Autos" 3>&1 1>&2 2>&3)"; then unset wallboxtype wallboxip cartype1 carname1; return 1; fi
     fi
@@ -278,6 +283,10 @@ setup_wb_config() {
     destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
     if [[ ${1:-${wallboxtype}} == "wbcustom" && -f ${destfile} ]]; then
       break
+=======
+    if [[ -z "${1:-$invertertype}" ]]; then
+        if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 13 80 0 "sunspec" "generisch, SunSpec kompatibel" "kostal" "Kostal Plenticore" "sungrow" "Sungrow SH RT" "solaredge" "SolarEdge SE (ungetestet)" "fronius" "Fronius Symo (ungetestet)" "manuellInverter" "keiner (manuelle Konfiguration)" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
+>>>>>>> 8d17c5c5e (Wallbox in Einstellungen auswaehlbar machen)
     fi
     if ! [[ -f ${srcfile} ]]; then
       srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/evcc.${component}"
@@ -307,6 +316,7 @@ setup_wb_config() {
   temp="$(mktemp "${TMPDIR:-/tmp}"/evcc.XXXXX)"
   cp "${includesDir}/EVCC/evcc.yaml-template" "$temp"
 
+<<<<<<< HEAD
   if [[ $# -gt 22 ]]; then
     sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBUSER|${3:-${wallboxuser}}|;s|%WBPASS|${4:-${wallboxpass}}|;s|%WBID|${5:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${7:-${cartype1:-offline}}|;s|%CARNAME1|${8:-${carname1:-meinEAuto1}}|;s|%VIN1|${9:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${10:-${carcapacity1:-50}}|;s|%CARUSER1|${11:-${caruser1:-user}}|;s|%CARPASS1|${12:-${carpass1:-pass}}|;s|%CARTOKEN1|${13:-${cartoken1}}|;s|%CARTYPE2|${14:-${cartype2:-offline}}|;s|%CARNAME2|${15:-${carname2:-meinEAuto2}}|;s|%VIN2|${16:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${17:-${carcapacity2:-50}}|;s|%CARUSER2|${18:-${caruser2:-user}}|;s|%CARPASS2|${19:-${carpass2:-pass}}|;s|%CARTOKEN2|${20:-${cartoken2}}|;s|%GRIDCOST|${21:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${22:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${23:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${24:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
   else
@@ -339,6 +349,10 @@ setup_wb_config() {
 =======
   if [[ ! -f /usr/local/sbin/setup_inverter ]]; then
     if ! cond_redirect install -m 755 "${includesDir}/setup_inverter" /usr/local/sbin; then echo "FAILED (install setup_inverter)"; return 1; fi
+=======
+  if [[ ! -f /usr/local/sbin/setup_pv_config ]]; then
+    if ! cond_redirect ln -s "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
+>>>>>>> 8d17c5c5e (Wallbox in Einstellungen auswaehlbar machen)
   fi
 
   for component in things items rules; do
@@ -359,6 +373,7 @@ setup_wb_config() {
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
+<<<<<<< HEAD
 <<<<<<< HEAD
     whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System steuert jetzt eine ${1:-${wallboxtype}} Wallbox." 8 80
   fi
@@ -752,6 +767,53 @@ retrieve_license() {
 =======
     whiptail --title "Operation successful" --msgbox "The Energy Management System is now setup to use a ${1:-${invertertype}} PV inverter." 8 80
 >>>>>>> 2da72a7f3 (setup_pv statt nur inverter jetzt auch samt smart meter)
+=======
+    whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt einen ${1:-${invertertype}} Wechselrichter." 8 80
+  fi
+}
+
+## Generate/copy openHAB config for a wallbox
+## Valid Arguments: manuellWallbox | openwb
+##                  IP address of wallbox
+##
+##    setup_wb_config(String wallbox type,String wallbox IP)
+##
+setup_wb_config() {
+  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+
+
+  if [[ -n "$UNATTENDED" ]]; then
+    echo -n "$(timestamp) [storm.house] wallbox installation... "
+    if [[ -z "${1:-$wallboxtype}" ]]; then echo "SKIPPED (no wallbox defined)"; return 1; fi
+  fi
+
+  if [[ -n "$INTERACTIVE" ]]; then
+    if [[ -z "${1:-$wallboxtype}" ]]; then
+        if ! wallboxtype="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 13 80 0 "openwb" "openWB" "go-E" "go-E Charger" "manuell" "keine (manuelle Konfiguration)" 3>&1 1>&2 2>&3)"; then unset wallboxtype; return 1; fi
+    fi
+    if ! wallboxip=$(whiptail --title "Wallbox IP" --inputbox "Welche IP-Adresse hat die Wallbox ?" 10 60 "${wallboxip:-192.168.178.200}" 3>&1 1>&2 2>&3); then unset wallboxtype wallboxip; return 1; fi
+  fi
+
+  if [[ ! -f /usr/local/sbin/setup_wb_config ]]; then
+    if ! cond_redirect ln -s "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_wb_config; then echo "FAILED (install setup_wb_config script)"; return 1; fi
+    #if ! cond_redirect install -m 755 "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_wb_config; then echo "FAILED (install setup_wb_config script)"; return 1; fi
+  fi
+
+  for component in things items rules; do
+    if [[ ${1:-${wallboxtype}} == "none" ]]; then
+      rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+    else
+      cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${wallboxtype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+      chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+    fi
+  done
+
+  sed -i "s|%IP|${2:-${wallboxip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/wb.things"
+  
+  echo "OK"
+  if [[ -n "$INTERACTIVE" ]]; then
+    whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt eine ${1:-${wallboxtype}} Wallbox." 8 80
+>>>>>>> 8d17c5c5e (Wallbox in Einstellungen auswaehlbar machen)
   fi
 }
 
