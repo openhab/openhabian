@@ -59,7 +59,7 @@ restore_openhab_config() {
       echo "OK"
     else
       # shellcheck disable=SC2012
-      readarray -t backupList < <(ls -alh "${backupPath}"/openhab*-backup-* 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
+      readarray -t backupList < <(ls -alh "${backupPath}"/*zip 2> /dev/null | head -20 | awk -F ' ' '{ print $9 " " $5 }' | xargs -d '\n' -L1 basename | awk -F ' ' '{ print $1 "\n" $1 " " $2 }')
       if [[ -z "${backupList[*]}" ]]; then
         whiptail --title "Could not find backup!" --msgbox "We could not find any configuration backup file in the storage directory $backupPath" 8 80
         echo "CANCELED"
