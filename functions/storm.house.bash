@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 ## Generate/copy openHAB config for a PV inverter and optional a meter, too
-## Valid Arguments: manuellInverter | kostal | sungrow | solaredge | fronius
+## Valid Arguments: pvmanuell | kostal | sungrow | solaredge | fronius
 ##                  IP address of inverter
 ##     (optional)   IP address of meter
 ##
@@ -18,7 +18,7 @@ setup_pv_config() {
 
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$invertertype}" ]]; then
-        if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 13 80 0 "sunspec" "generisch, SunSpec kompatibel" "kostal" "Kostal Plenticore" "sungrow" "Sungrow SH RT" "solaredge" "SolarEdge SE (ungetestet)" "fronius" "Fronius Symo (ungetestet)" "manuellInverter" "keiner (manuelle Konfiguration)" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
+        if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 15 80 0 "sunspec" "generisch, SunSpec kompatibel" "kostal" "Kostal Plenticore" "sungrow" "Sungrow SH RT" "solaredge" "SolarEdge SE (ungetestet)" "fronius" "Fronius Symo (ungetestet)" "pvmanuell" "keiner (manuelle Konfiguration)" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
     fi
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
@@ -49,7 +49,7 @@ setup_pv_config() {
 }
 
 ## Generate/copy openHAB config for a wallbox
-## Valid Arguments: manuellWallbox | openwb
+## Valid Arguments: wbmanuell | openwb | goe
 ##                  IP address of wallbox
 ##
 ##    setup_wb_config(String wallbox type,String wallbox IP)
@@ -65,7 +65,7 @@ setup_wb_config() {
 
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$wallboxtype}" ]]; then
-        if ! wallboxtype="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 13 80 0 "openwb" "openWB" "go-E" "go-E Charger" "manuell" "keine (manuelle Konfiguration)" 3>&1 1>&2 2>&3)"; then unset wallboxtype; return 1; fi
+        if ! wallboxtype="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 11 80 0 "openwb" "openWB" "goe" "go-E Charger" "wbmanuell" "keine (manuelle Konfiguration)" 3>&1 1>&2 2>&3)"; then unset wallboxtype; return 1; fi
     fi
     if ! wallboxip=$(whiptail --title "Wallbox IP" --inputbox "Welche IP-Adresse hat die Wallbox ?" 10 60 "${wallboxip:-192.168.178.200}" 3>&1 1>&2 2>&3); then unset wallboxtype wallboxip; return 1; fi
   fi
