@@ -126,8 +126,8 @@ setup_inv_config() {
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
 
-  if [[ ! -f /usr/local/sbin/setup_pv ]]; then
-    if ! cond_redirect install -m 755 "${includesDir}/setup_pv" /usr/local/sbin; then echo "FAILED (install setup_pv)"; return 1; fi
+  if [[ ! -f /usr/local/sbin/setup_pv_config ]]; then
+    if ! cond_redirect ln -s "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
   fi
 
   for component in things items rules; do
@@ -262,6 +262,51 @@ setup_wb_config() {
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt eine ${1:-${wallboxtype}} Wallbox mit einem ${3:-${autotyp}}." 8 80
+  fi
+}
+
+## Generate/copy openHAB config for a wallbox
+## Valid Arguments: manuellWallbox | openwb
+##                  IP address of wallbox
+##
+##    setup_wb_config(String wallbox type,String wallbox IP)
+##
+setup_wb_config() {
+  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+
+
+  if [[ -n "$UNATTENDED" ]]; then
+    echo -n "$(timestamp) [storm.house] wallbox installation... "
+    if [[ -z "${1:-$wallboxtype}" ]]; then echo "SKIPPED (no wallbox defined)"; return 1; fi
+  fi
+
+  if [[ -n "$INTERACTIVE" ]]; then
+    if [[ -z "${1:-$wallboxtype}" ]]; then
+        if ! wallboxtype="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 13 80 0 "openwb" "openWB" "go-E" "go-E Charger" "manuell" "keine (manuelle Konfiguration)" 3>&1 1>&2 2>&3)"; then unset wallboxtype; return 1; fi
+    fi
+    if ! wallboxip=$(whiptail --title "Wallbox IP" --inputbox "Welche IP-Adresse hat die Wallbox ?" 10 60 "${wallboxip:-192.168.178.200}" 3>&1 1>&2 2>&3); then unset wallboxtype wallboxip; return 1; fi
+  fi
+
+  if [[ ! -f /usr/local/sbin/setup_wb_config ]]; then
+    if ! cond_redirect ln -s "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_wb_config; then echo "FAILED (install setup_wb_config script)"; return 1; fi
+    #if ! cond_redirect install -m 755 "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_wb_config; then echo "FAILED (install setup_wb_config script)"; return 1; fi
+  fi
+
+  for component in things items rules; do
+    if [[ ${1:-${wallboxtype}} == "none" ]]; then
+      rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+    else
+      cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${wallboxtype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+      chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+    fi
+  done
+
+  sed -i "s|%IP|${2:-${wallboxip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/wb.things"
+  
+  echo "OK"
+  if [[ -n "$INTERACTIVE" ]]; then
+    whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt eine ${1:-${wallboxtype}} Wallbox." 8 80
+>>>>>>> c95c9ddc (Wallbox in Einstellungen auswaehlbar machen)
   fi
 }
 
