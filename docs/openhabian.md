@@ -132,6 +132,12 @@ So there remains a risk that future openHABian releases will fail to work on you
 
 For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md/#fake-hardware-mode) to 'simulate' RPi hardware and Raspberry Pi OS.
 
+#### Hardware modifications
+Plugging in HATs like an UPS or USB sticks or even SSDs for storage is fine, but we do not support attaching any hardware if that requires any sort of software or configuration changes on the OS part of openHABian.
+To put it straight: we don't recommend SSDs and do not support attaching an SSD and move the system over there.
+If you know Linux well enough to manually apply all the required modifications, feel free to do so but please be aware that this is a completely untested option that may work or not and what's even more important: it is unsupported. Don't ask for help if you run into trouble.
+Also remember that any future changes to openHABian (which is what you get when you upgrade as you are recommended to do on every start of the `openhabian-config` tool) can interfere with any such modification of yours so while any such mod may work for the time being you apply it, it may break your box and openHAB experience anytime in the future.
+    
 ### OS support
 Going beyond what the RPi image provides, as a manually installed set of scripts, we support running openHABian on x86 hardware on generic Debian.
 On ARM, we only support Raspberry Pi OS.
@@ -334,11 +340,13 @@ openHABian has a number of features built in to enhance resilience:
     You can toggle use in \[menu option 38\].
 2.  Mirror your SD card: see [auto backup](#auto-backup) documentation. You can activate mirroring using \[menu option 53\].
 3.  openHABian provides an option to move the root filesystem to USB-attached devices.
-    It does not work out of the box and is a completely untested option though.
-    Doing so is NOT recommended to anyone except those to know Linux well enough to manually apply all the required modifications.
     See \[menu option 37\].
-    WARNING 1: USB sticks are as susceptible to flash wear-out as SD cards are, making zram the better choice for a standard Pi to run off its internal SD card.
-    WARNING 2: various hardware it will NOT work out of the box to also _boot_ from the USB device.
+    
+    WARNING 1: openHABian does not support hardware modifications to have an effect on the system itself such as to add an SSD drive to boot from.
+    We clearly recommend NOT to do this, for your own sake of reliability.
+
+    WARNING 2: USB sticks are as susceptible to flash wear-out as SD cards are, making zram the better choice for a standard Pi to run off its internal SD card.
+    
 4.  Use the openHAB integrated [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively 
     backup/restore your openHAB **config** \[menu option 50/51\].
 5.  Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, documentation [here](openhabian-amanda.md).
