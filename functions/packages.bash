@@ -264,6 +264,8 @@ homegear_setup() {
 ##    mqtt_setup()
 ##
 mqtt_setup() {
+  local mosquittoConf="/etc/mosquitto/mosquitto.conf"
+  local mosquittoPasswd="/etc/mosquitto/passwd"
   local mqttPasswd
   local mqttUser="openhabian"
   local introText="The MQTT broker Eclipse Mosquitto will be installed from the official repository.\\n\\nIn addition, you can activate username:password authentication."
@@ -287,18 +289,22 @@ mqtt_setup() {
   if [[ -n $INTERACTIVE ]]; then
     if ! mqttPasswd="$(whiptail --title "MQTT Authentication" --passwordbox "$questionText" 14 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
+  if ! grep -qs "listener" ${mosquittoConf}; then
+      printf "\\n\\nlistener 1883" >> ${mosquittoConf}
+  fi
   if [[ -n $mqttPasswd ]]; then
-    if ! grep -qs password_file /etc/mosquitto/passwd /etc/mosquitto/mosquitto.conf; then
-      echo -e "\\npassword_file /etc/mosquitto/passwd\\nallow_anonymous false\\n" >> /etc/mosquitto/mosquitto.conf
+    if ! grep -qs password_file ${mosquittoPasswd} ${mosquittoConf}; then
+      echo -e "\\npassword_file ${mosquittoPasswd}\\nallow_anonymous false\\n" >> ${mosquittoConf}
     fi
-    echo -n "" > /etc/mosquitto/passwd
-    chown "mosquitto:${username:-openhabian}" /etc/mosquitto/passwd
-    chmod 660 /etc/mosquitto/passwd
-    if cond_redirect mosquitto_passwd -b /etc/mosquitto/passwd "$mqttUser" "$mqttPasswd"; then echo "OK"; else echo "FAILED"; return 1; fi
+    echo -n "" > ${mosquittoPasswd}
+    chown "mosquitto:${username:-openhabian}" ${mosquittoPasswd}
+    chmod 660 ${mosquittoPasswd}
+    if cond_redirect mosquitto_passwd -b ${mosquittoPasswd} "$mqttUser" "$mqttPasswd"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    if ! cond_redirect sed -i -e '/password_file/d' /etc/mosquitto/mosquitto.conf; then echo "FAILED"; return 1; fi
-    if ! cond_redirect sed -i -e '/allow_anonymous/d' /etc/mosquitto/mosquitto.conf; then echo "FAILED"; return 1; fi
-    if cond_redirect rm -f /etc/mosquitto/passwd; then echo "OK"; else echo "FAILED"; return 1; fi
+    if ! cond_redirect sed -i -e '/password_file/d' ${mosquittoConf}; then echo "FAILED"; return 1; fi
+    if ! cond_redirect sed -i -e '/allow_anonymous/d' ${mosquittoConf}; then echo "FAILED"; return 1; fi
+    printf "\\nallow_anonymous true" >> ${mosquittoConf}
+    if cond_redirect rm -f ${mosquittoPasswd}; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if ! cond_redirect zram_dependency install mosquitto; then return 1; fi
   if zram_is_installed && ! mkdir -p /opt/zram/log.bind/mosquitto /var/log/mosquitto && chown mosquitto /opt/zram/log.bind/mosquitto /var/log/mosquitto; then echo "FAILED (create zram logdir)"; return 1; fi
@@ -310,6 +316,7 @@ mqtt_setup() {
     whiptail --title "Operation successful" --msgbox "$successText" 13 80
   fi
 }
+
 
 ## Function for installing kndx as your EIB/KNX IP gateway and router to support your KNX bus system.
 ## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
