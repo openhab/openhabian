@@ -86,6 +86,7 @@ init_zram_mounts() {
       if ! cond_redirect systemctl mask unattended-upgrades.service; then echo "FAILED (mask unattended upgrades service)"; return 1; fi
     fi
     if cond_redirect systemctl enable --now zram-config.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
+    cond_redirect cat /usr/local/share/zram-config/log/zram-config.log
   elif [[ $1 == "uninstall" ]]; then
     echo -n "$(timestamp) [openHABian] Removing zram service... "
     if ! cond_redirect zram-config "stop"; then echo "FAILED (stop zram)"; return 1; fi

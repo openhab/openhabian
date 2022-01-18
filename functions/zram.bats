@@ -82,7 +82,8 @@ check_zram_removal() {
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zram test installation starting...${COL_DEF}" >&3
   run init_zram_mounts "install" 3>&-
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  echo "$output" >&3
+  # if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Initial installation of zram mounts succeeded.${COL_DEF}" >&3
   run check_zram_mounts
