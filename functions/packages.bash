@@ -296,7 +296,7 @@ mqtt_setup() {
     if ! grep -qs password_file ${mosquittoPasswd} ${mosquittoConf}; then
       echo -e "\\npassword_file ${mosquittoPasswd}\\nallow_anonymous false\\n" >> ${mosquittoConf}
     fi
-    echo -n "" > ${mosquittoPasswd}
+    touch ${mosquittoPasswd}
     chown "mosquitto:${username:-openhabian}" ${mosquittoPasswd}
     chmod 660 ${mosquittoPasswd}
     if cond_redirect mosquitto_passwd -b ${mosquittoPasswd} "$mqttUser" "$mqttPasswd"; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -316,7 +316,6 @@ mqtt_setup() {
     whiptail --title "Operation successful" --msgbox "$successText" 13 80
   fi
 }
-
 
 ## Function for installing kndx as your EIB/KNX IP gateway and router to support your KNX bus system.
 ## This function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
