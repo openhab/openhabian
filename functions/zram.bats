@@ -94,6 +94,7 @@ check_zram_removal() {
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Availability of zram mounts verified.${COL_DEF}" >&3
+  cat /usr/local/share/zram-config/logs/zram-config.log >&3
   run init_zram_mounts "update" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
