@@ -49,7 +49,7 @@ setup_pv_config() {
 }
 
 ## Generate/copy openHAB config for a wallbox
-## Valid Arguments: wbmanuell | openwb | goe
+## Valid Arguments: wbmanuell | openwb | goe | myenergi
 ##                  IP address of wallbox
 ##
 ##    setup_wb_config(String wallbox type,String wallbox IP)
@@ -65,7 +65,7 @@ setup_wb_config() {
 
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$wallboxtype}" ]]; then
-        if ! wallboxtype="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 11 80 0 "openwb" "openWB" "goe" "go-E Charger" "wbmanuell" "keine (manuelle Konfiguration)" 3>&1 1>&2 2>&3)"; then unset wallboxtype; return 1; fi
+        if ! wallboxtype="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 11 80 0 "openwb" "openWB" "goe" "go-E Charger" "myenergi" "myEnergi Zappi/Harvi/Eddi" "wbmanuell" "keine (manuelle Konfiguration)" 3>&1 1>&2 2>&3)"; then unset wallboxtype; return 1; fi
     fi
     if ! wallboxip=$(whiptail --title "Wallbox IP" --inputbox "Welche IP-Adresse hat die Wallbox ?" 10 60 "${wallboxip:-192.168.178.200}" 3>&1 1>&2 2>&3); then unset wallboxtype wallboxip; return 1; fi
   fi
