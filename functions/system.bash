@@ -22,6 +22,9 @@ system_upgrade() {
   export DEBIAN_FRONTEND=noninteractive
   # bad packages may require interactive input despite of this setting so do not mask output (no cond_redirect)
   if ! apt-get upgrade --yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; then echo "FAILED"; return 1; fi
+  if ! cond_redirect java -version &> /dev/null; then
+    if ! java_install; then echo "FAILED (install java)"; fi
+  fi
   unset DEBIAN_FRONTEND
 }
 
