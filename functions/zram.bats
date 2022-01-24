@@ -67,7 +67,7 @@ check_zram_removal() {
             return 1
           fi
         else
-          if ! [ "$(df $5 | awk '/overlay/ { print $1 }' | tr -d '0-9')" != "overlay" ]; then
+          if [ "$(df $5 | awk '/overlay/ { print $1 }' | tr -d '0-9')" == "overlay" ]; then
             echo "# $(basename $0) error: ${TARGET} still on overlay." >&3
             return 1
           fi
@@ -77,14 +77,13 @@ check_zram_removal() {
   done < "$FILE"
 }
 
-@test "installation-zram" {
+@test "inactive-zram" {
   if ! is_arm; then skip "Not executing zram test because not on native ARM architecture hardware."; fi
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zram test installation starting...${COL_DEF}" >&3
   run init_zram_mounts "install" 3>&-
   echo "$output" >&3
-  # if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Initial installation of zram mounts succeeded.${COL_DEF}" >&3
   run check_zram_mounts
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
