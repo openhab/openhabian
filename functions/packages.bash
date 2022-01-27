@@ -98,7 +98,7 @@ firemotd_setup() {
 ##
 exim_setup() {
   if [[ -n $UNATTENDED ]] && [[ -z $relayuser ]]; then
-    echo "$(timestamp) [openHABian] Beginning Mail Transfer Agent setup... CANCELED (no configuration provided)"
+    echo "$(timestamp) [openHABian] Beginning Mail Transfer Agent setup... SKIPPED (no configuration provided)"
     return 0
   fi
 
