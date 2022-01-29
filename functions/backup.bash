@@ -365,7 +365,7 @@ mirror_SD() {
   local repartitionText
   local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
   local partUUID
-
+  
   if [[ $# -eq 1 ]] && [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
     # shellcheck disable=SC2154
@@ -474,6 +474,7 @@ setup_mirror_SD() {
   local serviceTargetDir="/etc/systemd/system"
   local sizeError="your destination SD card device does not have enough space"
   local storageDir="${storagedir:-/storage}"
+  local sDir=${storageDir:1}
   local storageRemovalQuery="Do you also want to remove the storage mount for ${storageDir}?\\nIf you do not but remove the physical device it is located on, you will have trouble every time you restart your system.\\nRemember though it might also contain data you might want to keep such as your Amanda backup data. If ${storageDir} is not where your mount is, stop now and enter your mountpoint in /etc/openhabian.conf as the storagedir= parameter."
   local svcname
 
@@ -490,7 +491,7 @@ setup_mirror_SD() {
     rm -f "$serviceTargetDir"/sdr*.{service,timer}
 
     # ATTENTION: the mountpoint may also have a different name than the default "/storage"
-    svcname="${${storageDir:1}//[\/]/\\x2d}.mount"     # remove leading '/' and replace all '/' by \\x2d as required by systemd for full pathnames 
+    svcname="${sDir//[\/]/\\x2d}.mount"     # remove leading '/' and replace all '/' by \\x2d as required by systemd for full pathnames 
     if [[ -f "$serviceTargetDir"/"$svcname" ]]; then
         # ATTENTION: may not be desired to remove on SD mirror disabling because it may still be in use for Amanda storage => ask for confirmation
         # [is there a possibility that this routine might be run non-interactively ?]
