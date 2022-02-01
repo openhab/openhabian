@@ -41,10 +41,10 @@
 # will only add the new entries if zram is already running.
 
 # swap	alg		mem_limit	disk_size	swap_priority	page-cluster	swappiness
-swap	lzo-rle		200M		500M		75		0		150
+swap	lzo-rle		400M		1G		75		0		150
 
 # dir	alg		mem_limit	disk_size	target_dir			bind_dir
-dir	zstd		150M		375M		/var/lib/openhab/persistence	/persistence.bind
+dir	zstd		300M		750M		/var/lib/openhab/persistence	/persistence.bind
 
 # log	alg		mem_limit	disk_size	target_dir		bind_dir		oldlog_dir
-log	zstd		200M		500M		/var/log		/log.bind
+log	zstd		400M		1G		/var/log		/log.bind

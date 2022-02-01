@@ -9,6 +9,7 @@ ENV DOCKER=1
 # - apt-transport-https (homegear)
 # those packages would normally be included in our standard install
 RUN apt-get update -qq && \
+    apt-get dist-upgrade && \
     apt-get install --yes -qq --no-install-recommends git wget python3 \
         python3-pip apt-utils jq lsb-release apt-transport-https gnupg acl && \
     rm -rf /var/lib/apt/lists/*
