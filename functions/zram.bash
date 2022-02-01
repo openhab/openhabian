@@ -80,17 +80,18 @@ init_zram_mounts() {
 
     echo -n "$(timestamp) [openHABian] Setting up zram service... "
     if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
+    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config-shutdown.service /etc/systemd/system/zram-config-shutdown.service; then echo "FAILED (install service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
 
     if ! running_in_docker && ! running_on_github; then
       if ! cond_redirect systemctl mask unattended-upgrades.service; then echo "FAILED (mask unattended upgrades service)"; return 1; fi
     fi
-    if cond_redirect systemctl enable --now zram-config.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
+    if cond_redirect systemctl enable --now zram-config.service zram-config-shutdown.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
   elif [[ $1 == "uninstall" ]]; then
     echo -n "$(timestamp) [openHABian] Removing zram service... "
     if ! cond_redirect zram-config "stop"; then echo "FAILED (stop zram)"; return 1; fi
-    if ! cond_redirect systemctl disable zram-config.service; then echo "FAILED (disable service)"; return 1; fi
-    if ! cond_redirect rm -f /etc/systemd/system/zram-config.service; then echo "FAILED (remove service)"; return 1; fi
+    if ! cond_redirect systemctl disable zram-config.service zram-config-shutdown.service; then echo "FAILED (disable service)"; return 1; fi
+    if ! cond_redirect rm -f /etc/systemd/system/zram-config.service /etc/systemd/system/zram-config-shutdown.service; then echo "FAILED (remove service)"; return 1; fi
     if ! cond_redirect sed -i '\|^ReadWritePaths=/usr/local/share/zram-config/log$|d' /lib/systemd/system/logrotate.service; then echo "FAILED (sed)"; return 1; fi
     if ! running_in_docker && ! running_on_github; then
       if ! cond_redirect systemctl unmask unattended-upgrades.service; then echo "FAILED (unmask unattended upgrades service)"; return 1; fi
@@ -116,6 +117,8 @@ init_zram_mounts() {
 
     echo -n "$(timestamp) [openHABian] Updating zram... "
     if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
+    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
+    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config-shutdown.service /etc/systemd/system/zram-config-shutdown.service; then echo "FAILED (install service)"; return 1; fi
     if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
     if ! [[ -h /var/log/zram-config ]]; then
       if ! cond_redirect ln -s /usr/local/share/zram-config/log /var/log/zram-config; then echo "FAILED (link directory)"; return 1; fi
@@ -124,6 +127,7 @@ init_zram_mounts() {
     if ! grep -qs "ReadWritePaths=/usr/local/share/zram-config/log" /lib/systemd/system/logrotate.service; then
       echo "ReadWritePaths=/usr/local/share/zram-config/log" >> /lib/systemd/system/logrotate.service
     fi
+    if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
     if cond_redirect systemctl start zram-config.service; then echo "OK"; else echo "FAILED (start service)"; return 1; fi
   else
     echo "$(timestamp) [openHABian] Refusing to update zram as it is not installed, please install and then try again... EXITING"
