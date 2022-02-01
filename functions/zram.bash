@@ -128,7 +128,7 @@ init_zram_mounts() {
       echo "ReadWritePaths=/usr/local/share/zram-config/log" >> /lib/systemd/system/logrotate.service
     fi
     if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
-    if cond_redirect systemctl start zram-config.service; then echo "OK"; else echo "FAILED (start service)"; return 1; fi
+    if cond_redirect systemctl restart zram-config.service zram-config-shutdown.service; then echo "OK"; else echo "FAILED (start service)"; return 1; fi
   else
     echo "$(timestamp) [openHABian] Refusing to update zram as it is not installed, please install and then try again... EXITING"
     return 1
