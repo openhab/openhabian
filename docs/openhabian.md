@@ -143,7 +143,7 @@ Going beyond what the RPi image provides, as a manually installed set of scripts
 On ARM, we only support Raspberry Pi OS.
 These are what we develop and test openHABian against.
 We provide code that is reported "as-is" to run on Ubuntu but we do **not support Ubuntu** so please don't open issues for this (PRs then again are welcome).
-Several optional components though, such as WireGuard or Homegear, are known to expose problems on Ubuntu.
+Several optional components such as WireGuard or Homegear are known to expose problems on Ubuntu.
 
 We expect you to use the current stable distribution: 'bullseye' for Raspberry Pi OS (ARM) and Debian (x86).
 To install openHABian on anything older or newer may work or not.
