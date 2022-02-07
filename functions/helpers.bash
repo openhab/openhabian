@@ -517,12 +517,18 @@ is_wifi_connected() {
 ##    zram_dependency
 ##
 zram_dependency() {
-  local zramServiceConfig="/etc/systemd/system/zram-config.service"
+  local zramServiceConfig="/etc/systemd/system/zram.service.d/override.conf"
   local install="yes"
 
   if ! [[ -f /etc/ztab ]]; then return 0; fi
   if [[ "$1" == "install" ]]; then shift 1; fi
   if [[ "$1" == "remove" ]]; then install="no"; shift 1; fi
+
+  if ! [[ -f $zramServiceConfig ]]; then
+    echo -n "$(timestamp) [openHABian] Setting up zram service... "
+    if ! cond_redirect mkdir -p /etc/systemd/system/zram.service.d; then echo "FAILED (prepare directory)"; return 1; fi
+    if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/zram-override.conf /etc/systemd/system/zram.service.d/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
+  fi
 
   for arg in "$@"; do
     if [[ "$install" == "yes" ]] && ! grep -qs "${arg}.service" $zramServiceConfig; then
