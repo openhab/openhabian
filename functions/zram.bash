@@ -88,7 +88,7 @@ init_zram_mounts() {
     if cond_redirect systemctl enable --now zram-config.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
   elif [[ $1 == "uninstall" ]]; then
     echo -n "$(timestamp) [openHABian] Removing zram service... "
-    if ! cond_redirect zram-config "stop"; then echo "FAILED (stop zram)"; return 1; fi
+    if ! cond_redirect systemctl stop zram-config.service; then echo "FAILED (stop zram)"; return 1; fi
     if ! cond_redirect systemctl disable zram-config.service; then echo "FAILED (disable service)"; return 1; fi
     if ! cond_redirect rm -f /etc/systemd/system/zram-config.service; then echo "FAILED (remove service)"; return 1; fi
     if ! cond_redirect sed -i '\|^ReadWritePaths=/usr/local/share/zram-config/log$|d' /lib/systemd/system/logrotate.service; then echo "FAILED (sed)"; return 1; fi
@@ -106,7 +106,7 @@ init_zram_mounts() {
     if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
   elif [[ -f /etc/ztab ]]; then
     echo -n "$(timestamp) [openHABian] Updating zram service... "
-    if ! cond_redirect zram-config "stop"; then echo "FAILED (stop zram)"; return 1; fi
+    if ! cond_redirect systemctl stop zram-config.service; then echo "FAILED (stop zram)"; return 1; fi
     if cond_redirect install_zram_code "$zramInstallLocation"; then echo "OK"; else echo "FAILED (update)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Updating OverlayFS... "

@@ -295,7 +295,7 @@ migrate_installation() {
 
   javaVersion="$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')"
   # shellcheck disable=SC2154
-  [[ "$zraminstall" != "disable" ]] && zram_is_installed && if cond_redirect zram-config "stop"; then echo "OK"; else echo "FAILED (stop zram)"; return 1; fi
+  [[ "$zraminstall" != "disable" ]] && zram_is_installed && if cond_redirect systemctl stop zram-config.service; then echo "OK"; else echo "FAILED (stop zram)"; return 1; fi
   backup_openhab_config
 
   if [[ -z "$javaVersion" ]] || [[ "${javaVersion}" -lt "11" ]]; then

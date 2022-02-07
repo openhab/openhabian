@@ -255,7 +255,7 @@ create_mount() {
 srv_bind_mounts() {
   if [[ -f /etc/ztab ]] && [[ $(systemctl is-active zram-config.service) == "active" ]]; then
     echo -n "$(timestamp) [openHABian] Stopping zram service... "
-    if cond_redirect zram-config "stop"; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect systemctl stop zram-config.service; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Preparing openHAB folder mounts under '/srv/openhab-*'... "
