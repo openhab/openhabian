@@ -298,6 +298,7 @@ setup_wb_config() {
     else
       cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${wallboxtype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
       chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+      chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
     fi
   done
 
