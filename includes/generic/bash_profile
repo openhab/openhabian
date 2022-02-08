@@ -27,7 +27,10 @@ if [ ! -f "/usr/bin/raspi-config" ]; then
 fi
 
 echo
-#FireMotD --theme Gray -MT    # does not use cache; might get removed 
+if [ -f ~/.firemotd-cache ]; then
+     cat ~/.firemotd-cache
+ fi
+ (FireMotD --theme Gray > ~/.firemotd-cache &) &>/dev/null      # does not use cache; might get removed in the near future
 
 if openhab3_is_installed; then OHPKG="openhab"; else OHPKG="openhab2"; fi
 
