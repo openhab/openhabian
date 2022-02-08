@@ -353,7 +353,8 @@ openHABian has a number of features built in to enhance resilience:
     See \[menu option 52\].
 
 Standard openHABian install enables zram by default (#1).
-Once you attach a _safe_ external medium to your system (such as an SSD), you can disable zram (#1) and move the system over using menu options 37 (#2).
+You can disable zram (#1) and move the system over using menu options 37 (#3) once you attached a _safe_ external medium to your system (such as an SSD), but we recommend against doing so.
+[To restate](#befair): this setup is not supported by us maintainers and you'll be on your very own to find and fix any problems you might run into.
 Finally, we strongly suggest you install Amanda (#4) right after you finish your setup.
 Amanda is to take care to backup the whole system to be able to quickly restore it when in need.
 This is not done by default because it requires a number of user inputs, but you should not skip it for your own safety!
