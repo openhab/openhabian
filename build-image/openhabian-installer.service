@@ -7,8 +7,8 @@ ConditionPathExists=!/opt/openHABian-install-successful
 [Service]
 Type=idle
 ExecStart=/boot/first-boot.bash
-StandardOutput=syslog+console
-StandardError=syslog+console
- 
+StandardOutput=journal+console
+StandardError=journal+console
+
 [Install]
 WantedBy=multi-user.target
