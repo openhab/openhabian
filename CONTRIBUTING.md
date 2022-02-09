@@ -27,7 +27,7 @@ Pull requests descriptions should be as clear as possible and include a referenc
 Pull requests must not contain commits from other users or branches.
 
 Commit messages **must** start with a capitalized and short summary (max. 50 chars) written in the imperative, followed by an optional, more detailed explanatory text which is separated from the summary by an empty line.
-See [here](https://chris.beams.io/posts/git-commit) for great explanation as to why.
+See [here](https://cbea.ms/git-commit/) for great explanation as to why.
 
 Code review comments may be added to your pull request.
 Discuss, then make the suggested modifications and push additional commits to your feature branch.
