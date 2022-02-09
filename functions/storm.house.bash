@@ -325,6 +325,7 @@ setup_wb_config() {
       fi
     fi
   done
+  cp "${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${invertertype}.png" /etc/openhab/icons/inverter.png
 
   srcfile="${OPENHAB_CONF:-/etc/openhab}/icons/STORE/wallbox/${1:-${wallboxtype}}.png"
   if [[ -f $srcfile ]]; then
