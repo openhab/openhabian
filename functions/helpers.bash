@@ -440,7 +440,7 @@ wait_for_apt_to_be_ready() {
 ##    apt_update()
 ##
 apt_update() {
-  apt-get update &> /dev/null & PID_APT=$!
+  apt-get update &> /dev/null & export PID_APT=$!
 }
 
 ## Wait for background 'apt-get update' process to finish or
@@ -449,11 +449,26 @@ apt_update() {
 ##    wait_for_apt_to_finish_update()
 ##
 wait_for_apt_to_finish_update() {
-  echo -n "$(timestamp) [openHABian] Updating Linux package information... "
+  local i
+  local j
+
   if [[ -z $PID_APT ]]; then
     apt_update
   fi
-  if tail --pid=$PID_APT -f /dev/null; then echo "OK"; else echo "FAILED"; return 1; fi
+  tput sc
+  while kill -0 "$PID_APT" &> /dev/null; do
+    case $(($((i++)) % 4)) in
+        0 ) j="-" ;;
+        1 ) j="\\" ;;
+        2 ) j="|" ;;
+        3 ) j="/" ;;
+    esac
+    tput rc
+    echo -n "$(timestamp) [openHABian] Updating Linux package information... [$j]"
+    sleep 0.5
+  done
+  tput rc
+  echo "$(timestamp) [openHABian] Updating Linux package information... OK"
 }
 
 ## Select destination block device
