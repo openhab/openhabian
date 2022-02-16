@@ -449,22 +449,17 @@ apt_update() {
 ##    wait_for_apt_to_finish_update()
 ##
 wait_for_apt_to_finish_update() {
+  local spin='-\|/'
   local i
-  local j
 
   if [[ -z $PID_APT ]]; then
     apt_update
   fi
   tput sc
   while kill -0 "$PID_APT" &> /dev/null; do
-    case $(($((i++)) % 4)) in
-        0 ) j="-" ;;
-        1 ) j="\\" ;;
-        2 ) j="|" ;;
-        3 ) j="/" ;;
-    esac
+    i=$(( (i + 1) % 4 ))
     tput rc
-    echo -n "$(timestamp) [openHABian] Updating Linux package information... [$j]"
+    echo -n "$(timestamp) [openHABian] Updating Linux package information... ${spin:i:1}"
     sleep 0.5
   done
   tput rc
