@@ -482,10 +482,12 @@ use_framebuffer() {
 
   sed -i '/^[[:space:]]*max_framebuffers/d' /boot/config.txt
   if [[ ${1:-${framebuffer:-enable}} == "enable" ]]; then
-    /usr/bin/tvservice -p   # switches HDMI back on
+    echo -n "$(timestamp) [openHABian] Turning the framebuffer on... "
+    if cond_redirect /usr/bin/tvservice -p; then echo "OK"; else echo "FAILED"; fi   # switches HDMI back on
     echo "max_framebuffers=1" >> /boot/config.txt
   elif [[ ${1:-${framebuffer:-enable}} == "disable" ]]; then
-    /usr/bin/tvservice -o   # switches HDMI off
+    echo -n "$(timestamp) [openHABian] Turning the framebuffer off... "
+    if cond_redirect /usr/bin/tvservice -o; then echo "OK"; else echo "FAILED"; fi   # switches HDMI off
     echo "max_framebuffers=0" >> /boot/config.txt
   fi
 }
