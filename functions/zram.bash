@@ -62,7 +62,7 @@ init_zram_mounts() {
     fi
     if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
     if ! cond_redirect ln -s /usr/local/share/zram-config/log /var/log/zram-config; then echo "FAILED (link directory)"; return 1; fi
-    if cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
+    if cond_redirect install -m 644 "$zramInstallLocation"/zram-config/service/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
     echo "ReadWritePaths=/usr/local/share/zram-config/log" >> /lib/systemd/system/logrotate.service
 
     if [[ -f /etc/systemd/system/find3server.service ]]; then
@@ -79,7 +79,7 @@ init_zram_mounts() {
     fi
 
     echo -n "$(timestamp) [openHABian] Setting up zram service... "
-    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
+    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/service/SystemD/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
 
     if ! running_in_docker && ! running_on_github; then
@@ -116,12 +116,12 @@ init_zram_mounts() {
 
     echo -n "$(timestamp) [openHABian] Updating zram... "
     if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
-    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
+    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/service/SystemD/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
     if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
     if ! [[ -h /var/log/zram-config ]]; then
       if ! cond_redirect ln -s /usr/local/share/zram-config/log /var/log/zram-config; then echo "FAILED (link directory)"; return 1; fi
     fi
-    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "FAILED (logrotate)"; return 1; fi
+    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/service/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "FAILED (logrotate)"; return 1; fi
     if ! grep -qs "ReadWritePaths=/usr/local/share/zram-config/log" /lib/systemd/system/logrotate.service; then
       echo "ReadWritePaths=/usr/local/share/zram-config/log" >> /lib/systemd/system/logrotate.service
     fi
