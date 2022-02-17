@@ -13,8 +13,8 @@ create_systemd_dependencies() {
   echo -n "$(timestamp) [openHABian] Creating dependencies to jointly start services that depend on each other... "
   if ! cond_redirect mkdir -p $targetDir; then echo "FAILED (prepare directory)"; return 1; fi
   if ! cond_redirect rm -f "${targetDir}"/override.conf; then echo "FAILED (clean directory)"; return 1; fi
-  if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/openhab-override.conf "${targetDir}"/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (reload configuration)"; return 1; fi
+  if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/openhab-override.conf "${targetDir}"/override.conf; then echo "FAILED (copy configuration)"; return 1; fi
+  if cond_redirect systemctl -q daemon-reload; then echo "OK"; else echo "FAILED (reload configuration)"; return 1; fi
 }
 
 ## Function to quickly rename openHAB rules back and forth after two minutes to
