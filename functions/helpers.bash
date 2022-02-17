@@ -574,16 +574,6 @@ fix_permissions() {
   return 0
 }
 
-## install package to set CPU usage governor to ondemand (run at maximum CPU speed if beneficial)
-##
-##    set_cpu_speed
-##
-set_cpu_speed() {
-  if ! is_raspios || running_in_docker; then return 0; fi
-  echo 'GOVERNOR="ondemand"' > /etc/default/cpufrequtils
-  echo ondemand > /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
-}
-
 ## Function to check if openHAB is running on the current system. Returns
 ## 0 / true if openHAB is running and 1 / false if not.
 ##

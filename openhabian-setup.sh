@@ -78,8 +78,13 @@ cd /opt || exit 1
 # update openhabian.conf to have latest set of parameters
 update_openhabian_conf
 
-# eventually set CPU speed
-set_cpu_speed
+# Fix cpufreq being removed by uninstalling raspi-config, could be removed
+# eventually (late 2022?) once we are sure that there are no longer systems that
+# have the issue.
+if ! [[ -f /etc/init.d/openhabian-config ]]; then
+  cond_redirect wget -nv -O /etc/init.d/openhabian-config https://github.com/RPi-Distro/raspi-config/raw/master/debian/raspi-config.init
+  sed -i -e 's/raspi-config/openhabian-config/' /etc/init.d/openhabian-config
+fi
 
 # disable ipv6 if requested in openhabian.conf (eventually reboots)
 config_ipv6

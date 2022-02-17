@@ -35,11 +35,15 @@ system_upgrade() {
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
   if [[ -x $(command -v raspi-config) ]]; then
+    # Preserve cpu governor startup script
+    cp /etc/init.d/raspi-config /etc/init.d/openhabian-config
+    sed -i -e 's/raspi-config/openhabian-config/' /etc/init.d/openhabian-config
+    # Get rid of the rest
     if ! cond_redirect apt-get purge --yes raspi-config; then echo "FAILED (remove raspi-config)"; return 1; fi
   fi
 
   if cond_redirect apt-get install --yes screen vim nano mc vfu bash-completion coreutils \
-    htop curl wget multitail git util-linux bzip2 zip unzip xz-utils cpufrequtils lsb-release \
+    htop curl wget multitail git util-linux bzip2 zip unzip xz-utils lsb-release \
     software-properties-common man-db whiptail acl usbutils dirmngr arping apt-utils; \
   then echo "OK"; else echo "FAILED"; exit 1; fi
 }
@@ -405,9 +409,6 @@ misc_system_settings() {
     if ! cond_redirect systemd-tmpfiles --create --prefix /var/log/journal; then echo "FAILED (systemd-tmpfiles)"; return 1; fi
     cond_echo "Keeping at most 30 days of systemd journal entries"
     if ! cond_redirect journalctl --vacuum-time=30d; then echo "FAILED (journalctl)"; return 1; fi
-
-    # run at full CPU when needed
-    echo 'GOVERNOR="ondemand"'> /etc/default/cpufrequtils
 
     # enable I2C port
     if ! grep -qs "^[[:space:]]*dtparam=i2c_arm=on" /boot/config.txt; then echo "dtparam=i2c_arm=on" >> /boot/config; fi
