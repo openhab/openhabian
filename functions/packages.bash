@@ -673,7 +673,7 @@ deconz_setup() {
 
   # change default port deconz runs on (80)
   if ! cond_redirect sed -i -e 's|http-port=80$|http-port='"${port}"' --ws-port='"${port}"'|g' /lib/systemd/system/deconz.service; then echo "FAILED (replace port in service start)"; return 1; fi
-  if cond_redirect systemctl restart deconz.service; then echo "OK"; else echo "FAILED (service restart with modified port)"; return 1; fi
+  if cond_redirect systemctl enable deconz.service && cond_redirect systemctl restart deconz.service; then echo "OK"; else echo "FAILED (service restart with modified port)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "deCONZ install successfull" --msgbox "$successText" 11 80
