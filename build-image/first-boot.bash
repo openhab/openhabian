@@ -11,7 +11,7 @@ export SILENT="1"
 exec &> >(tee -a "/boot/first-boot.log")
 
 # Log with timestamp
-timestamp() { date +"%F_%T_%Z"; }
+timestamp() { printf "%(%F_%T_%Z)T\\n" "-1"; }
 
 fail_inprogress() {
   rm -f /opt/openHABian-install-inprogress

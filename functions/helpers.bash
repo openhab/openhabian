@@ -16,7 +16,7 @@ COL_DGRAY=$ESC"90;01m"
 export COL_DEF COL_RED COL_GREEN COL_YELLOW COL_BLUE COL_MAGENTA COL_CYAN COL_LGRAY COL_DGRAY
 
 # Log with timestamp
-timestamp() { date +"%F_%T_%Z"; }
+timestamp() { printf "%(%F_%T_%Z)T\\n" "-1"; }
 
 ## This enables printout of both a executed command and its output
 ##
@@ -440,7 +440,7 @@ wait_for_apt_to_be_ready() {
 ##    apt_update()
 ##
 apt_update() {
-  apt-get update &> /dev/null & export PID_APT=$!
+  nohup apt-get update &> /dev/null & export PID_APT=$!
 }
 
 ## Wait for background 'apt-get update' process to finish or
@@ -455,15 +455,13 @@ wait_for_apt_to_finish_update() {
   if [[ -z $PID_APT ]]; then
     apt_update
   fi
-  tput sc
+  echo -n "$(timestamp) [openHABian] Updating Linux package information... "
   while kill -0 "$PID_APT" &> /dev/null; do
     i=$(( (i + 1) % 4 ))
-    tput rc
-    echo -n "$(timestamp) [openHABian] Updating Linux package information... ${spin:i:1}"
+    echo -ne "${spin:i:1} ${ESC}2D"
     sleep 0.5
   done
-  tput rc
-  echo "$(timestamp) [openHABian] Updating Linux package information... OK"
+  echo "OK"
 }
 
 ## Select destination block device

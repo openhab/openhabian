@@ -297,7 +297,7 @@ grafana_debug_info() {
 
   temp="$(pgrep -a grafana)"
 
-  echo -e "\\n$(date)\\n---"
+  echo -e "\\n$(timestamp)\\n---"
   tail -n40 /var/log/grafana/grafana.log | sed 's|^|DEBUG  |'
   echo -e "---\\n${temp:-Grafana NOT running!}" | sed 's|^|DEBUG  |'
   echo "---"

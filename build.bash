@@ -235,7 +235,7 @@ grow_image() {
 #### Build script start ####
 ############################
 
-timestamp="$(date +%Y%m%d%H%M)"
+timestamp="$(printf "%(%Y%m%d%H%M)T\\n" "-1")"
 fileTag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
 
