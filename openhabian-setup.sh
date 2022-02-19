@@ -27,6 +27,9 @@ SCRIPTNAME="$(basename "$SOURCE")"
 # Trap CTRL+C, CTRL+Z and quit singles
 trap '' SIGINT SIGQUIT SIGTSTP
 
+# Log with timestamp
+timestamp() { printf "%(%F_%T_%Z)T\\n" "-1"; }
+
 # Make sure only root can run our script
 echo -n "$(timestamp) [openHABian] Checking for root privileges... "
 if [[ $EUID -ne 0 ]]; then
