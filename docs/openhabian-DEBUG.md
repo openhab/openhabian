@@ -8,7 +8,8 @@ source: https://github.com/openhab/openhabian/blob/main/docs/openhabian-DEBUG.md
 
 This document is meant to give a guiding hand to users when their openHABian install fails either on initial image installation or later on when running menu options that install or configure optional components.
 
-::: tip [TLDR](https://www.howtogeek.com/435266/what-does-tldr-mean-and-how-do-you-use-it/)
+::: tip
+[TLDR](https://www.howtogeek.com/435266/what-does-tldr-mean-and-how-do-you-use-it/)
 Set `debugmode=maximum`in `/etc/openhabian.conf` and see `/boot/first-boot.log` for image installation else record the terminal output.
 :::
 
