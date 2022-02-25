@@ -504,7 +504,8 @@ If you want to get involved, you found a bug, or just want to see what's planned
 
 <a id="changelog"></a>
 ### Where can I find a changelog for openHABian?
-Official announcements are co-located with the download links [here](https://github.com/openhab/openhabian/releases).
+Official announcements are displayed on starting `openhabian-config` and stored in `NEWS.md` (a file in `/opt/openhabian`).
+Release notes are also co-located with the download links [here](https://github.com/openhab/openhabian/releases).
 If you want to stay in touch with all the latest code changes under the hood, see [commit history](https://github.com/openhab/openhabian/commits/main) for openHABian.
 You'll also see commits "fly by" when executing the "Update" function within the openHABian Configuration Tool.
 
