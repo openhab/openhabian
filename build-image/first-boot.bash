@@ -43,6 +43,8 @@ elif [[ "${debugmode:-on}" == "maximum" ]]; then
   set -x
 fi
 
+rfkill unblock wifi   # Wi-Fi is blocked by Raspi OS default since bullseye(?)
+
 echo -n "$(timestamp) [openHABian] Starting webserver with installation log... "
 if [[ -x $(command -v python3) ]]; then
   bash /boot/webserver.bash "start"
