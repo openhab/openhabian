@@ -401,7 +401,7 @@ So in addition to the setup instructions given above, uncomment and complete the
 
 #### Wi-Fi Hotspot
 When your openHABian box does not get Internet connectivity through either Ethernet or WI-Fi (if configured), openHABian will launch a **Hotspot**.
-Use your mobile phone to scan for Wi-Fi networks, you should be seeing a new network called `openHABian-<n>`.
+Use your mobile phone to scan for Wi-Fi networks, you should be seeing a new network called `openHABian-<n>` with `<n>` being a digit.
 Connecting will work without a password. Once connected, most smartphones will transfer you to a web page.
 If this does not happen on your mobile device, open your browser on the mobile and point it at `http://raspberrypi.local` or `http://comitup-<n>`.
 This may or may not work for your mobile browser as it requires Bonjour/ZeroConf abilities.
