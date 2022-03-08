@@ -99,8 +99,6 @@ if [[ -z $wifi_ssid ]]; then
 elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
   echo -n "$(timestamp) [openHABian] Checking if WiFi is working... "
   if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
-    # WiFi might be blocked
-    rfkill unblock wifi
     ip link set wlan0 up
     if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
       echo "FAILED"
