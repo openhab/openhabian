@@ -32,8 +32,10 @@ setup_pv_config() {
       rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
     else
       cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-      chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-      chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
+      if [[ $(whoami) == "root" ]]; then
+        chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
+        chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
+      fi
     fi
   done
   cp "${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${invertertype}.png" /etc/openhab/icons/inverter.png
@@ -82,8 +84,10 @@ setup_wb_config() {
       rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
     else
       cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${wallboxtype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
-      chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
-      chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+      if [[ $(whoami) == "root" ]]; then
+        chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+        chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+      fi
     fi
   done
 
