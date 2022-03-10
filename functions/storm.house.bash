@@ -146,6 +146,10 @@ setup_inv_config() {
     fi
   done
   cp "${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${1:-${invertertype}}.png" /etc/openhab/icons/inverter.png
+  if [[ $(whoami) == "root" ]]; then
+    chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/icons/inverter.png
+    chmod 664 "${OPENHAB_CONF:-/etc/openhab}/icons/inverter.png"
+  fi
 
 
   srcfile="${OPENHAB_CONF:-/etc/openhab}/icons/STORE/inverter/${1:-${invertertype}}.png"
