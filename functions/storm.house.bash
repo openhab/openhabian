@@ -38,7 +38,7 @@ setup_pv_config() {
       fi
     fi
   done
-  cp "${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${invertertype}.png" /etc/openhab/icons/inverter.png
+  cp "${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${1:-${invertertype}}.png" /etc/openhab/icons/inverter.png
 
   sed -i "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
   
