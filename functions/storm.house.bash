@@ -9,6 +9,7 @@
 ##
 setup_pv_config() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+  local inverterPNG="${OPENHAB_CONF:-/etc/openhab}/icons/classic/inverter.png"
 
 
   if [[ -n "$UNATTENDED" ]]; then
@@ -38,10 +39,10 @@ setup_pv_config() {
       fi
     fi
   done
-  cp "${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${1:-${invertertype}}.png" /etc/openhab/icons/inverter.png
+  cp "${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${1:-${invertertype}}.png" "$inverterPNG"
   if [[ $(whoami) == "root" ]]; then
-    chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/icons/inverter.png
-    chmod 664 "${OPENHAB_CONF:-/etc/openhab}/icons/inverter.png"
+    chown "${username:-openhabian}:openhab" "$inverterPNG"
+    chmod 664 "$inverterPNG"
   fi
 
   sed -i "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
