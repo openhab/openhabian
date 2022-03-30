@@ -2,6 +2,9 @@ Hit tab to unselect buttons and scroll through the text using UP/DOWN or
 PGUP/PGDN. All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md`
 for you to lookup.
 
+## Raspberry Pi OS 64bit support ## April 1, 2022
+No, not an April Fools joke. It is finally here. The title says it all.
+
 ## Major Java provider switch ## December 15, 2021
 We have switched to supporting only the OpenJDK package provided by default from
 the APT repo for all new installations of openHABian. Existing installations
@@ -20,26 +23,3 @@ this addon.
 
 You can install it today using `openhabian-config` menu option 25, which will
 install / upgrade all necessary components for Node-RED operation.
-
-## openHABian 1.7 ## December 1, 2021
-We have upgraded our base operating system to Raspberry Pi OS Bullseye.
-
-As usual upgrades on supported systems will be unaffected, use the
-`openhabian-config` menu to apply any updates available to your system. We will
-not automatically update your current base system (i.e buster -> bullseye) -
-don't fix what ain't broke. Debian buster will be at least supported two more
-years. If you are eager to upgrade, read up on `dist-upgrade` or reinstall your
-system. Please note that if you choose to upgrade and not reinstall, you are on
-your own, don't expect to get support from the developers of openHABian if
-something goes wrong.
-
-Noteworthy changes since last image release:
-  * New base OS: Raspberry Pi OS Bullseye
-  * Added support for Raspberry Pi Zero 2 W
-  * Ability to update zram without reinstalling it
-  * More robust Java install routine
-  * Fixed Amanda install not prompting for email address to send reports to
-  * General bug fixes
-
-Known bugs:
-  * Homegear is currently broken on Bullseye (complain to their devs)

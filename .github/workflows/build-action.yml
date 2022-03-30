@@ -55,12 +55,12 @@ jobs:
          run: |
            sudo -E ./tests/ci-setup.bash github ${{ github.ref_name }}
            sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios32.conf
-           sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios64beta.conf
+           sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios64.conf
            sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
            sudo -E ./build.bash rpi
            sudo -E ./build.bash rpi64
            echo "::set-output name=image32::$(ls openhabian-pi-raspios32*.img.xz)"
-           echo "::set-output name=image64::$(ls openhabian-pi-raspios64beta*.img.xz)"
+           echo "::set-output name=image64::$(ls openhabian-pi-raspios64*.img.xz)"
        - name: Archive openHABian 32bit image
          uses: actions/upload-artifact@v2
          with:
