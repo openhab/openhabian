@@ -1,3 +1,6 @@
+## Raspberry Pi OS 64bit support ## April 1, 2022
+No, not an April Fools joke. It is finally here. The title says it all.
+
 ## Major Java provider switch ## December 15, 2021
 We have switched to supporting only the OpenJDK package provided by default from
 the APT repo for all new installations of openHABian. Existing installations

@@ -1,4 +1,4 @@
-﻿As an **openHAB end user** looking for a system to run on, please check out the official documentation:  
+﻿As an **openHAB end user** looking for a system to run on, please check out the official documentation:
 -   <https://www.openhab.org/docs/installation/openhabian.html>
 
 # openHABian - Hassle-free openHAB Setup
@@ -89,13 +89,8 @@ Either way, please note that you're on your own when it comes to configuring and
 
 ### 64 bit?
 RPi3 and 4 have a 64 bit processor and you may want to run openHAB in 64 bit.
-We provide a 64bit version of the image but it is unsupported so use it at your own risk.
-Please don't ask for support if it does not work for you.
-It's just provided as-is.
-Be aware that to run in 64 bit has a major drawback: increased memory usage.
+Be aware that running in 64 bit has a major drawback: increased memory usage.
 That is not a good idea on a heavily memory constrained platform like a RPi.
-Also remember openHABian makes use of Raspberry Pi OS which as per today still is a 32 bit OS.
-We are closely observing development and will adapt openHABian once it will reliably work on 64 bit.
 
 On x86 hardware, 64 bit is the standard.
 

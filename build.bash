@@ -8,7 +8,7 @@ set -e
 
 usage() {
   echo -e "Usage: $(basename "$0") <platform> [dev-git|dev-url] <branch> <url>"
-  echo -e "\\nCurrently supported platforms: rpi, rpi64 (beta)"
+  echo -e "\\nCurrently supported platforms: rpi, rpi64"
 }
 
 cleanup_build() {
@@ -245,8 +245,8 @@ if [ "$1" == "rpi" ]; then
   echo_process "Hardware platform: Raspberry Pi (rpi)"
 
 elif [ "$1" == "rpi64" ]; then
-  hwPlatform="pi-raspios64beta"
-  echo_process "Hardware platform: Raspberry Pi (rpi64) - BETA -"
+  hwPlatform="pi-raspios64"
+  echo_process "Hardware platform: Raspberry Pi (rpi64)"
 
 elif [ "$1" == "local-test" ]; then
   echo_process "Preparing local system for installation"
@@ -306,8 +306,8 @@ imageFile="${buildFolder}/${hwPlatform}.img"
 extraSize="1000"			# grow image root by this number of MB
 
 # Build Raspberry Pi image
-if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64beta" ]]; then
-  if [ "$hwPlatform" == "pi-raspios64beta" ]; then
+if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; then
+  if [ "$hwPlatform" == "pi-raspios64" ]; then
     baseURL="https://downloads.raspberrypi.org/raspios_lite_arm64_latest"
     bits="64"
   else
