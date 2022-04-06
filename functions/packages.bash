@@ -714,18 +714,19 @@ install_evcc() {
 }
 
 
-# TODO: Port wirklich konfigurierbar machen?
-
 ## Function for setting up EVCC, the Electric Vehicle Charge Controller
-## The function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+## The function can be invoked INTERACTIVE only and is German only for now.
 ##
-##    setup_evcc(int port)
-##
-## Valid argument: port to run EVCC web if on
+##    setup_evcc
 ##
 setup_evcc() {
   local port="${1:-7070}"
   local introText="This will install EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface.\\n"
 
-  #evcc configure --advanced
+  if [[ -z $INTERACTIVE ]]; then
+    echo "$(timestamp) [openHABian] EVCC setup must be run in interactive mode! Canceling EVCC configuration."
+    return 0
+  fi
+
+  evcc configure --advanced
 }
