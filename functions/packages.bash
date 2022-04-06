@@ -740,11 +740,12 @@ setup_evcc() {
 
   whiptail --title "EVCC configuration" --msgbox "$introText" 8 80
 
-  evcc configure --advanced
-
-  cp /etc/evcc.yaml /etc/evcc.yaml.SAVE
-  mv evcc.yaml /etc
-  whiptail --title "EVCC configuration successfully created" --msgbox "$successText" 8 80
+  if evcc configure --advanced; then
+    whiptail --title "EVCC configuration successfully created" --msgbox "$successText" 8 80
+  
+    cp /etc/evcc.yaml /etc/evcc.yaml.SAVE
+    mv evcc.yaml /etc
+  fi
   echo -n "$(timestamp) [openHABian] Restarting EVCC... "
   if cond_redirect systemctl restart evcc.service; then echo "OK"; else echo "FAILED"; fi
 }
