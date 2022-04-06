@@ -679,3 +679,53 @@ deconz_setup() {
     whiptail --title "deCONZ install successfull" --msgbox "$successText" 11 80
   fi
 }
+
+## Function for (un)installing EVCC, the Electric Vehicle Charge Controller
+## The function must be invoked UNATTENDED.
+## Valid arguments: "install" or "remove"
+##
+##   install_evcc(String action)
+##
+##
+install_evcc() {
+  local keyName="evcc"
+  local repokeyurl="https://dl.cloudsmith.io/public/evcc/stable/gpg.key"
+  local repourl="https://dl.cloudsmith.io/public/evcc/stable/debian.deb.txt"
+  local repo="/etc/apt/sources.list.d/evcc.list"
+  local tmprepo
+  tmprepo="$(mktemp -d "${TMPDIR:-/tmp}"/repo.XXXXX)/evcc.list"
+
+  if [[ $1 == "remove" ]]; then
+    echo -n "$(timestamp) [openHABian] Removing EVCC... "
+    if ! cond_redirect systemctl disable --now evcc.service; then echo "FAILED (disable evcc.service)"; return 1; fi
+    if cond_redirect apt-get purge -y evcc; then echo "OK"; else echo "FAILED"; return 1; fi
+    return;
+  fi
+
+  if [[ $1 != "install" ]]; then return 1; fi
+    if ! cond_redirect apt-get install debian-keyring debian-archive-keyring; then echo "FAILED"; return 1; fi
+  if ! curl -1sLf "$repokeyurl" > /etc/apt/trusted.gpg.d/evcc-stable.asc; then echo -n "FAILED (retrieve EVCC repo key) "; fi
+  if ! add_keys "$repokeyurl" "$keyName"; then echo "FAILED (add EVCC repo key)"; return 1; fi
+  if curl -1sLf $repourl > "$tmprepo"; then cp "$tmprepo" "$repo"; else echo -n "FAILED (retrieve latest repo URL) "; fi   # continue without overwriting repo
+  echo -n "$(timestamp) [openHABian] Installing EVCC... "
+  if ! cond_redirect apt install -y evcc; then echo "FAILED (EVCC package installation)"; return 1; fi
+
+  if ! cond_redirect systemctl enable --now evcc.service; then echo "FAILED (enable evcc.service)"; return 1; fi
+}
+
+
+# TODO: Port wirklich konfigurierbar machen?
+
+## Function for setting up EVCC, the Electric Vehicle Charge Controller
+## The function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
+##
+##    setup_evcc(int port)
+##
+## Valid argument: port to run EVCC web if on
+##
+setup_evcc() {
+  local port="${1:-7070}"
+  local introText="This will install EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface.\\n"
+
+  #evcc configure --advanced
+}
