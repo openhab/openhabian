@@ -740,9 +740,9 @@ setup_evcc() {
 
   whiptail --title "EVCC configuration" --msgbox "$introText" 8 80
 
-  if evcc configure --advanced; then
+  evcc configure --advanced
+  if [[ -f evcc.yaml ]]; then
     whiptail --title "EVCC configuration successfully created" --msgbox "$successText" 8 80
-  
     cp /etc/evcc.yaml /etc/evcc.yaml.SAVE
     mv evcc.yaml /etc
   fi
