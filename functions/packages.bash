@@ -688,6 +688,9 @@ deconz_setup() {
 ##
 ##
 install_evcc() {
+  local port=7070
+  local installText="This will install EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface."
+  local removeText="This will remove EVCC, the Electric Vehicle Charge Controller."
   local keyName="evcc"
   local repokeyurl="https://dl.cloudsmith.io/public/evcc/stable/gpg.key"
   local repourl="https://dl.cloudsmith.io/public/evcc/stable/debian.deb.txt"
@@ -696,6 +699,9 @@ install_evcc() {
   tmprepo="$(mktemp -d "${TMPDIR:-/tmp}"/repo.XXXXX)/evcc.list"
 
   if [[ $1 == "remove" ]]; then
+    if [[ -n $INTERACTIVE ]]; then
+      whiptail --title "EVCC removal" --msgbox "$removeText" 7 80
+    fi
     echo -n "$(timestamp) [openHABian] Removing EVCC... "
     if ! cond_redirect systemctl disable --now evcc.service; then echo "FAILED (disable evcc.service)"; return 1; fi
     if cond_redirect apt-get purge -y evcc; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -703,7 +709,10 @@ install_evcc() {
   fi
 
   if [[ $1 != "install" ]]; then return 1; fi
-    if ! cond_redirect apt-get install debian-keyring debian-archive-keyring; then echo "FAILED"; return 1; fi
+  if [[ -n $INTERACTIVE ]]; then
+    whiptail --title "EVCC installation" --msgbox "$installText" 8 80
+  fi
+  if ! cond_redirect apt-get install debian-keyring debian-archive-keyring; then echo "FAILED"; return 1; fi
   if ! curl -1sLf "$repokeyurl" > /etc/apt/trusted.gpg.d/evcc-stable.asc; then echo -n "FAILED (retrieve EVCC repo key) "; fi
   if ! add_keys "$repokeyurl" "$keyName"; then echo "FAILED (add EVCC repo key)"; return 1; fi
   if curl -1sLf $repourl > "$tmprepo"; then cp "$tmprepo" "$repo"; else echo -n "FAILED (retrieve latest repo URL) "; fi   # continue without overwriting repo
@@ -721,12 +730,18 @@ install_evcc() {
 ##
 setup_evcc() {
   local port="${1:-7070}"
-  local introText="This will install EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface.\\n"
+  local introText="This will create a configuration for EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface."
 
   if [[ -z $INTERACTIVE ]]; then
     echo "$(timestamp) [openHABian] EVCC setup must be run in interactive mode! Canceling EVCC configuration."
     return 0
   fi
 
+  whiptail --title "EVCC configuration" --msgbox "$introText" 11 80
+
   evcc configure --advanced
+
+  cp /etc/evcc.yaml /etc/evcc.yaml.SAVE
+  mv evcc.yaml /etc
+    whiptail --title "EVCC configuration successfully created" --msgbox "$successText" 11 80
 }
