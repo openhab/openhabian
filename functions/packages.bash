@@ -731,17 +731,20 @@ install_evcc() {
 setup_evcc() {
   local port="${1:-7070}"
   local introText="This will create a configuration for EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface."
+  local successText="You have successfully created a configuration file for EVCC, the Electric Vehicle Charge Controller\\nIt replaces /etc/evcc.yaml."
 
   if [[ -z $INTERACTIVE ]]; then
     echo "$(timestamp) [openHABian] EVCC setup must be run in interactive mode! Canceling EVCC configuration."
     return 0
   fi
 
-  whiptail --title "EVCC configuration" --msgbox "$introText" 11 80
+  whiptail --title "EVCC configuration" --msgbox "$introText" 8 80
 
   evcc configure --advanced
 
   cp /etc/evcc.yaml /etc/evcc.yaml.SAVE
   mv evcc.yaml /etc
-    whiptail --title "EVCC configuration successfully created" --msgbox "$successText" 11 80
+  whiptail --title "EVCC configuration successfully created" --msgbox "$successText" 8 80
+  echo -n "$(timestamp) [openHABian] Restarting EVCC... "
+  if cond_redirect systemctl restart evcc.service; then echo "OK"; else echo "FAILED"; fi
 }
