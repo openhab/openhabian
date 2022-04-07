@@ -5,7 +5,7 @@ permit_join: true
 mqtt:
   base_topic: zigbee2mqtt
   server: mqtt://localhost
-  user: openhabian
+  user: %user
   #%password: 
 serial:
   port: /dev/serial/by-id/%adapterName
