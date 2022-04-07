@@ -108,7 +108,7 @@ show_main_menu() {
     "   | Monitor Mode"           "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
     "2B | Install HABApp"         "Python 3 integration and rule engine for openHAB" \
     "   | Remove HABApp"          "Remove HABApp from this system" \
-    "2C | Install EVCC"           "Deploy Electric Vehicle Charge Controller" \
+    "2D | Install EVCC"           "Deploy Electric Vehicle Charge Controller" \
     "   | Remove EVCC"            "Uninstall EVCC" \
     "   | Setup EVCC"             "Setup EVCC from command line (German only)" \
     3>&1 1>&2 2>&3)
@@ -130,7 +130,7 @@ show_main_menu() {
       *Monitor\ Mode) setup_monitor_mode ;;
       2B\ *) habapp_setup "install";;
       *Remove\ HABApp*) habapp_setup "remove";;
-      2C\ *) install_evcc "install";;
+      2D\ *) install_evcc "install";;
       *Remove\ EVCC*) install_evcc "remove";;
       *Setup\ EVCC*) setup_evcc;;
       "") return 0 ;;
