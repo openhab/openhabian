@@ -719,6 +719,7 @@ install_evcc() {
   echo -n "$(timestamp) [openHABian] Installing EVCC... "
   if ! cond_redirect apt install -y evcc; then echo "FAILED (EVCC package installation)"; return 1; fi
 
+  sed -i '/^RestartSec=.*/a User='"${username}" /lib/systemd/system/evcc.service
   if ! cond_redirect systemctl enable --now evcc.service; then echo "FAILED (enable evcc.service)"; return 1; fi
 }
 
@@ -729,6 +730,7 @@ install_evcc() {
 ##    setup_evcc
 ##
 setup_evcc() {
+  local evccConfig="evcc.yaml"
   local port="${1:-7070}"
   local introText="This will create a configuration for EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface."
   local successText="You have successfully created a configuration file for EVCC, the Electric Vehicle Charge Controller\\nIt replaces /etc/evcc.yaml."
@@ -741,10 +743,11 @@ setup_evcc() {
   whiptail --title "EVCC configuration" --msgbox "$introText" 8 80
 
   evcc configure --advanced
-  if [[ -f evcc.yaml ]]; then
+  if [[ -f ${evccConfig} ]]; then
     whiptail --title "EVCC configuration successfully created" --msgbox "$successText" 8 80
-    cp /etc/evcc.yaml /etc/evcc.yaml.SAVE
-    mv evcc.yaml /etc
+    cond_redirect cp /home/"${username:-openhabian}"/${evccConfig} /home/"${username:-openhabian}"/${evccConfig}.SAVE
+    cond_redirect mv "${evccConfig}" /home/"${username:-openhabian}"
+    cond_redirect chown "${username}" /home/"${username:-openhabian}"/${evccConfig}*
   fi
   echo -n "$(timestamp) [openHABian] Restarting EVCC... "
   if cond_redirect systemctl restart evcc.service; then echo "OK"; else echo "FAILED"; fi
