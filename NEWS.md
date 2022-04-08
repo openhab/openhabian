@@ -20,11 +20,3 @@ provider which you can do by running menu option 45.
 Experimental support for Java 17 has also been added along with this change. In
 the future once Adoptium (formerly AdoptOpenJDK) releases a Debian based package
 repository support for Adoptium Java installs will be added as well.
-
-## Node-RED and openHAB 3 ## December 10, 2021
-We have updated the package of the Node-RED addon for openHAB 3 to
-`node-red-contrib-openhab3` to better support openHAB 3 installations which use
-this addon.
-
-You can install it today using `openhabian-config` menu option 25, which will
-install / upgrade all necessary components for Node-RED operation.

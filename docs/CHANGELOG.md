@@ -1,3 +1,8 @@
+## Electric Vehicle Charge Controller ## April 6, 2022
+EVCC controls charging of your EV. It supports many wallboxes and vehicles.
+While there's some overlap with OH, EVCC has a two-way API and users can
+selectively combine the best of both worlds.
+
 ## Raspberry Pi OS 64bit support ## April 1, 2022
 No, not an April Fools joke. It is finally here. The title says it all.
 
