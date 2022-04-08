@@ -1,0 +1,85 @@
+uri: 0.0.0.0:7070 # uri for ui
+interval: 10s # control cycle interval
+
+log: info
+
+meters:
+- type: custom
+  name: ErzeugungsLeistung
+  power:
+    source: http
+    uri: http://localhost:8080/rest/items/ErzeugungsLeistung
+    method: GET # default HTTP method
+    headers:
+    - content-type: application/json
+    jq: .state|split(" ")[0]|split(".")[0]
+- type: custom
+  name: Netzeinspeisung
+  power:
+    source: http
+    uri: http://localhost:8080/rest/items/Netzeinspeisung
+    method: GET # default HTTP method
+    headers:
+    - content-type: application/json
+    jq: .state|split(" ")[0]|split(".")[0]
+    scale: -1
+- type: custom
+  name: LadeleistungHaus
+  power:
+    source: http
+    uri: http://localhost:8080/rest/items/LadeleistungHaus
+    method: GET # default HTTP method
+    headers:
+    - content-type: application/json
+    jq: .state|split(" ")[0]|split(".")[0]
+    scale: -1
+  soc:
+    source: http
+    uri: http://localhost:8080/rest/items/SoCHaus
+    method: GET # default HTTP method
+    headers:
+    - content-type: application/json
+    jq: .state|split(" ")[0]|split(".")[0]
+
+chargers:
+- type: template
+  template: %WBTYPE 
+  host: %IP
+  loadpointid: 1  
+  name: wallbox
+
+vehicles:
+- type: custom
+  name: SoCEAuto
+  title: mein Auto
+  capacity:
+    source: http
+    uri: http://localhost:8080/rest/items/KapazitaetEAuto
+    method: GET # default HTTP method
+    headers:
+    - content-type: application/json
+    jq: .state|split(" ")[0]|split(".")[0]
+  soc:
+    source: http
+    uri: http://localhost:8080/rest/items/SoCEAuto
+    method: GET # default HTTP method
+    headers:
+    - content-type: application/json
+    jq: .state|split(" ")[0]|split(".")[0]
+
+loadpoints:
+- charger: wallbox
+  mode: pv
+  phases: 3
+  mincurrent: 6
+  maxcurrent: 16
+  resetOnDisconnect: true
+
+site:
+  title: Zuhause
+  meters:
+    grid: Netzeinspeisung
+    pvs:
+    - ErzeugungsLeistung
+    batteries:
+    - LadeleistungHaus
