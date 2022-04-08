@@ -239,6 +239,7 @@ zigbee2mqtt_setup() {
   local mqttPWText="\\nIf your MQTT-server requires a password, please enter it here:"
   local adapterArray=()
   local mqttDefaultUser="openhabian"
+  local mqttUser
   local my_adapters
 
   if [[ -e "/opt/zigbee2mqtt/data/configuration.yaml" ]] ; then
@@ -264,6 +265,7 @@ zigbee2mqtt_setup() {
     if ! (whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "CANCELED"; return 0; fi
     if ! selectedAdapter=$(whiptail --title "Zigbee2MQTT installation" --radiolist "$adapterText" 14 100 4 $my_adapters 3>&1 1>&2 2>&3); then return 0; fi
     if ! mqttUser=$(whiptail --title "MQTT User" --inputbox "$mqttUserText" 12 80 "$mqttDefaultUser" 3>&1 1>&2 2>&3); then return 0; fi
+    if [[ -z $mqttUser ]] ; then mqttUser="$mqttDefaultUser"; fi
     if ! mqttPW=$(whiptail --title "MQTT password" --passwordbox "$mqttPWText" 12 80 3>&1 1>&2 2>&3); then return 0; fi
     if ! (whiptail --title "Zigbee2MQTT installation" --infobox "$installText" 14 80); then echo "CANCELED"; return 0; fi
   fi
@@ -285,9 +287,9 @@ zigbee2mqtt_setup() {
   
   echo -n "$(timestamp) [openHABian] zigbee2mqtt installation... "
   if ! cond_redirect sudo -u "${username:-openhabian}" npm ci ; then echo "FAILED (npm ci)"; return 1; fi
-  #if cond_redirect sudo -u "${username:-openhabian}" npm update --force -g  ; then echo "OK (update)"; else echo "FAILED (update)"; return 1; fi
-  if ! (sed -e "s|%adapterName|${adapterArray[i-1]}|g" "${BASEDIR:-/opt/openhabian}"/includes/zigbee2mqtt/configuration.yaml > /opt/zigbee2mqtt/data/configuration.yaml); then echo "FAILED (configuration.yaml file creation)"; return 1; fi
-  if [[ ! -z $mqttPW ]] ; then (sed -i -e "s|%user|$mqttUser|g" -e "s|#%password:|password: $mqttPW|g" /opt/zigbee2mqtt/data/configuration.yaml ); fi
+  if ! (sed -e "s|%adapterName|${adapterArray[i-1]}|g" -e "s|%user|$mqttUser|g" "${BASEDIR:-/opt/openhabian}"/includes/zigbee2mqtt/configuration.yaml > /opt/zigbee2mqtt/data/configuration.yaml); then echo "FAILED (configuration.yaml file creation)"; return 1; fi
+  if [[ ! -z $mqttPW ]] ; then (sed -i -e "s|#%password:|password: $mqttPW|g" /opt/zigbee2mqtt/data/configuration.yaml ); fi
+  
   echo "OK"
 
   echo -n "$(timestamp) [openHABian] Creating log directory... "
