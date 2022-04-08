@@ -679,3 +679,76 @@ deconz_setup() {
     whiptail --title "deCONZ install successfull" --msgbox "$successText" 11 80
   fi
 }
+
+## Function for (un)installing EVCC, the Electric Vehicle Charge Controller
+## The function must be invoked UNATTENDED.
+## Valid arguments: "install" or "remove"
+##
+##   install_evcc(String action)
+##
+##
+install_evcc() {
+  local port=7070
+  local installText="This will install EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface."
+  local removeText="This will remove EVCC, the Electric Vehicle Charge Controller."
+  local keyName="evcc"
+  local repokeyurl="https://dl.cloudsmith.io/public/evcc/stable/gpg.key"
+  local repourl="https://dl.cloudsmith.io/public/evcc/stable/debian.deb.txt"
+  local repo="/etc/apt/sources.list.d/evcc.list"
+  local tmprepo
+  tmprepo="$(mktemp -d "${TMPDIR:-/tmp}"/repo.XXXXX)/evcc.list"
+
+  if [[ $1 == "remove" ]]; then
+    if [[ -n $INTERACTIVE ]]; then
+      whiptail --title "EVCC removal" --msgbox "$removeText" 7 80
+    fi
+    echo -n "$(timestamp) [openHABian] Removing EVCC... "
+    if ! cond_redirect systemctl disable --now evcc.service; then echo "FAILED (disable evcc.service)"; return 1; fi
+    if cond_redirect apt-get purge -y evcc; then echo "OK"; else echo "FAILED"; return 1; fi
+    return;
+  fi
+
+  if [[ $1 != "install" ]]; then return 1; fi
+  if [[ -n $INTERACTIVE ]]; then
+    whiptail --title "EVCC installation" --msgbox "$installText" 8 80
+  fi
+  if ! cond_redirect apt-get install debian-keyring debian-archive-keyring; then echo "FAILED"; return 1; fi
+  if ! curl -1sLf "$repokeyurl" > /etc/apt/trusted.gpg.d/evcc-stable.asc; then echo -n "FAILED (retrieve EVCC repo key) "; fi
+  if ! add_keys "$repokeyurl" "$keyName"; then echo "FAILED (add EVCC repo key)"; return 1; fi
+  if curl -1sLf $repourl > "$tmprepo"; then cp "$tmprepo" "$repo"; else echo -n "FAILED (retrieve latest repo URL) "; fi   # continue without overwriting repo
+  echo -n "$(timestamp) [openHABian] Installing EVCC... "
+  if ! cond_redirect apt install -y evcc; then echo "FAILED (EVCC package installation)"; return 1; fi
+
+  sed -i '/^RestartSec=.*/a User='"${username}" /lib/systemd/system/evcc.service
+  if ! cond_redirect systemctl enable --now evcc.service; then echo "FAILED (enable evcc.service)"; return 1; fi
+}
+
+
+## Function for setting up EVCC, the Electric Vehicle Charge Controller
+## The function can be invoked INTERACTIVE only and is German only for now.
+##
+##    setup_evcc
+##
+setup_evcc() {
+  local evccConfig="evcc.yaml"
+  local port="${1:-7070}"
+  local introText="This will create a configuration for EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface."
+  local successText="You have successfully created a configuration file for EVCC, the Electric Vehicle Charge Controller\\nIt replaces /etc/evcc.yaml."
+
+  if [[ -z $INTERACTIVE ]]; then
+    echo "$(timestamp) [openHABian] EVCC setup must be run in interactive mode! Canceling EVCC configuration."
+    return 0
+  fi
+
+  whiptail --title "EVCC configuration" --msgbox "$introText" 8 80
+
+  evcc configure --advanced
+  if [[ -f ${evccConfig} ]]; then
+    whiptail --title "EVCC configuration successfully created" --msgbox "$successText" 8 80
+    cond_redirect cp /home/"${username:-openhabian}"/${evccConfig} /home/"${username:-openhabian}"/${evccConfig}.SAVE
+    cond_redirect mv "${evccConfig}" /home/"${username:-openhabian}"
+    cond_redirect chown "${username}" /home/"${username:-openhabian}"/${evccConfig}*
+  fi
+  echo -n "$(timestamp) [openHABian] Restarting EVCC... "
+  if cond_redirect systemctl restart evcc.service; then echo "OK"; else echo "FAILED"; fi
+}
