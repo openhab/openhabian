@@ -215,9 +215,6 @@ zigbee2mqtt_download() {
     if ! cond_redirect chown openhabian /opt/zigbee2mqtt; then echo "FAILED (chown /opt/zigbee2mqtt)"; return 1; fi
     if ! cond_redirect chgrp openhab /opt/zigbee2mqtt; then echo "FAILED (chgrp /opt/zigbee2mqtt)"; return 1; fi
     if ! cond_redirect sudo -u "${username:-openhabian}" git clone https://github.com/Koenkk/zigbee2mqtt.git "${1}/zigbee2mqtt"; then echo "FAILED (git clone)"; return 1; fi
-  else
-    cond_echo "\\nUpdate... "
-    if cond_redirect update_git_repo "${1}/zigbee2mqtt" "master"; then echo; else echo "FAILED (update git repo)"; return 1; fi
   fi
 }
 
@@ -227,10 +224,8 @@ zigbee2mqtt_download() {
 ##
 zigbee2mqtt_setup() {
   local zigbee2mqttBase
-  local serverIP="$(hostname -I)"
-  local serverIP=${serverIP::-1}
-  local z2mInstalledText="Zigbee2MQTT-configuration is already existing.\\n\\nWould you like to update Zigbee2MQTT to the latest version with this configuration?"
-  local introText="A running MQTT-server is required for zigbee2mqtt. If you haven't installed one yet, please select <cancel> and come back after installing one (e.g. Mosquitto).\\n\\nZigbee2MQTT will be installed from the official repository.\\n\\nDuration is about 4 minutes..."
+  local z2mInstalledText="A configuration for Zigbee2MQTT is already existing.\\n\\nWould you like to update Zigbee2MQTT to the latest version with this configuration?"
+  local introText="A MQTT-server is required for zigbee2mqtt. If you haven't installed one yet, please select <cancel> and come back after installing one (e.g. Mosquitto).\\n\\nZigbee2MQTT will be installed from the official repository.\\n\\nDuration is about 4 minutes..."
   local installText="Zigbee2MQTT is installed from the official repository.\\n\\nPlease wait about 4 minutes..."
   local successText="Setup was successful. Zigbee2MQTT is now up and running.\\n\\nFor further Zigbee-settings open frontend (in 1 minute): \\nhttp://${serverIP}:8081.\n\n(Documentation: https://www.zigbee2mqtt.io/guide/configuration/frontend.html)"
   local updateSuccessText="Update successful. \\n\\nFor further Zigbee-settings open frontend (in 1 minute): \\nhttp://${serverIP}:8081.\n\n(Documentation: https://www.zigbee2mqtt.io/guide/configuration/frontend.html)"
@@ -238,16 +233,23 @@ zigbee2mqtt_setup() {
   local mqttUserText="\\nPlease enter your MQTT-User (default = openhabian):"
   local mqttPWText="\\nIf your MQTT-server requires a password, please enter it here:"
   local adapterArray=()
+  local my_adapters
   local mqttDefaultUser="openhabian"
   local mqttUser
-  local my_adapters
+  local serverIP="$(hostname -I)"
+  serverIP=${serverIP::-1} # remove trailing space
 
+  # if a config file exists do only update and exit
   if [[ -e "/opt/zigbee2mqtt/data/configuration.yaml" ]] ; then
-    if ! (whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$z2mInstalledText" 14 80); then echo "CANCELED"; return 0; fi
+    if [[ -n $INTERACTIVE ]]; then
+      if ! (whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$z2mInstalledText" 14 80); then echo "CANCELED"; return 0; fi
+    fi
     echo -n "$(timestamp) [openHABian] Updating zigbee2mqtt... "
-    if ! cond_redirect cd /opt/zigbee2mqtt; then echo "FAILED"; return 1; fi
+    cd /opt/zigbee2mqtt || (echo "FAILED (cd)"; return 1)
     if ! cond_redirect /opt/zigbee2mqtt/update.sh; then echo "FAILED"; return 1; fi
-    whiptail --title "Operation successful" --msgbox "$updateSuccessText" 15 80
+    if [[ -n $INTERACTIVE ]]; then
+      whiptail --title "Operation successful" --msgbox "$updateSuccessText" 15 80
+    fi
     echo "OK"
     return 0
   fi
@@ -261,14 +263,17 @@ zigbee2mqtt_setup() {
     loopSel=0
   done < <( ls /dev/serial/by-id )
 
+  # ask for user input parameters
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "CANCELED"; return 0; fi
     if ! selectedAdapter=$(whiptail --title "Zigbee2MQTT installation" --radiolist "$adapterText" 14 100 4 $my_adapters 3>&1 1>&2 2>&3); then return 0; fi
     if ! mqttUser=$(whiptail --title "MQTT User" --inputbox "$mqttUserText" 12 80 "$mqttDefaultUser" 3>&1 1>&2 2>&3); then return 0; fi
-    if [[ -z $mqttUser ]] ; then mqttUser="$mqttDefaultUser"; fi
     if ! mqttPW=$(whiptail --title "MQTT password" --passwordbox "$mqttPWText" 12 80 3>&1 1>&2 2>&3); then return 0; fi
     if ! (whiptail --title "Zigbee2MQTT installation" --infobox "$installText" 14 80); then echo "CANCELED"; return 0; fi
   fi
+  if [[ -z $mqttUser ]] ; then mqttUser="$mqttDefaultUser"; fi
+
+
   if ! node_is_installed || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing zigbee2mqtt prerequsites (NodeJS)... "
     if cond_redirect nodejs_setup; then true; else echo "FAILED"; return 1; fi
@@ -289,13 +294,12 @@ zigbee2mqtt_setup() {
   if ! cond_redirect sudo -u "${username:-openhabian}" npm ci ; then echo "FAILED (npm ci)"; return 1; fi
   if ! (sed -e "s|%adapterName|${adapterArray[i-1]}|g" -e "s|%user|$mqttUser|g" "${BASEDIR:-/opt/openhabian}"/includes/zigbee2mqtt/configuration.yaml > /opt/zigbee2mqtt/data/configuration.yaml); then echo "FAILED (configuration.yaml file creation)"; return 1; fi
   if [[ ! -z $mqttPW ]] ; then (sed -i -e "s|#%password:|password: $mqttPW|g" /opt/zigbee2mqtt/data/configuration.yaml ); fi
-  
   echo "OK"
 
   echo -n "$(timestamp) [openHABian] Creating log directory... "
-  if ! cond_redirect mkdir  /var/log/zigbee2mqtt ; then echo "FAILED (mkdir log)"; return 1; fi
-  if ! cond_redirect chown openhabian /var/log/zigbee2mqtt  ; then echo "FAILED (chown log)"; return 1; fi
-  if ! cond_redirect chgrp openhab /var/log/zigbee2mqtt; then echo "FAILED (chgrp log)"; return 1; fi
+  mkdir  /var/log/zigbee2mqtt || (echo "FAILED (create log-directory)"; return 1)
+  chown openhabian /var/log/zigbee2mqtt || (echo "FAILED (create log-directory)"; return 1)
+  chgrp openhab /var/log/zigbee2mqtt || (echo "FAILED (create log-directory)"; return 1)
   echo "OK"
 
   echo -n "$(timestamp) [openHABian] Setting up Zigbee2MQTT service... "
