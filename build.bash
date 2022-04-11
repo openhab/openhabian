@@ -314,13 +314,13 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
     baseURL="https://downloads.raspberrypi.org/raspios_lite_armhf_latest"
     bits="32"
   fi
-  zipURL="$(curl "$baseURL" -s -L -I  -o /dev/null -w '%{url_effective}')"
-  zipFile="$(basename "$zipURL")"
+  xzURL="$(curl "$baseURL" -s -L -I  -o /dev/null -w '%{url_effective}')"
+  xzFile="$(basename "$xzURL")"
 
   # Prerequisites
   echo_process "Checking prerequisites... "
-  requiredCommands="git curl wget unzip crc32 dos2unix xz qemu-img"
-  requiredPackages="git curl wget unzip libarchive-zip-perl dos2unix xz-utils qemu-utils"
+  requiredCommands="git curl wget crc32 dos2unix xz qemu-img"
+  requiredPackages="git curl wget dos2unix xz-utils qemu-utils"
   if running_in_docker || running_on_github || is_pi; then
     # in docker guestfstools are not used; do not install it and all of its prerequisites
     # -> must be run as root
@@ -337,23 +337,23 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
   fi
   check_command_availability_and_exit "$requiredCommands" "$requiredPackages"
 
-  if [[ -f $zipFile ]]; then
+  if [[ -f $xzFile ]]; then
     echo_process "Using local copy of Raspberry Pi OS (${bits}-bit) image... "
-    cp "$zipFile" "${buildFolder}/${zipFile}"
+    cp "$xzFile" "${buildFolder}/${xzFile}"
   else
     echo_process "Downloading latest Raspberry Pi OS (${bits}-bit) image (no local copy found)... "
-    curl -L "$baseURL" -o "$zipFile"
-    cp "$zipFile" "${buildFolder}/${zipFile}"
+    curl -s -L "$baseURL" -o "$xzFile"
+    cp "$xzFile" "${buildFolder}/${xzFile}"
   fi
 
   echo_process "Verifying signature of downloaded image... "
-  curl -s "$zipURL".sig -o "$buildFolder"/"$zipFile".sig
+  curl -s -L "$xzURL".sig -o "$buildFolder"/"$xzFile".sig
   if ! gpg -q --keyserver keyserver.ubuntu.com --recv-key 0x8738CD6B956F460C; then echo "FAILED (download public key)"; exit 1; fi
-  if gpg -q --trust-model always --verify "${buildFolder}/${zipFile}".sig "${buildFolder}/${zipFile}"; then echo "OK"; else echo "FAILED (signature)"; exit 1; fi
+  if gpg -q --trust-model always --verify "${buildFolder}/${xzFile}".sig "${buildFolder}/${xzFile}"; then echo "OK"; else echo "FAILED (signature)"; exit 1; fi
 
   echo_process "Unpacking image... "
-  unzip -q "${buildFolder}/${zipFile}" -d "$buildFolder"
-  mv "$buildFolder"/*-raspios-*.img "$imageFile" || true
+  xz -q "${buildFolder}/${xzFile}" -d
+  mv ./*-raspios-*.img "$imageFile" || true
 
   if [[ $extraSize -gt 0 ]]; then
     echo_process "Growing root partition of the image by ${extraSize} MB... "
