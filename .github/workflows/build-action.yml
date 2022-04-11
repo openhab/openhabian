@@ -62,12 +62,12 @@ jobs:
            echo "::set-output name=image32::$(ls openhabian-pi-raspios32*.img.xz)"
            echo "::set-output name=image64::$(ls openhabian-pi-raspios64*.img.xz)"
        - name: Archive openHABian 32bit image
-         uses: actions/upload-artifact@v2
+         uses: actions/upload-artifact@v3
          with:
            name: ${{ steps.build.outputs.image32 }}
            path: ${{ steps.build.outputs.image32 }}
        - name: Archive openHABian 64bit image
-         uses: actions/upload-artifact@v2
+         uses: actions/upload-artifact@v3
          with:
            name: ${{ steps.build.outputs.image64 }}
            path: ${{ steps.build.outputs.image64 }}
