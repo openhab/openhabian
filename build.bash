@@ -286,7 +286,7 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
 
   echo_process "Unpacking image... "
   xz -q "${buildFolder}/${xzFile}" -d
-  mv ./*-raspios-*.img "$imageFile" || true
+  mv "$buildFolder"/*-raspios-*.img "$imageFile" || true
 
   if [[ $extraSize -gt 0 ]]; then
     echo_process "Growing root partition of the image by ${extraSize} MB... "
