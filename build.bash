@@ -7,7 +7,7 @@ set -e
 ####################################################################
 
 usage() {
-  echo -e "Usage: $(basename "$0") <platform> [dev-git|dev-url] <branch> <url>"
+  echo -e "Usage: $(basename "$0") <platform>"
   echo -e "\\nCurrently supported platforms: rpi, rpi64"
 }
 
@@ -42,58 +42,6 @@ source "$(dirname "$0")"/functions/zram.bash
 ##
 echo_process() {
   echo -e "${COL_CYAN}$(timestamp) [openHABian] ${*}${COL_DEF}"
-}
-
-## Function for identify and returning current active git repository and branch
-##
-## Returns global variable $cloneString
-##
-##    get_git_repo()
-##
-get_git_repo() {
-  local repoURL repoBranch userName repoName
-
-  repoURL="$(git remote get-url origin)"
-  repoBranch="$(git rev-parse --abbrev-ref HEAD)"
-
-  if ! [[ $repoURL == "https"* ]]; then
-    # Convert URL from SSH to HTTPS
-    userName="$(echo "$repoURL" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\1#p')"
-    if [[ -z $userName ]]; then
-      echo_process "Could not identify git user while converting to SSH URL. Exiting."
-      exit 1
-    fi
-    repoName="$(echo "$repoURL" | sed -Ene's#git@github.com:([^/]*)/(.*).git#\2#p')"
-    if [[ -z $repoName ]]; then
-      echo_process "Could not identify git repo while converting to SSH URL. Exiting."
-      exit 1
-    fi
-    repoURL="https://github.com/${userName}/${repoName}.git"
-  fi
-
-  cloneString="${repoBranch} ${repoURL}"
-}
-
-## Function for injecting custom development branch when building images.
-## This function will also watermark the image as a test build.
-##
-## The first parameter shall be the temporary first-boot.bash file used when building the image.
-## The global varible $cloneString must be set prior running this function.
-##
-##    inject_build_repo(String path)
-##
-inject_build_repo() {
-  if [[ -z "${cloneString+x}" ]]; then
-    echo_process "inject_build_repo() invoked without cloneString variable set, exiting...."
-    exit 1
-  fi
-
-  sed -i '/if (openhabian-config unattended); then/a echo "$(timestamp) [openHABian] Warning! This is a test build."' "$1"
-  sed -i '/if (openhabian-config unattended); then/a chmod +rx /etc/update-motd.d/04-test-build-text' "$1"
-  sed -i '/if (openhabian-config unattended); then/a echo "#!/bin/sh\n\ntest -x /usr/bin/figlet || exit 0\n\nfiglet \"Test build, Do not use!\" -w 55" > /etc/update-motd.d/04-test-build-text' "$1"
-  sed -i '/if (openhabian-config unattended); then/a apt-get install --yes figlet &> /dev/null' "$1"
-  sed -i 's|^clonebranch=.*$|clonebranch='"${clonebranch:-openHAB3}"'|g' "/etc/openhabian.conf"
-  sed -i 's|^repositoryurl=.*$|repositoryurl='"${repositoryurl:-https://github.com/openhab/openhabian.git}"'|g' "/etc/openhabian.conf"
 }
 
 ## Function for checking if a command is available.
@@ -236,7 +184,6 @@ grow_image() {
 ############################
 
 timestamp="$(printf "%(%Y%m%d%H%M)T\\n" "-1")"
-fileTag="" # marking output file for special builds
 echo_process "This script will build the openHABian image file."
 
 # Identify hardware platform
@@ -270,21 +217,7 @@ else
   usage
   exit 0
 fi
-
-# Check if a specific repository should be included
-if [ "$2" == "dev-git" ]; then # Use current git repo and branch as a development image
-  fileTag="custom"
-  get_git_repo
-  echo_process "Injecting current branch and git repo when building this image, make sure to push local content to:"
-  echo_process "$cloneString"
-elif [ "$2" == "dev-url" ]; then # Use custom git server as a development image
-  fileTag="custom"
-  cloneString="$3 $4"
-  clonebranch="$3"
-  repositoryurl="$4"
-  echo_process "Injecting given git repo when building this image, make sure to push local content to:"
-  echo_process "$cloneString"
-elif [ -n "$2" ]; then
+if [ -n "$2" ]; then
   usage
   exit 1
 fi
@@ -320,7 +253,7 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
   # Prerequisites
   echo_process "Checking prerequisites... "
   requiredCommands="git curl wget crc32 dos2unix xz qemu-img"
-  requiredPackages="git curl wget dos2unix xz-utils qemu-utils"
+  requiredPackages="git curl wget libarchive-zip-perl dos2unix xz-utils qemu-utils"
   if running_in_docker || running_on_github || is_pi; then
     # in docker guestfstools are not used; do not install it and all of its prerequisites
     # -> must be run as root
@@ -422,11 +355,6 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
   unix2dos -q -n "$sourceFolder"/openhabian.${hwPlatform}.conf "$buildFolder"/boot/openhabian.conf
   cp "$sourceFolder"/webserver.bash "$buildFolder"/boot/webserver.bash
 
-  # Injecting development git repo if cloneString is set and watermark build
-  if [[ -n "${cloneString+x}" ]]; then
-    inject_build_repo "$buildFolder"/boot/first-boot.bash
-  fi
-
   echo_process "Closing up image file... "
   sync
   umount_image_file_boot "$imageFile" "$buildFolder"
@@ -437,7 +365,7 @@ fi
 echo_process "Moving image and cleaning up... "
 shorthash="$(git log --pretty=format:'%h' -n 1)"
 crc32checksum="$(crc32 "$imageFile")"
-destination="openhabian-${hwPlatform}-${timestamp}-git${fileTag}${shorthash}-crc${crc32checksum}.img"
+destination="openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img"
 mv -v "$imageFile" "$destination"
 rm -rf "$buildFolder"
 
@@ -445,7 +373,7 @@ echo_process "Compressing image... "
 # speedup compression, T0 will use all cores and should be supported by reasonably new versions of xz
 xz --verbose --compress --keep -9 -T0 "$destination"
 crc32checksum="$(crc32 "${destination}.xz")"
-mv "${destination}.xz" "openhabian-${hwPlatform}-${timestamp}-git${fileTag}${shorthash}-crc${crc32checksum}.img.xz"
+mv "${destination}.xz" "openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img.xz"
 
 echo_process "Finished! The results:"
 ls -alh "openhabian-${hwPlatform}-${timestamp}"*

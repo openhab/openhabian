@@ -110,30 +110,6 @@ A work has started to define conventions and further explain the code base in th
 
 A good place to look at to start to understand the code is the file `openhabian-setup.sh`.
 
-### Building Hardware Images
-Take a look at the `build.bash` script to get an idea of the process.
-Run the code below with `platform` being `rpi`.
-The RPi image is based on the [Raspberry Pi OS Lite](https://www.raspberrypi.org/downloads/raspberry-pi-os/) (previously called Raspbian) standard image.
-
-``` bash
-sudo bash ./build.bash platform
-```
-
-As the script uses `openhab/openhabian` git repository during installation it must sometimes be changed to test code from other repositories, like a new feature in a fork.
-There are two commands for replacing the git repo with a custom one.
-
-The first command uses the current checked-out repository used in the filesystem:
-
-``` bash
-sudo bash build.bash platform dev-git
-```
-
-The second command uses a fully customizable repository:
-
-``` bash
-sudo bash build.bash platform dev-url branch url
-```
-
 ### Testing
 Testing is done continuously with GitHub Actions using the test framework [BATS](https://github.com/bats-core/bats-core) and the linter [ShellCheck](https://www.shellcheck.net/).
 As the tests focus on installing software, a [Docker](https://www.docker.com/) solution is used for easy build-up and teardown.
