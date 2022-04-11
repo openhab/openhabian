@@ -128,8 +128,9 @@ if [[ -n "$UNATTENDED" ]]; then
   deconz_setup "${deconz_port}" "${deconz_wsport}"
   permissions_corrections
   setup_mirror_SD "install"
+  install_evcc "install"
   setup_pv_config "${invertertype:-sungrow}" "${inverterip:-192.168.178.100}"
-  setup_wb_config "${wallboxtype:-openwb}" "${wallboxip:-192.168.178.200}"
+  setup_wb_config "${wallboxtype:-goe}" "${wallboxip:-192.168.178.200}"
   install_cleanup
 else
   apt_update
