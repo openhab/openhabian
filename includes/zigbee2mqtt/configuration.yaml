@@ -10,6 +10,8 @@ mqtt:
 serial:
   port: /dev/serial/by-id/%adapterName
 advanced:
+  network_key: GENERATE
+  pan_id: GENERATE 
   log_level: info
   channel: 25
   output: attribute_and_json
