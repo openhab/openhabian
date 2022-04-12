@@ -712,7 +712,7 @@ install_evcc() {
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "EVCC installation" --msgbox "$installText" 8 80
   fi
-  if ! cond_redirect apt-get install debian-keyring debian-archive-keyring; then echo "FAILED"; return 1; fi
+  if ! cond_redirect apt-get install -y debian-keyring debian-archive-keyring; then echo "FAILED"; return 1; fi
   if ! curl -1sLf "$repokeyurl" > /etc/apt/trusted.gpg.d/evcc-stable.asc; then echo -n "FAILED (retrieve EVCC repo key) "; fi
   if ! add_keys "$repokeyurl" "$keyName"; then echo "FAILED (add EVCC repo key)"; return 1; fi
   if curl -1sLf $repourl > "$tmprepo"; then cp "$tmprepo" "$repo"; else echo -n "FAILED (retrieve latest repo URL) "; fi   # continue without overwriting repo
