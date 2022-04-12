@@ -717,6 +717,7 @@ install_evcc() {
   if ! add_keys "$repokeyurl" "$keyName"; then echo "FAILED (add EVCC repo key)"; return 1; fi
   if curl -1sLf $repourl > "$tmprepo"; then cp "$tmprepo" "$repo"; else echo -n "FAILED (retrieve latest repo URL) "; fi   # continue without overwriting repo
   echo -n "$(timestamp) [openHABian] Installing EVCC... "
+  if ! cond_redirect apt update; then echo "FAILED (update apt lists)"; return 1; fi
   if ! cond_redirect apt install -y evcc; then echo "FAILED (EVCC package installation)"; return 1; fi
 
   sed -i '/^RestartSec=.*/a User='"${username}" /lib/systemd/system/evcc.service
