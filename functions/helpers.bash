@@ -662,6 +662,15 @@ firemotd_is_installed() {
   return 1
 }
 
+## Check if zigbee2mqtt is installed
+##
+##    zigbee2mqtt_is_installed
+##
+zigbee2mqtt_is_installed() {
+  if [[ -d /opt/zigbee2mqtt ]] && [[ -s /etc/systemd/system/zigbee2mqtt.service ]]; then return 0; fi
+  return 1
+}
+
 ## Check if exim is installed
 ##
 ##    exim_is_installed
