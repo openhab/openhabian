@@ -291,6 +291,7 @@ zigbee2mqtt_setup() {
     my_adapters="$my_adapters $line $loopSel "
     loopSel=0
   done < <( ls /dev/serial/by-id )
+  unset IFS
   
   # ask for user input parameters
   if [[ -n $INTERACTIVE ]]; then
