@@ -132,7 +132,7 @@ We'll be happy to include that in openHABian so you can use your box with openHA
 However, that does not make your box a "supported" one as we don't have it available for our further development and testing.
 So there remains a risk that future openHABian releases will fail to work on your SBC because we changed a thing that broke support for your HW - unintentionally, however inevitably.
 
-For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md/#fake-hardware-mode) to 'simulate' RPi hardware and Raspberry Pi OS.
+For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md#fake-hardware-mode) to 'simulate' RPi hardware and Raspberry Pi OS.
 
 #### Hardware modifications
 Plugging in HATs like an UPS or USB sticks or even SSDs for storage is fine, but we do not support attaching any hardware if that requires any sort of software or configuration changes on the OS part of openHABian.
