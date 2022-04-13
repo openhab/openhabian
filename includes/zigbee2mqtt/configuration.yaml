@@ -5,10 +5,10 @@ permit_join: true
 mqtt:
   base_topic: zigbee2mqtt
   server: mqtt://localhost
-  user: %user
-  #%password: 
+  user: "%user%"
+  password: "%password%"
 serial:
-  port: /dev/serial/by-id/%adapterName
+  port: "/dev/serial/by-id/%adapterName"
 advanced:
   network_key: GENERATE
   pan_id: GENERATE 
