@@ -275,7 +275,7 @@ zigbee2mqtt_setup() {
     if ! cond_redirect sudo -u "${username:-openhabian}" git pull; then echo "FAILED git"; fi
     if ! cond_redirect sudo -u "${username:-openhabian}" npm install zigbee2mqtt ; then echo "FAILED npm"; fi
     if ! cond_redirect sudo -u "${username:-openhabian}" cp -R data-backup/* data; then echo "FAILED (cp backup)"; fi
-    rm -rf data-backup
+    rm -rf /opt/zigbee2mqtt/data-backup
     cd /opt || echo "FAILED (cd)"
     if ! cond_redirect systemctl start zigbee2mqtt; then echo "FAILED"; fi
 
