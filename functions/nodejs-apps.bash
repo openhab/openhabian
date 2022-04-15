@@ -323,7 +323,7 @@ zigbee2mqtt_setup() {
 
   echo -n "$(timestamp) [openHABian] Zigbee2MQTT install & config... "
   cd /opt/zigbee2mqtt || (echo "FAILED (cd)"; return 1)
-  if ! cond_redirect sudo -u "${username:-openhabian}" npm install zigbee2mqtt; then echo "FAILED (npm install)"; return 1; fi
+  if ! cond_redirect sudo -u "${username:-openhabian}" npm install ; then echo "FAILED (npm install)"; return 1; fi
   sed -e "s|%adapterName|$selectedAdapter|g" /opt/openhabian/includes/zigbee2mqtt/configuration.yaml | sudo -u "${username:-openhabian}" dd status=none of=/opt/zigbee2mqtt/data/configuration.yaml
   sed -i -e "s|%user%|$mqttUser|g" /opt/zigbee2mqtt/data/configuration.yaml
   sed -i -e "s|%password%|$mqttPW|g" /opt/zigbee2mqtt/data/configuration.yaml 
