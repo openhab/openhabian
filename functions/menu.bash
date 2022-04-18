@@ -104,9 +104,11 @@ show_main_menu() {
     "27 | knxd"                   "KNX specific, the KNX router/gateway daemon knxd" \
     "28 | 1wire"                  "1wire specific, owserver and related packages" \
     "29 | deCONZ"                 "deCONZ / Phoscon companion app for Conbee/Raspbee controller" \
-    "2A | FIND 3"                 "Framework for Internal Navigation and Discovery" \
+    "2A | Zigbee2MQTT"            "Install or Update Zigbee2MQTT" \
+    "   | Remove Zigbee2MQTT"     "Remove Zigbee2MQTT from this system" \
+    "2B | FIND 3"                 "Framework for Internal Navigation and Discovery" \
     "   | Monitor Mode"           "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
-    "2B | Install HABApp"         "Python 3 integration and rule engine for openHAB" \
+    "2C | Install HABApp"         "Python 3 integration and rule engine for openHAB" \
     "   | Remove HABApp"          "Remove HABApp from this system" \
     "2D | Install EVCC"           "Deploy Electric Vehicle Charge Controller" \
     "   | Remove EVCC"            "Uninstall EVCC" \
@@ -126,9 +128,11 @@ show_main_menu() {
       27\ *) knxd_setup ;;
       28\ *) 1wire_setup ;;
       29\ *) deconz_setup ;;
-      2A\ *) find3_setup ;;
+      2A\ *) zigbee2mqtt_setup "install";;
+      *Remove\ Zigbee2MQTT*) zigbee2mqtt_setup "remove";;      
+      2B\ *) find3_setup ;; 
       *Monitor\ Mode) setup_monitor_mode ;;
-      2B\ *) habapp_setup "install";;
+      2C\ *) habapp_setup "install";;
       *Remove\ HABApp*) habapp_setup "remove";;
       2D\ *) install_evcc "install";;
       *Remove\ EVCC*) install_evcc "remove";;

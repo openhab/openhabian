@@ -1,3 +1,9 @@
+## Zigbee2MQTT ## April 17, 2022
+Zigbee2MQTT enables to connect a Zigbee-Network via MQTT. Zigbee2MQTT supports
+a huge number of devices, even many brands with non-standard zigbee-
+implementations. It profides a web-based configuration interface and a 
+graphical view of the zigbee topology.
+
 ## Electric Vehicle Charge Controller ## April 6, 2022
 EVCC controls charging of your EV. It supports many wallboxes and vehicles.
 While there's some overlap with OH, EVCC has a two-way API and users can

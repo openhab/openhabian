@@ -1,0 +1,23 @@
+frontend:
+  port: 8081
+homeassistant: false
+permit_join: true
+mqtt:
+  base_topic: zigbee2mqtt
+  server: mqtt://localhost
+  user: "%user%"
+  password: "%password%"
+serial:
+  port: "/dev/serial/by-id/%adapterName"
+advanced:
+  network_key: GENERATE
+  pan_id: GENERATE 
+  log_level: info
+  channel: 25
+  output: attribute_and_json
+  log_directory: /var/log/zigbee2mqtt/%TIMESTAMP%al
+  homeassistant_legacy_entity_attributes: false
+  legacy_api: false
+  legacy_availability_payload: false
+device_options:
+  legacy: false

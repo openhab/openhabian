@@ -27,3 +27,11 @@ teardown_file() {
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Frontail service is running.${COL_DEF}" >&3
 }
+
+@test "installation-zigbee2mqtt_install" {
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Zigbee2MQTT installation starting...${COL_DEF}" >&3
+  run zigbee2mqtt_setup "install" 3>&-
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Zigbee2MQTT installation successful.${COL_DEF}" >&3
+}
