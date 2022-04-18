@@ -303,7 +303,7 @@ zigbee2mqtt_setup() {
     if ! (whiptail --title "Zigbee2MQTT installation" --infobox "$installText" 14 80); then echo "CANCELED"; return 0; fi
   fi
 
-  cond_redirect nodejs_setup
+  if ! cond_redirect nodejs_setup; then return 1; fi
 
   echo -n "$(timestamp) [openHABian] Downloading Zigbee2MQTT... "
   zigbee2mqttBase="$(npm list | head -n 1)/node_modules/zigbee2mqtt"
