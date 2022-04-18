@@ -208,7 +208,7 @@ nodered_setup() {
 ##    zigbee2mqtt_download(String prefix)
 ##
 zigbee2mqtt_download() {
-  echo -n "$(timestamp) [openHABian] Downloading zigbee2mqtt... "
+  echo -n "$(timestamp) [openHABian] Downloading Zigbee2MQTT... "
   if ! cond_redirect mkdir /opt/zigbee2mqtt; then echo "FAILED (mkdir /opt/zigbee2mqtt)"; fi
   if ! cond_redirect chown openhabian /opt/zigbee2mqtt; then echo "FAILED (chown /opt/zigbee2mqtt)"; fi
   if ! cond_redirect chgrp openhab /opt/zigbee2mqtt; then echo "FAILED (chgrp /opt/zigbee2mqtt)"; fi
@@ -245,14 +245,14 @@ zigbee2mqtt_setup() {
       if ! (whiptail --title "Zigbee2MQTT Uninstall" --yes-button "Continue" --no-button "Cancel" --yesno "$uninstallText" 7 80); then echo "CANCELED"; return 0; fi
     fi
     echo -n "$(timestamp) [openHABian] Removing Zigbee2MQTT service... "
-    if ! cond_redirect systemctl stop zigbee2mqtt.service; then echo "FAILED (disable service)"; fi
-    if ! rm -f /etc/systemd/system/zigbee2mqtt.service; then echo "FAILED (remove service)"; fi
+    if ! cond_redirect systemctl stop zigbee2mqtt.service; then echo "FAILED (disable service)"; return 1; fi
+    if ! rm -f /etc/systemd/system/zigbee2mqtt.service; then echo "FAILED (remove service)"; return 1; fi
     if cond_redirect systemctl -q daemon-reload; then echo "OK"; else  echo "FAILED (daemon-reload)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Uninstalling Zigbee2MQTT... "
-    if ! cond_redirect npm uninstall zigbee2mqtt ; then echo "FAILED (npm uninstall)"; fi
-    if ! rm -rf /var/log/zigbee2mqtt; then echo "FAILED (remove log)"; fi
-    if rm -rf "/opt/zigbee2mqtt"; then echo "OK"; else echo "FAILED"; fi
+    if ! cond_redirect npm uninstall zigbee2mqtt ; then echo "FAILED (npm uninstall)"; return 1; fi
+    if ! rm -rf /var/log/zigbee2mqtt; then echo "FAILED (remove log)"; return 1; fi
+    if rm -rf "/opt/zigbee2mqtt"; then echo "OK"; else echo "FAILED (rm /opt/zigbee2mqtt)"; return 1; fi
     
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Zigbee2MQTT removed" --msgbox "Zigbee2MQTT was removed from your system." 7 80
@@ -268,16 +268,16 @@ zigbee2mqtt_setup() {
     fi
 
     echo -n "$(timestamp) [openHABian] Updating Zigbee2MQTT... "
-    cd /opt/zigbee2mqtt || echo "FAILED (cd)"
+    if ! cond_redirect cd /opt/zigbee2mqtt; then echo "FAILED (cd zigbee2mqtt)"; return 1; fi
     if ! cond_redirect systemctl stop zigbee2mqtt ; then echo "FAILED (stop systemctl)"; fi
-    if ! cond_redirect sudo -u "${username:-openhabian}" cp -R data data-backup; then echo "FAILED (cp backup)"; fi
-    if ! cond_redirect sudo -u "${username:-openhabian}" git checkout HEAD -- npm-shrinkwrap.json; then echo "FAILED git"; fi
-    if ! cond_redirect sudo -u "${username:-openhabian}" git pull; then echo "FAILED git"; fi
-    if ! cond_redirect sudo -u "${username:-openhabian}" npm install zigbee2mqtt ; then echo "FAILED npm"; fi
-    if ! cond_redirect sudo -u "${username:-openhabian}" cp -R data-backup/* data; then echo "FAILED (cp backup)"; fi
-    rm -rf /opt/zigbee2mqtt/data-backup
-    cd /opt || echo "FAILED (cd)"
-    if ! cond_redirect systemctl start zigbee2mqtt; then echo "FAILED"; fi
+    if ! cond_redirect sudo -u "${username:-openhabian}" cp -R data data-backup; then echo "FAILED (cp backup)"; return 1; fi
+    if ! cond_redirect sudo -u "${username:-openhabian}" git checkout HEAD -- npm-shrinkwrap.json; then echo "FAILED git"; return 1; fi
+    if ! cond_redirect sudo -u "${username:-openhabian}" git pull; then echo "FAILED git"; return 1; fi
+    if ! cond_redirect sudo -u "${username:-openhabian}" npm install; then echo "FAILED npm"; return 1; fi
+    if ! cond_redirect sudo -u "${username:-openhabian}" cp -R data-backup/* data; then echo "FAILED (cp backup)"; return 1; fi
+    if ! rm -rf /opt/zigbee2mqtt/data-backup; then echo "FAILED (rm data-backup)"; return 1; fi
+    if ! cond_redirect cd /opt ; then echo "FAILED (cd opt)"; return 1; fi
+    if ! cond_redirect systemctl start zigbee2mqtt; then echo "FAILED (systemctl start)"; return 1; fi
 
     if [[ -n $INTERACTIVE ]]; then
       whiptail --title "Operation successful" --msgbox "$updateSuccessText" 15 80

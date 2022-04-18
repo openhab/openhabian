@@ -1,5 +1,5 @@
 [Unit]
-Description=zigbee2mqtt
+Description=Zigbee2MQTT
 After=network.target
 
 [Service]
