@@ -1,4 +1,20 @@
-uri: 0.0.0.0:7070 # uri for ui
+network:
+  # schema is the HTTP schema
+  # setting to `https` does not enable https, it only changes the way URLs are generated
+  schema: http
+
+  # host is the hostname or IP address
+  # if the host name contains a `.local` suffix, the name will be announced on MDNS
+  # docker: MDNS announcements don't work. Host must be set to the docker host's name
+  host: 0.0.0.0
+  #host: evcc.local
+
+  # port is the listening port for UI and api
+  # evcc will listen on all available interfaces
+  port: 7070
+
+  # per default, evcc should be available at http://evcc.local:7070
+
 interval: 10s # control cycle interval
 
 log: info
@@ -9,7 +25,7 @@ meters:
   power:
     source: http
     uri: http://localhost:8080/rest/items/ErzeugungsLeistung
-    method: GET # default HTTP method
+    method: GET
     headers:
     - content-type: application/json
     jq: .state|split(" ")[0]|split(".")[0]
@@ -18,7 +34,7 @@ meters:
   power:
     source: http
     uri: http://localhost:8080/rest/items/Netzeinspeisung
-    method: GET # default HTTP method
+    method: GET
     headers:
     - content-type: application/json
     jq: .state|split(" ")[0]|split(".")[0]
@@ -28,52 +44,50 @@ meters:
   power:
     source: http
     uri: http://localhost:8080/rest/items/LadeleistungHaus
-    method: GET # default HTTP method
+    method: GET
     headers:
     - content-type: application/json
     jq: .state|split(" ")[0]|split(".")[0]
-    scale: -1
   soc:
     source: http
     uri: http://localhost:8080/rest/items/SoCHaus
-    method: GET # default HTTP method
+    method: GET
     headers:
     - content-type: application/json
     jq: .state|split(" ")[0]|split(".")[0]
 
 chargers:
 - type: template
-  template: %WBTYPE 
-  host: %IP
-  loadpointid: 1  
-  name: wallbox
+  #template: tinkerforge-warp-pro
+  #topic: warp2/pl12
+  template: %WBTYPE
+  host: %WBIP
+  port: 1883
+  timeout: 30s
+  name: Wallbox
 
 vehicles:
-- type: custom
-  name: SoCEAuto
-  title: mein Auto
-  capacity:
-    source: http
-    uri: http://localhost:8080/rest/items/KapazitaetEAuto
-    method: GET # default HTTP method
-    headers:
-    - content-type: application/json
-    jq: .state|split(" ")[0]|split(".")[0]
-  soc:
-    source: http
-    uri: http://localhost:8080/rest/items/SoCEAuto
-    method: GET # default HTTP method
-    headers:
-    - content-type: application/json
-    jq: .state|split(" ")[0]|split(".")[0]
+- type: template
+  #template: hyundai
+  template: %CARTYPE
+  name: %CARNAME
+  title: %CARNAME
+  user: 
+  password: 
+  vin: 
+  capacity: 77
+  language: de
 
 loadpoints:
-- charger: wallbox
+- title: Wallbox
+  charger: Wallbox
   mode: pv
   phases: 3
   mincurrent: 6
   maxcurrent: 16
   resetOnDisconnect: true
+  vehicles:
+    - %CARTYPE
 
 site:
   title: Zuhause
@@ -83,3 +97,4 @@ site:
     - ErzeugungsLeistung
     batteries:
     - LadeleistungHaus
+
