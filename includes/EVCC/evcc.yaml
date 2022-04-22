@@ -48,6 +48,7 @@ meters:
     headers:
     - content-type: application/json
     jq: .state|split(" ")[0]|split(".")[0]
+    scale: -1
   soc:
     source: http
     uri: http://localhost:8080/rest/items/SoCHaus
@@ -58,10 +59,8 @@ meters:
 
 chargers:
 - type: template
-  #template: tinkerforge-warp-pro
-  #topic: warp2/pl12
-  template: %WBTYPE
-  host: %WBIP
+  template: %WBTYP
+  host: %IP
   port: 1883
   timeout: 30s
   name: Wallbox
@@ -69,9 +68,9 @@ chargers:
 vehicles:
 - type: template
   #template: hyundai
-  template: %CARTYPE
-  name: %CARNAME
-  title: %CARNAME
+  template: %AUTOTYP
+  name: meinEAuto
+  title: E-Auto
   user: 
   password: 
   vin: 
@@ -87,7 +86,7 @@ loadpoints:
   maxcurrent: 16
   resetOnDisconnect: true
   vehicles:
-    - %CARTYPE
+    - %AUTOTYP
 
 site:
   title: Zuhause
