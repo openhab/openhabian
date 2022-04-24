@@ -638,6 +638,7 @@ nginx_setup() {
 deconz_setup() {
   local port="${1:-8081}"
   local keyName="deconz"
+  local appData="/var/lib/openhab/persistence/deCONZ"
   local introText="This will install deCONZ as a web service, the companion app to support Dresden Elektronik Conbee and Raspbee Zigbee controllers.\\nUse the web interface on port 8081 to pair your sensors.\\nNote the port is changed to 8081 as the default 80 wouldn't be right with openHAB itself running on 8080."
   local successText="The deCONZ API plugin and the Phoscon companion web app were successfully installed on your system.\\nUse the web interface on port ${port} to pair your sensors with Conbee or Raspbee Zigbee controllers.\\nNote the port has been changed from its default 80 to 8081."
   local repo="/etc/apt/sources.list.d/deconz.list"
@@ -658,6 +659,7 @@ deconz_setup() {
   fi
   echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg${arch}] http://phoscon.de/apt/deconz ${myRelease} main" > $repo
 
+  if ! cond_redirect mkdir "${appData}" && fix_permissions "${appData}" "${username:-openhabian}:${username:-openhabian}" 664 775 && ln -sf "${appData}" /home/"${username:-openhabian}"/.local; then echo "FAILED (deCONZ database on zram)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Preparing deCONZ repository ... "
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; fi
   echo -n "$(timestamp) [openHABian] Installing deCONZ ... "
@@ -671,7 +673,7 @@ deconz_setup() {
   cond_redirect rm -f "/lib/systemd/system/deconz-{homebridge,homebridge-install,init,wifi}.service"
   cond_redirect systemctl daemon-reload
 
-  # change default port deconz runs on (80)
+  # change default port deCONZ runs on (80)
   if ! cond_redirect sed -i -e 's|http-port=80$|http-port='"${port}"' --ws-port='"${port}"'|g' /lib/systemd/system/deconz.service; then echo "FAILED (replace port in service start)"; return 1; fi
   if cond_redirect systemctl enable deconz.service && cond_redirect systemctl restart deconz.service; then echo "OK"; else echo "FAILED (service restart with modified port)"; return 1; fi
 
