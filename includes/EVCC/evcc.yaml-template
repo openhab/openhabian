@@ -96,4 +96,7 @@ site:
     - ErzeugungsLeistung
     batteries:
     - LadeleistungHaus
+  residualPower: 400
+  prioritySoc: 50
+  bufferSoC: 66
 
