@@ -304,7 +304,7 @@ setup_wb_config() {
   fi
 
   if [[ ! -f /usr/local/sbin/setup_pv_config ]]; then
-    if ! cond_redirect ln -s "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
+    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
   fi
 
   for component in things items rules; do
@@ -479,7 +479,6 @@ setup_hp_config() {
     fi
   done
 
-  muser=${6:-${heatpumpuser}}
   if [[ $muser == "NULL" ]]; then muser=""; fi
   mpass=${7:-${heatpumppass}}
   if [[ $mpass == "NULL" ]]; then mpass=""; fi
