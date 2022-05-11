@@ -127,7 +127,7 @@ setup_inv_config() {
   fi
 
   if [[ ! -f /usr/local/sbin/setup_pv_config ]]; then
-    if ! cond_redirect ln -s "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
+    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
   fi
 
   for component in things items rules; do
@@ -287,6 +287,9 @@ setup_wb_config() {
 ##
 setup_wb_config() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+  local srcfile
+  local destfile
+  local evcccfg="${HOME:-/home/admin}/evcc.yaml"
 
 
   if [[ -n "$UNATTENDED" ]]; then
@@ -303,15 +306,20 @@ setup_wb_config() {
     if ! autoname=$(whiptail --title "Auto Modell" --inputbox "Automodell" 10 60 "${autoname:-tesla}" 3>&1 1>&2 2>&3); then unset wallboxtyp wallboxip autotyp autoname; return 1; fi
   fi
 
-  if [[ ! -f /usr/local/sbin/setup_wb_config ]]; then
-    if ! cond_redirect ln -s "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_wb_config; then echo "FAILED (install setup_wb_config script)"; return 1; fi
+  if [[ ! -f /usr/local/sbin/setup_wb_config && $(whoami) == "root" ]]; then
+    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_wb_config; then echo "FAILED (install setup_wb_config script)"; return 1; fi
   fi
 
   for component in things items rules; do
-    if [[ ${1:-${wallboxtyp}} == "none" ]]; then
-      rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
-    else
-      cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${wallboxtyp}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+    #if [[ ${1:-${wallboxtyp}} == "none" ]]; then
+    rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+    srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${wallboxtyp}}.${component}"
+    destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
+    if ! [[ -f ${srcfile} ]]; then
+      srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/evcc.${component}"
+    fi
+    if [[ -f ${srcfile} ]]; then  # evcc.rules existiert ggfs. nicht
+      cp "${srcfile}" "${destfile}"
       if [[ $(whoami) == "root" ]]; then
         chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
         chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
@@ -319,10 +327,10 @@ setup_wb_config() {
     fi
   done
 
-  sed -i "s|%WBTYP|${1:-${wallboxtyp}}|" "${OPENHAB_CONF:-/etc/openhab}/things/wb.things"
-  sed -i "s|%IP|${2:-${wallboxip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/wb.things"
-  sed -i "s|%AUTOTYP|${3:-${autotyp}}|" "${OPENHAB_CONF:-/etc/openhab}/things/wb.things"
-  sed -i "s|%AUTONAME|${3:-${autoname}}|" "${OPENHAB_CONF:-/etc/openhab}/things/wb.things"
+  cp "${includesDir}/EVCC/evcc.yaml-template" "$evcccfg"
+  sed -i "s|%WBTYP|${1:-${wallboxtyp}}|" "$evcccfg"
+  sed -i "s|%IP|${2:-${wallboxip}}|" "$evcccfg"
+  sed -i "s|%AUTOTYP|${3:-${autotyp}}|" "$evcccfg"
   
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
