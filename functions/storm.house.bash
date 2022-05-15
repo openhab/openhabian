@@ -10,6 +10,8 @@
 setup_pv_config() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local inverterPNG="${OPENHAB_CONF:-/etc/openhab}/icons/classic/inverter.png"
+  local srcfile
+  local destfile
 
 
   if [[ -n "$UNATTENDED" ]]; then
@@ -19,27 +21,34 @@ setup_pv_config() {
 
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$invertertype}" ]]; then
-        if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 15 80 0 "sunspec" "generisch, SunSpec kompatibel" "kostal" "Kostal Plenticore" "sungrow" "Sungrow SH RT" "solaredge" "SolarEdge SE (ungetestet)" "fronius" "Fronius Symo (ungetestet)" "pvmanuell" "keiner (manuelle Konfiguration)" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
+        if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 15 80 0 "sunspec" "generisch, SunSpec kompatibel" "kostal" "Kostal Plenticore" "sungrow" "Sungrow SH RT" "solaredge" "SolarEdge SE (ungetestet)" "fronius" "Fronius Symo (ungetestet)" "pvmanuell" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
     fi
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
 
-  if [[ ! -f /usr/local/sbin/setup_pv_config ]]; then
+  if [[ ! -f /usr/local/sbin/setup_pv_config  && $(whoami) == "root" ]]; then
     if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
   fi
 
   for component in things items rules; do
-    if [[ ${1:-${invertertype}} == "none" ]]; then
-      rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-    else
-      cp "${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
+    #if [[ ${1:-${invertertype}} == "none" ]]; then
+    srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}"
+    destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
+    rm -f $destfile
+    if [[ -f ${srcfile} ]]; then
+      cp "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
       if [[ $(whoami) == "root" ]]; then
         chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
         chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
       fi
     fi
   done
-  cp "${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${1:-${invertertype}}.png" "$inverterPNG"
+
+
+  srcfile="${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${1:-${invertertype}}.png"
+  if [[ -f $srcfile ]]; then
+    cp "$srcfile" "$inverterPNG"
+  fi
   if [[ $(whoami) == "root" ]]; then
     chown "${username:-openhabian}:openhab" "$inverterPNG"
     chmod 664 "$inverterPNG"
@@ -85,7 +94,8 @@ setup_wb_config() {
 
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$wallboxtyp}" ]]; then
-      if ! wallboxtyp="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 12 80 0 "abl" "ABL eMH1" "cfos" "cFos PowerBrain charger" "easee" "Easee Home Wallbox" "evsewifi" "Wallboxen mit SimpleEVSE Controller" "go-e" "go-E Charger" "heidelberg" "Heidelberg Energy Control" "keba" "KEBA KeContact P20/P30 und BMW Wallboxen" "mcc" "Mobile Charger Connect (Audi, Bentley Porsche)" "nrgkick-bluetooth" "NRGkick Wallbox mit Bluetooth" "nrgkick-connect" "NRGkick Wallbox mit zusätzlichem NRGkick Connect Modul" "openwb" "openWB Wallbox via MQTT" "phoenix-em-eth" "Wallboxen mit dem Phoenix EM-CP-PP-ETH Controller" "phoenix-ev-eth" "Wallboxen mit dem Phoenix EV-CC-**-ETH Controller" "phoenix-ev-ser" "Wallboxen mit dem Phoenix EV-CC-***-SER seriellen Controller" "simpleevse" "Wallboxen mit dem SimpleEVSE Controller" "wallbe" "Wallbe Eco Wallbox" "warp" "Tinkerforge Warp/Warp Pro" "custom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset wallboxtyp wallboxip autotyp autoname; return 1; fi
+      if ! wallboxtyp="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 12 80 0 "abl" "ABL eMH1" "cfos" "cFos PowerBrain charger" "easee" "Easee Home Wallbox" "evsewifi" "Wallboxen mit SimpleEVSE Controller" "go-e" "go-E Charger" "heidelberg" "Heidelberg Energy Control" "keba" "KEBA KeContact P20/P30 und BMW Wallboxen" "mcc" "Mobile Charger Connect (Audi, Bentley Porsche)" "nrgkick-bluetooth" "NRGkick Wallbox mit Bluetooth"
+          "nrgkick-connect" "NRGkick Wallbox mit zusätzlichem NRGkick Connect Modul" "openwb" "openWB Wallbox via MQTT" "phoenix-em-eth" "Wallboxen mit dem Phoenix EM-CP-PP-ETH Controller" "phoenix-ev-eth" "Wallboxen mit dem Phoenix EV-CC-**-ETH Controller" "phoenix-ev-ser" "Wallboxen mit dem Phoenix EV-CC-***-SER seriellen Controller" "simpleevse" "Wallboxen mit dem SimpleEVSE Controller" "wallbe" "Wallbe Eco Wallbox" "warp" "Tinkerforge Warp/Warp Pro" "wbmanuell" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset wallboxtyp wallboxip autotyp autoname; return 1; fi
     fi
     if ! wallboxip=$(whiptail --title "Wallbox IP" --inputbox "Welche IP-Adresse hat die Wallbox ?" 10 60 "${wallboxip:-192.168.178.200}" 3>&1 1>&2 2>&3); then unset wallboxtyp wallboxip autotyp autoname; return 1; fi
     if ! autotyp="$(whiptail --title "Auswahl Autohersteller" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Hersteller Ihres Fahrzeugs aus" 12 80 0 "audi" "Audi" "bmw" "BMW" "carwings" "Nissan z.B. Leaf vor 2019" "citroen" "Citroen" "ds" "DS" "opel" "Opel" "peugeot" "Peugeot" "fiat" "Fiat, Alfa Romeo" "ford" "Ford" "kia" "Kia Motors" "hyundai" "Hyundai" "mini" "Mini" "nissan" "neue Nissan Modelle ab 2019" "niu" "NIU" "tesla" "Tesla Motors" "renault" "Renault, Dacia" "ovms" "Open Vehicle Monitoring System" "porsche" "Porsche" "seat" "Seat" "skoda" "Skoda Auto" "enyaq" "Skoda Enyac" "vw" "Volkswagen ausser ID-Modelle" "id" "Volkswagen ID-Modelle" "volvo" "Volvo" "tronity" "Fahrzeuge über Tronity" "custom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset wallboxtyp wallboxip autotyp autoname; return 1; fi
