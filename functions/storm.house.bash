@@ -100,6 +100,17 @@ setup_pv_config() {
   done
 
 
+  srcfile="${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${1:-${invertertype}}.png"
+  if [[ -f $srcfile ]]; then
+    cp "$srcfile" "$inverterPNG"
+  fi
+  if [[ $(whoami) == "root" ]]; then
+    chown "${username:-openhabian}:openhab" "$inverterPNG"
+    chmod 664 "$inverterPNG"
+  fi
+>>>>>>> 90626c9ff (unbekannt)
+
+
   if [[ "${device}" == "pv" ]]; then
     srcfile="${OPENHAB_CONF:-/etc/openhab}/icons/STORE/inverter/${2:-${invertertype}}.png"
     if [[ -f $srcfile ]]; then
