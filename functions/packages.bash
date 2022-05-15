@@ -697,6 +697,7 @@ install_evcc() {
   local repokeyurl="https://dl.cloudsmith.io/public/evcc/stable/gpg.key"
   local repourl="https://dl.cloudsmith.io/public/evcc/stable/debian.deb.txt"
   local repo="/etc/apt/sources.list.d/evcc.list"
+  local svcdir="/etc/systemd/system/evcc.service.d"
   local tmprepo
   tmprepo="$(mktemp -d "${TMPDIR:-/tmp}"/repo.XXXXX)/evcc.list"
 
@@ -722,7 +723,10 @@ install_evcc() {
   if ! cond_redirect apt update; then echo "FAILED (update apt lists)"; return 1; fi
   if ! cond_redirect apt install -y evcc; then echo "FAILED (EVCC package installation)"; return 1; fi
 
-  sed -i '/^RestartSec=.*/a User='"${username}" /lib/systemd/system/evcc.service
+  mkdir "$svcdir"
+  #sed -i '/^RestartSec=.*/a User='"${username}" /lib/systemd/system/evcc.service
+  sed -e "s|%USER|${username}|g" "${BASEDIR:-/opt/openhabian}"/includes/evcc-override.conf > "$svcdir/override.conf"
+
   if ! cond_redirect systemctl enable --now evcc.service; then echo "FAILED (enable evcc.service)"; return 1; fi
 }
 
