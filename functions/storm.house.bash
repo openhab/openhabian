@@ -34,7 +34,7 @@ setup_pv_config() {
     #if [[ ${1:-${invertertype}} == "none" ]]; then
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}"
     destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-    rm -f $destfile
+    rm -f "$destfile"
     if [[ -f ${srcfile} ]]; then
       cp "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
       if [[ $(whoami) == "root" ]]; then
