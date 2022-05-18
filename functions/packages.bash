@@ -696,6 +696,7 @@ install_evcc() {
   local keyName="evcc"
   local repokeyurl="https://dl.cloudsmith.io/public/evcc/stable/gpg.key"
   local repourl="https://dl.cloudsmith.io/public/evcc/stable/debian.deb.txt"
+  local repotxt="[signed-by=/etc/apt/trusted.gpg.d/evcc-stable.asc] https://dl.cloudsmith.io/public/evcc/stable/deb/debian any-version main"
   local repo="/etc/apt/sources.list.d/evcc.list"
   local svcdir="/etc/systemd/system/evcc.service.d"
   local tmprepo
@@ -718,7 +719,8 @@ install_evcc() {
   if ! cond_redirect apt-get install -y debian-keyring debian-archive-keyring; then echo "FAILED"; return 1; fi
   if ! curl -1sLf "$repokeyurl" > /etc/apt/trusted.gpg.d/evcc-stable.asc; then echo -n "FAILED (retrieve EVCC repo key) "; fi
   if ! add_keys "$repokeyurl" "$keyName"; then echo "FAILED (add EVCC repo key)"; return 1; fi
-  if curl -1sLf $repourl > "$tmprepo"; then cp "$tmprepo" "$repo"; else echo -n "FAILED (retrieve latest repo URL) "; fi   # continue without overwriting repo
+  #if curl -1sLf $repourl > "$tmprepo"; then cp "$tmprepo" "$repo"; else echo -n "FAILED (retrieve latest repo URL) "; fi   # continue without overwriting repo
+  ( echo "deb ${repotxt}"; echo "deb-src ${repotxt}" ) > $repo
   echo -n "$(timestamp) [openHABian] Installing EVCC... "
   if ! cond_redirect apt update; then echo "FAILED (update apt lists)"; return 1; fi
   if ! cond_redirect apt install -y evcc; then echo "FAILED (EVCC package installation)"; return 1; fi
