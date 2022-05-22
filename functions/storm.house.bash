@@ -70,7 +70,7 @@ setup_pv_config() {
 ## Valid Arguments:
 ##
 ## * wallbox type (from EVCC)
-## abl cfos easee eebus evsewifi go-e heidelberg keba mcc nrgkick-bluetooth nrgkick-connect
+## abl cfos easee eebus evsewifi go-e go-e-v3 heidelberg keba mcc nrgkick-bluetooth nrgkick-connect
 ## openwb phoenix-em-eth phoenix-ev-eth phoenix-ev-ser simpleevse wallbe warp
 ## * IP address of wallbox
 ## * car type (from EVCC)
