@@ -59,22 +59,14 @@ meters:
 
 chargers:
 - type: template
-<<<<<<< HEAD
   template: %WBTYPE
   host: %IP
   port: 1883
-#  timeout: 30s
-=======
-  template: %WBTYP
-  host: %IP
-  port: 1883
   timeout: 30s
->>>>>>> 40245f9c (residualPower,bufferSoC,prioSoC§)
   name: Wallbox
 
 vehicles:
 - type: template
-<<<<<<< HEAD
   template: %CARTYPE1
   vin: %VIN1
   user: %CARUSER1
@@ -92,8 +84,6 @@ vehicles:
 #  password: %CARPASS2
 #  capacity: %CARCAPACITY2
 #  language: de
-=======
-  #template: hyundai
   template: %AUTOTYP
   name: meinEAuto
   title: E-Auto
@@ -102,13 +92,11 @@ vehicles:
   vin: 
   capacity: 77
   language: de
->>>>>>> 40245f9c (residualPower,bufferSoC,prioSoC§)
 
 loadpoints:
 - title: Wallbox
   charger: Wallbox
   mode: pv
-<<<<<<< HEAD
   phases: 0
   mincurrent: 6
   maxcurrent: 16
@@ -124,14 +112,6 @@ tariffs:
   feedin:
     type: fixed
     price: %FEEDINCOMPENSATION # [currency]/kWh
-=======
-  phases: 3
-  mincurrent: 6
-  maxcurrent: 16
-  resetOnDisconnect: true
-  vehicles:
-    - %AUTOTYP
->>>>>>> 40245f9c (residualPower,bufferSoC,prioSoC§)
 
 site:
   title: Zuhause
@@ -145,7 +125,4 @@ site:
   prioritySoc: 50
   bufferSoC: 66
 
-<<<<<<< HEAD
 sponsortoken: %TOKEN
-=======
->>>>>>> 40245f9c (residualPower,bufferSoC,prioSoC§)
