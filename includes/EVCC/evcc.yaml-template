@@ -62,12 +62,11 @@ chargers:
   template: %WBTYP
   host: %IP
   port: 1883
-  timeout: 30s
+#  timeout: 30s
   name: Wallbox
 
 vehicles:
 - type: template
-  #template: hyundai
   template: %AUTOTYP
   name: meinEAuto
   title: E-Auto
@@ -86,7 +85,7 @@ loadpoints:
   maxcurrent: 16
   resetOnDisconnect: true
   vehicles:
-    - %AUTOTYP
+    - meinEAuto
 
 site:
   title: Zuhause
