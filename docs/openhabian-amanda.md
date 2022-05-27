@@ -114,7 +114,7 @@ HEADS UP: You need to provide your storage BEFORE you install Amanda.
 That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
 Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage, read up on it NOW.
 Various tutorials can be found on the net such as <https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux>.
-The internet is your friend, but make sure you ask search for specific things such as “how to mount a NAS disk on a Raspberry Pi” to match your use case.
+The Internet is your friend, but make sure you search for specific terms such as “how to mount a NAS disk on a Raspberry Pi” to match your use case.
 So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously exported (= shared, i.e. made available for mounting) on that directory.
 This is your mountpoint.
 
@@ -157,7 +157,7 @@ root@pi:/home/pi#
 
 ### USB storage mount example
 
-Note that this is showing two alternative versions, for FAT16/VFAT filesystems (i.e. the original MS-DOS and the improved Windows filesystems that you usually use for USB sticks) and another version to use the ext4 native Linux filesystem.
+Note that this is showing two alternative versions, for VFAT/FAT-16 filesystems (i.e. the original MS-DOS and the improved Windows filesystems that you usually use for small USB sticks only) and another version to use the ext4 native Linux filesystem.
 You can use ext4 on a stick or USB-attached hard drive.
 Either way, you just need one or the other.
 
