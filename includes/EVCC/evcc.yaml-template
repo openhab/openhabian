@@ -87,6 +87,17 @@ loadpoints:
   vehicles:
     - meinEAuto
 
+tariffs:
+# tariffs are the fixed or variable tariffs
+# cheap (tibber/awattar) can be used to define a tariff rate considered cheap enough for charging
+  currency: EUR # (default EUR)
+  grid:
+    type: fixed
+    price: 0.319 # [currency]/kWh
+  feedin:
+    type: fixed
+    price: 0.065 # [currency]/kWh
+
 site:
   title: Zuhause
   meters:
