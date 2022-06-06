@@ -78,9 +78,6 @@ fi
 # While setup: show log to logged in user, will be overwritten by openhabian-setup.sh
 echo "watch cat /boot/first-boot.log" > "$HOME/.bash_profile"
 
-# else Raspi OS will fire up another (private) IP address see #1456
-echo "noipv4ll" >> /etc/dhcpcd.conf
-
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 if [[ -z $wifi_ssid ]]; then
   # Actually check if ethernet is working

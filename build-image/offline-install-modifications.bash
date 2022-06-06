@@ -18,7 +18,7 @@ apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \
   htop curl wget multitail git util-linux bzip2 zip unzip xz-utils \
   software-properties-common man-db whiptail acl usbutils dirmngr arping \
   apt-transport-https bc sysstat jq moreutils avahi-daemon python3 python3-pip \
-  python3-wheel python3-setuptools avahi-autoipd fontconfig comitup \
+  python3-wheel python3-setuptools fontconfig comitup \
   dns-root-data dnsmasq-base javascript-common libcairo2 libgudev-1.0-0 \
   libjs-jquery libmbim-glib4 libmbim-proxy libmm-glib0 libndp0 libnm0 \
   libpixman-1-0 libqmi-glib5 libqmi-proxy libteamdctl0 libxcb-render0 \
