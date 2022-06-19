@@ -461,9 +461,7 @@ activate_ems() {
     echo "Falsche Lizenz, deaktiviere ..."
     curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "KEINE" "http://${hostname}:8080/rest/items/LizenzStatus"
     # TODO: eventuell systemd timer setzen der in 1 Monat modbus disabled
-=======
     whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt eine ${1:-${wallboxtyp}} Wallbox mit einem ${3:-${autotyp}}." 8 80
->>>>>>> 988aa4e3 (LadeleistungHaus)
   fi
 }
 
