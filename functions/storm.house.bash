@@ -146,7 +146,7 @@ replace_logo() {
   local logoNew="${BASEDIR:-/opt/openhabian}/includes"/logo.svg
 
   rm -rf $logoInJAR
-  unzip $JAR $logoInJAR
+  unzip -qq $JAR $logoInJAR
   cp $logoNew $logoInJAR
-  zip -r $JAR $logoInJAR
+  if ! cond_redirect zip -r $JAR $logoInJAR; then echo "FAILED (replace logo)"; return 1; fi
 }
