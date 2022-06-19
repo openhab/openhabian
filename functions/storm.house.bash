@@ -134,3 +134,19 @@ setup_wb_config() {
   fi
 }
 
+
+## Guess what this does
+## Attention needs to work across versions, logo has to be SVG (use inkscape to embed PNG in SVG)
+##
+##    replace_logo()
+##
+replace_logo() {
+  local JAR=/usr/share/openhab/runtime/system/org/openhab/ui/bundles/org.openhab.ui/3.*/org.openhab.ui-3.*.jar
+  local logoInJAR=app/images/openhab-logo.svg
+  local logoNew="${BASEDIR:-/opt/openhabian}/includes"/logo.svg
+
+  rm -rf $logoInJAR
+  unzip $JAR $logoInJAR
+  cp $logoNew $logoInJAR
+  zip -r $JAR $logoNew
+}
