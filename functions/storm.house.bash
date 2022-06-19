@@ -148,5 +148,5 @@ replace_logo() {
   rm -rf $logoInJAR
   unzip $JAR $logoInJAR
   cp $logoNew $logoInJAR
-  zip -r $JAR $logoNew
+  zip -r $JAR $logoInJAR
 }
