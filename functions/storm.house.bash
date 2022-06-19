@@ -141,12 +141,12 @@ setup_wb_config() {
 ##    replace_logo()
 ##
 replace_logo() {
-  local JAR=/usr/share/openhab/runtime/system/org/openhab/ui/bundles/org.openhab.ui/3.*/org.openhab.ui-3.*.jar
+  local JAR="/usr/share/openhab/runtime/system/org/openhab/ui/bundles/org.openhab.ui/3.*/org.openhab.ui-3.*.jar"
   local logoInJAR=app/images/openhab-logo.svg
   local logoNew="${BASEDIR:-/opt/openhabian}/includes"/logo.svg
 
-  rm -rf $logoInJAR
-  unzip -qq $JAR $logoInJAR
-  cp $logoNew $logoInJAR
-  if ! cond_redirect zip -r $JAR $logoInJAR; then echo "FAILED (replace logo)"; return 1; fi
+  rm -rf "$logoInJAR"
+  unzip -qq "$JAR" "$logoInJAR"
+  cp "$logoNew" "$logoInJAR"
+  if ! cond_redirect zip -r "$JAR" "$logoInJAR"; then echo "FAILED (replace logo)"; return 1; fi
 }
