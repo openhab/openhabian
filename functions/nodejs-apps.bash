@@ -30,8 +30,8 @@ nodejs_setup() {
       if ! add_keys "https://deb.nodesource.com/gpgkey/nodesource.gpg.key" "$keyName"; then return 1; fi
 
       echo -n "$(timestamp) [openHABian] Adding NodeSource repository to apt... "
-      echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://deb.nodesource.com/node_14.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
-      echo "deb-src [signed-by=/usr/share/keyrings/${keyName}.gpg] https://deb.nodesource.com/node_14.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
+      echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://deb.nodesource.com/node_16.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
+      echo "deb-src [signed-by=/usr/share/keyrings/${keyName}.gpg] https://deb.nodesource.com/node_16.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
       if [[ -n $PREOFFLINE ]]; then
         if cond_redirect apt-get --quiet update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
       else
