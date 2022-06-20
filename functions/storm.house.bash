@@ -371,17 +371,17 @@ replace_logo() {
 ##    update_ems()
 ##
 update_ems() {
-  local tempdir
-  local temp
-  local fullpkg=https://storm.house/download/initialConfig.zip
-  local updateonly=https://storm.house/download/latestUpdate.zip
-  local introText="ACHTUNG\\n\\nWenn Sie eigene Änderungen auf der Ebene von openHAB vorgenommen haben (die \"orangene\" Benutzeroberfläche),dann wählen Sie \"Änderungen beibehalten\". Dieses Update würde alle diese Änderungen ansonsten überschreiben, sie wäre verloren.\\Ihre Einstellungen und historischen Daten bleiben in beiden Fällen erhalten und vor dem Update wird ein Backup der aktuellen Konfiguration erstellt.  Sollten Sie das Upgrade rückgängig machen wollen, können Sie jederzeit über den Menüpunkt 51 die Konfiguration des EMS von vor dem Update wieder einspielen."
-  local TextVoll="ACHTUNG:\\nWollen Sie wirklich die Konfiguration vollständig durch die aktuelle Version des EMS ersetzen?\\nAlles, was Sie über die grafische Benutzeroberfläche über Einstellungen hinausgehend verändert haben, geht dann verloren. Das betrifft beispielsweise, aber nicht nur, alle Things, Items und Regeln, die Sie selbst angelegt haben."
-  local TextTeil="ACHTUNG:\\nWollen Sie das EMS bzw. den von storm.house bereitgestellten Teil Ihres EMS wirklich durch die aktuelle Version ersetzen?"
+	local tempdir
+	local temp
+	local fullpkg=https://storm.house/download/initialConfig.zip
+	local updateonly=https://storm.house/download/latestUpdate.zip
+	local introText="ACHTUNG\\n\\nWenn Sie eigene Änderungen auf der Ebene von openHAB vorgenommen haben (die \"orangene\" Benutzeroberfläche),dann wählen Sie \"Änderungen beibehalten\". Dieses Update würde alle diese Änderungen ansonsten überschreiben, sie wäre verloren.\\Ihre Einstellungen und historischen Daten bleiben in beiden Fällen erhalten und vor dem Update wird ein Backup der aktuellen Konfiguration erstellt.  Sollten Sie das Upgrade rückgängig machen wollen, können Sie jederzeit über den Menüpunkt 51 die Konfiguration des EMS von vor dem Update wieder einspielen."
+	local TextVoll="ACHTUNG:\\nWollen Sie wirklich die Konfiguration vollständig durch die aktuelle Version des EMS ersetzen?\\nAlles, was Sie über die grafische Benutzeroberfläche über Einstellungen hinausgehend verändert haben, geht dann verloren. Das betrifft beispielsweise, aber nicht nur, alle Things, Items und Regeln, die Sie selbst angelegt haben."
+	local TextTeil="ACHTUNG:\\nWollen Sie das EMS bzw. den von storm.house bereitgestellten Teil Ihres EMS wirklich durch die aktuelle Version ersetzen?"
 
-  tempdir="$(mktemp -d "${TMPDIR:-/tmp}"/updatedir.XXXXX)"
-  temp="$(mktemp "${tempdir:-/tmp}"/updatefile.XXXXX)"
-  backup_openhab_config
+	tempdir="$(mktemp -d "${TMPDIR:-/tmp}"/updatedir.XXXXX)"
+	temp="$(mktemp "${tempdir:-/tmp}"/updatefile.XXXXX)"
+	backup_openhab_config
 
   # user credentials retten
   cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
@@ -390,28 +390,28 @@ update_ems() {
 
   # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
   if whiptail --title "EMS Update" --yes-button "komplettes Update" --no-button "Änderungen beibehalten" --yesno "$introText" 17 80; then
-    if ! whiptail --title "EMS komplettes Update" --yes-button "JA, DAS WILL ICH" --cancel-button "Abbrechen" --defaultno --yesno "$TextVoll" 13 80; then echo "CANCELED"; return 1; fi
-    if ! cond_redirect wget -nv -O "$temp" "$fullpkg"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
-    restore_openhab_config "$temp"
+	  if ! whiptail --title "EMS komplettes Update" --yes-button "JA, DAS WILL ICH" --cancel-button "Abbrechen" --defaultno --yesno "$TextVoll" 13 80; then echo "CANCELED"; return 1; fi
+	  if ! cond_redirect wget -nv -O "$temp" "$fullpkg"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
+	  restore_openhab_config "$temp"
   else
-    if ! whiptail --title "EMS Update" --yes-button "Ja" --cancel-button "Abbrechen" --defaultno --yesno "$TextTeil" 10 80; then echo "CANCELED"; return 1; fi
-    if ! cond_redirect wget -nv -O "$temp" "$updateonly"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
-    ( cd /etc/openhab || return 1
-    ln -sf . conf
-    unzip -o "$temp" conf/things\* conf/items\* conf/rules\*
-    rm -f conf )
+	  if ! whiptail --title "EMS Update" --yes-button "Ja" --cancel-button "Abbrechen" --defaultno --yesno "$TextTeil" 10 80; then echo "CANCELED"; return 1; fi
+	  if ! cond_redirect wget -nv -O "$temp" "$updateonly"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
+	  ( cd /etc/openhab || return 1
+	  ln -sf . conf
+	  unzip -o "$temp" conf/things\* conf/items\* conf/rules\*
+	  rm -f conf )
   fi
 
   # user credentials und Settings zurückspielen
   cp "${tempdir}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
   cp -rp "${tempdir}/mapdb" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
   if [[ -d /opt/zram/persistence.bind/mapdb ]]; then
-    cp -rp "${tempdir}/mapdb" /opt/zram/persistence.bind/
+	  cp -rp "${tempdir}/mapdb" /opt/zram/persistence.bind/
   fi
 
   permissions_corrections   # sicherheitshalber falls Dateien durch git nicht mehr openhab gehören
   if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "EMS update erfolgreich" --msgbox "Das storm.house Energie Management System ist jetzt auf dem neuesten Stand." 8 80
+	  whiptail --title "EMS update erfolgreich" --msgbox "Das storm.house Energie Management System ist jetzt auf dem neuesten Stand." 8 80
   fi
 
   rm -rf "${tempdir}"
@@ -423,19 +423,19 @@ update_ems() {
 ##    install_extras()
 ##
 install_extras() {
-  local serviceTargetDir="/etc/systemd/system"
-  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
-  local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
-  local pkg="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${jar}"
-  local dest="/usr/share/openhab/addons/${jar}"
+	local serviceTargetDir="/etc/systemd/system"
+	local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+	local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
+	local pkg="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${jar}"
+	local dest="/usr/share/openhab/addons/${jar}"
 
 
-  version=$(dpkg -s 'openhab' 2> /dev/null | grep Version | cut -d' ' -f2 | cut -d'-' -f1 | cut -d'.' -f2)
-  if [[ $version -lt 4 ]]; then
-    if ! cond_redirect wget -nv -O "$dest" "$pkg"; then echo "FAILED (download solar forecast binding)"; rm -f "$dest"; return 1; fi
-  fi
+	version=$(dpkg -s 'openhab' 2> /dev/null | grep Version | cut -d' ' -f2 | cut -d'-' -f1 | cut -d'.' -f2)
+	if [[ $version -lt 4 ]]; then
+		if ! cond_redirect wget -nv -O "$dest" "$pkg"; then echo "FAILED (download solar forecast binding)"; rm -f "$dest"; return 1; fi
+	fi
 
-  cp -p "${includesDir}:openhab_rsa*" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
+	cp -p "${includesDir}:openhab_rsa*" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
 
   # lc
   if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.timer; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
@@ -452,17 +452,17 @@ install_extras() {
 ## * enable|disable
 ##
 activate_ems() {
-  if [[ $1 == "enable" ]]; then
-    echo "Korrekte Lizenz, aktiviere ..."
-    # shellcheck disable=SC2154
-    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "lizensiert" "http://${hostname}:8080/rest/items/LizenzStatus"
-    # TODO: eventuell vorhandenen systemd timer löschen der nach 1 Monat modbus disabled
-  else
-    echo "Falsche Lizenz, deaktiviere ..."
-    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "KEINE" "http://${hostname}:8080/rest/items/LizenzStatus"
-    # TODO: eventuell systemd timer setzen der in 1 Monat modbus disabled
-    whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt eine ${1:-${wallboxtyp}} Wallbox mit einem ${3:-${autotyp}}." 8 80
-  fi
+	if [[ $1 == "enable" ]]; then
+		echo "Korrekte Lizenz, aktiviere ..."
+		# shellcheck disable=SC2154
+		curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "lizensiert" "http://${hostname}:8080/rest/items/LizenzStatus"
+		# TODO: eventuell vorhandenen systemd timer löschen der nach 1 Monat modbus disabled
+	else
+		echo "Falsche Lizenz, deaktiviere ..."
+		curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "KEINE" "http://${hostname}:8080/rest/items/LizenzStatus"
+		# TODO: eventuell systemd timer setzen der in 1 Monat modbus disabled
+		whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt eine ${1:-${wallboxtyp}} Wallbox mit einem ${3:-${autotyp}}." 8 80
+	fi
 }
 
 
