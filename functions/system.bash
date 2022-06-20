@@ -60,7 +60,7 @@ needed_packages() {
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
   if cond_redirect apt-get install --yes apt-transport-https bc sysstat jq \
     moreutils avahi-daemon python3 python3-pip python3-wheel python3-setuptools \
-    avahi-autoipd fontconfig; \
+    fontconfig; \
   then echo "OK"; else echo "FAILED"; return 1; fi
 
   if is_pi_wlan && [[ -z $PREOFFLINE ]]; then
