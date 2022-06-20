@@ -138,13 +138,6 @@ else
 
   sed -i 's|REGDOMAIN=.*$|REGDOMAIN='"${wifiCountry}"'|g' /etc/default/crda
 
-  echo -n "$(timestamp) [openHABian] Configuring network... "
-  if grep -qs "wlan0" /etc/network/interfaces; then
-    cond_echo "\\nNot writing to '/etc/network/interfaces', wlan0 entry already available. You might need to check, adopt or remove these lines."
-  else
-    echo -e "\\nallow-hotplug wlan0\\niface wlan0 inet manual\\nwpa-roam /etc/wpa_supplicant/wpa_supplicant.conf\\niface default inet dhcp" >> /etc/network/interfaces
-  fi
-
   if is_pi; then
     echo "OK (rebooting)"
     reboot
