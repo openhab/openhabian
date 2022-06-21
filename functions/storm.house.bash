@@ -151,5 +151,6 @@ replace_logo() {
   unzip -qq $JAR "$logoInJAR"
   cp "$logoNew" "$logoInJAR"
   # shellcheck disable=SC2086
-  if ! cond_redirect zip -r $JAR "$logoInJAR"; then echo "FAILED (replace logo)"; return 1; fi
+  if ! cond_redirect zip -r $JAR "$logoInJAR"; then echo "FAILED (replace logo)"; fi
+  rm -rf "$logoInJAR"
 }
