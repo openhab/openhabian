@@ -414,7 +414,8 @@ misc_system_settings() {
     if ! cond_redirect journalctl --vacuum-time=30d; then echo "FAILED (journalctl)"; return 1; fi
 
     # enable I2C port
-    if ! grep -qs "^[[:space:]]*dtparam=i2c_arm=on" /boot/config.txt; then echo "dtparam=i2c_arm=on" >> /boot/config.txt; fi
+    if ! grep -qs "^[[:space:]]*dtparam=i2c_arm=" /boot/config.txt; then echo "dtparam=i2c_arm=on" >> /boot/config.txt; fi
+    if ! grep -qs "^[[:space:]]*dtparam=i2c1=" /boot/config.txt; then echo "dtparam=i2c1=on" >> /boot/config.txt; fi
     cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/INA219.py /usr/local/bin/waveshare_ups
   fi
   # A distinguishable apt User-Agent
