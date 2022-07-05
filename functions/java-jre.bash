@@ -54,6 +54,7 @@ openjdk_install_apt() {
     echo -n "$(timestamp) [openHABian] Reconfiguring OpenJDK ${1}... "
     cond_redirect java_alternatives_reset
     if cond_redirect dpkg-reconfigure "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+    update-alternatives --set java /usr/lib/jvm/java-"${1}"-openjdk-armhf/bin/java
   fi
 }
 
