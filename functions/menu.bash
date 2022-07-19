@@ -30,7 +30,7 @@ show_main_menu() {
   local choice
   local version
 
-  choice=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Setup Options" 19 116 12 --cancel-button Exit --ok-button Execute \
+  choice=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Exit --ok-button Execute \
   "00 | About smart-house"       "Information about this tool ($(basename "$0"))" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
@@ -87,6 +87,9 @@ show_main_menu() {
   elif [[ "$choice" == "05"* ]]; then
     setup_pv_config
     setup_wb_config
+
+  elif [[ "$choice" == "06"* ]]; then
+    update_ems
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \

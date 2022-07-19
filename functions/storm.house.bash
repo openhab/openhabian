@@ -154,3 +154,29 @@ replace_logo() {
   if ! cond_redirect zip -r $JAR "$logoInJAR"; then echo "FAILED (replace logo)"; fi
   rm -rf "$logoInJAR"
 }
+
+
+## EMS Sourcen per internem Skript (wird als Teil von create_ems_distro bei Bedarf eines EMS-Updates ausgeführt)
+## aus https://github.com/mstormi/ohdev holen (privates repo! User duerfen nicht selbst zugreifen)
+## -> User startet Update per eigenem "update EMS app" Menüpunkt
+##    einfach nur latest_update.zip von Website (!) holen und alle .things/.items/.rules auspacken 
+## Passwort auf Website ? auf tar ?
+## 
+## Direktes Speichern in /etc/openhab bedeutet Update beim Start von smart-house-config sorgt auch für Applikations-Update -> NO GO!
+##
+## Retrieve latest EMS code from website
+##
+##    update_ems()
+##
+update_ems() {
+  local temp
+  local pkg=https://storm.house/download/latest_update.zip
+
+  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
+  if ! cond_redirect wget -nv -O "$temp" "$pkg"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
+  ( cd /etc/openhab || return 1
+  ln -sf . conf
+  unzip -t "$temp" conf/things\* conf/items\* conf/rules\* )
+  #unzip "$temp" conf/things\* conf/items\* conf/rules\* )
+}
+
