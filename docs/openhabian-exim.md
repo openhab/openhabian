@@ -9,7 +9,7 @@ Additionally, GMX requires the "From:" address to be your GMX mail address.
 Google allows for arbitrary From: but will override any From: with your Gmail address.
 
 Google meanwhile enforces more strict anti-spamming so authenticating with your standard credentials likely won't work
-any more to send mail. But you can generate a static password token for use with applications such as email in your goole account settings.
+any more to send mail. But you can generate a static password token for use with applications such as email in your Google account settings.
 
 :::
 
