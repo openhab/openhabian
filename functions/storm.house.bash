@@ -175,8 +175,10 @@ update_ems() {
   temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
   if ! cond_redirect wget -nv -O "$temp" "$pkg"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
   ( cd /etc/openhab || return 1
+  backup_openhab_config
   ln -sf . conf
-  unzip -t "$temp" conf/things\* conf/items\* conf/rules\* )
-  #unzip "$temp" conf/things\* conf/items\* conf/rules\* )
+  #unzip -t "$temp" conf/things\* conf/items\* conf/rules\* )
+  unzip "$temp" conf/things\* conf/items\* conf/rules\* )
+  rm -f conf
 }
 
