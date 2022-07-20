@@ -33,7 +33,6 @@ show_main_menu() {
   choice=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Setup Options" 20 116 13 --cancel-button Exit --ok-button Execute \
   "00 | About smart-house"       "Information about this tool ($(basename "$0"))" \
   "" "" \
-  "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Update storm.house EMS to latest version" \
   "03 | Update EMS"              "Install or upgrade to latest openHAB" \
   "04 | Import config"           "Import an openHAB configuration from file or URL" \
@@ -80,6 +79,9 @@ show_main_menu() {
     repo=$(apt-cache madison openhab | head -n 1 | awk '{ print $6 }' |cut -d'/' -f1)
     # shellcheck disable=SC2154
     openhab_setup "${repo:-release}" "${openhabpkgversion}"
+    replace_logo
+    upgrade_ems
+    cond_redirect apt-mark hold openhab openhab-addons evcc
 
   elif [[ "$choice" == "04"* ]]; then
     import_openhab_config
@@ -87,9 +89,6 @@ show_main_menu() {
   elif [[ "$choice" == "05"* ]]; then
     setup_pv_config
     setup_wb_config
-
-  elif [[ "$choice" == "06"* ]]; then
-    update_ems
 
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
