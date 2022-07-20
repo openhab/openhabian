@@ -84,9 +84,6 @@ show_main_menu() {
     setup_pv_config
     setup_wb_config
 
-  elif [[ "$choice" == "06"* ]]; then
-    update_ems
-
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
