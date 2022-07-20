@@ -179,6 +179,6 @@ update_ems() {
   ln -sf . conf
   #unzip -t "$temp" conf/things\* conf/items\* conf/rules\* )
   unzip "$temp" conf/things\* conf/items\* conf/rules\* )
-  rm -f conf
+  rm -f "$temp conf"
 }
 
