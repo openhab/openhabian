@@ -177,8 +177,7 @@ update_ems() {
   ( cd /etc/openhab || return 1
   backup_openhab_config
   ln -sf . conf
-  #unzip -t "$temp" conf/things\* conf/items\* conf/rules\* )
-  unzip "$temp" conf/things\* conf/items\* conf/rules\* )
+  unzip -o "$temp" conf/things\* conf/items\* conf/rules\* )
   rm -f "$temp conf"
 }
 
