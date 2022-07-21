@@ -80,7 +80,7 @@ loadpoints:
 - title: Wallbox
   charger: Wallbox
   mode: pv
-  phases: 3
+  phases: 0
   mincurrent: 6
   maxcurrent: 16
   resetOnDisconnect: true
