@@ -179,5 +179,8 @@ update_ems() {
   ln -sf . conf
   unzip -o "$temp" conf/things\* conf/items\* conf/rules\* )
   rm -f "$temp conf"
+  if [[ -n "$INTERACTIVE" ]]; then
+    whiptail --title "EMS update erfolgreich" --msgbox "Das storm.house Energie Management System ist jetzt auf dem neuesten Stand." 8 80
+  fi
 }
 
