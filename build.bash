@@ -389,7 +389,7 @@ imageE_sha="$(sha256sum "${fileE}"| cut -d' ' -f1)"
 imageZ_sha="$(sha256sum "${fileZ}"| cut -d' ' -f1)"
 
 url="${pathDownload}/latest/${fileZ}"
-cp ${sourceFolder}/template_rpi-imager-openhab.json rpi-imager-openhab.json
+#cp ${sourceFolder}/template_rpi-imager-openhab.json rpi-imager-openhab.json
 
 sed -i -e "s|%release_date%|${release_date}|g" rpi-imager-openhab.json
 sed -i -e "s|%url${bits}%|${url}|g" rpi-imager-openhab.json
@@ -401,5 +401,6 @@ sed -i -e "s|%imageZ_sha${bits}%|${imageZ_sha}|g" rpi-imager-openhab.json
 echo_process "Finished! The results:"
 ls -alh "openhabian-${hwPlatform}-${timestamp}"*
 ls -d "${PWD}/*"
+cat rpi-imager-openhab.json
 
 # vim: filetype=sh
