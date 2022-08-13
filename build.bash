@@ -379,8 +379,8 @@ mv "${destination}.xz" "openhabian-${hwPlatform}-${timestamp}-git${shorthash}-cr
 pathDownload="https://github.com/openhab/openhabian/releases/download"
 version="1.7.4"
 release_date=$(date "+%Y-%m-%d")
-fileZ="${destination}"     #"openhabian-pi-raspios32-202206272122-git852c09c-crced70fd0c.img.xz"
-fileE="${destination}.xz"  #"openhabian-pi-raspios32-202206272122-git852c09c-crced70fd0c.img"
+fileE="${destination}"
+fileZ="openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img.xz"
 
 imageE_size="$(stat -c %s ${fileE})"
 imageZ_size="$(stat -c %s ${fileZ})"
