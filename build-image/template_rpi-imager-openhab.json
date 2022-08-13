@@ -1,7 +1,7 @@
 {
   "os_list": [
     {
-      "name": "openHABian %version% (Raspberry Pi OS lite 32 bit)",
+      "name": "openHABian (Raspberry Pi OS lite 32 bit)",
       "description": "Installation of openHAB\nClick the info icon for installation information.",
       "url": "%url32%",
       "icon": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMzIgMzIiPgoJPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiNmZmYiLz4KCTxwYXRoIGZpbGw9IiNlNjRhMTkiIGQ9Im01LjI0MiAyMS4xMzMgOS4zOS05LjM5OEwxNiAxMC4zNjhsMS4zNjcgMS4zNjcgNi45MzMgNi45MzMtLjAxLjAzNS0uMTM3LjQwMi0uMTU2LjM5NC0uMTc0LjM4My0uMTkyLjM3NC0uMTc1LjMwNEwxNiAxMy4xMDMgNi4yNCAyMi44N2MtLjM3Ny0uNTUzLS43MjUtMS4xMjMtLjk5OC0xLjczOHoiLz4KCTxwYXRoIGZpbGw9IiM0NzQ3NDciIGQ9Ik0xNiA0YzYuNjEgMCAxMiA1LjM5IDEyIDEycy01LjM5IDEyLTEyIDEyYy0zLjYxIDAtNi44NTYtMS42MS05LjA1OS00LjE0N2wuNDI0LS40MjUuMzA4LS4zMDguMzA4LS4zMS4zMDktLjMwNy4wMTMtLjAxM0ExMC4wNTcgMTAuMDU3IDAgMCAwIDE2IDI2LjA3N2M1LjU1IDAgMTAuMDc4LTQuNTI2IDEwLjA3OC0xMC4wNzdTMjEuNTUgNS45MjIgMTYgNS45MjJDMTAuNDQ5IDUuOTIyIDUuOTIyIDEwLjQ1IDUuOTIyIDE2YzAgLjc0Ny4wODMgMS40NzYuMjM5IDIuMTc4bC0uNjY4LjY3LS44OTMuODkzQTExLjkyMiAxMS45MjIgMCAwIDEgNCAxNkM0IDkuMzkgOS4zOSA0IDE2IDR6Ii8+Cjwvc3ZnPgo=",
@@ -13,7 +13,7 @@
       "website": "https://www.openhab.org/docs/installation/openhabian.html#raspberry-pi-prepackaged-sd-card-image"
     },
     {
-      "name": "openHABian %version% (Raspberry Pi OS lite 64 bit)",
+      "name": "openHABian (Raspberry Pi OS lite 64 bit)",
       "description": "Installation of openHAB\nClick the info icon for installation information.",
       "url": "%url64%",
       "icon": "data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiIHN0YW5kYWxvbmU9Im5vIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgMzIgMzIiPgoJPGNpcmNsZSBjeD0iMTYiIGN5PSIxNiIgcj0iMTYiIGZpbGw9IiNmZmYiLz4KCTxwYXRoIGZpbGw9IiNlNjRhMTkiIGQ9Im01LjI0MiAyMS4xMzMgOS4zOS05LjM5OEwxNiAxMC4zNjhsMS4zNjcgMS4zNjcgNi45MzMgNi45MzMtLjAxLjAzNS0uMTM3LjQwMi0uMTU2LjM5NC0uMTc0LjM4My0uMTkyLjM3NC0uMTc1LjMwNEwxNiAxMy4xMDMgNi4yNCAyMi44N2MtLjM3Ny0uNTUzLS43MjUtMS4xMjMtLjk5OC0xLjczOHoiLz4KCTxwYXRoIGZpbGw9IiM0NzQ3NDciIGQ9Ik0xNiA0YzYuNjEgMCAxMiA1LjM5IDEyIDEycy01LjM5IDEyLTEyIDEyYy0zLjYxIDAtNi44NTYtMS42MS05LjA1OS00LjE0N2wuNDI0LS40MjUuMzA4LS4zMDguMzA4LS4zMS4zMDktLjMwNy4wMTMtLjAxM0ExMC4wNTcgMTAuMDU3IDAgMCAwIDE2IDI2LjA3N2M1LjU1IDAgMTAuMDc4LTQuNTI2IDEwLjA3OC0xMC4wNzdTMjEuNTUgNS45MjIgMTYgNS45MjJDMTAuNDQ5IDUuOTIyIDUuOTIyIDEwLjQ1IDUuOTIyIDE2YzAgLjc0Ny4wODMgMS40NzYuMjM5IDIuMTc4bC0uNjY4LjY3LS44OTMuODkzQTExLjkyMiAxMS45MjIgMCAwIDEgNCAxNkM0IDkuMzkgOS4zOSA0IDE2IDR6Ii8+Cjwvc3ZnPgo=",
