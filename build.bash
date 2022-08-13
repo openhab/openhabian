@@ -375,6 +375,30 @@ xz --verbose --compress --keep -9 -T0 "$destination"
 crc32checksum="$(crc32 "${destination}.xz")"
 mv "${destination}.xz" "openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img.xz"
 
+# generate json-file for integration in raspberry-imager
+pathDownload="https://github.com/openhab/openhabian/releases/download"
+version="1.7.4"
+release_date=$(date "+%Y-%m-%d")
+fileZ="${destination}"     #"openhabian-pi-raspios32-202206272122-git852c09c-crced70fd0c.img.xz"
+fileE="${destination}.xz"  #"openhabian-pi-raspios32-202206272122-git852c09c-crced70fd0c.img"
+
+imageE_size="$(stat -c %s ${fileE})"
+imageZ_size="$(stat -c %s ${fileZ})"
+
+imageE_sha="$(sha256sum ${fileE}| cut -d' ' -f1)"
+imageZ_sha="$(sha256sum ${fileZ}| cut -d' ' -f1)"
+
+url=${pathDownload}/${version}/${fileZ}
+cp ${sourceFolder}/template_rpi-imager-openhab.json rpi-imager-openhab.json
+
+sed -i -e "s|%version%|${version}|g" rpi-imager-openhab.json
+sed -i -e "s|%release_date%|${release_date}|g" rpi-imager-openhab.json
+sed -i -e "s|%url${bits}%|${url}|g" rpi-imager-openhab.json
+sed -i -e "s|%imageE_size${bits}%|${imageE_size}|g" rpi-imager-openhab.json
+sed -i -e "s|%imageE_sha${bits}%|${imageE_sha}|g" rpi-imager-openhab.json
+sed -i -e "s|%imageZ_size${bits}%|${imageZ_size}|g" rpi-imager-openhab.json
+sed -i -e "s|%imageZ_sha${bits}%|${imageZ_sha}|g" rpi-imager-openhab.json
+
 echo_process "Finished! The results:"
 ls -alh "openhabian-${hwPlatform}-${timestamp}"*
 
