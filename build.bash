@@ -382,11 +382,11 @@ release_date=$(date "+%Y-%m-%d")
 fileE="${destination}"
 fileZ="openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img.xz"
 
-imageE_size="$(stat -c %s ${fileE})"
-imageZ_size="$(stat -c %s ${fileZ})"
+imageE_size="$(stat -c %s "${fileE}")"
+imageZ_size="$(stat -c %s "${fileZ}")"
 
-imageE_sha="$(sha256sum ${fileE}| cut -d' ' -f1)"
-imageZ_sha="$(sha256sum ${fileZ}| cut -d' ' -f1)"
+imageE_sha="$(sha256sum "${fileE}"| cut -d' ' -f1)"
+imageZ_sha="$(sha256sum "${fileZ}"| cut -d' ' -f1)"
 
 url=${pathDownload}/${version}/${fileZ}
 cp ${sourceFolder}/template_rpi-imager-openhab.json rpi-imager-openhab.json
