@@ -400,7 +400,7 @@ sed -i -e "s|%imageZ_sha${bits}%|${imageZ_sha}|g" rpi-imager-openhab.json
 
 echo_process "Finished! The results:"
 ls -alh "openhabian-${hwPlatform}-${timestamp}"*
-ls -d "${PWD}/*"
+ls -alh "rpi-imager-openhab.json"
 cat rpi-imager-openhab.json
 
 # vim: filetype=sh
