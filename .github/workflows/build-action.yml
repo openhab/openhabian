@@ -81,8 +81,6 @@ jobs:
 
        - name: Create release template
          if: ${{ success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v') }}
-         run: |
-           sed -i -e "s|openhab|bla|g" ${{ steps.build.outputs.json_image }}
          uses: "marvinpinto/action-automatic-releases@v1.2.1"
          with:
            repo_token: "${{ secrets.GITHUB_TOKEN }}"
