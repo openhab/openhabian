@@ -376,7 +376,7 @@ crc32checksum="$(crc32 "${destination}.xz")"
 mv "${destination}.xz" "openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img.xz"
 
 # generate json-file for integration in raspberry-imager
-pathDownload="https://github.com/openhab/openhabian/releases/download"
+pathDownload="https://github.com/openhab/openhabian/releases/latest/download"
 release_date=$(date "+%Y-%m-%d")
 fileE="${destination}"
 fileZ="openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img.xz"
@@ -388,7 +388,7 @@ echo_process "Computing SHA256 message digest of image... "
 imageE_sha="$(sha256sum "${fileE}"| cut -d' ' -f1)"
 imageZ_sha="$(sha256sum "${fileZ}"| cut -d' ' -f1)"
 
-url="${pathDownload}/latest/${fileZ}"
+url="${pathDownload}/${fileZ}"
 
 sed -i -e "s|%release_date%|${release_date}|g" rpi-imager-openhab.json
 sed -i -e "s|%url${bits}%|${url}|g" rpi-imager-openhab.json
