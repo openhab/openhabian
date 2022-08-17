@@ -1,6 +1,6 @@
 ## Raspberry Imager ## August 17, 2022
-Now openHABian can be directly selected within Raspberry Imager to write the
-image to a SD-card.
+Now openHABian can be selected directly within Raspberry Imager to write the
+image to an SD card.
 
 ## Zigbee2MQTT ## April 17, 2022
 Zigbee2MQTT enables to connect a Zigbee-Network via MQTT. Zigbee2MQTT supports
