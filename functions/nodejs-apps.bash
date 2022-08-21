@@ -90,7 +90,7 @@ frontail_setup() {
   cd /opt/frontail || (echo "FAILED (cd)"; return 1)
   if ! cond_redirect npm install --force -g; then echo "FAILED (install)"; return 1; fi
   if cond_redirect npm update --force -g; then echo "OK"; else echo "FAILED (update)"; return 1; fi
-  if ! cond_redirect npm install cookie; then echo "FAILED (install)"; return 1; fi
+  if ! cond_redirect npm install -g /opt/frontail cookie; then echo "FAILED (install)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service... "
   if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi
