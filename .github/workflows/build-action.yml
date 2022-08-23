@@ -51,11 +51,6 @@ jobs:
          with:
            path: ${{ steps.setup.outputs.image32 }}
            key: ${{ steps.setup.outputs.image32 }}
-       - name: Cache Raspberry Pi OS 64bit image
-         uses: actions/cache@v4
-         with:
-           path: ${{ steps.setup.outputs.image64 }}
-           key: ${{ steps.setup.outputs.image64 }}
        - name: Build openHABian images
          id: build
          run: |
