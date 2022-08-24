@@ -89,7 +89,7 @@ frontail_setup() {
   if ! cond_redirect frontail_download "/opt"; then echo "FAILED (download)"; return 1; fi
   cd /opt/frontail || (echo "FAILED (cd)"; return 1)
   if ! cond_redirect npm install --force -g; then echo "FAILED (install)"; return 1; fi
-  if ! cond_redirect npm install --force -g cookie; then echo "FAILED (install)"; return 1; fi
+  if ! cond_redirect npm audit fix --force; then echo "FAILED (install)"; return 1; fi
   if cond_redirect npm update --force -g; then echo "OK"; else echo "FAILED (update)"; return 1; fi
   
   echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service... "
