@@ -161,13 +161,7 @@ replace_logo() {
 }
 
 
-## EMS Sourcen per internem Skript (wird als Teil von create_ems_distro bei Bedarf eines EMS-Updates ausgeführt)
-## aus https://github.com/mstormi/ohdev holen (privates repo! User duerfen nicht selbst zugreifen)
-## -> User startet Update per eigenem "update EMS app" Menüpunkt
-##    einfach nur latest_update.zip von Website (!) holen und alle .things/.items/.rules auspacken 
-## Passwort auf Website ? auf tar ?
-## 
-## Direktes Speichern in /etc/openhab bedeutet Update beim Start von smart-house-config sorgt auch für Applikations-Update -> NO GO!
+## ACHTUNG Direktes Speichern in /etc/openhab bedeutet Update beim Start von smart-house-config sorgt auch für Applikations-Update -> NO GO!
 ##
 ## Retrieve latest EMS code from website
 ##
@@ -179,10 +173,8 @@ update_ems() {
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
   if ! cond_redirect wget -nv -O "$temp" "$pkg"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
-  ( cd /etc/openhab || return 1
   backup_openhab_config
-  ln -sf . conf
-  unzip -o "$temp" conf/things\* conf/items\* conf/rules\* )
+  restore_openhab_config "$temp"
   rm -f "$temp conf"
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "EMS update erfolgreich" --msgbox "Das storm.house Energie Management System ist jetzt auf dem neuesten Stand." 8 80
