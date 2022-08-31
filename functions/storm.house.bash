@@ -100,17 +100,6 @@ setup_pv_config() {
   done
 
 
-  srcfile="${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${1:-${invertertype}}.png"
-  if [[ -f $srcfile ]]; then
-    cp "$srcfile" "$inverterPNG"
-  fi
-  if [[ $(whoami) == "root" ]]; then
-    chown "${username:-openhabian}:openhab" "$inverterPNG"
-    chmod 664 "$inverterPNG"
-  fi
->>>>>>> 90626c9ff (unbekannt)
-
-
   if [[ "${device}" == "pv" ]]; then
     srcfile="${OPENHAB_CONF:-/etc/openhab}/icons/STORE/inverter/${2:-${invertertype}}.png"
     if [[ -f $srcfile ]]; then
@@ -314,10 +303,6 @@ setup_wb_config() {
     if [[ -z "${1:-$wallboxtype}" ]]; then echo "SKIPPED (no wallbox defined)"; return 1; fi
   fi
 
-  if [[ ! -f /usr/local/sbin/setup_pv_config ]]; then
-    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
-  fi
-
   for component in things items rules; do
     rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${wallboxtype}}.${component}"
@@ -336,11 +321,6 @@ setup_wb_config() {
       fi
     fi
   done
-  cp "${OPENHAB_CONF:-/etc/openhab}/icons/STORE/${1:-${invertertype}}.png" "$inverterPNG"
-  if [[ $(whoami) == "root" ]]; then
-    chown "${username:-openhabian}:openhab" "$inverterPNG"
-    chmod 664 "$inverterPNG"
-  fi
 
   srcfile="${OPENHAB_CONF:-/etc/openhab}/icons/STORE/wallbox/${1:-${wallboxtype}}.png"
   if [[ -f $srcfile ]]; then
@@ -403,7 +383,7 @@ setup_wb_config() {
 ##
 ## Valid Arguments:
 ##
-## #1 tariff type: flat tibber awattar
+## #1 tariff type: flat tibber entsoe awattar
 ## #2 base tariff (to add to dyn. price)
 ## #3 tariff homeID
 ## #4 tariff token
@@ -422,7 +402,7 @@ setup_power_config() {
   fi
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$tarifftype}" ]]; then
-      if ! tarifftype="$(whiptail --title "Stromtarif Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Stromtarif aus" 5 80 0 "flat" "normaler Stromtarif (flat)" "awattar" "aWATTar" "tibber" "Tibber" 3>&1 1>&2 2>&3)"; then unset tarifftype; return 1; fi
+      if ! tarifftype="$(whiptail --title "Stromtarif Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Stromtarif aus" 5 80 0 "flat" "normaler Stromtarif (flat)" "awattar" "aWATTar" "tibber" "Tibber" "entsoe" "Entso-E" 3>&1 1>&2 2>&3)"; then unset tarifftype; return 1; fi
     fi
   fi
 
@@ -490,6 +470,7 @@ setup_hp_config() {
     fi
   done
 
+  muser=${6:-${heatpumpuser}}
   if [[ $muser == "NULL" ]]; then muser=""; fi
   mpass=${7:-${heatpumppass}}
   if [[ $mpass == "NULL" ]]; then mpass=""; fi
@@ -593,7 +574,7 @@ replace_logo() {
 
   # shellcheck disable=SC2012
   JAR=$(ls -1t /usr/share/openhab/runtime/system/org/openhab/ui/bundles/org.openhab.ui/*/org.openhab.ui-*|sort -ru|head -1)
-  rm -rf "$logoInJAR"
+  rm -rf "app"		#rm -rf "$logoInJAR"
   # shellcheck disable=SC2086
   unzip -qq $JAR "$logoInJAR"
   cp "$logoNew" "$logoInJAR"
@@ -654,9 +635,7 @@ upgrade_ems() {
   local temp
   local fullpkg=https://storm.house/download/initialConfig.zip
   local updateonly=https://storm.house/download/latestUpdate.zip
-  local introText="ACHTUNG\\n\\nWenn Sie eigene Änderungen auf der Ebene von openHAB vorgenommen haben (die \"orangene\" Benutzeroberfläche),dann wählen Sie \"Änderungen beibehalten\". Dieses Update würde alle diese Änderungen ansonsten überschreiben, sie wäre verloren.\\nIhre Einstellungen und historischen Daten bleiben in beiden Fällen erhalten und vor dem Update wird ein Backup der aktuellen Konfiguration erstellt. Sollten Sie das Upgrade rückgängig machen wollen, können Sie jederzeit über den Menüpunkt 51 die Konfiguration des EMS von vor dem Update wieder einspielen."
-  local TextVoll="ACHTUNG:\\nWollen Sie wirklich die Konfiguration vollständig durch die aktuelle Version des EMS ersetzen?\\nAlles, was Sie über Einstellungen in der grafische Benutzeroberfläche hinausgehend verändert haben, geht dann verloren. Das betrifft beispielsweise - aber nicht nur - alle Things, Items und Regeln, die Sie selbst angelegt haben."
-  local TextTeil="ACHTUNG:\\nWollen Sie das EMS bzw. den von storm.house bereitgestellten Teil Ihres EMS wirklich durch die aktuelle Version ersetzen?"
+  local introText="WICHTIGER HINWEIS\\n\\nWenn Sie eigene Änderungen auf der Ebene von openHAB vorgenommen haben (der \"orangene\" Teil der Benutzeroberfläche), dann gehen diese beim Update verloren.\\nIhre Einstellungen und historischen Daten bleiben erhalten.\\nWebseiten (pages) können Sie über den \"Code\"-Reiter kopieren und abspeichern und die Things und Items über die Menüoptionen unter \"Entwickler Tools\". \\nVor dem Update wird ein Backup der aktuellen Konfiguration erstellt. Sollten Sie das Upgrade rückgängig machen wollen, können Sie jederzeit über den Menüpunkt 51 die Konfiguration des EMS von vor dem Update wieder einspielen."
 
   tempdir="$(mktemp -d "${TMPDIR:-/tmp}"/updatedir.XXXXX)"
   temp="$(mktemp "${tempdir:-/tmp}"/updatefile.XXXXX)"
@@ -670,13 +649,8 @@ upgrade_ems() {
   # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
   mode=${1}
   if [[ -n "$INTERACTIVE" ]]; then
-    if whiptail --title "EMS Update" --yes-button "komplettes Update" --no-button "Änderungen beibehalten" --yesno "$introText" 17 80; then
-      if ! whiptail --title "EMS komplettes Update" --yes-button "JA, DAS WILL ICH" --cancel-button "Abbrechen" --defaultno --yesno "$TextVoll" 13 80; then echo "CANCELED"; return 1; fi
-      mode=full
-    else
-      if ! whiptail --title "EMS Update" --yes-button "Ja" --cancel-button "Abbrechen" --defaultno --yesno "$TextTeil" 10 80; then echo "CANCELED"; return 1; fi
-      mode=codeonly
-    fi
+    if ! whiptail --title "EMS komplettes Update" --yes-button "JA, DAS WILL ICH" --cancel-button "Abbrechen" --defaultno --yesno "$introText" 19 80; then echo "CANCELED"; return 1; fi
+    mode=full
   fi
 
   if [[ "$mode" == "full" ]]; then
@@ -693,12 +667,13 @@ upgrade_ems() {
   # user credentials und Settings zurückspielen
   cp "${tempdir}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
   cp -rp "${tempdir}/mapdb" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
-  cp "${includesDir}/inmemory.persist" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
+  cp "${includesDir}/*.persist" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
   if [[ -d /opt/zram/persistence.bind/mapdb ]]; then
     cp -rp "${tempdir}/mapdb" /opt/zram/persistence.bind/
   fi
 
   install_extras
+  install_evcc "install" "${evccpkgversion}"
   permissions_corrections   # sicherheitshalber falls Dateien durch git nicht mehr openhab gehören
 
   if [[ -n "$INTERACTIVE" ]]; then
@@ -815,3 +790,4 @@ setup_license() {
 
   rm -f $tmp1 $tmp2
 }
+
