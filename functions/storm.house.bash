@@ -170,11 +170,25 @@ replace_logo() {
 update_ems() {
   local temp
   local pkg=https://storm.house/download/latest_update.zip
+  local introText="ACHTUNG\\n\\nWenn Sie eigene Änderungen der Benutzeroberfläche und/oder auf Ebene von openHAB vorgenommen haben, wählen Sie \"Änderungen beibehalten\". Das Update würde alle diese Änderungen ansonsten überschreiben, sie wäre verloren.\\In jedem Fall wird vor dem Update ein Backup der aktuellen Konfiguration erstellt und Ihre Einstellungen und historischen Daten bleiben erhalten. Sollten Sie das Upgrade rückgängig machen wollen, können Sie jederzeit über den Menüpunkt 51 die Konfiguration des EMS von vor dem Update wieder einspielen."
+  local TextVoll="ACHTUNG:\\nWollen Sie wirklich die Konfiguration vollständig durch die aktuelle Version des EMS ersetzen?\\nAlles, was Sie über die grafische Benutzeroberfläche über Einstellungen hinausgehend verändert haben, geht dann verloren. Das betrifft beispielsweise, aber nicht nur, alle Things, Items und Regeln, die Sie selbst angelegt haben."
+  local TextTeil="ACHTUNG:\\nWollen Sie das EMS bzw. den von storm.house bereitgestellten Teil Ihres EMS wirklich durch die aktuelle Version ersetzen?"
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
   if ! cond_redirect wget -nv -O "$temp" "$pkg"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
   backup_openhab_config
-  restore_openhab_config "$temp"
+
+  # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
+  if whiptail --title "EMS Update" --yes-button "komplettes Update" --no-button "Änderungen beibehalten" --yesno "$introText" 17 80; then
+    if ! whiptail --title "EMS komplettes Update" --yes-button "JA, DAS WILL ICH" --cancel-button "Abbrechen" --defaultno --yesno "$TextVoll" 12 80; then echo "CANCELED"; return 1; fi
+    ( cd /etc/openhab || return 1
+    ln -sf . conf
+    unzip -o "$temp" conf/things\* conf/items\* conf/rules\* )
+  else
+    if ! whiptail --title "EMS Update" --yes-button "Ja" --cancel-button "Abbrechen" --defaultno --yesno "$TextTeil" 10 80; then echo "CANCELED"; return 1; fi
+    restore_openhab_config "$temp"
+  fi
+
   rm -f "$temp conf"
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "EMS update erfolgreich" --msgbox "Das storm.house Energie Management System ist jetzt auf dem neuesten Stand." 8 80
