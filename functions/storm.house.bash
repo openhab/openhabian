@@ -198,9 +198,9 @@ update_ems() {
 
 ## Install non-standard bindings etc
 ##
-##    install_extras()
+##    install_openhab_extras()
 ##
-install_extras() {
+install_openhab_extras() {
   local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
   local pkg="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${jar}"
   local dest="/usr/share/openhab/addons/${jar}"

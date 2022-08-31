@@ -112,6 +112,7 @@ if [[ -n "$UNATTENDED" ]]; then
   firemotd_setup
   java_install "${java_opt:-Temurin21}"
   openhab_setup "release" "${openhabpkgversion}"
+  install_extras
   replace_logo
   import_openhab_config
   openhab_shell_interfaces && setup_tailscale
