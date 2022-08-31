@@ -253,6 +253,7 @@ else
 fi
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/smart-house-config
+ln -sfn /opt/openhabian/openhabian-setup.sh /usr/local/bin/emsadmin
 
 # shellcheck disable=SC2154
 echo "$(timestamp) [openHABian] Starting execution of 'openhabian-config unattended'... OK"
