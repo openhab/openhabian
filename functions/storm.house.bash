@@ -207,7 +207,7 @@ install_openhab_extras() {
 
 
   version=$(dpkg -s 'openhab' 2> /dev/null | grep Version | cut -d' ' -f2 | cut -d'-' -f1 | cut -d'.' -f2)
-  if [[ $version < 4 ]]; then
+  if [[ $version -lt 4 ]]; then
     if ! cond_redirect wget -nv -O "$dest" "$pkg"; then echo "FAILED (download solar forecast binding)"; rm -f "$dest"; return 1; fi
   fi
 }
