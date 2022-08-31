@@ -13,7 +13,6 @@ Menu 02 will upgrade all of your OS and applications to the latest versions.
 Menu 03 will update storm.house EMS to the latest versions.
 Menu 10 provides a number of system tweaks. These are already active after a standard installation while
 Menu 30 allows for changing system configuration to match your hardware.
-Note that the raspi-config tool was intentionally removed to not interfere with smart-house-config.
 Menu 40 to select the standard release, milestone or very latest development version of openHAB
 Menu 50 provides options to backup and restore either your openHAB configuration or the whole system.
 \\nVisit these sites for more information:
