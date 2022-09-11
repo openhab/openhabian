@@ -341,3 +341,14 @@ zigbee2mqtt_setup() {
     whiptail --title "Operation successful" --msgbox "$installSuccessText" 15 80
   fi
 }
+
+## Function for installing latest openhab-js version
+##
+##    openhabjs_install
+##
+openhabjs_install() {
+  echo -n "$(timestamp) [openHABian] Installing openhab-js... "
+  if ! cond_redirect mkdir /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
+  if ! cond_redirect npm install --prefix /etc/openhab/automation/js openhab; then echo "FAILED (npm install)"; return 1; fi
+}
+
