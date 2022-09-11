@@ -200,7 +200,7 @@ show_main_menu() {
     "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 (DANGEROUS)" \
     "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
     "   | openhab-js"             "JS Scripting: Install the latest version of the openHAB JavaScript library" \
-    "   | openhab-rules-tools"    "JS Scripting: Install the latest version of openhab_rules_tools" \
+    "   | openhab_rules_tools"    "JS Scripting: Install the latest version of openhab_rules_tools" \
     "44 | Nginx Proxy"            "Setup reverse and forward web proxy" \
     "45 | OpenJDK 11"             "Install and activate OpenJDK 11 as Java provider (default)" \
     "   | OpenJDK 17"             "Install and activate OpenJDK 17 as Java provider" \

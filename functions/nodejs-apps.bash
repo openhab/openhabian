@@ -348,6 +348,11 @@ zigbee2mqtt_setup() {
 ##    openhab_js_install
 ##
 openhab_js_install() {
+  if ! node_is_installed || is_armv6l; then
+    echo -n "$(timestamp) [openHABian] Installing the openHAB JavaScript library prerequsites (NodeJS)... "
+    if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+
   echo -n "$(timestamp) [openHABian] Installing the openHAB JavaScript library... "
   if ! cond_redirect mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
   if ! cond_redirect sudo -u "${username:-openhabian}" npm install --prefix /etc/openhab/automation/js openhab; then echo "FAILED (npm install)"; return 1; fi
@@ -359,6 +364,11 @@ openhab_js_install() {
 ##    openhab_rules_tools_install
 ##
 openhab_rules_tools_install() {
+  if ! node_is_installed || is_armv6l; then
+    echo -n "$(timestamp) [openHABian] Installing openhab_rules_tools prerequsites (NodeJS)... "
+    if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+ 
   echo -n "$(timestamp) [openHABian] Installing openhab_rules_tools... "
   if ! cond_redirect mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
   if ! cond_redirect sudo -u "${username:-openhabian}" npm install --prefix /etc/openhab/automation/js openhab_rules_tools; then echo "FAILED (npm install)"; return 1; fi
