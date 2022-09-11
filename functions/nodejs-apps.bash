@@ -345,9 +345,9 @@ zigbee2mqtt_setup() {
 ## Function for installing openhab-js (openHAB JavaScript library).
 ## Repository: openhab/openhab-js
 ##
-##    openhabjs_install
+##    openhab_js_install
 ##
-openhabjs_install() {
+openhab_js_install() {
   echo -n "$(timestamp) [openHABian] Installing the openHAB JavaScript library... "
   if ! cond_redirect mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
   if ! cond_redirect sudo -u "${username:-openhabian}" npm install --prefix /etc/openhab/automation/js openhab; then echo "FAILED (npm install)"; return 1; fi
