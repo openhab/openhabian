@@ -355,7 +355,7 @@ openhab_js_install() {
 
   echo -n "$(timestamp) [openHABian] Installing the openHAB JavaScript library... "
   if ! cond_redirect mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
-  if ! cond_redirect sudo -u "${username:-openhabian}" npm install --prefix /etc/openhab/automation/js openhab; then echo "FAILED (npm install)"; return 1; fi
+  if cond_redirect sudo -u "${username:-openhabian}" npm install --prefix "/etc/openhab/automation/js" openhab; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
 }
 
 ## Function for installing openhab_rules_tools (from rkoshak).
@@ -371,5 +371,5 @@ openhab_rules_tools_install() {
  
   echo -n "$(timestamp) [openHABian] Installing openhab_rules_tools... "
   if ! cond_redirect mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
-  if ! cond_redirect sudo -u "${username:-openhabian}" npm install --prefix /etc/openhab/automation/js openhab_rules_tools; then echo "FAILED (npm install)"; return 1; fi
+  if cond_redirect sudo -u "${username:-openhabian}" npm install --prefix "/etc/openhab/automation/js" openhab_rules_tools; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
 }

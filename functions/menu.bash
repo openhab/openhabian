@@ -219,7 +219,7 @@ show_main_menu() {
       *Downgrade\ to\ openHAB\ 2) migrate_installation "openHAB2" && openhabian_update "stable";;
       43\ *) openhab_shell_interfaces;;
       *openhab-js) openhab_js_install;;
-      *openhab-rules-tools) openhab_rules_tools_install;;
+      *openhab_rules_tools) openhab_rules_tools_install;;
       44\ *) nginx_setup;;
       *OpenJDK\ 11) update_config_java "11" && java_install "11";;
       *OpenJDK\ 17) update_config_java "17" && java_install "17";;
