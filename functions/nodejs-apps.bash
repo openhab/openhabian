@@ -348,21 +348,21 @@ zigbee2mqtt_setup() {
 ##    Available values for mode: "update"
 ##
 jsscripting_npm_install() {
-  if "${1}" == ""; then echo "FAILED. Package name not provided."; return 1; fi
+  if [ "${1}" == "" ]; then echo "FAILED. Provide packageName."; return 1; fi
 
   if ! node_is_installed || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing prerequsites for ${1} (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  if "${2}" == "update";
+  if [ "${2}" == "update" ];
   then
     echo -n "$(timestamp) [openHABian] Updating ${1} for JS Scripting... "
-    if cond_redirect sudo -u "${username:-openhabian}" npm update --prefix "/etc/openhab/automation/js" ${1}; then echo "OK"; else echo "FAILED (npm update)"; return 1; fi
+    if cond_redirect sudo -u "${username:-openhabian}" npm update --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm update)"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Installing ${1} for JS Scripting... "
     if ! cond_redirect mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
-    if cond_redirect sudo -u "${username:-openhabian}" npm install --prefix "/etc/openhab/automation/js" ${1}; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
+    if cond_redirect sudo -u "${username:-openhabian}" npm install --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
   fi 
 }
 
@@ -371,7 +371,7 @@ jsscripting_npm_install() {
 ##    jsscripting_npm_check(String packageName)
 ##
 jsscripting_npm_check() {
-  if "${1}" == ""; then echo "FAILED. Package name not provided."; return 1; fi
+  if [ "${1}" == "" ]; then echo "FAILED. Provide packageName."; return 1; fi
  
   # If directory of package doesn't exist, exit.
   if [ ! -d "/etc/openhab/automation/js/node_modules/${1}" ]; then return 0; fi
@@ -381,14 +381,14 @@ jsscripting_npm_check() {
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   
-  introText="Additions, improvements or fixes were added to the npm package ${1} which is for JS Scripting. Would you like to update now and benefit from them?\\nThe update might include breaking changes, please head over to the JS Scripting docs or to https://www.npmjs.com/package/${1}. \\n\\nUpdating is recommended."
+  introText="Additions, improvements or fixes were added to ${1} (npm package) for JS Scripting. Would you like to update now and benefit from them?\\nThe update might include breaking changes, please head over to the JS Scripting docs or to https://www.npmjs.com/package/${1}.\\n\\nUpdating is recommended."
   
   echo -n "$(timestamp) [openHABian] Checking for updates of ${1} for JS Scripting... "
   local outdatedReturn
   outdatedReturn=$(npm outdated --prefix /etc/openhab/automation/js)
 
-  # Check for regex match of outdatedReturn against the packageName
-  if [[ "${outdatedReturn}" =~ "${1}" ]];
+  # Check whether outdatedReturn included the packageName.
+  if [[ "${outdatedReturn}" =~ ${1} ]];
   then
     echo -n "Update available... "
     if (whiptail --title "Update available for ${1} for JS Scripting" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 13 80); then echo "UPDATING"; else echo "SKIP"; return 0; fi
