@@ -342,34 +342,19 @@ zigbee2mqtt_setup() {
   fi
 }
 
-## Function for installing openhab-js (openHAB JavaScript library).
-## Repository: openhab/openhab-js
+## Function for installing a npm package for the JS Scripting Automation Add-On
 ##
-##    openhab_js_install
+##    jsscripting_npm_install(String packageName)
 ##
-openhab_js_install() {
+jsscripting_npm_install() {
+  if ${packageName} == ""; then echo "FAILED. Package name not provided."; return 1; fi
+
   if ! node_is_installed || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing the openHAB JavaScript library prerequsites (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  echo -n "$(timestamp) [openHABian] Installing the openHAB JavaScript library... "
+  echo -n "$(timestamp) [openHABian] Installing ${packageName} for the JS Scripting Automation Add-On... "
   if ! cond_redirect mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
-  if cond_redirect sudo -u "${username:-openhabian}" npm install --prefix "/etc/openhab/automation/js" openhab; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
-}
-
-## Function for installing openhab_rules_tools (from rkoshak).
-## Repository: rkoshak/openhab-rules-tools
-##
-##    openhab_rules_tools_install
-##
-openhab_rules_tools_install() {
-  if ! node_is_installed || is_armv6l; then
-    echo -n "$(timestamp) [openHABian] Installing openhab_rules_tools prerequsites (NodeJS)... "
-    if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
-  fi
- 
-  echo -n "$(timestamp) [openHABian] Installing openhab_rules_tools... "
-  if ! cond_redirect mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
-  if cond_redirect sudo -u "${username:-openhabian}" npm install --prefix "/etc/openhab/automation/js" openhab_rules_tools; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
+  if cond_redirect sudo -u "${username:-openhabian}" npm install --prefix "/etc/openhab/automation/js" ${packageName}; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
 }
