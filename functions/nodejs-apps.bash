@@ -345,7 +345,7 @@ zigbee2mqtt_setup() {
 ## Function for installing a npm package for the JS Scripting Automation Add-On
 ##
 ##    jsscripting_npm_install(String packageName, String mode)
-##    Available values for mode: "update". Defaults to "install".
+##    Available values for mode: "update", "install". Defaults to "install".
 ##
 jsscripting_npm_install() {
   if [ "${1}" == "" ]; then echo "FAILED. Provide packageName."; return 1; fi
@@ -358,11 +358,11 @@ jsscripting_npm_install() {
   if [ "${2}" == "update" ];
   then
     echo -n "$(timestamp) [openHABian] Updating ${1} for JS Scripting... "
-    if cond_redirect sudo -u "${username:-openhabian}" npm update --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm update)"; return 1; fi
+    if cond_redirect sudo -u "openhab" npm update --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm update)"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Installing ${1} for JS Scripting... "
-    if ! cond_redirect mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
-    if cond_redirect sudo -u "${username:-openhabian}" npm install --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
+    if ! cond_redirect sudo -u "openhab" mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
+    if cond_redirect sudo -u "openhab" npm install --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
   fi 
 }
 
