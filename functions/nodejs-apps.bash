@@ -372,7 +372,7 @@ jsscripting_npm_install() {
 ##
 jsscripting_npm_check() {
   if [ "${1}" == "" ]; then echo "FAILED. Provide packageName."; return 1; fi
- 
+
   # If directory of package doesn't exist, exit.
   if [ ! -d "/etc/openhab/automation/js/node_modules/${1}" ]; then return 0; fi
 
@@ -380,9 +380,9 @@ jsscripting_npm_check() {
     echo -n "$(timestamp) [openHABian] Installing prerequsites for ${1} for JS Scripting (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
-  
+
   introText="Additions, improvements or fixes were added to ${1} (npm package) for JS Scripting. Would you like to update now and benefit from them?\\nThe update might include breaking changes, please head over to the JS Scripting docs or to https://www.npmjs.com/package/${1}.\\n\\nUpdating is recommended."
-  
+
   echo -n "$(timestamp) [openHABian] Checking for updates of ${1} for JS Scripting... "
   local outdatedReturn
   outdatedReturn=$(npm outdated --prefix /etc/openhab/automation/js)
