@@ -345,7 +345,7 @@ zigbee2mqtt_setup() {
 ## Function for installing a npm package for the JS Scripting Automation Add-On
 ##
 ##    jsscripting_npm_install(String packageName, String mode)
-##    Available values for mode: "update"
+##    Available values for mode: "update". Defaults to "install".
 ##
 jsscripting_npm_install() {
   if [ "${1}" == "" ]; then echo "FAILED. Provide packageName."; return 1; fi

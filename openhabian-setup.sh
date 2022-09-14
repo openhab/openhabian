@@ -126,6 +126,7 @@ if [[ -n "$UNATTENDED" ]]; then
   permissions_corrections
   setup_mirror_SD "install"
   install_cleanup
+  jsscripting_npm_install "openhab_rules_tools"
 else
   apt_update
   whiptail_check
