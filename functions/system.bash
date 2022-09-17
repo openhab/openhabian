@@ -165,7 +165,7 @@ locale_setting() {
   fi
 
   if ! syslocale="$(grep "^[[:space:]]*LANG=" /etc/default/locale | sed 's|LANG=||g')"; then echo "FAILED"; return 1; fi
-  if cond_redirect update-locale LANG="${system_default_locale:-${syslocale:-en_US.UTF-8}}" LC_ALL="${system_default_locale:-${syslocale:-en_US.UTF-8}}" LC_CTYPE="${system_default_locale:-${syslocale:-en_US.UTF-8}}" LANGUAGE="${system_default_locale:-${syslocale:-en_US.UTF-8}}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
+  if cond_redirect update-locale LANG="${syslocale:-en_US.UTF-8}" LC_ALL="${syslocale:-en_US.UTF-8}" LC_CTYPE="${syslocale:-en_US.UTF-8}" LANGUAGE="${syslocale:-en_US.UTF-8}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Change locale" --msgbox "For the locale change to take effect, please reboot your system now." 7 80
