@@ -73,7 +73,10 @@ init_zram_mounts() {
       echo -n "$(timestamp) [openHABian] Adding InfluxDB to zram... "
       if cond_redirect sed -i '/^.*persistence.*$/a dir	zstd		150M		350M		/var/lib/influxdb		/influxdb.bind' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
     fi
-    if ! openhab_is_installed; then
+    
+    mkdir -p /var/log/nginx   # ensure it exists on lowerfs else nginx may fail to start if zram is not synced after nginx install
+    
+    if ! openhab_is_installed; then 
       echo -n "$(timestamp) [openHABian] Removing openHAB persistence from zram... "
       if cond_redirect sed -i '/^.*persistence.*$/d' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
     fi
