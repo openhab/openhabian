@@ -43,7 +43,7 @@ basic_packages() {
   fi
 
   if cond_redirect apt-get install --yes acl arping apt-utils bash-completion bzip2 coreutils \
-    curl dirmngr git htop man-db mc multitail nano nmap sb-release screen software-properties-common \
+    curl dirmngr git htop man-db mc multitail nano nmap lsb-release screen software-properties-common \
     telnet usbutils util-linux vfu vim wget whiptail xz-utils zip; \
   then echo "OK"; else echo "FAILED"; exit 1; fi
 }
