@@ -272,7 +272,6 @@ zigbee2mqtt_setup() {
     if ! cond_redirect cd /opt/zigbee2mqtt; then echo "FAILED (cd zigbee2mqtt)"; return 1; fi
     if ! cond_redirect systemctl stop zigbee2mqtt ; then echo "FAILED (stop systemctl)"; fi
     if ! cond_redirect sudo -u "${username:-openhabian}" cp -R data data-backup; then echo "FAILED (cp backup)"; return 1; fi
-    if ! cond_redirect sudo -u "${username:-openhabian}" git checkout HEAD -- npm-shrinkwrap.json; then echo "FAILED git"; return 1; fi
     if ! cond_redirect sudo -u "${username:-openhabian}" git pull; then echo "FAILED git"; return 1; fi
     if ! cond_redirect sudo -u "${username:-openhabian}" npm install; then echo "FAILED npm"; return 1; fi
     if ! cond_redirect sudo -u "${username:-openhabian}" cp -R data-backup/* data; then echo "FAILED (cp backup)"; return 1; fi
