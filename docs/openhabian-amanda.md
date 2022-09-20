@@ -94,7 +94,7 @@ Read and understand the Amanda docs.
     Use your personal user instead (that you have created at the beginning of your openHABian installation or `openhabian` by default).
     Installation tasks including post-package-installation changes (edits) of the Amanda config files, require to use the `root` user.
     Any ordinary user (such as your personal one) can execute commands on behalf of root (and with root permission) by prepending `sudo` to the command.
-    As yourself, prepend "sudo -u backup" to execute the following commands as the "backup" user.
+    As yourself, prepend `sudo -u backup` to execute the following commands as the "backup" user.
 
 # Installation
 
@@ -219,7 +219,7 @@ root@pi:/home/pi#
 ## Software installation
 
 First, mount/prepare your storage (see examples).
-Next, double check that your `backup` user has write access to all of the storage area (preferrably, he `owns` the directory): _Create_ a file there (`touch /path/to/storage/file`), check its ownership (`ls -l /path/to/storage/file`), then delete it
+Next, double check that your `backup` user has write access to all of the storage area (preferrably, he **owns** the directory): _Create_ a file there (`touch /path/to/storage/file`), check its ownership (`ls -l /path/to/storage/file`), then delete it
 (`rm /path/to/storage/file`).
 If that does not work as expected (to produce a file that is owned by the `backup` user), you need to change export options on your NAS/NFS server.
 See also [paragraph on `no_root_squash`](#storage-preparation) above.
