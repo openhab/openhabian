@@ -193,19 +193,21 @@ show_main_menu() {
 
   elif [[ "$choice" == "40"* ]]; then
     choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 18 116 12 --cancel-button Back --ok-button Execute \
-    "41 | openHAB Release"        "Install or switch to the latest openHAB Release" \
-    "   | openHAB Milestone"      "Install or switch to the latest openHAB Milestone Build" \
-    "   | openHAB Snapshot"       "Install or switch to the latest openHAB Snapshot Build" \
-    "42 | Upgrade to openHAB 3"   "Upgrade OS environment to openHAB 3 release" \
-    "   | Downgrade to openHAB 2" "Downgrade OS environment from openHAB 3 back to openHAB 2 (DANGEROUS)" \
-    "43 | Remote Console"         "Bind the openHAB SSH console to all external interfaces" \
-    "44 | Nginx Proxy"            "Setup reverse and forward web proxy" \
-    "45 | OpenJDK 11"             "Install and activate OpenJDK 11 as Java provider (default)" \
-    "   | OpenJDK 17"             "Install and activate OpenJDK 17 as Java provider" \
-    "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as Java provider" \
-    "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as Java provider" \
-    "46 | Install openhab-js"     "JS Scripting: Upgrade to the latest version of the openHAB JavaScript library" \
-    "   | Uninstall openhab-js"   "JS Scripting: Switch back to the included version of the openHAB JavaScript library" \
+    "41 | openHAB Release"                "Install or switch to the latest openHAB Release" \
+    "   | openHAB Milestone"              "Install or switch to the latest openHAB Milestone Build" \
+    "   | openHAB Snapshot"               "Install or switch to the latest openHAB Snapshot Build" \
+    "42 | Upgrade to openHAB 3"           "Upgrade OS environment to openHAB 3 release" \
+    "   | Downgrade to openHAB 2"         "Downgrade OS environment from openHAB 3 back to openHAB 2 (DANGEROUS)" \
+    "43 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
+    "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
+    "45 | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider (default)" \
+    "   | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider" \
+    "   | Zulu 11 OpenJDK 32-bit"         "Install Zulu 11 32-bit OpenJDK as Java provider" \
+    "   | Zulu 11 OpenJDK 64-bit"         "Install Zulu 11 64-bit OpenJDK as Java provider" \
+    "46 | Install openhab-js"             "JS Scripting: Upgrade to the latest version of the openHAB JavaScript library" \
+    "   | Uninstall openhab-js"           "JS Scripting: Switch back to the included version of the openHAB JavaScript library" \
+    "47 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (https://github.com/rkoshak/openhab-rules-tools) (auto-installed)" \
+    "   | Uninstall openhab_rules_tools"  "JS Scripting: Uninstall openhab_rules_tools" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -225,6 +227,8 @@ show_main_menu() {
       *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
       46\ *) jsscripting_npm_install "openhab";;
       *Uninstall\ openhab-js) jsscripting_npm_install "openhab" "uninstall";;
+      47\ *) jsscripting_npm_install "openhab_rules_tools";;
+      *Uninstall\ openhab_rules_tools) jsscripting_npm_install "openhab_rules_tools" "uninstall";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
