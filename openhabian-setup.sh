@@ -121,12 +121,12 @@ if [[ -n "$UNATTENDED" ]]; then
   clean_config_userpw
   frontail_setup
   custom_frontail_log "add" "$custom_log_files"
+  jsscripting_npm_install "openhab_rules_tools"
   zram_setup
   exim_setup
   permissions_corrections
   setup_mirror_SD "install"
   install_cleanup
-  jsscripting_npm_install "openhab_rules_tools"
 else
   apt_update
   whiptail_check

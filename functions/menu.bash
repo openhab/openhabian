@@ -204,7 +204,8 @@ show_main_menu() {
     "   | OpenJDK 17"             "Install and activate OpenJDK 17 as Java provider" \
     "   | Zulu 11 OpenJDK 32-bit" "Install Zulu 11 32-bit OpenJDK as Java provider" \
     "   | Zulu 11 OpenJDK 64-bit" "Install Zulu 11 64-bit OpenJDK as Java provider" \
-    "46 | openhab-js"             "JS Scripting: Upgrade to the latest version of the openHAB JavaScript library" \
+    "46 | Install openhab-js"     "JS Scripting: Upgrade to the latest version of the openHAB JavaScript library" \
+    "   | Uninstall openhab-js"   "JS Scripting: Switch back to the included version of the openHAB JavaScript library" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -223,6 +224,7 @@ show_main_menu() {
       *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
       *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
       46\ *) jsscripting_npm_install "openhab";;
+      *Uninstall\ openhab-js) jsscripting_npm_install "openhab" "uninstall";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
