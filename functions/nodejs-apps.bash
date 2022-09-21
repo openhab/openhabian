@@ -350,7 +350,7 @@ zigbee2mqtt_setup() {
 jsscripting_npm_install() {
   if [ "${1}" == "" ]; then echo "FAILED. Provide packageName."; return 1; fi
 
-  local installSuccessText="Installation successful.\\n\\n${1} (npm package) is now available in JS Scripting.\\nFor documentation, visit the JS Scripting docs (https://www.openhab.org/addons/automation/jsscripting/) or https://npmjs.com/package/${1}."
+  local installSuccessText="Installation successful.\\n\\n${1} (npm package) is now available in JS Scripting.\\n\\nFor documentation, visit the JS Scripting docs (https://www.openhab.org/addons/automation/jsscripting/) or https://npmjs.com/package/${1}."
   local updateSuccessText="Update of ${1} (npm package) successful."
   local uninstallSuccessText="Uninstallation of ${1} (npm package) from JS Scripting successful.\\n\\nRemember to check your scripts for dependencies on ${1} and remove those."
   local messageText
@@ -391,7 +391,7 @@ jsscripting_npm_check() {
   # If directory of package doesn't exist, exit.
   if [ ! -d "/etc/openhab/automation/js/node_modules/${1}" ]; then return 0; fi
 
-  local introText="Additions, improvements or fixes were added to ${1} (npm package) for JS Scripting. Would you like to update now and benefit from them?\\nThe update might include breaking changes, please head over to the JS Scripting docs (https://www.openhab.org/addons/automation/jsscripting/) or to https://www.npmjs.com/package/${1}."
+  local introText="Additions, improvements or fixes were added to ${1} (npm package) for JS Scripting. Would you like to update now and benefit from them?\\n\\nThe update might include breaking changes, please head over to the JS Scripting docs (https://www.openhab.org/addons/automation/jsscripting/) or to https://www.npmjs.com/package/${1}."
   local outdatedReturn
 
   if ! node_is_installed || is_armv6l; then

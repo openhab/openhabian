@@ -206,7 +206,7 @@ show_main_menu() {
     "   | Zulu 11 OpenJDK 64-bit"         "Install Zulu 11 64-bit OpenJDK as Java provider" \
     "46 | Install openhab-js"             "JS Scripting: Upgrade to the latest version of the openHAB JavaScript library" \
     "   | Uninstall openhab-js"           "JS Scripting: Switch back to the included version of the openHAB JavaScript library" \
-    "47 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (https://github.com/rkoshak/openhab-rules-tools) (auto-installed)" \
+    "47 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \
     "   | Uninstall openhab_rules_tools"  "JS Scripting: Uninstall openhab_rules_tools" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
