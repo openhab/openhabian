@@ -403,7 +403,7 @@ jsscripting_npm_check() {
   outdatedReturn=$(npm outdated --prefix /etc/openhab/automation/js)
 
   # Check whether outdatedReturn includes the packageName.
-  if [[ "${outdatedReturn}" =~ ${1} ]];
+  if [[ "${outdatedReturn}" =~ [[:space:]]${1}[[:space:]] ]];
   then
     echo -n "Update available... "
     if [[ -n $INTERACTIVE ]]; then
