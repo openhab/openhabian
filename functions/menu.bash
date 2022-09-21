@@ -192,7 +192,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 18 116 12 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 22 126 15 --cancel-button Back --ok-button Execute \
     "41 | openHAB Release"                "Install or switch to the latest openHAB Release" \
     "   | openHAB Milestone"              "Install or switch to the latest openHAB Milestone Build" \
     "   | openHAB Snapshot"               "Install or switch to the latest openHAB Snapshot Build" \
