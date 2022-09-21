@@ -350,9 +350,10 @@ zigbee2mqtt_setup() {
 jsscripting_npm_install() {
   if [ "${1}" == "" ]; then echo "FAILED. Provide packageName."; return 1; fi
 
-  local installSuccessText="Installation successful. \\n${1} (npm package) is now available in JS Scripting."
+  local installSuccessText="Installation successful.\\n\\n${1} (npm package) is now available in JS Scripting.\\nFor documentation, visit the JS Scripting docs (https://www.openhab.org/addons/automation/jsscripting/) or https://npmjs.com/package/${1}."
   local updateSuccessText="Update of ${1} (npm package) successful."
-  local uninstallSuccessText="Uninstallation of ${1} (npm package) from JS Scripting successful."
+  local uninstallSuccessText="Uninstallation of ${1} (npm package) from JS Scripting successful.\\n\\nRemember to check your scripts for dependencies on ${1} and remove those."
+  local messageText
 
   if ! node_is_installed || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing prerequsites for ${1} (NodeJS)... "
@@ -363,24 +364,22 @@ jsscripting_npm_install() {
   then
     echo -n "$(timestamp) [openHABian] Updating ${1} for JS Scripting... "
     if cond_redirect sudo -u "openhab" npm update --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm update)"; return 1; fi
-    if [[ -n $INTERACTIVE ]]; then
-      whiptail --title "Operation successful" --msgbox "$updateSuccessText" 15 80
-    fi
+    messageText=$updateSuccessText
   elif [ "${2}" == "uninstall" ];
   then
     echo -n "$(timestamp) [openHABian] Uninstalling ${1} from JS Scripting... "
     if cond_redirect sudo -u "openhab" npm remove --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm remove)"; return 1; fi
-    if [[ -n $INTERACTIVE ]]; then
-      whiptail --title "Operation successful" --msgbox "$uninstallSuccessText" 15 80
-    fi
+    messageText=$uninstallSuccessText
   else
     echo -n "$(timestamp) [openHABian] Installing ${1} for JS Scripting... "
     if ! cond_redirect sudo -u "openhab" mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
     if cond_redirect sudo -u "openhab" npm install --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
-    if [[ -n $INTERACTIVE ]]; then
-      whiptail --title "Operation successful" --msgbox "$installSuccessText" 15 80
-    fi
-  fi 
+    messageText=$installSuccessText
+  fi
+
+  if [[ -n $INTERACTIVE ]]; then
+    whiptail --title "Operation successful" --msgbox "$messageText" 15 80
+  fi
 }
 
 ## Function for checking for updates of a npm package for the JS Scripting Automation Add-On
@@ -392,8 +391,8 @@ jsscripting_npm_check() {
   # If directory of package doesn't exist, exit.
   if [ ! -d "/etc/openhab/automation/js/node_modules/${1}" ]; then return 0; fi
 
-  local introText="Additions, improvements or fixes were added to ${1} (npm package) for JS Scripting. Would you like to update now and benefit from them?\\nThe update might include breaking changes, please head over to the JS Scripting docs or to https://www.npmjs.com/package/${1}.\\n\\nUpdating is recommended."
-  local outdatedReturn  
+  local introText="Additions, improvements or fixes were added to ${1} (npm package) for JS Scripting. Would you like to update now and benefit from them?\\nThe update might include breaking changes, please head over to the JS Scripting docs (https://www.openhab.org/addons/automation/jsscripting/) or to https://www.npmjs.com/package/${1}."
+  local outdatedReturn
 
   if ! node_is_installed || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing prerequsites for ${1} for JS Scripting (NodeJS)... "
