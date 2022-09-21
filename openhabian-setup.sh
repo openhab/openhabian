@@ -121,6 +121,7 @@ if [[ -n "$UNATTENDED" ]]; then
   clean_config_userpw
   frontail_setup
   custom_frontail_log "add" "$custom_log_files"
+  jsscripting_npm_install "openhab_rules_tools"
   zram_setup
   exim_setup
   permissions_corrections
@@ -132,6 +133,8 @@ else
   load_create_config
   openhabian_console_check
   openhabian_update_check
+  jsscripting_npm_check "openhab"
+  jsscripting_npm_check "openhab_rules_tools"
   bashrc_copy    # TODO: Remove sometime mid 2022
   while show_main_menu; do
     true
