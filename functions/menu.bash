@@ -62,7 +62,6 @@ show_main_menu() {
     cond_redirect apt-mark hold openhab openhab-addons
     system_upgrade
     cond_redirect apt-mark unhold openhab openhab-addons
-    replace_logo
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
