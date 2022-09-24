@@ -21,7 +21,7 @@ setup_pv_config() {
 
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$invertertype}" ]]; then
-        if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 18 100 9 "sunspec" "SunSpec kompatibel (ungetestet)" "kostal" "Kostal Plenticore" "sungrow" "Sungrow SH RT" "solaredge" "SolarEdge SE (experimental)" "fronius" "Fronius Symo (experimental)" "senec" "Senec Home (ungetestet)" "victron" "Victron mit Gateway (experimental)" "solax" "Solax X1/X3 (experimental)" "e3dc" "E3DC Hauskraftwerk" "pvcustom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
+        if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 18 100 9 "e3dc" "E3DC Hauskraftwerk" "fronius" "Fronius Symo" "huawei" "Huawei Sun 2000/Luna" "kostal" "Kostal Plenticore" "senec" "Senec Home" "sma" "SMA (experimental)" "solaredge" "SolarEdge SE (noch in Arbeit)" "solax" "Solax X1/X3" "sungrow" "Sungrow SH RT" "victron" "Victron mit Gateway (experimental)" "pvcustom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
     fi
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
@@ -210,5 +210,41 @@ install_openhab_extras() {
   if [[ $version -lt 4 ]]; then
     if ! cond_redirect wget -nv -O "$dest" "$pkg"; then echo "FAILED (download solar forecast binding)"; rm -f "$dest"; return 1; fi
   fi
+}
+
+
+##    evcc-sponsorship(String token)
+##
+##    valid argument: EVCC sponsor token
+##
+##    "sponsortoken: "-Zeile aus evcc.yaml rausgreppen und ersetzen
+##    Aus UI bei Änderung des entsprechenden items per exec binding aufrufen
+##    sowie aus retrieve_license heraus
+##
+evcc-sponsorship() {
+  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
+  local evccconfig="evcc.yaml"
+
+  echo "$evccconfig"
+}
+
+
+## TODO:
+## Systemd-timer, der retrieve_license 1x wöchentlich aufruft und ausführt
+
+## Retrieve licensing file from server
+## valid argument: username
+## Webserver will return an self-encrypted script to contain files:
+## * 
+## * the evcc sponsorship token
+##
+##    retrieve_license(String username)
+##
+retrieve_license() {
+  local licsrc="https://storm.house/${jar}"
+  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
+  local dest="/usr/share/openhab/addons/${jar}"
+
+  if ! cond_redirect wget -nv -O "$dest" "$licsrc"; then echo "FAILED (download licensing file)"; rm -f "$dest"; return 1; fi
 }
 
