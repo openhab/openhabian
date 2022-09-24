@@ -590,3 +590,39 @@ install_openhab_extras() {
   fi
 }
 
+
+##    evcc-sponsorship(String token)
+##
+##    valid argument: EVCC sponsor token
+##
+##    "sponsortoken: "-Zeile aus evcc.yaml rausgreppen und ersetzen
+##    Aus UI bei Änderung des entsprechenden items per exec binding aufrufen
+##    sowie aus retrieve_license heraus
+##
+evcc-sponsorship() {
+  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
+  local evccconfig="evcc.yaml"
+
+  echo "$evccconfig"
+}
+
+
+## TODO:
+## Systemd-timer, der retrieve_license 1x wöchentlich aufruft und ausführt
+
+## Retrieve licensing file from server
+## valid argument: username
+## Webserver will return an self-encrypted script to contain files:
+## * 
+## * the evcc sponsorship token
+##
+##    retrieve_license(String username)
+##
+retrieve_license() {
+  local licsrc="https://storm.house/${jar}"
+  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
+  local dest="/usr/share/openhab/addons/${jar}"
+
+  if ! cond_redirect wget -nv -O "$dest" "$licsrc"; then echo "FAILED (download licensing file)"; rm -f "$dest"; return 1; fi
+}
+
