@@ -163,10 +163,10 @@ locale_setting() {
       if ! cond_redirect locale-gen; then echo "FAILED (locale-gen)"; return 1; fi
     fi
     # shellcheck disable=SC2154
-    syslocale=$system_default_locale
+    syslocale=${system_default_locale:-en_US.UTF-8}
   fi
 
-  if cond_redirect update-locale LANG="${syslocale:-en_US.UTF-8}" LC_ALL="${syslocale:-en_US.UTF-8}" LC_CTYPE="${syslocale:-en_US.UTF-8}" LANGUAGE="${syslocale:-en_US.UTF-8}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
+  if cond_redirect update-locale LANG="${syslocale}" LC_ALL="${syslocale}" LC_CTYPE="${syslocale}" LANGUAGE="${syslocale}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Change locale" --msgbox "For the locale change to take effect, please reboot your system now." 7 80
