@@ -150,6 +150,7 @@ locale_setting() {
   if [[ -n $INTERACTIVE ]]; then
     echo -n "$(timestamp) [openHABian] Setting locale based on user choice... "
     if ! dpkg-reconfigure locales; then echo "FAILED (reconfigure locales)"; return 1; fi
+    if ! syslocale="$(grep "^[[:space:]]*LANG=" /etc/default/locale | sed 's|LANG=||g')"; then echo "FAILED"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Setting locale based on openhabian.conf... "
     # shellcheck disable=SC2154,SC2086
@@ -161,10 +162,10 @@ locale_setting() {
       done
       if ! cond_redirect locale-gen; then echo "FAILED (locale-gen)"; return 1; fi
     fi
-    if ! cond_redirect dpkg-reconfigure --frontend=noninteractive locales; then echo "FAILED (reconfigure locales)"; return 1; fi
+    # shellcheck disable=SC2154
+    syslocale=$system_default_locale
   fi
 
-  if ! syslocale="$(grep "^[[:space:]]*LANG=" /etc/default/locale | sed 's|LANG=||g')"; then echo "FAILED"; return 1; fi
   if cond_redirect update-locale LANG="${syslocale:-en_US.UTF-8}" LC_ALL="${syslocale:-en_US.UTF-8}" LC_CTYPE="${syslocale:-en_US.UTF-8}" LANGUAGE="${syslocale:-en_US.UTF-8}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
