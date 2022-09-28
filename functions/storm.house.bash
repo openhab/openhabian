@@ -1,13 +1,22 @@
 #!/usr/bin/env bash
 
+## (unfertig)
+
+## TODO
+
 ## Generate/copy openHAB config for a PV inverter
-## Valid Arguments: vendor: e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow | victron | pvcustom
-##                          IP address of inverter
-##                  type:   hybrid | pvonly | batonly
-##                          modbus ID of inverter
-##             (optional)   cardinal number of inverter
 ##
-##    setup_pv_config(String device type,String device IP,String device type,Number device number)
+## Valid Arguments:
+## #1 = pv | bat | meter
+## (#1alternativ = hybrid | pvonly | batonly)
+## #2 = device type #1=pv: e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow | victron | custom
+## #2 =             #1=bat: e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow | victron |
+##                          hybrid | custom
+## #3 = device ip
+## #4 = modbus ID of device
+## #5 (optional) cardinal number of inverter
+##
+##    setup_pv_config(String element,String device type,String device IP,Number modbus ID,Number inverter number)
 ##
 setup_pv_config() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
@@ -18,34 +27,44 @@ setup_pv_config() {
 
   if [[ -n "$UNATTENDED" ]]; then
     echo -n "$(timestamp) [storm.house] inverter installation... "
-    if [[ -z "${1:-$invertertype}" ]]; then echo "SKIPPED (no inverter defined)"; return 1; fi
+    if [[ -z "${2:-$invertertype}" ]]; then echo "SKIPPED (no inverter defined)"; return 1; fi
   fi
 
-  if [[ -n "$INTERACTIVE" ]]; then
-    if [[ -z "${1:-$invertertype}" ]]; then
-        if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 18 100 9 "e3dc" "E3DC Hauskraftwerk" "fronius" "Fronius Symo" "huawei" "Huawei Sun 2000/Luna" "kostal" "Kostal Plenticore" "senec" "Senec Home" "sma" "SMA (experimental)" "solaredge" "SolarEdge SE (noch in Arbeit)" "solax" "Solax X1/X3" "sungrow" "Sungrow SH RT" "victron" "Victron mit Gateway (experimental)" "pvcustom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
-    fi
-    if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
+  if [[ "${2:-$batterytype} == "hybrid" ]]; then
+      bat = ${1:-${invertertype}}
+  else
+      bat = ${2:-${batterytype}}
   fi
-
-  if [[ ! -f /usr/local/sbin/setup_pv_config  && $(whoami) == "root" ]]; then
-    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
-  fi
-
-  for component in things items rules; do
-    srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}"
-    destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-    if [[ ${1:-${invertertype}} == "pvcustom" && -f ${destfile} ]]; then
-        break
-    fi
-    rm -f "$destfile"
-    if [[ -f ${srcfile} ]]; then
-      cp "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-      if [[ $(whoami) == "root" ]]; then
-        chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-        chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
+  for configdomain in things items rules; do
+    for device in pv bat meter; do
+      case "$device" in
+        pv) default=${invertertype}; ip=${inverterip}; mbid=${invertermbid};;
+        bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymbid};;
+        meter) default=${metertype}; ip=${meterip}; mbid=${metermbid};;
+      esac
+      srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${bat:-${default}}.${configdomain}"
+      destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/$[device}.${configdomain}"
+      if [[ ${bat:-${default}} == "custom" && -f ${destfile} ]]; then
+          break
       fi
-    fi
+
+      rm -f "$destfile"
+      if [[ -f ${srcfile} ]]; then
+        cp "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+        if [[ $(whoami) == "root" ]]; then
+          chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+          chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+        fi
+      fi
+    done
+
+    # TODO .things, .items, (.rules auch?) in pv/ bat/ meter/ aufteilen
+    # %MBID einbauen
+    # pvcustom -> custom
+    sed -i "s|%IP|${3:-${ip}}|" -i "s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
+    #if [[ $# -gt 4 ]]; then
+    #    sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
+    #fi
   done
 
 
@@ -58,11 +77,6 @@ setup_pv_config() {
     chmod 664 "$inverterPNG"
   fi
 
-  sed -i "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
-  
-  if [[ $# -gt 2 ]]; then
-      sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
-  fi
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
@@ -234,7 +248,7 @@ setup_wb_config() {
 }
 
 
-## Guess what this does
+## replace OH logo
 ## Attention needs to work across versions, logo has to be SVG (use inkscape to embed PNG in SVG)
 ##
 ##    replace_logo()
@@ -255,8 +269,6 @@ replace_logo() {
 }
 
 
-## ACHTUNG Direktes Speichern in /etc/openhab bedeutet Update beim Start von smart-house-config sorgt auch für Applikations-Update -> NO GO!
-##
 ## Retrieve latest EMS code from website
 ##
 ##    update_ems()
@@ -289,8 +301,6 @@ update_ems() {
   fi
 }
 
-
-## (unfertig)
 
 ## Install non-standard bindings etc
 ##
@@ -329,6 +339,8 @@ evcc-sponsorship() {
 
 ## TODO:
 ## Systemd-timer, der retrieve_license 1x wöchentlich aufruft und ausführt
+
+## (unfertig)
 
 ## Retrieve licensing file from server
 ## valid argument: username
