@@ -126,9 +126,23 @@ setup_inv_config() {
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
 
-  if [[ ! -f /usr/local/sbin/setup_pv_config  && $(whoami) == "root" ]]; then
-    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
+  if [[ "${2:-$batterytype}" == "hybrid" ]]; then
+      bat = ${1:-${invertertype}}
+  else
+      bat = ${2:-${batterytype}}
   fi
+  for configdomain in things items rules; do
+    for device in pv bat meter; do
+      case "$device" in
+        pv) default=${invertertype}; ip=${inverterip}; mbid=${invertermbid};;
+        bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymbid};;
+        meter) default=${metertype}; ip=${meterip}; mbid=${metermbid};;
+      esac
+      srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${bat:-${default}}.${configdomain}"
+      destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/$[device}.${configdomain}"
+      if [[ ${bat:-${default}} == "custom" && -f ${destfile} ]]; then
+          break
+      fi
 
   for component in things items rules; do
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}"
@@ -143,7 +157,15 @@ setup_inv_config() {
         chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
         chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
       fi
-    fi
+    done
+
+    # TODO .things, .items, (.rules auch?) in pv/ bat/ meter/ aufteilen
+    # %MBID einbauen
+    # pvcustom -> custom
+    sed -i "s|%IP|${3:-${ip}}|" -i "s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
+    #if [[ $# -gt 4 ]]; then
+    #    sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
+    #fi
   done
 
 
@@ -156,11 +178,6 @@ setup_inv_config() {
     chmod 664 "$inverterPNG"
   fi
 
-  sed -i "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
-  
-  if [[ $# -gt 2 ]]; then
-      sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
-  fi
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
@@ -666,8 +683,6 @@ retrieve_license() {
 }
 
 
-## (unfertig)
-
 ## Install non-standard bindings etc
 ##
 ##    install_openhab_extras()
@@ -705,6 +720,8 @@ evcc-sponsorship() {
 
 ## TODO:
 ## Systemd-timer, der retrieve_license 1x wöchentlich aufruft und ausführt
+
+## (unfertig)
 
 ## Retrieve licensing file from server
 ## valid argument: username
