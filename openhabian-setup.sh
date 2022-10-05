@@ -130,7 +130,8 @@ if [[ -n "$UNATTENDED" ]]; then
   permissions_corrections
   setup_mirror_SD "install"
   install_evcc "install"
-  setup_pv_config "${invertertype:-sungrow}" "${inverterip:-192.168.178.100}"
+  setup_inv_config "${invertertype:-sungrow}" "${inverterip:-192.168.178.100}"
+  #setup_pv_config "${invertertype:-sungrow}" "${inverterip:-192.168.178.100}"
   setup_wb_config "${wallboxtype:-go-e}" "${wallboxip:-192.168.178.200}"
   install_cleanup
 else
