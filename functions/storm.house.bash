@@ -58,14 +58,12 @@ setup_pv_config() {
           chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
         fi
       fi
-    done
 
-    # TODO .things, .items, (.rules auch?) in pv/ bat/ meter/ aufteilen
-    # %MBID einbauen
-    sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
-    #if [[ $# -gt 4 ]]; then
-    #    sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
-    #fi
+      sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
+      #if [[ $# -gt 4 ]]; then
+      #    sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
+      #fi
+    done
   done
 
 
