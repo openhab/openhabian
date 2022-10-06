@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 
-## (unfertig)
+## TODO: (unfertig), implementiert nich nicht die Spec !
 
-## TODO
+## #1=bat & #2=hybrid -> pv=#1 & bat=#1, ansonsten was definiert wurde
+## #1=meter & #2=inverter -> meter=#1, ansonsten was definiert wurde
 
 ## Generate/copy openHAB config for a PV inverter
 ##
 ## Valid Arguments:
-## #1 = pv | bat | meter
-## (#1alternativ = hybrid | pvonly | batonly)
-## #2 = device type #1=pv: e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow | victron | custom
-## #2 =             #1=bat: e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow | victron |
-##                          hybrid | custom
+## #1 = pv | bat | meter      ## alternativ: hybrid | pvonly | batonly 
+## #2 = device type #1=pv:    e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow (default) | victron | custom
+##                  #1=bat:   hybrid (default) |
+##                            e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow | victron | custom
+##                  #1=meter: inverter (default) | sma | smashm | custom
 ## #3 = device ip
 ## #4 = modbus ID of device
 ## #5 (optional) cardinal number of inverter
@@ -31,9 +32,9 @@ setup_pv_config() {
   fi
 
   if [[ "${2:-$batterytype}" == "hybrid" ]]; then
-      bat=${1:-${invertertype}}
+    bat=${1:-${invertertype}}
   else
-      bat=${2:-${batterytype}}
+    bat=${2:-${batterytype}}
   fi
   for configdomain in things items rules; do
     for device in pv bat meter; do
@@ -79,22 +80,29 @@ setup_pv_config() {
 
 
   echo "OK"
+  # TODO: welche Ausgabe bei Änderung des Batterie-WR? des Meters?
+  # TODO: invertertype,batterytype(?),metertype(?) in build-image/openhabian*.conf
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt einen ${1:-${invertertype}} Wechselrichter." 8 80
   fi
 }
 
 
-## TODO
+## TODO: als einzelnes Skript benötigt oder wird dies Teil von setup_pv_config() ?
 
 ## Generate/copy openHAB config for a Smart Meter
-## Valid Arguments: none | viaInverter | smashm
+## Valid Arguments: none | viaInverter | sma | smashm | custom
 ##                  IP address of meter
 ##
 ##    setup_meter_config(String device type,String device IP)
 ##
 setup_meter_config() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+  local linkName="/usr/local/sbin/setup_meter_config"
+
+  if [[ ! -f ${linkName} && $(whoami) == "root" ]]; then
+    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" ${linkName}; then echo "FAILED (install ${linkName} script)"; return 1; fi
+  fi
 }
 
 
@@ -119,7 +127,7 @@ setup_inv_config() {
 
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$invertertype}" ]]; then
-        if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 18 100 9 "e3dc" "E3DC Hauskraftwerk" "fronius" "Fronius Symo" "huawei" "Huawei Sun 2000/Luna" "kostal" "Kostal Plenticore" "senec" "Senec Home" "sma" "SMA (experimental)" "solaredge" "SolarEdge SE (noch in Arbeit)" "solax" "Solax X1/X3" "sungrow" "Sungrow SH RT" "victron" "Victron mit Gateway (experimental)" "custom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
+      if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 18 100 9 "e3dc" "E3DC Hauskraftwerk" "fronius" "Fronius Symo" "huawei" "Huawei Sun 2000/Luna" "kostal" "Kostal Plenticore" "senec" "Senec Home" "sma" "SMA (experimental)" "solaredge" "SolarEdge SE (noch in Arbeit)" "solax" "Solax X1/X3" "sungrow" "Sungrow SH RT" "victron" "Victron mit Gateway (experimental)" "custom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
     fi
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
