@@ -132,18 +132,19 @@ setup_inv_config() {
     bat=${2:-${batterytype}}
   fi
   for configdomain in things items rules; do
-    for device in pv bat meter; do
-      # shellcheck disable=SC2154
-      case "$device" in
-        pv) default=${invertertype}; ip=${inverterip}; mbid=${invertermbid};;
-        bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymbid};;
-        meter) default=${metertype}; ip=${meterip}; mbid=${metermbid};;
-      esac
-      srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${bat:-${default}}.${configdomain}"
-      destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
-      if [[ ${bat:-${default}} == "custom" && -f ${destfile} ]]; then
-          break
-      fi
+    # shellcheck disable=SC2154
+
+    device="${1:-pv}"
+    case "${device}" in
+      pv) default=${invertertype}; ip=${inverterip}; mbid=${invertermbid};;
+      bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymbid};;
+      meter) default=${metertype}; ip=${meterip}; mbid=${metermbid};;
+    esac
+    srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${bat:-${default}}.${configdomain}"
+    destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+    if [[ ${bat:-${default}} == "custom" && -f ${destfile} ]]; then
+      break
+    fi
 
   for component in things items rules; do
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}"
@@ -158,12 +159,9 @@ setup_inv_config() {
         chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
         chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
       fi
+    fi
 
-      sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
-      #if [[ $# -gt 4 ]]; then
-      #    sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
-      #fi
-    done
+    sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
   done
 
 
