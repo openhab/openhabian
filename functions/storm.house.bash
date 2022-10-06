@@ -37,9 +37,8 @@ setup_pv_config() {
     bat=${2:-${batterytype}}
   fi
   for configdomain in things items rules; do
-    # shellcheck disable=SC2154
-
     device="${1:-pv}"
+    # shellcheck disable=SC2154
     case "${device}" in
       pv) default=${invertertype}; ip=${inverterip}; mbid=${invertermbid};;
       bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymbid};;
@@ -47,10 +46,6 @@ setup_pv_config() {
     esac
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${bat:-${default}}.${configdomain}"
     destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
-    # TODO break richtig??
-    if [[ ${bat:-${default}} == "custom" && -f ${destfile} ]]; then
-      break
-    fi
 
     rm -f "$destfile"
     if [[ -f ${srcfile} ]]; then
