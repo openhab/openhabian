@@ -37,33 +37,30 @@ setup_pv_config() {
     bat=${2:-${batterytype}}
   fi
   for configdomain in things items rules; do
-    for device in pv bat meter; do
-      # shellcheck disable=SC2154
-      case "$device" in
-        pv) default=${invertertype}; ip=${inverterip}; mbid=${invertermbid};;
-        bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymbid};;
-        meter) default=${metertype}; ip=${meterip}; mbid=${metermbid};;
-      esac
-      srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${bat:-${default}}.${configdomain}"
-      destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
-      if [[ ${bat:-${default}} == "custom" && -f ${destfile} ]]; then
-          break
-      fi
+    # shellcheck disable=SC2154
 
-      rm -f "$destfile"
-      if [[ -f ${srcfile} ]]; then
-        cp "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
-        if [[ $(whoami) == "root" ]]; then
-          chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
-          chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
-        fi
-      fi
+    device="${1:-pv}"
+    case "${device}" in
+      pv) default=${invertertype}; ip=${inverterip}; mbid=${invertermbid};;
+      bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymbid};;
+      meter) default=${metertype}; ip=${meterip}; mbid=${metermbid};;
+    esac
+    srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${bat:-${default}}.${configdomain}"
+    destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+    if [[ ${bat:-${default}} == "custom" && -f ${destfile} ]]; then
+      break
+    fi
 
-      sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
-      #if [[ $# -gt 4 ]]; then
-      #    sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
-      #fi
-    done
+    rm -f "$destfile"
+    if [[ -f ${srcfile} ]]; then
+      cp "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+      if [[ $(whoami) == "root" ]]; then
+        chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+        chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+      fi
+    fi
+
+    sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
   done
 
 
