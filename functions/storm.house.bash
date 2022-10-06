@@ -27,8 +27,8 @@ setup_pv_config() {
 
 
   if [[ -n "$UNATTENDED" ]]; then
-    echo -n "$(timestamp) [storm.house] inverter installation... "
-    if [[ -z "${2:-$invertertype}" ]]; then echo "SKIPPED (no inverter defined)"; return 1; fi
+    echo -n "$(timestamp) [storm.house] PV ${1} installation... "
+    if [[ -z "${2:-$invertertype}" ]]; then echo "SKIPPED (no device defined)"; return 1; fi
   fi
 
   if [[ "${2:-$batterytype}" == "hybrid" ]]; then
@@ -64,21 +64,20 @@ setup_pv_config() {
   done
 
 
-  srcfile="${OPENHAB_CONF:-/etc/openhab}/icons/STORE/inverter/${1:-${invertertype}}.png"
-  if [[ -f $srcfile ]]; then
-    cp "$srcfile" "$inverterPNG"
+  if [[ "${device}" == "pv" ]]; then
+    srcfile="${OPENHAB_CONF:-/etc/openhab}/icons/STORE/inverter/${2:-${invertertype}}.png"
+    if [[ -f $srcfile ]]; then
+      cp "$srcfile" "$inverterPNG"
+    fi
+    if [[ $(whoami) == "root" ]]; then
+      chown "${username:-openhabian}:openhab" "$inverterPNG"
+      chmod 664 "$inverterPNG"
+    fi
   fi
-  if [[ $(whoami) == "root" ]]; then
-    chown "${username:-openhabian}:openhab" "$inverterPNG"
-    chmod 664 "$inverterPNG"
-  fi
-
 
   echo "OK"
-  # TODO: welche Ausgabe bei Änderung des Batterie-WR? des Meters?
-  # TODO: invertertype,batterytype(?),metertype(?) in build-image/openhabian*.conf
   if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt einen ${1:-${invertertype}} Wechselrichter." 8 80
+    whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt eine ${2:-${invertertype}} Konfiguration." 8 80
   fi
 }
 
