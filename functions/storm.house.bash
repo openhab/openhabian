@@ -47,6 +47,7 @@ setup_pv_config() {
     esac
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${bat:-${default}}.${configdomain}"
     destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+    # TODO break richtig??
     if [[ ${bat:-${default}} == "custom" && -f ${destfile} ]]; then
       break
     fi
@@ -60,7 +61,7 @@ setup_pv_config() {
       fi
     fi
 
-    sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
+    sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
   done
 
 
