@@ -61,7 +61,6 @@ setup_pv_config() {
 
     # TODO .things, .items, (.rules auch?) in pv/ bat/ meter/ aufteilen
     # %MBID einbauen
-    # pvcustom -> custom
     sed -i "s|%IP|${3:-${ip}}|" -i "s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
     #if [[ $# -gt 4 ]]; then
     #    sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/${device}.things"
@@ -100,7 +99,7 @@ setup_meter_config() {
 
 
 ## Generate/copy openHAB config for a PV inverter and optional a meter, too
-## Valid Arguments: e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow | victron | pvcustom
+## Valid Arguments: e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow | victron | custom
 ##                  IP address of inverter
 ##     (optional)   IP address of meter
 ##
@@ -120,7 +119,7 @@ setup_inv_config() {
 
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$invertertype}" ]]; then
-        if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 18 100 9 "e3dc" "E3DC Hauskraftwerk" "fronius" "Fronius Symo" "huawei" "Huawei Sun 2000/Luna" "kostal" "Kostal Plenticore" "senec" "Senec Home" "sma" "SMA (experimental)" "solaredge" "SolarEdge SE (noch in Arbeit)" "solax" "Solax X1/X3" "sungrow" "Sungrow SH RT" "victron" "Victron mit Gateway (experimental)" "pvcustom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
+        if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 18 100 9 "e3dc" "E3DC Hauskraftwerk" "fronius" "Fronius Symo" "huawei" "Huawei Sun 2000/Luna" "kostal" "Kostal Plenticore" "senec" "Senec Home" "sma" "SMA (experimental)" "solaredge" "SolarEdge SE (noch in Arbeit)" "solax" "Solax X1/X3" "sungrow" "Sungrow SH RT" "victron" "Victron mit Gateway (experimental)" "custom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
     fi
     if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
   fi
@@ -132,7 +131,7 @@ setup_inv_config() {
   for component in things items rules; do
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}"
     destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-    if [[ ${1:-${invertertype}} == "pvcustom" && -f ${destfile} ]]; then
+    if [[ ${1:-${invertertype}} == "custom" && -f ${destfile} ]]; then
         break
     fi
     rm -f "$destfile"
