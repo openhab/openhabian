@@ -49,7 +49,7 @@ setup_pv_config() {
 
     file="${2:-${default}}"
     if [[ "${device}" == "bat" && "${2:-$batterytype}" == "hybrid" ]]; then
-        file="inv/${5:-${invertertype}}"
+      file="inv/${5:-${invertertype}}"
     fi
     if [[ "${device}" == "meter" && "${2:-${metertype}}" == "inverter" ]]; then
       file="inv/${5:-${invertertype}}"
