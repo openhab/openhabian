@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+set -x
 BASEDIR=/opt/openhabian
 CONFIGFILE=/etc/openhabian.conf
 
