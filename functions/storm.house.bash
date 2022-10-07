@@ -50,6 +50,7 @@ setup_pv_config() {
       meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-${metermodbusid}}; serial=${6:-${meterserial}}; muser=${7:-${meteruserid}}; mpass=${8:-${meterpassid}};;
     esac
 
+
     file="${2:-${default}}"
     if [[ "${device}" == "bat" && "${2:-$batterytype}" == "hybrid" ]]; then
         file="inv/${5:-${2:-$invertertype}}"
