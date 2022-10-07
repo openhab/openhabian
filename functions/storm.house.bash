@@ -8,7 +8,7 @@
 ## Generate/copy openHAB config for a PV inverter
 ##
 ## Valid Arguments:
-## #1 = pv | bat | meter      ## alternativ: hybrid | pvonly | batonly 
+## #1 = pv | bat | meter
 ## #2 = device type #1=pv:    e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow (default) | victron | custom
 ##                  #1=bat:   hybrid (default) |
 ##                            e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow | victron | custom
@@ -41,7 +41,7 @@ setup_pv_config() {
     esac
 
     file="${2:-${default}}"
-    if [[ "${2:-$batterytype}" == "hybrid" ]]; then
+    if [[ "${2:-$batterytype}" == "bat" && "${2:-$batterytype}" == "hybrid" ]]; then
         file=${1:-${invertertype}}
     else
         file=${2:-${batterytype}}
