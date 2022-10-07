@@ -46,7 +46,6 @@ setup_pv_config() {
       meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-${metermodbusid}};;
     esac
 
-
     file="${2:-${default}}"
     if [[ "${device}" == "bat" && "${2:-$batterytype}" == "hybrid" ]]; then
       file="inv/${5:-${invertertype}}"
