@@ -139,8 +139,6 @@ setup_inv_config() {
       bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymbid};;
       meter) default=${metertype}; ip=${meterip}; mbid=${metermbid};;
     esac
-    srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${bat:-${default}}.${configdomain}"
-    destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
 
   for component in things items rules; do
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}"
@@ -149,6 +147,11 @@ setup_inv_config() {
         break
     fi
     rm -f "$destfile"
+
+    if [[ "${device}" == "meter" && "${2:-${default}}" == "inverter" ]]; then
+      break
+    fi
+
     if [[ -f ${srcfile} ]]; then
       cp "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
       if [[ $(whoami) == "root" ]]; then
