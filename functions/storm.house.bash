@@ -502,6 +502,8 @@ update_ems() {
 
   # user credentials retten
   cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${temp}/"
+  # Settings retten
+  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb/" "${temp}/"
 
   # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
   if whiptail --title "EMS Update" --yes-button "komplettes Update" --no-button "Änderungen beibehalten" --yesno "$introText" 17 80; then
@@ -516,7 +518,10 @@ update_ems() {
 	  unzip -o "$temp" conf/things\* conf/items\* conf/rules\*
 	  rm -f conf )
   fi
+
+  # user credentials und Settings zurückspielen
   cp "${temp}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
+  cp -rp "${temp}/mapdb" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
 
   # user credentials und Settings zurückspielen
   cp "${tempdir}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
