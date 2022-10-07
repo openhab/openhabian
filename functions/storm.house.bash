@@ -500,6 +500,9 @@ update_ems() {
   # Settings retten
   cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
 
+  # user credentials retten
+  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${temp}/"
+
   # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
   if whiptail --title "EMS Update" --yes-button "komplettes Update" --no-button "Änderungen beibehalten" --yesno "$introText" 17 80; then
 	  if ! whiptail --title "EMS komplettes Update" --yes-button "JA, DAS WILL ICH" --cancel-button "Abbrechen" --defaultno --yesno "$TextVoll" 13 80; then echo "CANCELED"; return 1; fi
@@ -513,6 +516,7 @@ update_ems() {
 	  unzip -o "$temp" conf/things\* conf/items\* conf/rules\*
 	  rm -f conf )
   fi
+  cp "${temp}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
 
   # user credentials und Settings zurückspielen
   cp "${tempdir}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
@@ -680,6 +684,8 @@ retrieve_license() {
   else
     activate_ems enable
   fi
+
+  rm -rf "${temp}"
 }
 
 
