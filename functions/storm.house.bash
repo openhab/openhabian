@@ -31,11 +31,6 @@ setup_pv_config() {
     if [[ -z "${2:-$invertertype}" ]]; then echo "SKIPPED (no device defined)"; return 1; fi
   fi
 
-  if [[ "${2:-$batterytype}" == "hybrid" ]]; then
-    bat=${1:-${invertertype}}
-  else
-    bat=${2:-${batterytype}}
-  fi
   for configdomain in things items rules; do
     device="${1:-pv}"
     # shellcheck disable=SC2154
@@ -44,10 +39,21 @@ setup_pv_config() {
       bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymbid};;
       meter) default=${metertype}; ip=${meterip}; mbid=${metermbid};;
     esac
-    srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${bat:-${default}}.${configdomain}"
-    destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
 
+    file="${2:-${default}}"
+    if [[ "${2:-$batterytype}" == "hybrid" ]]; then
+        file=${1:-${invertertype}}
+    else
+        file=${2:-${batterytype}}
+    fi
+    srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${file:-${default}}.${configdomain}"
+    destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
     rm -f "$destfile"
+
+    if [[ "${device}" == "meter" && "${2:-${default}}" == "inverter" ]]; then
+      break
+    fi
+
     if [[ -f ${srcfile} ]]; then
       cp "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
       if [[ $(whoami) == "root" ]]; then
