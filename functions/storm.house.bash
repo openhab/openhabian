@@ -15,6 +15,7 @@
 ##                  #1=meter: inverter (default) | sma | smashm | custom
 ## #3 = device ip
 ## #4 = modbus ID of device
+## #5 (optional when #2/#3 = "bat hybrid|meter|inverter"): inverter (see #1=pv)
 ## #5 (optional) cardinal number of inverter
 ##
 ##    setup_pv_config(String element,String device type,String device IP,Number modbus ID,Number inverter number)
@@ -40,12 +41,13 @@ setup_pv_config() {
       meter) default=${metertype}; ip=${meterip}; mbid=${metermbid};;
     esac
 
+    # Problem bei #1!= pv ist #2 nicht der WR-Typ
     file="${2:-${default}}"
     if [[ "${device}" == "bat" && "${2:-$batterytype}" == "hybrid" ]]; then
-        file="inv/${2:-${invertertype}}"
+        file="inv/${5:-${invertertype}}"
     fi
     if [[ "${device}" == "meter" && "${2:-${metertype}}" == "inverter" ]]; then
-      file="inv/${2:-${invertertype}}"
+      file="inv/${5:-${invertertype}}"
     fi
 
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${file:-${default}}.${configdomain}"
