@@ -42,10 +42,10 @@ setup_pv_config() {
 
     file="${2:-${default}}"
     if [[ "${device}" == "bat" && "${2:-$batterytype}" == "hybrid" ]]; then
-        file="inv/${1:-${invertertype}}"
+        file="inv/${2:-${invertertype}}"
     fi
     if [[ "${device}" == "meter" && "${2:-${metertype}}" == "inverter" ]]; then
-      file="inv/${1:-${invertertype}}"
+      file="inv/${2:-${invertertype}}"
     fi
 
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${file:-${default}}.${configdomain}"
