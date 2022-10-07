@@ -288,6 +288,9 @@ update_ems() {
   if ! cond_redirect wget -nv -O "$temp" "$pkg"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
   backup_openhab_config
 
+  # user credentials retten
+  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${temp}/"
+
   # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
   if whiptail --title "EMS Update" --yes-button "komplettes Update" --no-button "Änderungen beibehalten" --yesno "$introText" 17 80; then
     if ! whiptail --title "EMS komplettes Update" --yes-button "JA, DAS WILL ICH" --cancel-button "Abbrechen" --defaultno --yesno "$TextVoll" 13 80; then echo "CANCELED"; return 1; fi
@@ -298,11 +301,14 @@ update_ems() {
     ln -sf . conf
     unzip -o "$temp" conf/things\* conf/items\* conf/rules\* )
   fi
+  cp "${temp}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
 
   rm -f "$temp conf"
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "EMS update erfolgreich" --msgbox "Das storm.house Energie Management System ist jetzt auf dem neuesten Stand." 8 80
   fi
+
+  rm -rf "${temp}"
 }
 
 
