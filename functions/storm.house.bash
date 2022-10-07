@@ -41,18 +41,16 @@ setup_pv_config() {
     esac
 
     file="${2:-${default}}"
-    if [[ "${2:-$batterytype}" == "bat" && "${2:-$batterytype}" == "hybrid" ]]; then
-        file=${1:-${invertertype}}
-    else
-        file=${2:-${batterytype}}
+    if [[ "${device}" == "bat" && "${2:-$batterytype}" == "hybrid" ]]; then
+        file="inv/${1:-${invertertype}}"
     fi
+    if [[ "${device}" == "meter" && "${2:-${metertype}}" == "inverter" ]]; then
+      file="inv/${1:-${invertertype}}"
+    fi
+
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${file:-${default}}.${configdomain}"
     destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
     rm -f "$destfile"
-
-    if [[ "${device}" == "meter" && "${2:-${default}}" == "inverter" ]]; then
-      break
-    fi
 
     if [[ -f ${srcfile} ]]; then
       cp "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
