@@ -501,9 +501,9 @@ update_ems() {
   cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
 
   # user credentials retten
-  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${temp}/"
+  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
   # Settings retten
-  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb/" "${temp}/"
+  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
 
   # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
   if whiptail --title "EMS Update" --yes-button "komplettes Update" --no-button "Änderungen beibehalten" --yesno "$introText" 17 80; then
@@ -520,8 +520,8 @@ update_ems() {
   fi
 
   # user credentials und Settings zurückspielen
-  cp "${temp}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
-  cp -rp "${temp}/mapdb" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
+  cp "${tempdir}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
+  cp -rp "${tempdir}/mapdb" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
 
   # user credentials und Settings zurückspielen
   cp "${tempdir}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
@@ -690,7 +690,7 @@ retrieve_license() {
     activate_ems enable
   fi
 
-  rm -rf "${temp}"
+  rm -rf "${tempdir}"   # prüfen: conf sollte hierin liegen
 }
 
 
