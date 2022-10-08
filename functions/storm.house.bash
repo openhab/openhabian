@@ -60,9 +60,10 @@ setup_pv_config() {
         chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
         chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
       fi
+      sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${destfile}"
     fi
 
-    sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+    #sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
   done
 
 
