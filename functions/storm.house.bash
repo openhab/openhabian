@@ -62,8 +62,6 @@ setup_pv_config() {
       fi
       sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${destfile}"
     fi
-
-    #sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
   done
 
 
@@ -81,24 +79,6 @@ setup_pv_config() {
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt eine ${2:-${invertertype}} Konfiguration." 8 80
-  fi
-}
-
-
-## TODO: als einzelnes Skript benötigt oder wird dies Teil von setup_pv_config() ?
-
-## Generate/copy openHAB config for a Smart Meter
-## Valid Arguments: none | viaInverter | sma | smashm | custom
-##                  IP address of meter
-##
-##    setup_meter_config(String device type,String device IP)
-##
-setup_meter_config() {
-  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
-  local linkName="/usr/local/sbin/setup_meter_config"
-
-  if [[ ! -f ${linkName} && $(whoami) == "root" ]]; then
-    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" ${linkName}; then echo "FAILED (install ${linkName} script)"; return 1; fi
   fi
 }
 
@@ -162,7 +142,7 @@ setup_inv_config() {
   sed -i "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
   
   if [[ $# -gt 2 ]]; then
-      sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
+    sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
   fi
 
   echo "OK"
@@ -183,7 +163,7 @@ setup_inv_config() {
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
 ## * car name
 ##
-##    setup_wb_config(String wallbox typ,String wallbox IP,String auto Ttyp,String autoname)
+##    setup_wb_config(String wallbox typ,String wallbox IP,String autotyp,String autoname)
 ##
 setup_wb_config() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
@@ -218,7 +198,7 @@ setup_wb_config() {
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${wallboxtype}}.${component}"
     destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
     if [[ ${1:-${wallboxtype}} == "wbcustom" && -f ${destfile} ]]; then
-        break
+      break
     fi
     if ! [[ -f ${srcfile} ]]; then
       srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/evcc.${component}"
@@ -242,9 +222,10 @@ setup_wb_config() {
   fi
 
   cp "${includesDir}/EVCC/evcc.yaml-template" "$evcccfg"
-  sed -i "s|%WBTYP|${1:-${wallboxtype}}|" "$evcccfg"
-  sed -i "s|%IP|${2:-${wallboxip}}|" "$evcccfg"
-  sed -i "s|%AUTOTYP|${3:-${autotyp}}|" "$evcccfg"
+  sed -i "s|%WBTYP|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%AUTOTYP|${3:-${autotyp}}|" "$evcccfg"
+  #sed -i "s|%WBTYP|${1:-${wallboxtype}}|" "$evcccfg"
+  #sed -i "s|%IP|${2:-${wallboxip}}|" "$evcccfg"
+  #sed -i "s|%AUTOTYP|${3:-${autotyp}}|" "$evcccfg"
   
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
