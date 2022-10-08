@@ -279,20 +279,22 @@ replace_logo() {
 ##    update_ems()
 ##
 update_ems() {
+  local tempdir
   local temp
   local pkg=https://storm.house/download/latest_update.zip
   local introText="ACHTUNG\\n\\nWenn Sie eigene Änderungen der Benutzeroberfläche und/oder auf Ebene von openHAB vorgenommen haben, wählen Sie \"Änderungen beibehalten\". Das Update würde alle diese Änderungen ansonsten überschreiben, sie wäre verloren.\\In jedem Fall wird vor dem Update ein Backup der aktuellen Konfiguration erstellt und Ihre Einstellungen und historischen Daten bleiben erhalten. Sollten Sie das Upgrade rückgängig machen wollen, können Sie jederzeit über den Menüpunkt 51 die Konfiguration des EMS von vor dem Update wieder einspielen."
   local TextVoll="ACHTUNG:\\nWollen Sie wirklich die Konfiguration vollständig durch die aktuelle Version des EMS ersetzen?\\nAlles, was Sie über die grafische Benutzeroberfläche über Einstellungen hinausgehend verändert haben, geht dann verloren. Das betrifft beispielsweise, aber nicht nur, alle Things, Items und Regeln, die Sie selbst angelegt haben."
   local TextTeil="ACHTUNG:\\nWollen Sie das EMS bzw. den von storm.house bereitgestellten Teil Ihres EMS wirklich durch die aktuelle Version ersetzen?"
 
-  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
+  tempdir="$(mktemp -d "${TMPDIR:-/tmp}"/updatedir.XXXXX)"
+  temp="$(mktemp "${tempdir:-/tmp}"/updatefile.XXXXX)"
   if ! cond_redirect wget -nv -O "$temp" "$pkg"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
   backup_openhab_config
 
   # user credentials retten
-  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${temp}/"
+  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
   # Settings retten
-  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb/" "${temp}/"
+  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
 
   # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
   if whiptail --title "EMS Update" --yes-button "komplettes Update" --no-button "Änderungen beibehalten" --yesno "$introText" 17 80; then
@@ -306,15 +308,14 @@ update_ems() {
   fi
 
   # user credentials und Settings zurückspielen
-  cp "${temp}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
-  cp -rp "${temp}/mapdb" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
+  cp "${tempdir}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
+  cp -rp "${tempdir}/mapdb" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
 
-  rm -f "$temp conf"
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "EMS update erfolgreich" --msgbox "Das storm.house Energie Management System ist jetzt auf dem neuesten Stand." 8 80
   fi
 
-  rm -rf "${temp}"
+  rm -rf "${tempdir}"   # prüfen: conf sollte hierin liegen
 }
 
 
