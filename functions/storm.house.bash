@@ -159,7 +159,7 @@ setup_inv_config() {
       fi
     fi
 
-    sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+    #sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
   done
 
 
