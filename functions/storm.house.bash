@@ -293,7 +293,9 @@ update_ems() {
   # user credentials und Settings zurückspielen
   cp "${tempdir}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
   cp -rp "${tempdir}/mapdb" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
-
+  if [[ -d /opt/zram/persistence.bind/mapdb ]]; then
+    cp -rp "${tempdir}/mapdb" /opt/zram/persistence.bind/
+  fi
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "EMS update erfolgreich" --msgbox "Das storm.house Energie Management System ist jetzt auf dem neuesten Stand." 8 80
   fi
