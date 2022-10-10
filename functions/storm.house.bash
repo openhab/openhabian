@@ -309,6 +309,7 @@ update_ems() {
 ##    install_openhab_extras()
 ##
 install_openhab_extras() {
+  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
   local pkg="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${jar}"
   local dest="/usr/share/openhab/addons/${jar}"
@@ -318,6 +319,8 @@ install_openhab_extras() {
   if [[ $version -lt 4 ]]; then
     if ! cond_redirect wget -nv -O "$dest" "$pkg"; then echo "FAILED (download solar forecast binding)"; rm -f "$dest"; return 1; fi
   fi
+
+  cp -p ${includesDir}:openhab_rsa* "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
 }
 
 
