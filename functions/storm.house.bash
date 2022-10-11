@@ -287,7 +287,8 @@ update_ems() {
     if ! cond_redirect wget -nv -O "$temp" "$updateonly"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
     ( cd /etc/openhab || return 1
     ln -sf . conf
-    unzip -o "$temp" conf/things\* conf/items\* conf/rules\* )
+    unzip -o "$temp" conf/things\* conf/items\* conf/rules\*
+    rm -f conf )
   fi
 
   # user credentials und Settings zurückspielen
