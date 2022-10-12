@@ -294,11 +294,13 @@ update_ems() {
   if [[ -d /opt/zram/persistence.bind/mapdb ]]; then
     cp -rp "${tempdir}/mapdb" /opt/zram/persistence.bind/
   fi
+
+  permissions_corrections   # sicherheitshalber falls Dateien durch git nicht mehr openhab gehören
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "EMS update erfolgreich" --msgbox "Das storm.house Energie Management System ist jetzt auf dem neuesten Stand." 8 80
   fi
 
-  rm -rf "${tempdir}"   # prüfen: conf sollte hierin liegen
+  rm -rf "${tempdir}"
 }
 
 
