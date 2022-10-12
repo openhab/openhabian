@@ -134,7 +134,7 @@ if [[ -n "$UNATTENDED" ]]; then
   #setup_pv_config pv "${invertertype:-sungrow}" "${inverterip:-192.168.178.100} ${invertermodbusid:-1}"
   #setup_pv_config bat "${batterytype:-hybrid}" "${batteryip:-192.168.178.101} ${batterymodbusid:-3}"
   #setup_pv_config meter "${metertype:-inverter}" "${meterip:-192.168.178.102} ${metermodbusid:-99}"
-  setup_wb_config "${wallboxtype:-go-e}" "${wallboxip:-192.168.178.200}"
+  setup_wb_config "${wallboxtype:wbcustom}" "${wallboxip:-192.168.178.200}"
   install_cleanup
 else
   apt_update
