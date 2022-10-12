@@ -668,7 +668,7 @@ retrieve_license() {
     activate_ems enable
   fi
 
-  rm -rf "${tempdir}"   # prüfen: conf sollte hierin liegen
+  rm -rf "${tempdir}"
 }
 
 
