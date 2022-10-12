@@ -427,9 +427,6 @@ setup_wb_config() {
 
   cp "${includesDir}/EVCC/evcc.yaml-template" "$evcccfg"
   sed -i "s|%WBTYP|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%AUTOTYP|${3:-${autotyp}}|" "$evcccfg"
-  #sed -i "s|%WBTYP|${1:-${wallboxtype}}|" "$evcccfg"
-  #sed -i "s|%IP|${2:-${wallboxip}}|" "$evcccfg"
-  #sed -i "s|%AUTOTYP|${3:-${autotyp}}|" "$evcccfg"
   
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
