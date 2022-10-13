@@ -37,9 +37,9 @@ setup_pv_config() {
     device="${1:-pv}"
     # shellcheck disable=SC2154
     case "${device}" in
-      pv) default=${invertertype}; ip=${inverterip}; mbid=${invertermodbusid};;
-      bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymodbusid};;
-      meter) default=${metertype}; ip=${meterip}; mbid=${metermodbusid};;
+      pv) default=${invertertype}; ip=${3:-inverterip}; mbid=${4:-invertermodbusid};;
+      bat) default=${batterytype}; ip=${3:-batteryip}; mbid=${4:-batterymodbusid};;
+      meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-metermodbusid};;
     esac
 
 
@@ -69,7 +69,7 @@ setup_pv_config() {
         sed -i "s|%HUAWEI1|${Erzeugung}|;s|%HUAWEI2|${PVStatus}|" "${destfile}"
         mbid="${5:-${loggermodbusid}}"  # diese ID muss angesprochen werden
       fi
-      sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${destfile}"
+      sed -i "s|%IP|${ip}|;s|%MBID|${mbid}|" "${destfile}"
     fi
   done
 
