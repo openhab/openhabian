@@ -157,6 +157,7 @@ setup_inv_config() {
         chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
         chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
       fi
+      sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${destfile}"
     fi
   done
 
