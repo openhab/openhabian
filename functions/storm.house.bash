@@ -61,15 +61,15 @@ setup_pv_config() {
         chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
         chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
       fi
-      sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${destfile}"
 
       if [[ "${device}" == "pv" && "${2:-$invertertype}" == "huaweilogger" ]]; then
         # %HUAWEI1 bzw 2 = 51000 + 25 * (MBID - 1) + 5 bzw 9 berechnen
-        loggermbid="${5:-${loggermodbusid}}"
-        Erzeugung=$((51000 + 25 * (loggermbid - 1) + 5))
+        Erzeugung=$((51000 + 25 * (mbid - 1) + 5))
         PVStatus=$((Erzeugung + 4))
         sed -i "s|%HUAWEI1|${Erzeugung}|;s|%HUAWEI2|${PVStatus}|" "${destfile}"
+        mbid="${5:-${loggermodbusid}}"  # diese ID muss angesprochen werden
       fi
+      sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${destfile}"
     fi
   done
 
