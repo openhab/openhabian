@@ -17,6 +17,7 @@
 ## #4 = modbus ID of device
 ## #5 (optional when #2/#3 = "bat hybrid|meter|inverter"): inverter (see #1=pv)
 ## #5 (optional) cardinal number of inverter
+## #5 (optional) Modbus ID of logger
 ##
 ##    setup_pv_config(String element,String device type,String device IP,Number modbus ID,Number inverter number)
 ##
@@ -36,12 +37,12 @@ setup_pv_config() {
     device="${1:-pv}"
     # shellcheck disable=SC2154
     case "${device}" in
-      pv) default=${invertertype}; ip=${inverterip}; mbid=${invertermbid};;
-      bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymbid};;
-      meter) default=${metertype}; ip=${meterip}; mbid=${metermbid};;
+      pv) default=${invertertype}; ip=${inverterip}; mbid=${invertermodbusid};;
+      bat) default=${batterytype}; ip=${batteryip}; mbid=${batterymodbusid};;
+      meter) default=${metertype}; ip=${meterip}; mbid=${metermodbusid};;
     esac
 
-    # Problem bei #1!= pv ist #2 nicht der WR-Typ
+
     file="${2:-${default}}"
     if [[ "${device}" == "bat" && "${2:-$batterytype}" == "hybrid" ]]; then
         file="inv/${5:-${invertertype}}"
@@ -61,6 +62,14 @@ setup_pv_config() {
         chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
       fi
       sed -i "s|%IP|${3:-${ip}}|;s|%MBID|${4:-${mbid}}|" "${destfile}"
+
+      if [[ "${device}" == "pv" && "${2:-$invertertype}" == "huaweilogger" ]]; then
+        # %HUAWEI1 bzw 2 = 51000 + 25 * (MBID - 1) + 5 bzw 9 berechnen
+        loggermbid="${5:-${loggermodbusid}}"
+        Erzeugung=$((51000 + 25 * (loggermbid - 1) + 5))
+        PVStatus=$((Erzeugung + 4))
+        sed -i "s|%HUAWEI1|${Erzeugung}}|;s|%HUAWEI2|${PVStatus}}|" "${destfile}"
+      fi
     fi
   done
 
