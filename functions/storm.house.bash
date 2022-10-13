@@ -68,7 +68,7 @@ setup_pv_config() {
         loggermbid="${5:-${loggermodbusid}}"
         Erzeugung=$((51000 + 25 * (loggermbid - 1) + 5))
         PVStatus=$((Erzeugung + 4))
-        sed -i "s|%HUAWEI1|${Erzeugung}}|;s|%HUAWEI2|${PVStatus}}|" "${destfile}"
+        sed -i "s|%HUAWEI1|${Erzeugung}|;s|%HUAWEI2|${PVStatus}|" "${destfile}"
       fi
     fi
   done
