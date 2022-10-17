@@ -13,8 +13,10 @@
 # für storm.house immer diese package-Versionen installieren
 # überschreibt defaults in openhabian.conf
 
-openhabForcePkg=5.0.3-1		# war: 4.3.7-1
-evccForcePkg=0.206.1		# war: 0.204.5
+#openhabForcePkg=5.0.3-1
+#evccForcePkg=0.206.1		# ab 0.207.1 API Änderung, erfordert OH5.1
+#openhabForcePkg=5.1.1-1
+#evccForcePkg=0.300.2		# ab 0.207.1 API Änderung, erfordert OH5.1
 
 
 configFile="/etc/openhabian.conf"
@@ -93,7 +95,7 @@ cd /opt || exit 1
 
 CONFIGTXT=/boot/config.txt
 CMDLINETXT=/boot/cmdline.txt
-if is_trixie || is_bookworm; then
+if is_bookworm; then
   CONFIGTXT=/boot/firmware/config.txt
   CMDLINETXT=/boot/firmware/cmdline.txt
 fi
@@ -140,7 +142,6 @@ if [[ -n "$UNATTENDED" ]]; then
   nginx_setup
   clean_config_userpw
   install_grott "install"
-  deconz_setup "${deconz_port}" "${deconz_wsport}"
   permissions_corrections
   setup_mirror_SD "install"
   install_evcc "install" "${evccpkgversion}"; setup_evcc
