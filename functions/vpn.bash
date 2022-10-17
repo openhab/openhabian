@@ -211,7 +211,7 @@ install_tailscale() {
 
 ## add node to private tailscale network
 ##
-##   setup_tailscale(String action)
+##   setup_tailscale(String action, String tags)
 ##
 ## argument 1 is tailscape key
 ## argument 2 is tailscale tags
