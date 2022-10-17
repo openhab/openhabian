@@ -231,8 +231,8 @@ install_tailscale() {
 ##   setup_tailscale(String action)
 ##
 setup_tailscale() {
-  local preAuthKey=${preauthkey}
-  local tags="${tstags}"
+  local preAuthKey="${1:-${preauthkey}}"
+  local tags="${2:-${tstags}}"
   local consoleProperties="${OPENHAB_USERDATA:-/var/lib/openhab}/etc/org.apache.karaf.shell.cfg"
   local tailscaleIP
 
@@ -245,7 +245,7 @@ setup_tailscale() {
   fi
 
   # if ${tags}/${tstags} is empty, this will reset existing tags
-  if ! tailscale up --authkey "${preAuthKey}" --advertise-tags="${tags}"; then echo "FAILED (join tailscale VPN)"; return 1; fi
+  if ! tailscale up --reset --authkey "${preAuthKey}" --advertise-tags="${tags}"; then echo "FAILED (join tailscale VPN)"; return 1; fi
   [[ -n "$adminmail" ]] && tailscale status | mail -s "openHABian client joined tailscale VPN" "$adminmail"
   tailscaleIP=$(ip a show tailscale0 | awk '/inet / { print substr($2,1,length($2)-3)}')
   if [[ -n "$tailscaleIP"  ]]; then

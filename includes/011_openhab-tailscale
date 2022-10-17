@@ -1,1 +1,1 @@
-openhab ALL=(ALL) NOPASSWD: /usr/bin/tailscale
+openhab ALL=(ALL) NOPASSWD: /usr/bin/tailscale,/etc/openhab/scripts/tailscale.bash
