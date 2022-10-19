@@ -83,3 +83,6 @@ site:
     - ErzeugungsLeistung
     batteries:
     - LadeleistungHaus
+
+sponsortoken: %TOKEN
+
