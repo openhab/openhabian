@@ -368,7 +368,7 @@ setup_wb_config() {
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
 ## * car name
 ##
-##    setup_wb_config(String wallbox typ,String wallbox IP,String autotyp,String autoname)
+##    setup_wb_config(String wallbox typ,String wallbox IP,String autotyp,String autoname,String evcctoken)
 ##
 setup_wb_config() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
@@ -427,7 +427,7 @@ setup_wb_config() {
   fi
 
   cp "${includesDir}/EVCC/evcc.yaml-template" "$evcccfg"
-  sed -i "s|%WBTYP|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%AUTOTYP|${3:-${autotyp}}|" "$evcccfg"
+  sed -i "s|%WBTYP|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%AUTOTYP|${3:-${autotyp}}|;s|%TOKEN|${4:-${evcctoken}}|" "$evcccfg"
   
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
