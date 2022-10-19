@@ -110,3 +110,4 @@ site:
   prioritySoc: 50
   bufferSoC: 66
 
+sponsortoken: %TOKEN
