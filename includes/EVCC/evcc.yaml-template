@@ -59,7 +59,7 @@ meters:
 
 chargers:
 - type: template
-  template: %WBTYP
+  template: %WBTYPE
   host: %IP
   port: 1883
 #  timeout: 30s
@@ -67,13 +67,22 @@ chargers:
 
 vehicles:
 - type: template
-  template: %AUTOTYP
-  name: meinEAuto
-  title: E-Auto
-  user: 
-  password: 
-  vin: 
-  capacity: 77
+  template: %CARTYPE1
+  name: meinEAuto1
+  title: %CARNAME1
+  vin: %VIN1
+  user: %CARUSER1
+  password: %CARPASS1
+  capacity: %CARCAPACITY1
+  language: de
+- type: template
+  template: %CARTYPE2
+  name: meinEAuto2
+  title: %CARNAME2
+  vin: %VIN2
+  user: %CARUSER2
+  password: %CARPASS2
+  capacity: %CARCAPACITY2
   language: de
 
 loadpoints:
@@ -85,7 +94,8 @@ loadpoints:
   maxcurrent: 16
   resetOnDisconnect: true
   vehicles:
-    - meinEAuto
+    - meinEAuto1
+    - meinEAuto2
 
 tariffs:
 # tariffs are the fixed or variable tariffs
