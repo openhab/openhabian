@@ -68,13 +68,13 @@ chargers:
 vehicles:
 - type: template
   template: %CARTYPE1
+  name: meinEAuto1
+  title: %CARNAME1
   vin: %VIN1
   user: %CARUSER1
   password: %CARPASS1
   capacity: %CARCAPACITY1
   language: de
-  name: meinEAuto1
-  title: %CARNAME1
 #- type: template
 #  template: %CARTYPE2
 #  name: meinEAuto2
@@ -84,14 +84,6 @@ vehicles:
 #  password: %CARPASS2
 #  capacity: %CARCAPACITY2
 #  language: de
-  template: %AUTOTYP
-  name: meinEAuto
-  title: E-Auto
-  user: 
-  password: 
-  vin: 
-  capacity: 77
-  language: de
 
 loadpoints:
 - title: Wallbox
@@ -112,17 +104,6 @@ tariffs:
   feedin:
     type: fixed
     price: %FEEDINCOMPENSATION # [currency]/kWh
-
-tariffs:
-# tariffs are the fixed or variable tariffs
-# cheap (tibber/awattar) can be used to define a tariff rate considered cheap enough for charging
-  currency: EUR # (default EUR)
-  grid:
-    type: fixed
-    price: 0.319 # [currency]/kWh
-  feedin:
-    type: fixed
-    price: 0.065 # [currency]/kWh
 
 site:
   title: Zuhause
