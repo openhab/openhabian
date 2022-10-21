@@ -163,16 +163,29 @@ setup_inv_config() {
 ## Generate/copy openHAB config for a wallbox
 ## Valid Arguments:
 ##
-## * wallbox type (from EVCC)
+## #1 wallbox type (from EVCC)
 ## abl cfos easee eebus evsewifi go-e go-e-v3 heidelberg keba mcc nrgkick-bluetooth nrgkick-connect
 ## openwb phoenix-em-eth phoenix-ev-eth phoenix-ev-ser simpleevse wallbe warp
-## * IP address of wallbox
-## * car type (from EVCC)
+## #2 IP address of wallbox
+## #3 EVCC token
+## #4 car 1 type (from EVCC)
 ## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
-## * car name
+## #5 car 1 name
+## #6 car 1 capacity
+## #7 car 1 VIN Vehicle Identification Number
+## #8 car 1 username in car manufacturer's online portal
+## #9 car 1 password for account in car manufacturer's online portal
+## #10 car 2 type (from EVCC)
+## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
+## renault ovms porsche seat skoda enyaq vw id volvo tronity
+## #11 car 2 name
+## #12 car 2 capacity
+## #13 car 2 VIN Vehicle Identification Number
+## #14 car 2 username in car manufacturer's online portal
+## #15 car 2 password for account in car manufacturer's online portal
 ##
-##    setup_wb_config(String wallbox typ,String wallbox IP,String autotyp,String autoname,String evcctoken)
+##    setup_wb_config(String wallbox typ, .... )  - all arguments are of type String
 ##
 setup_wb_config() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
@@ -231,7 +244,8 @@ setup_wb_config() {
   fi
 
   cp "${includesDir}/EVCC/evcc.yaml-template" "$evcccfg"
-  sed -i "s|%WBTYP|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%AUTOTYP|${3:-${autotyp}}|;s|%TOKEN|${4:-${evcctoken}}|" "$evcccfg"
+  # TODO: englische! default params in openhabian.conf
+  sed -i "s|%WBTYPE|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1}}|;s|%CARNAME1|${5:-${carname1}}|;s|%VIN1|${6:-${vin1}}|;s|%CARCAPACITY1|${7:-${carcapacity1}}|;s|%CARUSER1|${8:-${caruser1}}|;s|%CARPASS1|${9:-${carpass1}}|;s|%CARTYPE2|${10:-${cartype2}}|;s|%CARNAME2|${11:-${carname2}}|;s|%VIN2|${12:-${vin2}}|;s|%CARCAPACITY2|${13:-${carcapacity2}}|;s|%CARUSER2|${14:-${caruser2}}|;s|%CARPASS2|${15:-${carpass2}}|" "$evcccfg"
   
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
