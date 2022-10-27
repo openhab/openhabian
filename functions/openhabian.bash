@@ -164,47 +164,64 @@ openhabian_update_check() {
 ##
 openhabian_update() {
   local branch
+  local branchLabel
   local current
+  local dialogHeight=16
+  local radioOptions
   local introText
   local key
-  local main="OFF"
-  local openHAB3="OFF"
-  local own="no"
   local selection
   local shorthashAfter
   local shorthashBefore
-  local stable="OFF"
 
   current="$(git -C "${BASEDIR:-/opt/openhabian}" rev-parse --abbrev-ref HEAD)"
   echo -n "$(timestamp) [openHABian] Updating myself... "
   if [[ $# == 1 ]]; then
     branch="$1"
   elif [[ -n $INTERACTIVE ]]; then
-    if [[ $current == "stable" ]]; then
-        introText="You are currently using the \"${current}\" openHABian environment version. I will ONLY work with openHAB version 2.\\nIf you want to run openHAB 3 you need to switch to the \"openHAB3\" branch. If that's your intent better let the upgrade function do it for you and validate afterwards you are on main branch."
-    else
-      if [[ $current == "main" ]] || [[ $current == "openHAB3" ]]; then
-          introText="You are currently using the \"${current}\" openHABian environment version.\\n\\nThe openHABian version to contain the very latest code for openHAB 3 is called \"main\".\\nThis is providing you with the latest (openHAB3!) features but less people have tested it so it is a little more likely that you run into errors.\\nYou can step back a little and switch to use the stable version now called \"openHAB3\".\\nYou can switch at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\n"
-      else
-          introText="You are currently using an unknown branch of openHABian.\\nThis may be a test version or an error, if so please report on Github (remember to provide a debug log - see debug guide)."
-      fi
-    fi
+    radioOptions=("stable" "recommended version that supports openHAB 3.x (openHAB3 branch)" "OFF")
+    radioOptions+=("latest" "the latest of openHABian, not well tested (main branch)" "OFF")
+    radioOptions+=("legacy" "no longer updated, use for openHAB 2.x support (stable branch)" "OFF")
 
-    if [[ $current == "stable" ]]; then
-      stable="ON"
-    elif [[ $current == "openHAB3" ]]; then
-      openHAB3="ON"
-    elif [[ $current == "main" ]]; then
-      main="ON"
-    else
-      own="yes"
-    fi
+    case "$current" in
+      "openHAB3")
+        branchLabel="the stable version of openHABian"
+        radioOptions[2]="ON"
+        ;;
 
-    if [[ $own == "no" ]]; then
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 19 90 3 openHAB3 "recommended standard version of openHABian (openHAB 3)" "$openHAB3" main "very latest version of openHABian (openHAB 3)" "$main" stable "old version of openHABian (openHAB 2)" "$stable" 3>&1 1>&2 2>&3)"; then return 0; fi
-    else
-      if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" 20 90 4 openHAB3 "recommended standard version of openHABian (openHAB 3)" OFF main "very latest version of openHABian (openHAB 3)" OFF stable "old version of openHABian (openHAB 2)" OFF "$current" "some other version you fetched yourself" ON 3>&1 1>&2 2>&3)"; then return 0; fi
-    fi
+      "main")
+        branchLabel="the latest version of openHABian"
+        radioOptions[5]="ON"
+        ;;
+
+      "stable")
+        branchLabel="the legacy version of openHABian"
+        radioOptions[8]="ON"
+        ;;
+
+      *)
+        branchLabel="a custom version of openHABian. If you think this is an error, please report on Github (remember to provide a debug log - see debug guide)."
+        radioOptions+=("$current" "some other version you fetched yourself" "ON")
+        dialogHeight=18
+        ;;
+    esac
+
+    introText=$(printf "%s\n" \
+      "You are currently using ${branchLabel}" \
+      "" \
+      "You can switch openHABian version at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'." \
+      "" \
+      "Note: this menu only changes the version of openHABian and not openHAB. To select the openHAB version, see the 'openHAB Related' menu item.")
+
+    if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" $dialogHeight 90 "$(( ${#radioOptions[@]} / 3 ))" "${radioOptions[@]}" 3>&1 1>&2 2>&3)"; then return 0; fi
+
+    # translate the selection back to the actual git branch name
+    case $selection in
+      stable) selection="openHAB3";;
+      latest) selection="main";;
+      legacy) selection="stable";;
+    esac
+
     read -r -t 1 -n 1 key
     if [[ -n $key ]]; then
       echo -e "\\nRemote git branches available:"
