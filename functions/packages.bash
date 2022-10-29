@@ -698,6 +698,8 @@ install_evcc() {
   local repotxt="[signed-by=/etc/apt/trusted.gpg.d/evcc-stable.asc] https://dl.cloudsmith.io/public/evcc/stable/deb/debian any-version main"
   local repo="/etc/apt/sources.list.d/evcc.list"
   local svcdir="/etc/systemd/system/evcc.service.d"
+  local sudoersFile="011_evcc"
+  local sudoersPath="/etc/sudoers.d"
 
   if [[ $1 == "remove" ]]; then
     if [[ -n $INTERACTIVE ]]; then
@@ -725,6 +727,7 @@ install_evcc() {
   sed -e "s|%USER|${username}|g" "${BASEDIR:-/opt/openhabian}"/includes/evcc-override.conf > "$svcdir/override.conf"
 
   if ! cond_redirect systemctl enable --now evcc.service; then echo "FAILED (enable evcc.service)"; return 1; fi
+  cp "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
 }
 
 
