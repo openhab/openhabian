@@ -1,0 +1,1 @@
+openhab ALL=(ALL) NOPASSWD: /bin/systemctl restart evcc
