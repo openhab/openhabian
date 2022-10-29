@@ -28,6 +28,10 @@ setup_pv_config() {
   local destfile
 
 
+  if [[ ! -f /usr/local/sbin/setup_pv_config && $(whoami) == "root" ]]; then
+    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
+  fi
+
   if [[ -n "$UNATTENDED" ]]; then
     echo -n "$(timestamp) [storm.house] PV ${1} installation... "
     if [[ -z "${2:-$invertertype}" ]]; then echo "SKIPPED (no device defined)"; return 1; fi
