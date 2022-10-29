@@ -689,14 +689,13 @@ retrieve_license() {
 
 ## Install non-standard bindings etc
 ##
-##    install_openhab_extras()
+##    install_extras()
 ##
-install_openhab_extras() {
+install_extras() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
   local pkg="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${jar}"
   local dest="/usr/share/openhab/addons/${jar}"
-
 
   version=$(dpkg -s 'openhab' 2> /dev/null | grep Version | cut -d' ' -f2 | cut -d'-' -f1 | cut -d'.' -f2)
   if [[ $version -lt 4 ]]; then
@@ -704,24 +703,6 @@ install_openhab_extras() {
   fi
 
   cp -p "${includesDir}:openhab_rsa*" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
-}
-
-
-## (unfertig)
-
-##    evcc-sponsorship(String token)
-##
-##    valid argument: EVCC sponsor token
-##
-##    "sponsortoken: "-Zeile aus evcc.yaml rausgreppen und ersetzen
-##    Aus UI bei Änderung des entsprechenden items per exec binding aufrufen
-##    sowie aus retrieve_license heraus
-##
-evcc-sponsorship() {
-  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
-  local evccconfig="evcc.yaml"
-
-  echo "$evccconfig"
 }
 
 
