@@ -9,7 +9,7 @@ nodejs_setup() {
   if node_is_installed && ! is_armv6l; then return 0; fi
 
   local keyName="nodejs"
-  local link="https://unofficial-builds.nodejs.org/download/release/v16.17.1/node-v16.17.1-linux-armv6l.tar.xz"
+  local link="https://nodejs.org/dist/v18.12.0/node-v18.12.0-linux-armv7l.tar.xz"
   local myDistro
   local temp
 
