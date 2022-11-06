@@ -14,7 +14,7 @@ You may jump to [install instructions](#raspberry-pi-prepackaged-sd-card-image) 
 :::
 
 # openHABian - Hassle-free openHAB Setup
-
+``
 The Raspberry Pi is quite a famous platform for openHAB.
 However, setting up a fully working Linux system with all recommended packages and openHAB recommendations is a **boring task**, takes a lot of time and **Linux newcomers** are challenged in a number of ways although all they want is to run openHAB and not some server.
 
@@ -347,7 +347,7 @@ openHABian has a number of features built in to enhance resilience:
 
     WARNING 2: USB sticks are as susceptible to flash wear-out as SD cards are, making zram the better choice for a standard Pi to run off its internal SD card.
 
-4.  Use the openHAB integrated [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively
+4.  Use the integrated original openHAB [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively
     backup/restore your openHAB **config** \[menu option 50/51\].
 5.  Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, documentation [here](openhabian-amanda.md).
     See \[menu option 52\].
