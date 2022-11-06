@@ -93,9 +93,6 @@ loadpoints:
   mincurrent: 6
   maxcurrent: 16
   resetOnDisconnect: true
-  vehicles:
-    - meinEAuto1
-    - meinEAuto2
 
 tariffs:
 # tariffs are the fixed or variable tariffs
