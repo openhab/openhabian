@@ -179,13 +179,13 @@ openhabian_update() {
   if [[ $# == 1 ]]; then
     branch="$1"
   elif [[ -n $INTERACTIVE ]]; then
-    radioOptions=("stable" "recommended version that supports openHAB 3.x (openHAB3 branch)" "OFF")
+    radioOptions=("release" "recommended version that supports openHAB 3.x (openHAB3 branch)" "OFF")
     radioOptions+=("latest" "the latest of openHABian, not well tested (main branch)" "OFF")
     radioOptions+=("legacy" "no longer updated, use for openHAB 2.x support (stable branch)" "OFF")
 
     case "$current" in
       "openHAB3")
-        branchLabel="the stable version of openHABian"
+        branchLabel="the release version of openHABian"
         radioOptions[2]="ON"
         ;;
 
@@ -217,7 +217,7 @@ openhabian_update() {
 
     # translate the selection back to the actual git branch name
     case $selection in
-      stable) selection="openHAB3";;
+      release) selection="openHAB3";;
       latest) selection="main";;
       legacy) selection="stable";;
     esac
