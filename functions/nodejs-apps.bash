@@ -9,7 +9,7 @@ nodejs_setup() {
   if node_is_installed && ! is_armv6l; then return 0; fi
 
   local keyName="nodejs"
-  local link="https://unofficial-builds.nodejs.org/download/release/v16.17.1/node-v16.17.1-linux-armv6l.tar.xz"
+  local link="https://nodejs.org/dist/v18.12.0/node-v18.12.0-linux-armv7l.tar.xz"
   local myDistro
   local temp
 
@@ -323,7 +323,7 @@ zigbee2mqtt_setup() {
 
   echo -n "$(timestamp) [openHABian] Zigbee2MQTT install & config... "
   cd /opt/zigbee2mqtt || (echo "FAILED (cd)"; return 1)
-  if ! cond_redirect sudo -u "${username:-openhabian}" npm install ; then echo "FAILED (npm install)"; return 1; fi
+  if ! cond_redirect sudo -u "${username:-openhabian}" npm ci ; then echo "FAILED (npm ci)"; return 1; fi
   sed -e "s|%adapterName|$selectedAdapter|g" /opt/openhabian/includes/zigbee2mqtt/configuration.yaml | sudo -u "${username:-openhabian}" dd status=none of=/opt/zigbee2mqtt/data/configuration.yaml
   sed -i -e "s|%user%|$mqttUser|g" /opt/zigbee2mqtt/data/configuration.yaml
   sed -i -e "s|%password%|$mqttPW|g" /opt/zigbee2mqtt/data/configuration.yaml 
