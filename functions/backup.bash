@@ -79,6 +79,7 @@ restore_openhab_config() {
   else
     if ! cond_redirect systemctl stop openhab.service; then echo "FAILED (stop openHAB)"; return 1; fi
     if ! (yes | cond_redirect openhab-cli restore "$filePath"); then echo "FAILED (restore)"; return 1; fi
+    if ! (yes | cond_redirect openhab-cli clean-cache); then echo "FAILED (cache cleaning)"; fi
     if cond_redirect systemctl restart openhab.service; then echo "OK"; else echo "FAILED (restart openHAB)"; return 1; fi
   fi
 
