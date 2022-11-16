@@ -62,9 +62,9 @@ You can change it at any time to get output on future boot runs or if you use `o
 _At this stage, read the first paragraph on the logfile and interactive use again._
 To see debug output during the image installation process, you need to use the procedure from your PC **before** you power your box on.
 
-If you have a console available (monitor and keyboard), attach it to follow the install process.
+If you have a console available (monitor and keyboard), you may attach it to follow the install process **but** be aware that attaching a keyboard may cause the installation to fail.
 Now insert the SD card and turn on your system.
-If you don't have any console, try to access the web console at `http://<yourhostip>:80/`.
+If you don't have any console, access the web console at `http://<yourhostip>:80/`.
 It will display the contents of `/boot/first-log.boot` at intervals of some seconds while installing.
 Mind you that if installation fails, network access may or may not be possible so you might need to access the box via console anyway in order to find out what went wrong.
 
