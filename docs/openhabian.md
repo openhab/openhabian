@@ -382,7 +382,7 @@ Mind the comments for each configuration parameter. Browse the next documentatio
 #### Initial configuration
 You can have openHABian import a working openHAB configuration right from the start at installation time like when you migrate or reinstall:
 make the `initialconfig` parameter point to either a file or URL.
-Note that you can only place config zipfiles on the 1st (Windows) partition, and that partition will finally be accessible as `/boot`.
+Note that you can only place config zipfiles on the 1st (Windows) partition, and that partition will finally be accessible as `/boot` from inside Linux.
 So a filename would need to be `/boot/xxx.zip`. Default is `/boot/initial.zip`.
 So if you have a openHAB configuration backup zipfile (created e.g. by using menu option 50), put it to the E: device that the first partition of your SD card shows up as on a Windows PC and change its name to 'initial.zip'.
 
