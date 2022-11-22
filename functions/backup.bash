@@ -158,7 +158,7 @@ create_amanda_config() {
   adminMail="$3"
   tapes="$4"
   tapeSize="$5"
-  torageLoc="$6"
+  storageLoc="$6"
   awsSite="$7"
   awsBucket="$8"
   awsAccessKey="$9"
