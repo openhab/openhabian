@@ -149,13 +149,13 @@ These are what we develop and test openHABian against.
 We provide code that is reported "as-is" to run on Ubuntu but we do **not support Ubuntu** so please don't open issues for this (PRs then again are welcome).
 Several optional components such as WireGuard or Homegear are known to expose problems on Ubuntu.
 
-We expect you to use the current stable distribution 'bullseye' for Debian (x86). The Raspberry Pi image is based on this, too.
+We expect you to use the current stable distribution 'bullseye' for Debian (x86). The current Raspberry Pi image is based on this, too.
 To install openHABian on anything older or newer may work or not.
 If you do and encounter issues, you may need to upgrade first or to live with the consequences of running an OS on the edge of software development.
 
 ### 64 bit?
 RPi 3 and 4 have a 64 bit processor and you may want to run openHAB in 64 bit.
-Be aware that running in 64 bit has a major drawback: increased memory usage.
+Be aware that running in 64 bit has no relevant advantages but a major drawback: increased memory usage.
 That is not a good idea on a heavily memory constrained platform like a RPi.
 
 On x86 hardware, 64 bit is the standard.
