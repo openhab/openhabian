@@ -38,8 +38,10 @@ jobs:
            sudo -E bash -c set
            sudo apt-get update
            sudo apt-get install --yes libarchive-zip-perl dos2unix systemd-container qemu-user-static qemu-utils
-           echo "::set-output name=image32::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
-           echo "::set-output name=image64::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
+           #echo "::set-output name=image32::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
+           #echo "::set-output name=image64::$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")"
+           echo "image32=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
+           echo "image64=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
        - name: Cache Raspberry Pi OS 32bit image
          uses: actions/cache@v3
          with:
@@ -60,9 +62,12 @@ jobs:
            cp build-image/template_rpi-imager-openhab.json rpi-imager-openhab.json
            sudo -E ./build.bash rpi
            sudo -E ./build.bash rpi64
-           echo "::set-output name=image32::$(ls openhabian-pi-raspios32*.img.xz)"
-           echo "::set-output name=image64::$(ls openhabian-pi-raspios64*.img.xz)"
-           echo "::set-output name=json_image::$(ls rpi-imager-openhab.json)"
+           #echo "::set-output name=image32::$(ls openhabian-pi-raspios32*.img.xz)"
+           #echo "::set-output name=image64::$(ls openhabian-pi-raspios64*.img.xz)"
+           #echo "::set-output name=json_image::$(ls rpi-imager-openhab.json)"
+           echo "image32=$(ls openhabian-pi-raspios32*.img.xz)" >> $GITHUB_OUTPUT
+           echo "image64=$(ls openhabian-pi-raspios64*.img.xz)" >> $GITHUB_OUTPUT
+           echo "json_image=$(ls rpi-imager-openhab.json)" >> $GITHUB_OUTPUT
        - name: Archive openHABian 32bit image
          uses: actions/upload-artifact@v3
          with:
