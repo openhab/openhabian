@@ -248,7 +248,6 @@ setup_wb_config() {
   fi
 
   cp "${includesDir}/EVCC/evcc.yaml-template" "$evcccfg"
-  # TODO: englische! default params in openhabian.conf
   sed -i "s|%WBTYPE|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1}}|;s|%CARNAME1|${5:-${carname1}}|;s|%VIN1|${6:-${vin1}}|;s|%CARCAPACITY1|${7:-${carcapacity1}}|;s|%CARUSER1|${8:-${caruser1}}|;s|%CARPASS1|${9:-${carpass1}}|;s|%CARTYPE2|${10:-${cartype2}}|;s|%CARNAME2|${11:-${carname2}}|;s|%VIN2|${12:-${vin2}}|;s|%CARCAPACITY2|${13:-${carcapacity2}}|;s|%CARUSER2|${14:-${caruser2}}|;s|%CARPASS2|${15:-${carpass2}}|" "$evcccfg"
   
   echo "OK"
@@ -288,7 +287,7 @@ update_ems() {
   local temp
   local fullpkg=https://storm.house/download/initialConfig.zip
   local updateonly=https://storm.house/download/latestUpdate.zip
-  local introText="ACHTUNG\\n\\nWenn Sie eigene Änderungen der Benutzeroberfläche und/oder auf Ebene von openHAB vorgenommen haben, wählen Sie \"Änderungen beibehalten\". Das Update würde alle diese Änderungen ansonsten überschreiben, sie wäre verloren.\\In jedem Fall wird vor dem Update ein Backup der aktuellen Konfiguration erstellt und Ihre Einstellungen und historischen Daten bleiben erhalten. Sollten Sie das Upgrade rückgängig machen wollen, können Sie jederzeit über den Menüpunkt 51 die Konfiguration des EMS von vor dem Update wieder einspielen."
+  local introText="ACHTUNG\\n\\nWenn Sie eigene Änderungen auf der Ebene von openHAB vorgenommen haben (die \"orangene\" Benutzeroberfläche),dann wählen Sie \"Änderungen beibehalten\". Dieses Update würde alle diese Änderungen ansonsten überschreiben, sie wäre verloren.\\Ihre Einstellungen und historischen Daten bleiben in beiden Fällen erhalten und vor dem Update wird ein Backup der aktuellen Konfiguration erstellt.  Sollten Sie das Upgrade rückgängig machen wollen, können Sie jederzeit über den Menüpunkt 51 die Konfiguration des EMS von vor dem Update wieder einspielen."
   local TextVoll="ACHTUNG:\\nWollen Sie wirklich die Konfiguration vollständig durch die aktuelle Version des EMS ersetzen?\\nAlles, was Sie über die grafische Benutzeroberfläche über Einstellungen hinausgehend verändert haben, geht dann verloren. Das betrifft beispielsweise, aber nicht nur, alle Things, Items und Regeln, die Sie selbst angelegt haben."
   local TextTeil="ACHTUNG:\\nWollen Sie das EMS bzw. den von storm.house bereitgestellten Teil Ihres EMS wirklich durch die aktuelle Version ersetzen?"
 
@@ -350,24 +349,56 @@ install_extras() {
 }
 
 
-## TODO:
-## Systemd-timer, der retrieve_license 1x wöchentlich aufruft und ausführt
+# TODO:
+# Systemd-timer, der retrieve_license 1x wöchentlich aufruft und ausführt
+#
+# 
 
-## (unfertig)
+
+##    activate_ems(String enable)
+##
+## * enable|disable
+##
+activate_ems() {
+  true;
+}
+
 
 ## Retrieve licensing file from server
-## valid argument: username
-## Webserver will return an self-encrypted script to contain files:
-## * 
-## * the evcc sponsorship token
+## valid arguments: username, password
+## Webserver will return an self-encrypted script to contain file with the evcc sponsorship token
 ##
-##    retrieve_license(String username)
+##    retrieve_license(String username, String password)
 ##
 retrieve_license() {
-  local licsrc="https://storm.house/${jar}"
-  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
-  local dest="/usr/share/openhab/addons/${jar}"
+  local licsrc="https://storm.house/liccheck"
+  local cryptlic="/etc/openhab/services/license"
+  local temp
+  local livekey="active"
+  local lifetimekey="lifetime"
+  local licuser=${1}
+  local licpass=${2}
 
-  if ! cond_redirect wget -nv -O "$dest" "$licsrc"; then echo "FAILED (download licensing file)"; rm -f "$dest"; return 1; fi
+
+  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
+  # TODO;: Optionen für User + Passwort!!
+  if ! cond_redirect wget -nv --http-user="${licuser}" --http-password="${licpass}" -O "$cryptlic" "$licsrc"; then echo "FAILED (download licensing file)"; rm -f "$cryptlic"; return 1; fi
+
+  if [[ -f "$cryptlic" ]]; then
+	  # decrypten mit public Key der dazu in includes liegen muss
+	  # > $temp
+	  true;
+  fi
+  if grep -qs "^sponsortoken:[[:space:]]" "$lic"; then
+    token=$(grep -E '^sponsortoken' "$temp" |cut -d' '  -f2)
+    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "$token" "http://{hostname}:8080/rest/items/EVCCtoken"
+  fi
+
+  lic=$(grep -E '^sponsortoken' "$temp" |cut -d' '  -f2)
+  if [[ "$lic" != "$livekey" && "$lic" != "$lifetimekey" ]]; then
+    activate_ems disable
+  else
+    activate_ems enable
+  fi
 }
 
