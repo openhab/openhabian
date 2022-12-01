@@ -88,10 +88,13 @@ frontail_setup() {
 
   if ! cond_redirect frontail_download "/opt"; then echo "FAILED (download)"; return 1; fi
   cd /opt/frontail || (echo "FAILED (cd)"; return 1)
-  if ! cond_redirect npm install --force -g; then echo "FAILED (install)"; return 1; fi
-  if ! cond_redirect npm audit fix --force; then echo "FAILED (install)"; return 1; fi
-  if cond_redirect npm update --force -g; then echo "OK"; else echo "FAILED (update)"; return 1; fi
-  
+  # npm arguments explained:
+  #   --omit=dev ignores the dev dependencies (we do not require them for production usage)
+  # Do NOT catch exit 1 for npm audit fix, because it's thrown when a vulnerability can't be fixed. Happens when a fix requires an upgrade to a new major release with possible breaking changes.
+  cond_redirect npm audit fix --omit=dev
+  if ! cond_redirect npm update --audit=false --omit=dev; then echo "FAILED (update)"; return 1; fi
+  if cond_redirect npm install --global --audit=false --omit=dev; then echo "OK"; else echo "FAILED (install)"; return 1; fi
+
   echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service... "
   if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi
   if ! cond_redirect chmod 644 /etc/systemd/system/frontail.service; then echo "FAILED (permissions)"; return 1; fi
