@@ -195,6 +195,7 @@ homegear_setup() {
   local keyName="homegear"
   local myOS
   local myRelease
+  local temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
   local successText="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
 
   myOS="$(lsb_release -si)"
@@ -221,7 +222,9 @@ homegear_setup() {
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   if is_raspios; then
-    if ! cond_redirect apt-get install --yes wiringpi; then echo "FAILED"; return 1; fi
+    wget -O $temp https://github.com/WiringPi/WiringPi/releases/download/2.61-1/wiringpi-2.61-1-armhf.deb
+    dpkg -i $temp
+    rm -f $temp
   fi
   if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permissions... "
