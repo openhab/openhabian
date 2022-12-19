@@ -417,6 +417,7 @@ system_check_default_password() {
 }
 
 ## Enable / Disable IPv6 according to the users configured option in '$configFile'
+## Valid arguments: "enable" or "disable"
 ##
 ##    config_ipv6()
 ##
@@ -424,14 +425,14 @@ config_ipv6() {
   local aptConf="/etc/apt/apt.conf.d/S90force-ipv4"
   local sysctlConf="/etc/sysctl.d/99-sysctl.conf"
 
-  if [[ "${ipv6:-enable}" == "disable" ]]; then
+  if [[ "${1:-${ipv6:-enable}}" == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Disabling IPv6... "
     if ! grep -qs "^[[:space:]]*# Disable all IPv6 functionality" "$sysctlConf"; then
       echo -e "\\n# Disable all IPv6 functionality\\nnet.ipv6.conf.all.disable_ipv6=1\\nnet.ipv6.conf.default.disable_ipv6=1\\nnet.ipv6.conf.lo.disable_ipv6=1" >> "$sysctlConf"
     fi
     cp "${BASEDIR:-/opt/openhabian}"/includes/S90force-ipv4 "$aptConf"
     if cond_redirect sysctl --load; then echo "OK"; else echo "FAILED"; return 1; fi
-  elif [[ "${ipv6:-enable}" == "enable" ]] && grep -qs "^[[:space:]]*# Disable all IPv6 functionality" "$sysctlConf"; then
+  elif [[ "${1:-${ipv6:-enable}}" == "enable" ]] && grep -qs "^[[:space:]]*# Disable all IPv6 functionality" "$sysctlConf"; then
     echo -n "$(timestamp) [openHABian] Enabling IPv6... "
     sed -i '/# Disable all IPv6 functionality/d; /net.ipv6.conf.all.disable_ipv6=1/d; /net.ipv6.conf.default.disable_ipv6=1/d; /net.ipv6.conf.lo.disable_ipv6=1/d' "$sysctlConf"
     rm -f "$aptConf"
