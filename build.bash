@@ -355,7 +355,7 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
   unix2dos -q -n "$sourceFolder"/openhabian.${hwPlatform}.conf "$buildFolder"/boot/openhabian.conf
   cp "$sourceFolder"/webserver.bash "$buildFolder"/boot/webserver.bash
 
-  encryptedPassword=$(echo "${defaultPassword:-habopen}" | openssl passwd -6 -stdin)
+  encryptedPassword=$(echo "${defaultPassword:-openhabian}" | openssl passwd -6 -stdin)
   echo "${defaultUser:-openhabian}:${encryptedPassword}" > "$buildFolder"/boot/userconf.txt
 
   echo_process "Closing up image file... "
