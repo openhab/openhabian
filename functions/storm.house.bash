@@ -41,9 +41,9 @@ setup_pv_config() {
     device="${1:-pv}"
     # shellcheck disable=SC2154
     case "${device}" in
-      pv) default=${invertertype}; ip=${3:-inverterip}; mbid=${4:-invertermodbusid};;
-      bat) default=${batterytype}; ip=${3:-batteryip}; mbid=${4:-batterymodbusid};;
-      meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-metermodbusid};;
+      pv) default=${invertertype}; ip=${3:-inverterip}; mbid=${4:-${invertermodbusid}};;
+      bat) default=${batterytype}; ip=${3:-batteryip}; mbid=${4:-${batterymodbusid}};;
+      meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-${metermodbusid}};;
     esac
 
 
