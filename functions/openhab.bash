@@ -212,7 +212,7 @@ openhab_misc() {
   elif has_highmem; then
     if cond_redirect sed -i -e '/^[^#]/ s/\(^.*EXTRA_JAVA_OPTS=.*$\)/EXTRA_JAVA_OPTS="-XX:+ExitOnOutOfMemoryError"/' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx320m -XX:+ExitOnOutOfMemoryError"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx384m -XX:+ExitOnOutOfMemoryError"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting openHAB HTTP/HTTPS ports... "
