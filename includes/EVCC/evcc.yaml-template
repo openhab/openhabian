@@ -75,15 +75,15 @@ vehicles:
   password: %CARPASS1
   capacity: %CARCAPACITY1
   language: de
-- type: template
-  template: %CARTYPE2
-  name: meinEAuto2
-  title: %CARNAME2
-  vin: %VIN2
-  user: %CARUSER2
-  password: %CARPASS2
-  capacity: %CARCAPACITY2
-  language: de
+#- type: template
+#  template: %CARTYPE2
+#  name: meinEAuto2
+#  title: %CARNAME2
+#  vin: %VIN2
+#  user: %CARUSER2
+#  password: %CARPASS2
+#  capacity: %CARCAPACITY2
+#  language: de
 
 loadpoints:
 - title: Wallbox
@@ -100,10 +100,10 @@ tariffs:
   currency: EUR # (default EUR)
   grid:
     type: fixed
-    price: 0.319 # [currency]/kWh
+    price: %GRIDCOST # [currency]/kWh
   feedin:
     type: fixed
-    price: 0.065 # [currency]/kWh
+    price: %FEEDINCOMPENSATION # [currency]/kWh
 
 site:
   title: Zuhause
