@@ -196,7 +196,7 @@ setup_wb_config() {
   local wallboxPNG="${OPENHAB_CONF:-/etc/openhab}/icons/classic/wallbox.png"
   local srcfile
   local destfile
-  local evcccfg="${HOME:-/home/admin}/evcc.yaml"
+  local evccConfig="/home/${username:-openhabian}/evcc.yaml"
 
 
   if [[ ! -f /usr/local/sbin/setup_wb_config && $(whoami) == "root" ]]; then
@@ -247,8 +247,8 @@ setup_wb_config() {
     chmod 664 "$wallboxPNG"
   fi
 
-  cp "${includesDir}/EVCC/evcc.yaml-template" "$evcccfg"
-  sed -i "s|%WBTYPE|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1}}|;s|%CARNAME1|${5:-${carname1}}|;s|%VIN1|${6:-${vin1}}|;s|%CARCAPACITY1|${7:-${carcapacity1}}|;s|%CARUSER1|${8:-${caruser1}}|;s|%CARPASS1|${9:-${carpass1}}|;s|%CARTYPE2|${10:-${cartype2}}|;s|%CARNAME2|${11:-${carname2}}|;s|%VIN2|${12:-${vin2}}|;s|%CARCAPACITY2|${13:-${carcapacity2}}|;s|%CARUSER2|${14:-${caruser2}}|;s|%CARPASS2|${15:-${carpass2}}|" "$evcccfg"
+  cp "${includesDir}/EVCC/evcc.yaml-template" "$evccConfig"
+  sed -i "s|%WBTYPE|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1}}|;s|%CARNAME1|${5:-${carname1}}|;s|%VIN1|${6:-${vin1}}|;s|%CARCAPACITY1|${7:-${carcapacity1}}|;s|%CARUSER1|${8:-${caruser1}}|;s|%CARPASS1|${9:-${carpass1}}|;s|%CARTYPE2|${10:-${cartype2}}|;s|%CARNAME2|${11:-${carname2}}|;s|%VIN2|${12:-${vin2}}|;s|%CARCAPACITY2|${13:-${carcapacity2}}|;s|%CARUSER2|${14:-${caruser2}}|;s|%CARPASS2|${15:-${carpass2}}|" "$evccConfig"
   
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
@@ -363,6 +363,52 @@ activate_ems() {
   true;
 }
 
+
+## Retrieve licensing file from server
+## valid arguments: username, password
+## Webserver will return an self-encrypted script to contain file with the evcc sponsorship token
+##
+##    retrieve_license(String username, String password)
+##
+#retrieve_license() {
+#  local licsrc="https://storm.house/liccheck"
+#  local cryptlic="/etc/openhab/services/license"
+#  local temp
+#  local livekey="active"
+#  local lifetimekey="lifetime"
+#  local licuser=${1}
+#  local licpass=${2}
+#
+#
+#  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
+#  # TODO;: Optionen für User + Passwort!!
+#  if ! cond_redirect wget -nv --http-user="${licuser}" --http-password="${licpass}" -O "$cryptlic" "$licsrc"; then echo "FAILED (download licensing file)"; rm -f "$cryptlic"; return 1; fi
+#
+#  if [[ -f "$cryptlic" ]]; then
+#	  # decrypten mit public Key der dazu in includes liegen muss
+#	  # > $temp
+#	  true;
+#  fi
+#  if grep -qs "^sponsortoken:[[:space:]]" "$lic"; then
+#    token=$(grep -E '^sponsortoken' "$temp" |cut -d' '  -f2)
+#    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "$token" "http://{hostname}:8080/rest/items/EVCCtoken"
+#  fi
+#
+#  lic=$(grep -E '^sponsortoken' "$temp" |cut -d' '  -f2)
+#  if [[ "$lic" != "$livekey" && "$lic" != "$lifetimekey" ]]; then
+#    activate_ems disable
+#  else
+#    activate_ems enable
+#  fi
+#}
+
+# TODO: wie funktioniert die Lizenzierung mit einem Token ???
+# Das Token ist ein mit dem EMS private key verschlüsselte Datei, die enthält:
+# a) Username,
+# b) eine Gültigkeitsdauer hat (oder "lifetime")
+# c) optional das EVCC-Token des Users
+
+# wie funktioniert das Erneuern ?
 
 ## Retrieve licensing file from server
 ## valid arguments: username, password
