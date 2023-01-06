@@ -192,6 +192,7 @@ setup_inv_config() {
 ##    setup_wb_config(String wallbox typ, .... )  - all arguments are of type String
 ##
 setup_wb_config() {
+  local temp
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local wallboxPNG="${OPENHAB_CONF:-/etc/openhab}/icons/classic/wallbox.png"
   local srcfile
@@ -247,8 +248,10 @@ setup_wb_config() {
     chmod 664 "$wallboxPNG"
   fi
 
-  cp "${includesDir}/EVCC/evcc.yaml-template" "$evccConfig"
-  sed -i "s|%WBTYPE|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1}}|;s|%CARNAME1|${5:-${carname1}}|;s|%VIN1|${6:-${vin1}}|;s|%CARCAPACITY1|${7:-${carcapacity1}}|;s|%CARUSER1|${8:-${caruser1}}|;s|%CARPASS1|${9:-${carpass1}}|;s|%CARTYPE2|${10:-${cartype2}}|;s|%CARNAME2|${11:-${carname2}}|;s|%VIN2|${12:-${vin2}}|;s|%CARCAPACITY2|${13:-${carcapacity2}}|;s|%CARUSER2|${14:-${caruser2}}|;s|%CARPASS2|${15:-${carpass2}}|" "$evccConfig"
+  temp="$(mktemp "${TMPDIR:-/tmp}"/evcc.XXXXX)"
+  cp "${includesDir}/EVCC/evcc.yaml-template" "$temp"
+  sed -e "s|%WBTYPE|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1}}|;s|%CARNAME1|${5:-${carname1}}|;s|%VIN1|${6:-${vin1}}|;s|%CARCAPACITY1|${7:-${carcapacity1}}|;s|%CARUSER1|${8:-${caruser1}}|;s|%CARPASS1|${9:-${carpass1}}|;s|%CARTYPE2|${10:-${cartype2}}|;s|%CARNAME2|${11:-${carname2}}|;s|%VIN2|${12:-${vin2}}|;s|%CARCAPACITY2|${13:-${carcapacity2}}|;s|%CARUSER2|${14:-${caruser2}}|;s|%CARPASS2|${15:-${carpass2}}|" "$temp" > "$evccConfig"
+  rm -f "${temp}"
   
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
