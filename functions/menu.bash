@@ -75,7 +75,6 @@ show_main_menu() {
     upgrade_ems
     replace_logo
     cond_redirect apt-mark hold openhab openhab-addons evcc
-    update_ems
 
   elif [[ "$choice" == "04"* ]]; then
     import_openhab_config
