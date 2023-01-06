@@ -438,7 +438,7 @@ setup_wb_config() {
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/evcc.XXXXX)"
   cp "${includesDir}/EVCC/evcc.yaml-template" "$temp"
-  sed -e "s|%WBTYPE|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1}}|;s|%CARNAME1|${5:-${carname1}}|;s|%VIN1|${6:-${vin1}}|;s|%CARCAPACITY1|${7:-${carcapacity1}}|;s|%CARUSER1|${8:-${caruser1}}|;s|%CARPASS1|${9:-${carpass1}}|;s|%CARTYPE2|${10:-${cartype2}}|;s|%CARNAME2|${11:-${carname2}}|;s|%VIN2|${12:-${vin2}}|;s|%CARCAPACITY2|${13:-${carcapacity2}}|;s|%CARUSER2|${14:-${caruser2}}|;s|%CARPASS2|${15:-${carpass2}}|" "$temp" > "$evccConfig"
+  sed -e "s|%WBTYPE|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1}}|;s|%CARNAME1|${5:-${carname1}}|;s|%VIN1|${6:-${vin1}}|;s|%CARCAPACITY1|${7:-${carcapacity1}}|;s|%CARUSER1|${8:-${caruser1}}|;s|%CARPASS1|${9:-${carpass1}}|;s|%CARTYPE2|${10:-${cartype2}}|;s|%CARNAME2|${11:-${carname2}}|;s|%VIN2|${12:-${vin2}}|;s|%CARCAPACITY2|${13:-${carcapacity2}}|;s|%CARUSER2|${14:-${caruser2}}|;s|%CARPASS2|${15:-${carpass2}}|;s|%GRIDCOST|${16:-${gridcost}}|;s|%FEEDINCOMPENSATION|${17:-${feedincompensation}}|" "$temp" > "$evccConfig"
   rm -f "${temp}"
   
   echo "OK"
