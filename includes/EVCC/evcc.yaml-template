@@ -68,13 +68,13 @@ chargers:
 vehicles:
 - type: template
   template: %CARTYPE1
-  name: meinEAuto1
-  title: %CARNAME1
   vin: %VIN1
   user: %CARUSER1
   password: %CARPASS1
   capacity: %CARCAPACITY1
   language: de
+  name: meinEAuto1
+  title: %CARNAME1
 #- type: template
 #  template: %CARTYPE2
 #  name: meinEAuto2
