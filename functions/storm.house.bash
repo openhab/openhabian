@@ -433,12 +433,10 @@ activate_ems() {
 ##    retrieve_license(String username, String password)
 ##
 retrieve_license() {
-  local rsaCrypt="/opt/openhabian/includes/rsaCrypt.sh"
   local licsrc="https://storm.house/liccheck"
   local cryptlic="/etc/openhab/services/license"
   local temp
   local deckey="/etc/ssl/private/ems.key"
-  local livekey="active"
   local lifetimekey="lifetime"
   local licuser=${1}
   #local licpass=${2}
@@ -452,6 +450,7 @@ retrieve_license() {
   if [[ -f "$cryptlic" ]]; then
     # decrypten mit public Key der dazu in includes liegen muss
     # XOR mitgeliefert ist (durch rsaCrypt)
+    # shellcheck disable=SC2091
     $($cryptlic -i "$deckey") > "$licfile"
   fi
   if grep -qs "^sponsortoken:[[:space:]]" "$licfile"; then
