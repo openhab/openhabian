@@ -715,7 +715,13 @@ install_extras() {
 ## * enable|disable
 ##
 activate_ems() {
-  true;
+  if [[ $1 == "enable" ]]; then
+    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "lizensiert" "http://{hostname}:8080/rest/items/lizenz_status"
+    # TODO: eventuell vorhandenen systemd timer löschen der nach 1 Monat modbus disabled
+  else
+    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "KEINE" "http://{hostname}:8080/rest/items/lizenz_status"
+    # TODO: eventuell systemd timer setzen der in 1 Monat modbus disabled
+  fi
 }
 
 
@@ -757,13 +763,18 @@ activate_ems() {
 #  fi
 #}
 
-# TODO: wie funktioniert die Lizenzierung mit einem Token ???
 # Das Token ist ein mit dem EMS private key verschlüsselte Datei, die enthält:
 # a) Username,
 # b) eine Gültigkeitsdauer hat (oder "lifetime")
 # c) optional das EVCC-Token des Users
 
-# wie funktioniert das Erneuern ?
+# Erneuern ? per systemd-timer 1x wöchentlich holen
+
+# TODO:
+# Server aufsetzen auf storm.house als Gegenstelle der ein Usernamen-abhängiges File bei Anfrage nach u.g. URL ausliefert
+# systemd-timer, der 1x wöchentlich lizenz
+# OPTION: systemd-timer, der modbus disabled
+# wie Karenzzeit ?
 
 ## Retrieve licensing file from server
 ## valid arguments: username, password
@@ -772,34 +783,40 @@ activate_ems() {
 ##    retrieve_license(String username, String password)
 ##
 retrieve_license() {
+  local rsaCrypt="/opt/openhabian/includes/rsaCrypt.sh"
   local licsrc="https://storm.house/liccheck"
   local cryptlic="/etc/openhab/services/license"
   local temp
+  local deckey="/etc/ssl/private/ems.key"
   local livekey="active"
   local lifetimekey="lifetime"
   local licuser=${1}
-  local licpass=${2}
+  #local licpass=${2}
+  local licfile
 
 
-  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
-  # TODO;: Optionen für User + Passwort!!
-  if ! cond_redirect wget -nv --http-user="${licuser}" --http-password="${licpass}" -O "$cryptlic" "$licsrc"; then echo "FAILED (download licensing file)"; rm -f "$cryptlic"; return 1; fi
+  lic="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
+  #if ! cond_redirect wget -nv --http-user="${licuser}" --http-password="${licpass}" -O "$cryptlic" "$licsrc"; then echo "FAILED (download licensing file)"; rm -f "$cryptlic"; return 1; fi
+  if ! cond_redirect wget -nv --http-user="${licuser}" -O "$cryptlic" "$licsrc"; then echo "FAILED (download licensing file)"; rm -f "$cryptlic"; return 1; fi
 
   if [[ -f "$cryptlic" ]]; then
-	  # decrypten mit public Key der dazu in includes liegen muss
-	  # > $temp
-	  true;
+    # decrypten mit public Key der dazu in includes liegen muss
+    # XOR mitgeliefert ist (durch rsaCrypt)
+    $($cryptlic -i "$deckey") > "$licfile"
   fi
-  if grep -qs "^sponsortoken:[[:space:]]" "$lic"; then
-    token=$(grep -E '^sponsortoken' "$temp" |cut -d' '  -f2)
+  if grep -qs "^sponsortoken:[[:space:]]" "$licfile"; then
+    token=$(grep -E '^evcctoken' "$licfile" |cut -d' '  -f2)
     curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "$token" "http://{hostname}:8080/rest/items/EVCCtoken"
   fi
 
-  lic=$(grep -E '^sponsortoken' "$temp" |cut -d' '  -f2)
-  if [[ "$lic" != "$livekey" && "$lic" != "$lifetimekey" ]]; then
+  # wenn licfile im laufenden Monat heruntergeladen wird muss darin (nach Entschlüsseln) der 
+  lic=$(grep -E '^emsuser' "$licfile" |cut -d' '  -f2)
+  if [[ "$lic" != "$licuser" && "$lic" != "$lifetimekey" ]]; then
     activate_ems disable
   else
     activate_ems enable
   fi
+
+  rm -f "$licfile"
 }
 
