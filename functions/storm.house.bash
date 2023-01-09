@@ -827,7 +827,5 @@ retrieve_license() {
   else
     activate_ems enable
   fi
-
-  rm -f "$licfile"
 }
 
