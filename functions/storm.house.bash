@@ -366,10 +366,13 @@ install_extras() {
 ##
 activate_ems() {
   if [[ $1 == "enable" ]]; then
-    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "lizensiert" "http://{hostname}:8080/rest/items/lizenz_status"
+    echo "Korrekte Lizenz, aktiviere ..."
+    # shellcheck disable=SC2154
+    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "lizensiert" "http://${hostname}:8080/rest/items/LizenzStatus"
     # TODO: eventuell vorhandenen systemd timer löschen der nach 1 Monat modbus disabled
   else
-    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "KEINE" "http://{hostname}:8080/rest/items/lizenz_status"
+    echo "Falsche Lizenz, deaktiviere ..."
+    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "KEINE" "http://${hostname}:8080/rest/items/LizenzStatus"
     # TODO: eventuell systemd timer setzen der in 1 Monat modbus disabled
   fi
 }
@@ -421,7 +424,9 @@ activate_ems() {
 # Erneuern ? per systemd-timer 1x wöchentlich holen
 
 # TODO:
-# Server aufsetzen auf storm.house als Gegenstelle der ein Usernamen-abhängiges File bei Anfrage nach u.g. URL ausliefert
+# wie gelangt ems-privkey nach /etc/ssl/private/ems.key ?
+# wie Lizenz-Widget an/aus ?
+# 
 # systemd-timer, der 1x wöchentlich lizenz
 # OPTION: systemd-timer, der modbus disabled
 # wie Karenzzeit ?
@@ -433,26 +438,33 @@ activate_ems() {
 ##    retrieve_license(String username, String password)
 ##
 retrieve_license() {
-  local licsrc="https://storm.house/liccheck"
-  local cryptlic="/etc/openhab/services/license"
+  local licsrc="https://storm.house/licchk"
   local temp
   local deckey="/etc/ssl/private/ems.key"
   local lifetimekey="lifetime"
   local licuser=${1}
-  #local licpass=${2}
-  local licfile
+  local licfile="/etc/openhab/services/license"
+  local httpuser=dummyuser
+  local httppass=dummypass
+  local licdir
 
 
-  lic="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
-  #if ! cond_redirect wget -nv --http-user="${licuser}" --http-password="${licpass}" -O "$cryptlic" "$licsrc"; then echo "FAILED (download licensing file)"; rm -f "$cryptlic"; return 1; fi
-  if ! cond_redirect wget -nv --http-user="${licuser}" -O "$cryptlic" "$licsrc"; then echo "FAILED (download licensing file)"; rm -f "$cryptlic"; return 1; fi
-
-  if [[ -f "$cryptlic" ]]; then
+  licdir="$(mktemp -d "${TMPDIR:-/tmp}"/lic.XXXXX)"
+  ( cd "$licdir" || exit; 
+  if ! cond_redirect wget -nv --http-user="${httpuser}" --http-password="${httppass}" "${licsrc}/${licuser}"; then echo "FAILED (download licensing file)"; rm -f "$licuser"; return 1; fi
+  if [[ -f "$licuser" ]]; then
     # decrypten mit public Key der dazu in includes liegen muss
     # XOR mitgeliefert ist (durch rsaCrypt)
     # shellcheck disable=SC2091
-    $($cryptlic -i "$deckey") > "$licfile"
+
+    mv "$licuser" "${licuser}.enc.sh"
+    chmod +x "${licuser}.enc.sh"
+    # shellcheck disable=SC2091
+    $(./"${licuser}.enc.sh" -i "$deckey")
+    cp "${licuser}" "${licfile}"
   fi
+  )
+
   if grep -qs "^sponsortoken:[[:space:]]" "$licfile"; then
     token=$(grep -E '^evcctoken' "$licfile" |cut -d' '  -f2)
     curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "$token" "http://{hostname}:8080/rest/items/EVCCtoken"
