@@ -449,6 +449,9 @@ retrieve_license() {
   local licdir
 
 
+  if [[ $licuser == "" ]]; then
+    licuser=$(curl -X GET  http://localhost:8080/rest/items/LizenzUser|jq '.state' | tr -d '"')
+  fi
   licdir="$(mktemp -d "${TMPDIR:-/tmp}"/lic.XXXXX)"
   ( cd "$licdir" || exit; 
   if ! cond_redirect wget -nv --http-user="${httpuser}" --http-password="${httppass}" "${licsrc}/${licuser}"; then echo "FAILED (download licensing file)"; rm -f "$licuser"; return 1; fi
