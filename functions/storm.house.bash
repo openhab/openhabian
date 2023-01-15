@@ -340,10 +340,12 @@ update_ems() {
 ##    install_extras()
 ##
 install_extras() {
+  local serviceTargetDir="/etc/systemd/system"
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
   local pkg="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${jar}"
   local dest="/usr/share/openhab/addons/${jar}"
+
 
   version=$(dpkg -s 'openhab' 2> /dev/null | grep Version | cut -d' ' -f2 | cut -d'-' -f1 | cut -d'.' -f2)
   if [[ $version -lt 4 ]]; then
@@ -351,13 +353,15 @@ install_extras() {
   fi
 
   cp -p "${includesDir}:openhab_rsa*" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
+
+  # lc
+  if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.timer; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
+  if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.service; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
+  if ! cond_redirect install -m 755 "${includesDir}/generic/lc" /usr/local/sbin; then echo "FAILED (install lc)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! cond_redirect systemctl enable --now lc.timer lc.timer; then echo "FAILED (enable timed lc start)"; return 1; fi
 }
 
-
-# TODO:
-# Systemd-timer, der retrieve_license 1x wöchentlich aufruft und ausführt
-#
-# 
 
 
 ##    activate_ems(String enable)
