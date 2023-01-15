@@ -1,0 +1,10 @@
+[Unit]
+Description=Run l check weekly
+
+[Timer]
+Unit=lc.service
+OnCalendar=weekly
+Persistent=true
+
+[Install]
+WantedBy=timers.target

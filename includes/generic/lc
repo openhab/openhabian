@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+BASEDIR=/opt/openhabian
+CONFIGFILE=/etc/openhabian.conf
+
+source $CONFIGFILE
+
+source ${BASEDIR}/functions/helpers.bash
+source ${BASEDIR}/functions/storm.house.bash
+
+retrieve_license "$@"
+

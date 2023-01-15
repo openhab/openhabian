@@ -122,9 +122,6 @@ if [[ -n "$UNATTENDED" ]]; then
   srv_bind_mounts
   samba_setup
   clean_config_userpw
-  zram_setup
-  exim_setup
-  nut_setup
   install_grott "install"
   permissions_corrections
   setup_mirror_SD "install"

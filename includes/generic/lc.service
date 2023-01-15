@@ -1,0 +1,10 @@
+[Unit]
+Description=Run lc check weekly
+After=network.target network-online.target
+Wants=lc.timer
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/local/sbin/lc
