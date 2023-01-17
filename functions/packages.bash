@@ -757,7 +757,7 @@ setup_evcc() {
     whiptail --title "EVCC configuration successfully created" --msgbox "$successText" 8 80
     cond_redirect cp /home/"${username:-openhabian}"/${evccConfig} /home/"${username:-openhabian}"/${evccConfig}.SAVE
     cond_redirect mv "${evccConfig}" /home/"${username:-openhabian}"
-    cond_redirect chown "${username}" /home/"${username:-openhabian}"/${evccConfig}*
+    cond_redirect chown "${username:-openhabian}:openhab" /home/"${username:-openhabian}"/${evccConfig}*
     cond_redirect chmod g+w /home/"${username:-openhabian}"/${evccConfig}*
   fi
   echo -n "$(timestamp) [openHABian] Restarting EVCC... "
