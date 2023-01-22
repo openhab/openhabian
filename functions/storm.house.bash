@@ -713,21 +713,35 @@ install_extras() {
 }
 
 
+##    set_lic(String state)
+##
+set_lic() {
+  curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "$1" "http://localhost:8080/rest/items/LizenzStatus"
+}
 
-##    activate_ems(String enable)
+
+##    ems_lic(String enable)
 ##
 ## * enable|disable
 ##
-activate_ems() {
+ems_lic() {
+  local disablerTimer=lcban
+  local disableCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost 'bundle:stop org.openhab.binding.modbus'"
+  local enableCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost 'bundle:start org.openhab.binding.modbus'"
+  local gracePeriod=$((30 * 86400))
+  gracePeriod=60
+
+
   if [[ $1 == "enable" ]]; then
     echo "Korrekte Lizenz, aktiviere ..."
     # shellcheck disable=SC2154
-    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "lizensiert" "http://${hostname}:8080/rest/items/LizenzStatus"
-    # TODO: eventuell vorhandenen systemd timer löschen der nach 1 Monat modbus disabled
+    set_lic "lizensiert"
+    cond_redirect $(${enableCommand})
+    cond_redirect systemctl stop ${disablerTimer}
   else
     echo "Falsche Lizenz, deaktiviere ..."
-    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "KEINE" "http://${hostname}:8080/rest/items/LizenzStatus"
-    # TODO: eventuell systemd timer setzen der in 1 Monat modbus disabled
+    set_lic "Keine Lizenz"
+    cond_redirect systemd-run --unit ${disablerTimer} --on-active=${gracePeriod} --timer-property=AccuracySec=100ms ${disableCommand}""
   fi
 }
 
@@ -830,9 +844,9 @@ retrieve_license() {
   # wenn licfile im laufenden Monat heruntergeladen wird muss darin (nach Entschlüsseln) der 
   lic=$(grep -E '^emsuser' "$licfile" |cut -d' '  -f2)
   if [[ "$lic" != "$licuser" && "$lic" != "$lifetimekey" ]]; then
-    activate_ems disable
+    ems_lic disable
   else
-    activate_ems enable
+    ems_lic enable
   fi
 }
 
