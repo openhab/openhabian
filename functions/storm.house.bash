@@ -703,6 +703,7 @@ install_extras() {
   fi
 
   cp -p "${includesDir}:openhab_rsa*" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
+  cond_redirect install -m 640 "${includesDir}/generic/ems.key" /etc/ssl/private/
 
   # lc
   if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.timer; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
@@ -727,8 +728,8 @@ set_lic() {
 ems_lic() {
   local licfile="/etc/openhab/services/license"
   local disablerTimer=lcban
-  local disableCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost 'bundle:stop org.openhab.binding.modbus'"
-  local enableCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost 'bundle:start org.openhab.binding.modbus'"
+  local disableCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost bundle:stop org.openhab.binding.modbus"
+  local enableCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost bundle:start org.openhab.binding.modbus"
   local gracePeriod=$((30 * 86400))
   gracePeriod=60
 
@@ -809,7 +810,7 @@ ems_lic() {
 retrieve_license() {
   local licsrc="https://storm.house/licchk"
   local temp
-  local deckey="/etc/ssl/private/ems.key"
+  local deckey="/etc/openhab/services/ems.key"
   local lifetimekey="lifetime"
   local licuser=${1}
   local licfile="/etc/openhab/services/license"
