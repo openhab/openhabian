@@ -473,24 +473,20 @@ replace_logo() {
 
 ## Retrieve latest EMS code from website
 ##
-##    update_ems(String full)
+##    upgrade_ems(String full)
 ##
 ## Valid Arguments:
 ## #1: full = OH-Konfiguration ersetzen inkl. JSONDB (UI u.a.)
 ##     codeonly = nur things/items/rules ersetzen
 ##
-update_ems() {
-	local tempdir
-	local temp
-	local fullpkg=https://storm.house/download/initialConfig.zip
-	local updateonly=https://storm.house/download/latestUpdate.zip
-	local introText="ACHTUNG\\n\\nWenn Sie eigene Änderungen auf der Ebene von openHAB vorgenommen haben (die \"orangene\" Benutzeroberfläche),dann wählen Sie \"Änderungen beibehalten\". Dieses Update würde alle diese Änderungen ansonsten überschreiben, sie wäre verloren.\\Ihre Einstellungen und historischen Daten bleiben in beiden Fällen erhalten und vor dem Update wird ein Backup der aktuellen Konfiguration erstellt.  Sollten Sie das Upgrade rückgängig machen wollen, können Sie jederzeit über den Menüpunkt 51 die Konfiguration des EMS von vor dem Update wieder einspielen."
-	local TextVoll="ACHTUNG:\\nWollen Sie wirklich die Konfiguration vollständig durch die aktuelle Version des EMS ersetzen?\\nAlles, was Sie über die grafische Benutzeroberfläche über Einstellungen hinausgehend verändert haben, geht dann verloren. Das betrifft beispielsweise, aber nicht nur, alle Things, Items und Regeln, die Sie selbst angelegt haben."
-	local TextTeil="ACHTUNG:\\nWollen Sie das EMS bzw. den von storm.house bereitgestellten Teil Ihres EMS wirklich durch die aktuelle Version ersetzen?"
-
-	tempdir="$(mktemp -d "${TMPDIR:-/tmp}"/updatedir.XXXXX)"
-	temp="$(mktemp "${tempdir:-/tmp}"/updatefile.XXXXX)"
-	backup_openhab_config
+upgrade_ems() {
+  local tempdir
+  local temp
+  local fullpkg=https://storm.house/download/initialConfig.zip
+  local updateonly=https://storm.house/download/latestUpdate.zip
+  local introText="ACHTUNG\\n\\nWenn Sie eigene Änderungen auf der Ebene von openHAB vorgenommen haben (die \"orangene\" Benutzeroberfläche),dann wählen Sie \"Änderungen beibehalten\". Dieses Update würde alle diese Änderungen ansonsten überschreiben, sie wäre verloren.\\Ihre Einstellungen und historischen Daten bleiben in beiden Fällen erhalten und vor dem Update wird ein Backup der aktuellen Konfiguration erstellt. Sollten Sie das Upgrade rückgängig machen wollen, können Sie jederzeit über den Menüpunkt 51 die Konfiguration des EMS von vor dem Update wieder einspielen."
+  local TextVoll="ACHTUNG:\\nWollen Sie wirklich die Konfiguration vollständig durch die aktuelle Version des EMS ersetzen?\\nAlles, was Sie über die grafische Benutzeroberfläche über Einstellungen hinausgehend verändert haben, geht dann verloren. Das betrifft beispielsweise, aber nicht nur, alle Things, Items und Regeln, die Sie selbst angelegt haben."
+  local TextTeil="ACHTUNG:\\nWollen Sie das EMS bzw. den von storm.house bereitgestellten Teil Ihres EMS wirklich durch die aktuelle Version ersetzen?"
 
   # user credentials retten
   cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
@@ -503,17 +499,28 @@ echo  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
 echo  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
 
   # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
-  if whiptail --title "EMS Update" --yes-button "komplettes Update" --no-button "Änderungen beibehalten" --yesno "$introText" 17 80; then
-	  if ! whiptail --title "EMS komplettes Update" --yes-button "JA, DAS WILL ICH" --cancel-button "Abbrechen" --defaultno --yesno "$TextVoll" 13 80; then echo "CANCELED"; return 1; fi
-	  if ! cond_redirect wget -nv -O "$temp" "$fullpkg"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
-	  restore_openhab_config "$temp"
+  mode=${1}
+  if [[ -n "$INTERACTIVE" ]]; then
+    if whiptail --title "EMS Update" --yes-button "komplettes Update" --no-button "Änderungen beibehalten" --yesno "$introText" 17 80; then
+      if ! whiptail --title "EMS komplettes Update" --yes-button "JA, DAS WILL ICH" --cancel-button "Abbrechen" --defaultno --yesno "$TextVoll" 13 80; then echo "CANCELED"; return 1; fi
+    else
+      if ! whiptail --title "EMS Update" --yes-button "Ja" --cancel-button "Abbrechen" --defaultno --yesno "$TextTeil" 10 80; then echo "CANCELED"; return 1; fi
+      mode=codeonly
+    fi
+  fi
+
+echo "Upgrade NUR DEMO mode $mode" | tee /tmp/ohc-out
+return 0
+
+  if [[ "$mode" == "full" ]]; then
+    if ! cond_redirect wget -nv -O "$temp" "$fullpkg"; then echo "FAILED (download EMS package)"; rm -f "$temp"; return 1; fi
+    restore_openhab_config "$temp"
   else
-	  if ! whiptail --title "EMS Update" --yes-button "Ja" --cancel-button "Abbrechen" --defaultno --yesno "$TextTeil" 10 80; then echo "CANCELED"; return 1; fi
-	  if ! cond_redirect wget -nv -O "$temp" "$updateonly"; then echo "FAILED (download patch)"; rm -f "$temp"; return 1; fi
-	  ( cd /etc/openhab || return 1
-	  ln -sf . conf
-	  unzip -o "$temp" conf/things\* conf/items\* conf/rules\*
-	  rm -f conf )
+    if ! cond_redirect wget -nv -O "$temp" "$updateonly"; then echo "FAILED (download EMS patch)"; rm -f "$temp"; return 1; fi
+    ( cd /etc/openhab || return 1
+    ln -sf . conf
+    unzip -o "$temp" conf/things\* conf/items\* conf/rules\*
+    rm -f conf )
   fi
 
   # user credentials und Settings zurückspielen
@@ -702,6 +709,8 @@ install_extras() {
   local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
   local pkg="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${jar}"
   local dest="/usr/share/openhab/addons/${jar}"
+  local sudoersFile="011_upgrade"
+  local sudoersPath="/etc/sudoers.d"
 
 
   version=$(dpkg -s 'openhab' 2> /dev/null | grep Version | cut -d' ' -f2 | cut -d'-' -f1 | cut -d'.' -f2)
@@ -717,7 +726,14 @@ install_extras() {
   if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.service; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
   if ! cond_redirect install -m 755 "${includesDir}/generic/lc" /usr/local/sbin; then echo "FAILED (install lc)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
-  if ! cond_redirect systemctl enable --now lc.timer lc.timer; then echo "FAILED (enable timed lc start)"; return 1; fi
+  if ! cond_redirect systemctl enable --now lc.timer lc.service; then echo "FAILED (enable timed lc start)"; return 1; fi
+
+
+  # TODO: sudo Rechte hinterlegen
+  if [[ ! -f /usr/local/sbin/upgrade_ems && $(whoami) == "root" ]]; then
+    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/upgrade_ems; then echo "FAILED (install upgrade_ems script)"; return 1; fi
+  fi
+  cond_redirect install -m 640 "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
 }
 
 
@@ -756,58 +772,7 @@ ems_lic() {
 }
 
 
-## Retrieve licensing file from server
-## valid arguments: username, password
-## Webserver will return an self-encrypted script to contain file with the evcc sponsorship token
-##
-##    retrieve_license(String username, String password)
-##
-#retrieve_license() {
-#  local licsrc="https://storm.house/liccheck"
-#  local cryptlic="/etc/openhab/services/license"
-#  local temp
-#  local livekey="active"
-#  local lifetimekey="lifetime"
-#  local licuser=${1}
-#  local licpass=${2}
-#
-#
-#  temp="$(mktemp "${TMPDIR:-/tmp}"/update.XXXXX)"
-#  # TODO;: Optionen für User + Passwort!!
-#  if ! cond_redirect wget -nv --http-user="${licuser}" --http-password="${licpass}" -O "$cryptlic" "$licsrc"; then echo "FAILED (download licensing file)"; rm -f "$cryptlic"; return 1; fi
-#
-#  if [[ -f "$cryptlic" ]]; then
-#	  # decrypten mit public Key der dazu in includes liegen muss
-#	  # > $temp
-#	  true;
-#  fi
-#  if grep -qs "^sponsortoken:[[:space:]]" "$lic"; then
-#    token=$(grep -E '^sponsortoken' "$temp" |cut -d' '  -f2)
-#    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "$token" "http://{hostname}:8080/rest/items/EVCCtoken"
-#  fi
-#
-#  lic=$(grep -E '^sponsortoken' "$temp" |cut -d' '  -f2)
-#  if [[ "$lic" != "$livekey" && "$lic" != "$lifetimekey" ]]; then
-#    activate_ems disable
-#  else
-#    activate_ems enable
-#  fi
-#}
-
-# Das Token ist ein mit dem EMS private key verschlüsselte Datei, die enthält:
-# a) Username,
-# b) eine Gültigkeitsdauer hat (oder "lifetime")
-# c) optional das EVCC-Token des Users
-
-# Erneuern ? per systemd-timer 1x wöchentlich holen
-
-# TODO:
-# wie gelangt ems-privkey nach /etc/ssl/private/ems.key ?
-# wie Lizenz-Widget an/aus ?
-# 
-# systemd-timer, der 1x wöchentlich lizenz
-# OPTION: systemd-timer, der modbus disabled
-# wie Karenzzeit ?
+# TODO: Modbus abschalten nach Karenzzeit ?
 
 ## Retrieve licensing file from server
 ## valid arguments: username, password
