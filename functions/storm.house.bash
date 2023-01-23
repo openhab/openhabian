@@ -469,9 +469,15 @@ replace_logo() {
 }
 
 
+# TODO: UNATTENDED mode damit Updates aus UI möglich
+
 ## Retrieve latest EMS code from website
 ##
-##    update_ems()
+##    update_ems(String full)
+##
+## Valid Arguments:
+## #1: full = OH-Konfiguration ersetzen inkl. JSONDB (UI u.a.)
+##     codeonly = nur things/items/rules ersetzen
 ##
 update_ems() {
 	local tempdir
@@ -492,9 +498,9 @@ update_ems() {
   cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
 
   # user credentials retten
-  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
+echo  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
   # Settings retten
-  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
+echo  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
 
   # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
   if whiptail --title "EMS Update" --yes-button "komplettes Update" --no-button "Änderungen beibehalten" --yesno "$introText" 17 80; then
@@ -681,6 +687,7 @@ retrieve_license() {
     activate_ems enable
   fi
 
+  echo "OK"
   rm -rf "${tempdir}"
 }
 
