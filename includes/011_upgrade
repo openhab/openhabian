@@ -1,0 +1,1 @@
+openhab ALL=(ALL) NOPASSWD: /usr/local/sbin/ems_upgrade
