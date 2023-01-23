@@ -195,9 +195,10 @@ homegear_setup() {
   local keyName="homegear"
   local myOS
   local myRelease
-  local temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
+  local temp
   local successText="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
 
+  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
 
@@ -746,20 +747,18 @@ setup_evcc() {
   local successText="You have successfully created a configuration file for EVCC, the Electric Vehicle Charge Controller\\nIt replaces /etc/evcc.yaml."
 
   if [[ -z $INTERACTIVE ]]; then
-    echo "$(timestamp) [openHABian] EVCC setup must be run in interactive mode! Canceling EVCC configuration."
-    return 0
+    whiptail --title "EVCC configuration" --msgbox "$introText" 8 80
+    evcc configure --advanced
   fi
 
-  whiptail --title "EVCC configuration" --msgbox "$introText" 8 80
-
-  evcc configure --advanced
   if [[ -f ${evccConfig} ]]; then
-    whiptail --title "EVCC configuration successfully created" --msgbox "$successText" 8 80
     cond_redirect cp /home/"${username:-openhabian}"/${evccConfig} /home/"${username:-openhabian}"/${evccConfig}.SAVE
     cond_redirect mv "${evccConfig}" /home/"${username:-openhabian}"
-    cond_redirect chown "${username:-openhabian}:openhab" /home/"${username:-openhabian}"/${evccConfig}*
-    cond_redirect chmod g+w /home/"${username:-openhabian}"/${evccConfig}*
   fi
-  echo -n "$(timestamp) [openHABian] Restarting EVCC... "
+  cond_redirect touch /home/"${username:-openhabian}"/${evccConfig}
+  cond_redirect chown "${username:-openhabian}:openhab" /home/"${username:-openhabian}"/${evccConfig}*
+  cond_redirect chmod g+w /home/"${username:-openhabian}"/${evccConfig}*
+
+  echo -n "$(timestamp) [openHABian] Created EVCC config, restarting ... "
   if cond_redirect systemctl restart evcc.service; then echo "OK"; else echo "FAILED"; fi
 }
