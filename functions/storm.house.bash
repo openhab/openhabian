@@ -725,6 +725,7 @@ set_lic() {
 ## * enable|disable
 ##
 ems_lic() {
+  local licfile="/etc/openhab/services/license"
   local disablerTimer=lcban
   local disableCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost 'bundle:stop org.openhab.binding.modbus'"
   local enableCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost 'bundle:start org.openhab.binding.modbus'"
