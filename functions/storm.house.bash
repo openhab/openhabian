@@ -736,14 +736,15 @@ ems_lic() {
 
   if [[ $1 == "enable" ]]; then
     echo "Korrekte Lizenz, aktiviere ..."
-    # shellcheck disable=SC2154
     set_lic "lizensiert"
+    # shellcheck disable=SC2046
     cond_redirect $(${enableCommand})
     cond_redirect systemctl stop ${disablerTimer}
   else
     echo "Falsche Lizenz, deaktiviere ..."
     set_lic "Keine Lizenz"
-    cond_redirect systemd-run --unit ${disablerTimer} --on-active=${gracePeriod} --timer-property=AccuracySec=100ms ${disableCommand}""
+    # shellcheck disable=SC2086
+    cond_redirect systemd-run --unit ${disablerTimer} --on-active=${gracePeriod} --timer-property=AccuracySec=100ms ${disableCommand}
   fi
 }
 
