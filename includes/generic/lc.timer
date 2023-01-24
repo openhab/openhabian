@@ -4,6 +4,7 @@ Description=Run l check weekly
 [Timer]
 Unit=lc.service
 OnCalendar=weekly
+OnBootSec=15min
 Persistent=true
 
 [Install]
