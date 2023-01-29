@@ -61,8 +61,6 @@ chargers:
 - type: template
   template: %WBTYPE
   host: %IP
-  port: 1883
-  timeout: 30s
   name: Wallbox
 
 vehicles:
