@@ -184,7 +184,7 @@ influxdb_install() {
   local address="http://localhost:8086"
   local adminPassword="$2"
   local adminUsername="$1"
-  local keyName="influxdb"
+  local keyName="influxdata-archive_compat"
   local myOS
   local myRelease
 
