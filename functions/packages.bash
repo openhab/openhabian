@@ -746,7 +746,7 @@ setup_evcc() {
   local introText="This will create a configuration for EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface."
   local successText="You have successfully created a configuration file for EVCC, the Electric Vehicle Charge Controller\\nIt replaces /etc/evcc.yaml."
 
-  if [[ -z $INTERACTIVE ]]; then
+  if [[ -n $INTERACTIVE ]]; then
     whiptail --title "EVCC configuration" --msgbox "$introText" 8 80
     evcc configure --advanced
   fi
