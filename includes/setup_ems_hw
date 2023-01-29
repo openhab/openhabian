@@ -6,6 +6,7 @@ CONFIGFILE=/etc/openhabian.conf
 source $CONFIGFILE
 
 source ${BASEDIR}/functions/helpers.bash
+source ${BASEDIR}/functions/system.bash
 source ${BASEDIR}/functions/storm.house.bash
 
 # Script wird als setup_xx_config aufgerufen mit xx=pv or xx=wb
