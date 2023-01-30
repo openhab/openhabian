@@ -206,12 +206,7 @@ openhabian_update() {
         ;;
     esac
 
-    introText=$(printf "%s\n" \
-      "You are currently using ${branchLabel}" \
-      "" \
-      "You can switch openHABian version at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'." \
-      "" \
-      "Note: this menu only changes the version of openHABian and not openHAB. To select the openHAB version, see the 'openHAB Related' menu item.")
+    introText="You are currently using ${branchLabel}.\\n\\nYou can switch openHABian version at any time by selecting this menu option again or by setting the 'clonebranch=' parameter in '/etc/openhabian.conf'.\\nNote: this menu only changes the version of openHABian and not openHAB. To select the openHAB version, see the 'openHAB Related' menu item."
 
     if ! selection="$(whiptail --title "openHABian version" --radiolist "$introText" $dialogHeight 90 "$(( ${#radioOptions[@]} / 3 ))" "${radioOptions[@]}" 3>&1 1>&2 2>&3)"; then return 0; fi
 
