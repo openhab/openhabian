@@ -418,6 +418,9 @@ ems_lic() {
     # shellcheck disable=SC2086
     cond_redirect systemd-run --unit ${disablerTimer} --on-active=${gracePeriod} --timer-property=AccuracySec=100ms ${disableCommand}
   fi
+
+  # da sonst lc.service fehlschlägt, wenn der letzte Befehl fehlschlägt (passiert meist beim Stoppen von lcban.service weil der nicht immer existiert)
+  return 0
 }
 
 
