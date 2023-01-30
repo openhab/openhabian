@@ -186,7 +186,7 @@ install_tailscale() {
   local serviceTargetDir="/lib/systemd/system"
   local sudoersFile="011_openhab-tailscale"
   local sudoersPath="/etc/sudoers.d"
-  local keyName="tailscale"
+  local keyName="tailscale-archive-keyring"
 
   if [[ -n "$UNATTENDED" ]]; then
     if [[ ! -v preauthkey ]]; then echo "$(timestamp) [openHABian] tailscale VPN installation... SKIPPED (no preauthkey defined)"; return 1; fi
@@ -214,9 +214,9 @@ install_tailscale() {
   fi
   echo "$(timestamp) [openHABian] Installing tailscale VPN... "
   # Add tailscale's GPG key
-  add_keys "https://pkgs.tailscale.com/stable/raspbian/buster.gpg" "$keyName"
+  add_keys "https://pkgs.tailscale.com/stable/raspbian/bullseye.gpg" "$keyName"
   # Add the tailscale repository
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://pkgs.tailscale.com/stable/raspbian buster main" > /etc/apt/sources.list.d/tailscale.list
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://pkgs.tailscale.com/stable/raspbian bullseye main" > /etc/apt/sources.list.d/tailscale.list
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   # Install tailscale
   if cond_redirect apt-get install --yes tailscale; then echo "OK"; else echo "FAILED (install tailscale)"; return 1; fi
@@ -241,7 +241,7 @@ setup_tailscale() {
     return 0
   fi
   if [[ -n "$INTERACTIVE" ]]; then
-    if ! preAuthKey="$(whiptail --title "Enter pre auth key" --inputbox "\\nIf you have not received / created the tailscale pre auth key at this stage, please do so now or tell your administrator to. This can be done on the admin console. There's a menu option on the tailscale Windows client to lead you there.\\n\\nPlease enter the tailscale pre auth key for this system:" 12 80 "$preAuthKey" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! preAuthKey="$(whiptail --title "Enter pre auth key" --inputbox "\\nIf you have not received / created the tailscale pre auth key at this stage, please do so now or tell your administrator to. This can be done on the admin console. There's a menu option on the tailscale Windows client to lead you there.\\n\\nPlease enter the tailscale pre auth key for this system:" 13 80 "$preAuthKey" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
 
   # if ${tags}/${tstags} is empty, this will reset existing tags
