@@ -54,7 +54,7 @@ jobs:
            platforms: arm64
        - name: Set up Docker Buildx
          id: buildx
-         uses: docker/setup-buildx-action@v2.2.1
+         uses: docker/setup-buildx-action@v2.4.0
          with:
            driver-opts: network=host
        - name: Build Docker image
@@ -91,7 +91,7 @@ jobs:
          run: sudo -E ./tests/ci-setup.bash github
        - name: Set up Docker Buildx
          id: buildx
-         uses: docker/setup-buildx-action@v2.2.1
+         uses: docker/setup-buildx-action@v2.4.0
          with:
            driver-opts: network=host
        - name: Build Docker image
