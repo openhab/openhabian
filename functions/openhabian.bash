@@ -46,7 +46,7 @@ openhabian_announcements() {
     # Check if the file has changed since last openHABian update (git update deletes first file)
     if ! cmp --silent "$newsFile" "$altReadNews" &> /dev/null; then
       # shellcheck disable=SC2086
-      if (whiptail --title "openHABian announcements" --yes-button "Stop displaying" --no-button "Keep displaying" --defaultno --scrolltext --yesno "$(cat $newsFile)" 27 84); then
+      if (whiptail --title "openHABian announcements" --yes-button "Stop displaying" --no-button "Keep displaying" --defaultno --scrolltext --yesno "$(cat $newsFile)" 24 84); then
         cp "$newsFile" "$readNews"
       fi
     else
