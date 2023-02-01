@@ -70,7 +70,7 @@ vehicles:
   user: %CARUSER1
   password: %CARPASS1
   capacity: %CARCAPACITY1
-  language: de
+#  language: de
   name: meinEAuto1
   title: %CARNAME1
 #- type: template
