@@ -1,5 +1,5 @@
 [Unit]
-Description=Run l check weekly
+Description=Run lic check
 
 [Timer]
 Unit=lc.service
