@@ -11,7 +11,7 @@ nut_is_installed() {
 }
 
 ## (Un)Install Network UPS Tools
-## Supports both INTERACTIVE and UNATTENDED mode.
+## Supports both INTERACTIVE and UNATTENDED mode
 ##
 ## Valid arguments: "install" or "remove"
 ##
@@ -39,7 +39,7 @@ nut_install() {
 }
 
 ## Configure Network UPS Tools
-## Supports only UNATTENDED mode
+## Supports both INTERACTIVE and UNATTENDED mode
 ##
 ## Variables used:
 ##   - "nutmode": "netserver" or "netclient"
