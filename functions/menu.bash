@@ -29,7 +29,7 @@ show_main_menu() {
   local choice
   local version
 
-  choice=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Setup Options" 19 116 12 --cancel-button Exit --ok-button Execute \
+  choice=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Setup Options" 24 118 16 --cancel-button Exit --ok-button Execute \
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
@@ -70,7 +70,7 @@ show_main_menu() {
     import_openhab_config
 
   elif [[ "$choice" == "10"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Apply Improvements" 24 118 16 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
     "12 | Bash&Vim Settings"      "Update customized openHABian settings for bash, vim and nano" \
     "13 | System Tweaks"          "Add /srv mounts and update settings typical for openHAB" \
@@ -92,7 +92,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Optional Components" 25 118 18 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Optional Components" 24 118 16 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer"             "openHAB Log Viewer webapp (frontail)" \
     "   | Add log to viewer"      "Add a custom log to openHAB Log Viewer (frontail)" \
     "   | Remove log from viewer" "Remove a custom log from openHAB Log Viewer (frontail)" \
@@ -194,7 +194,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 22 126 15 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 24 118 16 --cancel-button Back --ok-button Execute \
     "41 | openHAB Release"                "Install or switch to the latest openHAB Release" \
     "   | openHAB Milestone"              "Install or switch to the latest openHAB Milestone Build" \
     "   | openHAB Snapshot"               "Install or switch to the latest openHAB Snapshot Build" \
@@ -206,8 +206,8 @@ show_main_menu() {
     "   | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider" \
     "   | Zulu 11 OpenJDK 32-bit"         "Install Zulu 11 32-bit OpenJDK as Java provider" \
     "   | Zulu 11 OpenJDK 64-bit"         "Install Zulu 11 64-bit OpenJDK as Java provider" \
-    "46 | Install openhab-js"             "JS Scripting: Upgrade to the latest version of the openHAB JavaScript library" \
-    "   | Uninstall openhab-js"           "JS Scripting: Switch back to the included version of the openHAB JavaScript library" \
+    "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
+    "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of openHAB JavaScript library" \
     "47 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \
     "   | Uninstall openhab_rules_tools"  "JS Scripting: Uninstall openhab_rules_tools" \
     3>&1 1>&2 2>&3)
@@ -236,7 +236,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "50"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Backup/Restore" 15 116 8 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Backup/Restore" 24 118 16 --cancel-button Back --ok-button Execute \
     "50 | Backup openHAB config"      "Backup (export) the current active openHAB configuration" \
     "51 | Restore an openHAB config"  "Restore an openHAB configuration from backup zipfile" \
     "   | Restore text only config"   "Restore text only configuration without restarting" \
