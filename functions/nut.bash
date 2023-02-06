@@ -62,10 +62,26 @@ nut_setup() {
 
   local upsmasterpw="$(openssl rand -base64 12)"
   local upsslavepw="$(openssl rand -base64 12)"
-
   local upsmonitor="MONITOR ups@localhost 1 upsmaster ${upsmasterpw} master"
 
+  local whiptailTitle="Network UPS Tools"
+  local introText="Network UPS Tools (nut) adds an Uniterruptable Power Supply (UPS) to your openHABian system.\\nIn case of a power outage, it protects your system from data loss by ensuring a safe shutdown.\\n\\nWe will guide you through the setup."
+
   if ! nut_is_installed; then nut_install "install"; fi
+
+  if [[ -n $INTERACTIVE ]]; then
+    if ! whiptail --title "${whiptailTitle}" --yes-button "Begin" --no-button "Cancel" --yesno "${introText}\\n\\nDo you want to continue?" 14 100; then echo "CANCELED"; return 0; fi
+    if ! nutmode=$(whiptail --title "${whiptailTitle}" --menu "Choose mode:" 14 100 2 --cancel-button "Cancel" --ok-button "Continue" \
+    "netserver"  "The UPS is directly connected to this computer. Currently, only USB UPS are supported." \
+    "netclient"  "The UPS is connected to another computer on the network." \
+    3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+    if [[ $nutmode == "netclient" ]]; then
+      if ! nutupsname=$(whiptail --title "${whiptailTitle}" --inputbox "\\nEnter name of network UPS (default for openHABian & Synology):" 10 80 "ups" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+      if ! nutupshost=$(whiptail --title "${whiptailTitle}" --inputbox "\\nEnter IP address (or hostname) of network UPS:" 10 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+      if ! nutupsuser=$(whiptail --title "${whiptailTitle}" --inputbox "\\nEnter username for network UPS (default for openHABian & Synology):" 10 80 "monuser" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+      if ! nutupspw=$(whiptail --title "${whiptailTitle}" --passwordbox "\\nEnter password for network UPS (default for openHABian & Synology):" 10 80 "secret" 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+    fi
+  fi
 
   echo -n "$(timestamp) [openHABian] Setting up nut... "
   if [[ -z $nutmode ]]; then echo "FAILED (nutmode is not set)"; return 1; fi

@@ -142,7 +142,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "30"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "System Settings" 26 118 19 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "System Settings" 24 118 16 --cancel-button Back --ok-button Execute \
     "31 | Change hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set system locale"      "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
     "33 | Set system timezone"    "Change your timezone, execute if it's not '$(printf "%(%H:%M)T\\n" "-1")' now" \
@@ -163,6 +163,7 @@ show_main_menu() {
     "   | Remove Tailscale VPN"   "Remove the Tailscale VPN service" \
     "   | Install WireGuard"      "Setup WireGuard to enable secure remote access to this openHABian system" \
     "   | Remove WireGuard"       "Remove WireGuard VPN from this system" \
+    "3C | Setup UPS (nut)"        "Setup a Uninterruptable Power Supply for this system using Network UPS Tools" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
@@ -187,6 +188,7 @@ show_main_menu() {
       *Remove\ Tailscale*) install_tailscale remove;;
       *Install\ WireGuard*) if install_wireguard install; then setup_wireguard; fi;;
       *Remove\ WireGuard*) install_wireguard remove;;
+      3C\ *) nut_setup ;;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
