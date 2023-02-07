@@ -348,13 +348,15 @@ zigbee2mqtt_setup() {
 ## Function for installing a npm package for the JS Scripting Automation Add-On
 ##
 ##    jsscripting_npm_install(String packageName, String mode)
-##    Available values for mode: "install", "uninstall". Defaults to "install".
+##    Available values for mode: "update", install", "uninstall". Defaults to "install".
 ##
 jsscripting_npm_install() {
   if [ "${1}" == "" ]; then echo "FAILED. Provide packageName."; return 1; fi
 
+  local openhabJsText="A version of the openHAB JavaScript is included in the JS Scripting add-on, therefore there is no general need for manual installation it.\\n\\nPlease only continue if you know what you want."
+
   if ! node_is_installed || is_armv6l; then
-    echo -n "$(timestamp) [openHABian] Installing prerequsites for ${1} (NodeJS)... "
+    echo -n "$(timestamp) [openHABian] Installing prerequisites for ${1} (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
@@ -364,6 +366,9 @@ jsscripting_npm_install() {
     if cond_redirect sudo -u "openhab" npm remove --prefix "/etc/openhab/automation/js" "${1}@latest"; then echo "OK"; else echo "FAILED (npm remove)"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Installing ${1} for JS Scripting... "
+    if [[ "${1}" == "openhab" ]] && [[ "${2}" != "update" ]] && [[ -n $INTERACTIVE ]]; then
+      if (whiptail --title "Installation of openhab for JS Scripting" --yes-button "Continue" --no-button "Cancel" --yesno "${openhabJsText}" 15 80); then echo -n "INSTALLING "; else echo "SKIP"; return 0; fi
+    fi
     if ! cond_redirect sudo -u "openhab" mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
     if cond_redirect sudo -u "openhab" npm install --prefix "/etc/openhab/automation/js" "${1}@latest"; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
   fi
@@ -379,7 +384,7 @@ jsscripting_npm_check() {
   if [ ! -d "/etc/openhab/automation/js/node_modules/${1}" ]; then return 0; fi
 
   local introText="Additions, improvements or fixes were added to ${1} (npm package) for JS Scripting. Would you like to update now and benefit from them?"
-  local breakingText="\\n\\This update includes BREAKING CHANGES!"
+  local breakingText="\\n\\nThis update includes BREAKING CHANGES!"
   local data
   local wantedVersion
   local latestVersion
@@ -392,7 +397,6 @@ jsscripting_npm_check() {
   echo -n "$(timestamp) [openHABian] Checking for updates of ${1} for JS Scripting... "
   data=$(npm outdated --prefix /etc/openhab/automation/js --json)
 
-  
   # Check whether data includes the packageName.
   if [[ "${data}" =~ \"${1}\" ]];
   then
@@ -412,7 +416,7 @@ jsscripting_npm_check() {
         if (whiptail --title "Update available for ${1} for JS Scripting" --yes-button "Continue" --no-button "Skip" --yesno "${introText}" 15 80); then echo "UPDATING"; else echo "SKIP"; return 0; fi
       fi
     fi
-    jsscripting_npm_install "${1}" "install"
+    jsscripting_npm_install "${1}" "update"
   else
     echo "No update available."
   fi
