@@ -348,40 +348,24 @@ zigbee2mqtt_setup() {
 ## Function for installing a npm package for the JS Scripting Automation Add-On
 ##
 ##    jsscripting_npm_install(String packageName, String mode)
-##    Available values for mode: "update", "install", "uninstall". Defaults to "install".
+##    Available values for mode: "install", "uninstall". Defaults to "install".
 ##
 jsscripting_npm_install() {
   if [ "${1}" == "" ]; then echo "FAILED. Provide packageName."; return 1; fi
-
-  local installSuccessText="Installation successful.\\n\\n${1} (npm package) is now available in JS Scripting.\\n\\nFor documentation, visit the JS Scripting docs (https://www.openhab.org/addons/automation/jsscripting/) or https://npmjs.com/package/${1}."
-  local updateSuccessText="Update of ${1} (npm package) successful."
-  local uninstallSuccessText="Uninstallation of ${1} (npm package) from JS Scripting successful.\\n\\nRemember to check your scripts for dependencies on ${1} and remove those."
-  local messageText
 
   if ! node_is_installed || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing prerequsites for ${1} (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  if [ "${2}" == "update" ];
-  then
-    echo -n "$(timestamp) [openHABian] Updating ${1} for JS Scripting... "
-    if cond_redirect sudo -u "openhab" npm update --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm update)"; return 1; fi
-    messageText=$updateSuccessText
-  elif [ "${2}" == "uninstall" ];
+  if [ "${2}" == "uninstall" ];
   then
     echo -n "$(timestamp) [openHABian] Uninstalling ${1} from JS Scripting... "
-    if cond_redirect sudo -u "openhab" npm remove --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm remove)"; return 1; fi
-    messageText=$uninstallSuccessText
+    if cond_redirect sudo -u "openhab" npm remove --prefix "/etc/openhab/automation/js" "${1}@latest"; then echo "OK"; else echo "FAILED (npm remove)"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Installing ${1} for JS Scripting... "
     if ! cond_redirect sudo -u "openhab" mkdir -p /etc/openhab/automation/js; then echo "FAILED (mkdir /etc/openhab/automation/js)"; fi
-    if cond_redirect sudo -u "openhab" npm install --prefix "/etc/openhab/automation/js" "${1}"; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
-    messageText=$installSuccessText
-  fi
-
-  if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Operation successful" --msgbox "$messageText" 15 80
+    if cond_redirect sudo -u "openhab" npm install --prefix "/etc/openhab/automation/js" "${1}@latest"; then echo "OK"; else echo "FAILED (npm install)"; return 1; fi
   fi
 }
 
@@ -394,8 +378,11 @@ jsscripting_npm_check() {
   # If directory of package doesn't exist, exit.
   if [ ! -d "/etc/openhab/automation/js/node_modules/${1}" ]; then return 0; fi
 
-  local introText="Additions, improvements or fixes were added to ${1} (npm package) for JS Scripting. Would you like to update now and benefit from them?\\n\\nThe update might include breaking changes, please head over to the JS Scripting docs (https://www.openhab.org/addons/automation/jsscripting/) or to https://www.npmjs.com/package/${1}."
-  local outdatedReturn
+  local introText="Additions, improvements or fixes were added to ${1} (npm package) for JS Scripting. Would you like to update now and benefit from them?"
+  local breakingText="\\n\\This update includes BREAKING CHANGES!"
+  local data
+  local wantedVersion
+  local latestVersion
 
   if ! node_is_installed || is_armv6l; then
     echo -n "$(timestamp) [openHABian] Installing prerequsites for ${1} for JS Scripting (NodeJS)... "
@@ -403,16 +390,29 @@ jsscripting_npm_check() {
   fi
 
   echo -n "$(timestamp) [openHABian] Checking for updates of ${1} for JS Scripting... "
-  outdatedReturn=$(npm outdated --prefix /etc/openhab/automation/js)
+  data=$(npm outdated --prefix /etc/openhab/automation/js --json)
 
-  # Check whether outdatedReturn includes the packageName.
-  if [[ "${outdatedReturn}" =~ [[:space:]]${1}[[:space:]] ]];
+  
+  # Check whether data includes the packageName.
+  if [[ "${data}" =~ \"${1}\" ]];
   then
     echo -n "Update available... "
-    if [[ -n $INTERACTIVE ]]; then
-      if (whiptail --title "Update available for ${1} for JS Scripting" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 15 80); then echo "UPDATING"; else echo "SKIP"; return 0; fi
+    wantedVersion=$(echo "${data}" | jq ".${1}" | jq '.wanted' | sed -r 's/"//g' | sed -r 's/.[0-9].[0-9]//g')
+    latestVersion=$(echo "${data}" | jq ".${1}" | jq '.latest' | sed -r 's/"//g' | sed -r 's/.[0-9].[0-9]//g')
+    if [[ "${wantedVersion}" -lt "${latestVersion}" ]]; then
+      echo "New major version... "
+      if [[ -n $INTERACTIVE ]]; then
+        if [[ "$1" == "openhab" ]]; then breakingText+="\\nPlease read the changelog (https://github.com/openhab/openhab-js/blob/main/CHANGELOG.md)."; fi
+        if (whiptail --title "Update available for ${1} for JS Scripting" --yes-button "Continue" --no-button "Skip" --yesno "${introText}${breakingText}" 15 80); then echo "UPDATING"; else echo "SKIP"; return 0; fi
+      fi
+    else
+      echo
+      if [[ -n $INTERACTIVE ]]; then
+        if [[ "$1" == "openhab" ]]; then introText+="\\nYou may read the changelog (https://github.com/openhab/openhab-js/blob/main/CHANGELOG.md)."; fi
+        if (whiptail --title "Update available for ${1} for JS Scripting" --yes-button "Continue" --no-button "Skip" --yesno "${introText}" 15 80); then echo "UPDATING"; else echo "SKIP"; return 0; fi
+      fi
     fi
-    jsscripting_npm_install "${1}" "update"
+    jsscripting_npm_install "${1}" "install"
   else
     echo "No update available."
   fi
