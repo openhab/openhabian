@@ -8,7 +8,7 @@
 whiptail_check() {
   if ! [[ -x $(command -v whiptail) ]]; then
     echo -n "$(timestamp) [openHABian] Installing whiptail... "
-    if cond_redirect apt-get install --yes whiptail; then echo "OK"; else echo "FAILED"; exit 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" whiptail; then echo "OK"; else echo "FAILED"; exit 1; fi
   fi
 }
 
@@ -21,7 +21,7 @@ system_upgrade() {
   echo "$(timestamp) [openHABian] Updating repositories and upgrading installed packages..."
   export DEBIAN_FRONTEND=noninteractive
   # bad packages may require interactive input despite of this setting so do not mask output (no cond_redirect)
-  if ! apt-get upgrade --yes -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; then echo "FAILED"; return 1; fi
+  if ! apt-get upgrade --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; then echo "FAILED"; return 1; fi
   if ! cond_redirect java -version &> /dev/null; then
     update_config_java "11" && java_install "11"
   fi
@@ -39,10 +39,10 @@ basic_packages() {
     cp /etc/init.d/raspi-config /etc/init.d/openhabian-config
     sed -i -e 's/raspi-config/openhabian-config/' /etc/init.d/openhabian-config
     # Get rid of the rest
-    if ! cond_redirect apt-get purge --yes raspi-config; then echo "FAILED (remove raspi-config)"; return 1; fi
+    if ! cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" purge --yes raspi-config; then echo "FAILED (remove raspi-config)"; return 1; fi
   fi
 
-  if cond_redirect apt-get install --yes acl arping apt-utils bash-completion bzip2 coreutils \
+  if cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" install --yes acl arping apt-utils bash-completion bzip2 coreutils \
     curl dirmngr git htop man-db mc multitail nano nmap lsb-release screen software-properties-common \
     telnet usbutils util-linux vfu vim wget whiptail xz-utils zip; \
   then echo "OK"; else echo "FAILED"; exit 1; fi
@@ -58,18 +58,18 @@ needed_packages() {
   # Install avahi-daemon - hostname based discovery on local networks
   # Install python3/python3-pip/python3-wheel/python3-setuptools - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
-  if cond_redirect apt-get install --yes apt-transport-https bc sysstat jq \
+  if cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" install --yes apt-transport-https bc sysstat jq \
     moreutils avahi-daemon python3 python3-pip python3-wheel python3-setuptools \
     fontconfig; \
   then echo "OK"; else echo "FAILED"; return 1; fi
 
   if is_pi_wlan && [[ -z $PREOFFLINE ]]; then
     echo -n "$(timestamp) [openHABian] Installing python3 serial package... "
-    if cond_redirect apt-get install --yes python3-smbus python3-serial; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" python3-smbus python3-serial; then echo "OK"; else echo "FAILED"; return 1; fi
     echo -n "$(timestamp) [openHABian] Installing pigpio package... "
-    if cond_redirect apt-get install --yes pigpio; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" pigpio; then echo "OK"; else echo "FAILED"; return 1; fi
     echo -n "$(timestamp) [openHABian] Installing additional bluetooth packages... "
-    if cond_redirect apt-get install --yes bluez python3-dev libbluetooth-dev \
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" bluez python3-dev libbluetooth-dev \
       raspberrypi-sys-mods pi-bluetooth; \
     then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -101,7 +101,7 @@ timezone_setting() {
     echo "$(timestamp) [openHABian] Beginning setup of timezone based on IP geolocation... OK"
     if ! dpkg -s 'python3' 'python3-pip' 'python3-wheel' 'python3-setuptools' &> /dev/null; then
       echo -n "$(timestamp) [openHABian] Installing Python for needed packages... "
-      if cond_redirect apt-get install --yes python3 python3-pip python3-wheel python3-setuptools; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" python3 python3-pip python3-wheel python3-setuptools; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
     echo -n "$(timestamp) [openHABian] Setting timezone based on IP geolocation... "
     if ! cond_redirect pip3 install --upgrade tzupdate; then echo "FAILED (update tzupdate)"; return 1; fi
@@ -144,7 +144,7 @@ locale_setting() {
 
   if ! dpkg -s 'locales' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing locales from apt... "
-    if cond_redirect apt-get install --yes locales; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" locales; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   if [[ -n $INTERACTIVE ]]; then

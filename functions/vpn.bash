@@ -23,7 +23,7 @@ install_wireguard() {
     if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Uninstalling Wireguard... "
-    if ! cond_redirect apt-get remove --yes wireguard wireguard-dkms wireguard-tools; then echo "FAILED"; return 1; fi
+    if ! cond_redirect apt-get remove --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" wireguard wireguard-dkms wireguard-tools; then echo "FAILED"; return 1; fi
     if ! rm -f /etc/apt/sources.list.d/wireguard.list; then echo "FAILED (remove apt list)"; return 1; fi
     if ! cond_redirect rmmod wireguard; then echo "FAILED (remove module)"; return 1; fi
     if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
@@ -56,7 +56,7 @@ install_wireguard() {
       fi
 
       # headers required for wireguard-dkms module to be built "live"
-      cond_redirect apt-get install --yes raspberrypi-kernel-headers
+      cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" raspberrypi-kernel-headers
     else
       if is_debian; then
         echo 'deb http://deb.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/wireguard.list
@@ -66,7 +66,7 @@ install_wireguard() {
     fi
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   fi
-  cond_redirect apt-get install --yes wireguard qrencode
+  cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" wireguard qrencode
 
   # unclear if really needed but should not do harm and does not require input so better safe than sorry
   if ! running_in_docker; then
@@ -200,7 +200,7 @@ install_tailscale() {
     cond_redirect systemctl disable tailscaled.service
     rm -f ${serviceTargetDir}/tailscale*
     if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
-    if ! apt-get purge --yes tailscale; then echo "FAILED (purge tailscale)"; return 1; fi
+    if ! apt-get purge --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" tailscale; then echo "FAILED (purge tailscale)"; return 1; fi
     if ! rm -f /etc/apt/sources.list.d/tailscale.list "${sudoersPath}/${sudoersFile}"; then echo "FAILED (purge tailscale)"; return 1; fi
     return 0
   fi
@@ -219,7 +219,7 @@ install_tailscale() {
   echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://pkgs.tailscale.com/stable/raspbian bullseye main" > /etc/apt/sources.list.d/tailscale.list
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   # Install tailscale
-  if cond_redirect apt-get install --yes tailscale; then echo "OK"; else echo "FAILED (install tailscale)"; return 1; fi
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" tailscale; then echo "OK"; else echo "FAILED (install tailscale)"; return 1; fi
   cp "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
 
   return 0

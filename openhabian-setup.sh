@@ -46,6 +46,7 @@ source "$configFile"
 
 # script will be called with 'unattended' argument by openHABian images else retrieve values from openhabian.conf
 if [[ $1 == "unattended" ]]; then
+  APTTIMEOUT="${apttimeout:-60}"
   UNATTENDED="1"
   SILENT="1"
 else

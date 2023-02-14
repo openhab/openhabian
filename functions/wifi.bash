@@ -45,13 +45,13 @@ configure_wifi() {
     if is_pi_wlan; then
       if ! dpkg -s 'firmware-brcm80211' &> /dev/null; then
         echo -n "$(timestamp) [openHABian] Installing WiFi firmware... "
-        if cond_redirect apt-get install --yes firmware-brcm80211; then echo "OK"; else echo "FAILED"; return 1; fi
+        if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" firmware-brcm80211; then echo "OK"; else echo "FAILED"; return 1; fi
       fi
     fi
 
     if ! dpkg -s 'wpasupplicant' 'wireless-tools' &> /dev/null; then
       echo -n "$(timestamp) [openHABian] Installing WiFi prerequisites (wpasupplicant, wireless-tools)... "
-      if cond_redirect apt-get install --yes wpasupplicant wireless-tools; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" wpasupplicant wireless-tools; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
 
     echo -n "$(timestamp) [openHABian] Checking if WiFi is working... "

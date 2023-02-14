@@ -206,7 +206,7 @@ influxdb_install() {
 
     echo -n "$(timestamp) [openHABian] Installing InfluxDB... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-    if cond_redirect apt-get install --yes influxdb; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" influxdb; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up InfluxDB service... "
@@ -254,7 +254,7 @@ grafana_install(){
 
     echo -n "$(timestamp) [openHABian] Installing Grafana... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-    if cond_redirect apt-get install --yes grafana; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" grafana; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up Grafana service... "
