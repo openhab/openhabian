@@ -49,7 +49,7 @@ openjdk_install_apt() {
     openjdk_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing OpenJDK ${1}... "
     cond_redirect java_alternatives_reset
-    if cond_redirect apt-get install --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
   elif dpkg -s "openjdk-${1}-jre-headless" &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Reconfiguring OpenJDK ${1}... "
     cond_redirect java_alternatives_reset
@@ -83,7 +83,7 @@ java_install_or_update() {
     if [[ $1 == "Zulu11-64" ]]; then
       if is_aarch64 || is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
         if is_x86_64; then
-          java_zulu_enterprise_apt
+          java_zulu_enterprise_apt "$@"
         else
           if cond_redirect java_zulu_update_available "Zulu11-64"; then
             java_zulu_prerequisite "Zulu11-64"
@@ -144,12 +144,12 @@ java_zulu_prerequisite() {
       if [[ -z $OFFLINE ]]; then
         if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
       fi
-      if cond_redirect apt-get install --yes libc6:arm64 libstdc++6:arm64 zlib1g:arm64; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" libc6:arm64 libstdc++6:arm64 zlib1g:arm64; then echo "OK"; else echo "FAILED"; return 1; fi
     elif is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
       if dpkg -s 'libc6:amd64' 'libstdc++6:amd64' 'zlib1g:amd64' &> /dev/null; then echo "OK"; return 0; fi
       dpkg --add-architecture amd64
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-      if cond_redirect apt-get install --yes libc6:amd64 libstdc++6:amd64 zlib1g:amd64; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" libc6:amd64 libstdc++6:amd64 zlib1g:amd64; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
   else
     if is_arm; then
@@ -158,12 +158,12 @@ java_zulu_prerequisite() {
       if [[ -z $OFFLINE ]]; then
         if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
       fi
-      if cond_redirect apt-get install --yes libc6:armhf libstdc++6:armhf zlib1g:armhf; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" libc6:armhf libstdc++6:armhf zlib1g:armhf; then echo "OK"; else echo "FAILED"; return 1; fi
     else
       if dpkg -s 'libc6:i386' 'libstdc++6:i386' 'zlib1g:i386' &> /dev/null; then echo "OK"; return 0; fi
       dpkg --add-architecture i386
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-      if cond_redirect apt-get install --yes libc6:i386 libstdc++6:i386 zlib1g:i386; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" libc6:i386 libstdc++6:i386 zlib1g:i386; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
   fi
 }
@@ -222,7 +222,7 @@ java_zulu_install() {
   echo "$jdkLib"/client >> /etc/ld.so.conf.d/java.conf
   if ldconfig; then echo "OK"; else echo "FAILED"; return 1; fi
 
-  java_zulu_install_crypto_extension
+  java_zulu_install_crypto_extension "$@"
 
   if openhab_is_installed; then
     cond_redirect systemctl restart openhab.service
@@ -287,11 +287,12 @@ java_zulu_update_available() {
 
   if ! [[ -x $(command -v jq) ]]; then
     echo -n "$(timestamp) [openHABian] Installing Java Zulu prerequisites (jq)... "
-    if cond_redirect apt-get install --yes jq; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" jq; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   filter='[.jdk_version[] | tostring] | join(".")'
   jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
+  # shellcheck disable=SC1117
   javaVersion="$("${jdkBin}"/java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1 | sed 's|+|.|g')"
   link="https://api.azul.com/zulu/download/community/v1.0/bundles/latest/?os=linux&ext=tar.gz&javafx=false"
 
@@ -343,13 +344,13 @@ java_zulu_enterprise_apt() {
   fi
   if ! dpkg -s 'zulu-11' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing Zulu 11 Enterprise 64-Bit OpenJDK... "
-    if cond_redirect apt-get install --yes zulu-11; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" zulu-11; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if openhab_is_installed; then
     cond_redirect systemctl restart openhab.service
   fi
 
-  java_zulu_install_crypto_extension
+  java_zulu_install_crypto_extension "$@"
 }
 
 ## Install Zulu Cryptography Extension Kit to enable cryptos using more then 128 bits

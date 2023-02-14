@@ -12,7 +12,7 @@ samba_setup() {
 
   if ! samba_is_installed; then
     echo -n "$(timestamp) [openHABian] Installing Samba... "
-    if cond_redirect apt-get install --yes samba; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" samba; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting up Samba network shares... "
@@ -58,7 +58,7 @@ firemotd_setup() {
 
   if ! dpkg -s 'bc' 'sysstat' 'jq' 'moreutils' 'make' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing FireMotD required packages (bc, sysstat, jq, moreutils)... "
-    if cond_redirect apt-get install --yes bc sysstat jq moreutils make; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" bc sysstat jq moreutils make; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   if ! firemotd_download /opt; then
@@ -114,7 +114,7 @@ exim_setup() {
 
   if ! exim_is_installed; then
     echo -n "$(timestamp) [openHABian] Installing MTA required packages (mailutils, exim4, dnsutils)... "
-    if ! cond_redirect apt-get install --yes exim4 mailutils; then echo "FAILED"; return 1; fi
+    if ! cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" exim4 mailutils; then echo "FAILED"; return 1; fi
   fi
   if cond_redirect install_dnsutils; then echo "OK"; else echo "FAILED"; return 1; fi
 
@@ -174,7 +174,7 @@ exim_setup() {
 etckeeper_setup() {
   if ! [[ -x $(command -v etckeeper) ]]; then
     echo -n "$(timestamp) [openHABian] Installing etckeeper (git based /etc backup)... "
-    if cond_redirect apt-get install --yes etckeeper; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" etckeeper; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Configuring etckeeper (git based /etc backup)... "
@@ -227,7 +227,7 @@ homegear_setup() {
     dpkg -i "$temp"
     rm -f "$temp"
   fi
-  if cond_redirect apt-get install --yes homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permissions... "
   if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
   if cond_redirect adduser openhab homegear; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -280,8 +280,8 @@ mqtt_setup() {
 
   if ! mosquitto_is_installed; then
     echo -n "$(timestamp) [openHABian] Installing MQTT... "
-    if cond_redirect apt-get install --yes mosquitto mosquitto-clients; then echo "OK"; else echo "FAILED"; return 1; fi
-    apt-get install --fix-broken --yes
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" mosquitto mosquitto-clients; then echo "OK"; else echo "FAILED"; return 1; fi
+    apt-get install -o DPkg::Lock::Timeout="$APTTIMEOUT" --fix-broken --yes
   fi
 
   echo -n "$(timestamp) [openHABian] Configuring MQTT... "
@@ -343,7 +343,7 @@ knxd_setup() {
   fi
 
   echo -n "$(timestamp) [openHABian] Installing package knxd... "
-  if cond_redirect apt-get install --yes knxd; then
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" knxd; then
     echo "OK";
   else
     echo "FAILED (install)"
@@ -355,7 +355,7 @@ knxd_setup() {
 
   # optional package which contains command line tools, it is allowed to fail
   echo -n "$(timestamp) [openHABian] Installing optional package knxd-tools... "
-  if cond_redirect apt-get install --yes knxd-tools; then
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" knxd-tools; then
     echo "OK";
   else
     echo "FAILED (optional install)"
@@ -384,7 +384,7 @@ knxd_setup() {
 
   if ! dpkg -s 'owserver' 'ow-shell' 'usbutils' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing owserver (1wire)... "
-    if cond_redirect apt-get install --yes owserver ow-shell usbutils; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" owserver ow-shell usbutils; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   if [[ -n $INTERACTIVE ]]; then
@@ -409,7 +409,7 @@ miflora_setup() {
 
   if ! dpkg -s 'git' 'python3' 'python3-pip' 'bluetooth' 'bluez' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing miflora-mqtt-daemon required packages... "
-    if cond_redirect apt-get install --yes git python3 python3-pip bluetooth bluez; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" git python3 python3-pip bluetooth bluez; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning setup of miflora-mqtt-daemon... "
@@ -569,7 +569,7 @@ nginx_setup() {
 
   if ! (whiptail --title "Confirmation" --yesno "$confirmText" 20 80); then echo "CANCELED"; return 0; fi
   echo -n "$(timestamp) [openHABian] Installing nginx... "
-  if cond_redirect apt-get install --yes nginx; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" nginx; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up nginx configuration... "
   if ! cond_redirect rm -rf /etc/nginx/sites-enabled/default; then echo "FAILED (remove default)"; return 1; fi
@@ -578,7 +578,7 @@ nginx_setup() {
 
   if [[ $auth == "true" ]]; then
     echo -n "$(timestamp) [openHABian] Installing nginx password utilities... "
-    if cond_redirect apt-get install --yes apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
     if cond_redirect htpasswd -b -c /etc/nginx/.htpasswd "$nginxUsername" "$nginxPass"; then echo "OK"; else echo "FAILED (password file)"; return 1; fi
     cond_echo "Setting up nginx password options..."
     if ! uncomment "#AUTH" /etc/nginx/sites-enabled/openhab; then return 1; fi
@@ -590,13 +590,13 @@ nginx_setup() {
       echo -n "$(timestamp) [openHABian] Installing certbot... "
       if is_ubuntu; then
         if ! dpkg -s 'software-properties-common' &> /dev/null; then
-          if ! cond_redirect apt-get install --yes software-properties-common; then echo "FAILED (Ubuntu prerequsites)"; return 1; fi
+          if ! cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" software-properties-common; then echo "FAILED (Ubuntu prerequsites)"; return 1; fi
         fi
         if ! cond_redirect add-apt-repository universe; then echo "FAILED (add universe repo)"; return 1; fi
         if ! add-apt-repository ppa:certbot/certbot; then echo "FAILED (add certbot repo)"; return 1; fi
         if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
       fi
-      if cond_redirect apt-get install --yes certbot python3-certbot-nginx; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" certbot python3-certbot-nginx; then echo "OK"; else echo "FAILED"; return 1; fi
 
       echo -n "$(timestamp) [openHABian] Configuring certbot... "
       mkdir -p /var/www/"$domain"
@@ -667,7 +667,7 @@ deconz_setup() {
   echo -n "$(timestamp) [openHABian] Preparing deCONZ repository ... "
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; fi
   echo -n "$(timestamp) [openHABian] Installing deCONZ ... "
-  if cond_redirect apt-get install --yes deconz; then echo "OK"; else echo "FAILED (install deCONZ package)"; return 1; fi
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" deconz; then echo "OK"; else echo "FAILED (install deCONZ package)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     if ! port="$(whiptail --title "Enter Phoscon port number" --inputbox "\\nPlease enter the port you want the Phoscon web application to run on:" 11 80 "$port" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
@@ -711,7 +711,7 @@ install_evcc() {
     fi
     echo -n "$(timestamp) [openHABian] Removing EVCC... "
     if ! cond_redirect systemctl disable --now evcc.service; then echo "FAILED (disable evcc.service)"; return 1; fi
-    if cond_redirect apt-get purge -y evcc; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get purge --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" evcc; then echo "OK"; else echo "FAILED"; return 1; fi
     return;
   fi
 
@@ -719,7 +719,7 @@ install_evcc() {
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "EVCC installation" --msgbox "$installText" 8 80
   fi
-  if ! cond_redirect apt-get install -y debian-keyring debian-archive-keyring; then echo "FAILED"; return 1; fi
+  if ! cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" debian-keyring debian-archive-keyring; then echo "FAILED"; return 1; fi
   if ! curl -1sLf "$repokeyurl" > /etc/apt/trusted.gpg.d/evcc-stable.asc; then echo -n "FAILED (retrieve EVCC repo key) "; fi
   if ! add_keys "$repokeyurl" "$keyName"; then echo "FAILED (add EVCC repo key)"; return 1; fi
   ( echo "deb ${repotxt}"; echo "deb-src ${repotxt}" ) > $repo

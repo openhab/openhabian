@@ -43,7 +43,7 @@ init_zram_mounts() {
 
     if ! dpkg -s 'make' &> /dev/null; then
       echo -n "$(timestamp) [openHABian] Installing zram required package (make)... "
-      if cond_redirect apt-get install --yes make; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" make; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
 
     install_zram_code "$zramInstallLocation"

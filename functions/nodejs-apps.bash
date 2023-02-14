@@ -43,7 +43,7 @@ nodejs_setup() {
     if [[ -n $PREOFFLINE ]]; then
       if cond_redirect apt-get --quiet install --download-only --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
     else
-      if cond_redirect apt-get install --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
   fi
 }
@@ -173,7 +173,7 @@ nodered_setup() {
   fi
   if ! dpkg -s 'build-essential' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing Node-RED required packages (build-essential)... "
-    if cond_redirect apt-get install --yes build-essential; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" build-essential; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
@@ -241,8 +241,8 @@ zigbee2mqtt_setup() {
   local loopSel=1
 
   serverIP="$(hostname -I)"; serverIP=${serverIP::-1} # remove trailing space
-  installSuccessText="Setup was successful. Zigbee2MQTT is now up and running.\\n\\nFor further Zigbee-settings open frontend (in 2 minutes): \\nhttp://${serverIP}:8081.\n\nDocumentation of ZigBee2MQTT:\\nhttps://www.zigbee2mqtt.io/guide/configuration"
-  updateSuccessText="Update successful. \\n\\nFor further Zigbee-settings open frontend (in 2 minutes): \\nhttp://${serverIP}:8081.\n\nDocumentation of Zigbee2MQTT:\\nhttps://www.zigbee2mqtt.io/guide/configuration"
+  installSuccessText="Setup was successful. Zigbee2MQTT is now up and running.\\n\\nFor further Zigbee-settings open frontend (in 2 minutes): \\nhttp://${serverIP}:8081.\\n\\nDocumentation of ZigBee2MQTT:\\nhttps://www.zigbee2mqtt.io/guide/configuration"
+  updateSuccessText="Update successful. \\n\\nFor further Zigbee-settings open frontend (in 2 minutes): \\nhttp://${serverIP}:8081.\\n\\nDocumentation of Zigbee2MQTT:\\nhttps://www.zigbee2mqtt.io/guide/configuration"
  
   if [[ $1 == "remove" ]]; then
     if [[ -n $INTERACTIVE ]]; then

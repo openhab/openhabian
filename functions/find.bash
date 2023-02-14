@@ -62,7 +62,7 @@ find3_setup() {
   echo "OK"
 
   echo -n "$(timestamp) [openHABian] Installing required packages for FIND3... "
-  if ! cond_redirect apt-get install --yes libc6-dev make pkg-config g++ gcc python3-dev python3-numpy python3-scipy python3-matplotlib libatlas-base-dev gfortran wireless-tools net-tools libpcap-dev bluetooth; then echo "FAILED (apt)"; return 1; fi
+  if ! cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" libc6-dev make pkg-config g++ gcc python3-dev python3-numpy python3-scipy python3-matplotlib libatlas-base-dev gfortran wireless-tools net-tools libpcap-dev bluetooth; then echo "FAILED (apt)"; return 1; fi
   if cond_redirect python3 -m pip install cython --install-option="--no-cython-compile"; then echo "OK"; else echo "FAILED (cython)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Downloading FIND3 source... "
@@ -147,7 +147,7 @@ go_setup() {
       if ! cond_redirect add-apt-repository ppa:longsleep/golang-backports; then echo "FAILED (add apt repository)"; return 1; fi
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     fi
-    if cond_redirect apt-get install --yes golang-go; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" golang-go; then echo "OK"; else echo "FAILED"; return 1; fi
   else
     if is_buster; then
       echo "deb http://deb.debian.org/debian buster-backports main" > /etc/apt/sources.list.d/golang.list
@@ -160,9 +160,9 @@ go_setup() {
       echo -e "Package: *\\nPin: release a=buster-backports\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-buster-backports
 
       if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-      if cond_redirect apt-get install --yes --target-release "buster-backports" golang-go; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" --target-release "buster-backports" golang-go; then echo "OK"; else echo "FAILED"; return 1; fi
     else
-      if cond_redirect apt-get install --yes golang-go; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" golang-go; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
   fi
 }
@@ -234,11 +234,11 @@ setup_monitor_mode() {
 
   if ! dpkg -s 'firmware-brcm80211' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing WiFi firmware... "
-    if cond_redirect apt-get install --yes firmware-brcm80211; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" firmware-brcm80211; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Installing required Monitor Mode packages... "
-  if cond_redirect apt-get install --yes raspberrypi-kernel-headers libgmp3-dev gawk qpdf bison flex make automake texinfo libtool-bin; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" raspberrypi-kernel-headers libgmp3-dev gawk qpdf bison flex make automake texinfo libtool-bin; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Downloading Nexmon... "
   if ! [[ -d $nexmonDir ]]; then

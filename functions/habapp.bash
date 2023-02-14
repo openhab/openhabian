@@ -29,7 +29,7 @@ habapp_setup() {
   if [[ $1 != "install" ]]; then return 1; fi
 
   echo -n "$(timestamp) [openHABian] Installing HABApp prerequisites (dev, venv) ... "
-  if cond_redirect apt-get install --yes python3-dev python3-venv; then echo "OK"; else echo "FAILED"; return 1; fi
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" python3-dev python3-venv; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Creating venv ... "
   if ! cond_redirect cd "$installFolder"; then echo "FAILED"; return 1; fi
