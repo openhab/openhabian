@@ -100,6 +100,8 @@ fi
 # While setup: show log to logged in user, will be overwritten by openhabian-setup.sh
 echo "watch cat /boot/first-boot.log" > "$HOME/.bash_profile"
 
+systemctl start NetworkManager
+
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 hotSpot=${hotspot:-enable}
 # shellcheck source=/etc/openhabian.conf disable=SC2154
