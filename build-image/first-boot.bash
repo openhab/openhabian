@@ -162,7 +162,10 @@ if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --sile
   echo "                          Use a device to connect and go to http://raspberrypi.local or http://10.41.0.1/"
   echo "                          and select the WiFi network you want to connect your openHABian system to."
   echo "                          After about an hour, we will continue trying to get your system installed,"
-  echo "                          but without proper Internet connectivity this is not guaranteed to work."
+  echo "                          but without proper Internet connectivity this is not likely to be going to work."
+
+  systemctl start NetworkManager
+  tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 100 30; then
 else
   echo "OK"
 fi
