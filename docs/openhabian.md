@@ -258,7 +258,7 @@ Take care this listing may be outdated. We try to make install options independe
 
 ## openHABian Configuration Tool
 
-The following instructions are developed for a Raspberry Pi but should be applicable to all hardware / all openHABian environments.
+The following instructions are written for a Raspberry Pi but should be applicable to all hardware / all openHABian environments.
 Once connected to the command line console of your system, please execute the openHABian configuration tool by typing the following command:
 
 (Hint: sudo executes a command with elevated rights and will hence ask for your password. The default is `openhabian`).
@@ -278,17 +278,12 @@ Press <kbd>Esc</kbd> twice to exit the configuration tool.
 
 ### Linux Hints
 
-Many helpful articles can be found on the internet, for example:
+If you're a newbie to Linux, you sooner or later will have to know some Linux if you want to copy some files or are on the search for a solution to a problem.
+To prepare, take a few minutes to study these tutorials and get to know the most basic commands and tools to be able to navigate on your Linux system, edit configurations, check the system state or look at log files.
 
 -   "Learn the ways of Linux-fu, for free" interactively with exercises at [linuxjourney.com](https://linuxjourney.com).
 -   The official Raspberry Pi help articles over at [raspberrypi.org](https://www.raspberrypi.org/help)
 -   "Now what?", Tutorial on the Command line console at [LinuxCommand.org](http://linuxcommand.org/index.php)
-
-_The good news:_ openHABian helps you to stay away from Linux - _The bad news:_ not for long...
-
-Regardless of if you want to copy some files or are on the search for a solution to a problem, sooner or later you'll have to know some Linux.
-Take a few minutes to study the above Tutorials and get to know the most basic commands and tools to be able to navigate on your Linux system, edit configurations, check the system state or look at log files.
-It's not complicated and something that doesn't hurt on one's résumé.
 
 ### First steps with openHAB
 
@@ -513,7 +508,7 @@ You'll also see commits "fly by" when executing the "Update" function within the
 ### Did my Installation succeed? What to do in case of a problem?
 openHABian setup will take 15 up to 45 minutes to complete all steps, depending on your device's performance and your internet connection.
 
-Watch the progress on the console or the web interface at <https://yourIP/> or <http://openhabian/> if that name has become available.
+Watch the progress on the console or the web interface at <https://yourIP:81/> or <http://openhabian/> if that name has become available.
 Double-check the IP address and name with your router while you wait.
 If there is absolutely no output for more than 10 minutes, your installation has failed in the first initialization phase.
 There probably is a problem with the way your router or local network are setup.
