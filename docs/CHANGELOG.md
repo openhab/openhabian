@@ -1,3 +1,7 @@
+## Install log now on port 81 ## February 23, 2023
+As there have been conflicts with the hotspot function, the install time web
+log was now moved to port 81. The standard port 80 is reserved for the hotspot.
+
 ## Raspberry Imager ## August 17, 2022
 Now openHABian can be selected directly within Raspberry Imager to write the
 image to an SD card.
