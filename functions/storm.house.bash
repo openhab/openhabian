@@ -375,8 +375,8 @@ install_extras() {
     if ! cond_redirect wget -nv -O "$dest" "$pkg"; then echo "FAILED (download solar forecast binding)"; rm -f "$dest"; fi
   fi
 
-  cond_redirect install -m 644 "${includesDir}:openhab_rsa.pub" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
-  cond_redirect install -m 600 "${includesDir}:openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
+  cond_redirect install -m 644 "${includesDir}/openhab_rsa.pub" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
+  cond_redirect install -m 600 "${includesDir}/openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
   cond_redirect chown "${username:-openhabian}:openhab" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/openhab_rsa*"
   cond_redirect install -m 640 "${includesDir}/generic/ems.key" /etc/ssl/private/
 
