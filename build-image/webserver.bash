@@ -6,7 +6,7 @@
 ## inst_done:         Create finish message and link to http://${hostname:-openhabian}:8080.
 ## cleanup:           Stops the webserver and removes all no longer needed files.
 
-port="80"
+port="81"
 isWebRunning="$(ps -ef | pgrep python3)"
 
 if [[ "$1" = "start" ]]; then
@@ -24,7 +24,7 @@ fi
 
 if [[ $1 == "inst_done" ]]; then
   mkdir -p "${TMPDIR:-/tmp}"/webserver
-  sed 's|%HOSTNAME|'"${hostname:-openhabian}"'|g' /opt/openhabian/includes/webserver/install-complete.html > "${TMPDIR:-/tmp}"/webserver/index.html
+  sed 's|%HOSTNAME|'"${HOSTNAME:-openhabian}"'|g' /opt/openhabian/includes/webserver/install-complete.html > "${TMPDIR:-/tmp}"/webserver/index.html
 fi
 
 if [[ $1 == "cleanup" ]]; then
