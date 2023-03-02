@@ -213,8 +213,7 @@ setup_wb_config() {
 
   if [[ -n "$INTERACTIVE" ]]; then
     if [[ -z "${1:-$wallboxtype}" ]]; then
-      if ! wallboxtype="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 12 80 0 "abl" "ABL eMH1" "cfos" "cFos PowerBrain charger" "easee" "Easee Home Wallbox" "evsewifi" "Wallboxen mit SimpleEVSE Controller" "go-e" "go-E Charger" "heidelberg" "Heidelberg Energy Control" "keba" "KEBA KeContact P20/P30 und BMW Wallboxen" "mcc" "Mobile Charger Connect (Audi, Bentley Porsche)" "nrgkick-bluetooth" "NRGkick Wallbox mit Bluetooth"
-          "nrgkick-connect" "NRGkick Wallbox mit zusätzlichem NRGkick Connect Modul" "openwb" "openWB Wallbox via MQTT" "phoenix-em-eth" "Wallboxen mit dem Phoenix EM-CP-PP-ETH Controller" "phoenix-ev-eth" "Wallboxen mit dem Phoenix EV-CC-**-ETH Controller" "phoenix-ev-ser" "Wallboxen mit dem Phoenix EV-CC-***-SER seriellen Controller" "simpleevse" "Wallboxen mit dem SimpleEVSE Controller" "wallbe" "Wallbe Eco Wallbox" "warp" "Tinkerforge Warp/Warp Pro" "wbcustom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset wallboxtype wallboxip autotyp autoname; return 1; fi
+      if ! wallboxtype="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 12 80 0 "abl" "ABL eMH1" "cfos" "cFos PowerBrain charger" "easee" "Easee Home Wallbox" "evsewifi" "Wallboxen mit SimpleEVSE Controller" "go-e" "go-E Charger" "heidelberg" "Heidelberg Energy Control" "keba" "KEBA KeContact P20/P30 und BMW Wallboxen" "mcc" "Mobile Charger Connect (Audi, Bentley Porsche)" "nrgkick-bluetooth" "NRGkick Wallbox mit Bluetooth" "nrgkick-connect" "NRGkick Wallbox mit zusätzlichem NRGkick Connect Modul" "openwb" "openWB Wallbox via MQTT" "phoenix-em-eth" "Wallboxen mit dem Phoenix EM-CP-PP-ETH Controller" "phoenix-ev-eth" "Wallboxen mit dem Phoenix EV-CC-**-ETH Controller" "phoenix-ev-ser" "Wallboxen mit dem Phoenix EV-CC-***-SER seriellen Controller" "simpleevse" "Wallboxen mit dem SimpleEVSE Controller" "wallbe" "Wallbe Eco Wallbox" "warp" "Tinkerforge Warp/Warp Pro" "wbcustom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset wallboxtype wallboxip autotyp autoname; return 1; fi
     fi
     if ! wallboxip=$(whiptail --title "Wallbox IP" --inputbox "Welche IP-Adresse hat die Wallbox ?" 10 60 "${wallboxip:-192.168.178.200}" 3>&1 1>&2 2>&3); then unset wallboxtype wallboxip autotyp autoname; return 1; fi
     if ! autotyp="$(whiptail --title "Auswahl Autohersteller" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Hersteller Ihres Fahrzeugs aus" 12 80 0 "audi" "Audi" "bmw" "BMW" "carwings" "Nissan z.B. Leaf vor 2019" "citroen" "Citroen" "ds" "DS" "opel" "Opel" "peugeot" "Peugeot" "fiat" "Fiat, Alfa Romeo" "ford" "Ford" "kia" "Kia Motors" "hyundai" "Hyundai" "mini" "Mini" "nissan" "neue Nissan Modelle ab 2019" "niu" "NIU" "tesla" "Tesla Motors" "renault" "Renault, Dacia" "ovms"
@@ -252,13 +251,57 @@ setup_wb_config() {
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/evcc.XXXXX)"
   cp "${includesDir}/EVCC/evcc.yaml-template" "$temp"
-  #sed -e "s|%WBTYPE|${1:-${wallboxtype}}|;s|%IP|${2:-${wallboxip}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1}}|;s|%CARNAME1|${5:-${carname1}}|;s|%VIN1|${6:-${vin1}}|;s|%CARCAPACITY1|${7:-${carcapacity1}}|;s|%CARUSER1|${8:-${caruser1}}|;s|%CARPASS1|${9:-${carpass1}}|;s|%CARTYPE2|${10:-${cartype2}}|;s|%CARNAME2|${11:-${carname2}}|;s|%VIN2|${12:-${vin2}}|;s|%CARCAPACITY2|${13:-${carcapacity2}}|;s|%CARUSER2|${14:-${caruser2}}|;s|%CARPASS2|${15:-${carpass2}}|;s|%GRIDCOST|${16:-${gridcost}}|;s|%FEEDINCOMPENSATION|${17:-${feedincompensation}}|" "$temp" > "$evccConfig"
   sed -e "s|%WBTYPE|${1:-${wallboxtype:-openwb-pro}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1:-offline}}|;s|%CARNAME1|${5:-${carname1:-meinEAuto1}}|;s|%VIN1|${6:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${7:-${carcapacity1:-50}}|;s|%CARUSER1|${8:-${caruser1:-user}}|;s|%CARPASS1|${9:-${carpass1:-pass}}|;s|%CARTYPE2|${10:-${cartype2:-offline}}|;s|%CARNAME2|${11:-${carname2:-meinEAuto2}}|;s|%VIN2|${12:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${13:-${carcapacity2:-50}}|;s|%CARUSER2|${14:-${caruser2:-user}}|;s|%CARPASS2|${15:-${carpass2:-pass}}|;s|%GRIDCOST|${16:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${17:-${feedincompensation:-8.2}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
   rm -f "${temp}"
   
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt eine ${1:-${wallboxtype}} Wallbox mit einem ${3:-${autotyp}}." 8 80
+  fi
+}
+
+
+## setup OH config for electricity provider
+##
+##    setup_power_config()
+##
+setup_power_config() {
+  local temp
+  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+  local srcfile
+
+
+  if [[ ! -f /usr/local/sbin/setup_power_config && $(whoami) == "root" ]]; then
+    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_power_config; then echo "FAILED (install setup_power_config script)"; return 1; fi
+  fi
+
+  if [[ -n "$UNATTENDED" ]]; then
+    echo -n "$(timestamp) [storm.house] power tariff setup ... "
+    if [[ -z "${1:-$tarifftype}" ]]; then echo "SKIPPED (no power provider defined)"; return 1; fi
+  fi
+  if [[ -n "$INTERACTIVE" ]]; then
+    if [[ -z "${1:-$tarifftype}" ]]; then
+      if ! tarifftype="$(whiptail --title "Stromtarif Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Stromtarif aus" 5 80 0 "flat" "normaler Stromtarif (flat)" "awattar" "aWATTar" "tibber" "Tibber" 3>&1 1>&2 2>&3)"; then unset tarifftype; return 1; fi
+    fi
+  fi
+
+  for component in things items rules; do
+    rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/netz.${component}"
+    srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/tariffs/${1:-${tarifftype}}.${component}"
+    destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/netz.${component}"
+    if [[ -f ${srcfile} ]]; then
+      cp "${srcfile}" "${destfile}"
+      if [[ $(whoami) == "root" ]]; then
+        chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/netz.${component}"
+        chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/netz.${component}"
+      fi
+    fi
+  done
+
+  sed -i "s|%HOMEID|${1:-${tariffhomeid}}|;s|%TOKEN|${1:-${tarifftoken}}|" "${OPENHAB_CONF:-/etc/openhab}/things/netz.things"
+  
+  if [[ -n "$INTERACTIVE" ]]; then
+    whiptail --title "Setup erfolgreich" --msgbox "Das Energie Management System nutzt jetzt einen ${2:-${tarifftype}} Stromtarif." 8 80
   fi
 }
 
