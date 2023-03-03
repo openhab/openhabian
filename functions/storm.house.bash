@@ -298,7 +298,10 @@ setup_power_config() {
     fi
   done
 
-  sed -i "s|%HOMEID|${1:-${tariffhomeid}}|;s|%TOKEN|${1:-${tarifftoken}}|" "${OPENHAB_CONF:-/etc/openhab}/things/netz.things"
+  case "${device}" in
+      tibber) sed -i "s|%HOMEID|${1:-${tariffhomeid}}|;s|%TOKEN|${1:-${tarifftoken}}|" "${OPENHAB_CONF:-/etc/openhab}/things/netz.things";;
+      awattar) sed -i "s|%BASEPRICE|${1:-${basetariff}}|" "${OPENHAB_CONF:-/etc/openhab}/things/netz.things";;
+  esac
   
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Setup erfolgreich" --msgbox "Das Energie Management System nutzt jetzt einen ${2:-${tarifftype}} Stromtarif." 8 80
