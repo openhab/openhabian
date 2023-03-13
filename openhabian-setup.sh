@@ -130,6 +130,7 @@ if [[ -n "$UNATTENDED" ]]; then
   setup_pv_config bat "${batterytype:-hybrid}" "${batteryip:-192.168.178.101}" "${batterymodbusid:-3}"
   setup_pv_config meter "${metertype:-inverter}" "${meterip:-192.168.178.102}" "${metermodbusid:-99}"
   setup_wb_config "${wallboxtype:-openwb-pro}" "${wallboxip:-192.168.178.200}"
+  setup_power_config flat
   install_cleanup
   systemctl restart openhab
 else
