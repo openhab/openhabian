@@ -132,7 +132,7 @@ if [[ -n "$UNATTENDED" ]]; then
   setup_wb_config "${wallboxtype:-openwb-pro}" "${wallboxip:-192.168.178.200}"
   setup_power_config flat
   install_cleanup
-  systemctl restart openhab
+  #systemctl restart openhab
 else
   apt_update
   whiptail_check
