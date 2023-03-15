@@ -133,7 +133,8 @@ if [[ -n "$UNATTENDED" ]]; then
   setup_power_config flat
   install_cleanup
   #systemctl restart openhab
-  /usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost "openhab:send NeuinitialisierungEnergiemanagement ON"
+  sleep 600
+  /usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost 'openhab:send NeuinitialisierungEnergiemanagement ON'
 else
   apt_update
   whiptail_check
