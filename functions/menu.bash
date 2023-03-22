@@ -202,8 +202,8 @@ show_main_menu() {
     "   | Downgrade to openHAB 2"         "Downgrade OS environment from openHAB 3 back to openHAB 2 (DANGEROUS)" \
     "43 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
     "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
-    "45 | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider (default)" \
-    "   | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider" \
+    "45 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (now default)" \
+    "   | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider" \
     "   | Zulu 11 OpenJDK 32-bit"         "Install Zulu 11 32-bit OpenJDK as Java provider" \
     "   | Zulu 11 OpenJDK 64-bit"         "Install Zulu 11 64-bit OpenJDK as Java provider" \
     "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
