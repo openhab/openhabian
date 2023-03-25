@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016
+# shellcheck disable=SC1090
 set -e
 
 ####################################################################
@@ -232,7 +233,6 @@ exec &> >(tee -a "openhabian-build-${timestamp}.log")
 
 # Load config, create temporary build folder, cleanup
 sourceFolder="build-image"
-# shellcheck disable=SC1090
 if [[ -f "${sourceFolder}/openhabian.${hwPlatform}.conf" ]]; then
   source "${sourceFolder}/openhabian.${hwPlatform}.conf"
 else
