@@ -233,7 +233,11 @@ exec &> >(tee -a "openhabian-build-${timestamp}.log")
 # Load config, create temporary build folder, cleanup
 sourceFolder="build-image"
 # shellcheck disable=SC1090
-source "${sourceFolder}/openhabian.${hwPlatform}.conf"
+if [[ -f "${sourceFolder}/openhabian.${hwPlatform}.conf" ]]; then
+  source "${sourceFolder}/openhabian.${hwPlatform}.conf"
+else
+  source "${sourceFolder}/openhabian.conf"
+fi
 buildFolder="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian-build-${hwPlatform}-image.XXXXX)"
 imageFile="${buildFolder}/${hwPlatform}.img"
 extraSize="1000"			# grow image root by this number of MB
@@ -352,7 +356,11 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
   touch "$buildFolder"/boot/ssh
   cp "$sourceFolder"/first-boot.bash "$buildFolder"/boot/first-boot.bash
   touch "$buildFolder"/boot/first-boot.log
-  unix2dos -q -n "$sourceFolder"/openhabian.${hwPlatform}.conf "$buildFolder"/boot/openhabian.conf
+  if [[ -f "$sourceFolder"/openhabian.${hwPlatform}.conf ]]; then
+    unix2dos -q -n "$sourceFolder"/openhabian.${hwPlatform}.conf "$buildFolder"/boot/openhabian.conf
+  else
+    unix2dos -q -n "$sourceFolder"/openhabian.conf "$buildFolder"/boot/openhabian.conf
+  fi
   cp "$sourceFolder"/webserver.bash "$buildFolder"/boot/webserver.bash
 
   encryptedPassword=$(echo "${defaultPassword:-openhabian}" | openssl passwd -6 -stdin)
