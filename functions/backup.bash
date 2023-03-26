@@ -1,5 +1,6 @@
-# shellcheck disable=SC1091
 #!/usr/bin/env bash
+
+# shellcheck disable=SC1091
 
 ## Create a backup of the current openHAB configuration using openHAB's builtin tool
 ##
