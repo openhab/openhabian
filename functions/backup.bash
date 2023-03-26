@@ -1,3 +1,4 @@
+# shellcheck disable=SC1091
 #!/usr/bin/env bash
 
 ## Create a backup of the current openHAB configuration using openHAB's builtin tool
@@ -416,7 +417,7 @@ mirror_SD() {
     if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
     sfdisk -d ${src} | grep -q "^${src}p3" && if ! cond_redirect dd if="${src}p3" bs=1M of="${dest}3" status=progress; then echo "FAILED (raw device copy of ${dest}3)"; dirty="yes"; fi
     origPartUUID="$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')"
-    if ! partUUID="$(yes | cond_redirect set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }')"; then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
+    if ! partUUID="$(yes | set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }')"; then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
     if ! cond_redirect e2fsck -y "${dest}2" -U random; then echo "FAILED (e2fsck)"; dirty="yes"; fi
     if ! cond_redirect tune2fs "${dest}2" -U random; then echo "FAILED (set random UUID)"; dirty="yes"; fi
     while umount -q "${dest}1"; do : ; done
