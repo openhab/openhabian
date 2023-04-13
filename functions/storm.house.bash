@@ -404,6 +404,7 @@ echo  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdi
 install_extras() {
   local serviceTargetDir="/etc/systemd/system"
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+  local deckey=/etc/ssl/private/ems.key
   local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
   local pkg="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${jar}"
   local dest="/usr/share/openhab/addons/${jar}"
@@ -424,7 +425,7 @@ install_extras() {
   cond_redirect install -m 644 "${includesDir}/openhab_rsa.pub" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
   cond_redirect install -m 600 "${includesDir}/openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
   cond_redirect chown "${username:-openhabian}:openhab" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/openhab_rsa*"
-  cond_redirect install -m 640 "${includesDir}/generic/ems.key" /etc/ssl/private/
+  cond_redirect install -m 640 "${includesDir}/generic/ems.key" $deckey
 
   # lc
   if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.timer; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
