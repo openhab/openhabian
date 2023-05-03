@@ -12,7 +12,7 @@ serial:
 advanced:
   network_key: GENERATE
   pan_id: GENERATE 
-  log_level: info
+  log_level: warn
   channel: 25
   output: attribute_and_json
   log_directory: /var/log/zigbee2mqtt/%TIMESTAMP%al
