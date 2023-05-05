@@ -132,6 +132,7 @@ setup_ntp() {
   fi
 }
 
+# setup_ntp() {
 ## Function for setting the locale of the current system.
 ##
 ##   The locale setting will default to the users choice on an INTERACTIVE setup,
