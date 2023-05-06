@@ -131,7 +131,7 @@ timezone_setting() {
 #     if cond_redirect timedatectl set-ntp false; then echo "OK"; else echo "FAILED (disable)"; return 1; fi
 #   fi
 # }
-ps -ef|grep -i ntp 
+ps -ef|pgrep -i ntp 
 ## Function for setting the locale of the current system.
 ##
 ##   The locale setting will default to the users choice on an INTERACTIVE setup,
