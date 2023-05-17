@@ -486,7 +486,7 @@ retrieve_license() {
   local licsrc="https://storm.house/licchk"
   local temp
   #local deckey="/etc/openhab/services/ems.key"
-  local deckey="/opt/openhabian/includes/openhab_rsa.key"
+  local deckey="/opt/openhabian/includes/openhab_rsa.pub"
   local lifetimekey="lifetime"
   local licuser=${1}
   local licfile="/etc/openhab/services/license"
