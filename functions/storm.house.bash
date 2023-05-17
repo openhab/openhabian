@@ -404,7 +404,7 @@ echo  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdi
 install_extras() {
   local serviceTargetDir="/etc/systemd/system"
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
-  local deckey=/etc/ssl/private/ems.key
+  local deckey="/etc/ssl/private/ems.key"
   local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
   local pkg="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${jar}"
   local dest="/usr/share/openhab/addons/${jar}"
@@ -431,6 +431,7 @@ install_extras() {
   if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.timer; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
   if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.service; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
   if ! cond_redirect install -m 755 "${includesDir}/generic/lc" /usr/local/sbin; then echo "FAILED (install lc)"; fi
+  if ! cond_redirect ln -s /usr/bin/openssl /usr/local/sbin/openssl11; then echo "FAILED (link openssl binary)"; fi
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now lc.timer lc.service; then echo "FAILED (enable timed lc start)"; fi
 }
@@ -486,7 +487,7 @@ retrieve_license() {
   local licsrc="https://storm.house/licchk"
   local temp
   #local deckey="/etc/openhab/services/ems.key"
-  local deckey="/opt/openhabian/includes/openhab_rsa.pub"
+  local deckey="/etc/ssl/private/ems.key"
   local lifetimekey="lifetime"
   local licuser=${1}
   local licfile="/etc/openhab/services/license"
