@@ -505,8 +505,6 @@ retrieve_license() {
   if [[ -f "${licuser}-LIC" ]]; then
     # decrypten mit public Key der dazu in includes liegen muss
     # XOR mitgeliefert ist (durch rsaCrypt)
-    # shellcheck disable=SC2091
-
     mv "${licuser}-LIC" "${licuser}.enc.sh"
     chmod +x "${licuser}.enc.sh"
     # shellcheck disable=SC2091
