@@ -146,8 +146,6 @@ show_main_menu() {
     "31 | Change hostname"        "Change the name of this system, currently '$(hostname)'" \
     "32 | Set system locale"      "Change system language, currently '$(env | grep "^[[:space:]]*LANG=" | sed 's|LANG=||g')'" \
     "33 | Set system timezone"    "Change your timezone, execute if it's not '$(printf "%(%H:%M)T\\n" "-1")' now" \
-    "   | Enable NTP"             "Enable time synchronization via systemd-timesyncd to NTP servers" \
-    "   | Disable NTP"            "Disable time synchronization via systemd-timesyncd to NTP servers" \
     "34 | Change passwords"       "Change passwords for Samba, openHAB Console or the system user" \
     "35 | Serial port"            "Prepare serial ports for peripherals like RaZberry, ZigBee adapters etc" \
     "36 | Disable framebuffer"    "Disable framebuffer on RPi to minimize memory usage" \
@@ -171,8 +169,6 @@ show_main_menu() {
       31\ *) hostname_change ;;
       32\ *) locale_setting ;;
       33\ *) timezone_setting ;;
-      *Enable\ NTP) setup_ntp "enable" ;;
-      *Disable\ NTP) setup_ntp "disable" ;;
       34\ *) change_password ;;
       35\ *) prepare_serial_port ;;
       36\ *) use_framebuffer "disable" ;;
