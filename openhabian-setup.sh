@@ -97,7 +97,6 @@ if [[ -n "$UNATTENDED" ]]; then
   load_create_config
   change_swapsize
   timezone_setting
-  setup_ntp "enable"
   locale_setting
   hostname_change
   memory_split

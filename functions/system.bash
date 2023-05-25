@@ -115,23 +115,7 @@ timezone_setting() {
 ##
 ##    setup_ntp(String option)
 ##
-setup_ntp() {
-  if running_in_docker || (! is_raspios && ! is_raspbian); then
-    echo "$(timestamp) [openHABian] Enabling time synchronization using NTP... SKIPPED"
-    return 0
-  fi
-
-  if [[ $1 == "enable" ]]; then
-    echo -n "$(timestamp) [openHABian] Enabling time synchronization using NTP... "
-    if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/generic/50-timesyncd.conf /lib/dhcpcd/dhcpcd-hooks/; then echo "FAILED (copy)"; return 1; fi
-    if cond_redirect timedatectl set-ntp true; then echo "OK"; else echo "FAILED (enable)"; return 1; fi
-  elif [[ $1 == "disable" ]]; then
-    echo -n "$(timestamp) [openHABian] Disabling time synchronization using NTP... "
-    if ! cond_redirect rm -f /lib/dhcpcd/dhcpcd-hooks/50-timesyncd.conf; then echo "FAILED (delete)"; return 1; fi
-    if cond_redirect timedatectl set-ntp false; then echo "OK"; else echo "FAILED (disable)"; return 1; fi
-  fi
-}
-
+ 
 ## Function for setting the locale of the current system.
 ##
 ##   The locale setting will default to the users choice on an INTERACTIVE setup,
