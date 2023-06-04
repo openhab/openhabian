@@ -153,8 +153,8 @@ openhabian_update_check() {
     openhabian_update "$branch"
   fi
   openhabian_announcements
-  echo -n "$(timestamp) [openHABian] Switching to branch ${clonebranch:-openHAB3}... "
-  if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-openHAB3}"; then echo "OK"; else echo "FAILED"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Switching to branch ${clonebranch:-openHAB}... "
+  if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-openHAB}"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Updates the current openhabian repository to the most current version of the
@@ -179,12 +179,12 @@ openhabian_update() {
   if [[ $# == 1 ]]; then
     branch="$1"
   elif [[ -n $INTERACTIVE ]]; then
-    radioOptions=("release" "recommended version that supports openHAB 3.x (openHAB3 branch)" "OFF")
+    radioOptions=("release" "most recommended version that supports openHAB 4 (openHAB branch)" "OFF")
     radioOptions+=("latest" "the latest of openHABian, not well tested (main branch)" "OFF")
-    radioOptions+=("legacy" "no longer updated, use for openHAB 2.x support (stable branch)" "OFF")
+    radioOptions+=("legacy" "use for openHAB 3.x support (openHAB3 branch)" "OFF")
 
     case "$current" in
-      "openHAB3")
+      "openHAB")
         branchLabel="the release version of openHABian"
         radioOptions[2]="ON"
         ;;
@@ -194,7 +194,7 @@ openhabian_update() {
         radioOptions[5]="ON"
         ;;
 
-      "stable")
+      "openHAB3"|"stable")
         branchLabel="the legacy version of openHABian"
         radioOptions[8]="ON"
         ;;
@@ -212,9 +212,9 @@ openhabian_update() {
 
     # translate the selection back to the actual git branch name
     case $selection in
-      release) selection="openHAB3";;
+      release) selection="openHAB";;
       latest) selection="main";;
-      legacy) selection="stable";;
+      legacy) selection="openHAB3";;
     esac
 
     read -r -t 1 -n 1 key
@@ -228,11 +228,11 @@ openhabian_update() {
         return 1
       fi
     else
-      branch="${selection:-openHAB3}"
+      branch="${selection:-openHAB}"
     fi
     if ! sed -i 's|^clonebranch=.*$|clonebranch='"${branch}"'|g' "$configFile"; then echo "FAILED (configure clonebranch)"; exit 1; fi
   else
-    branch="${clonebranch:-openHAB3}"
+    branch="${clonebranch:-openHAB}"
   fi
 
   shorthashBefore="$(git -C "${BASEDIR:-/opt/openhabian}" log --pretty=format:'%h' -n 1)"
@@ -258,7 +258,7 @@ openhabian_update() {
 }
 
 ## Changes files on disk to match the new (changed) openhabian branch
-## Valid arguments: "openHAB3" or "openHAB2"
+## Valid arguments: "openHAB", "openHAB3" or "openHAB2"
 ##
 ##    migrate_installation()
 ##
@@ -286,10 +286,10 @@ migrate_installation() {
 
   echo -n "$(timestamp) [openHABian] Preparing openHAB installation... "
 
-  if [[ "$1" == "openHAB3" ]]; then
-    if openhab3_is_installed; then
-      whiptail --title "openHAB version already installed" --msgbox "openHAB3 $failText" 10 80
-      echo "FAILED (openHAB 3 already installed)"
+  if [[ "$1" == "openHAB" ]] || [[ "$1" == "openHAB3" ]]; then
+    if openhab4_is_installed || openhab3_is_installed; then
+      whiptail --title "openHAB version already installed" --msgbox "openHAB $failText" 10 80
+      echo "FAILED (openHAB 3 or 4 already installed)"
       return 1
     fi
     from="openhab2"

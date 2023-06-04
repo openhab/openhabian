@@ -110,7 +110,8 @@ if [[ -n "$UNATTENDED" ]]; then
   add_admin_ssh_key
   firemotd_setup
   java_install "${java_opt:-11}"
-  openhab_setup "${clonebranch:-openHAB3}" "stable"
+  #openhab_setup "${clonebranch:-openHAB}" "stable"
+  openhab_setup "${clonebranch:-openHAB}" "testing"
   import_openhab_config
   openhab_shell_interfaces
   vim_openhab_syntax

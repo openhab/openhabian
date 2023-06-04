@@ -63,21 +63,21 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 
 ... and much more
 
-## On openHAB 2 and 3
-openHABian will install **openHAB 3** by default.
-When openHAB3 was released, there have been some big changes also to openHABian such as to install Java 11 and to use changed file and directory names so you cannot simple upgrade the packages without adapting the rest of your server system, the openHABian installation that is.
-openHAB 2 will continue to work on openHABian, but openHAB 2 support is no longer actively maintained and the software will only receive select patches deemed necessary by the maintainers of the project.
+## On openHAB 2, 3 and 4
+openHABian will install **openHAB 4** and Java 17 by default.
+When openHAB3 was released some 3 years ago, there have been some big changes also to openHABian such as to install Java 11 and to use changed file and directory names so you cannot simple upgrade the packages without adapting the rest of your server system, the openHABian installation that is.
+openHAB 2 will continue to work on openHABian, but openHAB 2 support is no longer actively maintained.
 If you need openHAB 2 support please use the `stable` branch of openHABian.
 You can switch branches using menu option 01 in `openhabian-config` but ATTENTION you cannot up- or downgrade this way and you cannot arbitrarily change versions.
 There's a high risk you mess up your system if you do.
 
-### Deploy openHAB 2
-The image will install openHAB 3 by default, to have it install openHAB 2 right from the beginning, set` clonebranch=stable` in `openhabian.conf` before first boot.
+### Deploy openHAB 2 or 3
+The image will install openHAB 4 by default, to have it install openHAB 2 or 3 right from the beginning, set `clonebranch=stable` or `clonebranch=openhab3` in `openhabian.conf` before first boot.
 
-## Upgrading openHAB 2 to openHAB 3
-For openHABian users running openHAB 2.X, `openhabian-config` offers to migrate the openHABian environment and install openHAB3 for you.
+## Upgrading openHAB 2 to current openHAB
+For openHABian users still running openHAB 2.X, `openhabian-config` offers to migrate the openHABian environment and install current openHAB for you.
 Menu option 42 will do the upgrade.
-Be aware that it isn't the [answer to the ultimate question](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#The_Answer_to_the_Ultimate_Question_of_Life,_the_Universe,_and_Everything_is_42): there is ONLY an openHAB upgrade path, you cannot downgrade from openHAB 3 to openHAB 2.
+Be aware that it isn't the [answer to the ultimate question](https://en.wikipedia.org/wiki/Phrases_from_The_Hitchhiker%27s_Guide_to_the_Galaxy#The_Answer_to_the_Ultimate_Question_of_Life,_the_Universe,_and_Everything_is_42): there is ONLY an openHAB upgrade path, you cannot downgrade to openHAB 2.
 
 ::: warning No downgrades
 Take an openHAB config backup BEFORE you upgrade from openHAB v2 to v3. You should also take a system level backup!
@@ -233,7 +233,7 @@ apt-get update
 apt-get install git
 
 # download, link and create config file
-git clone -b openHAB3 https://github.com/openhab/openhabian.git /opt/openhabian
+git clone -b openHAB https://github.com/openhab/openhabian.git /opt/openhabian
 ln -s /opt/openhabian/openhabian-setup.sh /usr/local/bin/openhabian-config
 cp /opt/openhabian/build-image/openhabian.conf /etc/openhabian.conf
 ```
@@ -551,7 +551,7 @@ Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 #### Can I switch openHAB 2 and 3 via openHABian branches?
 
 openHABian installs the latest stable build of openHAB.
-The standard openHABian `openHAB3` and `main` branches will install the new openHAB version 3 and the old `stable` branch will install the old openHAB version 2.
+The standard openHABian `openHAB` and `main` branches will install the new openHAB version 4 and the old `openHAB3` and `stable` branch will install the old openHAB version 3 and 2, respectively.
 You can migrate between versions by selecting the corresponding 4X menu option.
 That should also result in an openHABian branch change.
 If you want to choose from stable, snapshot or milestone releases, please do so via `openhabian-config` tool (also menu 4X).

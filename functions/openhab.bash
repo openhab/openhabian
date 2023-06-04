@@ -40,7 +40,7 @@ delayed_rules() {
 }
 
 ## Function to install / upgrade / downgrade the installed openHAB version
-## Valid arguments: "openHAB3" or "openHAB2"
+## Valid arguments: "openHAB", "openHAB3" or "openHAB2"
 ## Valid arguments: "unstable", "stable", or "testing"
 ##
 ##    openhab_setup(String version, String release)
