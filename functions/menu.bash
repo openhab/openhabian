@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 
 show_about() {
-  if openhab3_is_installed; then OHPKG="openhab"; else OHPKG="openhab2"; fi
+  if openhab2_is_installed; then OHPKG="openhab2"; else OHPKG="openhab"; fi
   whiptail --title "About openHABian and $(basename "$0")" --msgbox "openHABian Configuration Tool — $(get_git_revision)
 openHAB $(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties) - $(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
 \\nThis tool provides a little help to make your openHAB experience as comfortable as possible.
 Make sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
-\\nMenu 01 will allow you to select the standard (\"openHAB3\") or the very latest (\"main\") openHABian version.
+\\nMenu 01 will allow you to select the standard (\"openHAB\") or the very latest (\"main\") openHABian version.
 Menu 02 will upgrade all of your OS and applications to the latest versions, including openHAB.
 Menu 03 will install or upgrade openHAB to the latest version available.
 Menu 10 provides a number of system tweaks. These are already active after a standard installation.
@@ -64,7 +64,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
-    migrate_installation "openHAB3"
+    migrate_installation "openHAB"
 
   elif [[ "$choice" == "04"* ]]; then
     import_openhab_config
@@ -194,8 +194,8 @@ show_main_menu() {
     "41 | openHAB Release"                "Install or switch to the latest openHAB Release" \
     "   | openHAB Milestone"              "Install or switch to the latest openHAB Milestone Build" \
     "   | openHAB Snapshot"               "Install or switch to the latest openHAB Snapshot Build" \
-    "42 | Upgrade to openHAB 3"           "Upgrade OS environment to openHAB 3 release" \
-    "   | Downgrade to openHAB 2"         "Downgrade OS environment from openHAB 3 back to openHAB 2 (DANGEROUS)" \
+    "42 | Upgrade to latest openHAB"      "Upgrade OS environment to openHAB current release" \
+    "   | Downgrade to openHAB 2"         "Downgrade OS environment back to openHAB 2 (DANGEROUS)" \
     "43 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
     "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
     "45 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (now default)" \
@@ -209,13 +209,13 @@ show_main_menu() {
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
-    version="$(openhab3_is_installed && echo "openHAB3" || echo "openHAB2")"
+    version="$(openhab4_is_installed && echo "openHAB" || openhab3_is_installed && echo "openHAB3" || echo "openHAB2")"
     # shellcheck disable=SC2154
     case "$choice2" in
       41\ *) openhab_setup "$version" "stable";;
       *openHAB\ Milestone) openhab_setup "$version" "testing";;
       *openHAB\ Snapshot) openhab_setup "$version" "unstable";;
-      42\ *) migrate_installation "openHAB3" && openhabian_update "openHAB3";;
+      42\ *) migrate_installation "openHAB" && openhabian_update "openHAB";;
       *Downgrade\ to\ openHAB\ 2) migrate_installation "openHAB2" && openhabian_update "stable";;
       43\ *) openhab_shell_interfaces;;
       44\ *) nginx_setup;;

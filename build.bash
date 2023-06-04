@@ -207,7 +207,7 @@ elif [ "$1" == "local-test" ]; then
   # Use local filesystem's version of openHABian
   # shellcheck disable=SC2016
   if ! running_in_docker; then
-    sed -i 's|$(eval "$(openhabian_update "${clonebranch:-openHAB3}" &> /dev/null)") -eq 0|true|' /boot/first-boot.bash
+    sed -i 's|$(eval "$(openhabian_update "${clonebranch:-openHAB}" &> /dev/null)") -eq 0|true|' /boot/first-boot.bash
   fi
   chmod +x /boot/first-boot.bash
   chmod +x /boot/webserver.bash
@@ -321,10 +321,10 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
     rm -f getty@tty1.service.d/autologin.conf
   )
 
-  echo_process "Cloning myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-openHAB3} branch... "
+  echo_process "Cloning myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-openHAB} branch... "
   if ! [[ -d ${buildFolder}/root/opt/openhabian ]]; then
     git clone "${repositoryurl:-https://github.com/openhab/openhabian.git}" "$buildFolder"/root/opt/openhabian &> /dev/null
-    git -C "$buildFolder"/root/opt/openhabian checkout "${clonebranch:-openHAB3}" &> /dev/null
+    git -C "$buildFolder"/root/opt/openhabian checkout "${clonebranch:-openHAB}" &> /dev/null
   fi
   touch "$buildFolder"/root/opt/openHABian-install-inprogress
 
