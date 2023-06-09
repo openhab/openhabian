@@ -190,12 +190,11 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 24 118 16 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 23 118 15 --cancel-button Back --ok-button Execute \
     "41 | openHAB Release"                "Install or switch to the latest openHAB Release" \
     "   | openHAB Milestone"              "Install or switch to the latest openHAB Milestone Build" \
     "   | openHAB Snapshot"               "Install or switch to the latest openHAB Snapshot Build" \
-    "42 | Upgrade to latest openHAB"      "Upgrade OS environment to openHAB current release" \
-    "   | Downgrade to openHAB 2"         "Downgrade OS environment back to openHAB 2 (DANGEROUS)" \
+    "42 | Upgrade legacy openHABian env"  "Upgrade openHAB 2 based OS environment to work with openHAB 3 or 4" \
     "43 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
     "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
     "45 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (now default)" \
@@ -216,7 +215,6 @@ show_main_menu() {
       *openHAB\ Milestone) openhab_setup "$version" "testing";;
       *openHAB\ Snapshot) openhab_setup "$version" "unstable";;
       42\ *) migrate_installation "openHAB" && openhabian_update "openHAB";;
-      *Downgrade\ to\ openHAB\ 2) migrate_installation "openHAB2" && openhabian_update "stable";;
       43\ *) openhab_shell_interfaces;;
       44\ *) nginx_setup;;
       *OpenJDK\ 11) update_config_java "11" && java_install "11";;
