@@ -326,7 +326,7 @@ permissions_corrections() {
   fi
   if zram_is_installed; then
     if influxdb_is_installed; then
-       if ! cond_redirect fix_permissions /opt/zram/influxdb.bind root:root 664 775; then echo "FAILED (InfluxDB storage on zram)"; retval=1; fi
+       if ! cond_redirect fix_permissions /opt/zram/influxdb.bind influxdb:influxdb 664 775; then echo "FAILED (InfluxDB storage on zram)"; retval=1; fi
     fi
     if grafana_is_installed; then
       if ! cond_redirect fix_permissions /opt/zram/log.bind/grafana root:root 644 755; then echo "FAILED (grafana logdir on zram)"; retval=1; fi
