@@ -40,8 +40,8 @@ delayed_rules() {
 }
 
 ## Function to install / upgrade / downgrade the installed openHAB version
-## Valid arguments: "openHAB", "openHAB3" or "openHAB2"
-## Valid arguments: "unstable", "stable", or "testing"
+## Valid argument 1: "openHAB" or "openHAB2"
+## Valid argument 2: "release", "milestone", or "snapshot"
 ##
 ##    openhab_setup(String version, String release)
 ##
@@ -52,32 +52,32 @@ openhab_setup() {
   local repo
   local successText
 
-  if [[ "$1" == "openHAB2" ]] || [[ "$1" == "stable" ]]; then
+  if [[ "$1" == "openHAB2" ]] || [[ "$1" == "legacy" ]]; then
      ohPkgName="openhab2"
   else
      ohPkgName="openhab"
   fi
 
-  if [[ $2 == "unstable" ]]; then
+  if [[ $2 == "snapshot" ]]; then
     introText="Proceed with caution!\\n\\nYou are about to switch over to the latest $ohPkgName unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
     successText="The latest unstable snapshot build of $ohPkgName is now running on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nIf you find any problems or bugs, please report them and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (using menu option 02) regularly."
     repo="deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg unstable main"
-  elif [[ $2 == "stable" ]]; then
+  elif [[ $2 == "release" ]]; then
     introText="You are about to install or change to the latest stable $ohPkgName release.\\n\\nPlease be aware that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
     successText="The stable release of $ohPkgName is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main"
-  elif [[ $2 == "testing" ]]; then
+  elif [[ $2 == "milestone" ]]; then
     introText="You are about to install or change to the latest milestone (testing) $ohPkgName build. It contains the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue.\\n\\nPlease be aware that downgrading from a newer build is not officially supported.\\n\\nPlease consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
     successText="The testing release of $ohPkgName is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg testing main"
   fi
 
-  if [[ $2 == "unstable" ]]; then
-    echo -n "$(timestamp) [openHABian] Beginning install of latest $ohPkgName snapshot build (unstable)... "
-  elif [[ $2 == "stable" ]]; then
-    echo -n "$(timestamp) [openHABian] Beginning install of latest $ohPkgName release (stable)... "
-  elif [[ $2 == "testing" ]]; then
-    echo -n "$(timestamp) [openHABian] Beginning install of latest $ohPkgName milestone build (testing)... "
+  if [[ $2 == "snapshot" ]]; then
+    echo -n "$(timestamp) [openHABian] Beginning install of latest $ohPkgName snapshot build (unstable repo)... "
+  elif [[ $2 == "release" ]]; then
+    echo -n "$(timestamp) [openHABian] Beginning install of latest $ohPkgName release (stable repo)... "
+  elif [[ $2 == "milestone" ]]; then
+    echo -n "$(timestamp) [openHABian] Beginning install of latest $ohPkgName milestone build (testing repo)... "
   fi
 
   if [[ -n $INTERACTIVE ]]; then

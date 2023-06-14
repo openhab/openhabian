@@ -181,7 +181,7 @@ openhabian_update() {
   elif [[ -n $INTERACTIVE ]]; then
     radioOptions=("release" "most recommended version that supports openHAB 4 (openHAB branch)" "OFF")
     radioOptions+=("latest" "the latest of openHABian, not well tested (main branch)" "OFF")
-    radioOptions+=("legacy" "use for openHAB 3.x support (openHAB3 branch)" "OFF")
+    radioOptions+=("legacy" "use for openHAB 2.x support (legacy stable branch)" "OFF")
 
     case "$current" in
       "openHAB")
@@ -194,7 +194,7 @@ openhabian_update() {
         radioOptions[5]="ON"
         ;;
 
-      "openHAB3"|"stable")
+      "openHAB2"|"stable")
         branchLabel="the legacy version of openHABian"
         radioOptions[8]="ON"
         ;;
