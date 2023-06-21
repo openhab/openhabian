@@ -43,7 +43,7 @@ delayed_rules() {
 ## Valid argument 1: "openHAB" or "openHAB2"
 ## Valid argument 2: "release", "milestone", or "snapshot"
 ##
-##    openhab_setup(String version, String release)
+##    openhab_setup(String version, String release, String packageversion)
 ##
 openhab_setup() {
   local introText
@@ -95,8 +95,8 @@ openhab_setup() {
 
     echo -n "$(timestamp) [openHABian] Installing selected $1 version... "
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-    openhabVersion="$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)"
-    if cond_redirect apt-get install --allow-downgrades --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" --option Dpkg::Options::="--force-confnew" "${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
+    openhabVersion="${3:-$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)}"
+if cond_redirect apt-get install --allow-downgrades --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" --option Dpkg::Options::="--force-confnew" "${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "
     if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" --option Dpkg::Options::="--force-confnew" ${ohPkgName} ${ohPkgName}-addons; then echo "OK"; else echo "FAILED"; return 1; fi
