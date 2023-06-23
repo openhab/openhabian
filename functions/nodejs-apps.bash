@@ -9,7 +9,7 @@ nodejs_setup() {
   if node_is_installed && ! is_armv6l; then return 0; fi
 
   local keyName="nodejs"
-  local link="https://nodejs.org/dist/v18.12.0/node-v18.12.0-linux-armv7l.tar.xz"
+  local link="https://nodejs.org/dist/v18.16.1/node-v18.16.1-linux-armv7l.tar.xz"
   local myDistro
   local temp
 
@@ -30,8 +30,8 @@ nodejs_setup() {
       if ! add_keys "https://deb.nodesource.com/gpgkey/nodesource.gpg.key" "$keyName"; then return 1; fi
 
       echo -n "$(timestamp) [openHABian] Adding NodeSource repository to apt... "
-      echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://deb.nodesource.com/node_16.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
-      echo "deb-src [signed-by=/usr/share/keyrings/${keyName}.gpg] https://deb.nodesource.com/node_16.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
+      echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://deb.nodesource.com/node_18.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
+      echo "deb-src [signed-by=/usr/share/keyrings/${keyName}.gpg] https://deb.nodesource.com/node_18.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
       if [[ -n $PREOFFLINE ]]; then
         if cond_redirect apt-get --quiet update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
       else
