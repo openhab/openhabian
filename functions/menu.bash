@@ -34,8 +34,8 @@ show_main_menu() {
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Update all installed software packages (incl. openHAB) to their latest version" \
-  "03 | Install openHAB"         "Install or upgrade to openHAB 3" \
-  "04 | Import config"           "Import an openHAB 3 configuration from file or URL" \
+  "03 | Install openHAB"         "Install or upgrade to latest openHAB" \
+  "04 | Import config"           "Import an openHAB configuration from file or URL" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
   "20 | Optional Components"     "Choose from a set of optional software components ►" \
