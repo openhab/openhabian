@@ -65,6 +65,7 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 
 ## On openHAB 2, 3 and 4
 openHABian will install **openHAB 4** and Java 17 by default.
+(Before general availability of OH4 it will be the latest milestone version, to be replace by the release version when that becomes available).
 When openHAB3 was released some 3 years ago, there have been some big changes also to openHABian such as to install Java 11 and to use changed file and directory names so you cannot simple upgrade the packages without adapting the rest of your server system, the openHABian installation that is.
 openHAB 2 will continue to work on openHABian, but openHAB 2 support is no longer actively maintained.
 If you need openHAB 2 support please use the `stable` branch of openHABian.
