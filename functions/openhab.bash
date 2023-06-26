@@ -59,15 +59,15 @@ openhab_setup() {
   fi
 
   if [[ $2 == "snapshot" ]]; then
-    introText="Proceed with caution!\\n\\nYou are about to switch over to the latest $ohPkgName unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!"
+    introText="Proceed with caution!\\n\\nYou are about to switch over to the latest $ohPkgName unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!\\n\\nBeware that downgrading will not be possible, you can only re-install old software and re-important the config backup you should have made before the upgrade."
     successText="The latest unstable snapshot build of $ohPkgName is now running on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nIf you find any problems or bugs, please report them and state the snapshot version you are on. To stay up-to-date with improvements and bug fixes you should upgrade your packages (using menu option 02) regularly."
     repo="deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg unstable main"
   elif [[ $2 == "release" ]]; then
-    introText="You are about to install or change to the latest stable $ohPkgName release.\\n\\nPlease be aware that downgrading from a newer unstable snapshot build is not officially supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
+    introText="You are about to install or change to the latest stable $ohPkgName release.\\n\\nPlease be aware that downgrading from a newer unstable snapshot build is not supported. Please consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
     successText="The stable release of $ohPkgName is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main"
   elif [[ $2 == "milestone" ]]; then
-    introText="You are about to install or change to the latest milestone (testing) $ohPkgName build. It contains the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue.\\n\\nPlease be aware that downgrading from a newer build is not officially supported.\\n\\nPlease consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
+    introText="You are about to install or change to the latest milestone $ohPkgName build. Note this is openHAB 4!\\n\\nMilestones contain the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue in the proper place.\\n\\nPlease be aware that downgrading from a newer build is not supported!\\n\\nPlease consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
     successText="The testing release of $ohPkgName is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg testing main"
   fi
@@ -81,7 +81,7 @@ openhab_setup() {
   fi
 
   if [[ -n $INTERACTIVE ]]; then
-    if (whiptail --title "openHAB software change" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 15 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+    if (whiptail --title "openHAB software change" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 20 80); then echo "OK"; else echo "CANCELED"; return 1; fi
     export DEBIAN_FRONTEND=noninteractive
   else
     echo "OK"
