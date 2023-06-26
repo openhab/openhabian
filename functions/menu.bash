@@ -7,7 +7,6 @@ show_about() {
   version=$(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
   whiptail --title "About storm.house and smart-house-config" --msgbox "storm.house Configuration Tool $(get_git_revision)
 openHAB $(sed -n 's/openhab-distro\s*: //p' "/var/lib/${OHPKG}/etc/version.properties") - $(sed -n 's/build-no\s*: //p' "/var/lib/${OHPKG}/etc/version.properties")
-<<<<<<< HEAD
 \\nThis Energy Management System is based on openHAB 4.3.7 and EVCC 0.204.5.\\n
 Menu 02 will upgrade all of your OS and applications to the latest versions.
 Menu 03 will update storm.house EMS to the latest versions.
