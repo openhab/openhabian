@@ -315,11 +315,14 @@ setup_power_config() {
 ##    replace_logo()
 ##
 replace_logo() {
+  local JAR
   # shellcheck disable=SC2125
-  local JAR=/usr/share/openhab/runtime/system/org/openhab/ui/bundles/org.openhab.ui/3.*/org.openhab.ui-3.*.jar
   local logoInJAR=app/images/openhab-logo.svg
   local logoNew="${BASEDIR:-/opt/openhabian}/includes"/logo.svg
 
+
+  # shellcheck disable=SC2012
+  JAR=$(ls -1t /usr/share/openhab/runtime/system/org/openhab/ui/bundles/org.openhab.ui/*/org.openhab.ui-*|sort -ru|head -1)
   rm -rf "$logoInJAR"
   # shellcheck disable=SC2086
   unzip -qq $JAR "$logoInJAR"
