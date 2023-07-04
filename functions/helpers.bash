@@ -291,22 +291,28 @@ is_raspios() {
   [[ "$(cat /boot/issue.txt)" =~ "Raspberry Pi reference" ]]
   return $?
 }
-# Debian/Raspbian oldoldstable
+# Debian/Raspbian oldoldoldstable
 is_stretch() {
   if [[ "$osrelease" == "stretch" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "stretch" ]]
   return $?
 }
-# Debian/Raspbian oldstable
+# Debian/Raspbian oldoldstable
 is_buster() {
   if [[ "$osrelease" == "buster" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "buster" ]]
   return $?
 }
-# Debian/Raspbian stable
+# Debian/Raspbian oldstable
 is_bullseye() {
   if [[ "$osrelease" == "bullseye" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "bullseye" ]]
+  return $?
+}
+# Debian/Raspbian stable
+is_bullseye() {
+  if [[ "$osrelease" == "bookworm" ]]; then return 0; fi
+  [[ $(cat /etc/*release*) =~ "bookworm" ]]
   return $?
 }
 # Debian/Raspbian unstable
@@ -331,6 +337,12 @@ is_bionic() {
 is_focal() {
   if [[ "$osrelease" == "focal" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "focal" ]]
+  return $?
+}
+# Ubuntu 22.04 LTS
+is_jellyfish() {
+  if [[ "$osrelease" == "jellyfish" ]]; then return 0; fi
+  [[ $(cat /etc/*release*) =~ "jellyfish" ]]
   return $?
 }
 running_in_docker() {
