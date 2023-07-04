@@ -310,7 +310,7 @@ is_bullseye() {
   return $?
 }
 # Debian/Raspbian stable
-is_bullseye() {
+is_bookworm() {
   if [[ "$osrelease" == "bookworm" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "bookworm" ]]
   return $?
