@@ -662,7 +662,7 @@ deconz_setup() {
   if is_x86_64; then
     arch=" arch=amd64"
   fi
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg${arch}] http://phoscon.de/apt/deconz ${myRelease} main" > $repo
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg${arch}] http://phoscon.de/apt/deconz generic main" > $repo
 
   if ! cond_redirect mkdir "${appData}" && fix_permissions "${appData}" "${username:-openhabian}:${username:-openhabian}" 664 775 && ln -sf "${appData}" /home/"${username:-openhabian}"/.local; then echo "FAILED (deCONZ database on zram)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Preparing deCONZ repository ... "
