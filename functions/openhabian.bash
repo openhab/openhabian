@@ -155,6 +155,8 @@ openhabian_update_check() {
   openhabian_announcements
   echo -n "$(timestamp) [openHABian] Switching to branch ${clonebranch:-openHAB}... "
   if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-openHAB}"; then echo "OK"; else echo "FAILED"; return 1; fi
+  echo -n "$(timestamp) [openHABian] Checking openHAB Signing Key expiry..."
+  if check_keys openhab || add_keys openhab; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Updates the current openhabian repository to the most current version of the

@@ -58,6 +58,28 @@ add_keys() {
   fi
 }
 
+## Check key for expiration within 30 days
+##
+##    check_keys(String keyFile)
+##
+check_keys() {
+  local repoKey="/usr/share/keyrings/${2}.gpg"
+
+  gpgKeys=$(gpg --with-colons --fixed-list-mode --show-keys ${repoKey} | cut -d: -f7 | awk NF)
+  currentTime=$(date +%s)
+  if [ -n "$gpgKeys" ]; then
+    while IFS= read -r keyExpiry; do
+      diff=$((keyExpiry - currentTime))
+      daysLeft=$((diff/(60*60*24)))
+      if [ ${daysLeft} -lt 30 ]; then
+        return 1
+      fi
+    done <<< "${gpgKeys}"
+  fi
+  return 0
+}
+
+
 ## Update given git repo and switch to specfied branch / tag
 ##
 ##    update_git_repo(String path, String branch)
