@@ -65,7 +65,7 @@ add_keys() {
 check_keys() {
   local repoKey="/usr/share/keyrings/${2}.gpg"
 
-  gpgKeys=$(gpg --with-colons --fixed-list-mode --show-keys ${repoKey} | cut -d: -f7 | awk NF)
+  gpgKeys=$(gpg --with-colons --fixed-list-mode --show-keys "${repoKey}" | cut -d: -f7 | awk NF)
   currentTime=$(date +%s)
   if [ -n "$gpgKeys" ]; then
     while IFS= read -r keyExpiry; do
