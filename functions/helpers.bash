@@ -63,7 +63,9 @@ add_keys() {
 ##    check_keys(String keyFile)
 ##
 check_keys() {
-  local repoKey="/usr/share/keyrings/${2}.gpg"
+  local repoKey="/usr/share/keyrings/${1}.gpg"
+
+  echo -n "$(timestamp) [openHABian] Checking expiry date of apt keys... "
 
   gpgKeys=$(gpg --with-colons --fixed-list-mode --show-keys "${repoKey}" | cut -d: -f7 | awk NF)
   currentTime=$(date +%s)
@@ -72,13 +74,15 @@ check_keys() {
       diff=$((keyExpiry - currentTime))
       daysLeft=$((diff/(60*60*24)))
       if [ ${daysLeft} -lt 30 ]; then
+        echo "NEEDS UPDATE"
         return 1
       fi
     done <<< "${gpgKeys}"
+  else
+    echo "OK"
+    return 0
   fi
-  return 0
 }
-
 
 ## Update given git repo and switch to specfied branch / tag
 ##
