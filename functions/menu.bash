@@ -64,7 +64,11 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
-    migrate_installation "openHAB"
+    if [[ $(apt-cache madison openhab | head -n 1 | awk '{ print $3 }' | cut -d'.' -f1) = 4 ]]; then
+      update_config_java "17" && java_install "17"
+    fi
+    repo=$(apt-cache madison openhab | head -n 1 | awk '{ print $6 }' |cut -d'/' -f1)
+    openhab_setup "openHAB" "$rel"
 
   elif [[ "$choice" == "04"* ]]; then
     import_openhab_config
