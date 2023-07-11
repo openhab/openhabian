@@ -157,7 +157,7 @@ openhabian_update_check() {
   if git -C "${BASEDIR:-/opt/openhabian}" checkout --quiet "${clonebranch:-openHAB}"; then echo "OK"; else echo "FAILED"; return 1; fi
   echo "$(timestamp) [openHABian] Checking openHAB Signing Key expiry."
   if ! check_keys openhab; then
-    add_keys openhab
+    add_keys "https://openhab.jfrog.io/artifactory/api/gpg/key/public" openhab
   fi
 }
 

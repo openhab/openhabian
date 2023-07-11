@@ -67,6 +67,7 @@ check_keys() {
 
   echo -n "$(timestamp) [openHABian] Checking expiry date of apt keys... "
 
+  if [ ! -f "${repoKey}" ]; then echo "WARN (no file)"; return 1; fi
   gpgKeys=$(gpg --with-colons --fixed-list-mode --show-keys "${repoKey}" | cut -d: -f7 | awk NF)
   currentTime=$(date +%s)
   if [ -n "$gpgKeys" ]; then
@@ -74,10 +75,13 @@ check_keys() {
       diff=$((keyExpiry - currentTime))
       daysLeft=$((diff/(60*60*24)))
       if [ ${daysLeft} -lt 30 ]; then
-        echo "NEEDS UPDATE"
+        echo "WARN (needs update)"
         return 1
       fi
     done <<< "${gpgKeys}"
+  else
+    echo "WARN (no key in file)"
+    return 1
   fi
   echo "OK"
   return 0
