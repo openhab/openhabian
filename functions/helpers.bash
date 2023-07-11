@@ -78,10 +78,9 @@ check_keys() {
         return 1
       fi
     done <<< "${gpgKeys}"
-  else
-    echo "OK"
-    return 0
   fi
+  echo "OK"
+  return 0
 }
 
 ## Update given git repo and switch to specfied branch / tag
