@@ -58,6 +58,35 @@ add_keys() {
   fi
 }
 
+## Check key for expiration within 30 days
+##
+##    check_keys(String keyFile)
+##
+check_keys() {
+  local repoKey="/usr/share/keyrings/${1}.gpg"
+
+  echo -n "$(timestamp) [openHABian] Checking expiry date of apt keys... "
+
+  if [[ ! -f "${repoKey}" ]]; then echo "WARN (no file)"; return 1; fi
+  gpgKeys=$(gpg --with-colons --fixed-list-mode --show-keys "${repoKey}" | cut -d: -f7 | awk NF)
+  currentTime=$(date +%s)
+  if [[ -n "$gpgKeys" ]]; then
+    while IFS= read -r keyExpiry; do
+      diff=$((keyExpiry - currentTime))
+      daysLeft=$((diff/(60*60*24)))
+      if [[ ${daysLeft} -lt 30 ]]; then
+        echo "WARN (needs update)"
+        return 1
+      fi
+    done <<< "${gpgKeys}"
+  else
+    echo "WARN (no key in file)"
+    return 1
+  fi
+  echo "OK"
+  return 0
+}
+
 ## Update given git repo and switch to specfied branch / tag
 ##
 ##    update_git_repo(String path, String branch)
