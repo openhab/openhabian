@@ -713,6 +713,7 @@ install_evcc() {
     echo -n "$(timestamp) [openHABian] Removing EVCC... "
     if ! cond_redirect systemctl disable --now evcc.service; then echo "FAILED (disable evcc.service)"; return 1; fi
     if cond_redirect apt-get purge --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" evcc; then echo "OK"; else echo "FAILED"; return 1; fi
+    rm -f "$svcdir/override.conf"
     return;
   fi
 
@@ -729,7 +730,9 @@ install_evcc() {
   if ! cond_redirect apt install -y evcc; then echo "FAILED (EVCC package installation)"; return 1; fi
 
   mkdir "$svcdir"
-  sed -e "s|%USER|${username}|g" "${BASEDIR:-/opt/openhabian}"/includes/evcc-override.conf > "$svcdir/override.conf"
+  if [[ $(systemctl show -pUser evcc | cut -d= -f2) == "${username:-openhabian}" ]]; then
+    sed -e "s|%USER|${username}|g" "${BASEDIR:-/opt/openhabian}"/includes/evcc-override.conf > "$svcdir/override.conf"
+  fi
 
   if ! cond_redirect systemctl enable --now evcc.service; then echo "FAILED (enable evcc.service)"; return 1; fi
   cp "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
@@ -742,6 +745,7 @@ install_evcc() {
 ##    setup_evcc
 ##
 setup_evcc() {
+  local evccuser
   local evccConfig="evcc.yaml"
   local port="${1:-7070}"
   local introText="This will create a configuration for EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface."
@@ -752,13 +756,14 @@ setup_evcc() {
     evcc configure --advanced
   fi
 
+  evccuser="$(systemctl show -pUser evcc | cut -d= -f2)"
   if [[ -f ${evccConfig} ]]; then
-    cond_redirect cp /home/"${username:-openhabian}"/${evccConfig} /home/"${username:-openhabian}"/${evccConfig}.SAVE
-    cond_redirect mv "${evccConfig}" /home/"${username:-openhabian}"
+    cond_redirect cp /home/"${evccuser:-${username:-openhabian}}"/${evccConfig} /home/"${evccuser:-${username:-openhabian}}"/${evccConfig}.SAVE
+    cond_redirect mv "${evccConfig}" /home/"${evccuser:-${username:-openhabian}}"
   fi
-  cond_redirect touch /home/"${username:-openhabian}"/${evccConfig}
-  cond_redirect chown "${username:-openhabian}:openhab" /home/"${username:-openhabian}"/${evccConfig}*
-  cond_redirect chmod g+w /home/"${username:-openhabian}"/${evccConfig}*
+  cond_redirect touch /home/"${evccuser:-${username:-openhabian}}"/${evccConfig}
+  cond_redirect chown "${evccuser:-${username:-openhabian}}:openhab" /home/"${evccuser:-${username:-openhabian}}"/${evccConfig}*
+  cond_redirect chmod g+w /home/"${evccuser:-${username:-openhabian}}"/${evccConfig}*
 
   echo -n "$(timestamp) [openHABian] Created EVCC config, restarting ... "
   if cond_redirect systemctl restart evcc.service; then echo "OK"; else echo "FAILED"; fi
