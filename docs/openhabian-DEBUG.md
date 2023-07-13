@@ -64,7 +64,7 @@ To see debug output during the image installation process, you need to use the p
 
 If you have a console available (monitor and keyboard), you may attach it to follow the install process **but** be aware that attaching a keyboard may cause the installation to fail.
 Now insert the SD card and turn on your system.
-If you don't have any console, access the web console at `http://<yourhostip>:80/`.
+If you don't have any console, access the web console at `http://<yourhostip>:81/`.
 It will display the contents of `/boot/first-log.boot` at intervals of some seconds while installing.
 Mind you that if installation fails, network access may or may not be possible so you might need to access the box via console anyway in order to find out what went wrong.
 
