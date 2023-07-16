@@ -50,10 +50,10 @@ Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 G
 Also get another 32 GB or larger SD card and a USB card reader to make use of the ["auto backup" feature](docs/openhabian.md#Auto-Backup).
 
 ### Supported hardware
-As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware, but note the memory limitations.
-Anything x86 based that may work or not.
+As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware, but read the notes on memory limitations and 32/64bit.
 Anything else ARM based such as ODroids, OrangePis, PINE64 and the like may work or not.
 NAS servers such as QNAP and Synology boxes will not work.
+Anything x86 based supported by Debian 'bullseye' should work.
 
 We strongly recommend that users choose Raspberry Pi 2, 3 or 4 systems to have 1 GB of RAM or more.
 All RPi 0 and 1 only have 512 MB. This can be sufficient to run a smallish openHAB setup, but it will not be enough to run a full-blown system with many bindings and memory consuming openHABian features/components such as zram, InfluxDB or Grafana.
