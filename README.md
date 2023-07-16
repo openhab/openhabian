@@ -36,24 +36,24 @@ Your setup is untested, and no-one but you knows about your changes.
 openHABian maintainers are really committed to providing you with a fine user experience, but this takes enormous efforts you don't get to see as a user.
 So if you choose to deviate from standard openHABian installations and run into problems thereafter, don't be unfair: don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum.
 
-### A note on openHAB version 2
-openHABian was created to provide a seamless user experience with the current openHAB software, that is currently version 3.X.
+### A note on openHAB versions
+openHABian was created to provide a seamless user experience with the current openHAB software, that now is version 4 released in summer '23.
 openHAB 2 will continue to work on openHABian, but openHAB 2 support is no longer actively maintained and the software will only receive select patches deemed necessary by the maintainers of the project.
 If you need openHAB 2 support please use the `stable` branch of openHABian.
 You can switch branches using menu option 01 in `openhabian-config` but ATTENTION you cannot up- or downgrade this way and you cannot arbitrarily change versions. There's a high risk you mess up your system (the openHABian server OS setup, that is) if you do.
-The image will install openHAB 3 by default, to have it install openHAB 2, set `clonebranch=stable` in `openhabian.conf`.
+The image will install openHAB 4 by default. To have it install openHAB 3, set `clonebranch=openHAB` in `openhabian.conf`.
+For legacy openHAB version 2, set `clonebranch=stable` in `openhabian.conf`.
 
 ## Hardware
 ### Our recommendation
-Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB, a 3 A power supply and a 16 GB SD card.
+Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB, a 3 A power supply and a 16 or 32 GB "Endurance" SD card.
 Also get another 32 GB or larger SD card and a USB card reader to make use of the ["auto backup" feature](docs/openhabian.md#Auto-Backup).
 
 ### Supported hardware
-As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware.
-Anything x86 based may work or not.
-Anything else ARM based such as ODroids, OrangePis and the like may work or not.
+As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware, but note the memory limitations.
+Anything x86 based that may work or not.
+Anything else ARM based such as ODroids, OrangePis, PINE64 and the like may work or not.
 NAS servers such as QNAP and Synology boxes will not work.
-Support for PINEA64 was dropped in this current release.
 
 We strongly recommend that users choose Raspberry Pi 2, 3 or 4 systems to have 1 GB of RAM or more.
 All RPi 0 and 1 only have 512 MB. This can be sufficient to run a smallish openHAB setup, but it will not be enough to run a full-blown system with many bindings and memory consuming openHABian features/components such as zram, InfluxDB or Grafana.
