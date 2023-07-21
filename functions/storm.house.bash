@@ -263,6 +263,13 @@ setup_wb_config() {
 
 ## setup OH config for electricity provider
 ##
+## Valid Arguments:
+##
+## #1 tariff type: flat tibber awattar
+## #2 base tariff (to add to dyn. price)
+## #3 tariff homeID
+## #4 tariff token
+##
 ##    setup_power_config()
 ##
 setup_power_config() {
@@ -299,7 +306,7 @@ setup_power_config() {
   done
 
   case "${1:-$tarifftype}" in
-      tibber) sed -i "s|%HOMEID|${2:-${tariffhomeid}}|;s|%TOKEN|${3:-${tarifftoken}}|" "${OPENHAB_CONF:-/etc/openhab}/things/netz.things";;
+      tibber) sed -i "s|%HOMEID|${3:-${tariffhomeid}}|;s|%TOKEN|${4:-${tarifftoken}}|" "${OPENHAB_CONF:-/etc/openhab}/things/netz.things";;
       awattar) sed -i "s|%BASEPRICE|${2:-${basetariff}}|" "${OPENHAB_CONF:-/etc/openhab}/things/netz.things";;
   esac
   
