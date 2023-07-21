@@ -60,7 +60,7 @@ setup_pv_config() {
     rm -f "$destfile"
 
     if [[ -f ${srcfile} ]]; then
-      cp "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+      cp -p "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
       if [[ $(whoami) == "root" ]]; then
         chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
         chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
@@ -290,7 +290,7 @@ setup_power_config() {
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/tariffs/${1:-${tarifftype}}.${component}"
     destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/netz.${component}"
     if [[ -f ${srcfile} ]]; then
-      cp "${srcfile}" "${destfile}"
+      cp -p "${srcfile}" "${destfile}"
       if [[ $(whoami) == "root" ]]; then
         chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/netz.${component}"
         chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/netz.${component}"
