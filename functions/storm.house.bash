@@ -298,9 +298,9 @@ setup_power_config() {
     fi
   done
 
-  case "${device}" in
-      tibber) sed -i "s|%HOMEID|${1:-${tariffhomeid}}|;s|%TOKEN|${1:-${tarifftoken}}|" "${OPENHAB_CONF:-/etc/openhab}/things/netz.things";;
-      awattar) sed -i "s|%BASEPRICE|${1:-${basetariff}}|" "${OPENHAB_CONF:-/etc/openhab}/things/netz.things";;
+  case "${1:-$tarifftype}" in
+      tibber) sed -i "s|%HOMEID|${2:-${tariffhomeid}}|;s|%TOKEN|${3:-${tarifftoken}}|" "${OPENHAB_CONF:-/etc/openhab}/things/netz.things";;
+      awattar) sed -i "s|%BASEPRICE|${2:-${basetariff}}|" "${OPENHAB_CONF:-/etc/openhab}/things/netz.things";;
   esac
   
   if [[ -n "$INTERACTIVE" ]]; then
