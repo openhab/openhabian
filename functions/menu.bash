@@ -212,7 +212,7 @@ show_main_menu() {
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
-    version="$(openhab4_is_installed && echo "openHAB" || openhab3_is_installed && echo "openHAB3" || echo "openHAB2")"
+    version="$(openhab4_is_installed && echo "openHAB" || (openhab3_is_installed && echo "openHAB3") || echo "openHAB2")"
     # shellcheck disable=SC2154
     case "$choice2" in
       41\ *) openhab_setup "$version" "release";;
