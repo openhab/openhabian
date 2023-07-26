@@ -104,7 +104,7 @@ if [[ -n "$UNATTENDED" ]]; then
   vimrc_copy
   firemotd_setup
   java_install_or_update "${java_opt:-Zulu11-32}"
-  openhab_setup openHAB2 "stable"
+  openhab_setup openHAB2 "stable" "2.5.12-1"
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme
