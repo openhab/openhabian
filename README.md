@@ -81,9 +81,10 @@ These are what we develop and test openHABian against.
 We do **not support Ubuntu** so no promises. We provide code "as-is", it may work or not.
 Several optional components such as WireGuard or Homegear are known to expose problems.
 
-We expect you to use the current stable distribution, 'bullseye' for Raspberry Pi OS (ARM) and Debian (x86).
+We expect you to use the 'bullseye' distribution for Raspberry Pi OS (ARM) and Debian (x86).
 To install openHABian on anything older or newer may work or not.
-If you encounter issues, you may need to upgrade first or to live with the consequences of running an OS on the edge of software development.
+'Bookworm' *might* work but is not validated yet to, so for now, stick with Debian 11 'bullseye'.
+Upgrade your box if needed, else you need to live with the consequences of running an OS on the edge of software development.
 
 Either way, please note that you're on your own when it comes to configuring and installing the HW with the proper OS yourself.
 
