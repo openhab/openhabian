@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 
 show_about() {
+  local version
+
   if openhab2_is_installed; then OHPKG="openhab2"; else OHPKG="openhab"; fi
+  version=$(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
   whiptail --title "About openHABian and $(basename "$0")" --msgbox "openHABian Configuration Tool — $(get_git_revision)
-openHAB $(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties) - $(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
+openHAB ${version} - $(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
 \\nThis tool provides a little help to make your openHAB experience as comfortable as possible.
 Make sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
 \\nMenu 01 will allow you to select the standard (\"openHAB\") or the very latest (\"main\") openHABian version.
