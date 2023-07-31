@@ -218,7 +218,7 @@ openhabian_update() {
     case $selection in
       release) selection="openHAB";;
       latest) selection="main";;
-      legacy) selection="openHAB3";;
+      legacy) selection="openHAB2";;
     esac
 
     read -r -t 1 -n 1 key
