@@ -136,7 +136,6 @@ else
   openhabian_update_check
   jsscripting_npm_check "openhab"
   jsscripting_npm_check "openhab_rules_tools"
-  bashrc_copy    # TODO: Remove sometime mid 2022
   while show_main_menu; do
     true
   done
