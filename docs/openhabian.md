@@ -126,11 +126,12 @@ We do not actively prohibit installation on any hardware, including unsupported 
 
 Supporting hardware means testing every single patch and every release.
 There are simply too many combinations of SBCs, peripherals and OS flavors that maintainers do not have available, or, even if they did, the time to spend on the testing efforts that is required to make openHABian a reliable system.
-Let's make sure you understand the implications of these statements: it means that to run on hardware other than RPi 2/3/4 or (bare metal i.e. not virtualized) x86 Debian may work but this is **not** supported.
+Let's make sure you understand the implications of these statements: it means that to run on hardware other than RPi 2/3/4 or (bare metal that means NOT virtualized) x86 Debian may work but this is **not** supported.
 
-It may work to install and run openHABian on unsupported hardware.
-If it does not, you are welcome to find out what's missing and contribute it back to the community with a GitHub pull request.
-It is sometimes simple things like a naming string.
+It may turn out to when you install openHABian on unsupported hardware.
+However, if it does not, it's your very own problem to deal with that.
+You are invited to find out what needs to be adapted and contribute code to fix that back to the community with a GitHub pull request for anyone to benefit.
+That's the thing about Open Source. 
 We'll be happy to include that in openHABian so you can use your box with openHABian unless there's a valid reason to change or remove it.
 However, that does not make your box a "supported" one as we don't have it available for our further development and testing.
 So there remains a risk that future openHABian releases will fail to work on your SBC because we changed a thing that broke support for your HW - unintentionally, however inevitably.
