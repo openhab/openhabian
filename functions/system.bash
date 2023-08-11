@@ -59,8 +59,8 @@ needed_packages() {
   # Install avahi-daemon - hostname based discovery on local networks
   # Install python3/python3-pip/python3-wheel/python3-setuptools - for python packages
   echo -n "$(timestamp) [openHABian] Installing additional needed packages... "
-  if cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" install --yes apt-transport-https bc sysstat jq \
-    moreutils avahi-daemon python3 python3-pip python3-wheel python3-setuptools \
+  if cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" install --yes apt-transport-https avahi-daemon bc jq mbpoll \
+    moreutils python3 python3-pip python3-wheel python3-setuptools sysstat \
     fontconfig; \
   then echo "OK"; else echo "FAILED"; return 1; fi
 
