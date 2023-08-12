@@ -66,12 +66,12 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 ## On openHAB 4, 3 and 2
 openHABian will install **openHAB 4** and Java 17 by default.
 openHAB 2 will continue to work on openHABian, but openHAB 2 support is no longer maintained.
-If you need openHAB 2 support please use the `stable` branch of openHABian.
+If you need openHAB 2 support please use the `legacy` branch of openHABian.
 You can switch branches using menu option 01 in `openhabian-config` but ATTENTION you cannot up- or downgrade this way and you cannot arbitrarily change versions.
 There's a high risk you mess up your system if you do.
 
 ### Deploying openHAB 2 or 3
-The openHABian image will install openHAB 4 by default, to have it install openHAB 2 or 3 right from the beginning, set `clonebranch=stable` or `clonebranch=openHAB3` in `openhabian.conf` before first boot.
+The openHABian image will install openHAB 4 by default, to have it install openHAB 2 or 3 right from the beginning, set `clonebranch=legacy` or `clonebranch=openHAB3` in `openhabian.conf` before first boot.
 
 ## Upgrading openHAB 2 to current openHAB
 For openHABian users still running openHAB 2.X, `openhabian-config` offers to migrate the openHABian environment and install current openHAB for you.
@@ -148,9 +148,11 @@ These are what we develop and test openHABian against.
 We provide code that is reported "as-is" to run on Ubuntu but we do **not support Ubuntu** so please don't open issues for this (PRs then again are welcome).
 Several optional components such as WireGuard or Homegear are known to expose problems on Ubuntu.
 
-We expect you to use the current stable distribution 'bullseye' for Debian (x86). The current Raspberry Pi image is based on this, too.
-To install openHABian on anything older or newer may work or not.
+We expect you to use the current stable distribution `bullseye` for Debian (x86). The current Raspberry Pi image is based on this, too.
+To install openHABian on anything older or newer may work or not. `bookworm` may work but it is not yet supported.
 If you do and encounter issues, you may need to upgrade first or to live with the consequences of running an OS on the edge of software development.
+Note: With openHAB 4 and Java 17, `buster` is no longer reported.
+There'll be issues when you upgrade Java 11->17 on `buster` so upgrade your OS to `bullseye` before attempting to upgrade openHAB.
 
 ### 64 bit?
 RPi 3 and 4 have a 64 bit processor and you may want to run openHAB in 64 bit.
@@ -549,13 +551,13 @@ Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 <a id="switch-openhab-branch"></a>
 #### Can I switch openHAB 2 and 3 via openHABian branches?
 
-openHABian installs the latest stable build of openHAB.
-The standard openHABian `openHAB` and `main` branches will install the new openHAB version 4 and the old `openHAB3` and `stable` branch will install the old openHAB version 3 and 2, respectively.
+openHABian installs the latest release build of openHAB.
+The standard openHABian `openHAB` and `main` branches will install the new openHAB version 4 and the old `openHAB3` and `legacy` branches will install the old openHAB version 3 or 2, respectively.
 You can migrate between versions by selecting the corresponding 4X menu option.
 That should also result in an openHABian branch change.
-If you want to choose from stable, snapshot or milestone releases, please do so via `openhabian-config` tool (also menu 4X).
+If you want to choose from release (stable), snapshot or milestone releases, please do so via `openhabian-config` tool (also menu 4X).
 Note this will **not** result in any openHABian branch change.
-Switching from stable to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
+Switching to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
 Check the Linux installation article for all needed details: [Linux: Changing Versions](linux.html#changing-versions)
 
 <a id="headache"></a>
