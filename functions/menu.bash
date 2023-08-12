@@ -75,7 +75,7 @@ show_main_menu() {
       update_config_java "17" && java_install "17"
     fi
     repo=$(apt-cache madison openhab | head -n 1 | awk '{ print $6 }' |cut -d'/' -f1)
-    openhab_setup "openHAB" "${repo:-stable}"
+    openhab_setup "openHAB" "${repo:-release}"
 
   elif [[ "$choice" == "04"* ]]; then
     import_openhab_config
