@@ -91,10 +91,10 @@ You will have to restore your setup from that backup after a downgrade using men
 Note option 42 will also not downgrade Java.
 openHAB 2 however is known to run with Java 11 as well.
 
-### *A note on dedication and commitment*
-*We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
+### A note on dedication and commitment
+We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
 Everybody wants their home automation to be stable and most people install a dedicated RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation.
-Reasonably so, this is our clear recommendation. Saving another 50 bucks is not worth putting the reliable day-to-day operations of your home at risk.*
+Reasonably so, this is our clear recommendation. Saving another 100 bucks is not worth putting the reliable day-to-day operations of your home at risk.
 
 *Then again that being said, those who insist to can use openHABian as the starting point for their 'generic' server and run whatever software else on top.
 There's no genuine reason why this wouldn't work. The openHABian image is really just Raspberry Pi OS (lite) under the hood and openHABian is "just" some scripts that install a number of packages and configure the system in a specific way, optimized to run openHAB.*
@@ -103,7 +103,7 @@ There's no genuine reason why this wouldn't work. The openHABian image is really
 *What you must not do, though, is to mess with the system, OS packages and config and expect anyone to help you with that. Let's clearly state this as well: when you deliberately decide to make manual changes to the OS software packages and configuration (i.e. outside of openhabian-config), you will be on your own.
 Your setup is untested, and no-one but you knows about your changes. openHABian maintainers are really committed to providing you with a fine user experience, but this takes enormous efforts in testing and is only possible with a fixed set of hardware. You don't get to see this as a user.
 
-So if you choose to deviate from the standard openHABian installation and run into problems thereafter, don't be unfair: don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum. Thank you !*
+So if you choose to deviate from the standard openHABian installation (e.g. you change your box to run off SSD) and run into problems thereafter, don't be unfair: don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum. Thank you !*
 
 ## Hardware
 ### Hardware recommendation
