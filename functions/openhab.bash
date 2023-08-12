@@ -95,6 +95,8 @@ openhab_setup() {
     openhabVersion="${3:-$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)}"
     if [[ -n $openhabVersion ]]; then
       installVersion="${ohPkgName}=${openhabVersion}" "${ohPkgName}-addons=${openhabVersion}"
+    else
+      installVersion="${ohPkgName} ${ohPkgName}-addons"
     fi
     if cond_redirect apt-get install --allow-downgrades --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" --option Dpkg::Options::="--force-confnew" "$installVersion"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
