@@ -73,7 +73,7 @@ You can switch branches using menu option 01 in `openhabian-config` but ATTENTIO
 There's a high risk you mess up your system if you do.
 
 ### Deploy openHAB 2 or 3
-The image will install openHAB 4 by default, to have it install openHAB 2 or 3 right from the beginning, set `clonebranch=stable` or `clonebranch=openhab3` in `openhabian.conf` before first boot.
+The image will install openHAB 4 by default, to have it install openHAB 2 or 3 right from the beginning, set `clonebranch=stable` or `clonebranch=openHAB3` in `openhabian.conf` before first boot.
 
 ## Upgrading openHAB 2 to current openHAB
 For openHABian users still running openHAB 2.X, `openhabian-config` offers to migrate the openHABian environment and install current openHAB for you.
