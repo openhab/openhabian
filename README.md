@@ -38,11 +38,11 @@ So if you choose to deviate from standard openHABian installations and run into 
 
 ### A note on openHAB versions
 openHABian was created to provide a seamless user experience with the current openHAB software, that now is version 4 released in summer '23.
-openHAB 2 will continue to work on openHABian, but openHAB 2 support is no longer actively maintained and the software will only receive select patches deemed necessary by the maintainers of the project.
-If you need openHAB 2 support please use the `stable` branch of openHABian.
+openHAB 2 will continue to work on openHABian, but openHAB 2 support is no longer actively maintained. Use the `legacy` branch of openHABian.
 You can switch branches using menu option 01 in `openhabian-config` but ATTENTION you cannot up- or downgrade this way and you cannot arbitrarily change versions. There's a high risk you mess up your system (the openHABian server OS setup, that is) if you do.
-The image will install openHAB 4 by default. To have it install openHAB 3, set `clonebranch=openHAB` in `openhabian.conf`.
-For legacy openHAB version 2, set `clonebranch=stable` in `openhabian.conf`.
+
+The image will install openHAB 4 by default. To have it install openHAB 3, set `clonebranch=openHAB3` in `openhabian.conf`.
+For legacy openHAB version 2, set `clonebranch=legacy` in `openhabian.conf`.
 
 ## Hardware
 ### Our recommendation
