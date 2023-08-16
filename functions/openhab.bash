@@ -89,6 +89,7 @@ openhab_setup() {
     rm -f /etc/apt/sources.list.d/openhab*.list
     echo "$repo" > /etc/apt/sources.list.d/openhab.list
 
+    dpkg --configure -a
     echo -n "$(timestamp) [openHABian] Installing selected $1 version... "
     if ! apt-get clean --yes -o DPkg::Lock::Timeout="$APTTIMEOUT"; then echo "FAILED (apt cache clean)"; return 1; fi
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
