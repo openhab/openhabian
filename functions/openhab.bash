@@ -26,7 +26,7 @@ create_systemd_dependencies() {
 openhab_setup() {
   local introText
   local keyName="openhab"
-  local openhabVersion="3.4.4-2"
+  local openhabVersion="4.0.2-1"
   local repo
   local successText
   local noJVMText="We were unable to install/upgrade your system to openHAB 5.\\nThis requires Java version 21, and we have been unable to identify and install a suitable Java JVM package for your hardware-OS combo."
