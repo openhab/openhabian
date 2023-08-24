@@ -230,6 +230,9 @@ install_tailscale() {
 ##
 ##   setup_tailscale(String action)
 ##
+## argument 1 is tailscape key
+## argument 2 is tailscale tags
+##
 setup_tailscale() {
   local preAuthKey="${1:-${preauthkey}}"
   local tags="${2:-${tstags}}"
@@ -255,3 +258,19 @@ setup_tailscale() {
 
   return 0
 }
+
+
+## reset tailscale VPN auth with new key
+##
+##   reset_tailscale_auth(String tskey, tags)
+##
+## argument 1 is tailscape key
+## argument 2 is tailscale tags
+##
+reset_tailscale_auth() {
+  local preAuthKey="${1:-${preauthkey}}"
+  local tags="${2:-${tstags}}"
+
+  tailscale up --reset --authkey "${preAuthKey}" --advertise-tags="${tags}"
+}
+
