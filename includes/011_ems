@@ -1,1 +1,1 @@
-openhab ALL=(ALL) NOPASSWD: /usr/local/sbin/upgrade_ems,/usr/local/sbin/lc
+openhab ALL=(ALL) NOPASSWD: /usr/local/sbin/upgrade_ems,/usr/local/sbin/lc,/usr/sbin/reboot,/usr/sbin/poweroff
