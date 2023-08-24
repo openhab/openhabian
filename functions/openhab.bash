@@ -83,6 +83,13 @@ openhab_setup() {
     echo "OK"
   fi
 
+  # date needs to be > Jul 20, 23 for openhab repo signing key to be valid
+  # note RPi have no RTC 
+  if [[ $(date +%y%m%d) -lt 230801 ]]; then
+    systemctl stop ntp systemd-timesync
+    timedatectl set-time "2023-08-01 00:00:00"
+    systemctl start systemd-timesync
+  fi
   if running_in_docker || [[ -z $OFFLINE ]]; then
     if ! add_keys "https://openhab.jfrog.io/artifactory/api/gpg/key/public" "$keyName"; then return 1; fi
 
@@ -99,6 +106,8 @@ openhab_setup() {
     else
       installVersion="${ohPkgName} ${ohPkgName}-addons"
     fi
+
+    # shellcheck disable=SC2086
     if cond_redirect apt-get install --allow-downgrades --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" --option Dpkg::Options::="--force-confnew" $installVersion; then echo "OK"; else echo "FAILED"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Installing cached openHAB version... "
