@@ -742,6 +742,8 @@ install_evcc() {
 
   if ! cond_redirect systemctl enable --now evcc.service; then echo "FAILED (enable evcc.service)"; return 1; fi
   cp "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
+  chown -R "${username:-openhabian}":evcc /var/lib/evcc
+  chmod -R g+w /var/lib/evcc
 }
 
 
