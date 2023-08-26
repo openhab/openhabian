@@ -450,7 +450,9 @@ install_extras() {
 ##    finalize_setup
 ##
 finalize_setup() {
-  rm -f /var/lib/openhab/evcc.yaml	# um Verwechslungen vorzubeugen
+  local oldYaml="${OPENHAB_USERDATA:-/var/lib/openhab}/evcc.yaml"
+  rm -f "${oldYaml}"	# um Verwechslungen vorzubeugen
+  ln -s "/home/${username:-openhabian}/evcc.yaml" "${oldYaml}"
   sleep 600
   /usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost 'openhab:send NeuinitialisierungEnergiemanagement ON'
 }
