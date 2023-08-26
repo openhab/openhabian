@@ -735,7 +735,7 @@ install_evcc() {
   if ! cond_redirect apt update; then echo "FAILED (update apt lists)"; return 1; fi
   if ! cond_redirect apt install -y "evcc${pkgVersion}"; then echo "FAILED (EVCC package installation)"; return 1; fi
 
-  mkdir "$svcdir"
+  mkdir "$svcdir" 2>/dev/null
   if [[ $(systemctl show -pUser evcc | cut -d= -f2) != "${username:-openhabian}" ]]; then
     sed -e "s|%USER|${username}|g" "${BASEDIR:-/opt/openhabian}"/includes/evcc-override.conf > "$svcdir/override.conf"
   fi
