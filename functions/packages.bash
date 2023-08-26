@@ -689,12 +689,15 @@ deconz_setup() {
 
 ## Function for (un)installing EVCC, the Electric Vehicle Charge Controller
 ## The function must be invoked UNATTENDED.
-## Valid arguments: "install" or "remove"
+## Valid arguments:
+## #1 "install" or "remove"
+## #2 (optional) version of evcc package to install
 ##
-##   install_evcc(String action)
+##   install_evcc(String action, String version)
 ##
 ##
 install_evcc() {
+  local pkgVersion
   local port=7070
   local installText="This will install EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface."
   local removeText="This will remove EVCC, the Electric Vehicle Charge Controller."
@@ -726,11 +729,14 @@ install_evcc() {
   if ! add_keys "$repokeyurl" "$keyName"; then echo "FAILED (add EVCC repo key)"; return 1; fi
   ( echo "deb ${repotxt}"; echo "deb-src ${repotxt}" ) > $repo
   echo -n "$(timestamp) [openHABian] Installing EVCC... "
+  if [[ -n $2 ]]; then
+    pkgVersion="=$2"
+  fi
   if ! cond_redirect apt update; then echo "FAILED (update apt lists)"; return 1; fi
-  if ! cond_redirect apt install -y evcc; then echo "FAILED (EVCC package installation)"; return 1; fi
+  if ! cond_redirect apt install -y "evcc${pkgVersion}"; then echo "FAILED (EVCC package installation)"; return 1; fi
 
   mkdir "$svcdir"
-  if [[ $(systemctl show -pUser evcc | cut -d= -f2) == "${username:-openhabian}" ]]; then
+  if [[ $(systemctl show -pUser evcc | cut -d= -f2) != "${username:-openhabian}" ]]; then
     sed -e "s|%USER|${username}|g" "${BASEDIR:-/opt/openhabian}"/includes/evcc-override.conf > "$svcdir/override.conf"
   fi
 
