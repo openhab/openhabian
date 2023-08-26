@@ -202,6 +202,7 @@ bashrc_copy() {
   if ! cp "${BASEDIR:-/opt/openhabian}"/includes/generic/bash_profile /home/"${username:-openhabian}"/.bash_profile; then echo "FAILED (user bash_profile)"; return 1; fi
   if ! cp "${BASEDIR:-/opt/openhabian}"/includes/generic/bash_aliases /home/"${username:-openhabian}"/.bash_aliases; then echo "FAILED (user bash_aliases)"; return 1; fi
   if chown "${username:-openhabian}:${username:-openhabian}" /home/"${username:-openhabian}"/.bash_*; then echo "OK"; else echo "FAILED (permissions)"; return 1; fi
+  if ! cp "${BASEDIR:-/opt/openhabian}"/includes/generic/bash_aliases /root/.bash_aliases; then echo "FAILED (root bash_aliases)"; return 1; fi
 }
 
 ## Function for adding a tuned vim configuration file to the current system.
