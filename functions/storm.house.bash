@@ -447,6 +447,15 @@ install_extras() {
 }
 
 
+##    finalize_setup
+##
+finalize_setup() {
+  rm -f /var/lib/openhab/evcc.yaml	# um Verwechslungen vorzubeugen
+  sleep 600
+  /usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost 'openhab:send NeuinitialisierungEnergiemanagement ON'
+}
+
+
 ##    set_lic(String state)
 ##
 set_lic() {
@@ -484,8 +493,6 @@ ems_lic() {
   return 0
 }
 
-
-# TODO: Modbus abschalten nach Karenzzeit ?
 
 ## Retrieve licensing file from server
 ## valid arguments: username, password
