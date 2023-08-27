@@ -453,6 +453,10 @@ finalize_setup() {
   local oldYaml="${OPENHAB_USERDATA:-/var/lib/openhab}/evcc.yaml"
   rm -f "${oldYaml}"	# um Verwechslungen vorzubeugen
   ln -s "/home/${username:-openhabian}/evcc.yaml" "${oldYaml}"
+
+  # Pakete dürfen beim apt upgrade nicht auf die neuesten Versionen aktualisiert werden
+  cond_redirect apt-mark hold openhab openhab-addons evcc
+
   sleep 600
   /usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost 'openhab:send NeuinitialisierungEnergiemanagement ON'
 }
