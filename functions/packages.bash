@@ -744,6 +744,7 @@ install_evcc() {
   cp "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
   chown -R "${username:-openhabian}":evcc /var/lib/evcc
   chmod -R g+w /var/lib/evcc
+  usermod -aG evcc "${username:-openhabian}"
 }
 
 
