@@ -15,7 +15,7 @@ network:
 
   # per default, evcc should be available at http://evcc.local:7070
 
-interval: 10s # control cycle interval
+interval: 30s # control cycle interval
 
 log: info
 
