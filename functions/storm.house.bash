@@ -200,6 +200,7 @@ setup_wb_config() {
   local srcfile
   local destfile
   local evccConfig="/home/${username:-openhabian}/evcc.yaml"
+  local sponsortoken="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI5ODkzMTA4NzYsImlhdCI6MTY5MzMxMDg3NiwiaXNzIjoiZXZjYy5pbyIsInN1YiI6Im1hcmt1c0BzdG9ybS5ob3VzZSIsInNwZSI6dHJ1ZX0.MOy2GirKvvsOFbfloNMk5tJfYpRhQCxtQJC56gwmeM4" 
 
 
   if [[ ! -f /usr/local/sbin/setup_wb_config && $(whoami) == "root" ]]; then
@@ -253,7 +254,10 @@ setup_wb_config() {
   cp "${includesDir}/EVCC/evcc.yaml-template" "$temp"
   sed -e "s|%WBTYPE|${1:-${wallboxtype:-openwb-pro}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1:-offline}}|;s|%CARNAME1|${5:-${carname1:-meinEAuto1}}|;s|%VIN1|${6:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${7:-${carcapacity1:-50}}|;s|%CARUSER1|${8:-${caruser1:-user}}|;s|%CARPASS1|${9:-${carpass1:-pass}}|;s|%CARTYPE2|${10:-${cartype2:-offline}}|;s|%CARNAME2|${11:-${carname2:-meinEAuto2}}|;s|%VIN2|${12:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${13:-${carcapacity2:-50}}|;s|%CARUSER2|${14:-${caruser2:-user}}|;s|%CARPASS2|${15:-${carpass2:-pass}}|;s|%GRIDCOST|${16:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${17:-${feedincompensation:-8.2}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
   rm -f "${temp}"
-  
+
+  evcc eebus-cert -c "${evccConfig}" | tail +5 >> "$evccConfig"
+  echo "sponsortoken: ${sponsortoken}" >> "$evccConfig"  
+
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt eine ${1:-${wallboxtype}} Wallbox mit einem ${3:-${autotyp}}." 8 80
