@@ -200,7 +200,7 @@ setup_wb_config() {
   local srcfile
   local destfile
   local evccConfig="/home/${username:-openhabian}/evcc.yaml"
-  local sponsortoken="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI5ODkzMTA4NzYsImlhdCI6MTY5MzMxMDg3NiwiaXNzIjoiZXZjYy5pbyIsInN1YiI6Im1hcmt1c0BzdG9ybS5ob3VzZSIsInNwZSI6dHJ1ZX0.MOy2GirKvvsOFbfloNMk5tJfYpRhQCxtQJC56gwmeM4" 
+  local sponsortoken="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI5ODkzODYzMjQsImlhdCI6MTY5MzM4NjMyNCwiaXNzIjoiZXZjYy5pbyIsInN1YiI6ImVtc0BzdG9ybS5ob3VzZSIsInNwZSI6dHJ1ZX0.K5Qea8xGoLKcE0E4cyc3VrCc2utjAisAGx-ORrqbSbc"
 
 
   if [[ ! -f /usr/local/sbin/setup_wb_config && $(whoami) == "root" ]]; then
