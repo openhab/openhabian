@@ -248,7 +248,7 @@ grafana_install(){
   local keyName="grafana"
 
   if ! grafana_is_installed; then
-    if ! add_keys "https://packages.grafana.com/gpg.key" "$keyName"; then return 1; fi
+    if ! add_keys "https://apt.grafana.com/gpg.key" "$keyName"; then return 1; fi
 
     echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.grafana.com/oss/deb stable main" > /etc/apt/sources.list.d/grafana.list
 
