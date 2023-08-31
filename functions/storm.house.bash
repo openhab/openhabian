@@ -171,25 +171,26 @@ setup_inv_config() {
 ## abl cfos easee eebus evsewifi go-e go-e-v3 heidelberg keba mcc nrgkick-bluetooth nrgkick-connect
 ## openwb phoenix-em-eth phoenix-ev-eth phoenix-ev-ser simpleevse wallbe warp
 ## #2 IP address of wallbox
-## #3 EVCC token
-## #4 car 1 type (from EVCC)
+## #3 Wallbox ID z.B. SKI
+## #4 EVCC token
+## #5 car 1 type (from EVCC)
 ## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
-## #5 car 1 name
-## #6 car 1 capacity
-## #7 car 1 VIN Vehicle Identification Number
-## #8 car 1 username in car manufacturer's online portal
-## #9 car 1 password for account in car manufacturer's online portal
-## #10 car 2 type (from EVCC)
+## #6 car 1 name
+## #7 car 1 capacity
+## #8 car 1 VIN Vehicle Identification Number
+## #9 car 1 username in car manufacturer's online portal
+## #10 car 1 password for account in car manufacturer's online portal
+## #11 car 2 type (from EVCC)
 ## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
-## #11 car 2 name
-## #12 car 2 capacity
-## #13 car 2 VIN Vehicle Identification Number
-## #14 car 2 username in car manufacturer's online portal
-## #15 car 2 password for account in car manufacturer's online portal
-## #16 grid usage cost per kWh in EUR ("0.40")
-## #17 grid feedin compensation cost per kWh in EUR
+## #12 car 2 name
+## #13 car 2 capacity
+## #14 car 2 VIN Vehicle Identification Number
+## #15 car 2 username in car manufacturer's online portal
+## #16 car 2 password for account in car manufacturer's online portal
+## #17 grid usage cost per kWh in EUR ("0.40")
+## #18 grid feedin compensation cost per kWh in EUR
 ##
 ##    setup_wb_config(String wallbox typ, .... )  - all arguments are of type String
 ##
@@ -251,7 +252,7 @@ setup_wb_config() {
 
   temp="$(mktemp "${TMPDIR:-/tmp}"/evcc.XXXXX)"
   cp "${includesDir}/EVCC/evcc.yaml-template" "$temp"
-  sed -e "s|%WBTYPE|${1:-${wallboxtype:-openwb-pro}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%TOKEN|${3:-${evcctoken}}|;s|%CARTYPE1|${4:-${cartype1:-offline}}|;s|%CARNAME1|${5:-${carname1:-meinEAuto1}}|;s|%VIN1|${6:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${7:-${carcapacity1:-50}}|;s|%CARUSER1|${8:-${caruser1:-user}}|;s|%CARPASS1|${9:-${carpass1:-pass}}|;s|%CARTYPE2|${10:-${cartype2:-offline}}|;s|%CARNAME2|${11:-${carname2:-meinEAuto2}}|;s|%VIN2|${12:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${13:-${carcapacity2:-50}}|;s|%CARUSER2|${14:-${caruser2:-user}}|;s|%CARPASS2|${15:-${carpass2:-pass}}|;s|%GRIDCOST|${16:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${17:-${feedincompensation:-8.2}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
+  sed -e "s|%WBTYPE|${1:-${wallboxtype:-openwb-pro}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBID|${3:-${wallboxid}}|;s|%TOKEN|${4:-${evcctoken}}|;s|%CARTYPE1|${5:-${cartype1:-offline}}|;s|%CARNAME1|${6:-${carname1:-meinEAuto1}}|;s|%VIN1|${7:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${8:-${carcapacity1:-50}}|;s|%CARUSER1|${9:-${caruser1:-user}}|;s|%CARPASS1|${10:-${carpass1:-pass}}|;s|%CARTYPE2|${11:-${cartype2:-offline}}|;s|%CARNAME2|${12:-${carname2:-meinEAuto2}}|;s|%VIN2|${13:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${14:-${carcapacity2:-50}}|;s|%CARUSER2|${15:-${caruser2:-user}}|;s|%CARPASS2|${16:-${carpass2:-pass}}|;s|%GRIDCOST|${17:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${18:-${feedincompensation:-8.2}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
   rm -f "${temp}"
 
   evcc eebus-cert -c "${evccConfig}" | tail +5 >> "$evccConfig"

@@ -60,6 +60,7 @@ meters:
 chargers:
 - type: template
   template: %WBTYPE
+  ski: %WBID
   host: %IP
   name: Wallbox
 
