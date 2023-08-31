@@ -200,7 +200,6 @@ setup_wb_config() {
   local srcfile
   local destfile
   local evccConfig="/home/${username:-openhabian}/evcc.yaml"
-  local sponsortoken="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjI5ODkzODYzMjQsImlhdCI6MTY5MzM4NjMyNCwiaXNzIjoiZXZjYy5pbyIsInN1YiI6ImVtc0BzdG9ybS5ob3VzZSIsInNwZSI6dHJ1ZX0.K5Qea8xGoLKcE0E4cyc3VrCc2utjAisAGx-ORrqbSbc"
 
 
   if [[ ! -f /usr/local/sbin/setup_wb_config && $(whoami) == "root" ]]; then
@@ -256,7 +255,6 @@ setup_wb_config() {
   rm -f "${temp}"
 
   evcc eebus-cert -c "${evccConfig}" | tail +5 >> "$evccConfig"
-  echo "sponsortoken: ${sponsortoken}" >> "$evccConfig"  
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
