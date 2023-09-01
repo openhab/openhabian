@@ -17,7 +17,10 @@ network:
 
 interval: 30s # control cycle interval
 
-log: info
+#log: info
+log: debug	# bis auf weiteres nützlich
+levels:
+  eebus: trace
 
 meters:
 - type: custom
