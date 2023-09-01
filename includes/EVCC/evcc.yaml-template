@@ -17,7 +17,6 @@ network:
 
 interval: 30s # control cycle interval
 
-#log: info
 log: debug	# bis auf weiteres nützlich
 levels:
   eebus: trace
@@ -120,3 +119,8 @@ site:
   bufferSoC: 66
 
 sponsortoken: %TOKEN
+
+eebus:
+  shipid: %WBID
+#  interfaces:
+#    - eth0

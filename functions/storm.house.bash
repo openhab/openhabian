@@ -255,7 +255,7 @@ setup_wb_config() {
   sed -e "s|%WBTYPE|${1:-${wallboxtype:-openwb-pro}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBID|${3:-${wallboxid}}|;s|%TOKEN|${4:-${evcctoken}}|;s|%CARTYPE1|${5:-${cartype1:-offline}}|;s|%CARNAME1|${6:-${carname1:-meinEAuto1}}|;s|%VIN1|${7:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${8:-${carcapacity1:-50}}|;s|%CARUSER1|${9:-${caruser1:-user}}|;s|%CARPASS1|${10:-${carpass1:-pass}}|;s|%CARTYPE2|${11:-${cartype2:-offline}}|;s|%CARNAME2|${12:-${carname2:-meinEAuto2}}|;s|%VIN2|${13:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${14:-${carcapacity2:-50}}|;s|%CARUSER2|${15:-${caruser2:-user}}|;s|%CARPASS2|${16:-${carpass2:-pass}}|;s|%GRIDCOST|${17:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${18:-${feedincompensation:-8.2}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
   rm -f "${temp}"
 
-  evcc eebus-cert -c "${evccConfig}" | tail +5 >> "$evccConfig"
+  evcc eebus-cert -c "${evccConfig}" | tail +6 >> "$evccConfig"
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
