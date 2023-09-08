@@ -18,6 +18,18 @@ whiptail_check() {
 ##    system_upgrade()
 ##
 system_upgrade() {
+  local upgradeText="ATTENTION !\\n\\nYou chose upgrade ALL of your software packages in one go.\\nNote this will include upgrading openHAB itself to its latest version which might be a major upgrade and can break your working system.\\n\\n Are you sure this is what you want?\\n"
+  local OH4upgradeText="ATTENTION !\\n\\nYou chose to upgrade ALL of your software packages\\nThis is not possible when you are not on the current major version of openHAB, OH4.\\n\\nIn order to upgrade to openHAB 4 first, use the next menu option."
+
+  if [[ -n "$INTERACTIVE" ]]; then
+    if openhab4_is_installed; then
+      if (whiptail --title "Upgrade ALL software" --yes-button "Continue" --no-button "Cancel" --yesno "$upgradeText" 12 80); then echo "OK"; else echo "CANCELED"; return 1; fi
+    else
+      whiptail --title "Old openHAB version" --msgbox "$OH4upgradeText" 7 80
+      return 1
+    fi
+  fi
+
   echo "$(timestamp) [openHABian] Updating repositories and upgrading installed packages..."
   export DEBIAN_FRONTEND=noninteractive
   if ! apt-get clean --yes -o DPkg::Lock::Timeout="$APTTIMEOUT"; then echo "FAILED"; return 1; fi
@@ -154,7 +166,7 @@ locale_setting() {
   if cond_redirect update-locale LANG="${syslocale}" LC_ALL="${syslocale}" LC_CTYPE="${syslocale}" LANGUAGE="${syslocale}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
-    whiptail --title "Change locale" --msgbox "For the locale change to take effect, please reboot your system now." 7 80
+    whiptail --title "Change locale" --msgbox "For the locale change to take effect, please reboot your system now." 11 80
   fi
 }
 
