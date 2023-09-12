@@ -78,7 +78,7 @@ jobs:
          run: |
            sudo -E ./tests/ci-setup.bash github
        - name: Set up QEMU
-         uses: docker/setup-qemu-action@v2.2.0
+         uses: docker/setup-qemu-action@v3.0.0
          with:
            platforms: arm
        - name: Set up Docker Buildx
@@ -116,7 +116,7 @@ jobs:
          run: |
            sudo -E ./tests/ci-setup.bash github
        - name: Set up QEMU
-         uses: docker/setup-qemu-action@v2.2.0
+         uses: docker/setup-qemu-action@v3.0.0
          with:
            platforms: arm64
        - name: Set up Docker Buildx
@@ -190,7 +190,7 @@ jobs:
            sudo -E ./tests/ci-setup.bash github
            sed -i 's|^java_opt=.*$|java_opt=17|' build-image/openhabian.conf
        - name: Set up QEMU
-         uses: docker/setup-qemu-action@v2.2.0
+         uses: docker/setup-qemu-action@v3.0.0
          with:
            platforms: arm
        - name: Set up Docker Buildx
@@ -229,7 +229,7 @@ jobs:
            sudo -E ./tests/ci-setup.bash github
            sed -i 's|^java_opt=.*$|java_opt=17|' build-image/openhabian.conf
        - name: Set up QEMU
-         uses: docker/setup-qemu-action@v2.2.0
+         uses: docker/setup-qemu-action@v3.0.0
          with:
            platforms: arm64
        - name: Set up Docker Buildx
