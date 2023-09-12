@@ -94,6 +94,7 @@ loadpoints:
   mincurrent: 6
   maxcurrent: 16
   resetOnDisconnect: true
+  vehicle: meinEAuto1
 
 tariffs:
 # tariffs are the fixed or variable tariffs
@@ -122,5 +123,3 @@ sponsortoken: %TOKEN
 
 eebus:
   shipid: %WBID
-#  interfaces:
-#    - eth0
