@@ -40,6 +40,8 @@ openjdk_fetch_apt() {
     # prevent RPi from using the Debian distro for normal Raspbian packages
     # echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
   fi
+
+  dpkg --configure -a
   echo -n "$(timestamp) [openHABian] Fetching OpenJDK ${1}... "
   if cond_redirect apt-get install --download-only --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
