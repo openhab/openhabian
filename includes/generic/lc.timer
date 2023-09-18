@@ -4,7 +4,7 @@ Description=Run lic check
 [Timer]
 Unit=lc.service
 OnCalendar=monthly
-OnBootSec=60min
+#OnBootSec=60min
 Persistent=true
 
 [Install]
