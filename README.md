@@ -24,7 +24,7 @@ openHABian is here to provide a **self-configuring** Linux system setup to meet 
 We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
 Everybody wants their home automation to be stable and most people install a *dedicated* RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation.
 Reasonably so, this is our clear recommendation.
-Saving another 50 bucks is not worth putting the reliable day-to-day operations of your home at risk.
+Saving another 100 bucks is not worth putting the reliable day-to-day operations of your home at risk.
 
 Then again that being said, those who insist to *can* use openHABian as the starting point for their 'generic' server and run whatever software else on top.
 There's no genuine reason why this wouldn't work.
@@ -83,6 +83,8 @@ Several optional components such as WireGuard or Homegear are known to expose pr
 
 We expect you to use the 'bullseye' distribution for Raspberry Pi OS (ARM) and Debian (x86).
 To install openHABian on anything older or newer may work or not.
+'Buster' does not properly support the Java 17 packages needed to run openHAB 4.
+You will run into trouble if you attempt to upgrade openHAB before you upgrade or reinstall your OS.
 'Bookworm' *might* work but is not validated yet to, so for now, stick with Debian 11 'bullseye'.
 Upgrade your box if needed, else you need to live with the consequences of running an OS on the edge of software development.
 
@@ -96,20 +98,12 @@ That is not a good idea on a heavily memory constrained platform like a RPi.
 On x86 hardware, 64 bit is the standard.
 
 ## Installation and Setup
-Please check the [official documentation article](https://www.openhab.org/docs/installation/openhabian.html) to learn about openHABian and please visit and subscribe to our [community forum thread](https://community.openhab.org/t/13379).
+Please check the [official documentation article](https://www.openhab.org/docs/installation/openhabian.html) to learn about openHABian use and please visit and subscribe to our [community forum thread](https://community.openhab.org/t/13379).
 
 If you want to install openHABian on non-supported hardware, you can actually fake it to make openHABian treat your box as if it was one of the supported ones.
 Needless to say that that may work out or not, but it's worth a try.
 See [`openhabian.conf`](docs/openhabian.md#openhabianconf) for how to edit `openhabian.conf` before booting.
 Set the `hw`, `hwarch` and `release` parameters to match your system best.
-
-## Development
-openHABian is foremost a collection of `bash` scripts versioned and deployed using git.
-In the current state the scripts can only be invoked through the terminal menu system [whiptail](https://en.wikibooks.org/wiki/Bash_Shell_Scripting/Whiptail).
-There is a longterm need to better separate the UI part from the script code.
-A work has started to define conventions and further explain the code base in the document [CONTRIBUTING.md](CONTRIBUTING.md) along with development guidelines in general.
-
-A good place to look at to start to understand the code is the file `openhabian-setup.sh`.
 
 ### Testing
 Testing is done continuously with GitHub Actions using the test framework [BATS](https://github.com/bats-core/bats-core) and the linter [ShellCheck](https://www.shellcheck.net/).
