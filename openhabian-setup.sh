@@ -119,13 +119,13 @@ if [[ -n "$UNATTENDED" ]]; then
   nano_openhab_syntax
   multitail_openhab_scheme
   #srv_bind_mounts
-  #samba_setup
+  samba_setup
   clean_config_userpw
   install_grott "install"
   deconz_setup "${deconz_port}" "${deconz_wsport}"
   permissions_corrections
   setup_mirror_SD "install"
-  install_evcc "install" "${evccpkgversion:-0.119.1}"; setup_evcc
+  install_evcc "install" "${evccpkgversion:-0.120.1}"; setup_evcc
   #sleep 30
   systemctl stop openhab
   setup_pv_config pv "${invertertype:-custom}" "${inverterip:-192.168.178.100}" "${invertermodbusid:-1}"
