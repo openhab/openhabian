@@ -1,0 +1,8 @@
+#!/bin/bash
+
+if [[ ! -f $1 ]]; then
+    echo -n "NULL"
+else
+    cat $1
+fi
+
