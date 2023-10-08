@@ -389,7 +389,7 @@ echo  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdi
     if ! cond_redirect wget -nv -O "$temp" "$updateonly"; then echo "FAILED (download EMS patch)"; rm -f "$temp"; return 1; fi
     ( cd /etc/openhab || return 1
     ln -sf . conf
-    unzip -o "$temp" conf/things\* conf/items\* conf/rules\*
+    unzip -o "$temp" conf/things\* conf/items\* conf/rules\* conf/transform\* conf/UI\* conf/html\* scripts/\*
     rm -f conf )
   fi
 
