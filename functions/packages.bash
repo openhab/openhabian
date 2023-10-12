@@ -656,7 +656,7 @@ deconz_setup() {
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
   if [[ "$myRelease" == "n/a" ]]; then
-    myRelease=${osrelease:-bullseye}
+    myRelease=${osrelease:-generic}
   fi
 
   if is_x86_64; then
