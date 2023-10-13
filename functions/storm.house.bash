@@ -26,6 +26,12 @@ setup_pv_config() {
   local inverterPNG="${OPENHAB_CONF:-/etc/openhab}/icons/classic/inverter.png"
   local srcfile
   local destfile
+  local device
+  local default
+  local ip
+  local mbid
+  local muser
+  local mpass
 
 
   if [[ ! -f /usr/local/sbin/setup_pv_config && $(whoami) == "root" ]]; then
@@ -43,7 +49,7 @@ setup_pv_config() {
     case "${device}" in
       pv) default=${invertertype}; ip=${3:-inverterip}; mbid=${4:-${invertermodbusid}};;
       bat) default=${batterytype}; ip=${3:-batteryip}; mbid=${4:-${batterymodbusid}};;
-      meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-${metermodbusid}};;
+      meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-${metermodbusid}}; muser=${6:-${meteruserid}}; mpass=${7:-${meterpassid}};;
     esac
 
 
@@ -51,8 +57,10 @@ setup_pv_config() {
     if [[ "${device}" == "bat" && "${2:-$batterytype}" == "hybrid" ]]; then
         file="inv/${5:-${invertertype}}"
     fi
-    if [[ "${device}" == "meter" && "${2:-${metertype}}" == "inverter" ]]; then
-      file="inv/${5:-${invertertype}}"
+    if [[ "${device}" == "meter" ]]; then
+      if [[ "${2:-${metertype}}" == "inverter" ]]; then
+        file="inv/${5:-${invertertype}}"
+      fi
     fi
 
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${file:-${default}}.${configdomain}"
@@ -74,6 +82,9 @@ setup_pv_config() {
         mbid="${5:-${loggermodbusid}}"  # diese ID muss angesprochen werden
       fi
       sed -i "s|%IP|${ip}|;s|%MBID|${mbid}|" "${destfile}"
+      if [[ "${device}" == "meter" && $# -ge 6 ]]; then
+        sed -i "s|%USER|${muser}|;s|%PASS|${mpass}|" "${destfile}"
+      fi
     fi
   done
 
