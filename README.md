@@ -93,7 +93,7 @@ Either way, please note that you're on your own when it comes to configuring and
 ### 64 bit?
 RPi3 and 4 have a 64 bit processor and you may want to run openHAB in 64 bit.
 Be aware that running in 64 bit has a major drawback: increased memory usage.
-That is not a good idea on a heavily memory constrained platform like a RPi.
+This can be a problem on a memory constrained platform like a RPi and the reason why we usually recommend against doing so. Any reason to run on 64 bits needs to be weighted against this limitation.
 
 On x86 hardware, 64 bit is the standard.
 
