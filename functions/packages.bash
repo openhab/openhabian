@@ -457,11 +457,6 @@ miflora_setup() {
 ##    nginx_setup()
 ##
 nginx_setup() {
-  if [[ -z $INTERACTIVE ]]; then
-    echo "$(timestamp) [openHABian] nginx setup must be run in interactive mode! Canceling nginx setup!"
-    return 0
-  fi
-
   local auth="false"
   local authText
   local certPath
@@ -495,66 +490,71 @@ nginx_setup() {
     if ! sed -e "/$1/s/^$1//g" -i "$2"; then echo "FAILED (uncomment)"; return 1; fi
   }
 
-  echo -n "$(timestamp) [openHABian] Beginning setup of nginx as reverse proxy with authentication... "
-  if (whiptail --title "nginx installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 9 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+  if [[ -n $INTERACTIVE ]]; then
+    #echo "$(timestamp) [openHABian] nginx setup must be run in interactive mode! Canceling nginx setup!"
 
-  echo "$(timestamp) [openHABian] Configuring nginx authentication options... "
-  if openhab4_is_installed || openhab3_is_installed || (whiptail --title "Authentication setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
-    auth="true"
-  fi
-  if [[ "$auth" == "true" ]]; then
-    if nginxUsername="$(whiptail --title "Authentication setup" --inputbox "\\nEnter a username to sign into openHAB:" 9 80 openhab 3>&1 1>&2 2>&3)"; then
-      while [[ -z $nginxPass ]]; do
-        if ! nginxPass1="$(whiptail --title "Authentication setup" --passwordbox "\\nEnter a password for ${nginxUsername}:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-        if ! nginxPass2="$(whiptail --title "Authentication setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-        if [[ $nginxPass1 == "$nginxPass2" ]] && [[ ${#nginxPass1} -ge 8 ]] && [[ ${#nginxPass2} -ge 8 ]]; then
-          nginxPass="$nginxPass1"
-        else
-          whiptail --title "Authentication setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
-        fi
-      done
-    else
-      echo "CANCELED"
-      return 0
+    echo -n "$(timestamp) [openHABian] Beginning setup of nginx as reverse proxy with authentication... "
+    if (whiptail --title "nginx installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 9 80); then echo "OK"; else echo "CANCELED"; return 0; fi
+
+    echo "$(timestamp) [openHABian] Configuring nginx authentication options... "
+    if openhab4_is_installed || openhab3_is_installed || (whiptail --title "Authentication setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
+      auth="true"
     fi
-  fi
-
-  if (whiptail --title "Secure certificate setup" --yesno "Would you like to secure your openHAB interface with HTTPS?" 7 80); then secure="true"; echo "OK"; else echo "CANCELED"; fi
-
-  if [[ $auth == "true" ]]; then
-    authText="Authentication Enabled\\n- Username: ${nginxUsername}"
-  else
-    authText="Authentication Disabled"
-  fi
-
-  if [[ $secure == "true" ]]; then
-    httpsText="Proxy will be secured by HTTPS"
-    protocol="HTTPS"
-    portWarning="Important! Before you continue, please make sure that port 80 (HTTP) of this machine is reachable from the internet (portforwarding, etc.). Otherwise the certbot connection test will fail.\\n\\n"
-  else
-    httpsText="Proxy will not be secured by HTTPS"
-    protocol="HTTP"
-    portWarning=""
-  fi
-
-  echo "$(timestamp) [openHABian] Configuring nginx network options... "
-  cond_echo "Obtaining public IP address... "
-  if ! pubIP="$(get_public_ip)"; then echo "FAILED (public ip)"; return 1; fi
-
-  cond_echo "Configuring domain settings... "
-  if ! domain="$(whiptail --title "Domain setup" --inputbox "$domainText" 10 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-
-  while [[ $validDomain == "false" ]] && [[ -n $domain ]] && [[ $domain != "IP" ]]; do
-    cond_echo "Obtaining domain IP address... "
-    if ! domainIP="$(get_public_ip "$domain")"; then echo "FAILED (domain IP)"; return 1; fi
-    if [[ "$pubIP" == "$domainIP" ]]; then
-      validDomain="true"
-      cond_echo "Public and domain IP address match."
-    else
-      cond_echo "Public and domain IP address mismatch!"
-      if ! domain=$(whiptail --title "Domain setup" --inputbox "\\nDomain does not resolve to your public IP address. Please enter a valid domain.\\n\\n${domainText}" 14 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+    if [[ "$auth" == "true" ]]; then
+      if nginxUsername="$(whiptail --title "Authentication setup" --inputbox "\\nEnter a username to sign into openHAB:" 9 80 openhab 3>&1 1>&2 2>&3)"; then
+        while [[ -z $nginxPass ]]; do
+          if ! nginxPass1="$(whiptail --title "Authentication setup" --passwordbox "\\nEnter a password for ${nginxUsername}:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+          if ! nginxPass2="$(whiptail --title "Authentication setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+          if [[ $nginxPass1 == "$nginxPass2" ]] && [[ ${#nginxPass1} -ge 8 ]] && [[ ${#nginxPass2} -ge 8 ]]; then
+            nginxPass="$nginxPass1"
+          else
+            whiptail --title "Authentication setup" --msgbox "Password mismatched, blank, or less than 8 characters... Please try again!" 7 80
+          fi
+        done
+      else
+        echo "CANCELED"
+        return 0
+      fi
     fi
-  done
+
+    if (whiptail --title "Secure certificate setup" --yesno "Would you like to secure your openHAB interface with HTTPS?" 7 80); then secure="true"; echo "OK"; else echo "CANCELED"; fi
+
+    if [[ $auth == "true" ]]; then
+      authText="Authentication Enabled\\n- Username: ${nginxUsername}"
+    else
+      authText="Authentication Disabled"
+    fi
+
+    if [[ $secure == "true" ]]; then
+      httpsText="Proxy will be secured by HTTPS"
+      protocol="HTTPS"
+      portWarning="Important! Before you continue, please make sure that port 80 (HTTP) of this machine is reachable from the internet (portforwarding, etc.). Otherwise the certbot connection test will fail.\\n\\n"
+    else
+      httpsText="Proxy will not be secured by HTTPS"
+      protocol="HTTP"
+      portWarning=""
+    fi
+
+    echo "$(timestamp) [openHABian] Configuring nginx network options... "
+    cond_echo "Obtaining public IP address... "
+    if ! pubIP="$(get_public_ip)"; then echo "FAILED (public ip)"; return 1; fi
+
+    cond_echo "Configuring domain settings... "
+    if ! domain="$(whiptail --title "Domain setup" --inputbox "$domainText" 10 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+
+    while [[ $validDomain == "false" ]] && [[ -n $domain ]] && [[ $domain != "IP" ]]; do
+      cond_echo "Obtaining domain IP address... "
+      if ! domainIP="$(get_public_ip "$domain")"; then echo "FAILED (domain IP)"; return 1; fi
+      if [[ "$pubIP" == "$domainIP" ]]; then
+        validDomain="true"
+        cond_echo "Public and domain IP address match."
+      else
+        cond_echo "Public and domain IP address mismatch!"
+        if ! domain=$(whiptail --title "Domain setup" --inputbox "\\nDomain does not resolve to your public IP address. Please enter a valid domain.\\n\\n${domainText}" 14 80 3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+      fi
+    done
+
+  fi
 
   if [[ $validDomain == "false" ]]; then
     if [[ $domain == "IP" ]]; then
@@ -568,7 +568,13 @@ nginx_setup() {
 
   confirmText="The following settings have been chosen:\\n\\n- ${authText}\\n- ${httpsText}\\n- Domain: ${domain} (Public IP Address: ${pubIP})\\n\\nYou will be able to connect to openHAB on the default ${protocol} port.\\n\\n${portWarning}Do you wish to continue and setup an nginx server now?"
 
-  if ! (whiptail --title "Confirmation" --yesno "$confirmText" 20 80); then echo "CANCELED"; return 0; fi
+  if [[ -n $INTERACTIVE ]]; then
+    if ! (whiptail --title "Confirmation" --yesno "$confirmText" 20 80); then echo "CANCELED"; return 0; fi
+  else
+    echo "$confirmText"
+  fi
+#return 1
+
   echo -n "$(timestamp) [openHABian] Installing nginx... "
   if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" nginx; then echo "OK"; else echo "FAILED"; return 1; fi
 
@@ -630,7 +636,12 @@ nginx_setup() {
   if ! nginx -t; then echo "FAILED (nginx configuration test)"; return 1; fi
   if ! cond_redirect systemctl restart nginx.service; then echo "FAILED (nginx restart)"; return 1; fi
 
-  whiptail --title "Operation successful" --msgbox "Setup successful. Please try entering ${protocol}://${domain} in a browser to test your settings." 8 80
+  infoText="Setup successful. Please try entering ${protocol}://${domain} in a browser to test your settings."
+  if [[ -n $INTERACTIVE ]]; then
+    whiptail --title "Operation successful" --msgbox "$infoText" 8 80
+  else
+    echo "$infoText"
+  fi
 }
 
 ## Function for installing deCONZ, the companion web app to the popular Conbee/Raspbee Zigbee controller
@@ -656,7 +667,7 @@ deconz_setup() {
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
   if [[ "$myRelease" == "n/a" ]]; then
-    myRelease=${osrelease:-generic}
+    myRelease=${osrelease:-bullseye}
   fi
 
   if is_x86_64; then
@@ -689,15 +700,12 @@ deconz_setup() {
 
 ## Function for (un)installing EVCC, the Electric Vehicle Charge Controller
 ## The function must be invoked UNATTENDED.
-## Valid arguments:
-## #1 "install" or "remove"
-## #2 (optional) version of evcc package to install
+## Valid arguments: "install" or "remove"
 ##
-##   install_evcc(String action, String version)
+##   install_evcc(String action)
 ##
 ##
 install_evcc() {
-  local pkgVersion
   local port=7070
   local installText="This will install EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface."
   local removeText="This will remove EVCC, the Electric Vehicle Charge Controller."
@@ -729,22 +737,16 @@ install_evcc() {
   if ! add_keys "$repokeyurl" "$keyName"; then echo "FAILED (add EVCC repo key)"; return 1; fi
   ( echo "deb ${repotxt}"; echo "deb-src ${repotxt}" ) > $repo
   echo -n "$(timestamp) [openHABian] Installing EVCC... "
-  if [[ -n $2 ]]; then
-    pkgVersion="=$2"
-  fi
   if ! cond_redirect apt update; then echo "FAILED (update apt lists)"; return 1; fi
-  if ! cond_redirect apt install -y "evcc${pkgVersion}"; then echo "FAILED (EVCC package installation)"; return 1; fi
+  if ! cond_redirect apt install -y evcc; then echo "FAILED (EVCC package installation)"; return 1; fi
 
-  mkdir "$svcdir" 2>/dev/null
-  if [[ $(systemctl show -pUser evcc | cut -d= -f2) != "${username:-openhabian}" ]]; then
+  mkdir "$svcdir"
+  if [[ $(systemctl show -pUser evcc | cut -d= -f2) == "${username:-openhabian}" ]]; then
     sed -e "s|%USER|${username}|g" "${BASEDIR:-/opt/openhabian}"/includes/evcc-override.conf > "$svcdir/override.conf"
   fi
 
   if ! cond_redirect systemctl enable --now evcc.service; then echo "FAILED (enable evcc.service)"; return 1; fi
   cp "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
-  chown -R "${username:-openhabian}":evcc /var/lib/evcc
-  chmod -R g+w /var/lib/evcc
-  usermod -aG evcc "${username:-openhabian}"
 }
 
 
