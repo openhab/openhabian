@@ -203,7 +203,7 @@ homegear_setup() {
   myRelease="$(lsb_release -sc)"
 
   if [[ "$myRelease" == "n/a" ]]; then
-    myRelease="${osrelease:-bullseye}"
+    myRelease="${osrelease:-bookworm}"
   fi
   if [[ "$myOS" == "Raspbian" ]] || is_arm && running_in_docker; then  # Workaround for CI not actually reporting as Raspberry Pi OS
     myOS="debian"  # Workaround for Homegear's Raspios APT repo being broken
@@ -583,6 +583,9 @@ nginx_setup() {
   if ! cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/nginx.conf /etc/nginx/sites-enabled/openhab; then echo "FAILED (copy configuration)"; return 1; fi
   if cond_redirect sed -i -e 's|DOMAINNAME|'"${domain}"'|g' /etc/nginx/sites-enabled/openhab; then echo "OK"; else echo "FAILED (set domain name)"; return 1; fi
 
+  # use Tailscale resolver if up
+  ping -c 3 100.100.100.100 && uncomment "#VPN" /etc/nginx/sites-enabled/openhab
+  
   if [[ $auth == "true" ]]; then
     echo -n "$(timestamp) [openHABian] Installing nginx password utilities... "
     if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -667,7 +670,7 @@ deconz_setup() {
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
   if [[ "$myRelease" == "n/a" ]]; then
-    myRelease=${osrelease:-bullseye}
+    myRelease=${osrelease:-bookworm}
   fi
 
   if is_x86_64; then
