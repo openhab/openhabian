@@ -213,7 +213,7 @@ nodered_setup() {
 ##
 zigbee2mqtt_download() {
   echo -n "$(timestamp) [openHABian] Downloading Zigbee2MQTT... "
-  if ! cond_redirect mkdir /opt/zigbee2mqtt; then echo "FAILED (mkdir /opt/zigbee2mqtt)"; fi
+  if ! cond_redirect mkdir -p /opt/zigbee2mqtt; then echo "FAILED (mkdir -p /opt/zigbee2mqtt)"; fi
   if ! cond_redirect chown openhabian /opt/zigbee2mqtt; then echo "FAILED (chown /opt/zigbee2mqtt)"; fi
   if ! cond_redirect chgrp openhab /opt/zigbee2mqtt; then echo "FAILED (chgrp /opt/zigbee2mqtt)"; fi
   if ! cond_redirect sudo -u "${username:-openhabian}" git clone https://github.com/Koenkk/zigbee2mqtt.git "/opt/zigbee2mqtt"; then echo "FAILED (git clone)"; return 1; fi
@@ -233,6 +233,7 @@ zigbee2mqtt_setup() {
   local mqttUserText="\\nPlease enter your MQTT-User (default = openhabian):"
   local mqttPWText="\\nIf your MQTT-server requires a password, please enter it here:"
   local my_adapters
+  local by_path_or_id
   local mqttDefaultUser="openhabian"
   local mqttUser
   local serverIP
@@ -292,12 +293,14 @@ zigbee2mqtt_setup() {
   # get usb adapters for radio menu
   while IFS= read -r line; do
     my_adapters="$my_adapters $line $loopSel "
+    by_path_or_id="by-id"
     loopSel=0
   done < <( ls /dev/serial/by-id )
 
   if [[ $my_adapters == "" ]] ; then
     while IFS= read -r line; do
       my_adapters="$my_adapters $line $loopSel "
+      by_path_or_id="by-path"
       loopSel=0
     done < <( ls /dev/serial/by-path )
   fi
@@ -327,7 +330,7 @@ zigbee2mqtt_setup() {
   echo "OK"
 
   echo -n "$(timestamp) [openHABian] Creating log directory... "
-  mkdir  /var/log/zigbee2mqtt || (echo "FAILED (create log-directory)"; return 1)
+  mkdir  -p /var/log/zigbee2mqtt || (echo "FAILED (create log-directory)"; return 1)
   chown openhabian /var/log/zigbee2mqtt || (echo "FAILED (create log-directory)"; return 1)
   chgrp openhab /var/log/zigbee2mqtt || (echo "FAILED (create log-directory)"; return 1)
   echo "OK"
@@ -335,7 +338,7 @@ zigbee2mqtt_setup() {
   echo -n "$(timestamp) [openHABian] Zigbee2MQTT install & config... "
   cd /opt/zigbee2mqtt || (echo "FAILED (cd)"; return 1)
   if ! cond_redirect sudo -u "${username:-openhabian}" npm ci ; then echo "FAILED (npm ci)"; return 1; fi
-  sed -e "s|%adapterName|$selectedAdapter|g" /opt/openhabian/includes/zigbee2mqtt/configuration.yaml | sudo -u "${username:-openhabian}" dd status=none of=/opt/zigbee2mqtt/data/configuration.yaml
+  sed -e "s|%adapter|$by_path_or_id/$selectedAdapter|g" /opt/openhabian/includes/zigbee2mqtt/configuration.yaml | sudo -u "${username:-openhabian}" dd status=none of=/opt/zigbee2mqtt/data/configuration.yaml
   sed -i -e "s|%user%|$mqttUser|g" /opt/zigbee2mqtt/data/configuration.yaml
   sed -i -e "s|%password%|$mqttPW|g" /opt/zigbee2mqtt/data/configuration.yaml 
   
