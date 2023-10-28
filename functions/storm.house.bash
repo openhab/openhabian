@@ -211,7 +211,9 @@ setup_wb_config() {
   local wallboxPNG="${OPENHAB_CONF:-/etc/openhab}/icons/classic/wallbox.png"
   local srcfile
   local destfile
-  local evccConfig="/home/${username:-openhabian}/evcc.yaml"
+  local evccuser="$(systemctl show -pUser evcc | cut -d= -f2)"
+  local evccdir=$(eval echo "~${evccuser:-${username:-openhabian}}")
+  local evccConfig="${evccdir}/evcc.yaml"
 
 
   if [[ ! -f /usr/local/sbin/setup_wb_config && $(whoami) == "root" ]]; then
