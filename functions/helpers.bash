@@ -49,7 +49,7 @@ add_keys() {
 
   echo -n "$(timestamp) [openHABian] Adding required keys to apt... "
 
-  if curl -fsSL "$1" | gpg --dearmor > "$repoKey"; then
+  if curl -fsL "$1" | gpg --dearmor > "$repoKey"; then  # additional option -S removed causing curl to fail getting repo keys
     echo "OK"
   else
     echo "FAILED"
