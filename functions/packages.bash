@@ -775,12 +775,12 @@ setup_evcc() {
   evccuser="$(systemctl show -pUser evcc | cut -d= -f2)"
   evccdir=$(eval echo "~${evccuser:-${username:-openhabian}}")
   if [[ -f ${evccConfig} ]]; then
-    cond_redirect cp /home/"${evccdir}"/${evccConfig} /home/"${evccdir}"/${evccConfig}.SAVE
-    cond_redirect mv "${evccConfig}" /home/"${evccdir}"
+    cond_redirect cp "${evccdir}"/${evccConfig} "${evccdir}"/${evccConfig}.SAVE
+    cond_redirect mv "${evccConfig}" "${evccdir}"
   fi
-  cond_redirect touch /home/"${evccdir}"/${evccConfig}
-  cond_redirect chown "${evccdir}:openhab" /home/"${evccdir}"/${evccConfig}*
-  cond_redirect chmod g+w /home/"${evccdir}"/${evccConfig}*
+  cond_redirect touch "${evccdir}"/${evccConfig}
+  cond_redirect chown "${evccdir}:openhab" "${evccdir}"/${evccConfig}*
+  cond_redirect chmod g+w "${evccdir}"/${evccConfig}*
 
   echo -n "$(timestamp) [openHABian] Created EVCC config, restarting ... "
   if cond_redirect systemctl restart evcc.service; then echo "OK"; else echo "FAILED"; fi
