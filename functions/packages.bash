@@ -762,7 +762,6 @@ setup_evcc() {
   local evccuser
   local evccdir
   local evccConfig="evcc.yaml"
-  local dir
   local port="${1:-7070}"
   local introText="This will create a configuration for EVCC, the Electric Vehicle Charge Controller\\nUse the web interface on port $port to access EVCC's own web interface."
   local successText="You have successfully created a configuration file for EVCC, the Electric Vehicle Charge Controller\\nIt replaces /etc/evcc.yaml."
