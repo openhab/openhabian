@@ -279,6 +279,9 @@ setup_wb_config() {
   if [[ ${3:-${wallboxid}} != "" && ${3:-${wallboxid}} != "1234567890abcdef" ]] || [[ ${1:-${wallboxtype}} == "eebus" || ${1:-${wallboxtype}} == "elliconnect" || ${1:-${wallboxtype}} == "ellipro" ]]; then
     uncomment "#SKI" "${evccConfig}"
   fi
+  if [[ ${1:-${wallboxtype}} == "demo" ]]; then
+    rm -f "$evccConfig"
+  fi
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
