@@ -119,7 +119,7 @@ if [[ -n "$UNATTENDED" ]]; then
   nano_openhab_syntax
   multitail_openhab_scheme
   #srv_bind_mounts
-  samba_setup
+  #samba_setup
   nginx_setup
   clean_config_userpw
   install_grott "install"
@@ -130,7 +130,7 @@ if [[ -n "$UNATTENDED" ]]; then
   setup_pv_config pv "${invertertype:-custom}" "${inverterip:-192.168.178.100}" "${invertermodbusid:-1}"
   setup_pv_config bat "${batterytype:-hybrid}" "${batteryip:-192.168.178.101}" "${batterymodbusid:-3}"
   setup_pv_config meter "${metertype:-inverter}" "${meterip:-192.168.178.102}" "${metermodbusid:-99}"
-  setup_wb_config "${wallboxtype:-openwb-pro}" "${wallboxip:-192.168.178.200}"
+  setup_wb_config "${wallboxtype:-demo}" "${wallboxip:-192.168.178.200}"
   setup_power_config flat
   install_cleanup
   systemctl restart openhab
