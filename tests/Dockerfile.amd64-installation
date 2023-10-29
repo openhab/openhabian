@@ -1,4 +1,4 @@
-FROM balenalib/amd64-debian:bullseye-build
+FROM balenalib/amd64-debian:bookworm-build
 
 ENV DOCKER=1
 ENV UDEV=1

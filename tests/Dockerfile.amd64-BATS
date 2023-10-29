@@ -1,4 +1,4 @@
-FROM balenalib/generic-debian:bullseye-build
+FROM balenalib/generic-debian:bookworm-build
 
 ENV DOCKER=1
 
