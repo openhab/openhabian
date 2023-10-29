@@ -791,8 +791,8 @@ setup_evcc() {
     cond_redirect mv "${evccConfig}" "${evccdir}"
   fi
   cond_redirect touch "${evccdir}"/${evccConfig}
-  cond_redirect chown "${evccuser}:openhab" "${evccdir}"/${evccConfig}*
   cond_redirect usermod --append --groups evcc openhab
+  cond_redirect chown "${evccuser}:openhab" "${evccdir}"/${evccConfig}*
   cond_redirect chmod g+w "${evccdir}"/${evccConfig}*
 
   echo -n "$(timestamp) [openHABian] Created EVCC config, restarting ... "
