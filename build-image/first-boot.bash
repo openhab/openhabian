@@ -27,7 +27,7 @@ rm -f /opt/openHABian-install-failed
 touch /opt/openHABian-install-inprogress
 
 echo -n "$(timestamp) [openHABian] Storing configuration... "
-if ! cp /boot/firmware/openhabian.conf "$CONFIGFILE"; then echo "FAILED (copy)"; fail_inprogress; fi
+if ! cp "/opt/openhabian/build-image/openhabian.conf" "$CONFIGFILE"; then echo "FAILED (copy)"; fail_inprogress; fi
 if ! sed -i 's|\r$||' "$CONFIGFILE"; then echo "FAILED (Unix line endings)"; fail_inprogress; fi
 if ! source "$CONFIGFILE"; then echo "FAILED (source config)"; fail_inprogress; fi
 if ! source "/opt/openhabian/functions/helpers.bash"; then echo "FAILED (source helpers)"; fail_inprogress; fi
