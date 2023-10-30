@@ -27,7 +27,7 @@ rm -f /opt/openHABian-install-failed
 touch /opt/openHABian-install-inprogress
 
 echo -n "$(timestamp) [openHABian] Storing configuration... "
-if ! cp /boot/openhabian.conf "$CONFIGFILE"; then echo "FAILED (copy)"; fail_inprogress; fi
+if ! cp /boot/firmware/openhabian.conf "$CONFIGFILE"; then echo "FAILED (copy)"; fail_inprogress; fi
 if ! sed -i 's|\r$||' "$CONFIGFILE"; then echo "FAILED (Unix line endings)"; fail_inprogress; fi
 if ! source "$CONFIGFILE"; then echo "FAILED (source config)"; fail_inprogress; fi
 if ! source "/opt/openhabian/functions/helpers.bash"; then echo "FAILED (source helpers)"; fail_inprogress; fi
@@ -47,7 +47,7 @@ rfkill unblock wifi   # Wi-Fi is blocked by Raspi OS default since bullseye(?)
 
 echo -n "$(timestamp) [openHABian] Starting webserver with installation log... "
 if [[ -x $(command -v python3) ]]; then
-  bash /boot/webserver.bash "start"
+  bash /boot/firmware/webserver.bash "start"
   sleep 5
   isWebRunning="$(ps -ef | pgrep python3)"
   if [[ -n $isWebRunning ]]; then echo "OK"; else echo "FAILED"; fi
@@ -201,7 +201,7 @@ else
   fi
 fi
 
-if [[ -x $(command -v python3) ]]; then bash /boot/webserver.bash "reinsure_running"; fi
+if [[ -x $(command -v python3) ]]; then bash /boot/firmware/webserver.bash "reinsure_running"; fi
 
 if ! [[ -x $(command -v git) ]]; then
   echo -n "$(timestamp) [openHABian] Installing git package... "
@@ -234,9 +234,9 @@ echo "$(timestamp) [openHABian] First time setup successfully finished. Rebootin
 echo "$(timestamp) [openHABian] After rebooting the openHAB dashboard will be available at: http://${hostname:-openhabian}:8080"
 echo "$(timestamp) [openHABian] After rebooting to gain access to a console, simply reconnect using ssh."
 sleep 2
-if [[ -x $(command -v python3) ]]; then bash /boot/webserver.bash "inst_done"; fi
+if [[ -x $(command -v python3) ]]; then bash /boot/firmware/webserver.bash "inst_done"; fi
 sleep 2
-if [[ -x $(command -v python3) ]]; then bash /boot/webserver.bash "cleanup"; fi
+if [[ -x $(command -v python3) ]]; then bash /boot/firmware/webserver.bash "cleanup"; fi
 
 if running_in_docker; then
   PID="/var/lib/openhab/tmp/karaf.pid"
