@@ -239,16 +239,21 @@ is_pi400() {
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]13[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
+is_pifive() {
+  if [[ "$hw" == "pi5" ]]; then return 0; fi
+  grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]17[0-9a-fA-F]$" /proc/cpuinfo
+  return $?
+}
 is_pi() {
-  if is_pifour || is_cmfour || is_pi400 || is_cmthreeplus || is_cmthree || is_pithreeplus || is_pithree || is_pitwo || is_pione || is_cmone || is_pizerow || is_pizerow2 || is_pizero; then return 0; fi
+  if is_pifive || is_pifour || is_cmfour || is_pi400 || is_cmthreeplus || is_cmthree || is_pithreeplus || is_pithree || is_pitwo || is_pione || is_cmone || is_pizerow || is_pizerow2 || is_pizero; then return 0; fi
   return 1
 }
 is_pi_wlan() {
-  if is_pifour || is_pi400 || is_pithreeplus || is_pithree || is_pizerow || is_pizerow2; then return 0; fi
+  if is_pifive || is_pifour || is_pi400 || is_pithreeplus || is_pithree || is_pizerow || is_pizerow2; then return 0; fi
   return 1
 }
 is_pi_bt() {
-  if is_pifour || is_pi400 || is_pithreeplus || is_pithree || is_pizerow || is_pizerow2; then return 0; fi
+  if is_pifive || is_pifour || is_pi400 || is_pithreeplus || is_pithree || is_pizerow || is_pizerow2; then return 0; fi
   return 1
 }
 is_cm() {
