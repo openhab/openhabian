@@ -202,8 +202,8 @@ homegear_setup() {
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
 
-  if [[ "$myRelease" == "n/a" ]]; then
-    myRelease="${osrelease:-bookworm}"
+  if [[ "$myRelease" == "n/a" ]] || [[ "$myRelease" == "bookworm" ]]; then
+    myRelease="${osrelease:-bullseye}"
   fi
   if [[ "$myOS" == "Raspbian" ]] || is_arm && running_in_docker; then  # Workaround for CI not actually reporting as Raspberry Pi OS
     myOS="debian"  # Workaround for Homegear's Raspios APT repo being broken
