@@ -449,6 +449,7 @@ install_extras() {
   local dest="/usr/share/openhab/addons/${jar}"
   local sudoersFile="011_ems"
   local sudoersPath="/etc/sudoers.d"
+  local passwdCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost user changePassword admin ${userpw:-1mart!house}"
 
 
   if [[ ! -f /usr/local/sbin/upgrade_ems && $(whoami) == "root" ]]; then
@@ -465,6 +466,9 @@ install_extras() {
   cond_redirect install -m 600 "${includesDir}/openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
   cond_redirect chown "${username:-openhabian}:openhab" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/openhab_rsa*"
   cond_redirect install -m 640 "${includesDir}/generic/ems.key" $deckey
+
+  # shellcheck disable=SC2046
+  cond_redirect $(${passwdCommand})
 
   # lc
   if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.timer; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
