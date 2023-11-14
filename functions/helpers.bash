@@ -244,6 +244,11 @@ is_pifive() {
   grep -q "^Revision\\s*:\\s*[ 123][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]17[0-9a-fA-F]$" /proc/cpuinfo
   return $?
 }
+is_pifive_8GB() {
+  if [[ "$hw" == "pi5_8gb" ]]; then return 0; fi
+  totalMemory="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
+  if is_pifive && [[ $totalMemory -gt 5000000 ]]; then return 0; else return 1; fi
+}
 is_pi() {
   if is_pifive || is_pifour || is_cmfour || is_pi400 || is_cmthreeplus || is_cmthree || is_pithreeplus || is_pithree || is_pitwo || is_pione || is_cmone || is_pizerow || is_pizerow2 || is_pizero; then return 0; fi
   return 1
