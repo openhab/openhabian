@@ -195,7 +195,7 @@ influxdb_install() {
     myOS="$(lsb_release -si)"
   fi
   myRelease="$(lsb_release -sc)"
-  if [[ "$myRelease" == "n/a" ]]; then
+  if [[ "$myRelease" == "n/a" ]] || [[ "$myRelease" == "bookworm" ]]; then
     myRelease=${osrelease:-bullseye}
   fi
 
