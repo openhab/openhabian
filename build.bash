@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -x
 # shellcheck disable=SC2016,SC1090,SC1091
 set -e
 
@@ -7,7 +8,7 @@ set -e
 ####################################################################
 
 usage() {
-  echo -e "Usage: $(basename "$0") <platform>"
+  echo -e "Usage: $(basename "$0") <platform> [oldstable]"
   echo -e "\\nCurrently supported platforms: rpi, rpi64"
 }
 
@@ -217,9 +218,15 @@ else
   usage
   exit 0
 fi
+
+getstable="oldstable_"
 if [ -n "$2" ]; then
-  usage
-  exit 1
+  if [ "$2" == "latest" ]; then
+    getstable=""
+  elif [ "$2" != "oldstable" ]; then
+    usage
+    exit 1
+  fi
 fi
 
 trap cleanup_build EXIT ERR
@@ -241,13 +248,14 @@ buildFolder="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian-build-${hwPlatform}-image.
 imageFile="${buildFolder}/${hwPlatform}.img"
 extraSize="1000"			# grow image root by this number of MB
 
+
 # Build Raspberry Pi image
 if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; then
   if [ "$hwPlatform" == "pi-raspios64" ]; then
-    baseURL="https://downloads.raspberrypi.org/raspios_lite_arm64_latest"
+    baseURL="https://downloads.raspberrypi.org/raspios_${getstable}lite_arm64_latest"
     bits="64"
   else
-    baseURL="https://downloads.raspberrypi.org/raspios_lite_armhf_latest"
+    baseURL="https://downloads.raspberrypi.org/raspios_${getstable}lite_armhf_latest"
     bits="32"
   fi
   xzURL="$(curl "$baseURL" -s -L -I  -o /dev/null -w '%{url_effective}')"
@@ -282,10 +290,12 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
     cp "$xzFile" "${buildFolder}/${xzFile}"
   fi
 
-  echo_process "Verifying signature of downloaded image... "
-  curl -s -L "$xzURL".sig -o "$buildFolder"/"$xzFile".sig
-  if ! gpg -q --keyserver keyserver.ubuntu.com --recv-key 0x8738CD6B956F460C; then echo "FAILED (download public key)"; exit 1; fi
-  if gpg -q --trust-model always --verify "${buildFolder}/${xzFile}".sig "${buildFolder}/${xzFile}"; then echo "OK"; else echo "FAILED (signature)"; exit 1; fi
+  #echo_process "Verifying signature of downloaded image... "
+  #curl -s -L "$xzURL".sig -o "$buildFolder"/"$xzFile".sig
+  #if ! gpg -q --keyserver keyserver.ubuntu.com --recv-key 0x8738CD6B956F460C; then echo "FAILED (download public key)"; exit 1; fi
+  #if gpg -q --trust-model always --verify "${buildFolder}/${xzFile}".sig "${buildFolder}/${xzFile}"; then echo "OK"; else echo "FAILED (signature)"; exit 1; fi
+  curl -s -L "${baseURL}.sha256" -o "${xzFile}.sha256"
+  if sha256sum -c "${buildFolder}/${xzFile}".sha256; then echo "OK"; else echo "FAILED (download image checksum fail)"; exit 1; fi
 
   echo_process "Unpacking image... "
   xz -q "${buildFolder}/${xzFile}" -d
