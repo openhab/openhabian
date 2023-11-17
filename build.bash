@@ -297,7 +297,7 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
   #if ! gpg -q --keyserver keyserver.ubuntu.com --recv-key 0x8738CD6B956F460C; then echo "FAILED (download public key)"; exit 1; fi
   #if gpg -q --trust-model always --verify "${buildFolder}/${xzFile}".sig "${buildFolder}/${xzFile}"; then echo "OK"; else echo "FAILED (signature)"; exit 1; fi
   curl -s -L "${baseURL}.sha256" -o "${xzFile}.sha256"
-  if sha256sum -c "${buildFolder}/${xzFile}".sha256; then echo "OK"; else echo "FAILED (download image checksum fail)"; exit 1; fi
+  if sha256sum -c "${xzFile}.sha256"; then echo "OK"; else echo "FAILED (download image checksum fail)"; exit 1; fi
 
   echo_process "Unpacking image... "
   xz -q "${buildFolder}/${xzFile}" -d
