@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -x
 # shellcheck disable=SC2016,SC1090,SC1091
 set -e
 
@@ -201,7 +200,7 @@ elif [ "$1" == "local-test" ]; then
   cp ./build-image/first-boot.bash /boot/first-boot.bash
   cp ./build-image/webserver.bash /boot/webserver.bash
   cp ./build-image/openhabian.conf /boot/openhabian.conf
-  cp ./build-image/openhabian-installer.service /etc/systemd/system/
+  cp ./build-image/openhabian-installer.service$release /etc/systemd/system/
   ln -sf /etc/systemd/system/openhabian-installer.service /etc/systemd/system/multi-user.target.wants/openhabian-installer.service
   rm -f /opt/openHABian-install-successful
   rm -f /opt/openHABian-install-inprogress
@@ -223,6 +222,7 @@ getstable="oldstable_"
 if [ -n "$2" ]; then
   if [ "$2" == "latest" ]; then
     getstable=""
+    release=.since_bookworm
   elif [ "$2" != "oldstable" ]; then
     usage
     exit 1
@@ -321,7 +321,7 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
   echo "$hostname" > "$buildFolder"/root/etc/hostname
 
   echo_process "Injecting 'openhabian-installer.service', 'first-boot.bash' and 'openhabian.conf'... "
-  cp "$sourceFolder"/openhabian-installer.service "$buildFolder"/root/etc/systemd/system/
+  cp "$sourceFolder"/openhabian-installer.service$release "$buildFolder"/root/etc/systemd/system/
   ln -s "$buildFolder"/root/etc/systemd/system/openhabian-installer.service "$buildFolder"/root/etc/systemd/system/multi-user.target.wants/openhabian-installer.service
 
   # Open subshell to make sure we don't hurt the host system if for some reason $buildFolder is not properly set

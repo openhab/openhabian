@@ -6,7 +6,7 @@ ConditionPathExists=!/opt/openHABian-install-successful
 
 [Service]
 Type=idle
-ExecStart=/boot/first-boot.bash
+ExecStart=/boot/firmware/first-boot.bash
 StandardOutput=journal+console
 StandardError=journal+console
 
