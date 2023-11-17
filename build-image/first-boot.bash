@@ -45,7 +45,7 @@ fi
 
 rfkill unblock wifi   # Wi-Fi is blocked by Raspi OS default since bullseye(?)
 
-if [[ is_bookworm ]]; then
+if is_bookworm; then
   webserver=/boot/firmware/webserver.bash
 else
   webserver=/boot/webserver.bash
