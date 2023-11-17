@@ -243,7 +243,7 @@ if [[ -f "${sourceFolder}/openhabian.${hwPlatform}.conf" ]]; then
   # shellcheck disable=SC1090
   source "${sourceFolder}/openhabian.${hwPlatform}.conf"
 else
-  # shellcheck disable=SC1090
+  # shellcheck disable=SC1090,1091
   source "${sourceFolder}/openhabian.conf"
 fi
 buildFolder="$(mktemp -d "${TMPDIR:-/tmp}"/openhabian-build-${hwPlatform}-image.XXXXX)"
