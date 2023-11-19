@@ -59,28 +59,33 @@ jobs:
                sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/$f
              fi
            done
-           #sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios32.conf
-           #sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.pi-raspios64.conf
            sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
            cp build-image/template_rpi-imager-openhab.json rpi-imager-openhab.json
-           sudo -E ./build.bash rpi
-           sudo -E ./build.bash rpi64
-           #echo "::set-output name=image32::$(ls openhabian-pi-raspios32*.img.xz)"
-           #echo "::set-output name=image64::$(ls openhabian-pi-raspios64*.img.xz)"
-           #echo "::set-output name=json_image::$(ls rpi-imager-openhab.json)"
-           echo "image32=$(ls openhabian-pi-raspios32*.img.xz)" >> $GITHUB_OUTPUT
-           echo "image64=$(ls openhabian-pi-raspios64*.img.xz)" >> $GITHUB_OUTPUT
+           sudo -E ./build.bash rpi oldstable
+           mv openhabian-pi-raspios32*.img.xz openhabian-32-oldstable-$(date +%Y%m%d%H%M).img.xz
+           sudo -E ./build.bash rpi64 oldstable
+           mv openhabian-pi-raspios64*.img.xz openhabian-64-oldstable-$(date +%Y%m%d%H%M).img.xz
+           sudo -E ./build.bash rpi64 latest
+           mv openhabian-pi-raspios64*.img.xz openhabian-64-latest-$(date +%Y%m%d%H%M).img.xz
+           echo "image32=$(ls openhabian-32-oldstable*.img.xz)" >> $GITHUB_OUTPUT
+           echo "image64=$(ls openhabian-64-oldstable*.img.xz)" >> $GITHUB_OUTPUT
+           echo "image64latest=$(ls openhabian-64-latest*.img.xz)" >> $GITHUB_OUTPUT
            echo "json_image=$(ls rpi-imager-openhab.json)" >> $GITHUB_OUTPUT
-       - name: Archive openHABian 32bit image
+       - name: Archive openHABian 32bit bullseye image
          uses: actions/upload-artifact@v3
          with:
            name: ${{ steps.build.outputs.image32 }}
            path: ${{ steps.build.outputs.image32 }}
-       - name: Archive openHABian 64bit image
+       - name: Archive openHABian 64bit bullseye image
          uses: actions/upload-artifact@v3
          with:
            name: ${{ steps.build.outputs.image64 }}
            path: ${{ steps.build.outputs.image64 }}
+       - name: Archive openHABian 64bit bookworm image
+         uses: actions/upload-artifact@v3
+         with:
+           name: ${{ steps.build.outputs.image64latest }}
+           path: ${{ steps.build.outputs.image64latest }}
        - name: Archive openHABian json of image download
          uses: actions/upload-artifact@v3
          with:
@@ -99,4 +104,5 @@ jobs:
            files: |
              ${{ steps.build.outputs.image32 }}
              ${{ steps.build.outputs.image64 }}
+             ${{ steps.build.outputs.image64latest }}
              ${{ steps.build.outputs.json_image }}
