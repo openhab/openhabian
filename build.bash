@@ -320,9 +320,10 @@ if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; t
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" "$buildFolder"/root/etc/hosts
   echo "$hostname" > "$buildFolder"/root/etc/hostname
 
+  installer=openhabian-installer.service
   echo_process "Injecting 'openhabian-installer.service', 'first-boot.bash' and 'openhabian.conf'... "
-  cp "$sourceFolder/openhabian-installer.service$release" "$buildFolder"/root/etc/systemd/system/
-  ln -s "$buildFolder"/root/etc/systemd/system/openhabian-installer.service "$buildFolder"/root/etc/systemd/system/multi-user.target.wants/openhabian-installer.service
+  cp "${sourceFolder}/${installer}$release" "$buildFolder/root/etc/systemd/system/${installer}"
+  ln -s "${buildFolder}/root/etc/systemd/system/${installer}" "$buildFolder"/root/etc/systemd/system/multi-user.target.wants/${installer}
 
   # Open subshell to make sure we don't hurt the host system if for some reason $buildFolder is not properly set
   echo_process "Setting default runlevel multiuser.target and disabling autologin... "
