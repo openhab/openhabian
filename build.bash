@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-set -x
 # shellcheck disable=SC2016,SC1090,SC1091
 set -e
 
