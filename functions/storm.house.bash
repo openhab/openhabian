@@ -470,7 +470,7 @@ install_extras() {
 
   # shellcheck disable=SC2046
   cond_redirect $(${passwdCommand})
-  # uhellcheck disable=SC2046
+  # shellcheck disable=SC2046
   cond_redirect $(${passwdCommand2})
 
   # lc
