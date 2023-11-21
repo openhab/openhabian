@@ -5,6 +5,7 @@
 ##########################
 # shellcheck disable=SC1090
 source functions/helpers.bash
+source build-image/openhabian.conf
 
 ## This function formats log messages
 ##
