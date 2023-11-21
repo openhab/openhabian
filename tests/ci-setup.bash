@@ -35,7 +35,7 @@ if [[ $1 == "github" ]]; then
 
   sed -i 's|repositoryurl=.*$|repositoryurl='"${repoURL}"'|' build-image/*.conf
   if git show-ref --tags "$2" --quiet; then
-    sed -i 's|clonebranch=.*$|clonebranch=openHAB|' build-image/*.conf
+    sed -i 's|clonebranch=.*$|clonebranch='"${clonebranch:-openHAB}"'|' build-image/*.conf
     exit
   fi
   sed -i 's|clonebranch=.*$|clonebranch='"${repoBranch}"'|' build-image/*.conf
