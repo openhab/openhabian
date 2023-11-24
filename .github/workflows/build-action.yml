@@ -70,7 +70,7 @@ jobs:
            echo "image32=$(ls openhabian-32-oldstable*.img.xz)" >> $GITHUB_OUTPUT
            echo "image64=$(ls openhabian-64-oldstable*.img.xz)" >> $GITHUB_OUTPUT
            echo "image64latest=$(ls openhabian-64-latest*.img.xz)" >> $GITHUB_OUTPUT
-           echo "json_image=$(ls rpi-imager-openhab.json)" >> $GITHUB_OUTPUT
+           #echo "json_image=$(ls rpi-imager-openhab.json)" >> $GITHUB_OUTPUT
        - name: Archive openHABian 32bit bullseye image
          uses: actions/upload-artifact@v3
          with:
@@ -86,11 +86,11 @@ jobs:
          with:
            name: ${{ steps.build.outputs.image64latest }}
            path: ${{ steps.build.outputs.image64latest }}
-       - name: Archive openHABian json of image download
-         uses: actions/upload-artifact@v3
-         with:
-           name: ${{ steps.build.outputs.json_image }}
-           path: ${{ steps.build.outputs.json_image }}
+             #       - name: Archive openHABian json of image download
+             #         uses: actions/upload-artifact@v3
+             #         with:
+             #           name: ${{ steps.build.outputs.json_image }}
+             #           path: ${{ steps.build.outputs.json_image }}
 
        - name: Create release template
          if: ${{ success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v') }}
@@ -105,4 +105,4 @@ jobs:
              ${{ steps.build.outputs.image32 }}
              ${{ steps.build.outputs.image64 }}
              ${{ steps.build.outputs.image64latest }}
-             ${{ steps.build.outputs.json_image }}
+             #             ${{ steps.build.outputs.json_image }}
