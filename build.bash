@@ -376,33 +376,7 @@ echo_process "Compressing image $destination... "
 xz --verbose --compress --keep -9 -T0 "$destination"
 crc32checksum="$(crc32 "${destination}.xz")"
 
-# generate json-file for integration in raspberry-imager
-pathDownload="https://github.com/openhab/openhabian/releases/latest/download"
-release_date=$(date "+%Y-%m-%d")
-fileE="${destination}"
-fileZ="openhabian-${hwPlatform}-${2:-latest}-${timestamp}-crc${crc32checksum}.img.xz"
-mv "${destination}.xz" "$fileZ"
-
-imageE_size="$(stat -c %s "${fileE}")"
-imageZ_size="$(stat -c %s "${fileZ}")"
-
-echo_process "Computing SHA256 message digest of image $fileZ... "
-imageE_sha="$(sha256sum "${fileE}"| cut -d' ' -f1)"
-imageZ_sha="$(sha256sum "${fileZ}"| cut -d' ' -f1)"
-
-url="${pathDownload}/${fileZ}"
-
-if [[ -f rpi-imager-openhab.json ]]; then
-  sed -i -e "s|%release_date%|${release_date}|g" rpi-imager-openhab.json
-  sed -i -e "s|%url${bits}_${2:-latest}%|${url}|g" rpi-imager-openhab.json
-  sed -i -e "s|%imageE_size${bits}_${2:-latest}%|${imageE_size}|g" rpi-imager-openhab.json
-  sed -i -e "s|%imageE_sha${bits}_${2:-latest}%|${imageE_sha}|g" rpi-imager-openhab.json
-  sed -i -e "s|%imageZ_size${bits}_${2:-latest}%|${imageZ_size}|g" rpi-imager-openhab.json
-  sed -i -e "s|%imageZ_sha${bits}_${2:-latest}%|${imageZ_sha}|g" rpi-imager-openhab.json
-fi
-
 echo_process "Finished! The results:"
-ls -alh "openhabian-${hwPlatform}-${2:-latest}-${timestamp}"*
-ls -alh "rpi-imager-openhab.json"
+ls -alh "openhabian-${hwPlatform}-${timestamp}"*
 
 # vim: filetype=sh
