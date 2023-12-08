@@ -444,9 +444,12 @@ install_extras() {
   local serviceTargetDir="/etc/systemd/system"
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local deckey="/etc/ssl/private/ems.key"
-  local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
-  local pkg="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${jar}"
-  local dest="/usr/share/openhab/addons/${jar}"
+  local solarforecastJAR=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
+  #local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
+  local entsoeJAR=org.openhab.binding.entsoe-4.1.0-SNAPSHOT.jar
+  local solarforecastPKG="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${solarforecastJAR}"
+  local entsoePKG="https://github.com/gitMiguel/openhab-addons/releases/download/EntsoE-4.1.0-SNAPTSHOT/${entsoeJAR}"
+  local destdir="/usr/share/openhab/addons/"
   local sudoersFile="011_ems"
   local sudoersPath="/etc/sudoers.d"
   local passwdCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost users changePassword admin ${userpw:-admin}"
@@ -460,8 +463,9 @@ install_extras() {
 
   version=$(dpkg -s 'openhab' 2> /dev/null | grep Version | cut -d' ' -f2 | cut -d'-' -f1 | cut -d'.' -f2)
   if [[ $version -lt 4 ]]; then
-    if ! cond_redirect wget -nv -O "$dest" "$pkg"; then echo "FAILED (download solar forecast binding)"; rm -f "$dest"; fi
+    if ! cond_redirect wget -nv -O "${destdir}/${solarforecastJAR}" "${solarforecastPKG}"; then echo "FAILED (download inofficial solar forecast binding)"; rm -f "${destdir}/${solarforecastJAR}"; fi
   fi
+  if ! cond_redirect wget -nv -O "${destdir}/${entsoeJAR}" "${entsoePKG}"; then echo "FAILED (download inofficial Entso-E binding)"; rm -f "${destdir}/${entsoeJAR}"; fi
 
   cond_redirect install -m 644 "${includesDir}/openhab_rsa.pub" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
   cond_redirect install -m 600 "${includesDir}/openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
@@ -473,7 +477,7 @@ install_extras() {
   # shellcheck disable=SC2046
   cond_redirect $(${passwdCommand2})
 
-  # lc
+  # lc Lizenzgedöns
   if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.timer; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
   if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.service; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
   if ! cond_redirect install -m 755 "${includesDir}/generic/lc" /usr/local/sbin; then echo "FAILED (install lc)"; fi
