@@ -111,9 +111,9 @@ site:
   title: Zuhause
   meters:
     grid: Netzeinspeisung
-    pvs:
+    pv:
     - ErzeugungsLeistung
-    batteries:
+    battery:
     - LadeleistungHaus
   residualPower: 400
   prioritySoc: 50
