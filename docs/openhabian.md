@@ -108,7 +108,7 @@ So if you choose to deviate from the standard openHABian installation (e.g. you 
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB of RAM, a 3A power supply and a 16 or 32 GB SD card.
 Prefer getting a card named with a postfix like "Endurance" (e.g. "SanDisk MAX ENDURANCE" or "Kingston High Endurance") because it
 can handle more write cycles hence it'll be more enduring under openHAB\'s use conditions.
-To make use of the ["auto backup" feature](openhabian.md#auto-backup), get another SD card at least twice the size of your internal one, and a USB card reader.
+To make use of the ["auto backup" feature](openhabian.md#auto-backup), get another SD card, preferrably same model as but at least the size of your internal one, and a USB card reader.
 
 ### Hardware support
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware.
