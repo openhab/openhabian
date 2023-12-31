@@ -15,12 +15,10 @@ You may jump to [install instructions](#raspberry-pi-prepackaged-sd-card-image) 
 
 # openHABian - Hassle-free openHAB Setup
 ``
-The Raspberry Pi is quite a famous platform for openHAB.
-However, setting up a fully working Linux system with all recommended packages and openHAB recommendations is a **boring task**, takes a lot of time and **Linux newcomers** are challenged in a number of ways although all they want is to run openHAB and not some server.
-
+Setting up a fully working Linux system with all recommended packages and openHAB recommendations takes a lot of time and **Linux newcomers** are challenged in a number of ways although all they want is to run openHAB and not some server.
 <p style="text-align: center; font-size: 1.2em; font-style: italic;"><q>A home automation enthusiast doesn't have to be a Linux enthusiast!</q></p>
 
-openHABian is a **self-configuring** Linux system setup to meet the needs of every openHAB user.
+openHABian is a **self-configuring** Linux system setup to reliably operate your openHAB instance 24 hours a day.
 It provides:
 
 *   Complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of SBCs
