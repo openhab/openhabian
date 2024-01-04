@@ -7,45 +7,7 @@
 ##
 nodejs_setup() {
   if node_is_installed && ! is_armv6l; then return 0; fi
-
-  local keyName="nodejs"
-  local link="https://nodejs.org/dist/v18.16.1/node-v18.16.1-linux-armv7l.tar.xz"
-  local myDistro
-  local temp
-
-
-  myDistro="$(lsb_release -sc)"
-  if [[ "$myDistro" == "n/a" ]]; then
-    myDistro=${osrelease:-bullseye}
-  fi
-  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
-
-  if [[ -z $PREOFFLINE ]] && is_armv6l; then
-    echo -n "$(timestamp) [openHABian] Installing NodeJS... "
-    if ! cond_redirect wget -qO "$temp" "$link"; then echo "FAILED (download)"; rm -f "$temp"; return 1; fi
-    if ! cond_redirect tar -Jxf "$temp" --strip-components=1 -C /usr; then echo "FAILED (extract)"; rm -f "$temp"; return 1; fi
-    if cond_redirect rm -f "$temp"; then echo "OK"; else echo "FAILED (cleanup)"; return 1; fi
-  else
-    if [[ -z $OFFLINE ]]; then
-      if ! add_keys "https://deb.nodesource.com/gpgkey/nodesource.gpg.key" "$keyName"; then return 1; fi
-
-      echo -n "$(timestamp) [openHABian] Adding NodeSource repository to apt... "
-      echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://deb.nodesource.com/node_18.x $myDistro main" > /etc/apt/sources.list.d/nodesource.list
-      echo "deb-src [signed-by=/usr/share/keyrings/${keyName}.gpg] https://deb.nodesource.com/node_18.x $myDistro main" >> /etc/apt/sources.list.d/nodesource.list
-      if [[ -n $PREOFFLINE ]]; then
-        if cond_redirect apt-get --quiet update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
-      else
-        if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
-      fi
-    fi
-
-    echo -n "$(timestamp) [openHABian] Installing NodeJS... "
-    if [[ -n $PREOFFLINE ]]; then
-      if cond_redirect apt-get --quiet install --download-only --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
-    else
-      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
-    fi
-  fi
+  if cond_redirect apt install nodejs npm -y; then echo "OK"; else echo "FAILED (apt install nodejs npm)"; return 1; fi
 }
 
 ## Function for downloading frontail to current system
