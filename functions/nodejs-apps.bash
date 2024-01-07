@@ -7,7 +7,7 @@
 ##
 nodejs_setup() {
   if node_is_installed && ! is_armv6l; then return 0; fi
-  if cond_redirect apt install nodejs npm -y; then echo "OK"; else echo "FAILED (apt install nodejs npm)"; return 1; fi
+  if cond_redirect apt-get install nodejs npm -y; then echo "OK"; else echo "FAILED (apt-get install nodejs npm)"; return 1; fi
 }
 
 ## Function for downloading frontail to current system
