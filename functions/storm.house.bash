@@ -7,7 +7,7 @@
 
 ## Generate/copy openHAB config for a PV inverter
 ##
-## Valid Arguments:
+## valid arguments:
 ## #1 = pv | bat | meter
 ## #2 = device type #1=pv:    e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow (default) | victron | custom
 ##                  #1=bat:   hybrid (default) |
@@ -33,10 +33,6 @@ setup_pv_config() {
   local muser
   local mpass
 
-
-  if [[ ! -f /usr/local/sbin/setup_pv_config && $(whoami) == "root" ]]; then
-    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
-  fi
 
   if [[ -n "$UNATTENDED" ]]; then
     echo -n "$(timestamp) [storm.house] PV ${1} installation... "
@@ -75,7 +71,7 @@ setup_pv_config() {
       fi
 
       if [[ "${device}" == "pv" && "${2:-$invertertype}" == "huaweilogger" ]]; then
-        # %HUAWEI1 bzw 2 = 51000 + 25 * (MBID - 1) + 5 bzw 9 berechnen
+        # %HUAWEI1 bzw. 2 = 51000 + 25 * (MBID - 1) + 5 bzw 9 berechnen
         Erzeugung=$((51000 + 25 * (mbid - 1) + 5))
         PVStatus=$((Erzeugung + 4))
         sed -i "s|%HUAWEI1|${Erzeugung}|;s|%HUAWEI2|${PVStatus}|" "${destfile}"
@@ -107,76 +103,57 @@ setup_pv_config() {
 }
 
 
-## Generate/copy openHAB config for a PV inverter and optional a meter, too
-## Valid Arguments: e3dc | fronius | huawei | kostal | senec | sma | solaredge | solax | sungrow | victron | custom
-##                  IP address of inverter
-##     (optional)   IP address of meter
+## Generate/copy openHAB config for whitegood appliances
+## valid arguments:
+## #1 IP address of washing machine actuator
+## #2 IP address of dish washer actuator
+## #3 user name to access Shelly actuators (common to all white good actuators)
+## #4 password to access Shelly actuators (common to all white good actuators)
 ##
-##    setup_inv_config(String inverter type,String inverter IP,String meter IP)
+##    setup_whitegood_config(String washing machine IP,String dish washer IP,String actuator user name,String actuator password)
 ##
-setup_inv_config() {
+
+
+#TODO:
+# diese Routine vervollständigen
+# wie leere user/pass abfangen ? => wie ist das bei der 3em-Provisionierung gemacht ?
+setup_charger() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
-  local inverterPNG="${OPENHAB_CONF:-/etc/openhab}/icons/classic/inverter.png"
-  local srcfile
   local destfile
 
 
-  if [[ ! -f /usr/local/sbin/setup_inv_config  && $(whoami) == "root" ]]; then
-    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_inv_config; then echo "FAILED (install setup_inv_config script)"; return 1; fi
-  fi
-
-  if [[ -n "$UNATTENDED" ]]; then
-    echo -n "$(timestamp) [storm.house] inverter installation... "
-    if [[ -z "${1:-$invertertype}" ]]; then echo "SKIPPED (no inverter defined)"; return 1; fi
-  fi
-
-  if [[ -n "$INTERACTIVE" ]]; then
-    if [[ -z "${1:-$invertertype}" ]]; then
-      if ! invertertype="$(whiptail --title "Wechselrichter Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wechselrichtertyp aus" 18 100 9 "e3dc" "E3DC Hauskraftwerk" "fronius" "Fronius Symo" "huawei" "Huawei Sun 2000/Luna" "kostal" "Kostal Plenticore" "senec" "Senec Home" "sma" "SMA (experimental)" "solaredge" "SolarEdge SE (noch in Arbeit)" "solax" "Solax X1/X3" "sungrow" "Sungrow SH RT" "victron" "Victron mit Gateway (experimental)" "custom" "manuelle Konfiguration" 3>&1 1>&2 2>&3)"; then unset invertertype; return 1; fi
-    fi
-    if ! inverterip=$(whiptail --title "Wechselrichter IP" --inputbox "Welche IP-Adresse hat der Wechselrichter ?" 10 60 "${inverterip:-192.168.178.100}" 3>&1 1>&2 2>&3); then unset invertertype inverterip; return 1; fi
-  fi
-
-  for component in things items rules; do
-    srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${invertertype}}.${component}"
-    destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-    if [[ ${1:-${invertertype}} == "custom" && -f ${destfile} ]]; then
-        break
-    fi
-    rm -f "$destfile"
-    if [[ -f ${srcfile} ]]; then
-      cp "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-      if [[ $(whoami) == "root" ]]; then
-        chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-        chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/pv.${component}"
-      fi
-    fi
-  done
-
-
-  srcfile="${OPENHAB_CONF:-/etc/openhab}/icons/STORE/inverter/${1:-${invertertype}}.png"
-  if [[ -f $srcfile ]]; then
-    cp "$srcfile" "$inverterPNG"
-  fi
-  if [[ $(whoami) == "root" ]]; then
-    chown "${username:-openhabian}:openhab" "$inverterPNG"
-    chmod 664 "$inverterPNG"
-  fi
-
-  sed -i "s|%IP|${2:-${inverterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
-  
-  if [[ $# -gt 2 ]]; then
-    sed -i "s|%METERIP|${3:-${meterip}}|" "${OPENHAB_CONF:-/etc/openhab}/things/pv.things"
-  fi
-
-  echo "OK"
-  if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt einen ${1:-${invertertype}} Wechselrichter." 8 80
-  fi
+  destfile="${OPENHAB_CONF:-/etc/openhab}/things/generisch.things"
+  sed -i "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${1:-${chargeractuatoruser}}|;s|%PASS|${1:-${chargeractuatorpass}}|" "${destfile}"
 }
 
+
+## Generate/copy openHAB config for whitegood appliances
+## valid arguments:
+## #1 IP address of washing machine actuator
+## #2 IP address of dish washer actuator
+## #3 user name to access Shelly actuators (common to all white good actuators)
+## #4 password to access Shelly actuators (common to all white good actuators)
+##
+##    setup_whitegood_config(String washing machine IP,String dish washer IP,String actuator user name,String actuator password)
+##
+
+
+#TODO:
+# diese Routine vervollständigen
+# wie leere user/pass abfangen ? => wie ist das bei der 3em-Provisionierung gemacht ?
+setup_whitegood_config() {
+  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+  local destfile
+
+
+  destfile="${OPENHAB_CONF:-/etc/openhab}/things/weisseWare.things"
+  sed -i "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${1:-${dishwasherip}}|;s|%USER|${1:-${whitegooduser}}|;s|%PASS|${1:-${whitegoodpass}}|" "${destfile}"
+}
+
+
+
 ## Generate/copy openHAB config for a wallbox
-## Valid Arguments:
+## valid arguments:
 ##
 ## #1 wallbox type (from EVCC)
 ## abl cfos easee eebus evsewifi go-e go-e-v3 heidelberg keba mcc nrgkick-bluetooth nrgkick-connect
@@ -222,10 +199,6 @@ setup_wb_config() {
     if ! sed -e "/$1/s/^$1//g" -i "$2"; then echo "FAILED (uncomment)"; return 1; fi
   }
 
-
-  if [[ ! -f /usr/local/sbin/setup_wb_config && $(whoami) == "root" ]]; then
-    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_wb_config; then echo "FAILED (install setup_wb_config script)"; return 1; fi
-  fi
 
   if [[ -n "$UNATTENDED" ]]; then
     echo -n "$(timestamp) [storm.house] wallbox installation... "
@@ -307,10 +280,6 @@ setup_power_config() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local srcfile
 
-
-  if [[ ! -f /usr/local/sbin/setup_power_config && $(whoami) == "root" ]]; then
-    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_power_config; then echo "FAILED (install setup_power_config script)"; return 1; fi
-  fi
 
   if [[ -n "$UNATTENDED" ]]; then
     echo -n "$(timestamp) [storm.house] power tariff setup ... "
@@ -457,9 +426,27 @@ install_extras() {
   local passwdCommand2="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost users add demo demo user"
 
 
-  if [[ ! -f /usr/local/sbin/upgrade_ems && $(whoami) == "root" ]]; then
-    if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/upgrade_ems; then echo "FAILED (install upgrade_ems script)"; fi
+  if [[ $(whoami) == "root" ]]; then
+    if [[ ! -f /usr/local/sbin/upgrade_ems ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/upgrade_ems; then echo "FAILED (install upgrade_ems script)"; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_pv_config ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_wb_config ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_wb_config; then echo "FAILED (install setup_wb_config script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_power_config ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_power_config; then echo "FAILED (install setup_power_config script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_charger ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_charger; then echo "FAILED (install setup_charger script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_whitegood_config ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_whitegood_config; then echo "FAILED (install setup_whitegood_config script)"; return 1; fi
+    fi
   fi
+
   cond_redirect install -m 640 "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
 
   version=$(dpkg -s 'openhab' 2> /dev/null | grep Version | cut -d' ' -f2 | cut -d'-' -f1 | cut -d'.' -f2)
