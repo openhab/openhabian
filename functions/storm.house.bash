@@ -415,10 +415,9 @@ install_extras() {
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local deckey="/etc/ssl/private/ems.key"
   local solarforecastJAR=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
-  #local jar=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
-  local entsoeJAR=org.openhab.binding.entsoe-4.1.0-SNAPSHOT.jar
+  local entsoeJAR=org.openhab.binding.entsoe-4.0.5-SNAPSHOT.jar
   local solarforecastPKG="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${solarforecastJAR}"
-  local entsoePKG="https://github.com/gitMiguel/openhab-addons/releases/download/EntsoE-4.1.0-SNAPTSHOT/${entsoeJAR}"
+  #local entsoePKG="https://github.com/gitMiguel/openhab-addons/releases/download/EntsoE-4.1.0-SNAPTSHOT/${entsoeJAR}"
   local destdir="/usr/share/openhab/addons/"
   local sudoersFile="011_ems"
   local sudoersPath="/etc/sudoers.d"
@@ -453,7 +452,7 @@ install_extras() {
   if [[ $version -lt 4 ]]; then
     if ! cond_redirect wget -nv -O "${destdir}/${solarforecastJAR}" "${solarforecastPKG}"; then echo "FAILED (download inofficial solar forecast binding)"; rm -f "${destdir}/${solarforecastJAR}"; fi
   fi
-  if ! cond_redirect wget -nv -O "${destdir}/${entsoeJAR}" "${entsoePKG}"; then echo "FAILED (download inofficial Entso-E binding)"; rm -f "${destdir}/${entsoeJAR}"; fi
+  if ! cond_redirect install -m 644 --owner="${username:-admin}" --group="${groupname:-openhab}" "${BASEDIR:-/opt/openhabian}"/includes/${entsoeJAR} ${destdir}/${entsoeJAR}; then echo "FAILED (Entso-E jar)"; return 1; fi
 
   cond_redirect install -m 644 "${includesDir}/openhab_rsa.pub" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
   cond_redirect install -m 600 "${includesDir}/openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
