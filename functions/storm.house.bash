@@ -452,7 +452,7 @@ install_extras() {
   if [[ $version -lt 4 ]]; then
     if ! cond_redirect wget -nv -O "${destdir}/${solarforecastJAR}" "${solarforecastPKG}"; then echo "FAILED (download inofficial solar forecast binding)"; rm -f "${destdir}/${solarforecastJAR}"; fi
   fi
-  if ! cond_redirect install -m 644 --owner="${username:-admin}" --group="${groupname:-openhab}" "${BASEDIR:-/opt/openhabian}"/includes/${entsoeJAR} ${destdir}/${entsoeJAR}; then echo "FAILED (Entso-E jar)"; return 1; fi
+  if ! cond_redirect install -m 644 --owner="${username:-admin}" --group="${groupname:-openhab}" "${BASEDIR:-/opt/openhabian}"/includes/JARs/${entsoeJAR} ${destdir}/${entsoeJAR}; then echo "FAILED (Entso-E jar)"; return 1; fi
 
   cond_redirect install -m 644 "${includesDir}/openhab_rsa.pub" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
   cond_redirect install -m 600 "${includesDir}/openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
