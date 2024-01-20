@@ -267,9 +267,12 @@ mqtt_setup() {
   local mosquittoConf="/etc/mosquitto/mosquitto.conf"
   local mosquittoPasswd="/etc/mosquitto/passwd"
   local mqttPasswd
-  local mqttUser="openhabian"
+  local mqttUser
+  local mqttDefaultUser="openhabian"
   local introText="The MQTT broker Eclipse Mosquitto will be installed from the official repository.\\n\\nIn addition, you can activate username:password authentication."
-  local questionText="\\nDo you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\\n\\nUsername will be '${mqttUser}', please provide a password (consisting of ASCII printable characters except space). Leave blank for no authentication, run setup again to change."
+  local mqttUserText="\\nDo you want to secure your MQTT broker by a username:password combination? Every client will need to provide these upon connection.\\nPlease enter your MQTT-User (default = openhabian):"
+  local mqttPasswordText="\\nPlease provide a password (consisting of ASCII printable characters except space). Leave blank for no authentication, run setup again to change."
+
   local successText="Setup was successful.\\n\\nEclipse Mosquitto is now up and running in the background. You should be able to make a first connection.\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/mqtt/"
 
   echo -n "$(timestamp) [openHABian] Beginning the MQTT broker Eclipse Mosquitto installation... "
@@ -287,7 +290,8 @@ mqtt_setup() {
 
   echo -n "$(timestamp) [openHABian] Configuring MQTT... "
   if [[ -n $INTERACTIVE ]]; then
-    if ! mqttPasswd="$(whiptail --title "MQTT Authentication" --passwordbox "$questionText" 14 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! mqttUser=$(whiptail --title "MQTT User" --inputbox "$mqttUserText" 10 80 "$mqttDefaultUser" 3>&1 1>&2 2>&3); then return 0; fi
+    if ! mqttPasswd="$(whiptail --title "MQTT Authentication" --passwordbox "$mqttPasswordText" 14 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
   if ! grep -qs "listener" ${mosquittoConf}; then
       printf "\\n\\nlistener 1883" >> ${mosquittoConf}
@@ -297,7 +301,7 @@ mqtt_setup() {
       echo -e "\\npassword_file ${mosquittoPasswd}\\nallow_anonymous false\\n" >> ${mosquittoConf}
     fi
     touch ${mosquittoPasswd}
-    chown "mosquitto:${username:-openhabian}" ${mosquittoPasswd}
+    chown "mosquitto:${groupname:-openhab}" ${mosquittoPasswd}
     chmod 660 ${mosquittoPasswd}
     if cond_redirect mosquitto_passwd -b ${mosquittoPasswd} "$mqttUser" "$mqttPasswd"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
