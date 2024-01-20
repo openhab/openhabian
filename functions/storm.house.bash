@@ -421,8 +421,6 @@ install_extras() {
   local destdir="/usr/share/openhab/addons/"
   local sudoersFile="011_ems"
   local sudoersPath="/etc/sudoers.d"
-  local passwdCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost users changePassword admin ${userpw:-admin}"
-  local passwdCommand2="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost users add demo demo user"
 
 
   if [[ $(whoami) == "root" ]]; then
@@ -459,11 +457,6 @@ install_extras() {
   cond_redirect chown "${username:-openhabian}:openhab" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/openhab_rsa*"
   cond_redirect install -m 640 "${includesDir}/generic/ems.key" $deckey
 
-  # shellcheck disable=SC2046
-  cond_redirect $(${passwdCommand})
-  # shellcheck disable=SC2046
-  cond_redirect $(${passwdCommand2})
-
   # lc Lizenzgedöns
   if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.timer; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
   if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.service; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
@@ -482,6 +475,8 @@ finalize_setup() {
   # shellcheck disable=SC2155
   local evccdir=$(eval echo "~${evccuser:-${username:-openhabian}}")
   local oldYaml="${OPENHAB_USERDATA:-/var/lib/openhab}/evcc.yaml"
+  local passwdCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost users changePassword admin ${userpw:-admin}"
+  local passwdCommand2="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost users add demo demo user"
 
 
   rm -f "${oldYaml}"	# um Verwechslungen vorzubeugen
@@ -490,7 +485,10 @@ finalize_setup() {
   # Pakete dürfen beim apt upgrade nicht auf die neuesten Versionen aktualisiert werden
   cond_redirect apt-mark hold openhab openhab-addons evcc
 
-  #(sleep 600; /usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost 'openhab:send NeuinitialisierungEnergiemanagement ON' ) &
+  # shellcheck disable=SC2046
+  cond_redirect $(${passwdCommand})
+  # shellcheck disable=SC2046
+  cond_redirect $(${passwdCommand2})
 }
 
 
