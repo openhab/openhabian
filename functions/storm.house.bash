@@ -339,6 +339,58 @@ replace_logo() {
 }
 
 
+## Install non-standard bindings etc
+##
+##    install_extras()
+##
+install_extras() {
+  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+  local deckey="/etc/ssl/private/ems.key"
+  local solarforecastJAR=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
+  local entsoeJAR=org.openhab.binding.entsoe-4.0.5-SNAPSHOT.jar
+  local solarforecastPKG="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${solarforecastJAR}"
+  #local entsoePKG="https://github.com/gitMiguel/openhab-addons/releases/download/EntsoE-4.1.0-SNAPTSHOT/${entsoeJAR}"
+  local destdir="/usr/share/openhab/addons/"
+  local sudoersFile="011_ems"
+  local sudoersPath="/etc/sudoers.d"
+
+
+  if [[ $(whoami) == "root" ]]; then
+    if [[ ! -f /usr/local/sbin/upgrade_ems ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/upgrade_ems; then echo "FAILED (install upgrade_ems script)"; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_pv_config ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_wb_config ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_wb_config; then echo "FAILED (install setup_wb_config script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_power_config ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_power_config; then echo "FAILED (install setup_power_config script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_charger ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_charger; then echo "FAILED (install setup_charger script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_whitegood_config ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_whitegood_config; then echo "FAILED (install setup_whitegood_config script)"; return 1; fi
+    fi
+  fi
+
+  cond_redirect install -m 640 "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
+
+  version=$(dpkg -s 'openhab' 2> /dev/null | grep Version | cut -d' ' -f2 | cut -d'-' -f1 | cut -d'.' -f2)
+  if [[ $version -lt 4 ]]; then
+    if ! cond_redirect wget -nv -O "${destdir}/${solarforecastJAR}" "${solarforecastPKG}"; then echo "FAILED (download inofficial solar forecast binding)"; rm -f "${destdir}/${solarforecastJAR}"; fi
+  fi
+  if ! cond_redirect install -m 644 --owner="${username:-admin}" --group="${groupname:-openhab}" "${BASEDIR:-/opt/openhabian}"/includes/JARs/${entsoeJAR} ${destdir}/${entsoeJAR}; then echo "FAILED (Entso-E jar)"; return 1; fi
+
+  cond_redirect install -m 644 "${includesDir}/openhab_rsa.pub" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
+  cond_redirect install -m 600 "${includesDir}/openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
+  cond_redirect chown "${username:-openhabian}:openhab" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/openhab_rsa*"
+  cond_redirect install -m 640 "${includesDir}/generic/ems.key" $deckey
+}
+
+
 # TODO: UNATTENDED mode damit Updates aus UI möglich
 
 ## Retrieve latest EMS code from website
@@ -396,7 +448,10 @@ upgrade_ems() {
     cp -rp "${tempdir}/mapdb" /opt/zram/persistence.bind/
   fi
 
+  install_extras
+
   permissions_corrections   # sicherheitshalber falls Dateien durch git nicht mehr openhab gehören
+
   if [[ -n "$INTERACTIVE" ]]; then
     whiptail --title "EMS update erfolgreich" --msgbox "Das storm.house Energie Management System ist jetzt auf dem neuesten Stand." 8 80
   fi
@@ -406,70 +461,13 @@ upgrade_ems() {
 }
 
 
-## Install non-standard bindings etc
-##
-##    install_extras()
-##
-install_extras() {
-  local serviceTargetDir="/etc/systemd/system"
-  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
-  local deckey="/etc/ssl/private/ems.key"
-  local solarforecastJAR=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
-  local entsoeJAR=org.openhab.binding.entsoe-4.0.5-SNAPSHOT.jar
-  local solarforecastPKG="https://github.com/weymann/OH3-SolarForecast-Drops/blob/main/3.4/${solarforecastJAR}"
-  #local entsoePKG="https://github.com/gitMiguel/openhab-addons/releases/download/EntsoE-4.1.0-SNAPTSHOT/${entsoeJAR}"
-  local destdir="/usr/share/openhab/addons/"
-  local sudoersFile="011_ems"
-  local sudoersPath="/etc/sudoers.d"
-
-
-  if [[ $(whoami) == "root" ]]; then
-    if [[ ! -f /usr/local/sbin/upgrade_ems ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/upgrade_ems; then echo "FAILED (install upgrade_ems script)"; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_pv_config ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_wb_config ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_wb_config; then echo "FAILED (install setup_wb_config script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_power_config ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_power_config; then echo "FAILED (install setup_power_config script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_charger ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_charger; then echo "FAILED (install setup_charger script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_whitegood_config ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_whitegood_config; then echo "FAILED (install setup_whitegood_config script)"; return 1; fi
-    fi
-  fi
-
-  cond_redirect install -m 640 "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
-
-  version=$(dpkg -s 'openhab' 2> /dev/null | grep Version | cut -d' ' -f2 | cut -d'-' -f1 | cut -d'.' -f2)
-  if [[ $version -lt 4 ]]; then
-    if ! cond_redirect wget -nv -O "${destdir}/${solarforecastJAR}" "${solarforecastPKG}"; then echo "FAILED (download inofficial solar forecast binding)"; rm -f "${destdir}/${solarforecastJAR}"; fi
-  fi
-  if ! cond_redirect install -m 644 --owner="${username:-admin}" --group="${groupname:-openhab}" "${BASEDIR:-/opt/openhabian}"/includes/JARs/${entsoeJAR} ${destdir}/${entsoeJAR}; then echo "FAILED (Entso-E jar)"; return 1; fi
-
-  cond_redirect install -m 644 "${includesDir}/openhab_rsa.pub" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
-  cond_redirect install -m 600 "${includesDir}/openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
-  cond_redirect chown "${username:-openhabian}:openhab" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/openhab_rsa*"
-  cond_redirect install -m 640 "${includesDir}/generic/ems.key" $deckey
-
-  # lc Lizenzgedöns
-  if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.timer; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
-  if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.service; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
-  if ! cond_redirect install -m 755 "${includesDir}/generic/lc" /usr/local/sbin; then echo "FAILED (install lc)"; fi
-  if ! cond_redirect ln -s /usr/bin/openssl /usr/local/sbin/openssl11; then echo "FAILED (link openssl binary)"; fi
-  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
-  if ! cond_redirect systemctl enable --now lc.timer lc.service; then echo "FAILED (enable timed lc start)"; fi
-}
-
-
 ##    finalize_setup
 ##
 finalize_setup() {
+  local serviceTargetDir="/etc/systemd/system"
+  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+
+
   # shellcheck disable=SC2155
   local evccuser="$(systemctl show -pUser evcc | cut -d= -f2)"
   # shellcheck disable=SC2155
@@ -489,6 +487,14 @@ finalize_setup() {
   cond_redirect $(${passwdCommand})
   # shellcheck disable=SC2046
   cond_redirect $(${passwdCommand2})
+
+  # lc Lizenzgedöns
+  if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.timer; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
+  if ! cond_redirect install -m 644 -t "${serviceTargetDir}" "${includesDir}"/generic/lc.service; then rm -f "$serviceTargetDir"/lc.{service,timer}; echo "FAILED (setup lc)"; return 1; fi
+  if ! cond_redirect install -m 755 "${includesDir}/generic/lc" /usr/local/sbin; then echo "FAILED (install lc)"; fi
+  if ! cond_redirect ln -s /usr/bin/openssl /usr/local/sbin/openssl11; then echo "FAILED (link openssl binary)"; fi
+  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
+  if ! cond_redirect systemctl enable --now lc.timer lc.service; then echo "FAILED (enable timed lc start)"; fi
 }
 
 
