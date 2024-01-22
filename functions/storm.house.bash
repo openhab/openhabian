@@ -360,12 +360,12 @@ upgrade_ems() {
 
   tempdir="$(mktemp -d "${TMPDIR:-/tmp}"/updatedir.XXXXX)"
   temp="$(mktemp "${tempdir:-/tmp}"/updatefile.XXXXX)"
-echo  backup_openhab_config
+  echo  backup_openhab_config
 
   # user credentials retten
-echo  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
+  echo  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
   # Settings retten
-echo  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
+  echo  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
 
   # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
   mode=${1}
