@@ -301,7 +301,7 @@ mqtt_setup() {
       echo -e "\\npassword_file ${mosquittoPasswd}\\nallow_anonymous false\\n" >> ${mosquittoConf}
     fi
     touch ${mosquittoPasswd}
-    chown "mosquitto:${groupname:-openhabian}" ${mosquittoPasswd}
+    chown "mosquitto:${username:-openhabian}" ${mosquittoPasswd}
     chmod 660 ${mosquittoPasswd}
     if cond_redirect mosquitto_passwd -b ${mosquittoPasswd} "$mqttUser" "$mqttPasswd"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
