@@ -105,14 +105,14 @@ if [[ -n "$UNATTENDED" ]]; then
   needed_packages
   bashrc_copy
   vimrc_copy
-  install_tailscale "install" && setup_tailscale
+  install_tailscale "install"
   misc_system_settings
   add_admin_ssh_key
   firemotd_setup
   java_install "${java_opt:-17}"
   openhab_setup "${clonebranch:-openHAB}" "release"
   import_openhab_config
-  openhab_shell_interfaces
+  openhab_shell_interfaces && setup_tailscale
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme
