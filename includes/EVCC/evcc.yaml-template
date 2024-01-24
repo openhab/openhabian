@@ -93,7 +93,6 @@ loadpoints:
   phases: 0
   mincurrent: 6
   maxcurrent: 16
-  resetOnDisconnect: true
   vehicle: meinEAuto1
 
 tariffs:
@@ -116,8 +115,6 @@ site:
     battery:
     - LadeleistungHaus
   residualPower: 400
-  prioritySoc: 50
-  bufferSoC: 66
 
 sponsortoken: %TOKEN
 
