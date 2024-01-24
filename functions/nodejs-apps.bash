@@ -265,13 +265,13 @@ zigbee2mqtt_setup() {
   fi
   if [[ $1 != "install" ]]; then return 1; fi
 
+  command -v npm >/dev/null 2>&1 || apt-get install nodejs;
+
   # if a config file exists do only update and exit
   if [[ -e "/opt/zigbee2mqtt/data/configuration.yaml" ]] ; then
     if [[ -n $INTERACTIVE ]]; then
       if ! (whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$z2mInstalledText" 14 80); then echo "CANCELED"; return 0; fi
     fi
-
-    command -v npm >/dev/null 2>&1 || apt-get install nodejs;
 
     if ! cond_redirect fix_permissions /opt/zigbee2mqtt "${username:-openhabian}:openhab" 644 755; then echo "FAILED (zigbee2mqtt set permissions)"; return 1; fi
     if ! cond_redirect fix_permissions /var/log/zigbee2mqtt "${username:-openhabian}:openhab" 644 755; then echo "FAILED (zigbee2mqtt set permissions)"; return 1; fi
