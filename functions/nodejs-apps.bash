@@ -265,8 +265,6 @@ zigbee2mqtt_setup() {
   fi
   if [[ $1 != "install" ]]; then return 1; fi
 
-  command -v npm >/dev/null 2>&1 || apt-get install npm;
-
   # if a config file exists do only update and exit
   if [[ -e "/opt/zigbee2mqtt/data/configuration.yaml" ]] ; then
     if [[ -n $INTERACTIVE ]]; then
