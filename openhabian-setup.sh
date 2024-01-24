@@ -125,7 +125,7 @@ if [[ -n "$UNATTENDED" ]]; then
   install_grott "install"
   permissions_corrections
   setup_mirror_SD "install"
-  install_evcc "install" "${evccpkgversion:-0.122.1}"; setup_evcc
+  install_evcc "install" "${evccpkgversion:-0.123.9}"; setup_evcc
   systemctl stop openhab
   setup_pv_config pv "${invertertype:-custom}" "${inverterip:-192.168.178.100}" "${invertermodbusid:-1}"
   setup_pv_config bat "${batterytype:-hybrid}" "${batteryip:-192.168.178.101}" "${batterymodbusid:-3}"
