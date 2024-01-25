@@ -205,9 +205,9 @@ homegear_setup() {
   if [[ "$myRelease" == "n/a" ]] || [[ "$myRelease" == "bookworm" ]]; then
     myRelease="${osrelease:-bullseye}"
   fi
-  #if [[ "$myOS" == "Raspbian" ]] || is_arm && running_in_docker; then  # Workaround for CI not actually reporting as Raspberry Pi OS
-  #  myOS="debian"  # Workaround for Homegear's Raspios APT repo being broken
-  #fi
+  if [[ "$myOS" == "Raspbian" ]] || is_arm && running_in_docker; then  # Workaround for CI not actually reporting as Raspberry Pi OS
+    myOS="debian"  # Workaround for Homegear's Raspios APT repo being broken
+  fi
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
   if [[ -n $INTERACTIVE ]]; then
