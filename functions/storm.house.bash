@@ -124,7 +124,7 @@ setup_charger() {
   local destfile="${includesDir}/${thing}"
 
 
-  sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${1:-${chargeractuatoruser}}|;s|%PASS|${1:-${chargeractuatorpass}}|" "${srcfile}" > "${destfile}"
+  sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${2:-${chargeractuatoruser}}|;s|%PASS|${3:-${chargeractuatorpass}}|" "${srcfile}" > "${destfile}"
 }
 
 
