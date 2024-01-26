@@ -118,12 +118,13 @@ setup_pv_config() {
 # diese Routine vervollständigen
 # wie leere user/pass abfangen ? => wie ist das bei der 3em-Provisionierung gemacht ?
 setup_charger() {
-  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
-  local destfile
+  local thing=generisch.things
+  local includesDir="${OPENHAB_CONF:-/etc/openhab}/things/"
+  local srcfile="${includesDir}/STORE/${thing}"
+  local destfile="${includesDir}/${thing}"
 
 
-  destfile="${OPENHAB_CONF:-/etc/openhab}/things/generisch.things"
-  sed -i "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${1:-${chargeractuatoruser}}|;s|%PASS|${1:-${chargeractuatorpass}}|" "${destfile}"
+  sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${1:-${chargeractuatoruser}}|;s|%PASS|${1:-${chargeractuatorpass}}|" "${srcfile}" > "${destfile}"
 }
 
 
