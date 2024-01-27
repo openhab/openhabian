@@ -41,9 +41,9 @@ nodejs_setup() {
 
     echo -n "$(timestamp) [openHABian] Installing NodeJS... "
     if [[ -n $PREOFFLINE ]]; then
-      if cond_redirect apt-get --quiet install --download-only --yes nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get --quiet install --download-only --yes nodejs npm; then echo "OK"; else echo "FAILED"; return 1; fi
     else
-      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" nodejs npm; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
   fi
 }
@@ -214,8 +214,7 @@ nodered_setup() {
 zigbee2mqtt_download() {
   echo -n "$(timestamp) [openHABian] Downloading Zigbee2MQTT... "
   if ! cond_redirect mkdir -p /opt/zigbee2mqtt; then echo "FAILED (mkdir -p /opt/zigbee2mqtt)"; fi
-  if ! cond_redirect chown openhabian /opt/zigbee2mqtt; then echo "FAILED (chown /opt/zigbee2mqtt)"; fi
-  if ! cond_redirect chgrp openhab /opt/zigbee2mqtt; then echo "FAILED (chgrp /opt/zigbee2mqtt)"; fi
+  if ! cond_redirect chown "${username:-openhabian}:openhab" /opt/zigbee2mqtt; then echo "FAILED (chown /opt/zigbee2mqtt)"; fi
   if ! cond_redirect sudo -u "${username:-openhabian}" git clone https://github.com/Koenkk/zigbee2mqtt.git "/opt/zigbee2mqtt"; then echo "FAILED (git clone)"; return 1; fi
 }
 
@@ -250,7 +249,7 @@ zigbee2mqtt_setup() {
       if ! (whiptail --title "Zigbee2MQTT Uninstall" --yes-button "Continue" --no-button "Cancel" --yesno "$uninstallText" 7 80); then echo "CANCELED"; return 0; fi
     fi
     echo -n "$(timestamp) [openHABian] Removing Zigbee2MQTT service... "
-    if ! cond_redirect systemctl stop zigbee2mqtt.service; then echo "FAILED (disable service)"; return 1; fi
+    systemctl stop zigbee2mqtt.service
     if ! rm -f /etc/systemd/system/zigbee2mqtt.service; then echo "FAILED (remove service)"; return 1; fi
     if cond_redirect systemctl -q daemon-reload; then echo "OK"; else  echo "FAILED (daemon-reload)"; return 1; fi
 
@@ -271,6 +270,9 @@ zigbee2mqtt_setup() {
     if [[ -n $INTERACTIVE ]]; then
       if ! (whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$z2mInstalledText" 14 80); then echo "CANCELED"; return 0; fi
     fi
+
+    if ! cond_redirect fix_permissions /opt/zigbee2mqtt "${username:-openhabian}:openhab" 644 755; then echo "FAILED (zigbee2mqtt set permissions)"; return 1; fi
+    if ! cond_redirect fix_permissions /var/log/zigbee2mqtt "${username:-openhabian}:openhab" 644 755; then echo "FAILED (zigbee2mqtt set permissions)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Updating Zigbee2MQTT... "
     if ! cond_redirect cd /opt/zigbee2mqtt; then echo "FAILED (cd zigbee2mqtt)"; return 1; fi
@@ -331,8 +333,7 @@ zigbee2mqtt_setup() {
 
   echo -n "$(timestamp) [openHABian] Creating log directory... "
   mkdir  -p /var/log/zigbee2mqtt || (echo "FAILED (create log-directory)"; return 1)
-  chown openhabian /var/log/zigbee2mqtt || (echo "FAILED (create log-directory)"; return 1)
-  chgrp openhab /var/log/zigbee2mqtt || (echo "FAILED (create log-directory)"; return 1)
+  chown "${username:-openhabian}:openhab" /var/log/zigbee2mqtt || (echo "FAILED (create log-directory)"; return 1)
   echo "OK"
 
   echo -n "$(timestamp) [openHABian] Zigbee2MQTT install & config... "
@@ -346,7 +347,10 @@ zigbee2mqtt_setup() {
   echo "OK"
   
   echo -n "$(timestamp) [openHABian] Setting up Zigbee2MQTT service... "
-  if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/zigbee2mqtt/zigbee2mqtt.service /etc/systemd/system/; then echo "FAILED (install service)"; return 1; fi
+
+  sed -e "s|%user%|${username:-openhabian}|g" "${BASEDIR:-/opt/openhabian}/includes/zigbee2mqtt/zigbee2mqtt.service" | sudo -u "${username:-openhabian}" dd status=none of=/tmp/zigbee2mqtt.service
+
+  if ! cond_redirect install -m 644 /tmp/zigbee2mqtt.service /etc/systemd/system/; then echo "FAILED (install service)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if ! cond_redirect systemctl enable --now zigbee2mqtt.service; then echo "FAILED (enable service)"; return 1; fi
   echo "OK"

@@ -336,7 +336,7 @@ permissions_corrections() {
     if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions)"; retval=1; fi
   fi
   if zigbee2mqtt_is_installed; then
-    if ! cond_redirect fix_permissions /var/log/zigbee2mqtt "${username:-openhabian}:${username:-openhabian}" 644 755; then echo "FAILED (zigbee2mqtt log permissions)"; retval=1; fi
+    if ! cond_redirect fix_permissions /var/log/zigbee2mqtt "${username:-openhabian}:openhab" 644 755; then echo "FAILED (zigbee2mqtt log permissions)"; retval=1; fi
   fi
   if zram_is_installed; then
     if influxdb_is_installed; then
