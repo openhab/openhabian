@@ -354,6 +354,7 @@ install_extras() {
   local destdir="/usr/share/openhab/addons/"
   local sudoersFile="011_ems"
   local sudoersPath="/etc/sudoers.d"
+  local addonsCfg="${OPENHAB_CONF}/services/addons.cfg"
 
 
   if [[ $(whoami) == "root" ]]; then
@@ -389,6 +390,8 @@ install_extras() {
   cond_redirect install -m 600 "${includesDir}/openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
   cond_redirect chown "${username:-openhabian}:openhab" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/openhab_rsa*"
   cond_redirect install -m 640 "${includesDir}/generic/ems.key" $deckey
+
+  (echo suggestionFinderIp=false; echo suggestionFinderMdns=false; echo suggestionFinderUpnp=false) >> "${addonsCfg}"
 }
 
 
