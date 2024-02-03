@@ -10,7 +10,8 @@
       "release_date": "%release_date%",
       "image_download_size": %imageZ_size32%,
       "image_download_sha256": "%imageZ_sha32%",
-      "website": "https://www.openhab.org/docs/installation/openhabian.html#raspberry-pi-prepackaged-sd-card-image"
+      "website": "https://www.openhab.org/docs/installation/openhabian.html#raspberry-pi-prepackaged-sd-card-image",
+      "devices": ["pi5-32bit", "pi4-32bit", "pi3-32bit"]
     },
     {
       "name": "openHABian (Raspberry Pi OS lite 64 bit)",
@@ -22,7 +23,8 @@
       "release_date": "%release_date%",
       "image_download_size": %imageZ_size64%,
       "image_download_sha256": "%imageZ_sha64%",
-      "website": "https://www.openhab.org/docs/installation/openhabian.html#raspberry-pi-prepackaged-sd-card-image"
+      "website": "https://www.openhab.org/docs/installation/openhabian.html#raspberry-pi-prepackaged-sd-card-image",
+      "devices": ["pi5-64bit", "pi4-64bit"]
     }
   ]
 }
