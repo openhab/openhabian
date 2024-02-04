@@ -70,7 +70,7 @@ jobs:
            echo "image32=$(ls openhabian-32-oldstable*.img.xz)" >> $GITHUB_OUTPUT
            echo "image64=$(ls openhabian-64-oldstable*.img.xz)" >> $GITHUB_OUTPUT
            echo "image64latest=$(ls openhabian-64-latest*.img.xz)" >> $GITHUB_OUTPUT
-           #echo "json_image=$(ls rpi-imager-openhab.json)" >> $GITHUB_OUTPUT
+           echo "json_image=$(ls rpi-imager-openhab.json)" >> $GITHUB_OUTPUT
        - name: Archive openHABian 32bit bullseye image
          uses: actions/upload-artifact@v4
          with:
