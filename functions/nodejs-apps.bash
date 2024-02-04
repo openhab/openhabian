@@ -337,7 +337,7 @@ zigbee2mqtt_setup() {
   cd /opt/zigbee2mqtt || (echo "FAILED (cd)"; return 1)
   if ! cond_redirect sudo -u "${username:-openhabian}" npm ci ; then echo "FAILED (npm ci)"; return 1; fi
 
-  if ! cond_redirect install -o ${username:-openhabian} -g openhab -m 644 "${BASEDIR:-/opt/openhabian}/includes/zigbee2mqtt/configuration.yaml" /opt/zigbee2mqtt/data/; then echo "FAILED (install configuration.yaml)"; return 1; fi
+  if ! cond_redirect install -o "${username:-openhabian}" -g openhab -m 644 "${BASEDIR:-/opt/openhabian}/includes/zigbee2mqtt/configuration.yaml" /opt/zigbee2mqtt/data/; then echo "FAILED (install configuration.yaml)"; return 1; fi
   sed -i -e "s|%adapter|$by_path_or_id/$selectedAdapter|g" /opt/zigbee2mqtt/data/configuration.yaml
   sed -i -e "s|%user%|$mqttUser|g" /opt/zigbee2mqtt/data/configuration.yaml
   sed -i -e "s|%password%|$mqttPW|g" /opt/zigbee2mqtt/data/configuration.yaml 
@@ -347,7 +347,7 @@ zigbee2mqtt_setup() {
   
   echo -n "$(timestamp) [openHABian] Setting up Zigbee2MQTT service... "
 
-  if ! cond_redirect install -o ${username:-openhabian} -g openhab -m 644 "${BASEDIR:-/opt/openhabian}/includes/zigbee2mqtt/zigbee2mqtt.service" /etc/systemd/system/; then echo "FAILED (install service)"; return 1; fi
+  if ! cond_redirect install -o "${username:-openhabian}" -g openhab -m 644 "${BASEDIR:-/opt/openhabian}/includes/zigbee2mqtt/zigbee2mqtt.service" /etc/systemd/system/; then echo "FAILED (install service)"; return 1; fi
   sed -i -e "s|%user%|${username:-openhabian}|g" "/etc/systemd/system/zigbee2mqtt.service"
 
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
