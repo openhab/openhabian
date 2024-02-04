@@ -233,7 +233,7 @@ zigbee2mqtt_setup() {
   local mqttPWText="\\nIf your MQTT-server requires a password, please enter it here:"
   local my_adapters
   local by_path_or_id
-  local mqttDefaultUser="openhabian"
+  local mqttDefaultUser="${username:-openhabian}"
   local mqttUser
   local serverIP
   local installSuccessText
