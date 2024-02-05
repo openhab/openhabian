@@ -62,14 +62,17 @@ jobs:
            sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
            cp build-image/template_rpi-imager-openhab.json rpi-imager-openhab.json
            sudo -E ./build.bash rpi oldstable
-           mv openhabian-pi-raspios32*.img.xz openhabian-32-oldstable-$(date +%Y%m%d%H%M).img.xz
+           #mv openhabian-pi-raspios32*.img.xz openhabian-32-oldstable-$(date +%Y%m%d%H%M).img.xz
            sudo -E ./build.bash rpi64 oldstable
-           mv openhabian-pi-raspios64*.img.xz openhabian-64-oldstable-$(date +%Y%m%d%H%M).img.xz
+           #mv openhabian-pi-raspios64*.img.xz openhabian-64-oldstable-$(date +%Y%m%d%H%M).img.xz
            sudo -E ./build.bash rpi64 latest
-           mv openhabian-pi-raspios64*.img.xz openhabian-64-latest-$(date +%Y%m%d%H%M).img.xz
-           echo "image32=$(ls openhabian-32-oldstable*.img.xz)" >> $GITHUB_OUTPUT
-           echo "image64=$(ls openhabian-64-oldstable*.img.xz)" >> $GITHUB_OUTPUT
-           echo "image64latest=$(ls openhabian-64-latest*.img.xz)" >> $GITHUB_OUTPUT
+           #mv openhabian-pi-raspios64*.img.xz openhabian-64-latest-$(date +%Y%m%d%H%M).img.xz
+           #echo "image32=$(ls openhabian-32-oldstable*.img.xz)" >> $GITHUB_OUTPUT
+           #echo "image64=$(ls openhabian-64-oldstable*.img.xz)" >> $GITHUB_OUTPUT
+           #echo "image64latest=$(ls openhabian-64-latest*.img.xz)" >> $GITHUB_OUTPUT
+           echo "image32=$(ls openhabian-pi-raspios32*.img.xz)" >> $GITHUB_OUTPUT
+           echo "image64=$(ls -1t openhabian-pi-raspios64*.img.xz | tail -1)" >> $GITHUB_OUTPUT
+           echo "image64latest=$(ls -1t openhabian-pi-raspios64*.img.xz | head -1)" >> $GITHUB_OUTPUT
            echo "json_image=$(ls rpi-imager-openhab.json)" >> $GITHUB_OUTPUT
        - name: Archive openHABian 32bit bullseye image
          uses: actions/upload-artifact@v4
