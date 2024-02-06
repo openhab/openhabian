@@ -188,11 +188,11 @@ echo_process "This script will build the openHABian image file."
 
 # Identify hardware platform
 if [ "$1" == "rpi" ]; then
-  hwPlatform="pi-raspios32"
+  hwPlatform="raspios32"
   echo_process "Hardware platform: Raspberry Pi (rpi)"
 
 elif [ "$1" == "rpi64" ]; then
-  hwPlatform="pi-raspios64"
+  hwPlatform="raspios64"
   echo_process "Hardware platform: Raspberry Pi (rpi64)"
 
 elif [ "$1" == "local-test" ]; then
@@ -252,8 +252,8 @@ extraSize="1000"			# grow image root by this number of MB
 
 
 # Build Raspberry Pi image
-if [[ $hwPlatform == "pi-raspios32" ]] || [[ $hwPlatform == "pi-raspios64" ]]; then
-  if [ "$hwPlatform" == "pi-raspios64" ]; then
+if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
+  if [ "$hwPlatform" == "raspios64" ]; then
     baseURL="https://downloads.raspberrypi.org/raspios_${getstable}lite_arm64_latest"
     bits="64"
   else
@@ -388,7 +388,7 @@ fi
 echo_process "Moving image and cleaning up... "
 shorthash="$(git log --pretty=format:'%h' -n 1)"
 crc32checksum="$(crc32 "$imageFile")"
-destination="openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img"
+destination="openhabian-${hwPlatform}-${2:-latest}-${timestamp}-crc${crc32checksum}.img"
 mv -v "$imageFile" "$destination"
 rm -rf "$buildFolder"
 
