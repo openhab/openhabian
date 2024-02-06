@@ -62,6 +62,7 @@ show_main_menu() {
     wait_for_apt_to_finish_update
     cond_redirect apt-mark hold openhab openhab-addons
     system_upgrade
+    replace_logo
     cond_redirect apt-mark unhold openhab openhab-addons
 
   elif [[ "$choice" == "03"* ]]; then
@@ -76,12 +77,12 @@ show_main_menu() {
     fi
 
     repo=$(apt-cache madison openhab | head -n 1 | awk '{ print $6 }' |cut -d'/' -f1)
+    cond_redirect apt-mark unhold openhab openhab-addons evcc
     # shellcheck disable=SC2154
     openhab_setup "${repo:-release}" "${openhabpkgversion}"
     replace_logo
     upgrade_ems
     cond_redirect apt-mark hold openhab openhab-addons evcc
-    update_ems
 
   elif [[ "$choice" == "04"* ]]; then
     import_openhab_config
