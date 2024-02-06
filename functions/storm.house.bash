@@ -487,7 +487,6 @@ finalize_setup() {
 
   rm -f "${oldYaml}"	# um Verwechslungen vorzubeugen
   ln -s "${evccdir}/evcc.yaml" "${oldYaml}"
-  cond_redirect usermod --append --groups evcc "${username:-openhabian}"
   cond_redirect chmod g+w "$evccdir"
 
   # Pakete dürfen beim apt upgrade nicht auf die neuesten Versionen aktualisiert werden
