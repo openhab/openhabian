@@ -65,12 +65,12 @@ jobs:
            echo "image32=$(ls storm.house-32*.img.xz)" >> $GITHUB_OUTPUT
            echo "image64=$(ls storm.house-64*.img.xz)" >> $GITHUB_OUTPUT
        - name: Archive storm.house 32bit image
-         uses: actions/upload-artifact@v3
+         uses: actions/upload-artifact@v4
          with:
            name: ${{ steps.build.outputs.image32 }}
            path: ${{ steps.build.outputs.image32 }}
        - name: Archive storm.house 64bit image
-         uses: actions/upload-artifact@v3
+         uses: actions/upload-artifact@v4
          with:
            name: ${{ steps.build.outputs.image64 }}
            path: ${{ steps.build.outputs.image64 }}
