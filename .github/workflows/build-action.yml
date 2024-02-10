@@ -4,6 +4,7 @@ name: Build
 on:
   push:
     paths:
+      - 'includes/tskey.zip'
       - 'build.bash'
       - 'build-image/openhabian-installer.service'
       - 'build-image/first-boot.bash'
@@ -14,6 +15,7 @@ on:
       - 'functions/java-jre.bash'
   pull_request:
     paths:
+      - 'includes/tskey.zip'
       - 'build.bash'
       - 'build-image/openhabian-installer.service'
       - 'build-image/first-boot.bash'
@@ -44,50 +46,26 @@ jobs:
          run: |
            sudo apt-get update
            sudo apt-get install --yes libarchive-zip-perl dos2unix systemd-container qemu-utils
-           echo "image32=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
            echo "image64=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
-       - name: Cache Raspberry Pi OS 32bit image
+       - name: Cache Raspberry Pi OS 64bit image
          uses: actions/cache@v5
          with:
-           path: ${{ steps.setup.outputs.image32 }}
-           key: ${{ steps.setup.outputs.image32 }}
-       - name: Cache Raspberry Pi OS bookworm 64bit image
-         uses: actions/cache@v4
-         with:
-<<<<<<< HEAD
            path: ${{ steps.setup.outputs.image64 }}
            key: ${{ steps.setup.outputs.image64 }}
-=======
-           path: ${{ steps.setup.outputs.imageNeu }}
-           key: ${{ steps.setup.outputs.imageNeu }}
->>>>>>> 9a135ea9b (baue paralleles Image)
        - name: Build storm.house images
          id: build
          run: |
            sudo -E ./tests/ci-setup.bash github ${{ github.ref_name }}
            sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.conf
            sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
-           sudo -E ./build.bash rpi latest
-           mv openhabian-raspios32*.img.xz storm.house-$(date +%Y%m%d%H%M).img.xz
-           echo "image32=$(ls storm.house-*.img.xz)" >> $GITHUB_OUTPUT
            sudo -E ./build.bash rpi64 latest
            mv openhabian-raspios64*.img.xz storm.house-64-$(date +%Y%m%d%H%M).img.xz
-<<<<<<< HEAD
            echo "image64=$(ls storm.house-64-*.img.xz)" >> $GITHUB_OUTPUT
-=======
-           echo "image32=$(ls storm.house-32*.img.xz)" >> $GITHUB_OUTPUT
-           echo "imageNeu=$(ls storm.house-64*.img.xz)" >> $GITHUB_OUTPUT
->>>>>>> 9a135ea9b (baue paralleles Image)
-       - name: Archive storm.house 32bit image
-         uses: actions/upload-artifact@v5
+       - name: Archive storm.house 64bit image
+         uses: actions/upload-artifact@v6
          with:
-           name: ${{ steps.build.outputs.image32 }}
-           path: ${{ steps.build.outputs.image32 }}
-       - name: Archive storm.house 64bit bookworm image
-         uses: actions/upload-artifact@v5
-         with:
-           name: ${{ steps.build.outputs.imageNeu }}
-           path: ${{ steps.build.outputs.imageNeu }}
+           name: ${{ steps.build.outputs.image64 }}
+           path: ${{ steps.build.outputs.image64 }}
        - name: Create release template
          if: ${{ success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v') }}
          uses: "softprops/action-gh-release@v2"
@@ -98,5 +76,4 @@ jobs:
            prerelease: false
            draft: true
            files: |
-             ${{ steps.build.outputs.image32 }}
-             ${{ steps.build.outputs.imageNeu }}
+             ${{ steps.build.outputs.image64 }}
