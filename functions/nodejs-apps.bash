@@ -46,7 +46,7 @@ nodejs_setup() {
       if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
     #if [[ "$myDistro" == "bookworm" ]]; then jsscripting_npm_install; fi
-    if ! npm -v; then jsscripting_npm_install; fi
+    if ! command -v npm; &> /dev/null; then jsscripting_npm_install; fi
   fi
 }
 
