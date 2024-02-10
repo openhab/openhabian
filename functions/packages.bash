@@ -221,20 +221,13 @@ homegear_setup() {
   if ! add_keys "https://apt.homegear.eu/Release.key" "$keyName"; then return 1; fi
 
 
-  # Add Homegear's repository to APT - needed to use testing repo, now needs stable
-  if ! is_pi; then
-    myRelease=trixie
-    # x86:
-    echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/${myRelease}/homegear/stable/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
-    cat /etc/apt/sources.list.d/homegear.list
+  # Add Homegear's repository to APT - need to use testing repo
+  if ! is_pi || [[ "$(dpkg --print-architecture)" == 'arm64' ]]; then
+    # 64-bit Raspberry Pi OS:
+    echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/bookworm/homegear/testing/ bookworm main' > /etc/apt/sources.list.d/homegear.list
   else
-    if [[ "$(dpkg --print-architecture)" == 'arm64' ]]; then
-      # 64-bit Raspberry Pi OS:
-      echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/${myRelease}/homegear/stable/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
-    else
-      # 32-bit Raspberry Pi OS
-      echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/${myRelease}/homegear/stable/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
-    fi
+    # 32-bit Raspberry Pi OS
+    echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/bookworm/homegear/testing/ bookworm main' > /etc/apt/sources.list.d/homegear.list
   fi
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
@@ -422,9 +415,9 @@ miflora_setup() {
   local mifloraDir="/opt/miflora-mqtt-daemon"
   local successText="Setup was successful.\\n\\nThe Daemon was installed and the systemd service was set up just as described in it's README. Please add your MQTT broker settings in '${mifloraDir}/config.ini' and add your Mi Flora sensors. After that be sure to restart the daemon to reload it's configuration.\\n\\nAll details can be found under: https://github.com/ThomDietrich/miflora-mqtt-daemon\\nThe article also contains instructions regarding openHAB integration."
 
-  if ! dpkg -s 'git' 'python3' 'python3-pip' 'bluetooth' 'bluez' 'build-essential' 'pkg-config' 'libglib2.0-dev' &> /dev/null; then
+  if ! dpkg -s 'git' 'python3' 'python3-pip' 'bluetooth' 'bluez' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing miflora-mqtt-daemon required packages... "
-    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" git python3 python3-pip bluetooth bluez build-essential pkg-config libglib2.0-dev; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" git python3 python3-pip bluetooth bluez; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning setup of miflora-mqtt-daemon... "
@@ -455,11 +448,10 @@ miflora_setup() {
   cond_echo "Installing required python packages"
   cond_redirect "$mifloraDir"/env/bin/pip3 install -r "$mifloraDir"/requirements.txt
 ## deactivate venv to avoid conflicts with other functions
-  cond_redirect deactivate
+  cond_redirect "$mifloraDir"/env/bin/deactivate
 ## original code from here
   echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon service... "
   if ! cond_redirect install -m 644 "$mifloraDir"/template.service /etc/systemd/system/miflora.service; then echo "FAILED (copy service)"; return 1; fi
-  if ! cond_redirect sed -i -e "s|^ExecStart=.*|ExecStart=${mifloraDir}/env/bin/python3 ${mifloraDir}/miflora-mqtt-daemon.py|" /etc/systemd/system/miflora.service; then echo "FAILED (service ExecStart)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now miflora.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
@@ -671,31 +663,22 @@ nginx_setup() {
 ## Function for installing deCONZ, the companion web app to the popular Conbee/Raspbee Zigbee controller
 ## The function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
 ##
-##    deconz_setup(int port, int wsPort)
+##    deconz_setup(int port)
 ##
-## Valid arguments: Phoscon Web UI (HTTP) port, deCONZ WebSocket API port
+## Valid argument: port to run Phoscon app on
 ##
 deconz_setup() {
-  local defaultPort=8081
-  local defaultWsPort=8088
-  local port="${1:-$defaultPort}"
-  local wsPort="${2:-$defaultWsPort}"
+  local port="${1:-8081}"
   local keyName="deconz"
   local appData="/var/lib/openhab/persistence/deCONZ"
-  local introText="This will install deCONZ to support Dresden Elektronik Conbee and Raspbee Zigbee controllers.\\nThe Phoscon Web UI and the deCONZ WebSocket API are provided by deCONZ.\\nNext step: choose HTTP/WS ports; avoid conflicts with openHAB (default 8080)."
-  local successText=""
+  local introText="This will install deCONZ as a web service, the companion app to support Dresden Elektronik Conbee and Raspbee Zigbee controllers.\\nUse the web interface on port 8081 to pair your sensors.\\nNote the port is changed to 8081 as the default 80 wouldn't be right with openHAB itself running on 8080."
+  local successText="The deCONZ API plugin and the Phoscon companion web app were successfully installed on your system.\\nUse the web interface on port ${port} to pair your sensors with Conbee or Raspbee Zigbee controllers.\\nNote the port has been changed from its default 80 to 8081."
   local repo="/etc/apt/sources.list.d/deconz.list"
 
-  if [[ -n "$UNATTENDED" ]] && [[ "${deconz_install:-disable}" != "enable" ]]; then
-    echo -n "$(timestamp) [openHABian] Skipping deCONZ install as requested."
-    return 1
-  fi
 
-  if [[ -n $INTERACTIVE ]]; then
-    if ! (whiptail --title "deCONZ installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then return 0; fi
-  fi
+  if ! (whiptail --title "deCONZ installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then return 0; fi
 
-  if ! add_keys "https://phoscon.de/apt/deconz.pub.key" "$keyName"; then return 1; fi
+  if ! add_keys "http://phoscon.de/apt/deconz.pub.key" "$keyName"; then return 1; fi
 
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc | head -1)"
@@ -711,38 +694,21 @@ deconz_setup() {
   if ! cond_redirect mkdir -p "${appData}" && fix_permissions "${appData}" "${username:-openhabian}:${username:-openhabian}" 664 775 && ln -sf "${appData}" /home/"${username:-openhabian}"/.local; then echo "FAILED (deCONZ database on zram)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Preparing deCONZ repository ... "
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; fi
-  
-  local deconzPkg="deconz"
-  if [[ "$myRelease" == "bookworm" || "$myRelease" == "trixie" ]] && apt-cache show deconz-qt6 > /dev/null 2>&1; then
-    deconzPkg="deconz-qt6"
-  fi
-
   echo -n "$(timestamp) [openHABian] Installing deCONZ ... "
-  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "$deconzPkg"; then echo "OK"; else echo "FAILED (install deCONZ package)"; return 1; fi
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" deconz; then echo "OK"; else echo "FAILED (install deCONZ package)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
-    if ! port="$(whiptail --title "Enter Phoscon Web UI (HTTP) port" --inputbox "\\nPlease enter the port you want the Phoscon Web UI to run on:" 11 80 "$port" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-    if ! wsPort="$(whiptail --title "Enter deCONZ WebSocket API port" --inputbox "\\nPlease enter the WebSocket port you want deCONZ to run on:" 11 80 "$wsPort" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! port="$(whiptail --title "Enter Phoscon port number" --inputbox "\\nPlease enter the port you want the Phoscon web application to run on:" 11 80 "$port" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
-  if ! [[ "$port" =~ ^[0-9]+$ ]] || (( port < 1 || port > 65535 )); then
-    echo "$(timestamp) [openHABian] WARN (invalid deCONZ HTTP port: $port, using default ${defaultPort})"
-    port="$defaultPort"
-  fi
-  if ! [[ "$wsPort" =~ ^[0-9]+$ ]] || (( wsPort < 1 || wsPort > 65535 )); then
-    echo "$(timestamp) [openHABian] WARN (invalid deCONZ WebSocket port: $wsPort, using default ${defaultWsPort})"
-    wsPort="$defaultWsPort"
-  fi
-  
   # remove unneeded parts so they cannot interfere with openHABian
   cond_redirect systemctl disable --now deconz-gui.service deconz-homebridge.service deconz-homebridge-install.service deconz-init.service deconz-wifi.service
   cond_redirect rm -f "/lib/systemd/system/deconz-{homebridge,homebridge-install,init,wifi}.service"
   cond_redirect systemctl daemon-reload
 
-  # set deCONZ HTTP port and WebSocket API port
-  if ! cond_redirect sed -i -e 's|http-port=80$|http-port='"${port}"' --ws-port='"${wsPort}"'|g' /lib/systemd/system/deconz.service; then echo "FAILED (replace port in service start)"; return 1; fi
+  # change default port deCONZ runs on (80)
+  if ! cond_redirect sed -i -e 's|http-port=80$|http-port='"${port}"' --ws-port='"${port}"'|g' /lib/systemd/system/deconz.service; then echo "FAILED (replace port in service start)"; return 1; fi
   if cond_redirect systemctl enable deconz.service && cond_redirect systemctl restart deconz.service; then echo "OK"; else echo "FAILED (service restart with modified port)"; return 1; fi
 
-  successText="deCONZ installed. Phoscon Web UI is available on port ${port} and the deCONZ WebSocket API on port ${wsPort}."
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "deCONZ install successfull" --msgbox "$successText" 11 80
   fi
