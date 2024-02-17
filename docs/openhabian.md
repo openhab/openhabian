@@ -103,18 +103,19 @@ So if you choose to deviate from the standard openHABian installation (e.g. you 
 
 ## Hardware
 ### Hardware recommendation
-Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB of RAM, a 3A power supply and a "Endurance" SD card.
+Let's put this first: our current recommendation is to get a RPi 4 with 2 or (better) 4 GB of RAM, a 3A power supply and an "Endurance" SD card.
 Cards named "Endurance" can handle more write cycles and will be more enduring under openHAB\'s use conditions.
 Prepare to make use of the [SD mirroring feature](openhabian.md#SD-mirroring), get a 2nd SD card right away, same model or at least the size of your internal one, plus a USB card reader.
 
 ### Hardware support
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware.
+The new RPi 5 is not fully supported.
 Anything x86 based may work or not.
 Anything else ARM based such as ODroids, OrangePis and the like may work or not.
 NAS servers such as QNAP and Synology boxes will not work.
 Support for PINEA64 was dropped.
 
-We strongly recommend that users choose Raspberry Pi 2, 3 or 4 systems that have 1 GB of RAM or more.
+We strongly recommend Raspberry Pi 2, 3 or 4 systems that have 1 GB of RAM or more.
 RPi 1 and 0/0W just have a single CPU core and only 512 MB of RAM. The RPi0W2 has 4 cores but only 512 MB as well.
 512 MB can be sufficient to run a smallish openHAB setup, but it will not be enough to run a full-blown system with many bindings and memory consuming openHABian features/components such as zram or InfluxDB.
 We do not actively prohibit installation on any hardware, including unsupported systems, but we might skip or deny to install specific extensions such as those memory hungry applications named above.
@@ -145,8 +146,8 @@ Several optional components such as WireGuard or Homegear are known to expose pr
 
 You need to use the `bullseye` distribution for Debian (x86). 
 
-Note with openHAB 4 and Java 17, `buster` is no longer reported and there'll be issues when you attempt upgrading Java 11->17 on `buster` so move to `bullseye` before attempting to upgrade openHAB to version 4.
-Should you still be running an older distribution, we recommend not to upgrade the distro but to re-install and import your config instead.
+Note with openHAB 4 and Java 17, `buster` is no longer supported and there'll be issues when you attempt upgrading Java 11->17 on `buster` so move to `bullseye` before attempting to upgrade openHAB to version 4.
+Should you still be running an older distribution, we recommend not to upgrade the distro but to re-install using the latest openHABian image and import your config instead.
 `bookworm` is not yet fully supported. There's known issues at least with a Wi-Fi setup.
 
 ### 64 bit?
