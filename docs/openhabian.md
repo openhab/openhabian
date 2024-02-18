@@ -572,11 +572,3 @@ The main challenge is to **get used to the Linux command line**, not even a GUI 
 If you are not willing to teach yourself a few fundamental Linux skills you will not become happy with any Linux system and should resort to a e.g. Windows machine.
 However as you are willing to tinker with smart home technology, I'm sure you are ready to **teach yourself new stuff** and expand your experience.
 
-<a id="faq-other-platforms"></a>
-#### Can I use openHABian on ...?
-
-See the [README](https://github.com/openhab/openhabian/blob/main/README.md#hardware-and-os-support) for a list of supported HW and OS.
-openHABian is developed for Debian based systems.
-If your operating system is based on these or if your hardware supports one, your chances are high openHABian can be used.
-Check out the [Manual Setup](#manual-setup) instructions for guidance and consult the [debug guide](openhabian-DEBUG.md) if you run into problems.
-Do not hesitate to ask for help on the [openHABian community forum](https://community.openhab.org/)!
