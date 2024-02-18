@@ -65,6 +65,7 @@ openHABian will install **openHAB 4** and Java 17 by default.
 The openHABian image will install openHAB 4 by default, to have it install openHAB 3 right from the beginning, set `clonebranch=openHAB3` or in `openhabian.conf` on the first SD partition before first boot. Use `clonebranch=legacy` to get openHAB 2.
 You can switch branches using menu option 01 in `openhabian-config` but ATTENTION you cannot up- or downgrade this way, use the 03 and 4X options.
 
+
 ::: warning No downgrades
 Take an openHAB config backup BEFORE you upgrade from openHAB 3 to 4. You should also make a system level copy of your SD card.
 :::
