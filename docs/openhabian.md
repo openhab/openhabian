@@ -32,11 +32,11 @@ It provides:
 
 ## Features
 
-Out of the box, the openHABian image provides lots of useful Linux tools:
+The openHABian image provides lots of useful Linux tools out of the box:
 
--   Hassle-free setup without a display or keyboard, connected via Ethernet or [Wi-Fi](#wi-fi-based-setup-notes)
+-   Fully automated hassle-free setup without a need for a display or keyboard, connected via Ethernet or [Wi-Fi](#wi-fi-based-setup-notes)
 -   All versions of openHAB to select from, including the latest stable one as the default
--   OpenJDK 11 or 17
+-   several Java options
 -   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
 -   [SD card mirroring](openhabian.md#SD-mirroring) and [Amanda Backup](openhabian-amanda.md) to boost system availability
 -   Web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
@@ -57,26 +57,16 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 -   Configure Raspberry Pi specific functions
     -   Prepare the serial port for the use with extension boards like RaZberry, Enocean Pi, ...
     -   Use zram to mitigate SD wear due to excessive writes
+    -   mirror the SD card
     -   Move the system partition to an external USB stick or drive
-
-... and much more
 
 ## On openHAB 4, 3 and 2
 openHABian will install **openHAB 4** and Java 17 by default.
-openHAB 2 will continue to work on openHABian, but openHAB 2 support is no longer maintained.
-If you need openHAB 2 support please use the `legacy` branch of openHABian.
-You can switch branches using menu option 01 in `openhabian-config` but ATTENTION you cannot up- or downgrade this way and you cannot arbitrarily change versions.
-There's a high risk you mess up your system if you do.
-
-### Deploying openHAB 2 or 3
-The openHABian image will install openHAB 4 by default, to have it install openHAB 2 or 3 right from the beginning, set `clonebranch=legacy` or `clonebranch=openHAB3` in `openhabian.conf` before first boot.
-
-## Upgrading openHAB 2 to current openHAB
-For openHABian users still running openHAB 2.X, `openhabian-config` offers to migrate the openHABian environment and install current openHAB for you.
-using menu option 42. Beware you cannot downgrade again.
+The openHABian image will install openHAB 4 by default, to have it install openHAB 3 right from the beginning, set `clonebranch=openHAB3` or in `openhabian.conf` on the first SD partition before first boot. Use `clonebranch=legacy` to get openHAB 2.
+You can switch branches using menu option 01 in `openhabian-config` but ATTENTION you cannot up- or downgrade this way, use the 03 and 4X options.
 
 ::: warning No downgrades
-Take an openHAB config backup BEFORE you upgrade from openHAB v2 to v3. You should also take a system level backup!
+Take an openHAB config backup BEFORE you upgrade from openHAB 3 to 4. You should also make a system level copy of your SD card.
 :::
 
 Menu option 42 can also do the downgrade and change the _environment_ back to match openHAB 2 but ATTENTION it'll only exchange the OS setup and the openHAB packages.
