@@ -142,15 +142,17 @@ Should you still be running an older distribution, we recommend not to upgrade t
 
 ### 64 bit?
 RPi 3 and newer have a 64 bit processor. There's openHABian images available in both, 32 and 64 bit.
-We recommend to use the 64 bit version if your RPi has 2 GB or more of RAM, else you should stay with the 32bit version.
-Generally speaking, OH is neither CPU challenging nor limited by it and as such does not benefit from 64bit improvements, with one notable exception with JS rules where the 64bit version runs significantly faster.
-Be aware, however, that running in 64 bit always has a major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like RPi and NUCs. Ensure you have a mimimum of 2 GB, 4 will put you on the safe side.
-On x86 hardware, it's all 64 bit but that again increases memory usage. A NUC to run on should have no less than 8 GB.
+There's cons to both variants. Choose yours based on your hardware and primary use case.
+On 32 bit, JS rules are reported to be annoyingly slow on first startup and in some Blockly development cases. That's a clear nuisance but at least it's not mission critical.
+Running in 64 bit on the other hand requires all adjacent and underlying software to be fully compatible, too, so overall likelihood of encountering issues along the way is higher on a 64 bit OS.
+You might want to be running some older or some non official addons that will not work on 64 bit yet.
+Plus, 64 bit always has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like these. If you want to go with 64 bit, ensure your RPi has a mimimum of 2 GB, 4 will put you on the safe side.
+On x86 hardware, it's all 64 bit but that in turn once more increases memory usage. A NUC to run on should have no less than 8 GB.
 
 ### Networking
 You need to prepare your local network so you eventually need to configure your Internet router before an openHABian installation.
 For image based installations, openHABian re-uses the TCP/IP networking setup Raspberry Pi OS is coming with.
-The non-image (script-only) version of openHABian does not change anything about your existing OS' networking setup so you have to take care of that and prepare it yourself.
+The non-image (script-only) version of openHABian does not change anything about your existing OS' networking setup so you have to take care of that yourself before installing.
 
 A working DHCP server is a mandatory prerequisite to openHABian's networking setup.
 We recommend you configure your DHCP server to always assign the same IP based based on your RPi's MAC address.
