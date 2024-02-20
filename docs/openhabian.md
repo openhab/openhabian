@@ -260,30 +260,29 @@ sudo openhabian-config
 
 ![openHABian-config menu](images/openHABian-config.png)
 
-The configuration tool is the heart of openHABian.
-It is not only a menu with a set of options, it's also used in a special unattended mode to automate the setup run, either as part of the RPi image or in a manual install run.
+The configuration tool is the heart and center of openHABian.
+It is not only a menu with a set of options but also used in a special unattended mode to automate the setup run, either as part of the RPi image or in a manual install run.
 
 ⌨ - A quick note on menu navigation.
 Use the cursor keys to navigate, <kbd>Enter</kbd> to execute, <kbd>Space</kbd> to select and <kbd>Tab</kbd> to jump to the actions on the bottom of the screen.
 Press <kbd>Esc</kbd> twice to exit the configuration tool.
 
+### First steps with openHAB
+
+After your first setup of openHABian completed successfully, please access the openHAB dashboard to dig into its possibilites.
+Check out the [openHAB primers tutorial](https://www.openhab.org/docs/tutorial/).
+Be sure to read up on the [Configuration](https://www.openhab.org/docs/configuration/) section of the documentation pages to learn more.
+
 ### Linux Hints
 
 If you're a newbie to Linux, you sooner or later will have to know some Linux if you want to copy some files or are on the search for a solution to a problem.
-To prepare, take a few minutes to study these tutorials and get to know the most basic commands and tools to be able to navigate on your Linux system, edit configurations, check the system state or look at log files.
+Take some time at this stage to study tutorials and get to know the most basic commands and tools to be able to navigate on your Linux system, edit configurations, check the system state or look at log files.
 
 -   "Learn the ways of Linux-fu, for free" interactively with exercises at [linuxjourney.com](https://linuxjourney.com).
 -   The official Raspberry Pi help articles over at [raspberrypi.org](https://www.raspberrypi.org/help)
 -   "Now what?", Tutorial on the Command line console at [LinuxCommand.org](http://linuxcommand.org/index.php)
 
-### First steps with openHAB
-
-After your first setup of openHABian is successful and you are able to access the openHAB dashboard, you should dig into the possibilites.
-Install [Bindings](https://www.openhab.org/addons/), discover your devices, and [configure your smart home](https://www.openhab.org/docs/configuration/).
-You might want to start defining [Items](https://www.openhab.org/docs/configuration/items.html), [Sitemap](https://www.openhab.org/docs/configuration/sitemaps.html) and [HABPanel](https://www.openhab.org/docs/configuration/habpanel.html) dashboard for your home, but these are just some first hints.
-Be sure to read up on the [Configuration](https://www.openhab.org/docs/configuration/) section of the documentation pages to learn more.
-
-### Further configuration steps
+### more openHABian configuration
 
 openHABian is supposed to provide a ready-to-use openHAB base system.
 There are a few things, however, we need you to decide and act on right now at the beginning:
@@ -315,39 +314,56 @@ They can be changed from openHABian menu.
 
 ## Availability and Backup
 
-openHAB is designed to reliably run 24 hours a day, seven days a week - and so should be your server.
-This is the right time to prepare your system for disasters such as getting hit by the SD card wear-out/corruption problem which is quite common among users of single board computers such as Raspberry Pis. See [this community thread](https://community.openhab.org/t/corrupt-filesystems-every-2-3-month/13057/20) for more information.
+openHABian is designed to reliably run 24 hours a day, seven days a week. That's a complex challenge involving hardware, software and operational procedures.
+This is the right time to prepare your system for disasters such as getting hit by the SD card wear-out/corruption problem.
 
-openHABian has a number of features built in to enhance resilience:
+Preparing for hardware breakage is easiest and most likely to work with common-off-the-shelf hardware that is known it will work as a drop-in replacement the very moment you will be in need of it (i.e. when your smart home server just died).
 
-1.  The Zram feature moves write intensive parts of openHABian into RAM to mitigate the risk of SD card corruption.
+::: tip get your spare hardware ready
+Order **spare** pieces of *all* hardware components your home automation relies on to work. At a minimum, that's the computer itself and another storage medium.
+Have it ready for use *on site*, unboxed, mounted and tested to be working.
+:::
+
+HEADS UP: that statement applies to EVERY hardware setup, even if you run openHAB in some virtualized on some $$$ rackmounted Dell server in your basement.
+For our recommended hardware setup that means getting another Raspberry Pi (same model), 2 more SD cards and a power supply (in case of emergency, a smartphone charger will also do).
+
+That being said, openHABian has a number of built in software features we borrowed from professional data center operations.
+
+1.  SD cards are known they can 'wear out' after some time and crash your OS and openHAB setup and data when they do. See [this community forum post](https://community.openhab.org/t/corrupt-filesystems-every-2-3-month/13057/20) for more information.
+    The Zram feature moves write intensive parts of openHABian into RAM to mitigate the risk of SD card corruption.
     WARNING: power failure will result in some data to get lost (albeit the system should continue to run) so we recommend to also get an UPS.
     Zram is enabled by default for swap, logs and persistence data.
     You can toggle use in \[menu option 38\].
-2.  Mirror your SD card: see [auto backup](#SD-mirroring) documentation. You can activate mirroring using \[menu option 53\].
-3.  openHABian provides an option to move the root filesystem to USB-attached devices.
-    See \[menu option 37\].
+2.  Mirror your SD card!
+    Get an USB card writer and another SD card and set up SD mirroring using \[menu option 53\].
+    This will ensure you have an always ready-to-use clone of your storage medium handy at all times.
+    In case of emergency, you can simply swap SD cards and get back online within just a few minutes.
+    See [auto backup](#SD-mirroring) documentation.
+
+::: tip remote replacement
+Disasters love to happen when you're not at home. 
+With an openHABian RPi mirror SD setup, you can even instruct your partner or even kid or neighbour to replace the SD card and/or computer from remote, by phone. No need for Internet access.
+:::
+
+3.  Use the integrated original openHAB [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) at regular intervals to interactively backup/restore your openHAB **config** \[menu option 50/51\].
+4.  Use [Amanda Network Backup](http://www.amanda.org/) to create full system backups.
+    HEADS UP: This is NOT meant to be are replacement for #1 or #3, it's a *complement* that will also enable you to restore your system to any point in time of the past.
+    The specific [Amanda documentation is here](openhabian-amanda.md).
+    Use \[menu option 52\] to set up.
+5.  For completeness, openHABian still provides the historic option to move the root filesystem to USB-attached devices. See \[menu option 37\].
+    We don't recommend or support doing so but if you're convinced this is beneficial to your situation, feel free to go for it.
 
     WARNING 1: openHABian does not support hardware modifications to have an effect on the system itself such as to add an SSD drive to boot from.
     We clearly recommend NOT to do this, for your own sake of reliability.
 
     WARNING 2: USB sticks are as susceptible to flash wear-out as SD cards are, making zram the better choice for a standard Pi to run off its internal SD card.
 
-4.  Use the integrated original openHAB [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) to interactively
-    backup/restore your openHAB **config** \[menu option 50/51\].
-5.  Use [Amanda Network Backup](http://www.amanda.org/) for full system backups, documentation [here](openhabian-amanda.md).
-    See \[menu option 52\].
-
 Standard openHABian install enables zram by default (#1).
-You can disable zram (#1) and move the system over using menu options 37 (#3) once you attached a _safe_ external medium to your system (such as an SSD), but we recommend against doing so.
+You can disable zram and move the system over using menu options 37 (#5) once you attached a _safe_ external medium to your system (such as an SSD), but we recommend against doing so.
 [To restate](#befair): this setup is not supported by us maintainers and you'll be on your very own to find and fix any problems you might run into.
 Finally, we strongly suggest you install Amanda (#4) right after you finish your setup.
 Amanda is to take care to backup the whole system to be able to quickly restore it when in need.
 This is not done by default because it requires a number of user inputs, but you should not skip it for your own safety!
-
-`Delayed rules load` will be enabled by default in openHAB 2 but disabled in openHAB 3 (which has a new start-level system).
-This function will rename the rules files so they get ignored by the starting openHAB instance, then after 2 minutes they're renamed back.
-You can toggle to use this feature in menu option 44.
 
 ## Setup notes
 ### `openhabian.conf`
@@ -356,8 +372,8 @@ You can actually set a number of parameters _before_ you run an unattended insta
 This applies to the RPi image on an SD card as well as to a manual installation.
 You can also try with a different set of parameters if your initial attempt fails:
 
--   Flash the system image to your micro SD card as described, do not remove the SD card yet
--   Access the first SD card partition (it's a vfat/FAT-32 (Windows) filesystem so just use the file explorer of your client PC)
+-   Flash the system image to your micro SD card as described, do not remove the SD card yet 
+-   Use Windows file explorer to access the first SD card partition. Re-plug if needed to open in Windows file explorer, it's a vfat/FAT-32 (Windows) filesystem.
 -   Open the file `openhabian.conf` in a text editor
 -   Uncomment and complete the lines to contain the parameters you want to set
 -   Save, unmount/eject, remove and insert into the RPi and boot it
