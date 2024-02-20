@@ -324,7 +324,7 @@ Order **spare** pieces of *all* hardware components your home automation relies 
 Have it ready for use *on site*, unboxed, mounted and tested to be working.
 :::
 
-HEADS UP: that statement applies to EVERY hardware setup, even if you run openHAB in some virtualized on some $$$ rackmounted Dell server in your basement.
+HEADS UP: that statement applies to EVERY hardware setup, even if you run openHAB in some virtualization environment on a $$$ x86 server rackmounted in your basement.
 For our recommended hardware setup that means getting another Raspberry Pi (same model), 2 more SD cards and a power supply (in case of emergency, a smartphone charger will also do).
 
 That being said, openHABian has a number of built in software features we borrowed from professional data center operations.
