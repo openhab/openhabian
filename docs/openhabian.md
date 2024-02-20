@@ -342,7 +342,7 @@ That being said, openHABian has a number of built in software features we borrow
 
 ::: tip remote replacement
 Disasters love to happen when you're not at home. 
-With an openHABian RPi mirror SD setup, you can even instruct your partner or even kid or neighbour to replace the SD card and/or computer from remote, by phone. No need for Internet access.
+With an openHABian RPi mirror SD setup, you can instruct your partner or even kid or your cottage neighbour to replace the SD card and/or computer from remote, by phone. No need for Internet access.
 :::
 
 3.  Use the integrated original openHAB [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) at regular intervals to interactively backup/restore your openHAB **config** \[menu option 50/51\].
