@@ -553,22 +553,18 @@ After the installation of openHABian was successful, you should be able to acces
 -   Raspberry Pi image setup: [http://openhabian:8080](http://openhabian:8080)
 -   In any case: [http://your-device-hostname:8080](http://your-device-hostname:8080) or [http://192.168.0.2:8080](http://192.168.0.2:8080) (replace name/IP with yours)
 
-#### What's next?
-
 If you are not able to access your system via the openHAB dashboard or SSH after more than one hour, chances are high that your hardware setup is the problem.
 Consult the [debug guide](openhabian-DEBUG.md) and move on from there.
 
 <a id="switch-openhab-branch"></a>
 #### Can I switch openHAB 2 and 3 via openHABian branches?
 
-openHABian installs the latest release build of openHAB.
-The standard openHABian `openHAB` and `main` branches will install the new openHAB version 4 and the old `openHAB3` and `legacy` branches will install the old openHAB version 3 or 2, respectively.
-You can migrate between versions by selecting the corresponding 4X menu option.
-That should also result in an openHABian branch change.
+openHABian installs the latest release build of openHAB, 4.1.1 at the time of writing.
+The standard openHABian `openHAB` and `main` branches will install the new openHAB version 4 and the old `openHAB3` and `legacy` branches will install the outdated openHAB version 3 or 2, respectively.
+You can migrate between openHAB software versions by selecting the corresponding 4X menu option. (HEADS UP: Downgrading openHAB is not supported and will probably result in a broken system until you also restore an openHAB 3 configuration).
 If you want to choose from release (stable), snapshot or milestone releases, please do so via `openhabian-config` tool (also menu 4X).
 Note this will **not** result in any openHABian branch change.
-Switching to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first!
-Check the Linux installation article for all needed details: [Linux: Changing Versions](linux.html#changing-versions)
+Switching to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first.
 
 <a id="headache"></a>
 #### Where is the graphical user interface?
@@ -583,9 +579,8 @@ An RPi is not (well, not _necessarily_) to be used with a keyboard and display.
 Its intended use case is to sit in a corner and provide a service reliably 24 hours a day, 7 days a week.
 You already own a powerful PC or Mac to work on.
 
-What we actually want openHABian to be is a **dedicated, headless system** to **reliably run openHAB** and to **expose all interfaces** needed to interact and configure it (MainUI, HABPanel, openHAB LogViewer, Samba Network Shares, openHABian Configuration Tool, SSH, you-name-it).
+What we actually want openHABian to be is a **dedicated, headless system** to **reliably operate your home automation** on and to expose all interfaces needed to interact and configure it (MainUI, openHAB LogViewer, Samba Network Shares, openHABian maintenance tool, SSH, you-name-it).
 If you know how to work with these interfaces, you are set for a way better experience than the alternatives.
 The main challenge is to **get used to the Linux command line**, not even a GUI will relieve you from that in the long run.
 If you are not willing to teach yourself a few fundamental Linux skills you will not become happy with any Linux system and should resort to a e.g. Windows machine.
 However as you are willing to tinker with smart home technology, I'm sure you are ready to **teach yourself new stuff** and expand your experience.
-
