@@ -143,10 +143,10 @@ Should you still be running an older distribution, we recommend not to upgrade t
 
 ### 64 bit?
 RPi 3 and newer have a 64 bit processor. There's openHABian images available in both, 32 and 64 bit.
-There's cons to both variants. Choose yours based on your hardware and primary use case. Please be aware that you cannot change once you decided in favor of either 32 or 64 bit. Should you need to revoke your choice, you should export/backup your config and install a fresh system, then import your config there.
+There's cons to both variants. Choose yours based on your hardware and primary use case. Please be aware that you cannot change once you decided in favor of either 32 or 64 bit. Should you need to revoke your choice, export/backup your config and install a fresh system, then import your config there.
 
-On 32 bit, JS rules are reported to be annoyingly slow on first startup and in some Blockly development cases. That's a clear nuisance but at least it's not mission critical.
-Running in 64 bit on the other hand requires all adjacent and underlying software to be fully compatible, too, so overall likelihood of encountering issues along the way is higher on a 64 bit OS.
+On 32 bit, JS rules are reported to be annoyingly slow on first startup and in some Blockly use cases. That's a clear nuisance but at least it's not mission critical.
+Running in 64 bit on the other hand requires all used software to be fully compatible, too, so overall likelihood of encountering issues along the way is higher on a 64 bit OS.
 You might want to be running some older or some non official addons that will not work on 64 bit yet.
 Plus, 64 bit always has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like these. If you want to go with 64 bit, ensure your RPi has a mimimum of 2 GB, 4 will put you on the safe side.
 On x86 hardware, it's all 64 bit but that in turn once more increases memory usage. A NUC to run on should have no less than 8 GB.
