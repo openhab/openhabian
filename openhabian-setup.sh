@@ -119,7 +119,7 @@ if [[ -n "$UNATTENDED" ]]; then
   nano_openhab_syntax
   multitail_openhab_scheme
   #srv_bind_mounts
-  #samba_setup
+  samba_setup
   nginx_setup
   clean_config_userpw
   install_grott "install"
