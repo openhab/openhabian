@@ -12,7 +12,7 @@ add_keys "https://davesteele.github.io/key-366150CE.pub.txt" "comitup"
 echo "deb [signed-by=/usr/share/keyrings/comitup.gpg] http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.list
 apt-get --quiet update
 apt-get --quiet upgrade --yes
-apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \
+apt-get --quiet install --download-only --yes --force-yes libc6 libstdc++6 zlib1g make \
   openhab openhab-addons samba amanda-common amanda-server amanda-client exim4 \
   dnsutils mailutils gdisk screen vim nano mc vfu bash-completion coreutils \
   htop curl wget multitail git util-linux bzip2 zip unzip xz-utils \
