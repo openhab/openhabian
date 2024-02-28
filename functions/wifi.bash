@@ -130,12 +130,12 @@ setup_hotspot() {
     # shellcheck disable=SC2154
     sed -i -e "s|ap_password:.*$|ap_password: ${hotspotpw}|g" /etc/comitup.conf
 
-    DEBIAN_FRONTEND=noninteractive dpkg --configure -a
-    DEBIAN_FRONTEND=noninteractive apt install --yes -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' comitup
-    comitup-cli d
+    DEBIAN_FRONTEND=noninteractive dpkg --configure -a &>/dev/null
+    DEBIAN_FRONTEND=noninteractive apt install --yes -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' comitup &>/dev/null
+    confcomitup-cli d
     echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
-    install -m 644 includes/generic/100-disable-wifi-mac-randomization.conf /etc/NetworkManager/conf.d/
+    install -m 644 /opt/openhabian/includes/generic/100-disable-wifi-mac-randomization.conf /etc/NetworkManager/conf.d/
   elif [[ $1 == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Uninstalling hotspot... "
     if cond_redirect apt purge --yes comitup; then echo "OK"; else echo "FAILED"; return 1; fi
