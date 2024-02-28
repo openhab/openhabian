@@ -121,7 +121,8 @@ setup_hotspot() {
   if [[ $1 == "install" ]]; then
     echo -n "$(timestamp) [openHABian] Installing Comitup hotspot... "
     # manage networking through network manager
-    apt install --yes network-manager &> /dev/null
+    DEBIAN_FRONTEND=noninteractive apt install --yes network-manager &> /dev/null
+    systemctl enable --now NetworkManager
     # get from source - the comitup package in Buster is 2yrs old
     echo "deb http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.list
     if ! cond_redirect apt-get --quiet update; then echo "FAILED (update apt lists)"; return 1; fi
@@ -130,10 +131,13 @@ setup_hotspot() {
     # shellcheck disable=SC2154
     sed -i -e "s|ap_password:.*$|ap_password: ${hotspotpw}|g" /etc/comitup.conf
 
-    if cond_redirect apt install --yes -o Dpkg::Options::=--force-confdef comitup; then echo "OK"; else echo "FAILED"; return 1; fi
+    DEBIAN_FRONTEND=noninteractive dpkg --configure -a &>/dev/null
+    DEBIAN_FRONTEND=noninteractive apt install --yes -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' comitup &>/dev/null
+    systemctl enable --now comitup
+    comitup-cli d
     echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
-    install -m 644 includes/generic/100-disable-wifi-mac-randomization.conf /etc/NetworkManager/conf.d/
+    install -m 644 /opt/openhabian/includes/generic/100-disable-wifi-mac-randomization.conf /etc/NetworkManager/conf.d/
   elif [[ $1 == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Uninstalling hotspot... "
     if cond_redirect apt purge --yes comitup; then echo "OK"; else echo "FAILED"; return 1; fi

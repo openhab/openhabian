@@ -392,7 +392,7 @@ destination="openhabian-${hwPlatform}-${2:-latest}-${timestamp}-crc${crc32checks
 mv -v "$imageFile" "$destination"
 rm -rf "$buildFolder"
 
-echo_process "Compressing imageu $destination... "
+echo_process "Compressing image $destination... "
 # speedup compression, T0 will use all cores and should be supported by reasonably new versions of xz
 xz --verbose --compress --keep -9 -T0 "$destination"
 crc32checksum="$(crc32 "${destination}.xz")"

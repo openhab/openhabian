@@ -26,7 +26,7 @@ apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \
   python3-cairo python3-click python3-colorama python3-flask \
   python3-itsdangerous python3-jinja2 python3-markupsafe \
   python3-networkmanager python3-pyinotify python3-simplejson python3-werkzeug \
-  openjdk-11-jre-headless
+  openjdk-17-jre-headless
 source /opt/openhabian/functions/nodejs-apps.bash
 nodejs_setup
 apt-get --quiet autoremove --yes

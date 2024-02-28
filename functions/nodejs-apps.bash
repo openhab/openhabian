@@ -45,10 +45,11 @@ nodejs_setup() {
     else
       if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" nodejs; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
-    #if [[ "$myDistro" == "bookworm" ]]; then jsscripting_npm_install; fi
+    if [[ "$myDistro" == "bookworm" ]]; then jsscripting_npm_install; fi
     if ! command -v npm &> /dev/null; then
       echo -n "$(timestamp) [openHABian] Installing npm ... "
-      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" npm; then echo "OK"; else echo "FAILED (install npm)"; return 1; fi
+      #if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" npm; then echo "OK"; else echo "FAILED (install npm)"; return 1; fi
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" npm; then echo "OK"; else echo "FAILED (install npm)"; fi
     fi
   fi
 }
