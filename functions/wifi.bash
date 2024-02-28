@@ -132,7 +132,7 @@ setup_hotspot() {
 
     DEBIAN_FRONTEND=noninteractive dpkg --configure -a &>/dev/null
     DEBIAN_FRONTEND=noninteractive apt install --yes -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' comitup &>/dev/null
-    confcomitup-cli d
+    comitup-cli d
     echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
     install -m 644 /opt/openhabian/includes/generic/100-disable-wifi-mac-randomization.conf /etc/NetworkManager/conf.d/
