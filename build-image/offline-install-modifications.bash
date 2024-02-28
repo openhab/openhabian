@@ -1,5 +1,4 @@
-#!/usr/bin/bash -x
-# #!/usr/bin/env bash
+#!/usr/bin/env bash
 # shellcheck disable=SC1091
 
 export BASEDIR="/opt/openhabian"
