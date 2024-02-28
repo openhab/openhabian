@@ -392,7 +392,7 @@ destination="openhabian-${hwPlatform}-${2:-latest}-${timestamp}-crc${crc32checks
 mv -v "$imageFile" "$destination"
 rm -rf "$buildFolder"
 
-echo_process "Compressing image... "
+echo_process "Compressing imageu $destination... "
 # speedup compression, T0 will use all cores and should be supported by reasonably new versions of xz
 xz --verbose --compress --keep -9 -T0 "$destination"
 crc32checksum="$(crc32 "${destination}.xz")"
@@ -409,7 +409,7 @@ mv "${destination}.xz" "$fileZ"
 imageE_size="$(stat -c %s "${fileE}")"
 imageZ_size="$(stat -c %s "${fileZ}")"
 
-echo_process "Computing SHA256 message digest of image... "
+echo_process "Computing SHA256 message digest of image $fileZ... "
 imageE_sha="$(sha256sum "${fileE}"| cut -d' ' -f1)"
 imageZ_sha="$(sha256sum "${fileZ}"| cut -d' ' -f1)"
 
