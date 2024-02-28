@@ -386,7 +386,7 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
 fi
 
 echo_process "Moving image and cleaning up... "
-shorthash="$(git log --pretty=format:'%h' -n 1)"
+#shorthash="$(git log --pretty=format:'%h' -n 1)"
 crc32checksum="$(crc32 "$imageFile")"
 destination="openhabian-${hwPlatform}-${2:-latest}-${timestamp}-crc${crc32checksum}.img"
 mv -v "$imageFile" "$destination"
@@ -396,13 +396,15 @@ echo_process "Compressing image... "
 # speedup compression, T0 will use all cores and should be supported by reasonably new versions of xz
 xz --verbose --compress --keep -9 -T0 "$destination"
 crc32checksum="$(crc32 "${destination}.xz")"
-mv "${destination}.xz" "openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img.xz"
+#mv "${destination}.xz" "openhabian-${hwPlatform}-${2:-latest}-${timestamp}-crc${crc32checksum}.img.xz"
 
 # generate json-file for integration in raspberry-imager
 pathDownload="https://github.com/openhab/openhabian/releases/latest/download"
 release_date=$(date "+%Y-%m-%d")
 fileE="${destination}"
-fileZ="openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img.xz"
+#fileZ="openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img.xz"
+fileZ="openhabian-${hwPlatform}-${2:-latest}-${timestamp}-crc${crc32checksum}.img.xz"
+mv "${destination}.xz" "$fileZ"
 
 imageE_size="$(stat -c %s "${fileE}")"
 imageZ_size="$(stat -c %s "${fileZ}")"
