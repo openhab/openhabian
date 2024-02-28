@@ -101,21 +101,11 @@ if is_bookworm; then
     # shellcheck source=/etc/openhabian.conf disable=SC2154
     nmcli -w 30 d wifi connect "${wifiSSID}" password "${wifiPassword}" ifname wlan0
   fi
-elif [[ -z $wifiSSID ]]; then
+#elif [[ -z $wifiSSID ]]; then
+elif grep -qs "up" /sys/class/net/eth0/operstate; then 
   # Actually check if ethernet is working
-  echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... "
-  if grep -qs "up" /sys/class/net/eth0/operstate; then echo "OK"; else echo "FAILED"; fi
-
-  if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head https://www.openhab.org/docs/ |& grep -qs 'HTTP/[^ ]*[ ]200'" 5 1; then
-    if [[ "$hotSpot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
-      echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
-      setup_hotspot "install"
-      cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
-      echo "$(timestamp) [openHABian] hotspot software installed. Rebooting your system to make it take effect!"
-      reboot
-    fi
-  fi
-elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
+  echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
+elif [[ -n $wifiSSID ]] && grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
   echo -n "$(timestamp) [openHABian] Checking if WiFi is working... "
   if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
     ip link set wlan0 up
@@ -131,16 +121,7 @@ elif grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qs
   else
     echo "OK"
   fi
-#  if tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
-#    if [[ "$hotSpot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
-#      echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
-#      setup_hotspot "install"
-#      cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
-#      echo "$(timestamp) [openHABian] hotspot software installed. Rebooting your system to make it take effect!"
-#      reboot
-#    fi
-#  fi
-#else
+
   echo -n "$(timestamp) [openHABian] Setting up Wi-Fi connection... "
 
   # shellcheck source=/etc/openhabian.conf disable=SC2154
@@ -172,18 +153,10 @@ echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
 if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
   echo "FAILED"
 
-#  if grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && iwconfig |& grep -qs "ESSID:off"; then
-#    echo "$(timestamp) [openHABian] I was not able to connect to the configured Wi-Fi. Please check your signal quality. Reachable Wi-Fi networks are:"
-#    iwlist wlan0 scanning | grep "ESSID" | sed 's/^\s*ESSID:/\t- /g'
-#    echo "$(timestamp) [openHABian] Please try again with your correct SSID and password. The following Wi-Fi configuration was used:"
-#    cat /etc/wpa_supplicant/wpa_supplicant.conf
-#    rm -f /etc/wpa_supplicant/wpa_supplicant.conf
-#  fi
   if [[ "$hotSpot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
-    echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
+    #echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
     if setup_hotspot "install"; then echo "OK"; else echo "FAILED"; fi
-    #cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
-    echo "$(timestamp) [openHABian] Hotspot software installed. Rebooting your system to make it take effect!"
+    #echo "$(timestamp) [openHABian] Hotspot software installed. Rebooting your system to make it take effect!"
     #reboot
   fi
   echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
@@ -193,7 +166,6 @@ if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --sile
   echo "                          After about an hour, we will continue trying to get your system installed,"
   echo "                          but without proper Internet connectivity this is not likely to be going to work."
 
-#  systemctl enable --now NetworkManager
   tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 100 30
 else
   echo "OK"

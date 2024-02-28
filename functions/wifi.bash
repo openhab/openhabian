@@ -131,7 +131,7 @@ setup_hotspot() {
     sed -i -e "s|ap_password:.*$|ap_password: ${hotspotpw}|g" /etc/comitup.conf
 
     DEBIAN_FRONTEND=noninteractive dpkg --configure -a
-    if cond_redirect DEBIAN_FRONTEND=noninteractive apt install --yes -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' comitup; then echo "OK"; else echo "FAILED"; return 1; fi
+    DEBIAN_FRONTEND=noninteractive apt install --yes -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' comitup
     comitup-cli d
     echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
