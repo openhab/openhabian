@@ -130,7 +130,8 @@ setup_hotspot() {
     # shellcheck disable=SC2154
     sed -i -e "s|ap_password:.*$|ap_password: ${hotspotpw}|g" /etc/comitup.conf
 
-    if cond_redirect DEBIAN_FRONTEND=noninteractive apt install --yes --no_install_recommends -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' comitup; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect DEBIAN_FRONTEND=noninteractive apt install --yes -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' comitup; then echo "OK"; else echo "FAILED"; return 1; fi
+    comitup-cli d
     echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
     install -m 644 includes/generic/100-disable-wifi-mac-randomization.conf /etc/NetworkManager/conf.d/

@@ -99,7 +99,7 @@ if is_bookworm; then
   if [[ -n $wifiSSID ]]; then
     # Setup WiFi via NetworkManager
     # shellcheck source=/etc/openhabian.conf disable=SC2154
-    nmcli d wifi connect "${wifiSSID}" password "${wifiPassword}" ifname wlan0
+    nmcli -w 30 d wifi connect "${wifiSSID}" password "${wifiPassword}" ifname wlan0
   fi
 elif [[ -z $wifiSSID ]]; then
   # Actually check if ethernet is working
@@ -184,7 +184,7 @@ if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --sile
     if setup_hotspot "install"; then echo "OK"; else echo "FAILED"; fi
     #cp "${BASEDIR:-/opt/openhabian}"/includes/interfaces /etc/network/
     echo "$(timestamp) [openHABian] Hotspot software installed. Rebooting your system to make it take effect!"
-    reboot
+    #reboot
   fi
   echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
   echo "                          We have launched a publicly accessible hotspot named $(grep ap_name: /etc/comitup.conf | cut -d' ' -f2)."
