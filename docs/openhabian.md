@@ -8,17 +8,11 @@ source: https://github.com/openhab/openhabian/blob/main/docs/openhabian.md
 
 <!-- Attention authors: Do not edit directly. Please add your changes to the source repository -->
 
-::: tip TLDR
-([what does TLDR mean?](https://www.howtogeek.com/435266/what-does-tldr-mean-and-how-do-you-use-it/))
-You may jump to [install instructions](#raspberry-pi-prepackaged-sd-card-image) but please note that we expect you to have read the _full_ docs _before_ you ask for help.
-:::
-
 # openHABian - Hassle-free openHAB Setup
 ``
-Setting up a fully working Linux system with all recommended packages and openHAB recommendations takes a lot of time and **Linux newcomers** are challenged in a number of ways although all they want is to run openHAB and not some server.
-<p style="text-align: center; font-size: 1.2em; font-style: italic;"><q>A home automation enthusiast doesn't have to be a Linux enthusiast!</q></p>
+You are eager to tun openHAB but afraid of setting up a computer and OS for it ?
 
-openHABian is a **self-configuring** Linux system setup to reliably operate your openHAB instance 24 hours a day.
+openHABian is here to help. It's a **self-configuring** Linux system setup to reliably operate your openHAB instance 24 hours a day.
 It provides:
 
 *   Complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of SBCs
@@ -36,7 +30,6 @@ The openHABian image provides lots of useful Linux tools out of the box:
 
 -   Fully automated hassle-free setup without a need for a display or keyboard, connected via Ethernet or [Wi-Fi](#wi-fi-based-setup-notes)
 -   All versions of openHAB to select from, including the latest stable one as the default
--   several Java options
 -   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
 -   [SD card mirroring](openhabian.md#SD-mirroring) and [Amanda Backup](openhabian-amanda.md) to boost system availability
 -   Web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
@@ -63,19 +56,6 @@ The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian
 ## On openHAB 4, 3 and 2
 openHABian will install **openHAB 4** and Java 17 by default.
 The openHABian image will install openHAB 4 by default, to have it install openHAB 3 right from the beginning, set `clonebranch=openHAB3` or in `openhabian.conf` on the first SD partition before first boot. Use `clonebranch=legacy` to get openHAB 2.
-You can switch branches using menu option 01 in `openhabian-config` but ATTENTION you cannot up- or downgrade this way, use the 03 and 4X options.
-
-
-::: warning No downgrades
-Take an openHAB config backup BEFORE you upgrade from openHAB 3 to 4. You should also make a system level copy of your SD card.
-:::
-
-Menu option 42 can also do the downgrade and change the _environment_ back to match openHAB 2 but ATTENTION it'll only exchange the OS setup and the openHAB packages.
-It will NOT migrate your configuration back to a openHAB 2 compatible one. There is no software that can do this for you.
-So it is essential that you take a backup before you upgrade.
-You will have to restore your setup from that backup after a downgrade using menu option 51 or by manually using `openhab-cli restore <archive file>`.
-Note option 42 will also not downgrade Java.
-openHAB 2 however is known to run with Java 11 as well.
 
 ### A note on dedication and commitment
 We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
@@ -90,7 +70,7 @@ There's no genuine reason why this wouldn't work. The openHABian image is really
 What you must not do, though, is to mess with the system, OS packages and config and expect anyone to help you with that. Let's clearly state this as well: when you deliberately decide to make manual changes to the OS software packages and configuration (i.e. outside of openhabian-config), you will be on your own.
 Your setup is untested, and no-one but you knows about your changes. openHABian maintainers are really committed to providing you with a fine user experience, but this takes enormous efforts in testing and is only possible with a fixed set of hardware. You don't get to see this as a user.
 
-So if you choose to deviate from the standard openHABian installation (e.g. you change your box to run off SSD) and run into problems thereafter, don't be unfair: don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum. Thank you !
+So if you choose to deviate from the standard openHABian installation (e.g. you change your box to run off SSD) and run into problems thereafter, don't be unfair: please don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum. Thank you !
 
 ## Hardware
 ### Hardware recommendation
@@ -100,11 +80,9 @@ Prepare to make use of the [SD mirroring feature](openhabian.md#SD-mirroring), g
 
 ### Hardware support
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware.
-The new RPi 5 is not fully supported.
-Anything x86 based may work or not.
+openHABian can run on x86 based systems but on those you need to install the OS yourself.
 Anything else ARM based such as ODroids, OrangePis and the like may work or not.
 NAS servers such as QNAP and Synology boxes will not work.
-Support for PINEA64 was dropped.
 
 We strongly recommend Raspberry Pi 2, 3 or 4 systems that have 1 GB of RAM or more.
 RPi 1 and 0/0W just have a single CPU core and only 512 MB of RAM. The RPi0W2 has 4 cores but only 512 MB as well.
@@ -113,10 +91,8 @@ We do not actively prohibit installation on any hardware, including unsupported 
 
 Supporting hardware means testing every single patch and every release.
 There are simply too many combinations of SBCs, peripherals and OS flavors that maintainers do not have available, or, even if they did, the time to spend on the testing efforts that is required to make openHABian a reliable system.
-It means that to run on hardware other than RPi 2/3/4 or (bare metal that means NOT virtualized) x86 Debian may work but this is **not** a supported setup.
+It means that to run on hardware other than RPi 2/3/4/5 or bare metal x86 Debian may work but is not a supported setup.
 Please stay with a supported version. This will help you and those you will want to ask for help on the forum focus on a known set of issues and solutions.
-
-At the time of writing, RPi5 are not fully supported as they require the Raspi OS to be based on latest Debian `bookworm`. There's an experimental based image available that should work for your RPi, but for now there's known issues at least with Wi-Fi and the Hotspot function.
 
 For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md#fake-hardware-mode) to 'simulate' RPi hardware and Raspberry Pi OS.
 
@@ -130,25 +106,20 @@ This will provide you with a secondary, up to date SD card, available for swappi
 
 ### OS support
 Going beyond what the RPi image provides, as a manually installed set of scripts, we support running openHABian on x86 hardware on generic Debian.
-On ARM, we only support Raspberry Pi OS.
-These are what we develop and test openHABian against.
-We provide code that is reported "as-is" to run on Ubuntu but we do **not support Ubuntu** so please don't open issues for this (PRs then again are welcome).
+We provide code that is reported "as-is" to run on Ubuntu but we do not support Ubuntu so please don't open issues for this (PRs then again are welcome).
 Several optional components such as WireGuard or Homegear are known to expose problems on Ubuntu.
 
-You need to use the `bullseye` distribution for Debian (x86). 
-
-Note with openHAB 4 and Java 17, `buster` is no longer supported and there'll be issues when you attempt upgrading Java 11->17 on `buster` so move to `bullseye` before attempting to upgrade openHAB to version 4.
+Note with openHAB 4 and Java 17, `buster` and older distros are no longer supported and there'll be issues when you attempt upgrading Java 11->17.
 Should you still be running an older distribution, we recommend not to upgrade the distro but to re-install using the latest openHABian image and import your config instead.
-`bookworm` is not yet fully supported. There's known issues at least with a Wi-Fi setup.
 
 ### 64 bit?
 RPi 3 and newer have a 64 bit processor. There's openHABian images available in both, 32 and 64 bit.
-There's cons to both variants. Choose yours based on your hardware and primary use case. Please be aware that you cannot change once you decided in favor of either 32 or 64 bit. Should you need to revoke your choice, export/backup your config and install a fresh system, then import your config there.
+Choose yours based on your hardware and primary use case. Please be aware that you cannot change once you decided in favor of either 32 or 64 bit. Should you need to revoke your choice, export/backup your config and install a fresh system, then import your config there.
 
-On 32 bit, JS rules are reported to be annoyingly slow on first startup and in some Blockly use cases. That's a clear nuisance but at least it's not mission critical.
-Running in 64 bit on the other hand requires all used software to be fully compatible, too, so overall likelihood of encountering issues along the way is higher on a 64 bit OS.
-You might want to be running some older or some non official addons that will not work on 64 bit yet.
-Plus, 64 bit always has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like these. If you want to go with 64 bit, ensure your RPi has a mimimum of 2 GB, 4 will put you on the safe side.
+Use the 64 bit image versions but please be aware that 64 bit always has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like Raspberries. If you want to go with 64 bit, ensure your RPi has a mimimum of 2 GB, 4 will put you on the safe side.
+You can use the 32 bit version for older or non official addons that will not work on 64 bit yet.
+Note there's a known issue on 32 bit, JS rules are reported to be annoyingly slow on first startup and in some Blockly use cases.
+
 On x86 hardware, it's all 64 bit but that in turn once more increases memory usage. A NUC to run on should have no less than 8 GB.
 
 ### Networking
@@ -236,16 +207,6 @@ openhabian-config unattended
 ```
 
 to install.
-
-#### Interactive install on generic x86 Linux
-
-We strongly recommend you to use the automated install but you actually _can_ walk through the interactive tool.
-Start `openhabian-config`.
-Get the bare minimum you will _need_ installed by selecting menu option 03.
-To install the recommended components that automated install will get in one go select menu options 33, 32, 31, 11, 12, 15, OpenJDK 11 (in menu option 45), 13, 16, 14, 21, 38, 53, 52.
-Take care this listing may be outdated. We try to make install options independent of each other but there may be dependencies left we are not aware of so any other order may or may not work.
-
-➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below
 
 ## openHABian Configuration Tool
 
@@ -519,12 +480,11 @@ You'll also see commits "fly by" when executing the "Update" function within the
 ### Did my Installation succeed? What to do in case of a problem?
 openHABian setup will take 15 up to 45 minutes to complete all steps, depending on your device's performance and your internet connection.
 
-Watch the progress on the console or the web interface at <https://yourIP:81/> or <http://openhabian/> if that name has become available.
+Watch the progress on the console or the web interface at <http://(yourIP):81/> or <http://openhabian:81/> if that name has become available.
 Double-check the IP address and name with your router while you wait.
-If there is absolutely no output for more than 10 minutes, your installation has failed in the first initialization phase.
-There probably is a problem with the way your router or local network are setup.
-Read on in the [Troubleshooting](#troubleshooting) section or move on to the [DEBUG guide](openhabian-DEBUG.md).
-You can set `debugmode=maximum` in `openhabian.conf` right on first install, too, to get to see what openHABian is doing
+If there is absolutely no output for more than 10 minutes, there probably is a problem with the way your router or local network are setup.
+Read on in the [Troubleshooting](#troubleshooting) section.
+Set `debugmode=maximum` in `openhabian.conf` to see what openHABian is doing.
 
 After a few minutes of boot up time, you can [connect to the SSH console](https://www.raspberrypi.org/documentation/remote-access/ssh/windows.md) of your device.
 During the setup process you'll be redirected to the live progress report of the setup (you can Ctrl-C to get into the shell).
@@ -563,7 +523,6 @@ openHABian installs the latest release build of openHAB, 4.1.1 at the time of wr
 The standard openHABian `openHAB` and `main` branches will install the new openHAB version 4 and the old `openHAB3` and `legacy` branches will install the outdated openHAB version 3 or 2, respectively.
 You can migrate between openHAB software versions by selecting the corresponding 4X menu option. (HEADS UP: Downgrading openHAB is not supported and will probably result in a broken system until you also restore an openHAB 3 configuration).
 If you want to choose from release (stable), snapshot or milestone releases, please do so via `openhabian-config` tool (also menu 4X).
-Note this will **not** result in any openHABian branch change.
 Switching to newer development releases might introduce changes and incompatibilities, so please be sure to make a full openHAB backup first.
 
 <a id="headache"></a>
