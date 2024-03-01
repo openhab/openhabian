@@ -9,8 +9,7 @@ source: https://github.com/openhab/openhabian/blob/main/docs/openhabian.md
 <!-- Attention authors: Do not edit directly. Please add your changes to the source repository -->
 
 # openHABian - Hassle-free openHAB Setup
-``
-You are eager to tun openHAB but afraid of setting up a computer and OS for it ?
+You just discovered openHAB and now you are eager to start but you're afraid of setting up a computer and OS for it ?
 
 openHABian is here to help. It's a **self-configuring** Linux system setup to reliably operate your openHAB instance 24 hours a day.
 It provides:
