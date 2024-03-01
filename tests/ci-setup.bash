@@ -39,5 +39,5 @@ if [[ $1 == "github" ]]; then
     exit
   fi
   sed -i 's|clonebranch=.*$|clonebranch='"${repoBranch}"'|' build-image/*.conf
-  sed -i 's#debugmode=.*$#debugmode=maximum#' build-image/openhabian.conf
+  #sed -i 's#debugmode=.*$#debugmode=maximum#' build-image/openhabian.conf
 fi
