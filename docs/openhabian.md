@@ -29,35 +29,22 @@ The openHABian image provides lots of useful Linux tools out of the box:
 
 -   Fully automated hassle-free setup without a need for a display or keyboard, connected via Ethernet or [Wi-Fi](#wi-fi-based-setup-notes)
 -   All versions of openHAB to select from, including the latest stable one as the default
--   [openHABian Configuration Tool](#openhabian-configuration-tool) including updater functionality
--   [SD card mirroring](openhabian.md#SD-mirroring) and [Amanda Backup](openhabian-amanda.md) to boost system availability
+-   [Comprehensive capabilities to ensure your system will keep working reliably 24/7](#availability-and-backup) including ZRAM, [SD card mirroring](openhabian.md#SD-mirroring) and [Amanda backup system](openhabian-amanda.md)
 -   Web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
+-   [Tailscale](https://tailscale.com/blog/how-tailscale-works/) VPN and [WireGuard](https://www.wireguard.com/) for remote VPN access
 -   Samba file sharing [pre-configured ready to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
 -   Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
 -   The [Mosquitto](https://mosquitto.org) MQTT broker
 -   The [InfluxDB](https://www.influxdata.com/) database to store home automation data and [Grafana](https://grafana.com/) to visualize it
 -   FIND, the [Framework for Internal Navigation and Discovery](https://www.internalpositioning.com/)
--   [Tailscale](https://tailscale.com/blog/how-tailscale-works/) VPN and [WireGuard](https://www.wireguard.com/) for remote VPN access
+-   Install and setup a [reverse proxy](security.html##running-openhab-behind-a-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
 
 The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian-configuration-tool) provides the following optional settings and components:
 
 ![openHABian-config menu](images/openHABian-config.png)
 
--   Install and setup a [reverse proxy](security.html##running-openhab-behind-a-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
--   Comprehensive [backup](#availability-and-backup) for your system
--   Easily install and preconfigure [optional components](#optional-components) of your choice
--   Configure Raspberry Pi specific functions
-    -   Prepare the serial port for the use with extension boards like RaZberry, Enocean Pi, ...
-    -   Use zram to mitigate SD wear due to excessive writes
-    -   mirror the SD card
-    -   Move the system partition to an external USB stick or drive
-
-## On openHAB 4, 3 and 2
-openHABian will install **openHAB 4** and Java 17 by default.
-The openHABian image will install openHAB 4 by default, to have it install openHAB 3 right from the beginning, set `clonebranch=openHAB3` or in `openhabian.conf` on the first SD partition before first boot. Use `clonebranch=legacy` to get openHAB 2.
-
 ### A note on dedication and commitment
-We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
+openHABian is for starters *and* expert users. We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
 Everybody wants their home automation to be stable and most people install a dedicated RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation.
 Reasonably so, this is our clear recommendation. Saving another 100 bucks is not worth putting the reliable day-to-day operations of your home at risk.
 
@@ -70,6 +57,10 @@ What you must not do, though, is to mess with the system, OS packages and config
 Your setup is untested, and no-one but you knows about your changes. openHABian maintainers are really committed to providing you with a fine user experience, but this takes enormous efforts in testing and is only possible with a fixed set of hardware. You don't get to see this as a user.
 
 So if you choose to deviate from the standard openHABian installation (e.g. you change your box to run off SSD) and run into problems thereafter, don't be unfair: please don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum. Thank you !
+
+## On openHAB 4 and older
+openHABian will install **openHAB 4** and Java 17 by default.
+The openHABian image will install openHAB 4 by default, to have it install openHAB 3 right from the beginning, set `clonebranch=openHAB3` in `openhabian.conf` before first boot. Use `clonebranch=legacy` to get openHAB 2.
 
 ## Hardware
 ### Hardware recommendation
