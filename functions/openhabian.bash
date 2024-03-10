@@ -399,7 +399,7 @@ system_check_default_password() {
     defaultPassword="openhabian"
   fi
   originalPassword="$(grep -w "$defaultUser" /etc/shadow | cut -d: -f2)"
-  fields=$(echo $originalPassword|awk -F'$' '{print NF}')
+  fields=$(echo "$originalPassword" | awk -F'$' '{print NF}')
   case $fields in
     5)
       algo="$(echo "$originalPassword" | cut -d'$' -f2)"
