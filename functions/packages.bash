@@ -192,7 +192,7 @@ homegear_setup() {
   local disklistFileAWS="/etc/amanda/openhab-aws/disklist"
   local disklistFileDir="/etc/amanda/openhab-dir/disklist"
   local introText="This will install Homegear, the Homematic CCU2 emulation software, using the latest stable release available from the official repository."
-  local keyName="homegear"
+  local keyName="homegear-archive-keyring"
   local myOS
   local myRelease
   local temp
@@ -202,11 +202,15 @@ homegear_setup() {
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
 
-  if [[ "$myRelease" == "n/a" ]] || [[ "$myRelease" == "bookworm" ]]; then
-    myRelease="${osrelease:-bullseye}"
+  if [[ "$myRelease" == "n/a" ]]; then
+    myRelease="${osrelease:-bookworm}"
   fi
-  if [[ "$myOS" == "Raspbian" ]] || is_arm && running_in_docker; then  # Workaround for CI not actually reporting as Raspberry Pi OS
-    myOS="debian"  # Workaround for Homegear's Raspios APT repo being broken
+  #if [[ "$myOS" == "Raspbian" ]] || is_arm && running_in_docker; then  # Workaround for CI not actually reporting as Raspberry Pi OS
+  # shellcheck disable=SC2078,SC2154
+  if [[ "$myOS" == "debian" ]] && [[ is_arm || running_in_docker ]]; then
+      # Workaround for CI not actually reporting as Raspberry Pi OS
+    #myOS="debian"  # Workaround for Homegear's Raspios APT repo being broken
+      myOS="raspberry_pi_os"  # Workaround for Homegear's Raspios APT repo being broken
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
@@ -219,7 +223,8 @@ homegear_setup() {
   if ! add_keys "https://apt.homegear.eu/Release.key" "$keyName"; then return 1; fi
 
   # need to use testing repo to get v0.8
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS,,}/${myRelease,,}/homegear/testing/ ${myRelease,,} main" > /etc/apt/sources.list.d/homegear.list
+  # repo https://apt.homegear.eu/raspberry_pi_os/bookworm/homegear/{testing,stable}/dists/bookworm/
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS,,}/${myRelease,,}/homegear/testing ${myRelease,,} main" > /etc/apt/sources.list.d/homegear.list
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
