@@ -202,8 +202,8 @@ homegear_setup() {
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
 
-  if [[ "$myRelease" == "n/a" ]] || [[ "$myRelease" == "bookworm" ]]; then
-    myRelease="${osrelease:-bullseye}"
+  if [[ "$myRelease" == "n/a" ]]; then
+    myRelease="${osrelease:-bookworm}"
   fi
   if [[ "$myOS" == "Raspbian" ]] || is_arm && running_in_docker; then  # Workaround for CI not actually reporting as Raspberry Pi OS
     myOS="debian"  # Workaround for Homegear's Raspios APT repo being broken
@@ -219,6 +219,7 @@ homegear_setup() {
   if ! add_keys "https://apt.homegear.eu/Release.key" "$keyName"; then return 1; fi
 
   # need to use testing repo to get v0.8
+  # repo https://apt.homegear.eu/raspberry_pi_os/bookworm/homegear/stable/dists/bookworm/
   echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS,,}/${myRelease,,}/homegear/testing/ ${myRelease,,} main" > /etc/apt/sources.list.d/homegear.list
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "

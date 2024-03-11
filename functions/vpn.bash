@@ -212,12 +212,15 @@ install_tailscale() {
   if [[ -n "$INTERACTIVE" ]]; then
     if (whiptail --title "Tailscale VPN setup" --yes-button "Continue" --no-button "Cancel" --yesno "$installText" 12 80); then echo "OK"; else echo "CANCELED"; return 1; fi
   fi
+
   echo "$(timestamp) [openHABian] Installing tailscale VPN... "
   # Add tailscale's GPG key
-  add_keys "https://pkgs.tailscale.com/stable/raspbian/bullseye.gpg" "$keyName"
+  add_keys "https://pkgs.tailscale.com/stable/raspbian/${myRelease,,}.noarmor.gpg" "$keyName"
   # Add the tailscale repository
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://pkgs.tailscale.com/stable/raspbian bullseye main" > /etc/apt/sources.list.d/tailscale.list
+  #echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://pkgs.tailscale.com/stable/raspbian ${myRelease,,} main" > /etc/apt/sources.list.d/tailscale.list
+  curl -fsSL https://pkgs.tailscale.com/stable/raspbian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+
   # Install tailscale
   if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" tailscale; then echo "OK"; else echo "FAILED (install tailscale)"; return 1; fi
   cp "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
