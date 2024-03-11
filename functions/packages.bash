@@ -192,7 +192,7 @@ homegear_setup() {
   local disklistFileAWS="/etc/amanda/openhab-aws/disklist"
   local disklistFileDir="/etc/amanda/openhab-dir/disklist"
   local introText="This will install Homegear, the Homematic CCU2 emulation software, using the latest stable release available from the official repository."
-  local keyName="homegear"
+  local keyName="homegear-archive-keyring"
   local myOS
   local myRelease
   local temp
@@ -220,7 +220,7 @@ homegear_setup() {
 
   # need to use testing repo to get v0.8
   # repo https://apt.homegear.eu/raspberry_pi_os/bookworm/homegear/{testing,stable}/dists/bookworm/
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS,,}/${myRelease,,}/homegear/testing/${myRelease,,} ${myRelease,,} main" > /etc/apt/sources.list.d/homegear.list
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS,,}/${myRelease,,}/homegear/testing ${myRelease,,} main" > /etc/apt/sources.list.d/homegear.list
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
