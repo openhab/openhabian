@@ -219,8 +219,8 @@ homegear_setup() {
   if ! add_keys "https://apt.homegear.eu/Release.key" "$keyName"; then return 1; fi
 
   # need to use testing repo to get v0.8
-  # repo https://apt.homegear.eu/raspberry_pi_os/bookworm/homegear/stable/dists/bookworm/
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS,,}/${myRelease,,}/homegear/testing/ ${myRelease,,} main" > /etc/apt/sources.list.d/homegear.list
+  # repo https://apt.homegear.eu/raspberry_pi_os/bookworm/homegear/{testing,stable}/dists/bookworm/
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS,,}/${myRelease,,}/homegear/testing/${myRelease,,} ${myRelease,,} main" > /etc/apt/sources.list.d/homegear.list
 
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
