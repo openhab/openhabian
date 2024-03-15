@@ -205,11 +205,9 @@ homegear_setup() {
   if [[ "$myRelease" == "n/a" ]]; then
     myRelease="${osrelease:-bookworm}"
   fi
-  #if [[ "$myOS" == "Raspbian" ]] || is_arm && running_in_docker; then  # Workaround for CI not actually reporting as Raspberry Pi OS
   # shellcheck disable=SC2078,SC2154
-  if [[ "$myOS" == "debian" ]] && [[ is_arm || running_in_docker ]]; then
+  if [[ "${myOS,,}" == "debian" ]] && [[ is_arm || running_in_docker ]]; then
       # Workaround for CI not actually reporting as Raspberry Pi OS
-    #myOS="debian"  # Workaround for Homegear's Raspios APT repo being broken
       myOS="raspberry_pi_os"  # Workaround for Homegear's Raspios APT repo being broken
   fi
 
