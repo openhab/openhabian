@@ -293,7 +293,7 @@ amanda_setup() {
   local backupUser="backup"
   local tapes
   local tapeSize
-  local storageLoc
+  local storageLoc="/storage/backup"
   local adminMail="${adminmail:-root@${hostname}}"
   local awsSite
   local awsBucket
@@ -324,7 +324,6 @@ amanda_setup() {
   if (whiptail --title "Backup using locally attached storage" --yes-button "Yes" --no-button "No" --yesno "Would you like to setup a backup mechanism based on locally attached or NAS mounted storage?" 8 80); then
     config="openhab-dir"
     if [[ -d /storage ]]; then
-        storageLoc=/storage/backup
         mkdir -p "${storageLoc}"
     fi
     if ! storageLoc="$(whiptail --title "Storage directory" --inputbox "\\nWhat is the directory backups should be stored in?\\n\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick, HDD, or a NFS/CIFS share." 13 80 "${storageLoc}" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
