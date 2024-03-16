@@ -1,0 +1,12 @@
+[Unit]
+Description=Perform nightly zram sync to persistent storage
+
+[Timer]
+Unit=zsync.service
+OnCalendar=*-*-* 00:55
+RandomizedDelaySec=10m
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+

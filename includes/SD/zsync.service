@@ -1,0 +1,10 @@
+[Unit]
+Description=Perform nightly zram sync to persistent storage
+After=zram-config.service
+Wants=zsync.timer
+
+[Service]
+Type=oneshot
+Environment=SERVICE=1
+ExecStart=/usr/local/sbin/zram-config "sync"
+
