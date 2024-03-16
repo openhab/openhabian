@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+/usr/local/sbin/zram-config "sync"
+exit 0
