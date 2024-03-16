@@ -3,8 +3,10 @@ Description=Run SD rsync daily except semiannually (when a raw dump is made)
 
 [Timer]
 Unit=sdrsync.service
-OnCalendar=*-02..06,08..12-* 02:00:00
-OnCalendar=*-01,07-02..31 02:00:00
+#OnCalendar=*-02..06,08..12-* 02:00:00
+#OnCalendar=*-01,07-02..31 02:00:00
+OnCalendar=*-02..06,08..12-* 00/2:00:00
+OnCalendar=*-01,07-02..31 00/2:00:00
 RandomizedDelaySec=10m
 Persistent=true
 
