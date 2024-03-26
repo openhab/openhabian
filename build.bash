@@ -415,14 +415,12 @@ imageZ_sha="$(sha256sum "${fileZ}"| cut -d' ' -f1)"
 
 url="${pathDownload}/${fileZ}"
 
-if [[ -f rpi-imager-openhab.json ]]; then
-  sed -i -e "s|%release_date%|${release_date}|g" rpi-imager-openhab.json
-  sed -i -e "s|%url${bits}_${2:-latest}%|${url}|g" rpi-imager-openhab.json
-  sed -i -e "s|%imageE_size${bits}_${2:-latest}%|${imageE_size}|g" rpi-imager-openhab.json
-  sed -i -e "s|%imageE_sha${bits}_${2:-latest}%|${imageE_sha}|g" rpi-imager-openhab.json
-  sed -i -e "s|%imageZ_size${bits}_${2:-latest}%|${imageZ_size}|g" rpi-imager-openhab.json
-  sed -i -e "s|%imageZ_sha${bits}_${2:-latest}%|${imageZ_sha}|g" rpi-imager-openhab.json
-fi
+sed -i -e "s|%release_date%|${release_date}|g" rpi-imager-openhab.json
+sed -i -e "s|%url${bits}_${2:-latest}%|${url}|g" rpi-imager-openhab.json
+sed -i -e "s|%imageE_size${bits}_${2:-latest}%|${imageE_size}|g" rpi-imager-openhab.json
+sed -i -e "s|%imageE_sha${bits}_${2:-latest}%|${imageE_sha}|g" rpi-imager-openhab.json
+sed -i -e "s|%imageZ_size${bits}_${2:-latest}%|${imageZ_size}|g" rpi-imager-openhab.json
+sed -i -e "s|%imageZ_sha${bits}_${2:-latest}%|${imageZ_sha}|g" rpi-imager-openhab.json
 
 echo_process "Finished! The results:"
 ls -alh "openhabian-${hwPlatform}-${2:-latest}-${timestamp}"*
