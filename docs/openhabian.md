@@ -128,7 +128,7 @@ If you are getting an `169.*` IP address it means DHCP didn't work.
 
 When you boot a flashed image for the first time, openHABian will setup and use the Ethernet port if that one is connected with a cable to your LAN.
 It'll also use the `wifi_ssid` and `wifi_password` parameters from `/boot/openhabian.conf` to determine whether and how to setup the Wi-Fi interface.
-After these stages it checks for connectivity to the Internet and if that fails, it'll open a [Wi-Fi hotspot](#wi-fi-hotspot) that lets you manually connect your system to a WLAN (Wi-Fi) of yours to jumpstart networking.
+After these stages it checks for connectivity to the Internet and if that fails, it'll open a [Wi-Fi hotspot](#Wi-Fi-Hotspot) that lets you manually connect your system to a WLAN (Wi-Fi) of yours to jumpstart networking.
 Remember that once the hotspot is started, it'll hide once you have successfully used it to connect your Wi-Fi interface but it'll return should your Wi-Fi connectivity break down.
 
 
@@ -161,6 +161,22 @@ You should be seeing a welcome screen like the following:
 ![openHABian login screen](images/openHABian-SSH-MotD.png)
 
 ➜ Continue at the ["openHABian Configuration Tool"](#openhabian-configuration-tool) chapter below.
+
+### Wi-Fi Hotspot
+When your openHABian box does not get Internet connectivity through either Ethernet or WI-Fi (if configured), openHABian will launch a **Hotspot**.
+Use your mobile phone to scan for Wi-Fi networks, you should be seeing a new network called `openHABian-<n>` with `<n>` being a digit.
+Connecting will work without a password. Once connected, most smartphones will transfer you to a web page.
+If this does not happen on your mobile device, open your browser on the mobile and point it at `http://raspberrypi.local` or `http://comitup-<n>`.
+This may or may not work for your mobile browser as it requires Bonjour/ZeroConf abilities.
+If you cannot connect to this address, go to `http://10.41.0.1`.
+On that page you can select the SSID of the network you want to connect your system to.
+Provide the password and press the button.
+Note that as soon as you do, the wlan0 IP address of your system changes so your mobile browser will not be able to provide you any feedback if that worked out.
+Try to ping the new system's hostname (default is `openhabian`) or check DHCP on your router if your openHABian system appeared there.
+You can use `sudo comitup-cli` inside openHABian to change networks and eventually remove network credentials.
+Note the hotspot may not only become available during installation: it will remain on standby and will show up again every time your `wlan0` interface is losing connectivity.
+For more information on hotspot functions see [comitup-cli](https://davesteele.github.io/comitup/). Most behavior can be tweaked by setting parameters (such as a default password) in `/etc/comitup.conf`.
+The hotspot feature is known to work on RPi0W, RPi3 and newer but is known to often expose problems with Wi-Fi USB adapters.
 
 <a id="manual-setup"></a>
 ### Other Linux Systems (add openHABian just like any other software)
@@ -349,25 +365,8 @@ Make the `adminkeyurl` point to an URL to contain a public SSH key.
 This will be included with your administration user's `.ssh/authorized_keys` and the openHAB console so the admin user (yourself, usually) can login right after installation  without a password. This helps with automating deployments.
 
 #### Wi-Fi based setup notes
-If you own a RPi3, RPi3+, RPi4, a RPi0W or any other model with a compatible Wi-Fi dongle you can set up and use openHABian via Wi-Fi only.
-For the Wi-Fi based setup to work, you'll need to make your SSID and password known to the system before the first boot.
-So in addition to the setup instructions given above, uncomment and complete the lines reading `wifi_ssid=""` and `wifi_password=""` in `openhabian.conf`.
-
-#### Wi-Fi Hotspot
-When your openHABian box does not get Internet connectivity through either Ethernet or WI-Fi (if configured), openHABian will launch a **Hotspot**.
-Use your mobile phone to scan for Wi-Fi networks, you should be seeing a new network called `openHABian-<n>` with `<n>` being a digit.
-Connecting will work without a password. Once connected, most smartphones will transfer you to a web page.
-If this does not happen on your mobile device, open your browser on the mobile and point it at `http://raspberrypi.local` or `http://comitup-<n>`.
-This may or may not work for your mobile browser as it requires Bonjour/ZeroConf abilities.
-If you cannot connect to this address, go to `http://10.41.0.1`.
-On that page you can select the SSID of the network you want to connect your system to.
-Provide the password and press the button.
-Note that as soon as you do, the wlan0 IP address of your system changes so your mobile browser will not be able to provide you any feedback if that worked out.
-Try to ping the new system's hostname (default is `openhabian`) or check DHCP on your router if your openHABian system appeared there.
-You can use `sudo comitup-cli` inside openHABian to change networks and eventually remove network credentials.
-Note the hotspot may not only become available during installation: it will remain on standby and will show up again every time your `wlan0` interface is losing connectivity.
-For more information on hotspot functions see [comitup-cli](https://davesteele.github.io/comitup/). Most behavior can be tweaked by setting parameters (such as a default password) in `/etc/comitup.conf`.
-The hotspot feature is known to work on RPi0W, RPi3, and RPi4 but is known to often expose problems with Wi-Fi USB adapters.
+To setup openHABian via Wi-Fi only, make your SSID and password known to the system before the first boot.
+In addition to the setup instructions given above, uncomment and complete the lines reading `wifi_ssid=""` and `wifi_password=""` in `openhabian.conf`.
 
 #### Disable zram
 Zram is activated by default on fresh installations on ARM hardware.
