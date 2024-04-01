@@ -7,7 +7,7 @@ set -e
 ####################################################################
 
 usage() {
-  echo -e "Usage: $(basename "$0") <platform> [oldstable]"
+  echo -e "Usage: $(basename "$0") <platform> [oldstable|latest]"
   echo -e "\\nCurrently supported platforms: rpi, rpi64"
 }
 

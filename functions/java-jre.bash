@@ -86,18 +86,18 @@ java_install_or_update() {
       java_zulu_prerequisite "${cached_java_opt:-Zulu11-32}"
       java_zulu_install "${cached_java_opt:-Zulu11-32}"
     fi
-    if [[ $1 == "Zulu11-64" ]]; then
+    if [[ $1 == "Zulu11-64" ]] || [[ $1 == "Zulu21-64" ]]; then
       if is_aarch64 || is_x86_64 && [[ $(getconf LONG_BIT) == 64 ]]; then
         if is_x86_64; then
           java_zulu_enterprise_apt "$@"
         else
-          if cond_redirect java_zulu_update_available "Zulu11-64"; then
-            java_zulu_prerequisite "Zulu11-64"
+          if cond_redirect java_zulu_update_available "$1"; then
+            java_zulu_prerequisite "$1"
             if [[ $branch == "openHAB3" ]] && [[ -z $UNATTENDED ]]; then
-              java_zulu_stable "Zulu11-64"
+              java_zulu_stable "$1"
             else
-              java_zulu_fetch "Zulu11-64"
-              java_zulu_install "Zulu11-64"
+              java_zulu_fetch "$1"
+              java_zulu_install "$1"
             fi
           fi
         fi
@@ -211,6 +211,8 @@ java_zulu_install() {
     echo -n "$(timestamp) [openHABian] Installing Java Zulu 11 32-Bit OpenJDK... "
   elif [[ $1 == "Zulu11-64" ]]; then
     echo -n "$(timestamp) [openHABian] Installing Java Zulu 11 64-Bit OpenJDK... "
+  elif [[ $1 == "Zulu21-64" ]]; then
+    echo -n "$(timestamp) [openHABian] Installing Java Zulu 21 64-Bit OpenJDK... "
   else
     echo "$(timestamp) [openHABian] Installing something that probably won't work... FAILED"
     return 1
@@ -263,6 +265,13 @@ java_zulu_fetch() {
       downloadLink="$(curl "${link}&jdk_version=11&arch=arm&hw_bitness=64" -s -L -I -o /dev/null -w '%{url_effective}')"
     else
       downloadLink="$(curl "${link}&jdk_version=11&arch=x86&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
+    fi
+  elif [[ $1 == "Zulu21-64" ]]; then
+    echo -n "$(timestamp) [openHABian] Downloading Java Zulu 21 64-Bit OpenJDK... "
+    if is_arm; then
+      downloadLink="$(curl "${link}&jdk_version=21&arch=arm&hw_bitness=64" -s -L -I -o /dev/null -w '%{url_effective}')"
+    else
+      downloadLink="$(curl "${link}&jdk_version=21&arch=x86&hw_bitness=64&bundle_type=jre" -s -L -I -o /dev/null -w '%{url_effective}')"
     fi
   fi
   if [[ -z $downloadLink ]]; then echo "FAILED (download link)"; return 1; fi
@@ -318,6 +327,14 @@ java_zulu_update_available() {
       requestedArch="x64"
       availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=11&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter")"
     fi
+  elif [[ $1 == "Zulu21-64" ]]; then
+    if is_arm; then
+      requestedArch="aarch64"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=21&arch=arm&hw_bitness=64" | jq -r "$filter")"
+    else
+      requestedArch="x64"
+      availableVersion="$(curl -s -H "Accept: application/json" "${link}&jdk_version=21&arch=x86&hw_bitness=64&bundle_type=jre" | jq -r "$filter")"
+    fi
   fi
   if [[ -z $requestedArch ]] || [[ -z $availableVersion ]]; then echo "FAILED (java update available)"; return 1; fi
 
@@ -348,9 +365,16 @@ java_zulu_enterprise_apt() {
   if openhab_is_running; then
     cond_redirect systemctl stop openhab.service
   fi
-  if ! dpkg -s 'zulu-11' &> /dev/null; then
-    echo -n "$(timestamp) [openHABian] Installing Zulu 11 Enterprise 64-Bit OpenJDK... "
-    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" zulu-11; then echo "OK"; else echo "FAILED"; return 1; fi
+  if [[ $1 == "Zulu21-64" ]]; then
+    if ! dpkg -s 'zulu-21' &> /dev/null; then
+      echo -n "$(timestamp) [openHABian] Installing Zulu 21 Enterprise 64-Bit OpenJDK... "
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" zulu21; then echo "OK"; else echo "FAILED"; return 1; fi
+    fi
+  else
+    if ! dpkg -s 'zulu-11' &> /dev/null; then
+      echo -n "$(timestamp) [openHABian] Installing Zulu 11 Enterprise 64-Bit OpenJDK... "
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" zulu11; then echo "OK"; else echo "FAILED"; return 1; fi
+    fi
   fi
   if openhab_is_installed; then
     cond_redirect systemctl restart openhab.service
