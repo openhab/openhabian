@@ -154,10 +154,11 @@ if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --sile
   echo "FAILED"
 
   if [[ "$hotSpot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
-    #echo -n "$(timestamp) [openHABian] Installing comitup hotspot (will reboot after)... "
+    echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
     if setup_hotspot "install"; then echo "OK"; else echo "FAILED"; fi
-    #echo "$(timestamp) [openHABian] Hotspot software installed. Rebooting your system to make it take effect!"
-    #reboot
+    tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 3 30
+    systemctl restart comitup
+    echo "OK"
   fi
   echo "$(timestamp) [openHABian] The public internet is not reachable. Please check your local network environment."
   echo "                          We have launched a publicly accessible hotspot named $(grep ap_name: /etc/comitup.conf | cut -d' ' -f2)."
