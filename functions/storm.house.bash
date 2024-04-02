@@ -243,19 +243,19 @@ setup_wb_config() {
     chmod 664 "$wallboxPNG"
   fi
 
-  token=${4:-${evcctoken}}
+  token=${6:-${evcctoken}}
   if [[ $token = "NULL" ]]; then
     token=${evcctoken}
   fi
   temp="$(mktemp "${TMPDIR:-/tmp}"/evcc.XXXXX)"
   cp "${includesDir}/EVCC/evcc.yaml-template" "$temp"
-  sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBID|${3:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${5:-${cartype1:-offline}}|;s|%CARNAME1|${6:-${carname1:-meinEAuto1}}|;s|%VIN1|${7:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${8:-${carcapacity1:-50}}|;s|%CARUSER1|${9:-${caruser1:-user}}|;s|%CARPASS1|${10:-${carpass1:-pass}}|;s|%CARTYPE2|${11:-${cartype2:-offline}}|;s|%CARNAME2|${12:-${carname2:-meinEAuto2}}|;s|%VIN2|${13:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${14:-${carcapacity2:-50}}|;s|%CARUSER2|${15:-${caruser2:-user}}|;s|%CARPASS2|${16:-${carpass2:-pass}}|;s|%GRIDCOST|${17:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${18:-${feedincompensation:-8.2}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
+  sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBUSER|${3:-${wallboxuser}}|;s|%WBPASS|${4:-${wallboxpass}}|;s|%WBID|${5:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${7:-${cartype1:-offline}}|;s|%CARNAME1|${8:-${carname1:-meinEAuto1}}|;s|%VIN1|${9:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${10:-${carcapacity1:-50}}|;s|%CARUSER1|${11:-${caruser1:-user}}|;s|%CARPASS1|${12:-${carpass1:-pass}}|;s|%CARTYPE2|${13:-${cartype2:-offline}}|;s|%CARNAME2|${14:-${carname2:-meinEAuto2}}|;s|%VIN2|${15:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${16:-${carcapacity2:-50}}|;s|%CARUSER2|${17:-${caruser2:-user}}|;s|%CARPASS2|${18:-${carpass2:-pass}}|;s|%GRIDCOST|${19:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${20:-${feedincompensation:-8.2}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
   rm -f "${temp}"
 
   if ! grep -Eq "[[:space:]]certificate" "${evccConfig}"; then
     evcc eebus-cert -c "${evccConfig}" | tail +6 >> "$evccConfig"
   fi
-  if [[ ${3:-${wallboxid}} != "" && ${3:-${wallboxid}} != "1234567890abcdef" ]] || [[ ${1:-${wallboxtype}} == "eebus" || ${1:-${wallboxtype}} == "elliconnect" || ${1:-${wallboxtype}} == "ellipro" ]]; then
+  if [[ ${5:-${wallboxid}} != "" && ${5:-${wallboxid}} != "1234567890abcdef" ]] || [[ ${1:-${wallboxtype}} == "eebus" || ${1:-${wallboxtype}} == "elliconnect" || ${1:-${wallboxtype}} == "ellipro" ]]; then
     uncomment "#SKI" "${evccConfig}"
   fi
   if [[ ${1:-${wallboxtype}} == "demo" ]]; then
@@ -264,7 +264,7 @@ setup_wb_config() {
 
   echo "OK"
   if [[ -n "$INTERACTIVE" ]]; then
-    whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System nutzt jetzt eine ${1:-${wallboxtype}} Wallbox mit einem ${3:-${autotyp}}." 8 80
+    whiptail --title "Installation erfolgreich" --msgbox "Das Energie Management System steuert jetzt eine ${1:-${wallboxtype}} Wallbox." 8 80
   fi
 }
 
