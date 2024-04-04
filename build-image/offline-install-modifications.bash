@@ -4,12 +4,14 @@
 export BASEDIR="/opt/openhabian"
 export DEBIAN_FRONTEND="noninteractive"
 export PREOFFLINE="1"
+comitupfile=davesteele-comitup-apt-source_latest.deb
 
 source /opt/openhabian/functions/helpers.bash
 add_keys "https://openhab.jfrog.io/artifactory/api/gpg/key/public" "openhab"
 echo "deb [signed-by=/usr/share/keyrings/openhab.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main" > /etc/apt/sources.list.d/openhab.list
-add_keys "https://davesteele.github.io/key-366150CE.pub.txt" "comitup"
-echo "deb [signed-by=/usr/share/keyrings/comitup.gpg] http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.list
+wget -nv "https://davesteele.github.io/comitup/latest/$comitupfile"
+dpkg -i --force-all "$comitupfile"
+rm -f "$comitupfile"
 apt-get --quiet update
 apt-get --quiet upgrade --yes
 apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \

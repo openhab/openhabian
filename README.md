@@ -10,103 +10,74 @@
 
 <img align="right" width="220" src="./docs/images/logo.svg" />
 
-Setting up a fully working Linux system with all needed packages and useful tooling is a boring, lengthy albeit challenging task.
-Fortunately,
-
-***A home automation enthusiast doesn't have to be a Linux enthusiast!***
-
 openHABian is here to provide a **self-configuring** Linux system setup to meet the needs of every openHAB user, in two flavors:
 
 *   A **SD-card image pre-configured with openHAB** for all *Raspberry Pi* models
 *   As a set of scripts that sets up openHAB and tools on any Debian based system
 
 ### A note on dedication and commitment
-We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
-Everybody wants their home automation to be stable and most people install a *dedicated* RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation.
-Reasonably so, this is our clear recommendation.
-Saving another 100 bucks is not worth putting the reliable day-to-day operations of your home at risk.
+openHABian is for starters *and* expert users. We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
+Everybody wants their home automation to be stable and most people install a dedicated RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation.
+Reasonably so, this is our clear recommendation. Saving another 100 bucks is not worth putting the reliable day-to-day operations of your home at risk.
 
-Then again that being said, those who insist to *can* use openHABian as the starting point for their 'generic' server and run whatever software else on top.
-There's no genuine reason why this wouldn't work.
-The openHABian image is really just Raspberry Pi OS (lite) under the hood and openHABian is "just" some scripts that install a number of packages and configures the system in a specific way, optimized to run openHAB.
+Then again that being said, those who insist to can use openHABian as the starting point for their 'generic' server and run whatever software else on top.
+There's no genuine reason why this wouldn't work. The openHABian image is really just Raspberry Pi OS (lite) under the hood and openHABian is "just" some scripts that install a number of packages and configure the system in a specific way, optimized to run openHAB.
 
-What you must not do, though, is to mess with system packages and config *and* expect anyone to help you with that.
-Let's clearly state this as well: when you deliberately decide to make manual changes to the OS software packages and configuration (i.e. outside of `openhabian-config`), you will be on your own.
-Your setup is untested, and no-one but you knows about your changes.
-openHABian maintainers are really committed to providing you with a fine user experience, but this takes enormous efforts you don't get to see as a user.
-So if you choose to deviate from standard openHABian installations and run into problems thereafter, don't be unfair: don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum.
 
-### A note on openHAB versions
-openHABian was created to provide a seamless user experience with the current openHAB software, that now is version 4 released in summer '23.
-openHAB 2 will continue to work on openHABian, but openHAB 2 support is no longer actively maintained. Use the `legacy` branch of openHABian.
-You can switch branches using menu option 01 in `openhabian-config` but ATTENTION you cannot up- or downgrade this way and you cannot arbitrarily change versions. There's a high risk you mess up your system (the openHABian server OS setup, that is) if you do.
-
-The image will install openHAB 4 by default. To have it install openHAB 3, set `clonebranch=openHAB3` in `openhabian.conf`.
-For legacy openHAB version 2, set `clonebranch=legacy` in `openhabian.conf`.
+## On openHAB 4 and older
+openHABian will install **openHAB 4** and Java 17 by default.
+The openHABian image will install openHAB 4 by default, to have it install openHAB 3 right from the beginning, set `clonebranch=openHAB3` in `openhabian.conf` before first boot. Use `clonebranch=legacy` to get openHAB 2.
 
 ## Hardware
-### Our recommendation
-Let's put this first: our current recommendation is to get a RPi 4 with 2 or 4 GB, a 3 A power supply and a 16 or 32 GB "Endurance" SD card.
-Also get another 32 GB or larger SD card and a USB card reader to make use of the ["auto backup" feature](docs/openhabian.md#Auto-Backup).
+### Hardware recommendation
+Let's put this first: our current recommendation is to get a RPi 4 with 2 or (better) 4 GB of RAM, a 3A power supply and an "Endurance" SD card.
+Cards named "Endurance" can handle more write cycles and will be more enduring under openHAB\'s use conditions.
+Prepare to make use of the [SD mirroring feature](openhabian.md#SD-mirroring), get a 2nd SD card right away, same model or at least the size of your internal one, plus a USB card reader.
 
-### Supported hardware
-As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware, but read the notes on memory limitations and 32/64bit.
-Anything else ARM based such as ODroids, OrangePis, PINE64 and the like may work or not.
+### Hardware support
+As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware.
+openHABian can run on x86 based systems but on those you need to install the OS yourself.
+Anything else ARM based such as ODroids, OrangePis and the like may work or not.
 NAS servers such as QNAP and Synology boxes will not work.
-Anything x86 based supported by Debian 'bullseye' should work.
 
-We strongly recommend that users choose Raspberry Pi 2, 3 or 4 systems to have 1 GB of RAM or more.
-All RPi 0 and 1 only have 512 MB. This can be sufficient to run a smallish openHAB setup, but it will not be enough to run a full-blown system with many bindings and memory consuming openHABian features/components such as zram, InfluxDB or Grafana.
-And all but the 0W2 have a single and lame CPU core only, turning their use into an ordeal.
+We strongly recommend Raspberry Pi 2, 3 or 4 systems that have 1 GB of RAM or more.
+RPi 1 and 0/0W just have a single CPU core and only 512 MB of RAM. The RPi0W2 has 4 cores but only 512 MB as well.
+512 MB can be sufficient to run a smallish openHAB setup, but it will not be enough to run a full-blown system with many bindings and memory consuming openHABian features/components such as zram or InfluxDB.
 We do not actively prohibit installation on any hardware, including unsupported systems, but we might skip or deny to install specific extensions such as those memory hungry applications named above.
 
 Supporting hardware means testing every single patch and every release.
 There are simply too many combinations of SBCs, peripherals and OS flavors that maintainers do not have available, or, even if they did, the time to spend on the testing efforts that is required to make openHABian a reliable system.
+It means that to run on hardware other than RPi 2/3/4/5 or bare metal x86 Debian may work but is not a supported setup.
+Please stay with a supported version. This will help you and those you will want to ask for help on the forum focus on a known set of issues and solutions.
 
-Let's make sure you understand the implications of these statements: it means that to run on hardware other than RPi 2/3/4 or (bare metal i.e. not virtualized) x86 may work but this is **not** supported.
+For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md#fake-hardware-mode) to 'simulate' RPi hardware and Raspberry Pi OS.
 
-It may work to install and run openHABian on unsupported hardware.
-If it does not work, you are welcome to find out what's missing and contribute it back to the community with a Pull Request.
-It is sometimes simple things like a naming string.
-We'll be happy to include that in openHABian so you can use your box with openHABian unless there's a valid reason to change or remove it.
-However, that does not make your box a "supported" one as we don't have it available for our further development and testing.
-So there remains a risk that future openHABian releases will fail to work on your SBC because we changed a thing that broke support for your HW - unintentionally so however inevitable.
 
-For ARM hardware that we don't support, you can try any of the [fake hardware parameters](docs/openhabian.md/#fake-hardware-mode) to 'simulate' RPi hardware and Raspberry Pi OS. If that still doesn't work for you, give [Ubuntu](https://ubuntu.com/download/iot) or [ARMbian](https://www.armbian.com/) a try.
-
-## OS support
+### OS support
 Going beyond what the RPi image provides, as a manually installed set of scripts, we support running openHABian on x86 hardware on generic Debian.
-On ARM, we only support Raspberry Pi OS.
-These are what we develop and test openHABian against.
-We do **not support Ubuntu** so no promises. We provide code "as-is", it may work or not.
-Several optional components such as WireGuard or Homegear are known to expose problems.
+We provide code that is reported "as-is" to run on Ubuntu but we do not support Ubuntu so please don't open issues for this (PRs then again are welcome).
+Several optional components such as WireGuard or Homegear are known to expose problems on Ubuntu.
 
-We expect you to use the 'bullseye' distribution for Raspberry Pi OS (ARM) and Debian (x86).
-To install openHABian on anything older or newer may work or not.
-'Buster' does not properly support the Java 17 packages needed to run openHAB 4.
-You will run into trouble if you attempt to upgrade openHAB before you upgrade or reinstall your OS.
-'Bookworm' *might* work but is not validated yet to, so for now, stick with Debian 11 'bullseye'.
-Upgrade your box if needed, else you need to live with the consequences of running an OS on the edge of software development.
-
-Either way, please note that you're on your own when it comes to configuring and installing the HW with the proper OS yourself.
+Note with openHAB 4 and Java 17, `buster` and older distros are no longer supported and there'll be issues when you attempt upgrading Java 11->17.
+Should you still be running an older distribution, we recommend not to upgrade the distro but to re-install using the latest openHABian image and import your config instead.
 
 ### 64 bit?
-RPi3 and 4 have a 64 bit processor and you may want to run openHAB in 64 bit.
-Be aware that running in 64 bit has a major drawback: increased memory usage.
-This can be a problem on a memory constrained platform like a RPi and the reason why we usually recommend against doing so. Any reason to run on 64 bits needs to be weighted against this limitation.
+RPi 3 and newer have a 64 bit processor. There's openHABian images available in both, 32 and 64 bit.
+Choose yours based on your hardware and primary use case. Please be aware that you cannot change once you decided in favor of either 32 or 64 bit. Should you need to revoke your choice, export/backup your config and install a fresh system, then import your config there.
 
-On x86 hardware, 64 bit is the standard.
+Use the 64 bit image versions but please be aware that 64 bit always has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like Raspberries. If you want to go with 64 bit, ensure your RPi has a mimimum of 2 GB, 4 will put you on the safe side.
+You can use the 32 bit version for older or non official addons that will not work on 64 bit yet.
+Note there's a known issue on 32 bit, JS rules are reported to be annoyingly slow on first startup and in some Blockly use cases.
+
+On x86 hardware, it's all 64 bit but that in turn once more increases memory usage. A NUC to run on should have no less than 8 GB.
+
 
 ## Installation and Setup
 Please check the [official documentation article](https://www.openhab.org/docs/installation/openhabian.html) to learn about openHABian use and please visit and subscribe to our [community forum thread](https://community.openhab.org/t/13379).
 
-If you want to install openHABian on non-supported hardware, you can actually fake it to make openHABian treat your box as if it was one of the supported ones.
-Needless to say that that may work out or not, but it's worth a try.
-See [`openhabian.conf`](docs/openhabian.md#openhabianconf) for how to edit `openhabian.conf` before booting.
-Set the `hw`, `hwarch` and `release` parameters to match your system best.
 
-### Testing
-Testing is done continuously with GitHub Actions using the test framework [BATS](https://github.com/bats-core/bats-core) and the linter [ShellCheck](https://www.shellcheck.net/).
+## On Development and Testing
+Testing of new code is done continuously with GitHub Actions using the test framework [BATS](https://github.com/bats-core/bats-core) and the linter [ShellCheck](https://www.shellcheck.net/).
 As the tests focus on installing software, a [Docker](https://www.docker.com/) solution is used for easy build-up and teardown.
 
 To run the test suite on a `amd64` platform execute the commands below.

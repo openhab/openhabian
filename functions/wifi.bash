@@ -118,14 +118,19 @@ configure_wifi() {
 ##    setup_hotspot(String option)
 ##
 setup_hotspot() {
+  local debfile="davesteele-comitup-apt-source_latest.deb"
+
+
   if [[ $1 == "install" ]]; then
     echo -n "$(timestamp) [openHABian] Installing Comitup hotspot... "
     # manage networking through network manager
     DEBIAN_FRONTEND=noninteractive apt install --yes network-manager &> /dev/null
     systemctl enable --now NetworkManager
-    # get from source - the comitup package in Buster is 2yrs old
-    echo "deb http://davesteele.github.io/comitup/repo comitup main" > /etc/apt/sources.list.d/comitup.list
-    if ! cond_redirect apt-get --quiet update; then echo "FAILED (update apt lists)"; return 1; fi
+
+    if ! cond_redirect wget -nv "https://davesteele.github.io/comitup/latest/$debfile"; then echo "FAILED (download hotspot repo info)"; return 1; fi
+    if ! dpkg -i --force-all "$debfile"; then echo "FAILED (install comitup repo info)"; return 1; fi
+    if ! cond_redirect apt-get --quiet update; then echo "FAILED (update comitup apt lists)"; return 1; fi
+    rm -f "$debfile"
 
     if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
     # shellcheck disable=SC2154
