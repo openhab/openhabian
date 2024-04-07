@@ -29,7 +29,7 @@ java_install() {
 openjdk_fetch_apt() {
   if ! apt-cache show "openjdk-${1}-jre-headless" &> /dev/null; then
     if is_pi; then
-      echo "deb http://archive.raspberrypi.org/debian/ ${osrelease:-bullseye} main" > /etc/apt/sources.list.d/java.list
+      echo "deb http://archive.raspberrypi.org/debian/ ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/java.list
     else
       echo "deb http://deb.debian.org/debian/ stable main" > /etc/apt/sources.list.d/java.list
     fi
