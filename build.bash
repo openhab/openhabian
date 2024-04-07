@@ -198,7 +198,7 @@ elif [ "$1" == "rpi64" ]; then
 elif [ "$1" == "local-test" ]; then
   echo_process "Preparing local system for installation"
   cp ./build-image/first-boot.bash /boot/first-boot.bash
-  cp ./build-image/webserver.bash /boot/firmware/webserver.bash
+  cp ./build-image/webserver.bash /boot/webserver.bash
   cp ./build-image/openhabian.conf /boot/openhabian.conf
   cp "./build-image/openhabian-installer.service$release" /etc/systemd/system/
   ln -sf /etc/systemd/system/openhabian-installer.service /etc/systemd/system/multi-user.target.wants/openhabian-installer.service

@@ -36,12 +36,12 @@ if ! source "/opt/openhabian/functions/helpers.bash"; then echo "FAILED (source 
 if ! source "/opt/openhabian/functions/wifi.bash"; then echo "FAILED (source wifi)"; fail_inprogress; fi
 if source "/opt/openhabian/functions/openhabian.bash"; then echo "OK"; else echo "FAILED (source openhabian)"; fail_inprogress; fi
 
-if is_bookworm; then
-  webserver=/boot/firmware/webserver.bash
-else
+if ! is_bookworm; then
+#  webserver=/boot/firmware/webserver.bash
+#else
   rfkill unblock wifi   # Wi-Fi is blocked by Raspi OS default since bullseye(?)
-  webserver=/boot/webserver.bash
 fi
+webserver=/boot/webserver.bash
   
 if [[ "${debugmode:-on}" == "on" ]]; then
   unset SILENT
