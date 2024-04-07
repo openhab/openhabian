@@ -29,40 +29,6 @@ on:
       - '!.github/workflows/installation-action.yml'
 
 jobs:
-  amd64-openjdk11:
-    runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-
-    steps:
-       - name: Checkout repository
-         uses: actions/checkout@v4
-       - name: Setup environment
-         run: |
-           sudo -E ./tests/ci-setup.bash github
-       - name: Set up Docker Buildx
-         id: buildx
-         uses: docker/setup-buildx-action@v3.2.0
-         with:
-           driver-opts: network=host
-       - name: Build Docker image
-         uses: docker/build-push-action@v5.3.0
-         with:
-           context: .
-           file: ./tests/Dockerfile.amd64-installation
-           builder: ${{ steps.buildx.outputs.name }}
-           tags: localhost:5000/openhabian/amd64-openhabian:latest
-           cache-from: type=gha
-           cache-to: type=gha,mode=max
-           push: true
-       - name: openHABian installation test with OpenJDK 11 on native amd64
-         run: |
-           docker run --privileged --rm --name "openhabian-amd64" -d localhost:5000/openhabian/amd64-openhabian
-           docker exec -i "openhabian-amd64" bash -c './build.bash local-test && /boot/first-boot.bash'
-         shell: bash
   rpi3-openjdk11:
     runs-on: ubuntu-latest
     services:
@@ -101,7 +67,7 @@ jobs:
            docker run --privileged --rm --name "openhabian-rpi3" -d localhost:5000/openhabian/rpi3-openhabian
            docker exec -i "openhabian-rpi3" bash -c './build.bash local-test && /boot/first-boot.bash'
          shell: bash
-  rpi3-64-openjdk11:
+  rpi3-64-zulujdk21:
     runs-on: ubuntu-latest
     services:
       registry:
@@ -134,7 +100,7 @@ jobs:
            cache-from: type=gha
            cache-to: type=gha,mode=max
            push: true
-       - name: openHABian installation test with OpenJDK 11 on a virtual RPi3-64
+       - name: openHABian installation test with Azul Zulu JDK 21 on a virtual RPi3-64
          run: |
            docker run --privileged --rm --name "openhabian-rpi3-64" -d localhost:5000/openhabian/rpi3-64-openhabian
            docker exec -i "openhabian-rpi3-64" bash -c './build.bash local-test && /boot/first-boot.bash'
