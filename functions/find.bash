@@ -222,7 +222,7 @@ setup_monitor_mode() {
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning setup of Monitor Mode... "
-  if grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
+  if grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" "${CONFIGTXT}"; then
     if (whiptail --title "WiFi is currently disabled" --yesno "$disabledText" 10 80); then
       cond_redirect enable_disable_wifi "enable"
     else

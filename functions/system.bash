@@ -418,8 +418,8 @@ misc_system_settings() {
     if ! cond_redirect journalctl --vacuum-time=30d; then echo "FAILED (journalctl)"; return 1; fi
 
     # enable I2C port
-    if ! grep -qs "^[[:space:]]*dtparam=i2c_arm=" /boot/config.txt; then echo "dtparam=i2c_arm=on" >> /boot/config.txt; fi
-    if ! grep -qs "^[[:space:]]*dtparam=i2c1=" /boot/config.txt; then echo "dtparam=i2c1=on" >> /boot/config.txt; fi
+    if ! grep -qs "^[[:space:]]*dtparam=i2c_arm=" "${CONFIGTXT}"; then echo "dtparam=i2c_arm=on" >> "${CONFIGTXT}"; fi
+    if ! grep -qs "^[[:space:]]*dtparam=i2c1=" "${CONFIGTXT}"; then echo "dtparam=i2c1=on" >> "${CONFIGTXT}"; fi
     modprobe i2c_dev
     cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/INA219.py /usr/local/bin/waveshare_ups
   fi
@@ -469,13 +469,13 @@ change_swapsize() {
 memory_split() {
   if ! is_pi; then return 0; fi
   echo -n "$(timestamp) [openHABian] Setting the GPU memory split down to 16MB for headless system... "
-  if grep -qs "^[[:space:]]*gpu_mem" /boot/config.txt; then
-    if cond_redirect sed -i 's|gpu_mem=.*$|gpu_mem=16|g' /boot/config.txt; then echo "OK"; else echo "FAILED"; return 1; fi
+  if grep -qs "^[[:space:]]*gpu_mem" "${CONFIGTXT}"; then
+    if cond_redirect sed -i 's|gpu_mem=.*$|gpu_mem=16|g' "${CONFIGTXT}"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    if echo "gpu_mem=16" >> /boot/config.txt; then echo "OK"; else echo "FAILED"; return 1; fi
+    if echo "gpu_mem=16" >> "${CONFIGTXT}"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
-  sed -i '/^dtoverlay=vc4-f\?kms-v3d/d' /boot/config.txt
+  sed -i '/^dtoverlay=vc4-f\?kms-v3d/d' "${CONFIGTXT}"
 }
 
 ## disable or enable framebuffer to provide the maximum amount of memory for Linux operations.
@@ -490,15 +490,15 @@ use_framebuffer() {
     return 0;
   fi
 
-  sed -i '/^[[:space:]]*max_framebuffers/d' /boot/config.txt
+  sed -i '/^[[:space:]]*max_framebuffers/d' "${CONFIGTXT}"
   if [[ ${1:-${framebuffer:-enable}} == "enable" ]]; then
     echo -n "$(timestamp) [openHABian] Turning the framebuffer on... "
     if cond_redirect /usr/bin/tvservice -p; then echo "OK"; else echo "FAILED"; fi   # switches HDMI back on
-    echo "max_framebuffers=1" >> /boot/config.txt
+    echo "max_framebuffers=1" >> "${CONFIGTXT}"
   elif [[ ${1:-${framebuffer:-enable}} == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Turning the framebuffer off... "
     if cond_redirect /usr/bin/tvservice -o; then echo "OK"; else echo "FAILED"; fi   # switches HDMI off
-    echo "max_framebuffers=0" >> /boot/config.txt
+    echo "max_framebuffers=0" >> "${CONFIGTXT}"
   fi
 }
 
@@ -509,10 +509,10 @@ use_framebuffer() {
 enable_rpi_audio() {
   if ! is_pi; then return 0; fi
   echo -n "$(timestamp) [openHABian] Enabling Audio output... "
-  if grep -qs "^[[:space:]]*dtparam=audio" /boot/config.txt; then
-    if ! cond_redirect sed -i 's|dtparam=audio.*$|dtparam=audio=on|g' /boot/config.txt; then echo "FAILED"; return 1; fi
+  if grep -qs "^[[:space:]]*dtparam=audio" "${CONFIGTXT}"; then
+    if ! cond_redirect sed -i 's|dtparam=audio.*$|dtparam=audio=on|g' "${CONFIGTXT}"; then echo "FAILED"; return 1; fi
   else
-    if ! echo "dtparam=audio=on" >> /boot/config.txt; then echo "FAILED"; return 1; fi
+    if ! echo "dtparam=audio=on" >> "${CONFIGTXT}"; then echo "FAILED"; return 1; fi
   fi
   if cond_redirect adduser "${username:-openhabian}" audio; then echo "OK"; else echo "FAILED"; return 1; fi
 }
@@ -537,9 +537,9 @@ prepare_serial_port() {
   introText="\\nProceeding with this routine, the serial console normally provided by a Raspberry Pi must be disabled to make serial port become useable by devices like RaZberry, UZB or Busware adapters.\\n\\nOn a Raspberry Pi 3 or 4 the Bluetooth module can be relocated to the mini UART port to allow for proper operation of a RaZberry or other HAT.\\n\\nPlease make your choice:"
   successText="The serial options have successfully been configured!\\n\\nPlease reboot for changes to take effect."
   # Find current settings
-  if grep -qs "^[[:space:]]*enable_uart=1" /boot/config.txt; then optionOne="ON"; else optionOne="OFF"; fi
+  if grep -qs "^[[:space:]]*enable_uart=1" "${CONFIGTXT}"; then optionOne="ON"; else optionOne="OFF"; fi
   if is_pithree || is_pithreeplus || is_pifour; then
-    if grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" /boot/config.txt; then
+    if grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" "${CONFIGTXT}"; then
       optionTwo="ON"
     else
       optionTwo="OFF"
@@ -557,10 +557,10 @@ prepare_serial_port() {
 
   if [[ $selection == *"1"* ]]; then
     echo -n "$(timestamp) [openHABian] Enabling serial port and disabling serial console... "
-    if grep -qs "^[[:space:]]*enable_uart" /boot/config.txt; then
-      if ! cond_redirect sed -i -e 's|^#*.*enable_uart=.*$|enable_uart=1|g' /boot/config.txt; then echo "FAILED (uart)"; return 1; fi
+    if grep -qs "^[[:space:]]*enable_uart" "${CONFIGTXT}"; then
+      if ! cond_redirect sed -i -e 's|^#*.*enable_uart=.*$|enable_uart=1|g' "${CONFIGTXT}"; then echo "FAILED (uart)"; return 1; fi
     else
-      if ! (echo "enable_uart=1" >> /boot/config.txt); then echo "FAILED (uart)"; return 1; fi
+      if ! (echo "enable_uart=1" >> "${CONFIGTXT}"); then echo "FAILED (uart)"; return 1; fi
     fi
     if ! cond_redirect cp /boot/cmdline.txt /boot/cmdline.txt.bak; then echo "FAILED (backup cmdline.txt)"; return 1; fi
     if ! cond_redirect sed -i -e 's|console=tty.*console=tty1|console=tty1|g' /boot/cmdline.txt; then echo "FAILED (console)"; return 1; fi
@@ -572,7 +572,7 @@ prepare_serial_port() {
   else
     if [[ -f /boot/cmdline.txt.bak ]]; then
       echo -n "$(timestamp) [openHABian] Disabling serial port and enabling serial console... "
-      if ! cond_redirect sed -i -e '/^#*.*enable_uart=.*$/d' /boot/config.txt; then echo "FAILED (uart)"; return 1; fi
+      if ! cond_redirect sed -i -e '/^#*.*enable_uart=.*$/d' "${CONFIGTXT}"; then echo "FAILED (uart)"; return 1; fi
       if ! cond_redirect cp /boot/cmdline.txt.bak /boot/cmdline.txt; then echo "FAILED (restore cmdline.txt)"; return 1; fi
       if ! cond_redirect rm -f /boot/cmdline.txt.bak; then echo "FAILED (remove backup)"; return 1; fi
       cond_echo "Enabling serial-getty service"
@@ -585,8 +585,8 @@ prepare_serial_port() {
   if [[ $selection == *"2"* ]]; then
     if is_pithree || is_pithreeplus || is_pifour; then
       echo -n "$(timestamp) [openHABian] Making Bluetooth use mini-UART... "
-      if ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" /boot/config.txt; then
-        if (echo "dtoverlay=miniuart-bt" >> /boot/config.txt); then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
+      if ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" "${CONFIGTXT}"; then
+        if (echo "dtoverlay=miniuart-bt" >> "${CONFIGTXT}"); then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
       else
         echo "OK"
       fi
@@ -595,9 +595,9 @@ prepare_serial_port() {
       return 0
     fi
   else
-    if is_pithree || is_pithreeplus || is_pifour && grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" /boot/config.txt; then
+    if is_pithree || is_pithreeplus || is_pifour && grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" "${CONFIGTXT}"; then
       echo -n "$(timestamp) [openHABian] Making Bluetooth use UART... "
-      if cond_redirect sed -i -E '/^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt/d' /boot/config.txt; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
+      if cond_redirect sed -i -E '/^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt/d' "${CONFIGTXT}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
     fi
   fi
 
