@@ -251,7 +251,7 @@ if running_in_docker; then
   echo -e "$COL_DEF"
 fi
 
-systemctl disable comitup
+systemctl -q is-active comitup && systemctl disable comitup
 
 reboot
 
