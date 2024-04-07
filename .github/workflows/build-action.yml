@@ -91,7 +91,7 @@ jobs:
 
        - name: Create release template
          if: ${{ success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v') }}
-         uses: "marvinpinto/action-automatic-releases@v1.2.1"
+         uses: "marvinpinto/action-automatic-releases@latest"
          with:
            repo_token: "${{ secrets.GITHUB_TOKEN }}"
            title: "openHABian ${{ github.ref_name }}"
