@@ -99,7 +99,7 @@ openhab_setup() {
     dpkg --configure -a
     echo -n "$(timestamp) [openHABian] Installing selected $1 version... "
     if ! apt-get clean --yes -o DPkg::Lock::Timeout="$APTTIMEOUT"; then echo "FAILED (apt cache clean)"; return 1; fi
-    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+    cond_redirect apt-get update -o DPkg::Lock::Timeout="$APTTIMEOUT"
     openhabVersion="${3:-$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)}"
     if [[ -n $openhabVersion ]]; then
       installVersion="${ohPkgName}=${openhabVersion} ${ohPkgName}-addons=${openhabVersion}"
