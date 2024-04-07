@@ -145,15 +145,15 @@ enable_disable_wifi() {
 
   if [[ $1 == "enable" ]]; then
     echo -n "$(timestamp) [openHABian] Enabling WiFi... "
-    if grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" "{CONFIGTXT}"; then
-      if sed -i -E '/^[[:space:]]*dtoverlay=(pi3-)?disable-wifi/d' "{CONFIGTXT}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
+    if grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" "${CONFIGTXT}"; then
+      if sed -i -E '/^[[:space:]]*dtoverlay=(pi3-)?disable-wifi/d' "${CONFIGTXT}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
     else
       echo "OK"
     fi
   elif [[ $1 == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Disabling WiFi... "
-    if ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" "{CONFIGTXT}"; then
-      if echo "dtoverlay=disable-wifi" >> "{CONFIGTXT}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
+    if ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" "${CONFIGTXT}"; then
+      if echo "dtoverlay=disable-wifi" >> "${CONFIGTXT}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
     else
       echo "OK"
     fi

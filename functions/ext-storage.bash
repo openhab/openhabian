@@ -56,17 +56,17 @@ move_root2usb() {
   fi
 
   # Check if USB power is already unlimited, otherwise set it now
-  if ! grep -qsF 'max_usb_current=1' "{CONFIGTXT}"; then
+  if ! grep -qsF 'max_usb_current=1' "${CONFIGTXT}"; then
     echo -n "$(timestamp) [openHABian] Unlimiting USB power draw... "
-    if (echo 'max_usb_current=1' >> "{CONFIGTXT}"); then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
+    if (echo 'max_usb_current=1' >> "${CONFIGTXT}"); then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
     whiptail --title "Reboot required!" --msgbox "USB power draw had to be unlimited. Please REBOOT and RECALL this menu item." 8 80
     return 0
   fi
 
   # Check if USB boot delay is on, otherwise set it here
-  if ! grep -qsF 'program_usb_timeout=1' "{CONFIGTXT}"; then
+  if ! grep -qsF 'program_usb_timeout=1' "${CONFIGTXT}"; then
     echo -n "$(timestamp) [openHABian] Setting USB boot delay... "
-    if (echo 'program_usb_timeout=1' >> "{CONFIGTXT}"); then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
+    if (echo 'program_usb_timeout=1' >> "${CONFIGTXT}"); then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
     whiptail --title "Reboot required!" --msgbox "USB boot delay had to be set first. Please REBOOT and RECALL this menu item." 8 80
     return 0
   fi

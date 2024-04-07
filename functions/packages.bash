@@ -449,7 +449,7 @@ miflora_setup() {
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now miflora.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
-  if grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" "{CONFIGTXT}"; then
+  if grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" "${CONFIGTXT}"; then
     cond_echo "Warning! The internal RPi Bluetooth module is disabled on your system. You need to enable it before the daemon may use it."
   fi
 
