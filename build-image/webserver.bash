@@ -32,5 +32,5 @@ if [[ $1 == "cleanup" ]]; then
     kill "$isWebRunning" &> /dev/null
   fi
   rm -rf "${TMPDIR:-/tmp}"/webserver &> /dev/null
-  rm -f /boot/webserver.bash &> /dev/null
+  rm -f /boot/firmware/webserver.bash &> /dev/null
 fi
