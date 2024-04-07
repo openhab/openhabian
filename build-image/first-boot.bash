@@ -154,8 +154,7 @@ if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --sile
   echo "FAILED"
 
   if [[ "$hotSpot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
-    echo -n "$(timestamp) [openHABian] Installing comitup hotspot... "
-    if setup_hotspot "install"; then echo "OK"; else echo "FAILED"; fi
+    setup_hotspot
     tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 3 30
     systemctl restart comitup
     echo "OK"

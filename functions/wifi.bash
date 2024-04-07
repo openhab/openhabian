@@ -127,9 +127,10 @@ setup_hotspot() {
     DEBIAN_FRONTEND=noninteractive apt install --yes network-manager &> /dev/null
     systemctl enable --now NetworkManager
 
-    if ! cond_redirect wget -nv "https://davesteele.github.io/comitup/latest/$debfile"; then echo "FAILED (download hotspot repo info)"; return 1; fi
-    if ! dpkg -i --force-all "$debfile"; then echo "FAILED (install comitup repo info)"; return 1; fi
-    if ! cond_redirect apt-get --quiet update; then echo "FAILED (update comitup apt lists)"; return 1; fi
+    if cond_redirect wget -nv "https://davesteele.github.io/comitup/latest/$debfile"; then 
+      cond_redirect dpkg -i --force-all "$debfile"
+      cond_redirect apt-get --quiet update
+    fi
     rm -f "$debfile"
 
     if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
@@ -143,6 +144,11 @@ setup_hotspot() {
     echo "denyinterfaces wlan0 eth0" >> /etc/dhcpcd.conf
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
     install -m 644 "${BASEDIR:-/opt/openhabian}/includes/generic/100-disable-wifi-mac-randomization.conf" /etc/NetworkManager/conf.d/
+    if [[ $(systemctl is-active comitup) == "active" ]]; then
+      echo "OK"; return 0
+    else
+      echo "FAILED (comitup service not running)"; return 1
+    fi
   elif [[ $1 == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Uninstalling hotspot... "
     if cond_redirect apt purge --yes comitup; then echo "OK"; else echo "FAILED"; return 1; fi
