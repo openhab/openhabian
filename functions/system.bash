@@ -582,7 +582,7 @@ prepare_serial_port() {
   fi
 
   if [[ $selection == *"2"* ]]; then
-    if is_pithree || is_pithreeplus || is_pifour; then
+    if is_pithree || is_pithreeplus || is_pifour || is_pifive; then
       echo -n "$(timestamp) [openHABian] Making Bluetooth use mini-UART... "
       if ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" "${CONFIGTXT}"; then
         if (echo "dtoverlay=miniuart-bt" >> "${CONFIGTXT}"); then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
@@ -594,7 +594,7 @@ prepare_serial_port() {
       return 0
     fi
   else
-    if is_pithree || is_pithreeplus || is_pifour && grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" "${CONFIGTXT}"; then
+    if is_pithree || is_pithreeplus || is_pifour || is_pifive && grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt" "${CONFIGTXT}"; then
       echo -n "$(timestamp) [openHABian] Making Bluetooth use UART... "
       if cond_redirect sed -i -E '/^[[:space:]]*dtoverlay=(pi3-)?miniuart-bt/d' "${CONFIGTXT}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
     fi
