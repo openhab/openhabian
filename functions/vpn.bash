@@ -214,12 +214,14 @@ install_tailscale() {
   fi
 
   echo "$(timestamp) [openHABian] Installing tailscale VPN... "
+  curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | sudo tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+  curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
   # Add tailscale's GPG key
   add_keys "https://pkgs.tailscale.com/stable/raspbian/${myRelease,,}.noarmor.gpg" "$keyName"
   # Add the tailscale repository
   #echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://pkgs.tailscale.com/stable/raspbian ${myRelease,,} main" > /etc/apt/sources.list.d/tailscale.list
   curl -fsSL https://pkgs.tailscale.com/stable/raspbian/bookworm.tailscale-keyring.list | sudo tee /etc/apt/sources.list.d/tailscale.list
-  if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+  cond_redirect apt-get update -o DPkg::Lock::Timeout="$APTTIMEOUT"
 
   # Install tailscale
   if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" tailscale; then echo "OK"; else echo "FAILED (install tailscale)"; return 1; fi
