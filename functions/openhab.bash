@@ -85,10 +85,10 @@ openhab_setup() {
 
   # date needs to be > Jul 20, 23 for openhab repo signing key to be valid
   # note RPi have no RTC 
-  if [[ $(date +%y%m%d) -lt 230801 ]]; then
-    systemctl stop ntp systemd-timesync
-    timedatectl set-time "2023-08-01 00:00:00"
-    systemctl start systemd-timesync
+  if [[ $(date +%y%m%d) -lt 240401 ]]; then
+    systemctl stop systemd-timesyncd
+    timedatectl set-time "2024-04-09 00:00:00"
+    systemctl start systemd-timesyncd
   fi
   if running_in_docker || [[ -z $OFFLINE ]]; then
     if ! add_keys "https://openhab.jfrog.io/artifactory/api/gpg/key/public" "$keyName"; then return 1; fi
