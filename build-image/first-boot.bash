@@ -151,9 +151,9 @@ elif [[ -n $wifiSSID ]] && grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplic
 fi
 
 # fix eventually wrong date (it is the kernel compile date on Raspi OS !) to have valid repo keys
-if [[ $(date +%y%m%d) -lt 240401 ]]; then
+if [[ $(date +%y%m%d) -lt 240410 ]]; then
   systemctl stop systemd-timesyncd
-  timedatectl set-time "2024-04-09 00:00:00"
+  timedatectl set-time "2024-04-10 00:00:00"
   systemctl start systemd-timesyncd
 fi
 
