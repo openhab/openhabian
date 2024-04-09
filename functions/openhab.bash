@@ -83,7 +83,7 @@ openhab_setup() {
     echo "OK"
   fi
 
-  # date needs to be > Jul 20, 23 for openhab repo signing key to be valid
+  # date needs to be > Apr 1, 24 for openhab repo signing key to be valid
   # note RPi have no RTC 
   if [[ $(date +%y%m%d) -lt 240401 ]]; then
     systemctl stop systemd-timesyncd
