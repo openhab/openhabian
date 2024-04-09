@@ -122,8 +122,15 @@ setup_hotspot() {
 
 
   if [[ $1 == "install" ]]; then
-    echo -n "$(timestamp) [openHABian] Installing Comitup hotspot... "
     # manage networking through network manager
+    echo -n "$(timestamp) [openHABian] Installing Comitup hotspot... "
+    # fix eventually wrong date to have valid key
+    if [[ $(date +%y%m%d) -lt 240401 ]]; then
+      systemctl stop ntp systemd-timesync
+      timedatectl set-time "2024-04-09 00:00:00"
+      systemctl start systemd-timesync
+    fi
+
     DEBIAN_FRONTEND=noninteractive apt install --yes network-manager &> /dev/null
     systemctl enable --now NetworkManager
 
