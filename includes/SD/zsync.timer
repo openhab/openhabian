@@ -3,7 +3,7 @@ Description=Perform nightly zram sync to persistent storage
 
 [Timer]
 Unit=zsync.service
-OnCalendar=*-*-* 00:55
+OnCalendar=*-*-* *:00:15
 RandomizedDelaySec=10m
 Persistent=true
 
