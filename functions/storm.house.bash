@@ -160,26 +160,30 @@ setup_whitegood_config() {
 ## abl cfos easee eebus evsewifi go-e go-e-v3 heidelberg keba mcc nrgkick-bluetooth nrgkick-connect
 ## openwb phoenix-em-eth phoenix-ev-eth phoenix-ev-ser simpleevse wallbe warp
 ## #2 IP address of wallbox
-## #3 Wallbox ID z.B. SKI
-## #4 EVCC token
-## #5 car 1 type (from EVCC)
+## #3 Wallbox Auth user
+## #4 Wallbox Auth password
+## #5 Wallbox ID z.B. SKI
+## #6 EVCC token
+## #7 car 1 type (from EVCC)
 ## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
-## #6 car 1 name
-## #7 car 1 capacity
-## #8 car 1 VIN Vehicle Identification Number
-## #9 car 1 username in car manufacturer's online portal
-## #10 car 1 password for account in car manufacturer's online portal
-## #11 car 2 type (from EVCC)
+## #8 car 1 name
+## #9 car 1 capacity
+## #10 car 1 VIN Vehicle Identification Number
+## #11 car 1 username in car manufacturer's online portal
+## #12 car 1 password for account in car manufacturer's online portal
+## #13 car 2 type (from EVCC)
 ## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
-## #12 car 2 name
-## #13 car 2 capacity
-## #14 car 2 VIN Vehicle Identification Number
-## #15 car 2 username in car manufacturer's online portal
-## #16 car 2 password for account in car manufacturer's online portal
-## #17 grid usage cost per kWh in EUR ("0.40")
-## #18 grid feedin compensation cost per kWh in EUR
+## #14 car 2 name
+## #15 car 2 capacity
+## #16 car 2 VIN Vehicle Identification Number
+## #17 car 2 username in car manufacturer's online portal
+## #18 car 2 password for account in car manufacturer's online portal
+## #19 grid usage cost per kWh in EUR ("0.40")
+## #20 grid feedin compensation cost per kWh in EUR
+## #21 excess power required to start charging 
+## #22 max power to get from grid while charging 
 ##
 ##    setup_wb_config(String wallbox typ, .... )  - all arguments are of type String
 ##
@@ -249,7 +253,7 @@ setup_wb_config() {
   fi
   temp="$(mktemp "${TMPDIR:-/tmp}"/evcc.XXXXX)"
   cp "${includesDir}/EVCC/evcc.yaml-template" "$temp"
-  sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBUSER|${3:-${wallboxuser}}|;s|%WBPASS|${4:-${wallboxpass}}|;s|%WBID|${5:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${7:-${cartype1:-offline}}|;s|%CARNAME1|${8:-${carname1:-meinEAuto1}}|;s|%VIN1|${9:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${10:-${carcapacity1:-50}}|;s|%CARUSER1|${11:-${caruser1:-user}}|;s|%CARPASS1|${12:-${carpass1:-pass}}|;s|%CARTYPE2|${13:-${cartype2:-offline}}|;s|%CARNAME2|${14:-${carname2:-meinEAuto2}}|;s|%VIN2|${15:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${16:-${carcapacity2:-50}}|;s|%CARUSER2|${17:-${caruser2:-user}}|;s|%CARPASS2|${18:-${carpass2:-pass}}|;s|%GRIDCOST|${19:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${20:-${feedincompensation:-8.2}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
+  sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBUSER|${3:-${wallboxuser}}|;s|%WBPASS|${4:-${wallboxpass}}|;s|%WBID|${5:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${7:-${cartype1:-offline}}|;s|%CARNAME1|${8:-${carname1:-meinEAuto1}}|;s|%VIN1|${9:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${10:-${carcapacity1:-50}}|;s|%CARUSER1|${11:-${caruser1:-user}}|;s|%CARPASS1|${12:-${carpass1:-pass}}|;s|%CARTYPE2|${13:-${cartype2:-offline}}|;s|%CARNAME2|${14:-${carname2:-meinEAuto2}}|;s|%VIN2|${15:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${16:-${carcapacity2:-50}}|;s|%CARUSER2|${17:-${caruser2:-user}}|;s|%CARPASS2|${18:-${carpass2:-pass}}|;s|%GRIDCOST|${19:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${20:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${21:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${21:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
   rm -f "${temp}"
 
   if ! grep -Eq "[[:space:]]certificate" "${evccConfig}"; then

@@ -96,6 +96,14 @@ loadpoints:
   mincurrent: 6
   maxcurrent: 16
   vehicle: meinEAuto1
+  enable:
+    # Laden einschalten, wenn 1 Minute lang mindestens %CHARGEMINEXCESS W Überschuss vorhanden ist
+    delay: 1m
+    threshold: -%CHARGEMINEXCESS
+  disable:
+    # ausschalten, wenn 30 Minuten lang mehr als %CHARGEMAXGRID W aus dem Netz bezogen werden
+    delay: 30m
+    threshold: %CHARGEMAXGRID
 
 tariffs:
 # tariffs are the fixed or variable tariffs
