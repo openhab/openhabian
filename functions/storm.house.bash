@@ -362,7 +362,7 @@ install_extras() {
   local destdir="/usr/share/openhab/addons/"
   local sudoersFile="011_ems"
   local sudoersPath="/etc/sudoers.d"
-  local addonsCfg="${OPENHAB_CONF}/services/addons.cfg"
+  local addonsCfg="${OPENHAB_CONF:-/etc/openhab}/services/addons.cfg"
 
 
   if [[ $(whoami) == "root" ]]; then
