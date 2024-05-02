@@ -540,7 +540,7 @@ ems_lic() {
     cond_redirect systemctl stop ${disablerTimer}
   else
     echo "Falsche Lizenz, deaktiviere ..."
-    set_lic "Keine Lizenz"
+    set_lic "DEAKTIVIERT - keine Lizenz"
     # shellcheck disable=SC2086
     cond_redirect systemd-run --unit ${disablerTimer} --on-active=${gracePeriod} --timer-property=AccuracySec=100ms ${disableCommand}
   fi
