@@ -60,6 +60,13 @@ init_zram_mounts() {
     else
       if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/ztab /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     fi
+    
+    if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
+    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/service/SystemD/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install zram-config.service)"; return 1; fi
+    if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/zram-sync /usr/local/sbin; then echo "FAILED (install ZRAM sync script)"; return 1; fi
+    if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}/includes/SD"/zsync.* /etc/systemd/system/; then echo "FAILED (install ZRAM sync service)"; return 1; fi
+    if ! cond_redirect systemctl enable --now zsync.timer &> /dev/null; then echo "FAILED (enable zram sync timer)"; return 1; fi
+
     if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
     if ! cond_redirect ln -s /usr/local/share/zram-config/log /var/log/zram-config; then echo "FAILED (link directory)"; return 1; fi
     if cond_redirect install -m 644 "$zramInstallLocation"/zram-config/service/zram-config.logrotate /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
@@ -91,9 +98,9 @@ init_zram_mounts() {
     if cond_redirect systemctl enable --now zram-config.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
   elif [[ $1 == "uninstall" ]]; then
     echo -n "$(timestamp) [openHABian] Removing zram service... "
-    if ! cond_redirect systemctl stop zram-config.service; then echo "FAILED (stop zram)"; return 1; fi
-    if ! cond_redirect systemctl disable zram-config.service; then echo "FAILED (disable service)"; return 1; fi
-    if ! cond_redirect rm -f /etc/systemd/system/zram-config.service; then echo "FAILED (remove service)"; return 1; fi
+    if ! cond_redirect systemctl stop zram-config.service zsync.service; then echo "FAILED (stop zram)"; return 1; fi
+    if ! cond_redirect systemctl disable zram-config.service zsync.service; then echo "FAILED (disable service)"; return 1; fi
+    if ! cond_redirect rm -f "/etc/systemd/system/{zram-config,zsync}.service"; then echo "FAILED (remove service)"; return 1; fi
     if ! cond_redirect sed -i '\|^ReadWritePaths=/usr/local/share/zram-config/log$|d' /lib/systemd/system/logrotate.service; then echo "FAILED (sed)"; return 1; fi
     if ! running_in_docker && ! running_on_github; then
       if ! cond_redirect systemctl unmask unattended-upgrades.service; then echo "FAILED (unmask unattended upgrades service)"; return 1; fi
@@ -116,13 +123,6 @@ init_zram_mounts() {
     if ! cond_redirect make --always-make --directory="$zramInstallLocation"/zram-config/overlayfs-tools; then echo "FAILED (make overlayfs)"; return 1; fi
     if ! cond_redirect mkdir -p /usr/local/lib/zram-config/; then echo "FAILED (create directory)"; return 1; fi
     if cond_redirect install -m 755 "$zramInstallLocation"/zram-config/overlayfs-tools/overlay /usr/local/lib/zram-config/overlay; then echo "OK"; else echo "FAILED (install overlayfs)"; return 1; fi
-
-    echo -n "$(timestamp) [openHABian] Updating zram... "
-    if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
-    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/service/SystemD/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install zram-config.service)"; return 1; fi
-    if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/zram-sync /usr/local/sbin; then echo "FAILED (install ZRAM sync script)"; return 1; fi
-    if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}/includes/SD"/zsync.* /etc/systemd/system/; then echo "FAILED (install ZRAM sync service)"; return 1; fi
-    if ! cond_redirect systemctl enable --now zsync.timer &> /dev/null; then echo "FAILED (enable zram sync timer)"; return 1; fi
 
     if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
     if ! [[ -h /var/log/zram-config ]]; then
