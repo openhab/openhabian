@@ -119,9 +119,9 @@ setup_pv_config() {
 # wie leere user/pass abfangen ? => wie ist das bei der 3em-Provisionierung gemacht ?
 setup_charger() {
   local thing=generisch.things
-  local includesDir="${OPENHAB_CONF:-/etc/openhab}/things/"
-  local srcfile="${includesDir}/STORE/${thing}"
-  local destfile="${includesDir}/${thing}"
+  local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
+  local srcfile="${dir}/STORE/${thing}"
+  local destfile="${dir}/${thing}"
 
 
   sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${2:-${chargeractuatoruser}}|;s|%PASS|${3:-${chargeractuatorpass}}|" "${srcfile}" > "${destfile}"
@@ -143,12 +143,13 @@ setup_charger() {
 # diese Routine vervollständigen
 # wie leere user/pass abfangen ? => wie ist das bei der 3em-Provisionierung gemacht ?
 setup_whitegood_config() {
-  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
-  local destfile
+  local thing=weisseWare.things
+  local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
+  local srcfile="${dir}/STORE/${thing}"
+  local destfile="${dir}/${thing}"
+  #destfile="${OPENHAB_CONF:-/etc/openhab}/things/weisseWare.things"
 
-
-  destfile="${OPENHAB_CONF:-/etc/openhab}/things/weisseWare.things"
-  sed -i "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%USER|${3:-${whitegooduser}}|;s|%PASS|${4:-${whitegoodpass}}|" "${destfile}"
+  sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%USER|${3:-${whitegooduser}}|;s|%PASS|${4:-${whitegoodpass}}|" "${srcfile}" > "${destfile}"
 }
 
 
