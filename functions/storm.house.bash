@@ -148,7 +148,7 @@ setup_whitegood_config() {
 
 
   destfile="${OPENHAB_CONF:-/etc/openhab}/things/weisseWare.things"
-  sed -i "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${1:-${dishwasherip}}|;s|%USER|${1:-${whitegooduser}}|;s|%PASS|${1:-${whitegoodpass}}|" "${destfile}"
+  sed -i "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%USER|${3:-${whitegooduser}}|;s|%PASS|${4:-${whitegoodpass}}|" "${destfile}"
 }
 
 
