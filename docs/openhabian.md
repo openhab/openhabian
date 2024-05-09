@@ -29,7 +29,7 @@ The openHABian image provides lots of useful Linux tools out of the box:
 
 -   Fully automated hassle-free setup without a need for a display or keyboard, connected via Ethernet or [Wi-Fi](#wi-fi-based-setup-notes)
 -   All versions of openHAB to select from, including the latest stable one as the default
--   [Comprehensive capabilities to ensure your system will keep working reliably 24/7](#availability-and-backup) including ZRAM, [SD card mirroring](openhabian.md#SD-mirroring) and [Amanda backup system](openhabian-amanda.md)
+-   [Comprehensive capabilities to ensure your system will keep working reliably 24/7](#availability-and-backup) including ZRAM, [SD card mirroring](openhabian.md#sd-mirroring) and [Amanda backup system](openhabian-amanda.md)
 -   Web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
 -   [Tailscale](https://tailscale.com/blog/how-tailscale-works/) VPN and [WireGuard](https://www.wireguard.com/) for remote VPN access
 -   Samba file sharing [pre-configured ready to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
@@ -66,7 +66,7 @@ The openHABian image will install openHAB 4 by default, to have it install openH
 ### Hardware recommendation
 Let's put this first: our current recommendation is to get a RPi 4 with 2 or (better) 4 GB of RAM, a 3A power supply and an "Endurance" SD card.
 Cards named "Endurance" can handle more write cycles and will be more enduring under openHAB\'s use conditions.
-Prepare to make use of the [SD mirroring feature](openhabian.md#SD-mirroring), get a 2nd SD card right away, same model or at least the size of your internal one, plus a USB card reader.
+Prepare to make use of the [SD mirroring feature](openhabian.md#sd-mirroring), get a 2nd SD card right away, same model or at least the size of your internal one, plus a USB card reader.
 
 ### Hardware support
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware.
@@ -91,7 +91,7 @@ Plugging in HATs like an UPS or USB sticks or even SSDs for storage is fine, but
 To put it straight: we don't recommend SSDs and do not support attaching an SSD and move the system over there.
 If you know Linux well enough to manually apply all the required modifications, feel free to do so but please be warned that this is a completely untested option that may work or not and what's even more important: it is unsupported. Don't ask for help if you run into trouble.
 Also remember that any future changes to openHABian (which is what you get when you upgrade as you are recommended to do on every start of the `openhabian-config` tool) can interfere with any such modification of yours so while any such mod may work for the time being you apply it, it may break your box and openHAB experience anytime in the future.
-Anybody afraid of SD card issues, use the [SD mirroring feature](openhabian.md#SD-mirroring) to mitigate.
+Anybody afraid of SD card issues, use the [SD mirroring feature](openhabian.md#sd-mirroring) to mitigate.
 This will provide you with a secondary, up to date SD card, available for swapping at any time.
 
 ### OS support
@@ -305,7 +305,7 @@ That being said, openHABian has a number of built in software features we borrow
     Get an USB card writer and another SD card and set up SD mirroring using \[menu option 53\].
     This will ensure you have an always ready-to-use clone of your storage medium handy at all times.
     In case of emergency, you can simply swap SD cards and get back online within just a few minutes.
-    See [auto backup](#SD-mirroring) documentation.
+    See [auto backup](#sd-mirroring) documentation.
 
 ::: tip remote replacement
 Disasters love to happen when you're not at home. 
