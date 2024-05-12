@@ -168,8 +168,6 @@ show_main_menu() {
     "35 | Serial port"            "Prepare serial ports for peripherals like RaZberry, ZigBee adapters etc" \
     "36 | Disable framebuffer"    "Disable framebuffer on RPi to minimize memory usage" \
     "   | Enable framebuffer"     "Enable framebuffer (standard setting)" \
-    "37 | WiFi setup"             "Configure wireless network connection" \
-    "   | Disable WiFi"           "Disable wireless network connection" \
     "38 | Use zram"               "Use compressed RAM/disk sync for active directories to avoid SD card corruption" \
     "   | Update zram"            "Update a currently installed zram instance" \
     "   | Uninstall zram"         "Don't use compressed memory (back to standard Raspberry Pi OS filesystem layout)" \
@@ -191,8 +189,6 @@ show_main_menu() {
       35\ *) prepare_serial_port ;;
       36\ *) use_framebuffer "disable" ;;
       *Enable\ framebuffer) use_framebuffer "enable" ;;
-      37\ *) configure_wifi setup ;;
-      *Disable\ WiFi) configure_wifi "disable" ;;
       38\ *) init_zram_mounts "install" ;;
       *Update\ zram) init_zram_mounts ;;
       *Uninstall\ zram) init_zram_mounts "uninstall" ;;
