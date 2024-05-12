@@ -186,7 +186,6 @@ install_tailscale() {
   local serviceTargetDir="/lib/systemd/system"
   local sudoersFile="011_openhab-tailscale"
   local sudoersPath="/etc/sudoers.d"
-  local keyName="tailscale-archive-keyring"
 
   if [[ -n "$UNATTENDED" ]]; then
     if [[ ! -v preauthkey ]]; then echo "$(timestamp) [openHABian] tailscale VPN installation... SKIPPED (no preauthkey defined)"; return 1; fi
