@@ -13,13 +13,14 @@ This document is meant to give a guiding hand to users when their openHABian ins
 Set `debugmode=maximum`in `/etc/openhabian.conf` and see `/boot/first-boot.log` for image installation else record the terminal output.
 :::
 
-**Please do not ask for help on the forum unless you have _FULLY_ read this guide.**
+**Please do not ask for help on the forum unless you have read this guide.**
 
+::: tip
 **Attention:**
 If you do not use the image but use `openhabian-config` manually - either to run `openhabian-config unattended` or interactive use -, **there is no logfile**.
 To record output in this case, you need to configure your terminal client to record and save the command line output.
-In PuTTy there's a field called 'Lines of scrollback' under the 'Window' option in settings that you should increase to at least some thousand lines else you might not capture everything you need to.
-Configure any other terminal client likewise.
+In PuTTy there's a field called 'Lines of scrollback' under the 'Window' option in settings that you should increase to at least some thousand lines else you might not capture everything you need to. Configure any other terminal client likewise.
+:::
 
 Keep in mind that parts of the following information such as for example Wi-Fi and IPv6 setup don't apply to manually installed systems because they happen at or before boot time.
 
