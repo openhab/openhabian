@@ -356,6 +356,8 @@ setup_hp_config() {
       fi
     fi
   done
+
+  sed -i "s|%IP|${2:-${heatpumpip}}|;s|%MBID|${3:-${heatpumpmodbusid}}|" "${OPENHAB_CONF:-/etc/openhab}/things/heizung.things"
 }
 
 
