@@ -325,6 +325,40 @@ setup_power_config() {
 }
 
 
+## setup OH config for heat pump selection
+##
+## Valid Arguments:
+##
+## #1 heat pump model
+##
+##    setup_hp_config()
+##
+setup_hp_config() {
+  local temp
+  local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+  local srcfile
+
+
+  if [[ -n "$UNATTENDED" ]]; then
+    echo -n "$(timestamp) [storm.house] heat pump setup ... "
+    if [[ -z "${1:-$heatpumptype}" ]]; then echo "SKIPPED (no heat pump model defined)"; return 1; fi
+  fi
+
+  for component in things items rules; do
+    rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/heizung.${component}"
+    srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/wp/${1:-${heatpumptype}}.${component}"
+    destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/heizung.${component}"
+    if [[ -f ${srcfile} ]]; then
+      cp -p "${srcfile}" "${destfile}"
+      if [[ $(whoami) == "root" ]]; then
+        chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/heizung.${component}"
+        chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/heizung.${component}"
+      fi
+    fi
+  done
+}
+
+
 ## replace OH logo
 ## Attention needs to work across versions, logo has to be SVG (use inkscape to embed PNG in SVG)
 ##
@@ -384,6 +418,9 @@ install_extras() {
     fi
     if [[ ! -f /usr/local/sbin/setup_whitegood_config ]]; then
       if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_whitegood_config; then echo "FAILED (install setup_whitegood_config script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_hp_config ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_hp_config; then echo "FAILED (install setup_hp_config script)"; return 1; fi
     fi
   fi
 
