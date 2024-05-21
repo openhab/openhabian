@@ -357,7 +357,8 @@ setup_hp_config() {
     fi
   done
 
-  sed -i "s|%IP|${2:-${heatpumpip}}|;s|%MBID|${3:-${heatpumpmodbusid:-1}}|;s|%RELAY|${4:-${sgractuator:-shelly25-relay}}|" "${OPENHAB_CONF:-/etc/openhab}/things/heizung.things"
+  #sed -i "s|%IP|${2:-${heatpumpip}}|;s|%MBID|${3:-${heatpumpmodbusid:-1}}|;s|%RELAY|${4:-${sgractuator:-shelly25-relay}}|" "${OPENHAB_CONF:-/etc/openhab}/things/heizung.things"
+  sed -i "s|%IP|${2:-${heatpumpip}}|;s|%MBID|${3:-${heatpumpmodbusid:-1}}|;s|%RELAY|${4:-${sgractuator:-shelly25-relay}}|;s|%USER|${5:-${heatpumpuser}}|;s|%PASS|${6:-${heatpumppass:-1}}|" "${OPENHAB_CONF:-/etc/openhab}/things/heizung.things"
   sed -i "s|%RELAY|${4:-${sgractuator:-shelly25-relay}}|" "${OPENHAB_CONF:-/etc/openhab}/items/heizung.items"
 }
 
