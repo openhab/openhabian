@@ -79,6 +79,8 @@ setup_pv_config() {
       fi
       sed -i "s|%IP|${ip}|;s|%MBID|${mbid}|" "${destfile}"
       if [[ "${device}" == "meter" && $# -ge 6 ]]; then
+        if [[ $muser == "NULL" ]]; then muser=""; fi
+        if [[ $mpass == "NULL" ]]; then mpass=""; fi
         sed -i "s|%USER|${muser}|;s|%PASS|${mpass}|" "${destfile}"
       fi
     fi
@@ -103,28 +105,33 @@ setup_pv_config() {
 }
 
 
-## Generate/copy openHAB config for whitegood appliances
+## Generate/copy openHAB config for generic charger
 ## valid arguments:
-## #1 IP address of washing machine actuator
-## #2 IP address of dish washer actuator
-## #3 user name to access Shelly actuators (common to all white good actuators)
-## #4 password to access Shelly actuators (common to all white good actuators)
+## #1 IP address of charger actuator
+## #2 user name to access Shelly actuator
+## #3 password to access Shelly actuator
 ##
-##    setup_whitegood_config(String washing machine IP,String dish washer IP,String actuator user name,String actuator password)
+##    setup_whitegood_config(String charger actuator IP,String actuator user name,String actuator password)
 ##
 
 
-#TODO:
-# diese Routine vervollständigen
-# wie leere user/pass abfangen ? => wie ist das bei der 3em-Provisionierung gemacht ?
+# TBV: wie leere user/pass abfangen ?
 setup_charger() {
   local thing=generisch.things
   local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
   local srcfile="${dir}/STORE/${thing}"
   local destfile="${dir}/${thing}"
+  local cuser
+  local cpass
 
 
-  sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${2:-${chargeractuatoruser}}|;s|%PASS|${3:-${chargeractuatorpass}}|" "${srcfile}" > "${destfile}"
+  cuser=${2:-${chargeractuatoruser}}
+  if [[ $cuser == "NULL" ]]; then cuser=""; fi
+  cpass=${3:-${chargeractuatorpass}}
+  if [[ $cpass == "NULL" ]]; then cpass=""; fi
+
+  #sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${2:-${chargeractuatoruser}}|;s|%PASS|${3:-${chargeractuatorpass}}|" "${srcfile}" > "${destfile}"
+  sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${cuser}}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
 }
 
 
@@ -139,17 +146,22 @@ setup_charger() {
 ##
 
 
-#TODO:
-# diese Routine vervollständigen
-# wie leere user/pass abfangen ? => wie ist das bei der 3em-Provisionierung gemacht ?
+# TBV: wie leere user/pass abfangen ?
 setup_whitegood_config() {
   local thing=weisseWare.things
   local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
   local srcfile="${dir}/STORE/${thing}"
   local destfile="${dir}/${thing}"
-  #destfile="${OPENHAB_CONF:-/etc/openhab}/things/weisseWare.things"
+  local wuser
+  local wpass
 
-  sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%USER|${3:-${whitegooduser}}|;s|%PASS|${4:-${whitegoodpass}}|" "${srcfile}" > "${destfile}"
+
+  wuser=${3:-${whitegooduser}}
+  if [[ $wuser == "NULL" ]]; then wuser=""; fi
+  wpass=${4:-${whitegoodpass}}
+  if [[ $wpass == "NULL" ]]; then wpass=""; fi
+  #sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%USER|${3:-${whitegooduser}}|;s|%PASS|${4:-${whitegoodpass}}|" "${srcfile}" > "${destfile}"
+  sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%USER|${wuser}|;s|%PASS|${wpass}|" "${srcfile}" > "${destfile}"
 }
 
 
@@ -337,6 +349,8 @@ setup_hp_config() {
   local temp
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local srcfile
+  local muser
+  local mpass
 
 
   if [[ -n "$UNATTENDED" ]]; then
@@ -357,8 +371,12 @@ setup_hp_config() {
     fi
   done
 
-  #sed -i "s|%IP|${2:-${heatpumpip}}|;s|%MBID|${3:-${heatpumpmodbusid:-1}}|;s|%RELAY|${4:-${sgractuator:-shelly25-relay}}|" "${OPENHAB_CONF:-/etc/openhab}/things/heizung.things"
-  sed -i "s|%IP|${2:-${heatpumpip}}|;s|%MBID|${3:-${heatpumpmodbusid:-1}}|;s|%RELAY|${4:-${sgractuator:-shelly25-relay}}|;s|%USER|${5:-${heatpumpuser}}|;s|%PASS|${6:-${heatpumppass:-1}}|" "${OPENHAB_CONF:-/etc/openhab}/things/heizung.things"
+  muser=${5:-${heatpumpuser}}
+  if [[ $muser == "NULL" ]]; then muser=""; fi
+  mpass=${6:-${heatpumppass}}
+  if [[ $mpass == "NULL" ]]; then mpass=""; fi
+  #sed -i "s|%IP|${2:-${heatpumpip}}|;s|%MBID|${3:-${heatpumpmodbusid:-1}}|;s|%RELAY|${4:-${sgractuator:-shelly25-relay}}|;s|%USER|${5:-${heatpumpuser}}|;s|%PASS|${6:-${heatpumppass}}|" "${OPENHAB_CONF:-/etc/openhab}/things/heizung.things"
+  sed -i "s|%IP|${2:-${heatpumpip}}|;s|%MBID|${3:-${heatpumpmodbusid:-1}}|;s|%RELAY|${4:-${sgractuator:-shelly25-relay}}|;s|%USER|${muser}|;s|%PASS|${mpass}|" "${OPENHAB_CONF:-/etc/openhab}/things/heizung.things"
   sed -i "s|%RELAY|${4:-${sgractuator:-shelly25-relay}}|" "${OPENHAB_CONF:-/etc/openhab}/items/heizung.items"
 }
 
