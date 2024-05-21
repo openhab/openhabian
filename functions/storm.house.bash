@@ -381,6 +381,27 @@ setup_hp_config() {
 }
 
 
+## setup OH config for heat pump selection
+##
+## Valid Arguments:
+##
+## #1 azimuth
+## #2 declination
+## #3 kWp
+##
+##    setup_forecastsolar()
+##
+setup_forecastsolar() {
+  local thing=forecastsolar.things
+  local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
+  local srcfile="${dir}/STORE/vorhersage/${thing}"
+  local destfile="${dir}/${thing}"
+
+
+  sed -e "s|%AZIMUTH|${1:-${azimuth}}|;s|%DECLINATION|${2:-${declination}}|;s|%KWP|${3:-${kwp}}|" "${srcfile}" > "${destfile}"
+}
+
+
 ## replace OH logo
 ## Attention needs to work across versions, logo has to be SVG (use inkscape to embed PNG in SVG)
 ##
@@ -443,6 +464,9 @@ install_extras() {
     fi
     if [[ ! -f /usr/local/sbin/setup_hp_config ]]; then
       if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_hp_config; then echo "FAILED (install setup_hp_config script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_forecastsolar ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_forecastsolar; then echo "FAILED (install setup_forecastsolar script)"; return 1; fi
     fi
   fi
 
