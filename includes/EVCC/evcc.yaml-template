@@ -78,15 +78,14 @@ vehicles:
 #  language: de
   name: meinEAuto1
   title: %CARNAME1
-#- type: template
-#  template: %CARTYPE2
-#  name: meinEAuto2
-#  title: %CARNAME2
-#  vin: %VIN2
-#  user: %CARUSER2
-#  password: %CARPASS2
-#  capacity: %CARCAPACITY2
-#  language: de
+- type: template
+  template: %CARTYPE2
+  name: meinEAuto2
+  title: %CARNAME2
+  vin: %VIN2
+  user: %CARUSER2
+  password: %CARPASS2
+  capacity: %CARCAPACITY2
 
 loadpoints:
 - title: Wallbox
