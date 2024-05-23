@@ -44,7 +44,7 @@ setup_pv_config() {
     # shellcheck disable=SC2154
     case "${device}" in
       pv) default=${invertertype}; ip=${3:-inverterip}; mbid=${4:-${invertermodbusid}};
-	  if [[ ${default} == "sofar" ]]; then model=${4:-${pvmodel}}; serial=${5:-${pvserial}}; fi
+	  if [[ ${default} == "solarman" ]]; then model=${4:-${pvmodel}}; serial=${5:-${pvserial}}; fi
 	  ;;
       bat) default=${batterytype}; ip=${3:-batteryip}; mbid=${4:-${batterymodbusid}};;
       meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-${metermodbusid}}; muser=${6:-${meteruserid}}; mpass=${7:-${meterpassid}};;
