@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-## TODO: (unfertig), implementiert nich nicht die Spec !
-
 ## #1=bat & #2=hybrid -> pv=#1 & bat=#1, ansonsten was definiert wurde
 ## #1=meter & #2=inverter -> meter=#1, ansonsten was definiert wurde
 
@@ -30,8 +28,10 @@ setup_pv_config() {
   local default
   local ip
   local mbid
+  local model
   local muser
   local mpass
+  local serial
 
 
   if [[ -n "$UNATTENDED" ]]; then
@@ -43,7 +43,9 @@ setup_pv_config() {
     device="${1:-pv}"
     # shellcheck disable=SC2154
     case "${device}" in
-      pv) default=${invertertype}; ip=${3:-inverterip}; mbid=${4:-${invertermodbusid}};;
+      pv) default=${invertertype}; ip=${3:-inverterip}; mbid=${4:-${invertermodbusid}};
+	  if [[ ${default} == "sofar" ]]; then model=${4:-${pvmodel}}; serial=${5:-${pvserial}}; fi
+	  ;;
       bat) default=${batterytype}; ip=${3:-batteryip}; mbid=${4:-${batterymodbusid}};;
       meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-${metermodbusid}}; muser=${6:-${meteruserid}}; mpass=${7:-${meterpassid}};;
     esac
@@ -77,11 +79,16 @@ setup_pv_config() {
         sed -i "s|%HUAWEI1|${Erzeugung}|;s|%HUAWEI2|${PVStatus}|" "${destfile}"
         mbid="${5:-${loggermodbusid}}"  # diese ID muss angesprochen werden
       fi
+
       sed -i "s|%IP|${ip}|;s|%MBID|${mbid}|" "${destfile}"
       if [[ "${device}" == "meter" && $# -ge 6 ]]; then
         if [[ $muser == "NULL" ]]; then muser=""; fi
         if [[ $mpass == "NULL" ]]; then mpass=""; fi
         sed -i "s|%USER|${muser}|;s|%PASS|${mpass}|" "${destfile}"
+      fi
+
+      if [[ "${device}" == "pv" && "${default}" == "sofar" ]]; then
+        sed -i "s|%IP|${ip}|;s|%MODEL|${model}|;s|%SERIAL|${serial}|" "${destfile}"
       fi
     fi
   done
