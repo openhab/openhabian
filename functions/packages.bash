@@ -440,10 +440,16 @@ miflora_setup() {
   cond_echo "Filesystem permissions corrections... "
   if ! cond_redirect chown -R "openhab:${username:-openhabian}" "$mifloraDir"; then echo "FAILED (permissions)"; return 1; fi
   if ! cond_redirect chmod -R ug+wX "$mifloraDir"; then echo "FAILED (permissons)"; return 1; fi
-
+## For Debian 12 (Bookworm) compatibility we need to make a Python Virtual Enviroment (venv)
+  cond_echo "Preparing python virtual enviroment"
+  cond_redirect python -m venv --system-site-packages "$mifloraDir"/env
+  cond_redirect source "$mifloraDir"/env/bin/activate
+## original code from here  
   cond_echo "Installing required python packages"
-  cond_redirect pip3 install -r "$mifloraDir"/requirements.txt
-
+  cond_redirect "$mifloraDir"/env/bin/pip3 install -r "$mifloraDir"/requirements.txt
+## deactivate venv to avoid conflicts with other functions
+  cond_redirect "$mifloraDir"/env/bin/deactivate
+## original code from here
   echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon service... "
   if ! cond_redirect install -m 644 "$mifloraDir"/template.service /etc/systemd/system/miflora.service; then echo "FAILED (copy service)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
