@@ -60,8 +60,6 @@ install_wireguard() {
     else
       if is_debian && is_buster; then
         echo 'deb http://deb.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/wireguard.list
-      else
-        echo "FAILED (unsupported OS)"; return 1
       fi
     fi
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
