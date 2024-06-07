@@ -58,7 +58,7 @@ install_wireguard() {
       # headers required for wireguard-dkms module to be built "live"
       cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" raspberrypi-kernel-headers
     else
-      if is_debian && is_buster; then
+      if is_buster; then
         echo 'deb http://deb.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/wireguard.list
       fi
     fi
