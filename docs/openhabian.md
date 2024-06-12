@@ -282,9 +282,9 @@ They can be changed from openHABian menu.
 ## Availability and Backup
 
 openHABian is designed to reliably run 24 hours a day, seven days a week. That's a complex challenge involving hardware, software and operational procedures.
-This is the right time to prepare your system for disasters such as getting hit by the SD card wear-out/corruption problem.
+This is the right time to prepare your system for disasters such as getting hit by hardware outages or the SD card wear-out/corruption problem.
 
-Preparing for hardware breakage is easiest and most likely to work with common-off-the-shelf hardware that is known it will work as a drop-in replacement the very moment you will be in need of it (i.e. when your smart home server just died).
+Preparing for hardware breakage is the challenge that is the most easy one to overcome with common-off-the-shelf hardware that is known to work as a drop-in replacement the very moment you will be in need of it (i.e. when your smart home server just died).
 
 ::: tip get your spare hardware ready
 Order **spare** pieces of *all* hardware components your home automation relies on to work. At a minimum, that's the computer itself and another storage medium.
