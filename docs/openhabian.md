@@ -14,7 +14,7 @@ You just discovered openHAB and now you are eager to start but you're afraid of 
 openHABian is here to help. It's a **self-configuring** Linux system setup to reliably operate your openHAB instance 24 hours a day.
 It provides:
 
-*   Complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of SBCs
+*   Complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of small single-board computers.
 *   The openHABian configuration tool to set up and configure openHAB and many related things on any Debian based system
 
 #### Table of Contents
@@ -56,7 +56,7 @@ There's no genuine reason why this wouldn't work. The openHABian image is really
 What you must not do, though, is to mess with the system, OS packages and config and expect anyone to help you with that. Let's clearly state this as well: when you deliberately decide to make manual changes to the OS software packages and configuration (i.e. outside of openhabian-config), you will be on your own.
 Your setup is untested, and no-one but you knows about your changes. openHABian maintainers are really committed to providing you with a fine user experience, but this takes enormous efforts in testing and is only possible with a fixed set of hardware. You don't get to see this as a user.
 
-So if you choose to deviate from the standard openHABian installation (e.g. you change your box to run off SSD) and run into problems thereafter, don't be unfair: please don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum. Thank you !
+So if you choose to deviate from the standard openHABian installation (e.g. you change your box to run off SSD) and run into problems thereafter, please be fair: don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum. Thank you !
 
 ## On openHAB 4 and older
 openHABian will install **openHAB 4** and Java 17 by default.
