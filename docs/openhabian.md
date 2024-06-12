@@ -320,8 +320,8 @@ With an openHABian RPi mirror SD setup, you can instruct your partner or even ki
 5.  For completeness, openHABian still provides the historic option to move the root filesystem to USB-attached devices. See \[menu option 37\].
     We don't recommend or support doing so but if you're convinced this is beneficial to your situation, feel free to go for it.
 
-    WARNING 1: openHABian does not support hardware modifications to have an effect on the system itself such as to add an SSD drive to boot from.
-    We clearly recommend NOT to do this, for your own sake of reliability.
+    WARNING 1: openHABian maintainers do not support you in applying hardware modifications to have an effect on the system itself such as to add an SSD drive to boot from.
+    We clearly recommend not to do this, for your own sake of reliability.
 
     WARNING 2: USB sticks are as susceptible to flash wear-out as SD cards are, making zram the better choice for a standard Pi to run off its internal SD card.
 
