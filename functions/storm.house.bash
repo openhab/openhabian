@@ -494,8 +494,6 @@ install_extras() {
 }
 
 
-# TODO: UNATTENDED mode damit Updates aus UI möglich
-
 ## Retrieve latest EMS code from website
 ##
 ##    upgrade_ems(String full)
@@ -518,9 +516,9 @@ upgrade_ems() {
   echo  backup_openhab_config
 
   # user credentials retten
-  echo  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
+  cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
   # Settings retten
-  echo  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
+  cp -rp "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/mapdb" "${tempdir}/"
 
   # Abfrage ob Voll- oder Teilimport mit Warnung dass eigene Änderungen überschrieben werden
   mode=${1}
@@ -548,6 +546,7 @@ upgrade_ems() {
   # user credentials und Settings zurückspielen
   cp "${tempdir}/users.json" "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/"
   cp -rp "${tempdir}/mapdb" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
+  cp "${includesDir}/inmemory.persist" "${OPENHAB_USERDATA:-/var/lib/openhab}/persistence/"
   if [[ -d /opt/zram/persistence.bind/mapdb ]]; then
     cp -rp "${tempdir}/mapdb" /opt/zram/persistence.bind/
   fi
