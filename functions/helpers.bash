@@ -104,7 +104,8 @@ update_git_repo() {
   if ! cond_redirect git -C "$path" fetch --tags --force --prune; then echo "FAILED (fetch tags)"; return 1; fi
   if ! cond_redirect git -C "$path" reset --hard "origin/${branch}"; then echo "FAILED (reset to origin)"; return 1; fi
   if ! cond_redirect git -C "$path" clean --force -x -d; then echo "FAILED (clean)"; return 1; fi
-  if cond_redirect git -C "$path" checkout "${branch}"; then echo "OK"; else echo "FAILED (checkout ${branch})"; return 1; fi
+  if ! cond_redirect git -C "$path" checkout "${branch}"; then echo "FAILED (checkout ${branch})"; return 1; fi
+  if cond_redirect git -C "$path" submodule update --init --recursive; then echo "OK"; else echo "FAILED (update submodules)"; return 1; fi
 }
 ## Function to get public IP
 ## Argument 1 is optional to contain a hostname to resolve
