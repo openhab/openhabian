@@ -15,7 +15,7 @@ install_zram_code() {
   if [[ -d "${1}/zram-config" ]]; then
     if cond_redirect update_git_repo "${1}/zram-config" "openHAB"; then echo "OK"; else echo "FAILED (update zram)"; return 1; fi
   else
-    if cond_redirect git clone --branch "openHAB" "$zramGit" "$1"/zram-config; then echo "OK"; else echo "FAILED (clone zram)"; return 1; fi
+    if cond_redirect git clone --recurse-submodules --branch "openHAB" "$zramGit" "$1"/zram-config; then echo "OK"; else echo "FAILED (clone zram)"; return 1; fi
   fi
 }
 
@@ -41,26 +41,28 @@ init_zram_mounts() {
       fi
     fi
 
-    if ! dpkg -s 'make' &> /dev/null; then
-      echo -n "$(timestamp) [openHABian] Installing zram required package (make)... "
-      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" make; then echo "OK"; else echo "FAILED"; return 1; fi
+    if ! dpkg -s 'meson' &> /dev/null; then
+      echo -n "$(timestamp) [openHABian] Installing zram required package (meson)... "
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" meson; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
 
     install_zram_code "$zramInstallLocation"
 
     echo -n "$(timestamp) [openHABian] Setting up OverlayFS... "
-    if ! cond_redirect make --always-make --directory="$zramInstallLocation"/zram-config/overlayfs-tools; then echo "FAILED (make overlayfs)"; return 1; fi
-    if ! cond_redirect mkdir -p /usr/local/lib/zram-config/; then echo "FAILED (create directory)"; return 1; fi
-    if cond_redirect install -m 755 "$zramInstallLocation"/zram-config/overlayfs-tools/overlay /usr/local/lib/zram-config/overlay; then echo "OK"; else echo "FAILED (install overlayfs)"; return 1; fi
+    if ! cond_redirect rm -rf "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (remove builddir)"; return 1; fi
+    if ! cond_redirect meson setup "$zramInstallLocation"/zram-config/overlayfs-tools/builddir "$zramInstallLocation"/zram-config/overlayfs-tools; then echo "FAILED (meson setup)"; return 1; fi
+    if ! cond_redirect meson compile -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (meson compile)"; return 1; fi
+    if cond_redirect meson install -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "OK"; else echo "FAILED (meson install)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Setting up zram... "
+    if ! cond_redirect mkdir -p /usr/local/lib/zram-config/; then echo "FAILED (create directory)"; return 1; fi
     if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
     if has_highmem; then
       if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/ztab-lm /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     else
       if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/ztab /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     fi
-    
+
     if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
     if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/service/SystemD/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install zram-config.service)"; return 1; fi
     if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/zram-sync /usr/local/sbin; then echo "FAILED (install ZRAM sync script)"; return 1; fi
@@ -81,10 +83,10 @@ init_zram_mounts() {
       echo -n "$(timestamp) [openHABian] Adding InfluxDB to zram... "
       if cond_redirect sed -i '/^.*persistence.*$/a dir	zstd		150M		350M		/var/lib/influxdb		/influxdb.bind' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
     fi
-    
+
     mkdir -p /var/log/nginx   # ensure it exists on lowerfs else nginx may fail to start if zram is not synced after nginx install
-    
-    if ! openhab_is_installed; then 
+
+    if ! openhab_is_installed; then
       echo -n "$(timestamp) [openHABian] Removing openHAB persistence from zram... "
       if cond_redirect sed -i '/^.*persistence.*$/d' /etc/ztab; then echo "OK"; else echo "FAILED (sed)"; return 1; fi
     fi
@@ -121,10 +123,13 @@ init_zram_mounts() {
     if cond_redirect install_zram_code "$zramInstallLocation"; then echo "OK"; else echo "FAILED (update)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Updating OverlayFS... "
-    if ! cond_redirect make --always-make --directory="$zramInstallLocation"/zram-config/overlayfs-tools; then echo "FAILED (make overlayfs)"; return 1; fi
-    if ! cond_redirect mkdir -p /usr/local/lib/zram-config/; then echo "FAILED (create directory)"; return 1; fi
-    if cond_redirect install -m 755 "$zramInstallLocation"/zram-config/overlayfs-tools/overlay /usr/local/lib/zram-config/overlay; then echo "OK"; else echo "FAILED (install overlayfs)"; return 1; fi
+    if ! cond_redirect rm -rf "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (remove builddir)"; return 1; fi
+    if ! cond_redirect meson setup "$zramInstallLocation"/zram-config/overlayfs-tools/builddir "$zramInstallLocation"/zram-config/overlayfs-tools; then echo "FAILED (meson setup)"; return 1; fi
+    if ! cond_redirect meson compile -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (meson compile)"; return 1; fi
+    if ! cond_redirect meson install -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (meson install)"; return 1; fi
+    if cond_redirect mkdir -p /usr/local/lib/zram-config/; then echo "OK"; else echo "FAILED (create directory)"; return 1; fi
 
+    echo -n "$(timestamp) [openHABian] Updating zram logging files... "
     if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
     if ! [[ -h /var/log/zram-config ]]; then
       if ! cond_redirect ln -s /usr/local/share/zram-config/log /var/log/zram-config; then echo "FAILED (link directory)"; return 1; fi
