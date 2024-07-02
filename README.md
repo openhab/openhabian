@@ -65,9 +65,10 @@ Should you still be running an older distribution, we recommend not to upgrade t
 RPi 3 and newer have a 64 bit processor. There's openHABian images available in both, 32 and 64 bit.
 Choose yours based on your hardware and primary use case. Please be aware that you cannot change once you decided in favor of either 32 or 64 bit. Should you need to revoke your choice, export/backup your config and install a fresh system, then import your config there.
 
-Use the 64 bit image versions but please be aware that 64 bit always has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like Raspberries. If you want to go with 64 bit, ensure your RPi has a mimimum of 2 GB, 4 will put you on the safe side.
+Use the 64 bit image versions but please be aware that 64 bit always has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like Raspberries. If you want to go with 64 bit, ensure your RPi has a minimum of 2 GB, 4 will put you on the safe side.
 You can use the 32 bit version for older or non official addons that will not work on 64 bit yet.
 Note there's a known issue on 32 bit, JS rules are reported to be annoyingly slow on first startup and in some Blockly use cases.
+If you consider using the (newer but still experimental) Java version 21, choose 64 bit. Java 21 is not available for 32 bit systems.
 
 On x86 hardware, it's all 64 bit but that in turn once more increases memory usage. A NUC to run on should have no less than 8 GB.
 
