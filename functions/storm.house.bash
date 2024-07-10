@@ -539,7 +539,7 @@ upgrade_ems() {
     if ! cond_redirect wget -nv -O "$temp" "$updateonly"; then echo "FAILED (download EMS patch)"; rm -f "$temp"; return 1; fi
     ( cd /etc/openhab || return 1
     ln -sf . conf
-    unzip -o "$temp" conf/things\* conf/items\* conf/rules\* conf/transform\* conf/UI\* conf/html\* scripts\*
+    unzip -o "$temp" conf/things\* conf/items\* conf/rules\* conf/transform\* conf/UI\* conf/html\* conf/scripts\*
     rm -f conf )
   fi
 
