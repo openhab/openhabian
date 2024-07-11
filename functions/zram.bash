@@ -120,6 +120,9 @@ init_zram_mounts() {
   elif [[ -f /etc/ztab ]]; then
     echo -n "$(timestamp) [openHABian] Updating zram service... "
     if ! cond_redirect systemctl stop zram-config.service; then echo "FAILED (stop zram)"; return 1; fi
+    if ! [[ -d "$zramInstallLocation/zram-config/overlayfs-tools/.git" ]]; then
+      rm -rf "$zramInstallLocation/zram-config/overlayfs-tools"
+    fi
     if cond_redirect install_zram_code "$zramInstallLocation"; then echo "OK"; else echo "FAILED (update)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Updating OverlayFS... "
