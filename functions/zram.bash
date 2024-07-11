@@ -49,7 +49,7 @@ init_zram_mounts() {
     install_zram_code "$zramInstallLocation"
 
     echo -n "$(timestamp) [openHABian] Setting up OverlayFS... "
-    if ! cond_redirect rm -rf "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (remove builddir)"; return 1; fi
+    rm -rf "$zramInstallLocation"/zram-config/overlayfs-tools/builddir
     if ! cond_redirect meson setup "$zramInstallLocation"/zram-config/overlayfs-tools/builddir "$zramInstallLocation"/zram-config/overlayfs-tools; then echo "FAILED (meson setup)"; return 1; fi
     if ! cond_redirect meson compile -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (meson compile)"; return 1; fi
     if cond_redirect meson install -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "OK"; else echo "FAILED (meson install)"; return 1; fi
@@ -123,7 +123,7 @@ init_zram_mounts() {
     if cond_redirect install_zram_code "$zramInstallLocation"; then echo "OK"; else echo "FAILED (update)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Updating OverlayFS... "
-    if ! cond_redirect rm -rf "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (remove builddir)"; return 1; fi
+    rm -rf "$zramInstallLocation"/zram-config/overlayfs-tools/builddir
     if ! cond_redirect meson setup "$zramInstallLocation"/zram-config/overlayfs-tools/builddir "$zramInstallLocation"/zram-config/overlayfs-tools; then echo "FAILED (meson setup)"; return 1; fi
     if ! cond_redirect meson compile -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (meson compile)"; return 1; fi
     if ! cond_redirect meson install -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (meson install)"; return 1; fi
