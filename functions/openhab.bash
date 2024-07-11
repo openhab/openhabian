@@ -170,8 +170,9 @@ openhab_shell_interfaces() {
     sshPass="habopen"
   fi
 
-  if ! cond_redirect sed -i -e 's|^#.*sshHost = 0.0.0.0.*$|org.apache.karaf.shell:sshHost = 0.0.0.0|g' /etc/openhab/services/runtime.cfg; then echo "FAILED (sshHost)"; return 1; fi
-  if cond_redirect sed -i -e 's|openhab = .*,|openhab = '"${sshPass}"',|g' /var/lib/openhab/etc/users.properties; then echo "OK"; else echo "FAILED (sshPass)"; return 1; fi
+  if ! cond_redirect sed -i -e 's|^#.*sshHost = 0.0.0.0.*$|org.apache.karaf.shell:sshHost = 0.0.0.0|g' /etc/openhab/services/runtime.cfg; then echo "FAILED (sshHost in runtime.cfg)"; fi
+  if ! cond_redirect sed -i -e 's|^#.*sshHost = 0.0.0.0.*$|org.apache.karaf.shell:sshHost = 0.0.0.0|g' /var/lib/openhab/etc/org.apache.karaf.shell.cfg; then echo "FAILED (sshHost in shell.cfg)"; fi
+  if cond_redirect sed -i -e 's|openhab = .*,|openhab = '"${sshPass}"',|g' /var/lib/openhab/etc/users.properties; then echo "OK"; else echo "FAILED (sshPass)"; fi
 
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation successful!" --msgbox "$successText" 15 80
