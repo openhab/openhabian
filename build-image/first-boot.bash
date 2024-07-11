@@ -243,7 +243,7 @@ fi
 
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Updating myself from ${repositoryurl:-https://github.com/mstormi/storm.house.git}, ${clonebranch:-image} branch... "
-if [[ $(eval "$(openhabian_update "${clonebranch:-openHAB3}" &> /dev/null)") -eq 0 ]]; then
+if [[ $(eval "$(openhabian_update "${clonebranch:-image}" &> /dev/null)") -eq 0 ]]; then
   echo "OK"
 else
   echo "FAILED"
