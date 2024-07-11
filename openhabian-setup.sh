@@ -114,7 +114,8 @@ if [[ -n "$UNATTENDED" ]]; then
   install_extras
   replace_logo
   import_openhab_config
-  openhab_shell_interfaces && setup_tailscale
+  openhab_shell_interfaces
+  setup_tailscale
   vim_openhab_syntax
   nano_openhab_syntax
   multitail_openhab_scheme
