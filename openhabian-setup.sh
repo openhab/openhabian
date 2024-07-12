@@ -9,6 +9,13 @@
 # Discussion: https://community.openhab.org/t/13379
 #
 
+
+# für storm.house immer diese package-Versionen installieren
+# überschreibt Eintrag in openhabian.conf
+openhabInstallPkg=4.1.3-1
+evccInstallPkg=0.128.2
+
+
 configFile="/etc/openhabian.conf"
 if ! [[ -f $configFile ]]; then
   cp /opt/openhabian/build-image/openhabian.conf "$configFile"
@@ -41,6 +48,9 @@ else
   echo "OK"
 fi
 
+
+sed -i "s|^.*openhabpkgversion.*$|openhabpkgversion=${openhabInstallPkg}|g" "$configFile"
+sed -i "s|^.*evccpkgversion.*$|evccpkgversion=${evccInstallPkg}|g" "$configFile"
 # shellcheck disable=SC1090
 source "$configFile"
 
