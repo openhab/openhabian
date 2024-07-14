@@ -12,8 +12,8 @@
 
 # für storm.house immer diese package-Versionen installieren
 # überschreibt Eintrag in openhabian.conf
-openhabInstallPkg=4.1.3-1
-evccInstallPkg=0.128.2
+openhabForcePkg=	#4.1.3-1
+evccForcePkg=0.128.1
 
 
 configFile="/etc/openhabian.conf"
@@ -49,8 +49,12 @@ else
 fi
 
 
-sed -i "s|^.*openhabpkgversion.*$|openhabpkgversion=${openhabInstallPkg}|g" "$configFile"
-sed -i "s|^.*evccpkgversion.*$|evccpkgversion=${evccInstallPkg}|g" "$configFile"
+if [[ -n ${openhabForcePkg} ]]; then
+  sed -i "s|^.*openhabpkgversion.*$|openhabpkgversion=${openhabForcePkg}|g" "$configFile"
+fi
+if [[ -n ${evccForcePkg} ]]; then
+  sed -i "s|^.*evccpkgversion.*$|evccpkgversion=${evccForcePkg}|g" "$configFile"
+fi
 # shellcheck disable=SC1090
 source "$configFile"
 
