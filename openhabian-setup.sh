@@ -12,6 +12,7 @@
 
 # für storm.house immer diese package-Versionen installieren
 # überschreibt Eintrag in openhabian.conf
+set -x
 openhabForcePkg=	#4.1.3-1	# default in build.image/openhabian.conf
 evccForcePkg=		#0.128.1	# default in build.image/openhabian.conf
 
