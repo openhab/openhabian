@@ -58,7 +58,7 @@ jobs:
          with:
            driver-opts: network=host
        - name: Build Docker image
-         uses: docker/build-push-action@v6.3.0
+         uses: docker/build-push-action@v6.4.0
          with:
            context: .
            file: ./tests/Dockerfile.rpi4-BATS
@@ -95,7 +95,7 @@ jobs:
          with:
            driver-opts: network=host
        - name: Build Docker image
-         uses: docker/build-push-action@v6.3.0
+         uses: docker/build-push-action@v6.4.0
          with:
            context: .
            file: ./tests/Dockerfile.amd64-BATS
