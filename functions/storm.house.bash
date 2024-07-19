@@ -87,7 +87,7 @@ setup_pv_config() {
         sed -i "s|%USER|${muser}|;s|%PASS|${mpass}|" "${destfile}"
       fi
 
-      if [[ "${device}" == "pv" && "${default}" == "sofar" ]]; then
+      if [[ "${device}" == "pv" && "${default}" == "sofarsolar" ]]; then
         sed -i "s|%IP|${ip}|;s|%MODEL|${model}|;s|%SERIAL|${serial}|" "${destfile}"
       fi
     fi
