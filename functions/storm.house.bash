@@ -43,7 +43,7 @@ setup_pv_config() {
     device="${1:-pv}"
     # shellcheck disable=SC2154
     case "${device}" in
-      pv) default=${invertertype}; ip=${3:-inverterip}; mbid=${4:-${invertermodbusid}};
+      pv) default=${2:-$invertertype}; ip=${3:-inverterip}; mbid=${4:-${invertermodbusid}};
 	  if [[ ${default} == "solarman" ]]; then model=${4:-${pvmodel}}; serial=${5:-${pvserial}}; fi
 	  ;;
       bat) default=${batterytype}; ip=${3:-batteryip}; mbid=${4:-${batterymodbusid}};;
@@ -53,11 +53,11 @@ setup_pv_config() {
 
     file="${2:-${default}}"
     if [[ "${device}" == "bat" && "${2:-$batterytype}" == "hybrid" ]]; then
-        file="inv/${5:-${invertertype}}"
+        file="inv/${5:-${2:-$invertertype}}"
     fi
     if [[ "${device}" == "meter" ]]; then
       if [[ "${2:-${metertype}}" == "inverter" ]]; then
-        file="inv/${5:-${invertertype}}"
+        file="inv/${5:-${2:-$invertertype}}"
       fi
     fi
 
