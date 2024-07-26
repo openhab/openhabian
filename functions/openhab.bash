@@ -84,7 +84,7 @@ openhab_setup() {
   fi
 
   # date needs to be > Apr 1, 24 for openhab repo signing key to be valid
-  # note RPi have no RTC 
+  # note RPi have no RTC
   if [[ $(date +%y%m%d) -lt 240401 ]]; then
     systemctl stop systemd-timesyncd
     timedatectl set-time "2024-04-09 00:00:00"
@@ -176,6 +176,15 @@ openhab_shell_interfaces() {
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Operation successful!" --msgbox "$successText" 15 80
   fi
+}
+
+## Function to clean the cache for openHAB
+##
+##    openhab_clean_cache()
+##
+openhab_clean_cache() {
+  echo -n "$(timestamp) [openHABian] Cleaning the openHAB cache... "
+  if cond_redirect openhab-cli clean-cache; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Function to download and install special vim syntax for openHAB files.
