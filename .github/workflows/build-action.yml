@@ -91,11 +91,11 @@ jobs:
 
        - name: Create release template
          if: ${{ success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v') }}
-         uses: "marvinpinto/action-automatic-releases@latest"
+         uses: "softprops/action-gh-release@v2"
+         env:
+           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          with:
-           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-           title: "openHABian ${{ github.ref_name }}"
-           automatic_release_tag: "${{ github.ref_name }}"
+           name: "openHABian ${{ github.ref_name }}"
            prerelease: false
            draft: true
            files: |
