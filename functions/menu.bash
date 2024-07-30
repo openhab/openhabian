@@ -147,8 +147,8 @@ show_main_menu() {
       28\ *) 1wire_setup ;;
       29\ *) deconz_setup ;;
       2A\ *) zigbee2mqtt_setup "install";;
-      *Remove\ Zigbee2MQTT*) zigbee2mqtt_setup "remove";;      
-      2B\ *) find3_setup ;; 
+      *Remove\ Zigbee2MQTT*) zigbee2mqtt_setup "remove";;
+      2B\ *) find3_setup ;;
       *Monitor\ Mode) setup_monitor_mode ;;
       2C\ *) habapp_setup "install";;
       *Remove\ HABApp*) habapp_setup "remove";;
@@ -204,21 +204,22 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "40"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 23 118 15 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "openHAB Related" 24 118 16 --cancel-button Back --ok-button Execute \
     "41 | openHAB Release"                "Install or switch to the latest openHAB Release" \
     "   | openHAB Milestone"              "Install or switch to the latest openHAB Milestone Build" \
     "   | openHAB Snapshot"               "Install or switch to the latest openHAB Snapshot Build" \
     "42 | Upgrade legacy openHABian env"  "Upgrade openHAB 2 based OS environment to work with openHAB 3 or 4" \
     "43 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
-    "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
-    "45 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (now default)" \
+    "44 | Clean cache"                    "Clean the cache for openHAB" \
+    "45 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
+    "46 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (now default)" \
     "   | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider" \
     "   | Zulu 11 OpenJDK 32-bit"         "Install Zulu 11 32-bit OpenJDK as Java provider" \
     "   | Zulu 11 OpenJDK 64-bit"         "Install Zulu 11 64-bit OpenJDK as Java provider" \
     "   | Zulu 21 OpenJDK 64-bit"         "Install Zulu 21 64-bit OpenJDK (EXPERIMENTAL)" \
-    "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
+    "47 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
     "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of openHAB JavaScript library" \
-    "47 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \
+    "48 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \
     "   | Uninstall openhab_rules_tools"  "JS Scripting: Uninstall openhab_rules_tools" \
     3>&1 1>&2 2>&3)
     if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
@@ -231,15 +232,16 @@ show_main_menu() {
       *openHAB\ Snapshot) openhab_setup "$version" "snapshot";;
       42\ *) migrate_installation "openHAB" && openhabian_update "openHAB";;
       43\ *) openhab_shell_interfaces;;
-      44\ *) nginx_setup;;
+      44\ *) openhab_clean_cache;;
+      45\ *) nginx_setup;;
       *OpenJDK\ 11) update_config_java "11" && java_install "11";;
       *OpenJDK\ 17) update_config_java "17" && java_install "17";;
       *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
       *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
       *Zulu\ 21\ OpenJDK\ 64-bit) update_config_java "Zulu21-64" && java_install_or_update "Zulu21-64";;
-      46\ *) jsscripting_npm_install "openhab";;
+      47\ *) jsscripting_npm_install "openhab";;
       *Uninstall\ openhab-js) jsscripting_npm_install "openhab" "uninstall";;
-      47\ *) jsscripting_npm_install "openhab_rules_tools";;
+      48\ *) jsscripting_npm_install "openhab_rules_tools";;
       *Uninstall\ openhab_rules_tools) jsscripting_npm_install "openhab_rules_tools" "uninstall";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
