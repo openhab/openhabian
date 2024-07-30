@@ -185,7 +185,7 @@ openhab_shell_interfaces() {
 openhab_clean_cache() {
   echo -n "$(timestamp) [openHABian] Cleaning the openHAB cache... "
   if ! cond_redirect systemctl stop openhab.service; then echo "FAILED (stop service)"; return 1; fi
-  if ! cond_redirect openhab-cli clean-cache; then echo "FAILED (clean)"; return 1; fi
+  if ! cond_redirect yes | openhab-cli clean-cache; then echo "FAILED (clean)"; return 1; fi
   if cond_redirect systemctl restart openhab.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
 }
 
