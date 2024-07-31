@@ -65,8 +65,8 @@ chargers:
 #SKI  ski: %WBID
   host: %IP
   name: Wallbox
-#AUTH  user: %WBUSER
-#AUTH  password: %WBPASS
+#AUTHUSER  user: %WBUSER
+#AUTHPASS  password: %WBPASS
 
 vehicles:
 - type: template
