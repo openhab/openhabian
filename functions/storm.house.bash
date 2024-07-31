@@ -282,6 +282,9 @@ setup_wb_config() {
   if [[ ${5:-${wallboxid}} != "" && ${5:-${wallboxid}} != "1234567890abcdef" ]] || [[ ${1:-${wallboxtype}} == "eebus" || ${1:-${wallboxtype}} == "elliconnect" || ${1:-${wallboxtype}} == "ellipro" ]]; then
     uncomment "#SKI" "${evccConfig}"
   fi
+  if [[ ${3:-${wallboxuser}} != "" && ${3:-${wallboxuser}} != "NULL" && ${4:-${wallboxpass}} != "" && ${4:-${wallboxpass}} != "NULL" ]]; then
+    uncomment "#AUTH" "${evccConfig}"
+  fi
   if [[ ${1:-${wallboxtype}} == "demo" ]]; then
     rm -f "$evccConfig"
   fi
