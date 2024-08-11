@@ -558,7 +558,7 @@ upgrade_ems() {
   fi
 
   install_extras
-
+  openhab_shell_interfaces
   permissions_corrections   # sicherheitshalber falls Dateien durch git nicht mehr openhab gehören
 
   if [[ -n "$INTERACTIVE" ]]; then
