@@ -133,6 +133,8 @@ openhab_setup() {
 
   # see https://github.com/openhab/openhab-core/issues/1937
   echo -n "$(timestamp) [openHABian] Restarting openHAB service the hard way to play it safe... "
+  if cond_redirect systemctl restart ${ohPkgName}.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+  sleep 60
   pkill -9 java
 
   if [[ -n $INTERACTIVE ]]; then
