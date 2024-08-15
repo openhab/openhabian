@@ -52,8 +52,9 @@ basic_packages() {
     cp /etc/init.d/raspi-config /etc/init.d/openhabian-config
     sed -i -e 's/raspi-config/openhabian-config/' /etc/init.d/openhabian-config
     # Get rid of the rest
-    if ! cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" purge --yes raspi-config; then echo "FAILED (remove raspi-config)"; return 1; fi
+    if ! cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" purge --yes raspi-config; then echo "FAILED (remove raspi-config)"; fi
   fi
+  dpkg --configure -a
 
   if cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" install --yes acl arping apt-utils bash-completion bzip2 coreutils \
     curl dirmngr git htop man-db mc multitail nano nmap lsb-release screen software-properties-common \
