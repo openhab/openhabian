@@ -460,7 +460,7 @@ install_extras() {
 
 
   # timezone als Java-Parameter setzen
-  sed -ri "s|^(EXTRA_JAVA_OPTS.*)|\\1\nEXTRA_JAVA_OPTS=\"${EXTRA_JAVA_OPTS} -Duser.timezone=Europe/Berlin\"|g" "$consoleProperties"
+  sed -ri 's|^(EXTRA_JAVA_OPTS.*true.*)|\1\nEXTRA_JAVA_OPTS="${EXTRA_JAVA_OPTS} -Duser.timezone=Europe/Berlin"|g' "$consoleProperties"
 
   if [[ $(whoami) == "root" ]]; then
     if [[ ! -f /usr/local/sbin/upgrade_ems ]]; then
