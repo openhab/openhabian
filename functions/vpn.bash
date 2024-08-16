@@ -241,6 +241,7 @@ setup_tailscale() {
   if [[ -n "$tailscaleIP"  ]]; then
     sed -ri "s|^(sshHost.*)|\\1,${tailscaleIP}|g" "$consoleProperties"
   fi
+  sed -ri "s|^(sshHost.*)|\\1,0.0.0.0|g" "$consoleProperties"
   if cond_redirect sed -i -e 's|^preauthkey=.*$|preauthkey=xxxxxxxx|g' /etc/openhabian.conf; then echo "OK"; else echo "FAILED (remove tailscale pre-auth key)"; exit 1; fi
 
   return 0
