@@ -47,14 +47,7 @@ system_upgrade() {
 ##
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
-  if [[ -x $(command -v raspi-config) ]]; then
-    # Preserve cpu governor startup script
-    cp /etc/init.d/raspi-config /etc/init.d/openhabian-config
-    sed -i -e 's/raspi-config/openhabian-config/' /etc/init.d/openhabian-config
-    # Get rid of the rest
-    if ! cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" purge --yes raspi-config; then echo "FAILED (remove raspi-config)"; fi
-  fi
-  dpkg --configure -a
+  dpkg --configure -a  # just in case to ensure apt works
 
   if cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" install --yes acl arping apt-utils bash-completion bzip2 coreutils \
     curl dirmngr git htop man-db mc multitail nano nmap lsb-release screen software-properties-common \
