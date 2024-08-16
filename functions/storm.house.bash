@@ -444,6 +444,7 @@ replace_logo() {
 ##    install_extras()
 ##
 install_extras() {
+  local consoleProperties="${OPENHAB_USERDATA:-/var/lib/openhab}/etc/org.apache.karaf.shell.cfg"
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local deckey="/etc/ssl/private/ems.key"
   local solarforecastJAR=org.openhab.binding.solarforecast-3.4.0-SNAPSHOT.jar
@@ -457,6 +458,9 @@ install_extras() {
   local sudoersPath="/etc/sudoers.d"
   local addonsCfg="${OPENHAB_CONF:-/etc/openhab}/services/addons.cfg"
 
+
+  # timezone als Java-Parameter setzen
+  sed -ri "s|^(sshHost.*)|\\1,${tailscaleIP}|g" "$consoleProperties"
 
   if [[ $(whoami) == "root" ]]; then
     if [[ ! -f /usr/local/sbin/upgrade_ems ]]; then
