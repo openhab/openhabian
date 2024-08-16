@@ -115,13 +115,6 @@ timezone_setting() {
     if cond_redirect tzupdate; then echo "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
   fi
 }
-
-## Enable time synchronization via systemd-timesyncd to NTP servers obtained via DHCP
-## RPis have no RTC (hw clock)
-## Valid arguments: "enable" or "disable"
-##
-##    setup_ntp(String option)
-##
  
 ## Function for setting the locale of the current system.
 ##
