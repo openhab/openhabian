@@ -55,6 +55,7 @@ init_zram_mounts() {
     if cond_redirect meson install -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "OK"; else echo "FAILED (meson install)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Setting up zram... "
+    if ! cond_redirect mkdir -p /usr/local/lib/zram-config/; then echo "FAILED (create directory)"; return 1; fi
     if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
     if has_highmem; then
       if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/ztab-lm /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
@@ -100,7 +101,6 @@ init_zram_mounts() {
     if cond_redirect systemctl enable --now zram-config.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
   elif [[ $1 == "uninstall" ]]; then
     echo -n "$(timestamp) [openHABian] Removing zram service... "
-    if ! cond_redirect rm -rf /usr/local/lib/zram-config/; then echo "FAILED (remove directory)"; return 1; fi    # remove old location of overlay binary this can probably be removed in the future
     if ! cond_redirect systemctl stop zram-config.service zsync.service; then echo "FAILED (stop zram)"; return 1; fi
     if ! cond_redirect systemctl disable zram-config.service zsync.service; then echo "FAILED (disable service)"; return 1; fi
     if ! cond_redirect rm -f "/etc/systemd/system/{zram-config,zsync}.service"; then echo "FAILED (remove service)"; return 1; fi
@@ -114,11 +114,13 @@ init_zram_mounts() {
     if ! cond_redirect rm -f /usr/local/sbin/zram-config; then echo "FAILED (zram-config)"; return 1; fi
     if ! cond_redirect rm -f /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     if ! cond_redirect rm -rf /usr/local/share/zram-config; then echo "FAILED (zram-config share)"; return 1; fi
+    if ! cond_redirect rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
     if ! cond_redirect rm -f /var/log/zram-config; then echo "FAILED (zram-config link)"; return 1; fi
     if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
   elif [[ -f /etc/ztab ]]; then
     echo -n "$(timestamp) [openHABian] Updating zram service... "
-    if ! cond_redirect rm -rf /usr/local/lib/zram-config/; then echo "FAILED (remove directory)"; return 1; fi    # remove old location of overlay binary this can probably be removed in the future
+    if ! cond_redirect mkdir -p /usr/local/lib/zram-config/; then echo "FAILED (create directory)"; return 1; fi
+    if ! cond_redirect rm /usr/local/lib/zram-config/overlay; then echo "FAILED (remove old overlay)"; return 1; fi    # remove old location of overlay binary this can probably be removed in the future
     if ! cond_redirect systemctl stop zram-config.service; then echo "FAILED (stop zram)"; return 1; fi
     if ! [[ -d "$zramInstallLocation/zram-config/overlayfs-tools/.git" ]]; then
       rm -rf "$zramInstallLocation/zram-config/overlayfs-tools"
