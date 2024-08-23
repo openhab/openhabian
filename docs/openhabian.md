@@ -64,9 +64,9 @@ The openHABian image will install openHAB 4 by default, to have it install openH
 
 ## Hardware
 ### Hardware recommendation
-Let's put this first: our current recommendation is to get a RPi 4 with 2 or (better) 4 GB of RAM, a 3A power supply and an "Endurance" SD card.
-Cards named "Endurance" can handle more write cycles and will be more enduring under openHAB\'s use conditions.
-Prepare to make use of the [SD mirroring feature](openhabian.md#sd-mirroring), get a 2nd SD card right away, same model or at least the size of your internal one, plus a USB card reader.
+Let's put this first: our current recommendation is to get a RPi model 4 or 5 with 2 or 4 GB of RAM, whatever you can get hold of for a good price, plus an "Endurance" SD card. If you want to be on the safe side, order the official 3A power supply, else any old mobile charger will usually do.
+Cards labelled "Endurance" can handle more write cycles and will be more enduring under openHAB\'s use conditions.
+Also prepare to make use of the [SD mirroring feature](openhabian.md#sd-mirroring), get a 2nd SD card right away, same model or at least the size of your internal one, plus a USB card reader.
 
 ### Hardware support
 As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware.
