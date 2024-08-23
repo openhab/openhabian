@@ -20,7 +20,7 @@ openHABian is for starters *and* expert users. We sometimes read about people de
 Everybody wants their home automation to be stable and most people install a dedicated RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation.
 Reasonably so, this is our clear recommendation. Saving another 100 bucks is not worth putting the reliable day-to-day operations of your home at risk.
 
-Then again that being said, those who insist to can use openHABian as the starting point for their 'generic' server and run whatever software else on top.
+Then again that being said, those who want to can use openHABian as the starting point for their 'generic' server and run whatever software else on top.
 There's no genuine reason why this wouldn't work. The openHABian image is really just Raspberry Pi OS (lite) under the hood and openHABian is "just" some scripts that install a number of packages and configure the system in a specific way, optimized to run openHAB.
 
 
@@ -30,7 +30,7 @@ The openHABian image will install openHAB 4 by default, to have it install openH
 
 ## Hardware
 ### Hardware recommendation
-Let's put this first: our current recommendation is to get a RPi 4 with 2 or (better) 4 GB of RAM, a 3A power supply and an "Endurance" SD card.
+Let's put this first: our current recommendation is to get a RPi model 4 or 5 with 2 or 4 GB of RAM, whatever you can get hold of for a good price, plus an "Endurance" SD card. If you want to be on the safe side, order the official 3A power supply, else any old mobile charger will usually do.
 Cards named "Endurance" can handle more write cycles and will be more enduring under openHAB\'s use conditions.
 Prepare to make use of the [SD mirroring feature](openhabian.md#SD-mirroring), get a 2nd SD card right away, same model or at least the size of your internal one, plus a USB card reader.
 
