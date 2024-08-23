@@ -120,7 +120,7 @@ init_zram_mounts() {
   elif [[ -f /etc/ztab ]]; then
     echo -n "$(timestamp) [openHABian] Updating zram service... "
     if ! cond_redirect mkdir -p /usr/local/lib/zram-config/; then echo "FAILED (create directory)"; return 1; fi
-    if ! cond_redirect rm /usr/local/lib/zram-config/overlay; then echo "FAILED (remove old overlay)"; return 1; fi    # remove old location of overlay binary this can probably be removed in the future
+    if ! cond_redirect rm -f /usr/local/lib/zram-config/overlay; then echo "FAILED (remove old overlay)"; return 1; fi    # remove old location of overlay binary this can probably be removed in the future
     if ! cond_redirect systemctl stop zram-config.service; then echo "FAILED (stop zram)"; return 1; fi
     if ! [[ -d "$zramInstallLocation/zram-config/overlayfs-tools/.git" ]]; then
       rm -rf "$zramInstallLocation/zram-config/overlayfs-tools"
