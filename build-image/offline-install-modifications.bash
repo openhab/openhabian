@@ -4,17 +4,18 @@
 export BASEDIR="/opt/openhabian"
 export DEBIAN_FRONTEND="noninteractive"
 export PREOFFLINE="1"
-comitupfile=davesteele-comitup-apt-source_latest.deb
-comituprepo=/etc/apt/sources.d/comitup.list
+comitupurl=https://davesteele.github.io/comitup/deb/
+comitupfile=davesteele-comitup-apt-source_1.2_all.deb
+comituprepofile=/etc/apt/sources.d/comitup.list
 
 source /opt/openhabian/functions/helpers.bash
 add_keys "https://openhab.jfrog.io/artifactory/api/gpg/key/public" "openhab"
 echo "deb [signed-by=/usr/share/keyrings/openhab.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main" > /etc/apt/sources.list.d/openhab.list
-wget -nv "https://davesteele.github.io/comitup/latest/$comitupfile"
+wget -nv "${comitupurl}/$comitupfile"
 dpkg -i --force-all "$comitupfile"
 rm -f "$comitupfile"
-if [[ ! -f ${comituprepo} ]]; then # you know a better check?
-  echo "deb http://davesteele.github.io/comitup/repo comitup main" > $comituprepo
+if [[ ! -f ${comituprepofile} ]]; then # you know a better check?
+  echo "deb http://davesteele.github.io/comitup/repo comitup main" > $comituprepofile
 fi
 apt-get --quiet update
 apt-get --quiet upgrade --yes
