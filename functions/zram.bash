@@ -65,7 +65,7 @@ init_zram_mounts() {
 
     if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
     if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/service/SystemD/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install zram-config.service)"; return 1; fi
-    if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/zram-sync /usr/local/sbin; then echo "FAILED (install ZRAM sync script)"; return 1; fi
+    if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/zram-sync /usr/local/sbin; then echo "FAILED (install ZRAM sync script)"; return 1; fi
     if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}/includes/SD"/zsync.* /etc/systemd/system/; then echo "FAILED (install ZRAM sync service)"; return 1; fi
     # issue with openhab log stopping due to log4j2
     #if ! cond_redirect systemctl enable --now zsync.timer &> /dev/null; then echo "FAILED (enable zram sync timer)"; return 1; fi
@@ -131,7 +131,7 @@ init_zram_mounts() {
     rm -rf "$zramInstallLocation"/zram-config/overlayfs-tools/builddir
     if ! cond_redirect meson setup "$zramInstallLocation"/zram-config/overlayfs-tools/builddir "$zramInstallLocation"/zram-config/overlayfs-tools; then echo "FAILED (meson setup)"; return 1; fi
     if ! cond_redirect meson compile -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (meson compile)"; return 1; fi
-    if ! cond_redirect meson install -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "FAILED (meson install)"; return 1; fi
+    if cond_redirect meson install -C "$zramInstallLocation"/zram-config/overlayfs-tools/builddir; then echo "OK"; else echo "FAILED (meson install)"; return 1; fi
 
     echo -n "$(timestamp) [openHABian] Updating zram logging files... "
     if ! cond_redirect mkdir -p /usr/local/share/zram-config/log; then echo "FAILED (create directory)"; return 1; fi
