@@ -110,7 +110,8 @@ liberica_install_apt() {
   elif dpkg -s $pkgname &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Reconfiguring BellSoft Liberica JDK... "
     if cond_redirect dpkg-reconfigure $pkgname; then echo "OK"; else echo "FAILED"; return 1; fi
-    update-alternatives --set java $(ls -d /usr/lib/jvm/bellsoft-java21-lite-* |head -n1)/bin/java
+    # shellcheck disable=SC2012
+    update-alternatives --set java "$(ls -d /usr/lib/jvm/bellsoft-java21-lite-* |head -n1)"/bin/java
   fi
 }
 
