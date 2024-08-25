@@ -216,7 +216,8 @@ show_main_menu() {
     "   | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider" \
     "   | Zulu 11 OpenJDK 32-bit"         "Install Zulu 11 32-bit OpenJDK as Java provider" \
     "   | Zulu 11 OpenJDK 64-bit"         "Install Zulu 11 64-bit OpenJDK as Java provider" \
-    "   | Zulu 21 OpenJDK 64-bit"         "Install Zulu 21 64-bit OpenJDK (EXPERIMENTAL)" \
+    "   | Zulu 21 OpenJDK 64-bit"         "Install Zulu 21 64-bit OpenJDK as Java provider" \
+    "   | BellSoft Liberica JDK 21"       "Install BellSoft Liberica JDK 21, supports 32bit RPi (EXPERIMENTAL)" \
     "47 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
     "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of openHAB JavaScript library" \
     "48 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \
@@ -239,6 +240,7 @@ show_main_menu() {
       *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
       *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
       *Zulu\ 21\ OpenJDK\ 64-bit) update_config_java "Zulu21-64" && java_install_or_update "Zulu21-64";;
+      *BellSoft\ Liberica\ JDK\ 21) update_config_java "BellSoft21" && java_install_or_update "BellSoft21";;
       47\ *) jsscripting_npm_install "openhab";;
       *Uninstall\ openhab-js) jsscripting_npm_install "openhab" "uninstall";;
       48\ *) jsscripting_npm_install "openhab_rules_tools";;
