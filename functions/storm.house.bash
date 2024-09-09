@@ -457,9 +457,6 @@ install_extras() {
   local addonsCfg="${OPENHAB_CONF:-/etc/openhab}/services/addons.cfg"
 
 
-  # timezone als Java-Parameter setzen
-  sed -ri 's|^(EXTRA_JAVA_OPTS.*interning=true)"|\1 -Duser.timezone=Europe/Berlin"|g' "$consoleProperties"
-
   if [[ $(whoami) == "root" ]]; then
     if [[ ! -f /usr/local/sbin/upgrade_ems ]]; then
       if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/upgrade_ems; then echo "FAILED (install upgrade_ems script)"; fi
