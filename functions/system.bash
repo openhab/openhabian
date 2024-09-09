@@ -100,7 +100,7 @@ timezone_setting() {
   elif [[ -n $timezone ]]; then
     echo -n "$(timestamp) [openHABian] Setting timezone based on openhabian.conf... "
     if ! running_in_docker && ! running_on_github; then
-      if cond_redirect timedatectl set-timezone "$timezone"; then echo "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
+      if cond_redirect timedatectl set-timezone "$timezone"; then echo "OK ($(timedatectl | grep zone | cut -d: -f2))"; else echo "FAILED"; return 1; fi
     else
       echo "SKIPPED"
     fi
