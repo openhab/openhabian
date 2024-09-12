@@ -114,8 +114,6 @@ timezone_setting() {
     if ! cond_redirect pip3 install --upgrade tzupdate; then echo "FAILED (update tzupdate)"; return 1; fi
     if cond_redirect tzupdate; then echo "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
   fi
-  
-  sed -ri "s|^(EXTRA_JAVA_OPTS.*interning=true)|\1 -Duser.timezone=${timezone:-Europe/London}|g" /etc/default/openhab
 }
  
 ## Function for setting the locale of the current system.
