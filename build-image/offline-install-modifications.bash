@@ -11,12 +11,19 @@ comituprepofile=/etc/apt/sources.d/comitup.list
 source /opt/openhabian/functions/helpers.bash
 add_keys "https://openhab.jfrog.io/artifactory/api/gpg/key/public" "openhab"
 echo "deb [signed-by=/usr/share/keyrings/openhab.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main" > /etc/apt/sources.list.d/openhab.list
+
+# comitup hotspot
 wget -nv "${comitupurl}/$comitupfile"
 dpkg -i --force-all "$comitupfile"
 rm -f "$comitupfile"
-if [[ ! -f ${comituprepofile} ]]; then # you know a better check?
+if [[ ! -f ${comituprepofile} ]]; then
   echo "deb http://davesteele.github.io/comitup/repo comitup main" > $comituprepofile
 fi
+
+# tailscale VPN
+curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
+  
 apt-get --quiet update
 apt-get --quiet upgrade --yes
 apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \
@@ -33,7 +40,7 @@ apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \
   python3-cairo python3-click python3-colorama python3-flask \
   python3-itsdangerous python3-jinja2 python3-markupsafe \
   python3-networkmanager python3-pyinotify python3-simplejson python3-werkzeug \
-  openjdk-17-jre-headless
+  openjdk-17-jre-headless tailscale
 source /opt/openhabian/functions/nodejs-apps.bash
 nodejs_setup
 apt-get --quiet autoremove --yes
