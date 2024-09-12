@@ -444,6 +444,7 @@ replace_logo() {
 ##    install_extras()
 ##
 install_extras() {
+  # shellcheck disable=SC2034
   local consoleProperties="${OPENHAB_USERDATA:-/var/lib/openhab}/etc/org.apache.karaf.shell.cfg"
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local deckey="/etc/ssl/private/ems.key"
