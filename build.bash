@@ -4,7 +4,7 @@ set -e
 set -x
 
 ####################################################################
-#### dummy: changed this line 21 times to force another image build
+#### dummy: changed this line 22 times to force another image build
 ####################################################################
 
 usage() {
