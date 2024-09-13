@@ -44,7 +44,7 @@
 swap	lzo-rle		200M		500M		75		0		150
 
 # dir	alg		mem_limit	disk_size	target_dir			bind_dir
-dir	zstd		150M		375M		/var/lib/openhab/persistence	/persistence.bind
+dir	zstd		150M		500M		/var/lib/openhab/persistence	/persistence.bind
 
 # log	alg		mem_limit	disk_size	target_dir		bind_dir		oldlog_dir
 log	zstd		200M		500M		/var/log		/log.bind
