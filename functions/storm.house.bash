@@ -146,8 +146,10 @@ setup_charger() {
 ## valid arguments:
 ## #1 IP address of washing machine actuator
 ## #2 IP address of dish washer actuator
-## #3 user name to access Shelly actuators (common to all white good actuators)
-## #4 password to access Shelly actuators (common to all white good actuators)
+## #3 IP address of fridge actuator
+## #4 IP address of freezer actuator
+## #5 user name to access Shelly actuators (common to all white good actuators)
+## #6 password to access Shelly actuators (common to all white good actuators)
 ##
 ##    setup_whitegood_config(String washing machine IP,String dish washer IP,String actuator user name,String actuator password)
 ##
@@ -163,12 +165,12 @@ setup_whitegood_config() {
   local wpass
 
 
-  wuser=${3:-${whitegooduser}}
+  wuser=${5:-${whitegooduser}}
   if [[ $wuser == "NULL" ]]; then wuser=""; fi
-  wpass=${4:-${whitegoodpass}}
+  wpass=${6:-${whitegoodpass}}
   if [[ $wpass == "NULL" ]]; then wpass=""; fi
-  #sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%USER|${3:-${whitegooduser}}|;s|%PASS|${4:-${whitegoodpass}}|" "${srcfile}" > "${destfile}"
-  sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%USER|${wuser}|;s|%PASS|${wpass}|" "${srcfile}" > "${destfile}"
+  #sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%IPK|${3:-${fridgeip}}|;s|%IPT|${4:-${freezerip}}|;s|%USER|${5:-${whitegooduser}}|;s|%PASS|${6:-${whitegoodpass}}|" "${srcfile}" > "${destfile}"
+  sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%IPK|${3:-${fridgeip}}|;s|%IPT|${4:-${freezerip}}|;s|%USER|${wuser}|;s|%PASS|${wpass}|" "${srcfile}" > "${destfile}"
 }
 
 
