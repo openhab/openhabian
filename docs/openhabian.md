@@ -11,7 +11,8 @@ source: https://github.com/openhab/openhabian/blob/main/docs/openhabian.md
 # openHABian - Hassle-free openHAB Setup
 You just discovered openHAB and now you are eager to start but you're afraid of setting up a computer and OS for it ?
 
-openHABian is here to help. It's a **self-configuring** Linux system setup to reliably operate your openHAB instance 24 hours a day.
+openHABian is here to help.
+It's a **self-configuring** Linux system setup to reliably operate your openHAB instance 24 hours a day.
 It provides:
 
 *   Complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of small single-board computers.
