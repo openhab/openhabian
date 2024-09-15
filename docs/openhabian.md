@@ -303,7 +303,8 @@ That being said, openHABian has a number of built in software features we borrow
     Zram is enabled by default for swap, logs and persistence data.
     You can toggle use in \[menu option 38\].
     
-2.  Mirror your SD card!
+2.  SD cards, SSDs and HDDs can break or crash just like any hardware.
+    Mirror your SD card to have a ready-to-use alternative boot medium ready on site at any time !
     Get an USB card writer and another SD card and set up SD mirroring using \[menu option 53\].
     This will ensure you have an always ready-to-use clone of your storage medium handy at all times.
     In case of emergency, you can simply swap SD cards and get back online within just a few minutes.
@@ -311,7 +312,7 @@ That being said, openHABian has a number of built in software features we borrow
 
 ::: tip remote replacement
 Disasters love to happen when you're not at home. 
-With an openHABian RPi mirror SD setup, you can instruct your partner or even kid or your cottage neighbour to replace the SD card and/or computer from remote, by phone. No need for Internet access.
+With an openHABian RPi mirror SD setup, you can instruct your partner, kid or your cottage neighbour to replace the SD card and/or computer from remote, by phone. No need for Internet or any sort of configuring to get your system back up running.
 :::
 
 3.  Use the integrated original openHAB [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) at regular intervals to interactively backup/restore your openHAB **config** \[menu option 50/51\].
