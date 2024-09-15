@@ -314,7 +314,7 @@ With an openHABian RPi mirror SD setup, you can instruct your partner or even ki
 
 3.  Use the integrated original openHAB [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) at regular intervals to interactively backup/restore your openHAB **config** \[menu option 50/51\].
 4.  Use [Amanda Network Backup](http://www.amanda.org/) to create full system backups.
-    HEADS UP: This is NOT meant to be are replacement for #1 or #3, it's a *complement* that will also enable you to restore your system to any point in time of the past.
+    HEADS UP: This is NOT meant to be a replacement for #1 or #3, it's a *complement* that will also enable you to restore your system to any point in time of the past.
     The specific [Amanda documentation is here](openhabian-amanda.md).
     Use \[menu option 52\] to set up.
 5.  For completeness, openHABian still provides the historic option to move the root filesystem to USB-attached devices. See \[menu option 37\].
@@ -328,6 +328,7 @@ With an openHABian RPi mirror SD setup, you can instruct your partner or even ki
 Standard openHABian install enables zram by default (#1).
 You can disable zram and move the system over using menu options 37 (#5) once you attached a _safe_ external medium to your system (such as an SSD), but we recommend against doing so.
 [To restate](#befair): this setup is not supported by us maintainers and you'll be on your very own to find and fix any problems you might run into.
+
 Finally, we strongly suggest you install Amanda (#4) right after you finish your setup.
 Amanda is to take care to backup the whole system to be able to quickly restore it when in need.
 This is not done by default because it requires a number of user inputs, but you should not skip it for your own safety!
