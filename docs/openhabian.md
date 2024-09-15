@@ -284,14 +284,14 @@ They can be changed from openHABian menu.
 openHABian is designed to reliably run 24 hours a day, seven days a week. That's a complex challenge involving hardware, software and operational procedures.
 This is the right time to prepare your system for disasters such as getting hit by hardware outages or the SD card wear-out/corruption problem.
 
-Preparing for hardware breakage is the challenge that is the most easy one to overcome with common-off-the-shelf hardware that is known to work as a drop-in replacement the very moment you will be in need of it (i.e. when your smart home server just died).
+Preparing for hardware breakage is the challenge that is the most easy one to overcome with common-off-the-shelf hardware that is known to work as a drop-in replacement the very moment you will be in need of (e.g. when your smart home server just died).
 
 ::: tip get your spare hardware ready
 Order **spare** pieces of *all* hardware components your home automation relies on to work. At a minimum, that's the computer itself and another storage medium.
 Have it ready for use *on site*, unboxed, mounted and tested to be working.
 :::
 
-HEADS UP: that statement applies to EVERY hardware setup, even if you run openHAB in some virtualization environment on a $$$ x86 server rackmounted in your basement.
+**HEADS UP:** that statement applies to EVERY hardware setup, even if you run openHAB in some virtualization environment on some $$$ x86 server rackmounted in your basement.
 For our recommended hardware setup that means getting another Raspberry Pi (same model), 2 more SD cards and a power supply (in case of emergency, a smartphone charger will also do).
 
 That being said, openHABian has a number of built in software features we borrowed from professional data center operations.
@@ -301,6 +301,7 @@ That being said, openHABian has a number of built in software features we borrow
     WARNING: power failure will result in some data to get lost (albeit the system should continue to run) so we recommend to also get an UPS.
     Zram is enabled by default for swap, logs and persistence data.
     You can toggle use in \[menu option 38\].
+    
 2.  Mirror your SD card!
     Get an USB card writer and another SD card and set up SD mirroring using \[menu option 53\].
     This will ensure you have an always ready-to-use clone of your storage medium handy at all times.
@@ -313,10 +314,12 @@ With an openHABian RPi mirror SD setup, you can instruct your partner or even ki
 :::
 
 3.  Use the integrated original openHAB [openhab-cli tool](https://community.openhab.org/t/recommended-way-to-backup-restore-oh2-configurations-and-things/7193/82) at regular intervals to interactively backup/restore your openHAB **config** \[menu option 50/51\].
+
 4.  Use [Amanda Network Backup](http://www.amanda.org/) to create full system backups.
     HEADS UP: This is NOT meant to be a replacement for #1 or #3, it's a *complement* that will also enable you to restore your system to any point in time of the past.
     The specific [Amanda documentation is here](openhabian-amanda.md).
     Use \[menu option 52\] to set up.
+    
 5.  For completeness, openHABian still provides the historic option to move the root filesystem to USB-attached devices. See \[menu option 37\].
     We don't recommend or support doing so but if you're convinced this is beneficial to your situation, feel free to go for it.
 
