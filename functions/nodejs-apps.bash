@@ -297,14 +297,14 @@ zigbee2mqtt_setup() {
 
   # get usb adapters for radio menu
   while IFS= read -r line; do
-    my_adapters="$my_adapters $line $loopSel "
+    my_adapters="$my_adapters $line /dev/serial/$loopSel "
     by_path_or_id="by-id"
     loopSel=0
   done < <( ls /dev/serial/by-id )
 
   if [[ $my_adapters == "" ]] ; then
     while IFS= read -r line; do
-      my_adapters="$my_adapters $line $loopSel "
+      my_adapters="$my_adapters $line /dev/serial/$loopSel "
       by_path_or_id="by-path"
       loopSel=0
     done < <( ls /dev/serial/by-path )
