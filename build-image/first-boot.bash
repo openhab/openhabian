@@ -158,12 +158,12 @@ if [[ $(date +%y%m%d) -lt 240410 ]]; then
 fi
 
 echo -n "$(timestamp) [openHABian] Ensuring network connectivity... "
-if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 5 1; then
+if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head https://www.openhab.org/docs/ |& grep -qs 'HTTP/[^ ]*[ ]200'" 5 1; then
   echo "FAILED"
 
   if [[ "$hotSpot" == "enable" ]] && ! [[ -x $(command -v comitup) ]]; then
     setup_hotspot install
-    tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 3 1
+    tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head https://www.openhab.org/docs/ |& grep -qs 'HTTP/[^ ]*[ ]200'" 3 1
     systemctl restart comitup
     echo "OK"
   fi
@@ -174,7 +174,7 @@ if ! running_in_docker && tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --sile
   echo "                          After about an hour, we will continue trying to get your system installed,"
   echo "                          but without proper Internet connectivity this is not likely to be going to work."
 
-  tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head http://www.openhab.org/docs |& grep -qs 'HTTP/1.1 200 OK'" 100 30
+  tryUntil "ping -c1 8.8.8.8 &> /dev/null || curl --silent --head https://www.openhab.org/docs/ |& grep -qs 'HTTP/[^ ]*[ ]200'" 100 30
 else
   echo "OK"
 fi
