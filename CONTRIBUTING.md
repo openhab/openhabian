@@ -16,14 +16,20 @@ Get in contact early in the development to propose your idea.
 ## Conventions
 
 Fork the repo and make changes on your fork in a feature branch.
-Then be sure to update the documentation when creating or modifying features.
-Test your changes for clarity, concision, and correctness, as well as a clean documentation build.
+Then be sure to also provide or update the documentation right when creating or modifying features.
 
+### Code architecture
 Always write clean, modular and testable code.
 We have a simple [code-style](#codestyle) which in combination with the static linter [ShellCheck](https://www.shellcheck.net/) works as our coding guidelines.
 
-Pull requests descriptions should be as clear as possible and include a reference to all the issues that they address.
+Every addition to openHABian is supposed to work in both, unattended and interactive mode.
+Any 3rd party SW needs an installation routine that takes "install" and "uninstall" as parameters. Calling that from a menu or script branch will then be easy.
+Plus when required, do the configuration works in another "setup" routine so it can be called at any later time without un- or reinstalling anything.
+Ideally, it even detects and auto-adapts to the version installed so would work with older SW versions as well.
+Have a look at the implementation for EVCC in `packages.bash` as a template for 3rd party software.
 
+### Code handling
+Pull requests descriptions should be as clear as possible and include a reference to all the issues that they address.
 Pull requests must not contain commits from other users or branches.
 
 Commit messages **must** start with a capitalized and short summary (max. 50 chars) written in the imperative, followed by an optional, more detailed explanatory text which is separated from the summary by an empty line.
