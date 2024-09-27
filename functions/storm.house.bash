@@ -157,20 +157,27 @@ setup_charger() {
 
 # TBV: wie leere user/pass abfangen ?
 setup_whitegood_config() {
-  local thing=weisseWare.things
-  local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
-  local srcfile="${dir}/STORE/${thing}"
-  local destfile="${dir}/${thing}"
+  local thing#=weisseWare.things
+  local dir#="${OPENHAB_CONF:-/etc/openhab}/things/"
+  local srcfile#="${dir}/STORE/${thing}"
+  local destfile#="${dir}/${thing}"
   local wuser
   local wpass
 
 
-  wuser=${5:-${whitegooduser}}
-  if [[ $wuser == "NULL" ]]; then wuser=""; fi
-  wpass=${6:-${whitegoodpass}}
-  if [[ $wpass == "NULL" ]]; then wpass=""; fi
-  #sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%IPK|${3:-${fridgeip}}|;s|%IPT|${4:-${freezerip}}|;s|%USER|${5:-${whitegooduser}}|;s|%PASS|${6:-${whitegoodpass}}|" "${srcfile}" > "${destfile}"
-  sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%IPK|${3:-${fridgeip}}|;s|%IPT|${4:-${freezerip}}|;s|%USER|${wuser}|;s|%PASS|${wpass}|" "${srcfile}" > "${destfile}"
+  for component in things rules; do
+    dir="${OPENHAB_CONF:-/etc/openhab}/${component}/"
+    srcfile="${dir}/STORE/weisseWare.${component}"
+    destfile="${dir}/wesseWare.${component}"
+
+    wuser=${5:-${whitegooduser}}
+    if [[ $wuser == "NULL" ]]; then wuser=""; fi
+    wpass=${6:-${whitegoodpass}}
+    if [[ $wpass == "NULL" ]]; then wpass=""; fi
+
+    # wird auch für weisseWare.rules ausgeführt
+    sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%IPK|${3:-${fridgeip}}|;s|%IPT|${4:-${freezerip}}|;s|%USER|${wuser}|;s|%PASS|${wpass}|" "${srcfile}" > "${destfile}"
+  done
 }
 
 
