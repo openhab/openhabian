@@ -65,7 +65,7 @@ setup_pv_config() {
     destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
     rm -f "$destfile"
 
-    if [[ ${2:-${default}} != "custom" ]] && [[ ${2:-${default}} != "keine" ]] && [[ -f ${srcfile} ]]; then
+    if [[ ${2:-${default}} != "custom" ]] && [[ -f ${srcfile} ]]; then
       cp -p "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
       if [[ $(whoami) == "root" ]]; then
         chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
