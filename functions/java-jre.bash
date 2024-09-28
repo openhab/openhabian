@@ -54,27 +54,13 @@ openjdk_install_apt() {
   if ! dpkg -s "openjdk-${1}-jre-headless" &> /dev/null; then # Check if already is installed
     openjdk_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing OpenJDK ${1}... "
-
-    if openhab_is_running; then
-      cond_redirect systemctl stop openhab.service
-    fi
-
     cond_redirect java_alternatives_reset
     if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
-
-    if openhab_is_installed; then
-      cond_redirect systemctl restart openhab.service
-    fi
-
   elif dpkg -s "openjdk-${1}-jre-headless" &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Reconfiguring OpenJDK ${1}... "
     cond_redirect java_alternatives_reset
     if cond_redirect dpkg-reconfigure "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
     update-alternatives --set java /usr/lib/jvm/java-"${1}"-openjdk-armhf/bin/java
-
-    if openhab_is_installed; then
-      cond_redirect systemctl restart openhab.service
-    fi
   fi
 }
 
@@ -111,7 +97,7 @@ liberica_install_apt() {
     echo -n "$(timestamp) [openHABian] Reconfiguring BellSoft Liberica JDK... "
     if cond_redirect dpkg-reconfigure $pkgname; then echo "OK"; else echo "FAILED"; return 1; fi
     # shellcheck disable=SC2012
-    update-alternatives --set java "$(ls -d /usr/lib/jvm/bellsoft-java21-lite-* |head -n1)"/bin/java
+    update-alternatives --set java "$(ls -d /usr/lib/jvm/bellsoft-java21-lite-* | head -n1)"/bin/java
   fi
 }
 
