@@ -235,6 +235,7 @@ zigbee2mqtt_setup() {
   local installText="Zigbee2MQTT is installed from the official repository.\\n\\nPlease wait about 4 minutes... "
   local uninstallText="Zigbee2MQTT is completely removed from the system."
   local adapterText="Please select your zigbee adapter:"
+  local adapterNetw="No USB dongle was found. If you use a network adapter please specify its ip:port."
   local mqttUserText="\\nPlease enter your MQTT-User (default = openhabian):"
   local mqttPWText="\\nIf your MQTT-server requires a password, please enter it here:"
   local my_adapters
@@ -298,16 +299,23 @@ zigbee2mqtt_setup() {
   # get usb adapters for radio menu
   while IFS= read -r line; do
     my_adapters="$my_adapters $line $loopSel "
-    by_path_or_id="by-id"
+    by_path_or_id="/dev/serial/by-id"
     loopSel=0
   done < <( ls /dev/serial/by-id )
 
   if [[ $my_adapters == "" ]] ; then
     while IFS= read -r line; do
       my_adapters="$my_adapters $line $loopSel "
-      by_path_or_id="by-path"
+      by_path_or_id="/dev/serial/by-path"
       loopSel=0
     done < <( ls /dev/serial/by-path )
+  fi
+
+  if [[ $my_adapters == "" ]] ; then
+    if ! selectedAdapter=$(whiptail --title "Zigbee Network Coordinator" --inputbox "$adapterNetw" 10 80 "xxx.xxx.xxx.xxx:port" 3>&1 1>&2 2>&3); then return 0; fi
+    by_path_or_id="tcp:/"
+  else
+    if ! selectedAdapter=$(whiptail --noitem --title "Zigbee2MQTT installation" --radiolist "$adapterText" 14 100 4 $my_adapters 3>&1 1>&2 2>&3); then return 0; fi
   fi
 
   unset IFS
@@ -316,7 +324,6 @@ zigbee2mqtt_setup() {
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "CANCELED"; return 0; fi
     # shellcheck disable=SC2086
-    if ! selectedAdapter=$(whiptail --noitem --title "Zigbee2MQTT installation" --radiolist "$adapterText" 14 100 4 $my_adapters 3>&1 1>&2 2>&3); then return 0; fi
     if ! mqttUser=$(whiptail --title "MQTT User" --inputbox "$mqttUserText" 10 80 "$mqttDefaultUser" 3>&1 1>&2 2>&3); then return 0; fi
     if ! mqttPW=$(whiptail --title "MQTT password" --passwordbox "$mqttPWText" 10 80 3>&1 1>&2 2>&3); then return 0; fi
     if ! (whiptail --title "Zigbee2MQTT installation" --infobox "$installText" 14 80); then echo "CANCELED"; return 0; fi
