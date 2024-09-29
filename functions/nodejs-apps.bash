@@ -311,19 +311,18 @@ zigbee2mqtt_setup() {
     done < <( ls /dev/serial/by-path )
   fi
 
-  if [[ $my_adapters == "" ]] ; then
-    if ! selectedAdapter=$(whiptail --title "Zigbee Network Coordinator" --inputbox "$adapterNetw" 10 80 "xxx.xxx.xxx.xxx:port" 3>&1 1>&2 2>&3); then return 0; fi
-    by_path_or_id="tcp:/"
-  else
-    if ! selectedAdapter=$(whiptail --noitem --title "Zigbee2MQTT installation" --radiolist "$adapterText" 14 100 4 $my_adapters 3>&1 1>&2 2>&3); then return 0; fi
-  fi
-
   unset IFS
   
   # ask for user input parameters
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "CANCELED"; return 0; fi
-    # shellcheck disable=SC2086
+    if [[ $my_adapters == "" ]] ; then
+      if ! selectedAdapter=$(whiptail --title "Zigbee Network Coordinator" --inputbox "$adapterNetw" 10 80 "xxx.xxx.xxx.xxx:port" 3>&1 1>&2 2>&3); then return 0; fi
+      by_path_or_id="tcp:/"
+    else
+      # shellcheck disable=SC2086
+      if ! selectedAdapter=$(whiptail --noitem --title "Zigbee2MQTT installation" --radiolist "$adapterText" 14 100 4 $my_adapters 3>&1 1>&2 2>&3); then return 0; fi
+    fi
     if ! mqttUser=$(whiptail --title "MQTT User" --inputbox "$mqttUserText" 10 80 "$mqttDefaultUser" 3>&1 1>&2 2>&3); then return 0; fi
     if ! mqttPW=$(whiptail --title "MQTT password" --passwordbox "$mqttPWText" 10 80 3>&1 1>&2 2>&3); then return 0; fi
     if ! (whiptail --title "Zigbee2MQTT installation" --infobox "$installText" 14 80); then echo "CANCELED"; return 0; fi
