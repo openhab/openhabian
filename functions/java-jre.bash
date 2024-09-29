@@ -64,6 +64,43 @@ openjdk_install_apt() {
   fi
 }
 
+## Fetch BellSoft Liberica JDK using APT repository.
+##
+##    liberica_fetch_apt()
+##
+liberica_fetch_apt() {
+  local pkgname="bellsoft-java21-lite"
+  if ! apt-cache show $pkgname &> /dev/null; then
+    local keyName="bellsoft_liberica"
+
+    if ! add_keys "https://download.bell-sw.com/pki/GPG-KEY-bellsoft" "$keyName"; then return 1; fi
+
+    echo -n "$(timestamp) [openHABian] Adding BellSoft repository to apt... "
+
+    # architectures available: amd64, i386, arm64, armhf; those could be added to the repo string via [arch=...]
+    if ! echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.bell-sw.com/ stable main" > /etc/apt/sources.list.d/bellsoft.list; then echo "FAILED"; return 1; fi
+    if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
+  fi
+}
+
+## Install BellSoft Liberica JDK using APT repository.
+##
+##    liberica_install_apt()
+##
+liberica_install_apt() {
+  local pkgname="bellsoft-java21-lite"
+  if ! dpkg -s $pkgname &> /dev/null; then # Check if already is installed
+    liberica_fetch_apt
+    echo -n "$(timestamp) [openHABian] Installing BellSoft Liberica JDK... "
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" $pkgname; then echo "OK"; else echo "FAILED"; return 1; fi
+  elif dpkg -s $pkgname &> /dev/null; then
+    echo -n "$(timestamp) [openHABian] Reconfiguring BellSoft Liberica JDK... "
+    if cond_redirect dpkg-reconfigure $pkgname; then echo "OK"; else echo "FAILED"; return 1; fi
+    # shellcheck disable=SC2012
+    update-alternatives --set java "$(ls -d /usr/lib/jvm/bellsoft-java21-lite-* | head -n1)"/bin/java
+  fi
+}
+
 # LEGACY SECTION
 
 ## Install appropriate Java version based on current choice.
@@ -117,6 +154,8 @@ java_install_or_update() {
           fi
         fi
       fi
+    elif [[ $1 == "BellSoft21" ]]; then
+      liberica_install_apt
     else # Default to 32-bit installation
       if cond_redirect java_zulu_update_available "Zulu11-32"; then
         java_zulu_prerequisite "Zulu11-32"
