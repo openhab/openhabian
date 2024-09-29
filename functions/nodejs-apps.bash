@@ -317,6 +317,7 @@ zigbee2mqtt_setup() {
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "CANCELED"; return 0; fi
     if [[ $my_adapters == "" ]] ; then
+      # No usb dongle found. ask user to specify network dongle ip
       if ! selectedAdapter=$(whiptail --title "Zigbee Network Coordinator" --inputbox "$adapterNetw" 10 80 "xxx.xxx.xxx.xxx:port" 3>&1 1>&2 2>&3); then return 0; fi
       by_path_or_id="tcp:/"
     else
