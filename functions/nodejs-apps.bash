@@ -235,7 +235,7 @@ zigbee2mqtt_setup() {
   local installText="Zigbee2MQTT is installed from the official repository.\\n\\nPlease wait about 4 minutes... "
   local uninstallText="Zigbee2MQTT is completely removed from the system."
   local adapterText="Please select your zigbee adapter:"
-  local adapterNetw="No USB dongle was found. If you use a network adapter please specify its ip:port."
+  local adapterNetw="\\nNo USB dongle was found. If you use a network adapter please specify its ip:port."
   local mqttUserText="\\nPlease enter your MQTT-User (default = openhabian):"
   local mqttPWText="\\nIf your MQTT-server requires a password, please enter it here:"
   local my_adapters
