@@ -144,12 +144,13 @@ setup_charger() {
 
 ## Generate/copy openHAB config for whitegood appliances
 ## valid arguments:
-## #1 IP address of washing machine actuator
-## #2 IP address of dish washer actuator
-## #3 IP address of fridge actuator
-## #4 IP address of freezer actuator
-## #5 user name to access Shelly actuators (common to all white good actuators)
-## #6 password to access Shelly actuators (common to all white good actuators)
+## #1 Shelly actuator type (common to all white good actuators)
+## #2 IP address of washing machine actuator
+## #3 IP address of dish washer actuator
+## #4 IP address of fridge actuator
+## #5 IP address of freezer actuator
+## #6 user name to access Shelly actuators (common to all white good actuators)
+## #7 password to access Shelly actuators (common to all white good actuators)
 ##
 ##    setup_whitegood_config(String washing machine IP,String dish washer IP,String actuator user name,String actuator password)
 ##
@@ -165,18 +166,18 @@ setup_whitegood_config() {
   local wpass
 
 
-  for component in things rules; do
+  for component in things items rules; do
     dir="${OPENHAB_CONF:-/etc/openhab}/${component}/"
     srcfile="${dir}/STORE/weisseWare.${component}"
-    destfile="${dir}/wesseWare.${component}"
+    destfile="${dir}/weisseWare.${component}"
 
-    wuser=${5:-${whitegooduser}}
+    wuser=${6:-${whitegooduser}}
     if [[ $wuser == "NULL" ]]; then wuser=""; fi
-    wpass=${6:-${whitegoodpass}}
+    wpass=${7:-${whitegoodpass}}
     if [[ $wpass == "NULL" ]]; then wpass=""; fi
 
     # wird auch für weisseWare.rules ausgeführt
-    sed -e "s|%IPW|${1:-${washingmachineip}}|;s|%IPS|${2:-${dishwasherip}}|;s|%IPK|${3:-${fridgeip}}|;s|%IPT|${4:-${freezerip}}|;s|%USER|${wuser}|;s|%PASS|${wpass}|" "${srcfile}" > "${destfile}"
+    sed -e "s|%ACTUATOR|${1:-${whitegoodactuator}}|;s|%IPW|${2:-${washingmachineip}}|;s|%IPS|${3:-${dishwasherip}}|;s|%IPK|${4:-${fridgeip}}|;s|%IPT|${5:-${freezerip}}|;s|%USER|${wuser}|;s|%PASS|${wpass}|" "${srcfile}" > "${destfile}"
   done
 }
 
