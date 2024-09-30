@@ -158,10 +158,9 @@ setup_charger() {
 
 # TBV: wie leere user/pass abfangen ?
 setup_whitegood_config() {
-  local thing#=weisseWare.things
-  local dir#="${OPENHAB_CONF:-/etc/openhab}/things/"
-  local srcfile#="${dir}/STORE/${thing}"
-  local destfile#="${dir}/${thing}"
+  local dir
+  local srcfile
+  local destfile
   local wuser
   local wpass
 
@@ -170,6 +169,9 @@ setup_whitegood_config() {
     dir="${OPENHAB_CONF:-/etc/openhab}/${component}/"
     srcfile="${dir}/STORE/weisseWare.${component}"
     destfile="${dir}/weisseWare.${component}"
+    if [[ ${1:-${whitegoodactuator}} == "custom" && -f ${destfile} ]]; then
+      break
+    fi
 
     wuser=${6:-${whitegooduser}}
     if [[ $wuser == "NULL" ]]; then wuser=""; fi
