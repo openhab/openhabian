@@ -118,7 +118,7 @@ setup_pv_config() {
 ## #2 user name to access Shelly actuator
 ## #3 password to access Shelly actuator
 ##
-##    setup_whitegood_config(String charger actuator IP,String actuator user name,String actuator password)
+##    setup_charger(String charger actuator IP,String actuator user name,String actuator password)
 ##
 
 
