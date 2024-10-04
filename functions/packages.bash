@@ -230,10 +230,12 @@ homegear_setup() {
   if ! is_pi || [[ "$(dpkg --print-architecture)" == 'arm64' ]]; then
   #if ! is_pi || is_arm64; then
     # 64-bit Raspberry Pi OS:
-    echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/bullseye/homegear/testing/ bullseye main' > /etc/apt/sources.list.d/homegear.list
+    #echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/bullseye/homegear/testing/ bullseye main' > /etc/apt/sources.list.d/homegear.list
+    echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/bookworm/homegear/testing/ bookworm main' > /etc/apt/sources.list.d/homegear.list
   else
     # 32-bit Raspberry Pi OS
-    echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/bullseye/homegear/testing/ bullseye main' > /etc/apt/sources.list.d/homegear.list
+    #echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/bullseye/homegear/testing/ bullseye main' > /etc/apt/sources.list.d/homegear.list
+    echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/bookworm/homegear/testing/ bookworm main' > /etc/apt/sources.list.d/homegear.list
   fi
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
