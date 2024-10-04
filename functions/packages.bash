@@ -227,7 +227,7 @@ homegear_setup() {
   # Add Homegear's repository to APT
   # Please copy the whole next block from "if" to "fi". The script then automatically chooses the right repo
   # depending on whether your system is 32 or 64 bit.
-  if [[ ! is_pi || "$(dpkg --print-architecture)" == 'arm64' ]]; then
+  if ! is_pi || [[ "$(dpkg --print-architecture)" == 'arm64' ]]; then
   #if ! is_pi || is_arm64; then
     # 64-bit Raspberry Pi OS:
     echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/bullseye/homegear/testing/ bullseye main' > /etc/apt/sources.list.d/homegear.list
