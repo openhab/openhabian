@@ -220,30 +220,17 @@ homegear_setup() {
 
   if ! add_keys "https://apt.homegear.eu/Release.key" "$keyName"; then return 1; fi
 
-  # need to use testing repo
-  # repo https://apt.homegear.eu/raspberry_pi_os/bookworm/homegear/{testing,stable}/dists/bookworm/
-  #echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://apt.homegear.eu/${myOS,,}/${myRelease,,}/homegear/stable ${myRelease,,} main" > /etc/apt/sources.list.d/homegear.list
 
-  # Add Homegear's repository to APT
-  # Please copy the whole next block from "if" to "fi". The script then automatically chooses the right repo
-  # depending on whether your system is 32 or 64 bit.
+  # Add Homegear's repository to APT - need to use testing repo
   if ! is_pi || [[ "$(dpkg --print-architecture)" == 'arm64' ]]; then
-  #if ! is_pi || is_arm64; then
     # 64-bit Raspberry Pi OS:
-    #echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/bullseye/homegear/testing/ bullseye main' > /etc/apt/sources.list.d/homegear.list
     echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/bookworm/homegear/testing/ bookworm main' > /etc/apt/sources.list.d/homegear.list
   else
     # 32-bit Raspberry Pi OS
-    #echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/bullseye/homegear/testing/ bullseye main' > /etc/apt/sources.list.d/homegear.list
     echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/bookworm/homegear/testing/ bookworm main' > /etc/apt/sources.list.d/homegear.list
   fi
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-#  if is_raspios; then
-#    wget -O "$temp" https://github.com/WiringPi/WiringPi/releases/download/2.61-1/wiringpi-2.61-1-armhf.deb
-#    dpkg -i "$temp"
-#    rm -f "$temp"
-#  fi
   if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
   echo -n "$(timestamp) [openHABian] Setting up Homegear user account permissions... "
   if ! cond_redirect adduser "${username:-openhabian}" homegear; then echo "FAILED"; return 1; fi
