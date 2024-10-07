@@ -122,7 +122,7 @@ show_main_menu() {
     "27 | knxd"                   "KNX specific, the KNX router/gateway daemon knxd" \
     "28 | 1wire"                  "1wire specific, owserver and related packages" \
     "29 | deCONZ"                 "deCONZ / Phoscon companion app for Conbee/Raspbee controller" \
-    "2A | Zigbee2MQTT"            "Install or Update Zigbee2MQTT" \
+    "2A | Zigbee2MQTT"            "Install or Update Zigbee2MQTT (usb or ethernet controller)" \
     "   | Remove Zigbee2MQTT"     "Remove Zigbee2MQTT from this system" \
     "2B | FIND 3"                 "Framework for Internal Navigation and Discovery" \
     "   | Monitor Mode"           "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
