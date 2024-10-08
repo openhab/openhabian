@@ -85,7 +85,7 @@ setup_pv_config() {
         if [[ $serial == "NULL" ]]; then serial=""; fi
         if [[ $muser == "NULL" ]]; then muser=""; fi
         if [[ $mpass == "NULL" ]]; then mpass=""; fi
-        sed -i "s|%SERIAL|${serial};s|%USER|${muser}|;s|%PASS|${mpass}|" "${destfile}"
+        sed -i "s|%SERIAL|${serial}|;s|%USER|${muser}|;s|%PASS|${mpass}|" "${destfile}"
       fi
 
       if [[ "${device}" == "pv" && "${default}" == "sofarsolar" ]]; then
