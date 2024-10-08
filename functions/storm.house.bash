@@ -47,7 +47,7 @@ setup_pv_config() {
 	  if [[ ${default} == "solarman" ]]; then model=${4:-${pvmodel}}; serial=${5:-${pvserial}}; fi
 	  ;;
       bat) default=${batterytype}; ip=${3:-batteryip}; mbid=${4:-${batterymodbusid}};;
-      meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-${metermodbusid}}; muser=${6:-${meteruserid}}; mpass=${7:-${meterpassid}};;
+      meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-${metermodbusid}}; serial=${6:-${meterserial}}; muser=${7:-${meteruserid}}; mpass=${8:-${meterpassid}};;
     esac
 
 
@@ -82,9 +82,10 @@ setup_pv_config() {
 
       sed -i "s|%IP|${ip}|;s|%MBID|${mbid}|" "${destfile}"
       if [[ "${device}" == "meter" && $# -ge 6 ]]; then
+        if [[ $serial == "NULL" ]]; then serial=""; fi
         if [[ $muser == "NULL" ]]; then muser=""; fi
         if [[ $mpass == "NULL" ]]; then mpass=""; fi
-        sed -i "s|%USER|${muser}|;s|%PASS|${mpass}|" "${destfile}"
+        sed -i "s|%SERIAL|${serial};s|%USER|${muser}|;s|%PASS|${mpass}|" "${destfile}"
       fi
 
       if [[ "${device}" == "pv" && "${default}" == "sofarsolar" ]]; then
