@@ -75,7 +75,7 @@ openHABian can run on x86 based systems but on those you need to install the OS 
 Anything else ARM based such as ODroids, OrangePis and the like may work or not.
 NAS servers such as QNAP and Synology boxes will not work.
 
-We strongly recommend Raspberry Pi 2, 3 or 4 systems that have 1 GB of RAM or more.
+We strongly recommend a Raspberry Pi 2 or newer that has 1 GB of RAM or more.
 RPi 1 and 0/0W just have a single CPU core and only 512 MB of RAM. The RPi0W2 has 4 cores but only 512 MB as well.
 512 MB can be sufficient to run a smallish openHAB setup, but it will not be enough to run a full-blown system with many bindings and memory consuming openHABian features/components such as zram or InfluxDB.
 We do not actively prohibit installation on any hardware, including unsupported systems, but we might skip or deny to install specific extensions such as those memory hungry applications named above.
