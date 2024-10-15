@@ -96,7 +96,8 @@ show_main_menu() {
     "15 | FireMotD"               "Upgrade the program behind the system overview on SSH login" \
     "16 | Samba"                  "Install the Samba file sharing service and set up openHAB shares" \
     3>&1 1>&2 2>&3)
-    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    RET=$?
+    if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
     case "$choice2" in
       11\ *) basic_packages && needed_packages ;;
@@ -132,7 +133,8 @@ show_main_menu() {
     "   | Remove EVCC"            "Uninstall EVCC" \
     "   | Setup EVCC"             "Setup EVCC from command line (German only)" \
     3>&1 1>&2 2>&3)
-    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    RET=$?
+    if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
     case "$choice2" in
       21\ *) frontail_setup;;
@@ -179,7 +181,8 @@ show_main_menu() {
     "   | Remove WireGuard"       "Remove WireGuard VPN from this system" \
     "3C | Setup UPS (nut)"        "Setup a Uninterruptable Power Supply for this system using Network UPS Tools" \
     3>&1 1>&2 2>&3)
-    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    RET=$?
+    if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
     case "$choice2" in
       31\ *) hostname_change ;;
@@ -223,7 +226,8 @@ show_main_menu() {
     "48 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \
     "   | Uninstall openhab_rules_tools"  "JS Scripting: Uninstall openhab_rules_tools" \
     3>&1 1>&2 2>&3)
-    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    RET=$?
+    if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
     version="$(openhab4_is_installed && echo "openHAB" || (openhab3_is_installed && echo "openHAB3") || echo "openHAB2")"
     # shellcheck disable=SC2154
@@ -260,7 +264,8 @@ show_main_menu() {
     "54 | Raw copy SD"                "Raw copy internal SD to external disk / SD card" \
     "55 | Sync SD"                    "Rsync internal SD to external disk / SD card" \
     3>&1 1>&2 2>&3)
-    if [ $? -eq 1 ] || [ $? -eq 255 ]; then return 0; fi
+    RET=$?
+    if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
     case "$choice2" in
       50\ *) backup_openhab_config ;;
       51\ *) restore_openhab_config ;;
@@ -278,5 +283,6 @@ show_main_menu() {
   fi
 
   # shellcheck disable=SC2154,SC2181
-  if [ $? -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or https://github.com/openhab/openhabian/blob/main/docs/openhabian-DEBUG.md how to proceed." 14 80; return 0; fi
+  RET=$?
+  if [ $RET -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or https://github.com/openhab/openhabian/blob/main/docs/openhabian-DEBUG.md how to proceed." 14 80; return 0; fi
 }
