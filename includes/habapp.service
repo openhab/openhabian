@@ -7,6 +7,8 @@ After=openhab.service
 Type=simple
 User=openhab
 Group=%USERNAME
+Restart=on-failure
+RestartSec=10min
 UMask=002
 ExecStart=/opt/habapp/bin/habapp -c /etc/openhab/habapp
 
