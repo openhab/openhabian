@@ -45,6 +45,7 @@ jobs:
             dockerfile: ./tests/Dockerfile.rpi3-64-installation
             qemu_platform: arm64
             java_opt: "Zulu21-64"
+            docker_platform: "--platform linux/arm64/v8"
           - platform: amd64-openjdk17
             dockerfile: ./tests/Dockerfile.amd64-installation
             qemu_platform: ""
@@ -53,10 +54,12 @@ jobs:
             dockerfile: ./tests/Dockerfile.rpi3-installation
             qemu_platform: arm
             java_opt: "17"
+            docker_platform: "--platform linux/arm/v7"
           - platform: rpi3-64-openjdk17
             dockerfile: ./tests/Dockerfile.rpi3-64-installation
             qemu_platform: arm64
             java_opt: "17"
+            docker_platform: "--platform linux/arm64/v8"
 
     steps:
       - name: Checkout repository
@@ -87,6 +90,6 @@ jobs:
           push: true
       - name: openHABian installation test with ${{ matrix.platform }}
         run: |
-          docker run --privileged --rm --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}
+          docker run ${{ matrix.docker_platform }} --privileged --rm --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c './build.bash local-test && /boot/first-boot.bash'
         shell: bash
