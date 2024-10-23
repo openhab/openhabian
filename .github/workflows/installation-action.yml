@@ -39,27 +39,30 @@ jobs:
 
     strategy:
       matrix:
-        platform: [rpi3-64-zulujdk21, amd64-openjdk17, rpi3-openjdk17, rpi3-64-openjdk17]
+        platform: [rpi5-openjdk17, rpi3-openjdk17, amd64-openjdk17, rpi3-bellsoft21]
         include:
-          - platform: rpi3-64-zulujdk21
-            dockerfile: ./tests/Dockerfile.rpi3-64-installation
+
+          - platform: rpi5-openjdk17
+            dockerfile: ./tests/Dockerfile.rpi5-installation
             qemu_platform: arm64
-            java_opt: "Zulu21-64"
-            docker_platform: "--platform linux/arm64/v8"
-          - platform: amd64-openjdk17
-            dockerfile: ./tests/Dockerfile.amd64-installation
-            qemu_platform: ""
             java_opt: "17"
+            docker_platform: "linux/arm64/v8"
           - platform: rpi3-openjdk17
             dockerfile: ./tests/Dockerfile.rpi3-installation
             qemu_platform: arm
             java_opt: "17"
-            docker_platform: "--platform linux/arm/v7"
-          - platform: rpi3-64-openjdk17
-            dockerfile: ./tests/Dockerfile.rpi3-64-installation
-            qemu_platform: arm64
+            docker_platform: "linux/arm/v7"
+          - platform: amd64-openjdk17
+            dockerfile: ./tests/Dockerfile.amd64-installation
+            qemu_platform: ""
             java_opt: "17"
-            docker_platform: "--platform linux/arm64/v8"
+            docker_platform: "linux/amd64"
+          - platform: rpi3-bellsoft21
+            dockerfile: ./tests/Dockerfile.rpi3-installation
+            qemu_platform: arm
+            java_opt: "BellSoft21"
+            docker_platform: "linux/arm/v7"
+            continue-on-error: true # Experimental currently
 
     steps:
       - name: Checkout repository
@@ -78,6 +81,7 @@ jobs:
         uses: docker/setup-buildx-action@v3.7.1
         with:
           driver-opts: network=host
+          platforms: ${{ matrix.docker_platform }}
       - name: Build Docker image
         uses: docker/build-push-action@v6.9.0
         with:
@@ -90,6 +94,6 @@ jobs:
           push: true
       - name: openHABian installation test with ${{ matrix.platform }}
         run: |
-          docker run ${{ matrix.docker_platform }} --privileged --rm --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}
+          docker run --platform ${{ matrix.docker_platform }} --privileged --rm --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c './build.bash local-test && /boot/first-boot.bash'
         shell: bash
