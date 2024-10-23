@@ -29,7 +29,7 @@ on:
       - '!.github/workflows/installation-action.yml'
 
 jobs:
-  rpi3-64-zulujdk21:
+  installation-tests:
     runs-on: ubuntu-latest
     services:
       registry:
@@ -37,146 +37,56 @@ jobs:
         ports:
           - 5000:5000
 
-    steps:
-       - name: Checkout repository
-         uses: actions/checkout@v4
-       - name: Setup environment
-         run: |
-           sudo -E ./tests/ci-setup.bash github
-       - name: Set up QEMU
-         uses: docker/setup-qemu-action@v3.2.0
-         with:
-           platforms: arm64
-       - name: Set up Docker Buildx
-         id: buildx
-         uses: docker/setup-buildx-action@v3.7.1
-         with:
-           driver-opts: network=host
-       - name: Build Docker image
-         uses: docker/build-push-action@v6.9.0
-         with:
-           context: .
-           file: ./tests/Dockerfile.rpi3-64-installation
-           builder: ${{ steps.buildx.outputs.name }}
-           tags: localhost:5000/openhabian/rpi3-64-openhabian:latest
-           cache-from: type=gha
-           cache-to: type=gha,mode=max
-           push: true
-       - name: openHABian installation test with Azul Zulu JDK 21 on a virtual RPi3-64
-         run: |
-           docker run --privileged --rm --name "openhabian-rpi3-64" -d localhost:5000/openhabian/rpi3-64-openhabian
-           docker exec -i "openhabian-rpi3-64" bash -c './build.bash local-test && /boot/first-boot.bash'
-         shell: bash
-  amd64-openjdk17:
-    runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
+    strategy:
+      matrix:
+        platform: [rpi3-64-zulujdk21, amd64-openjdk17, rpi3-openjdk17, rpi3-64-openjdk17]
+        include:
+          - platform: rpi3-64-zulujdk21
+            dockerfile: ./tests/Dockerfile.rpi3-64-installation
+            qemu_platform: arm64
+            java_opt: "Zulu21-64"
+          - platform: amd64-openjdk17
+            dockerfile: ./tests/Dockerfile.amd64-installation
+            qemu_platform: ""
+            java_opt: "17"
+          - platform: rpi3-openjdk17
+            dockerfile: ./tests/Dockerfile.rpi3-installation
+            qemu_platform: arm
+            java_opt: "17"
+          - platform: rpi3-64-openjdk17
+            dockerfile: ./tests/Dockerfile.rpi3-64-installation
+            qemu_platform: arm64
+            java_opt: "17"
 
     steps:
-       - name: Checkout repository
-         uses: actions/checkout@v4
-       - name: Setup environment
-         run: |
-           sudo -E ./tests/ci-setup.bash github
-           sed -i 's|^java_opt=.*$|java_opt=17|' build-image/openhabian.conf
-       - name: Set up Docker Buildx
-         id: buildx
-         uses: docker/setup-buildx-action@v3.7.1
-         with:
-           driver-opts: network=host
-       - name: Build Docker image
-         uses: docker/build-push-action@v6.9.0
-         with:
-           context: .
-           file: ./tests/Dockerfile.amd64-installation
-           builder: ${{ steps.buildx.outputs.name }}
-           tags: localhost:5000/openhabian/amd64-openhabian:latest
-           cache-from: type=gha
-           cache-to: type=gha,mode=max
-           push: true
-       - name: openHABian installation test with OpenJDK 17 on native amd64
-         run: |
-           docker run --privileged --rm --name "openhabian-amd64" -d localhost:5000/openhabian/amd64-openhabian
-           docker exec -i "openhabian-amd64" bash -c './build.bash local-test && /boot/first-boot.bash'
-         shell: bash
-  rpi3-openjdk17:
-    runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-
-    steps:
-       - name: Checkout repository
-         uses: actions/checkout@v4
-       - name: Setup environment
-         run: |
-           sudo -E ./tests/ci-setup.bash github
-           sed -i 's|^java_opt=.*$|java_opt=17|' build-image/openhabian.conf
-       - name: Set up QEMU
-         uses: docker/setup-qemu-action@v3.2.0
-         with:
-           platforms: arm
-       - name: Set up Docker Buildx
-         id: buildx
-         uses: docker/setup-buildx-action@v3.7.1
-         with:
-           driver-opts: network=host
-       - name: Build Docker image
-         uses: docker/build-push-action@v6.9.0
-         with:
-           context: .
-           file: ./tests/Dockerfile.rpi3-installation
-           builder: ${{ steps.buildx.outputs.name }}
-           tags: localhost:5000/openhabian/rpi3-openhabian:latest
-           cache-from: type=gha
-           cache-to: type=gha,mode=max
-           push: true
-       - name: openHABian installation test with OpenJDK 17 on a virtual RPi3
-         run: |
-           docker run --privileged --rm --name "openhabian-rpi3" -d localhost:5000/openhabian/rpi3-openhabian
-           docker exec -i "openhabian-rpi3" bash -c './build.bash local-test && /boot/first-boot.bash'
-         shell: bash
-  rpi3-64-openjdk17:
-    runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-
-    steps:
-       - name: Checkout repository
-         uses: actions/checkout@v4
-       - name: Setup environment
-         run: |
-           sudo -E ./tests/ci-setup.bash github
-           sed -i 's|^java_opt=.*$|java_opt=17|' build-image/openhabian.conf
-       - name: Set up QEMU
-         uses: docker/setup-qemu-action@v3.2.0
-         with:
-           platforms: arm64
-       - name: Set up Docker Buildx
-         id: buildx
-         uses: docker/setup-buildx-action@v3.7.1
-         with:
-           driver-opts: network=host
-       - name: Build Docker image
-         uses: docker/build-push-action@v6.9.0
-         with:
-           context: .
-           file: ./tests/Dockerfile.rpi3-64-installation
-           builder: ${{ steps.buildx.outputs.name }}
-           tags: localhost:5000/openhabian/rpi3-64-openhabian:latest
-           cache-from: type=gha
-           cache-to: type=gha,mode=max
-           push: true
-       - name: openHABian installation test with OpenJDK 17 on a virtual RPi3-64
-         run: |
-           docker run --privileged --rm --name "openhabian-rpi3-64" -d localhost:5000/openhabian/rpi3-64-openhabian
-           docker exec -i "openhabian-rpi3-64" bash -c './build.bash local-test && /boot/first-boot.bash'
-         shell: bash
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup environment
+        run: |
+          sudo -E ./tests/ci-setup.bash github
+          sed -i 's|^java_opt=.*$|java_opt=${{ matrix.java_opt }}|' build-image/openhabian.conf
+      - name: Set up QEMU
+        if: ${{ matrix.qemu_platform != '' }}
+        uses: docker/setup-qemu-action@v3.2.0
+        with:
+          platforms: ${{ matrix.qemu_platform }}
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3.7.1
+        with:
+          driver-opts: network=host
+      - name: Build Docker image
+        uses: docker/build-push-action@v6.9.0
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          builder: ${{ steps.buildx.outputs.name }}
+          tags: localhost:5000/openhabian/${{ matrix.platform }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          push: true
+      - name: openHABian installation test with ${{ matrix.platform }}
+        run: |
+          docker run --privileged --rm --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}
+          docker exec -i "openhabian-${{ matrix.platform }}" bash -c './build.bash local-test && /boot/first-boot.bash'
+        shell: bash
