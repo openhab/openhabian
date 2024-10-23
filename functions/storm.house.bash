@@ -63,10 +63,12 @@ setup_pv_config() {
 
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${file:-${default}}.${configdomain}"
     destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
-    rm -f "$destfile"
+    if [[ ${2:-${default}} != "custom" ]]; then rm -f "$destfile"; fi
 
-    if [[ ${2:-${default}} != "custom" ]] && [[ -f ${srcfile} ]]; then
-      cp -p "$srcfile" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
+    if [[ -f ${srcfile} ]]; then
+      if [[ ! -f ${destfile} ]]; then
+        cp -p "${srcfile}" "${destfile}"
+      fi
       if [[ $(whoami) == "root" ]]; then
         chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
         chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
