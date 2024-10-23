@@ -46,11 +46,6 @@ jobs:
     strategy:
       matrix:
         platform: [rpi4, amd64]
-        include:
-          - platform: rpi4
-            docker_platform: "linux/arm64"
-          - platform: amd64
-            docker_platform: "linux/amd64"
 
     steps:
       - name: Checkout repository
@@ -67,7 +62,6 @@ jobs:
         uses: docker/setup-buildx-action@v3.7.1
         with:
           driver-opts: network=host
-          platforms: ${{ matrix.docker_platform }}
       - name: Build Docker image
         uses: docker/build-push-action@v6.9.0
         with:
@@ -80,7 +74,7 @@ jobs:
           push: true
       - name: BATS tests on ${{ matrix.platform }} platform
         run: |
-          docker run --platform ${{ matrix.docker_platform }} --rm --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}-openhabian
+          docker run --rm --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}-openhabian
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "development-." .'
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "unit-." .'
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "installation-." .'
