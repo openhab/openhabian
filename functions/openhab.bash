@@ -244,7 +244,7 @@ openhab_misc() {
   echo -n "$(timestamp) [openHABian] Setting openHAB HTTP/HTTPS ports... "
   if ! cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTP_PORT=.*$|OPENHAB_HTTP_PORT=8080|g' /etc/default/openhab; then echo "FAILED"; return 1; fi
   if cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTPS_PORT=.*$|OPENHAB_HTTPS_PORT=8443|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
-  
+
   echo -n "$(timestamp) [openHABian] Setting openHAB timezone... "
   if cond_redirect sed -ri "s|^(EXTRA_JAVA_OPTS.*interning=true)|\1 -Duser.timezone=${timezone:-Europe/London}|g" /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
 }

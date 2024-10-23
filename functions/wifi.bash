@@ -127,7 +127,7 @@ setup_hotspot() {
     DEBIAN_FRONTEND=noninteractive apt install --yes network-manager &> /dev/null
     systemctl enable --now NetworkManager
 
-    if cond_redirect wget -nv "https://davesteele.github.io/comitup/latest/$debfile"; then 
+    if cond_redirect wget -nv "https://davesteele.github.io/comitup/latest/$debfile"; then
       cond_redirect dpkg -i --force-all "$debfile"
       cond_redirect apt-get --quiet update
     fi

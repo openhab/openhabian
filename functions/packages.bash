@@ -444,7 +444,7 @@ miflora_setup() {
   cond_echo "Preparing python virtual enviroment"
   cond_redirect python -m venv --system-site-packages "$mifloraDir"/env
   cond_redirect source "$mifloraDir"/env/bin/activate
-## original code from here  
+## original code from here
   cond_echo "Installing required python packages"
   cond_redirect "$mifloraDir"/env/bin/pip3 install -r "$mifloraDir"/requirements.txt
 ## deactivate venv to avoid conflicts with other functions
@@ -598,7 +598,7 @@ nginx_setup() {
 
   # use Tailscale resolver if up
   ping -c 3 100.100.100.100 && uncomment "#VPN" /etc/nginx/sites-enabled/openhab
-  
+
   if [[ $auth == "true" ]]; then
     echo -n "$(timestamp) [openHABian] Installing nginx password utilities... "
     if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" apache2-utils; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -798,4 +798,3 @@ setup_evcc() {
   echo -n "$(timestamp) [openHABian] Created EVCC config, restarting ... "
   if cond_redirect systemctl restart evcc.service; then echo "OK"; else echo "FAILED"; fi
 }
-

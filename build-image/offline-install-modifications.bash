@@ -23,7 +23,7 @@ fi
 # tailscale VPN
 curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
 curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
-  
+
 apt-get --quiet update
 apt-get --quiet upgrade --yes
 apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \

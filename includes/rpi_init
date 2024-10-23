@@ -6,4 +6,3 @@ if is_pi; then
 else
 	exit 0
 fi
-

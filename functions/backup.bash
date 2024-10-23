@@ -327,7 +327,7 @@ amanda_setup() {
         mkdir -p "${storageLoc}"
     fi
     if ! storageLoc="$(whiptail --title "Storage directory" --inputbox "\\nWhat is the directory backups should be stored in?\\n\\nYou can specify any locally accessible directory, no matter if it's located on the internal SD card, an external USB-attached device such as a USB stick, HDD, or a NFS/CIFS share." 13 80 "${storageLoc}" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-    if ! cond_redirect sudo -u "${backupUser}" touch "${storageLoc}/TEST"; then 
+    if ! cond_redirect sudo -u "${backupUser}" touch "${storageLoc}/TEST"; then
         echo "FAILED (storage write access for user backup)"
         whiptail --title "Amanda storage setup failed" --msgbox "Amanda storage setup failed.\\n\\nThe designated storage area ${storageLoc} you entered is not writeable for the Linux user ${backupUser}.\\nPlease ensure it is. If it is located on a NAS or NFS server, search the Amanda docs for the term no_root_squash.\\nopenHABian will now make the directory world-writable as a workaround but do not forget to fix it properly, please." 15 80 3>&1 1>&2 2>&3
         chmod 1777 "${storageLoc}"
@@ -371,7 +371,7 @@ mirror_SD() {
   local repartitionText
   local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
   local partUUID
-  
+
   if [[ $# -eq 1 ]] && [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
     # shellcheck disable=SC2154
@@ -500,11 +500,11 @@ setup_mirror_SD() {
     rm -f "$serviceTargetDir"/sdr*.{service,timer}
 
     # ATTENTION: the mountpoint may also have a different name than the default "/storage"
-    svcname="${sDir//[\/]/\\x2d}.mount"     # remove leading '/' and replace all '/' by \\x2d as required by systemd for full pathnames 
+    svcname="${sDir//[\/]/\\x2d}.mount"     # remove leading '/' and replace all '/' by \\x2d as required by systemd for full pathnames
     if [[ -f "$serviceTargetDir"/"$svcname" ]]; then
         # ATTENTION: may not be desired to remove on SD mirror disabling because it may still be in use for Amanda storage => ask for confirmation
         # [is there a possibility that this routine might be run non-interactively ?]
-        if (whiptail --title "Remove $storageDir" --yes-button "Remove" --no-button "Keep" --yesno "$storageRemovalQuery" 12 116); then 
+        if (whiptail --title "Remove $storageDir" --yes-button "Remove" --no-button "Keep" --yesno "$storageRemovalQuery" 12 116); then
             cond_redirect systemctl disable --now "${svcname}"
             rm -f "$serviceTargetDir"/"$svcname"
         fi

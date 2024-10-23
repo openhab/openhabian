@@ -249,7 +249,7 @@ zigbee2mqtt_setup() {
   serverIP="$(hostname -I)"; serverIP=${serverIP::-1} # remove trailing space
   installSuccessText="Setup was successful. Zigbee2MQTT is now up and running.\\n\\nFor further Zigbee-settings open frontend (in 2 minutes): \\nhttp://${serverIP}:8081.\\n\\nDocumentation of ZigBee2MQTT:\\nhttps://www.zigbee2mqtt.io/guide/configuration"
   updateSuccessText="Update successful. \\n\\nFor further Zigbee-settings open frontend (in 2 minutes): \\nhttp://${serverIP}:8081.\\n\\nDocumentation of Zigbee2MQTT:\\nhttps://www.zigbee2mqtt.io/guide/configuration"
- 
+
   if [[ $1 == "remove" ]]; then
     if [[ -n $INTERACTIVE ]]; then
       if ! (whiptail --title "Zigbee2MQTT Uninstall" --yes-button "Continue" --no-button "Cancel" --yesno "$uninstallText" 7 80); then echo "CANCELED"; return 0; fi
@@ -263,7 +263,7 @@ zigbee2mqtt_setup() {
     if ! cond_redirect npm uninstall zigbee2mqtt ; then echo "FAILED (npm uninstall)"; return 1; fi
     if ! rm -rf /var/log/zigbee2mqtt; then echo "FAILED (remove log)"; return 1; fi
     if rm -rf "/opt/zigbee2mqtt"; then echo "OK"; else echo "FAILED (rm /opt/zigbee2mqtt)"; return 1; fi
-    
+
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Zigbee2MQTT removed" --msgbox "Zigbee2MQTT was removed from your system." 7 80
     fi
@@ -311,7 +311,7 @@ zigbee2mqtt_setup() {
   fi
 
   unset IFS
-  
+
   # ask for user input parameters
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "CANCELED"; return 0; fi
@@ -327,7 +327,7 @@ zigbee2mqtt_setup() {
   echo -n "$(timestamp) [openHABian] Downloading Zigbee2MQTT... "
   zigbee2mqttBase="$(npm list | head -n 1)/node_modules/zigbee2mqtt"
   if [[ -d $zigbee2mqttBase ]]; then
-    if cond_redirect systemctl stop zigbee2mqtt.service; then echo "OK (stop service)"; else echo "FAILED (stop service)"; return 1; fi # Stop the service 
+    if cond_redirect systemctl stop zigbee2mqtt.service; then echo "OK (stop service)"; else echo "FAILED (stop service)"; return 1; fi # Stop the service
     cond_echo "Removing any old installations... "
     cond_redirect npm uninstall zigbee2mqtt
   fi
@@ -346,11 +346,11 @@ zigbee2mqtt_setup() {
   if ! cond_redirect install -o "${username:-openhabian}" -g openhab -m 644 "${BASEDIR:-/opt/openhabian}/includes/zigbee2mqtt/configuration.yaml" /opt/zigbee2mqtt/data/; then echo "FAILED (install configuration.yaml)"; return 1; fi
   sed -i -e "s|%adapter|$by_path_or_id/$selectedAdapter|g" /opt/zigbee2mqtt/data/configuration.yaml
   sed -i -e "s|%user%|$mqttUser|g" /opt/zigbee2mqtt/data/configuration.yaml
-  sed -i -e "s|%password%|$mqttPW|g" /opt/zigbee2mqtt/data/configuration.yaml 
-  
+  sed -i -e "s|%password%|$mqttPW|g" /opt/zigbee2mqtt/data/configuration.yaml
+
   cd /opt || (echo "FAILED (cd)"; return 1)
   echo "OK"
-  
+
   echo -n "$(timestamp) [openHABian] Setting up Zigbee2MQTT service... "
 
   if ! cond_redirect install -o "${username:-openhabian}" -g openhab -m 644 "${BASEDIR:-/opt/openhabian}/includes/zigbee2mqtt/zigbee2mqtt.service" /etc/systemd/system/; then echo "FAILED (install service)"; return 1; fi

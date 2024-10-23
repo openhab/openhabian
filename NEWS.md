@@ -16,4 +16,3 @@ See also the OH4 migration FAQ on the forum.
 Support for the new Raspberry Pi 5 is also included as part of the bookworm update.
 Please note that while a RPi5 has new HW features such as PCI-E SSD, nothing has
 changed about peripheral support in openHABian, unsupported parts may work or not.
-

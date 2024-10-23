@@ -115,7 +115,7 @@ timezone_setting() {
     if cond_redirect tzupdate; then echo "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
   fi
 }
- 
+
 ## Function for setting the locale of the current system.
 ##
 ##   The locale setting will default to the users choice on an INTERACTIVE setup,

@@ -390,7 +390,7 @@ system_check_default_password() {
   local originalPassword
   local salt
   local fields
-  
+
   if is_pi && id -u pi &> /dev/null; then
     defaultUser="pi"
     defaultPassword="raspberry"
@@ -414,10 +414,10 @@ system_check_default_password() {
       export algo defaultPassword salt fields
       generatedPassword="$(perl -le 'print crypt("$ENV{defaultPassword}","\$$ENV{algo}\$$ENV{salt}\$")')"
       ;;
-  esac  
+  esac
 
   introText="The default password was detected on your system! That is a serious security concern. Bad guys or malicious programs in your subnet are able to gain root access!\\n\\nPlease set a strong password by typing the command 'passwd ${defaultUser}'!"
-        
+
   echo -n "$(timestamp) [openHABian] Checking for default openHABian username:password combination... "
   if ! [[ $(id -u "$defaultUser") ]]; then echo "OK (unknown user)"; return 0; fi
   if [[ $generatedPassword == "$originalPassword" ]]; then

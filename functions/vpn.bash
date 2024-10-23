@@ -270,4 +270,3 @@ reset_tailscale_auth() {
 
   tailscale up --reset --authkey "${preAuthKey}" --advertise-tags="${tags}"
 }
-

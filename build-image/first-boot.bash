@@ -43,7 +43,7 @@ if ! is_bookworm; then
 fi
 webserver=/boot/webserver.bash
 ln -s /boot/firmware/webserver.bash "$webserver"
-  
+
 if [[ "${debugmode:-on}" == "on" ]]; then
   unset SILENT
   unset DEBUGMAX
@@ -103,7 +103,7 @@ if is_bookworm; then
     nmcli -w 30 d wifi connect "${wifiSSID}" password "${wifiPassword}" ifname wlan0
   fi
 #elif [[ -z $wifiSSID ]]; then
-elif grep -qs "up" /sys/class/net/eth0/operstate; then 
+elif grep -qs "up" /sys/class/net/eth0/operstate; then
   # Actually check if ethernet is working
   echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
 elif [[ -n $wifiSSID ]] && grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
