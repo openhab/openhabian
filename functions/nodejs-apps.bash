@@ -233,8 +233,9 @@ zigbee2mqtt_setup() {
   local z2mInstalledText="A configuration for Zigbee2MQTT is already existing.\\n\\nWould you like to update Zigbee2MQTT to the latest version with this configuration?"
   local introText="A MQTT-server is required for Zigbee2mqtt. If you haven't installed one yet, please select <cancel> and come back after installing one (e.g. Mosquitto).\\n\\nZigbee2MQTT will be installed from the official repository.\\n\\nDuration is about 4 minutes... "
   local installText="Zigbee2MQTT is installed from the official repository.\\n\\nPlease wait about 4 minutes... "
-  local uninstallText="Zigbee2MQTT is completely removed from the system."
+  local uninstallText="Zigbee2MQTT will be completely removed from the system."
   local adapterText="Please select your zigbee adapter:"
+  local adapterNetw="\\nPlease specify the ip:port of the zigbee coordinator."
   local mqttUserText="\\nPlease enter your MQTT-User (default = openhabian):"
   local mqttPWText="\\nIf your MQTT-server requires a password, please enter it here:"
   local my_adapters
@@ -298,14 +299,14 @@ zigbee2mqtt_setup() {
   # get usb adapters for radio menu
   while IFS= read -r line; do
     my_adapters="$my_adapters $line $loopSel "
-    by_path_or_id="by-id"
+    by_path_or_id="/dev/serial/by-id"
     loopSel=0
   done < <( ls /dev/serial/by-id )
 
   if [[ $my_adapters == "" ]] ; then
     while IFS= read -r line; do
       my_adapters="$my_adapters $line $loopSel "
-      by_path_or_id="by-path"
+      by_path_or_id="/dev/serial/by-path"
       loopSel=0
     done < <( ls /dev/serial/by-path )
   fi
@@ -316,7 +317,18 @@ zigbee2mqtt_setup() {
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80); then echo "CANCELED"; return 0; fi
     # shellcheck disable=SC2086
-    if ! selectedAdapter=$(whiptail --noitem --title "Zigbee2MQTT installation" --radiolist "$adapterText" 14 100 4 $my_adapters 3>&1 1>&2 2>&3); then return 0; fi
+    if ! zigmode=$(whiptail --title "Zigbee2MQTT installation" --menu "Choose mode:" 14 100 2 --cancel-button "Cancel" --ok-button "Continue" \
+    "usb"  "The zigbee coordinator is directly connected to this computer." \
+    "network"  "The zigbee coordinator is connected to the LAN and has an IP address." \
+    3>&1 1>&2 2>&3); then echo "CANCELED"; return 0; fi
+    # shellcheck disable=SC2086
+
+    if [[ $zigmode == "network" ]] ; then
+      if ! selectedAdapter=$(whiptail --title "Zigbee Network Coordinator" --inputbox "$adapterNetw" 10 80 "xxx.xxx.xxx.xxx:port" 3>&1 1>&2 2>&3); then return 0; fi
+      by_path_or_id="tcp:/"
+    else
+      if ! selectedAdapter=$(whiptail --noitem --title "Zigbee2MQTT installation" --radiolist "$adapterText" 14 100 4 $my_adapters 3>&1 1>&2 2>&3); then return 0; fi
+    fi
     if ! mqttUser=$(whiptail --title "MQTT User" --inputbox "$mqttUserText" 10 80 "$mqttDefaultUser" 3>&1 1>&2 2>&3); then return 0; fi
     if ! mqttPW=$(whiptail --title "MQTT password" --passwordbox "$mqttPWText" 10 80 3>&1 1>&2 2>&3); then return 0; fi
     if ! (whiptail --title "Zigbee2MQTT installation" --infobox "$installText" 14 80); then echo "CANCELED"; return 0; fi
@@ -344,7 +356,7 @@ zigbee2mqtt_setup() {
   if ! cond_redirect sudo -u "${username:-openhabian}" npm ci ; then echo "FAILED (npm ci)"; return 1; fi
 
   if ! cond_redirect install -o "${username:-openhabian}" -g openhab -m 644 "${BASEDIR:-/opt/openhabian}/includes/zigbee2mqtt/configuration.yaml" /opt/zigbee2mqtt/data/; then echo "FAILED (install configuration.yaml)"; return 1; fi
-  sed -i -e "s|%adapter|$by_path_or_id/$selectedAdapter|g" /opt/zigbee2mqtt/data/configuration.yaml
+  sed -i -e "s|%adapter%|$by_path_or_id/$selectedAdapter|g" /opt/zigbee2mqtt/data/configuration.yaml
   sed -i -e "s|%user%|$mqttUser|g" /opt/zigbee2mqtt/data/configuration.yaml
   sed -i -e "s|%password%|$mqttPW|g" /opt/zigbee2mqtt/data/configuration.yaml
 
