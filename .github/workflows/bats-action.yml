@@ -35,7 +35,7 @@ on:
       - '.github/workflows/bats-action.yml'
 
 jobs:
-  rpi4-bats:
+  bats-tests:
     runs-on: ubuntu-latest
     services:
       registry:
@@ -43,73 +43,41 @@ jobs:
         ports:
           - 5000:5000
 
-    steps:
-       - name: Checkout repository
-         uses: actions/checkout@v4
-       - name: Setup environment
-         run: sudo -E ./tests/ci-setup.bash github
-       - name: Set up QEMU
-         uses: docker/setup-qemu-action@v3.2.0
-         with:
-           platforms: arm64
-       - name: Set up Docker Buildx
-         id: buildx
-         uses: docker/setup-buildx-action@v3.7.1
-         with:
-           driver-opts: network=host
-       - name: Build Docker image
-         uses: docker/build-push-action@v6.9.0
-         with:
-           context: .
-           file: ./tests/Dockerfile.rpi4-BATS
-           builder: ${{ steps.buildx.outputs.name }}
-           tags: localhost:5000/openhabian/rpi4-openhabian:latest
-           cache-from: type=gha
-           cache-to: type=gha,mode=max
-           push: true
-       - name: BATS tests on virtual 64bit RPi4 running Debian Bullseye
-         run: |
-           docker run --rm --name "openhabian-rpi4" -d localhost:5000/openhabian/rpi4-openhabian
-           docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "development-." .'
-           docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "unit-." .'
-           docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "installation-." .'
-           docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "destructive-." .'
-           docker stop "openhabian-rpi4"
-         shell: bash
-  amd64-bats:
-    runs-on: ubuntu-latest
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
+    strategy:
+      matrix:
+        platform: [rpi4, amd64]
 
     steps:
-       - name: Checkout repository
-         uses: actions/checkout@v4
-       - name: Setup environment
-         run: sudo -E ./tests/ci-setup.bash github
-       - name: Set up Docker Buildx
-         id: buildx
-         uses: docker/setup-buildx-action@v3.7.1
-         with:
-           driver-opts: network=host
-       - name: Build Docker image
-         uses: docker/build-push-action@v6.9.0
-         with:
-           context: .
-           file: ./tests/Dockerfile.amd64-BATS
-           builder: ${{ steps.buildx.outputs.name }}
-           tags: localhost:5000/openhabian/amd64-openhabian:latest
-           cache-from: type=gha
-           cache-to: type=gha,mode=max
-           push: true
-       - name: BATS tests on generic Debian Bullseye 64bit
-         run: |
-           docker run --rm --name "openhabian-amd64" -d localhost:5000/openhabian/amd64-openhabian
-           docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "development-." .'
-           docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "unit-." .'
-           docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "installation-." .'
-           docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "destructive-." .'
-           docker stop "openhabian-amd64"
-         shell: bash
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup environment
+        run: sudo -E ./tests/ci-setup.bash github
+      - name: Set up QEMU
+        if: ${{ matrix.platform == 'rpi4' }}
+        uses: docker/setup-qemu-action@v3.2.0
+        with:
+          platforms: arm64
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3.7.1
+        with:
+          driver-opts: network=host
+      - name: Build Docker image
+        uses: docker/build-push-action@v6.9.0
+        with:
+          context: .
+          file: ./tests/Dockerfile.${{ matrix.platform }}-BATS
+          builder: ${{ steps.buildx.outputs.name }}
+          tags: localhost:5000/openhabian/${{ matrix.platform }}-openhabian:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          push: true
+      - name: BATS tests on ${{ matrix.platform }} platform
+        run: |
+          docker run --rm --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}-openhabian
+          docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "development-." .'
+          docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "unit-." .'
+          docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "installation-." .'
+          docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "destructive-." .'
+          docker stop "openhabian-${{ matrix.platform }}"
+        shell: bash

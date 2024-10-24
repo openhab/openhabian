@@ -1,4 +1,4 @@
-# Note RPi3 base (first RPi to have aarch64 available) WITH 32bit OS
+# Note RPi3 base WITH 32bit OS for legacy (or soon to be) testing
 FROM balenalib/raspberrypi3-debian:bookworm-build
 
 ENV DOCKER=1

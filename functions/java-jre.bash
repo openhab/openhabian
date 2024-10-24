@@ -14,8 +14,11 @@ java_install() {
     java_alternatives_reset
     rm -rf /opt/jdk
   fi
-
-  openjdk_install_apt "$1"
+  if [[ $1 == "BellSoft21" ]]; then
+    liberica_install_apt
+  else
+    openjdk_install_apt "$1"
+  fi
 
   if openhab_is_installed; then
     cond_redirect systemctl restart openhab.service
