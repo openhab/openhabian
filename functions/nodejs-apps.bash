@@ -233,7 +233,7 @@ zigbee2mqtt_setup() {
   local z2mInstalledText="A configuration for Zigbee2MQTT is already existing.\\n\\nWould you like to update Zigbee2MQTT to the latest version with this configuration?"
   local introText="A MQTT-server is required for Zigbee2mqtt. If you haven't installed one yet, please select <cancel> and come back after installing one (e.g. Mosquitto).\\n\\nZigbee2MQTT will be installed from the official repository.\\n\\nDuration is about 4 minutes... "
   local installText="Zigbee2MQTT is installed from the official repository.\\n\\nPlease wait about 4 minutes... "
-  local uninstallText="Zigbee2MQTT is completely removed from the system."
+  local uninstallText="Zigbee2MQTT will be completely removed from the system."
   local adapterText="Please select your zigbee adapter:"
   local adapterNetw="\\nPlease specify the ip:port of the zigbee coordinator."
   local mqttUserText="\\nPlease enter your MQTT-User (default = openhabian):"
