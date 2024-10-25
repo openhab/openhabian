@@ -440,6 +440,12 @@ config_ipv6() {
   local aptConf="/etc/apt/apt.conf.d/S90force-ipv4"
   local sysctlConf="/etc/sysctl.d/99-sysctl.conf"
 
+  echo -n "$(timestamp) [openHABian] Making sure router advertisements are available... "
+  if ! grep -qs "net.ipv6.conf.all.accept_ra = 1" "$sysctlConf"; then
+    echo -e "\\n# Enable IPv6 route advertisements\\n# This is needed for proper discovery with the Matter binding\\nnet.ipv6.conf.all.accept_ra = 1\\nnet.ipv6.conf.all.accept_ra_rt_info_max_plen = 64" >> "$sysctlConf"
+  fi
+  if cond_redirect sysctl --load; then echo "OK"; else echo "FAILED"; return 1; fi
+
   if [[ "${1:-${ipv6:-enable}}" == "disable" ]]; then
     echo -n "$(timestamp) [openHABian] Disabling IPv6... "
     if ! grep -qs "^[[:space:]]*# Disable all IPv6 functionality" "$sysctlConf"; then
