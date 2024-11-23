@@ -31,8 +31,8 @@ if [ -f ~/.firemotd-cache ]; then
      cat ~/.firemotd-cache
  fi
  (FireMotD --theme Gray > ~/.firemotd-cache &) &>/dev/null      # does not use cache; might get removed in the near future
-
-if openhab2_is_installed; then OHPKG="openhab2"; else OHPKG="openhab"; fi
+fi
+OHPKG="openhab"
 
 OHVERSION="$(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties)"
 OHBUILD="$(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)"

@@ -185,7 +185,6 @@ openhabian_update() {
   elif [[ -n $INTERACTIVE ]]; then
     radioOptions=("release" "most recommended version that supports openHAB 4 (openHAB branch)" "OFF")
     radioOptions+=("latest" "the latest of openHABian, not well tested (main branch)" "OFF")
-    radioOptions+=("legacy" "use for openHAB 2.x support (legacy branch)" "OFF")
 
     case "$current" in
       "openHAB")
@@ -196,11 +195,6 @@ openhabian_update() {
       "main")
         branchLabel="the latest version of openHABian"
         radioOptions[5]="ON"
-        ;;
-
-      "openHAB2"|"legacy"|"stable")
-        branchLabel="the legacy version of openHABian"
-        radioOptions[8]="ON"
         ;;
 
       *)
@@ -218,7 +212,6 @@ openhabian_update() {
     case $selection in
       release) selection="openHAB";;
       latest) selection="main";;
-      legacy) selection="openHAB2";;
     esac
 
     read -r -t 1 -n 1 key
@@ -262,7 +255,7 @@ openhabian_update() {
 }
 
 ## Changes files on disk to match the new (changed) openhabian branch
-## Valid arguments: "openHAB", "openHAB3" or "openHAB2"
+## Valid arguments: "openHAB", "openHAB3"
 ##
 ##    migrate_installation()
 ##
@@ -298,14 +291,6 @@ migrate_installation() {
     fi
     from="openhab2"
     to="openhab"
-  else
-    if openhab2_is_installed; then
-      whiptail --title "openHAB version already installed" --msgbox "openHAB 2 $failText" 10 80
-      echo "FAILED (openHAB 2 already installed)"
-      return 1
-    fi
-    from="openhab"
-    to="openhab2"
   fi
   services="srv-${from}\\x2daddons.mount srv-${from}\\x2dconf.mount srv-${from}\\x2duserdata.mount  srv-${from}\\x2dsys.mount"
 

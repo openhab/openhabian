@@ -3,7 +3,7 @@
 show_about() {
   local version
 
-  if openhab2_is_installed; then OHPKG="openhab2"; else OHPKG="openhab"; fi
+  OHPKG="openhab"
   version=$(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
   whiptail --title "About openHABian and $(basename "$0")" --msgbox "openHABian Configuration Tool — $(get_git_revision)
 openHAB ${version} - $(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
@@ -229,7 +229,7 @@ show_main_menu() {
     RET=$?
     if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
-    version="$(openhab4_is_installed && echo "openHAB" || (openhab3_is_installed && echo "openHAB3") || echo "openHAB2")"
+    version="$(openhab4_is_installed && echo "openHAB" || (openhab3_is_installed && echo "openHAB3"))"
     # shellcheck disable=SC2154
     case "$choice2" in
       41\ *) openhab_setup "$version" "release";;

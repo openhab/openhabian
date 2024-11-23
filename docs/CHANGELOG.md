@@ -1,3 +1,7 @@
+## Legacy openHAB 2 support removed ## December XX, 2024
+We have removed legacy support for the openHAB 2 systems. Please upgrade to
+the latest version of openHAB to receive further support.
+
 ## openHABian 1.9 released based on Debian 12 bookworm ## March 13, 2024
 We stepped up to latest Debian Linux release. The openHABian image for RPis uses
 Raspberry Pi OS (lite) and we finally managed to switch over to latest RaspiOS
@@ -51,7 +55,7 @@ image to an SD card.
 ## Zigbee2MQTT ## April 17, 2022
 Zigbee2MQTT enables to connect a Zigbee-Network via MQTT. Zigbee2MQTT supports
 a huge number of devices, even many brands with non-standard zigbee-
-implementations. It provides a web-based configuration interface and a 
+implementations. It provides a web-based configuration interface and a
 graphical view of the zigbee topology.
 
 ## Electric Vehicle Charge Controller ## April 6, 2022
