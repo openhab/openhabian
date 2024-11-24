@@ -9,28 +9,25 @@ source: https://github.com/openhab/openhabian/blob/main/docs/openhabian.md
 <!-- Attention authors: Do not edit directly. Please add your changes to the source repository -->
 
 # openHABian - Hassle-free openHAB Setup
-You just discovered openHAB and now you are eager to start but you're afraid of setting up a computer and OS for it ?
+
+You just discovered openHAB and now you are eager to start but you're afraid of setting up a standalone system for it?
 
 openHABian is here to help.
-It's a **self-configuring** Linux system setup to reliably operate your openHAB instance 24 hours a day.
-It provides:
 
-*   Complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of small single-board computers.
-*   The openHABian configuration tool to set up and configure openHAB and many related things on any Debian based system
-
-#### Table of Contents
-
-{::options toc_levels="2..3"/}
--   TOC
-{:toc}
+[[toc]]
 
 ## Features
 
-The openHABian image provides lots of useful Linux tools out of the box:
+openHABian is a **self-configuring** Linux system setup to reliably operate your openHAB instance 24 hours a day.
+It provides:
 
+-   Complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of small single-board computers
+-   The openHABian configuration tool to set up and configure openHAB and many related things on any Debian based system
 -   Fully automated hassle-free setup without a need for a display or keyboard, connected via Ethernet or [Wi-Fi](#wi-fi-based-setup-notes)
--   Most recent release of openHAB
--   [Comprehensive capabilities to ensure your system will keep working reliably 24/7](#availability-and-backup) including ZRAM, [SD card mirroring](openhabian.md#sd-mirroring) and [Amanda backup system](openhabian-amanda.md)
+-   [Comprehensive capabilities to ensure your system will keep working reliably 24/7](#availability-and-backup) including:
+    - ZRAM
+    - [SD card mirroring](#sd-mirroring)
+    - [Amanda backup system](openhabian-amanda.md)
 -   Web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
 -   [Tailscale](https://tailscale.com/blog/how-tailscale-works/) VPN and [WireGuard](https://www.wireguard.com/) for remote VPN access
 -   Samba file sharing [pre-configured ready to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
@@ -38,95 +35,119 @@ The openHABian image provides lots of useful Linux tools out of the box:
 -   The [Mosquitto](https://mosquitto.org) MQTT broker
 -   The [InfluxDB](https://www.influxdata.com/) database to store home automation data and [Grafana](https://grafana.com/) to visualize it
 -   FIND, the [Framework for Internal Navigation and Discovery](https://www.internalpositioning.com/)
--   Install and setup a [reverse proxy](security.html##running-openhab-behind-a-reverse-proxy) with password authentication and/or HTTPS access (incl. [Let's Encrypt](https://letsencrypt.org) certificate) for self-controlled remote access
-
-The included **openHABian Configuration Tool** [`openhabian-config`](#openhabian-configuration-tool) provides the following optional settings and components:
+-   Self-controlled remote access using a [reverse proxy](security.html##running-openhab-behind-a-reverse-proxy) with a [Let's Encrypt](https://letsencrypt.org) certificate
 
 ![openHABian-config menu](images/openHABian-config.png)
 
-### A note on dedication and commitment
-openHABian is for starters *and* expert users. We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
-Everybody wants their home automation to be stable and most people install a dedicated RPi, i.e. they don't install any other software there that may interfere with proper openHAB operation.
-Reasonably so, this is our clear recommendation. Saving another 100 bucks is not worth putting the reliable day-to-day operations of your home at risk.
+## openHABian basics
 
-Then again that being said, those who really want to can use openHABian as the starting point for their 'generic' server and run whatever software else on top.
-There's no genuine reason why this wouldn't work. The openHABian image is really just Raspberry Pi OS (lite) under the hood and openHABian is "just" some scripts that install a number of packages and configure the system in a specific way, optimized to run openHAB.
+openHABian installs the latest major version of **openHAB** (currently 4.x) by default.
+Currently the default Java version that will be installed is Java 17.
 
-<a id="befair"></a>
-#### and on fairness
-What you must not do, though, is to mess with the system, OS packages and config and expect anyone to help you with that. Let's clearly state this as well: when you deliberately decide to make manual changes to the OS software packages and configuration (i.e. outside of openhabian-config), you will be on your own.
-Your setup is untested, and no-one but you knows about your changes. openHABian maintainers are really committed to providing you with a fine user experience, but this takes enormous efforts in testing and is only possible with a fixed set of hardware and software parameters. You don't get to see this as a user.
+### Who should use openHABian?
 
-So if you choose to deviate from the standard openHABian installation (e.g. you change your box to run off SSD) and run into problems thereafter, please be fair: don't waste maintainer's or anyone's time by asking for help or information on your issues on the forum. Thank you !
+openHABian is for starters *and* expert users.
+We sometimes read about people deciding against use of openHABian because they want to install additional software and believe openHABian does not let them do this.
+This is not true, however, the best way to ensure a stable system is to avoid installing packages unrelated to openHAB as they may cause issues.
+Therefore our recommendation is and will always be to dedicate a single system to only your openHAB instance and avoid using it for other purposes.
+Saving another 100 bucks is not worth putting the reliable day-to-day operations of your home at risk.
 
-## Default installation
-openHABian will install **openHAB 4** and Java 17 by default.
+With that being said, we can't and won't stop you from doing whatever you want, but don't say we didn't warn you.
+
+### Unsupported usecases
+
+We do have to make one thing clear, we cannot and will not provide support for changes made beyond the scope of the base system provided by openHABian.
+This means any changes not made by `openhabian-config` to your system will not be supported by the maintainers.
+We as the openHABian maintainers are really committed to providing you with a fine user experience.
+This takes enormous efforts in testing and is only possible with a fixed set of hardware and software parameters.
+If you feel like something is missing and should be supported, feel free to ask if you could contribute support for it to the project.
 
 ## Hardware
+
 ### Hardware recommendation
-Let's put this first: our current recommendation is to get a RPi model 4 or 5 with 2 or 4 GB of RAM, whatever you can get hold of for a good price.
-Older RPi models (or models with less RAM) can be sufficient to run a smallish openHAB setup, but they will not be enough to run a full-blown system with many bindings and memory consuming openHABian features/components such as zram or InfluxDB.
+
+Our current recommendation is to get a RPi model 4/5 with 2/4 GB of RAM, whatever you can get hold of for a good price.
+Older RPi models (or models with less RAM) can be sufficient to run a smallish openHAB setup.
+Be warned though, they will not be enough to run a full-blown system with many bindings and memory consuming openHABian features/components such as zram or InfluxDB.
+
 We also recommend an "Endurance" SD card.
-Cards labelled "Endurance" can handle more write cycles and will be more enduring under openHAB\'s use conditions.
-If you want to be on the safe side, order the official 3A power supply, else any old mobile charger will usually do.
-Also prepare to make use of the [SD mirroring feature](openhabian.md#sd-mirroring), get a 2nd SD card right away, same model or at least the size of your internal one, plus a USB card reader.
+Cards labelled "Endurance" can handle more write cycles and will typically last longer for openHAB's use conditions.
+
+We also recommend that you get a 2nd SD card right away and prepare to make use of the [SD mirroring](#sd-mirroring) feature.
+Typically this means getting an SD card of the same model or at least the size of your primary one, plus a USB card reader.
+
+If you want to be on the safe side, order the official 3A power supply, otherwise any old mobile charger will usually do fine.
 
 ### Hardware support
-As of openHABian version 1.6 and later, all Raspberry Pi models are supported as hardware.
-openHABian can run on x86 based systems but on those you need to install the OS yourself.
-Anything else ARM based such as ODroids, OrangePis and the like may work or not.
-NAS servers such as QNAP and Synology boxes will not work.
 
-We do not actively prohibit installation on any hardware, including unsupported systems, but we might skip or deny to install/support specific features.
+All Raspberry Pi models are supported by openHABian.
+::: tip Note
+With the upcoming openHAB 5 release, we will drop support for anything older than an RPi 3 as openHAB 5 will require a 64 bit processor.
+:::
 
-Supporting hardware means testing every single patch and every release.
-There are simply too many combinations of SBCs, peripherals and OS flavors that maintainers do not have available, or, even if they did, the time to spend on the testing efforts that is required to make openHABian a reliable system.
-It means that to run on hardware other than RPi 2/3/4/5 or bare metal x86 Debian may work but is not a supported setup.
-Please stay with a supported version.
+openHABian can run on x86 based systems but you will need to install the OS yourself.
+
+Anything else ARM based such as ODroids, OrangePis and the like may or may not work.
+NAS servers such as QNAP and Synology boxes are not supported.
+We do not actively prohibit installation on any hardware, including unsupported systems, *but we probably will **not** offer support for any issues you encounter*.
+
+We **strongly** suggest that you stay with a supported version.
 This will help you and those you will want to ask for help on the forum focus on a known set of issues and solutions.
 
-For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md#fake-hardware-mode) to 'simulate' RPi hardware and Raspberry Pi OS.
+For ARM hardware that we don't support, you can try any of the [fake hardware parameters](#fake-hardware-mode) to 'simulate' RPi hardware and Raspberry Pi OS.
 
-#### Hardware modifications
-Plugging in HATs like an UPS or USB sticks or even SSDs for storage is fine, but we do not support attaching any hardware if that requires any sort of software or configuration changes on the OS part of openHABian.
-To put it straight: we don't recommend SSDs and do not support attaching an SSD and move the system over there.
-If you know Linux well enough to manually apply all the required modifications, feel free to do so but please be warned that this is a completely untested option that may work or not and what's even more important: it is unsupported. Don't ask for help if you run into trouble.
-Also remember that any future changes to openHABian (which is what you get when you upgrade as you are recommended to do on every start of the `openhabian-config` tool) can interfere with any such modification of yours so while any such mod may work for the time being you apply it, it may break your box and openHAB experience anytime in the future.
-Anybody afraid of SD card issues, use the [SD mirroring feature](openhabian.md#sd-mirroring) to mitigate.
-This will provide you with a secondary, up to date SD card, available for swapping at any time.
+### Hardware modifications
 
-### OS support
-Going beyond what the RPi image provides, as a manually installed set of scripts, we support running openHABian on x86 hardware on generic Debian.
-We provide code that is reported "as-is" to run on Ubuntu but we do not support Ubuntu so please don't open issues for this (PRs then again are welcome).
+Plugging in HATs like an UPS or USB sticks or even SSDs for storage is fine.
+Though please note that we cannot support attaching any hardware that requires additional software or configuration changes.
+Also remember that any future changes to openHABian (i.e. by the `openhabian-config` tool) can interfere with any modifications of yours.
+Beware that in the future changes you've made may break your box and openHAB experience at anytime.
+
+#### SSD
+
+We don't recommend or support using an SSD as your boot device.
+If you know Linux well enough to manually apply all the required modifications, feel free to do so.
+Be warned that this is completely untested and unsupported.
+Please don't ask for help if you run into trouble.
+
+Anybody afraid of SD card issues should use the [SD mirroring feature](#sd-mirroring) to mitigate.
+This will provide you with a secondary, up to date SD card, available for swapping in at any time.
+
+## OS support
+
+Going beyond RPi images, because openHABian is really just a set of scripts, we support running openHABian on x86 hardware using generic Debian.
+
+We provide code that is *reported* to run on Ubuntu but we do **not** support Ubuntu so please don't open issues for this (PRs adding support are welcome).
 Several optional components such as WireGuard or Homegear are known to expose problems on Ubuntu.
 
-Note as of openHAB 4 and Java 17, `buster` and older distros are no longer supported and there'll be issues if you attempt upgrading Java 11->17 from an older distro.
-We do not recommend upgrading an older distro.
+As of openHAB 4, `buster` and older distros are no longer supported.
+You must be on `bookworm` or newer.
+We do not recommend upgrading from an older distro without a fresh install.
 Please save yourself the pain and re-install using the latest openHABian image and import your config manually instead.
 
-### 64 bit?
+### 32/64 Bit support
+
 Any RPi 3 or newer supports 64 bit operation.
 Unless you really know what you are doing and have a compelling reason to do so, stick with the 64 bit image.
+If you do install a 32 bit image, please note that you will be unable to upgrade to openHAB 5 in the future.
 
 ### Networking
-You need to prepare your local network so you eventually need to configure your Internet router before an openHABian installation.
-For image based installations, openHABian re-uses the TCP/IP networking setup Raspberry Pi OS is coming with.
-The non-image (script-only) version of openHABian does not change anything about your existing OS' networking setup so you have to take care of that yourself before installing.
 
 A working DHCP server is a mandatory prerequisite to openHABian's networking setup.
 We recommend you configure your DHCP server to always assign the same IP based based on your RPi's MAC address.
-That'll effectively get you a fixed IP address.
-Most DHCP servers are part of your Internet router and have an option to allow for this type of mapping.
+That'll effectively get you a fixed local IP address.
+
+Most DHCP servers are part of your router and have an option to allow for this type of mapping.
 For example in AVM Fritz!boxes (popular in Germany), it's a simple checkbox you can tick - note it only appears after the address was assigned to a client (your openHABian box) for the first time.
-Note it is NOT supported to setup openHABian with a static IP address as described in the Raspberry Pi OS documentation as that can interfere with openHABian functionality.
-For reference, the RPi OS process is documented over here: <https://www.raspberrypi.org/documentation/configuration/tcpip/>.
-If you are getting an `169.*` IP address it means DHCP didn't work.
 
-When you boot a flashed image for the first time, openHABian will setup and use the Ethernet port if that one is connected with a cable to your LAN.
-It'll also use the `wifi_ssid` and `wifi_password` parameters from `/boot/openhabian.conf` to determine whether and how to setup the Wi-Fi interface.
-After these stages it checks for connectivity to the Internet and if that fails, it'll open a [Wi-Fi hotspot](#Wi-Fi-Hotspot) that lets you manually connect your system to a WLAN (Wi-Fi) of yours to jumpstart networking.
-Remember that once the hotspot is started, it'll hide once you have successfully used it to connect your Wi-Fi interface but it'll return should your Wi-Fi connectivity break down.
+Please note that it is **not** supported to setup openHABian with a static IP address as described in the Raspberry Pi OS documentation.
 
+When you boot a flashed image for the first time, openHABian will setup and use Ethernet if it is connected.
+If not Ethernet is detected it'll also use the `wifi_ssid` and `wifi_password` parameters from `/boot/openhabian.conf` to determine if/how to setup the Wi-Fi interface.
+
+After these stages it checks for connectivity to the Internet and if that fails, it'll try to open a [Wi-Fi hotspot](#Wi-Fi-Hotspot) that will let you manually connect your system Wi-Fi.
+Remember that once the hotspot is started, it'll hide once you have successfully used it to connect your Wi-Fi.
+If connection fails it'll return again.
 
 ## Raspberry Pi prepackaged SD card image
 
