@@ -1,4 +1,4 @@
-## Legacy openHAB 2 support removed ## December XX, 2024
+## Legacy openHAB 2 support removed ## November 23, 2024
 We have removed legacy support for the openHAB 2 systems. Please upgrade to
 the latest version of openHAB to receive further support.
 

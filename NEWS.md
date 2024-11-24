@@ -2,7 +2,7 @@ Hit tab to unselect buttons and scroll through the text using UP/DOWN or
 PGUP/PGDN. All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md`
 for you to lookup.
 
-## Legacy openHAB 2 support removed ## December XX, 2024
+## Legacy openHAB 2 support removed ## November 23, 2024
 We have removed legacy support for the openHAB 2 systems. Please upgrade to
 the latest version of openHAB to receive further support.
 
