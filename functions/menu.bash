@@ -3,7 +3,7 @@
 show_about() {
   local version
 
-  if openhab2_is_installed; then OHPKG="openhab2"; else OHPKG="openhab"; fi
+  OHPKG="openhab"
   version=$(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
   whiptail --title "About openHABian and $(basename "$0")" --msgbox "openHABian Configuration Tool — $(get_git_revision)
 openHAB ${version} - $(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)
@@ -211,43 +211,41 @@ show_main_menu() {
     "41 | openHAB Release"                "Install or switch to the latest openHAB Release" \
     "   | openHAB Milestone"              "Install or switch to the latest openHAB Milestone Build" \
     "   | openHAB Snapshot"               "Install or switch to the latest openHAB Snapshot Build" \
-    "42 | Upgrade legacy openHABian env"  "Upgrade openHAB 2 based OS environment to work with openHAB 3 or 4" \
-    "43 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
-    "44 | Clean cache"                    "Clean the cache for openHAB" \
-    "45 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
-    "46 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (now default)" \
+    "42 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
+    "43 | Clean cache"                    "Clean the cache for openHAB" \
+    "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
+    "45 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (now default)" \
     "   | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider" \
     "   | Zulu 11 OpenJDK 32-bit"         "Install Zulu 11 32-bit OpenJDK as Java provider" \
     "   | Zulu 11 OpenJDK 64-bit"         "Install Zulu 11 64-bit OpenJDK as Java provider" \
     "   | Zulu 21 OpenJDK 64-bit"         "Install Zulu 21 64-bit OpenJDK as Java provider" \
     "   | BellSoft Liberica JDK 21"       "Install BellSoft Liberica JDK 21, supports 32bit RPi (EXPERIMENTAL)" \
-    "47 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
+    "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
     "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of openHAB JavaScript library" \
-    "48 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \
+    "47 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \
     "   | Uninstall openhab_rules_tools"  "JS Scripting: Uninstall openhab_rules_tools" \
     3>&1 1>&2 2>&3)
     RET=$?
     if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
-    version="$(openhab4_is_installed && echo "openHAB" || (openhab3_is_installed && echo "openHAB3") || echo "openHAB2")"
+    version="$( (openhab4_is_installed && echo "openHAB") || (openhab3_is_installed && echo "openHAB3"))"
     # shellcheck disable=SC2154
     case "$choice2" in
       41\ *) openhab_setup "$version" "release";;
       *openHAB\ Milestone) openhab_setup "$version" "milestone";;
       *openHAB\ Snapshot) openhab_setup "$version" "snapshot";;
-      42\ *) migrate_installation "openHAB" && openhabian_update "openHAB";;
-      43\ *) openhab_shell_interfaces;;
-      44\ *) openhab_clean_cache;;
-      45\ *) nginx_setup;;
-      *OpenJDK\ 11) update_config_java "11" && java_install "11";;
+      42\ *) openhab_shell_interfaces;;
+      43\ *) openhab_clean_cache;;
+      44\ *) nginx_setup;;
       *OpenJDK\ 17) update_config_java "17" && java_install "17";;
+      *OpenJDK\ 11) update_config_java "11" && java_install "11";;
       *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
       *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
       *Zulu\ 21\ OpenJDK\ 64-bit) update_config_java "Zulu21-64" && java_install_or_update "Zulu21-64";;
       *BellSoft\ Liberica\ JDK\ 21) update_config_java "BellSoft21" && java_install_or_update "BellSoft21";;
-      47\ *) jsscripting_npm_install "openhab";;
+      46\ *) jsscripting_npm_install "openhab";;
       *Uninstall\ openhab-js) jsscripting_npm_install "openhab" "uninstall";;
-      48\ *) jsscripting_npm_install "openhab_rules_tools";;
+      47\ *) jsscripting_npm_install "openhab_rules_tools";;
       *Uninstall\ openhab_rules_tools) jsscripting_npm_install "openhab_rules_tools" "uninstall";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;

@@ -185,7 +185,6 @@ openhabian_update() {
   elif [[ -n $INTERACTIVE ]]; then
     radioOptions=("release" "most recommended version that supports openHAB 4 (openHAB branch)" "OFF")
     radioOptions+=("latest" "the latest of openHABian, not well tested (main branch)" "OFF")
-    radioOptions+=("legacy" "use for openHAB 2.x support (legacy branch)" "OFF")
 
     case "$current" in
       "openHAB")
@@ -196,11 +195,6 @@ openhabian_update() {
       "main")
         branchLabel="the latest version of openHABian"
         radioOptions[5]="ON"
-        ;;
-
-      "openHAB2"|"legacy"|"stable")
-        branchLabel="the legacy version of openHABian"
-        radioOptions[8]="ON"
         ;;
 
       *)
@@ -218,7 +212,6 @@ openhabian_update() {
     case $selection in
       release) selection="openHAB";;
       latest) selection="main";;
-      legacy) selection="openHAB2";;
     esac
 
     read -r -t 1 -n 1 key
@@ -259,118 +252,6 @@ openhabian_update() {
       exit 0
     fi
   fi
-}
-
-## Changes files on disk to match the new (changed) openhabian branch
-## Valid arguments: "openHAB", "openHAB3" or "openHAB2"
-##
-##    migrate_installation()
-##
-migrate_installation() {
-  local failText="is already installed on your system!\\n\\nCanceling migration, returning to menu."
-  local frontailService="/etc/systemd/system/frontail.service"
-  local homegearService="/etc/systemd/system/homegear.service"
-  local zramService="/etc/systemd/system/zram-config.service"
-  local frontailJSON="/usr/lib/node_modules/frontail/preset/openhab.json"
-  local amandaConfigs="/etc/amanda/openhab-*/disklist"
-  local ztab="/etc/ztab"
-  local serviceDir="/etc/systemd/system"
-  local services
-  # shellcheck disable=SC2206
-  local mountUnits="${serviceDir}/srv-openhab*"
-  local from
-  local to
-  local distro="stable"
-  local javaVersion
-
-  if [[ -z $INTERACTIVE  ]]; then
-    echo "$(timestamp) [openHABian] Migration must be triggered in interactive mode... SKIPPED"
-    return 0
-  fi
-
-  echo -n "$(timestamp) [openHABian] Preparing openHAB installation... "
-
-  if [[ "$1" == "openHAB" ]] || [[ "$1" == "openHAB3" ]]; then
-    if openhab4_is_installed || openhab3_is_installed; then
-      whiptail --title "openHAB version already installed" --msgbox "openHAB $failText" 10 80
-      echo "FAILED (openHAB 3 or 4 already installed)"
-      return 1
-    fi
-    from="openhab2"
-    to="openhab"
-  else
-    if openhab2_is_installed; then
-      whiptail --title "openHAB version already installed" --msgbox "openHAB 2 $failText" 10 80
-      echo "FAILED (openHAB 2 already installed)"
-      return 1
-    fi
-    from="openhab"
-    to="openhab2"
-  fi
-  services="srv-${from}\\x2daddons.mount srv-${from}\\x2dconf.mount srv-${from}\\x2duserdata.mount  srv-${from}\\x2dsys.mount"
-
-  javaVersion="$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')"
-  # shellcheck disable=SC2154
-  [[ "$zraminstall" != "disable" ]] && zram_is_installed && if cond_redirect systemctl stop zram-config.service; then echo "OK"; else echo "FAILED (stop zram)"; return 1; fi
-  backup_openhab_config
-
-  if [[ -z "$javaVersion" ]] || [[ "${javaVersion}" -lt "11" ]]; then
-    echo -n "$(timestamp) [openHABian] WARNING: We were unable to detect Java 11 on your system so we will install the openHABian default (OpenJDK 11)."
-    java_install "11"
-  fi
-  echo -n "$(timestamp) [openHABian] Installing openHAB... "
-  if openhab_setup "$1" "${distro}"; then echo "OK"; else echo "FAILED (install openHAB)"; cond_redirect systemctl start zram-config.service; return 1; fi
-
-  if [[ -d /var/lib/openhab/persistence/mapdb ]]; then
-    echo -n "$(timestamp) [openHABian] Deleting mapdb persistence files... "
-    rm -f /var/lib/${to}/persistence/mapdb/storage.mapdb
-    echo "OK"
-  fi
-
-  echo -n "$(timestamp) [openHABian] Migrating Amanda config... "
-  for i in $amandaConfigs; do
-    if [[ -s "$i" ]]; then
-      sed -i "s|/${from}|/${to}|g" "$i"
-    fi
-  done
-  echo "OK"
-
-  echo -n "$(timestamp) [openHABian] Migrating Samba and mount units... "
-  if ! cond_redirect systemctl stop smbd nmbd; then echo "FAILED (stop samba)"; return 1; fi
-  # shellcheck disable=SC2086
-  if ! cond_redirect systemctl disable --now ${services}; then echo "FAILED (disable mount units)"; fi
-  for s in ${mountUnits}; do
-    if [[ "$to" == "openhab" ]] || ! grep -q "Description=$to" "$s"; then
-      newname=${s//${from}/${to}}
-      sed -e "s|${from}|${to}|g" "${s}" > "${newname}"
-      rm -f "$s"
-    fi
-  done
-
-  services=${services//${from}/${to}}
-  sed -i "s|/${from}|/${to}|g" /etc/samba/smb.conf
-
-  # shellcheck disable=SC2086
-  if cond_redirect systemctl enable --now ${services}; then echo "OK"; else echo "FAILED (reenable mount units)"; return 1; fi
-  if cond_redirect systemctl start smbd nmbd; then echo "OK"; else echo "FAILED (reenable samba)"; return 1; fi
-  echo -n "$(timestamp) [openHABian] Migrating frontail... "
-  sed -i "s|${from}/|${to}/|g" $frontailService
-  sed -i "s|${from}/|${to}/|g" $frontailJSON
-  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
-  if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart frontail)"; return 1; fi
-
-  echo -n "$(timestamp) [openHABian] Migrating homegear... "
-  sed -i "s|${from}/|${to}/|g" $homegearService
-  echo "OK"
-
-  if zram_is_installed; then
-    echo -n "$(timestamp) [openHABian] Migrating zram config... "
-    sed -i "s|/${from}|/${to}|g" "$ztab"
-    sed -i "s|${from}|${to}|g" "$zramService"
-  fi
-
-  # shellcheck disable=SC2154
-  [[ "$zraminstall" != "disable" ]] && if cond_redirect systemctl restart zram-config.service; then echo "OK"; else echo "FAILED (restart zram)"; return 1; fi
 }
 
 ## Check for default system password and if found issue a warning and suggest
