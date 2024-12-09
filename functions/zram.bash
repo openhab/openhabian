@@ -31,6 +31,11 @@ init_zram_mounts() {
   local lowMemText="Your system has less than 1 GB of RAM. It is definitely NOT recommended to run zram (AND openHAB) on your box. If you proceed now you will do so at your own risk!"
   local zramInstallLocation="/opt/zram"
 
+  if ! dpkg -s 'meson' &> /dev/null; then
+    echo -n "$(timestamp) [openHABian] Installing zram required package (meson)... "
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" meson; then echo "OK"; else echo "FAILED"; return 1; fi
+  fi
+
   if [[ $1 == "install" ]] && ! [[ -f /etc/ztab ]]; then
     if [[ -n $INTERACTIVE ]]; then
       # display warn disclaimer and point to zram status thread on forum
@@ -39,11 +44,6 @@ init_zram_mounts() {
       if has_lowmem; then
         if ! (whiptail --title "WARNING, continue?" --yes-button "REALLY Continue" --no-button "Cancel" --yesno --defaultno "$lowMemText" 10 80); then echo "CANCELED"; return 0; fi
       fi
-    fi
-
-    if ! dpkg -s 'meson' &> /dev/null; then
-      echo -n "$(timestamp) [openHABian] Installing zram required package (meson)... "
-      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" meson; then echo "OK"; else echo "FAILED"; return 1; fi
     fi
 
     install_zram_code "$zramInstallLocation"
@@ -63,7 +63,6 @@ init_zram_mounts() {
       if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}"/includes/ztab /etc/ztab; then echo "FAILED (ztab)"; return 1; fi
     fi
 
-    if ! cond_redirect install -m 755 "$zramInstallLocation"/zram-config/zram-config /usr/local/sbin; then echo "FAILED (zram-config)"; return 1; fi
     if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/service/SystemD/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install zram-config.service)"; return 1; fi
     if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/zram-sync /usr/local/sbin; then echo "FAILED (install ZRAM sync script)"; return 1; fi
     if ! cond_redirect install -m 644 "${BASEDIR:-/opt/openhabian}/includes/SD"/zsync.* /etc/systemd/system/; then echo "FAILED (install ZRAM sync service)"; return 1; fi
@@ -92,7 +91,6 @@ init_zram_mounts() {
     fi
 
     echo -n "$(timestamp) [openHABian] Setting up zram service... "
-    if ! cond_redirect install -m 644 "$zramInstallLocation"/zram-config/service/SystemD/zram-config.service /etc/systemd/system/zram-config.service; then echo "FAILED (install service)"; return 1; fi
     if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
 
     if ! running_in_docker && ! running_on_github; then
@@ -119,9 +117,9 @@ init_zram_mounts() {
     if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
   elif [[ -f /etc/ztab ]]; then
     echo -n "$(timestamp) [openHABian] Updating zram service... "
+    if ! cond_redirect systemctl stop zram-config.service; then echo "FAILED (stop zram)"; return 1; fi
     if ! cond_redirect mkdir -p /usr/local/lib/zram-config/; then echo "FAILED (create directory)"; return 1; fi
     if ! cond_redirect rm -f /usr/local/lib/zram-config/overlay; then echo "FAILED (remove old overlay)"; return 1; fi    # remove old location of overlay binary this can probably be removed in the future
-    if ! cond_redirect systemctl stop zram-config.service; then echo "FAILED (stop zram)"; return 1; fi
     if ! [[ -d "$zramInstallLocation/zram-config/overlayfs-tools/.git" ]]; then
       rm -rf "$zramInstallLocation/zram-config/overlayfs-tools"
     fi
