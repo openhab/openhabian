@@ -217,7 +217,7 @@ Amanda install routine should do that for you, but it only CAN do it for you if 
 Installation will ask you a couple of questions.
 *   "What's the directory to store backups into?"
     Here you need to enter the _local_ directory of your openHABian box, also known as _the mount point_.
-    This is where you have mounted your USB storage or NAS disk share (which in above example for the NAS is `/storage/server` and for the USB stick is either `/storage/usbstick-linux` or `/storage/usbstick-msdos`).
+    This is where you have mounted your USB storage or NAS disk share (which in above example for the NAS is `/storage/server` and for the USB stick is `/storage/usbstick-linux`).
 *   "How much storage do you want to dedicate to your backup in megabytes?"
     Amanda will use at most this number of megabytes in total as its storage for backup.
     If you choose to include the raw device in the backup cycle (next question), that means you should enter 3 times the size of your SD disk NOW.
