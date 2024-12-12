@@ -403,7 +403,6 @@ setup_hp_config() {
   if [[ $muser == "NULL" ]]; then muser=""; fi
   mpass=${7:-${heatpumppass}}
   if [[ $mpass == "NULL" ]]; then mpass=""; fi
-  #sed -i "s|%IP|${2:-${heatpumpip}}|;s|%MBID|${3:-${heatpumpmodbusid:-1}}|;s|%RELAY|${4:-${sgractuator:-shelly25-relay}}|;s|%USER|${muser}|;s|%PASS|${mpass}|" "${OPENHAB_CONF:-/etc/openhab}/things/heizung.things"
   sed -i "s|%IP|${2:-${heatpumpip}}|;s|%PORT|${3:-${heatpumpport:-8889}}|;s|%MBID|${4:-${heatpumpmodbusid:-1}}|;s|%RELAY|${5:-${sgractuator:-shelly25-relay}}|;s|%USER|${muser}|;s|%PASS|${mpass}|" "${OPENHAB_CONF:-/etc/openhab}/things/heizung.things"
   sed -i "s|%RELAY|${5:-${sgractuator:-shelly25-relay}}|" "${OPENHAB_CONF:-/etc/openhab}/items/heizung.items"
 }
