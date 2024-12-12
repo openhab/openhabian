@@ -82,7 +82,7 @@ show_main_menu() {
       fi
     fi
     repo=$(apt-cache madison openhab | head -n 1 | awk '{ print $6 }' |cut -d'/' -f1)
-    openhab_setup "openHAB" "${repo:-release}"
+    openhab_setup "${repo:-release}"
 
   elif [[ "$choice" == "04"* ]]; then
     import_openhab_config
@@ -231,9 +231,9 @@ show_main_menu() {
     version="$( (openhab4_is_installed && echo "openHAB") || (openhab3_is_installed && echo "openHAB3"))"
     # shellcheck disable=SC2154
     case "$choice2" in
-      41\ *) openhab_setup "$version" "release";;
-      *openHAB\ Milestone) openhab_setup "$version" "milestone";;
-      *openHAB\ Snapshot) openhab_setup "$version" "snapshot";;
+      41\ *) openhab_setup "release";;
+      *openHAB\ Milestone) openhab_setup "milestone";;
+      *openHAB\ Snapshot) openhab_setup "snapshot";;
       42\ *) openhab_shell_interfaces;;
       43\ *) openhab_clean_cache;;
       44\ *) nginx_setup;;
