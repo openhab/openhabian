@@ -103,14 +103,14 @@ Though please note that we cannot support attaching any hardware that requires a
 Also remember that any future changes to openHABian (i.e. by the `openhabian-config` tool) can interfere with any modifications of yours.
 Beware that in the future changes you've made may break your box and openHAB experience at anytime.
 
-#### SSD
+#### external boot medium
 
-We don't recommend or support using an SSD as your boot device.
+We neither recommend nor support using an SSD or other external medium as your boot device.
 If you know Linux well enough to manually apply all the required modifications, feel free to do so.
 Be warned that this is completely untested and unsupported.
 Please don't ask for help if you run into trouble.
 
-Anybody afraid of SD card issues should use the [SD mirroring feature](#sd-mirroring) to mitigate.
+Anybody afraid of SD card issues should use ZRAM and the [SD mirroring feature](#sd-mirroring) to mitigate.
 This will provide you with a secondary, up to date SD card, available for swapping in at any time.
 
 ## OS support
