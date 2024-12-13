@@ -42,7 +42,7 @@ delayed_rules() {
 ## Function to install / upgrade / downgrade the installed openHAB version
 ## Valid argument 1: "release", "milestone" or "testing", or "snapshot" or "unstable"
 ##
-##    openhab_setup(String version, String release, String packageversion)
+##    openhab_setup(String release)
 ##
 openhab_setup() {
   local introText
