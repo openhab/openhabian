@@ -134,7 +134,6 @@ show_main_menu() {
     "   | Setup EVCC"             "Setup EVCC from command line (German only)" \
     "2E | Install ESPHome dashboard"           "Deploy ESPHome dashboard" \
     "   | Remove ESPHome dashboard"            "Uninstall ESPHome dashboard" \
-
     3>&1 1>&2 2>&3)
     RET=$?
     if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
@@ -162,7 +161,6 @@ show_main_menu() {
       *Setup\ EVCC*) setup_evcc;;
       2E\ *) install_esphomedashboard "install";;
       *Remove\ ESPHome dashboard*) install_esphomedashboard "remove";;
-      *Setup\ ESPHome dashboard*) setup_evcc;;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
