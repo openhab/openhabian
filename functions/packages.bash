@@ -798,3 +798,160 @@ setup_evcc() {
   echo -n "$(timestamp) [openHABian] Created EVCC config, restarting ... "
   if cond_redirect systemctl restart evcc.service; then echo "OK"; else echo "FAILED"; fi
 }
+
+## Function for (un)installing ESPhome dashboard
+## The function must be invoked UNATTENDED.
+## Valid arguments: "install" or "remove"
+##
+##   install_esphomedashboard(String action)
+##
+##
+install_esphomedashboard() {
+  local port=6052
+  local installText="This will install ESPhome dashboard\\nUse the web interface on port $port to access ESPhome dashboard web interface."
+  local removeText="This will remove ESPhome dashboard"
+  
+  if [[ $1 == "remove" ]]; then
+    if [[ -n $INTERACTIVE ]]; then
+      whiptail --title "ESPhome dashboard removal" --msgbox "$removeText" 7 80
+    fi
+    echo -n "$(timestamp) [openHABian] Starting ESPHome Dashboard uninstallation..."
+
+    # Function to check the success of the last executed command
+    check_success() {
+        if [ $? -ne 0 ]; then
+            echo -n "$(timestamp) [openHABian] Error: $1"
+            exit 1
+        fi
+    }
+
+    # Ensure the script is run with sudo
+    if [ "$EUID" -ne 0 ]; then
+        echo -n "$(timestamp) [openHABian] Please run this script as root or with sudo."
+        exit 1
+    fi
+
+    # Stop the ESPHome Dashboard service
+    echo -n "$(timestamp) [openHABian] Stopping the ESPHome Dashboard service..."
+    systemctl stop esphome-dashboard.service
+    check_success "Failed to stop ESPHome Dashboard service."
+
+    # Disable the ESPHome Dashboard service
+    echo -n "$(timestamp) [openHABian] Disabling the ESPHome Dashboard service..."
+    systemctl disable esphome-dashboard.service
+    check_success "Failed to disable ESPHome Dashboard service."
+
+    # Remove the ESPHome Dashboard service file
+    echo -n "$(timestamp) [openHABian] Removing the ESPHome Dashboard systemd service file..."
+    rm -f /etc/systemd/system/esphome-dashboard.service
+    check_success "Failed to remove systemd service file."
+
+    # Reload systemd daemon
+    echo -n "$(timestamp) [openHABian] Reloading systemd daemon..."
+    systemctl daemon-reload
+    check_success "Failed to reload systemd daemon."
+
+    # Remove the ESPHome installation directory
+    ESPHOME_DIR="/opt/esphomedashboard"
+    echo -n "$(timestamp) [openHABian] Removing ESPHome directory at $ESPHOME_DIR..."
+    rm -rf "$ESPHOME_DIR"
+    check_success "Failed to remove $ESPHOME_DIR."
+
+    # Final cleanup 
+    echo -n "$(timestamp) [openHABian] Uninstallation complete!"
+    echo -n "$(timestamp) [openHABian] ESPHome Dashboard has been completely removed from the system."
+    return;
+  fi
+
+  if [[ $1 != "install" ]]; then 
+    if [[ -n $INTERACTIVE ]]; then
+      whiptail --title "ESPhome dashboard installation" --msgbox "$installText" 8 80
+    fi
+    echo -n "$(timestamp) [openHABian] Starting ESPHome Dashboard setup..."
+
+    # Function to check the success of the last executed command
+    check_success() {
+        if [ $? -ne 0 ]; then
+            echo -n "$(timestamp) [openHABian] Error: $1"
+            exit 1
+        fi
+    }
+
+    # Ensure the script is run with sudo
+    if [ "$EUID" -ne 0 ]; then
+        echo -n "$(timestamp) [openHABian] Please run this script as root or with sudo."
+        exit 1
+    fi
+
+    # Update system packages
+    echo -n "$(timestamp) [openHABian] Updating system packages..."
+    apt update && apt upgrade -y
+    check_success "Failed to update system packages."
+
+    # Install Python 3 and pip
+    echo -n "$(timestamp) [openHABian] Installing Python 3 and pip..."
+    apt install -y python3 python3-pip python3-venv
+    check_success "Failed to install Python 3 and pip."
+
+    # Create the /opt/esphomedashboard directory and set permissions
+    ESPHOME_DIR="/opt/esphomedashboard"
+    echo -n "$(timestamp) [openHABian] Creating directory at $ESPHOME_DIR..."
+    mkdir -p "$ESPHOME_DIR/config"
+    check_success "Failed to create $ESPHOME_DIR and its config directory."
+   
+    # Set ownership to the current non-root user
+    USER=$(logname)
+    chown -R "$USER:$USER" "$ESPHOME_DIR"
+    check_success "Failed to set ownership of $ESPHOME_DIR to $USER."
+
+    # Switch to the ESPHome directory and set up a virtual environment
+    echo -n "$(timestamp) [openHABian] Setting up a virtual environment in $ESPHOME_DIR..."
+    cd "$ESPHOME_DIR" || exit
+    sudo -u "$USER" python3 -m venv venv
+    check_success "Failed to create a Python virtual environment."
+
+    # Activate the virtual environment and install ESPHome
+    echo -n "$(timestamp) [openHABian] Activating the virtual environment and installing ESPHome..."
+    sudo -u "$USER" bash -c "source venv/bin/activate && pip install esphome"
+    check_success "Failed to install ESPHome."
+    
+    # Create the ESPHome Dashboard systemd service
+    echo -n "$(timestamp) [openHABian] Creating a systemd service for ESPHome Dashboard..."
+    cat > /etc/systemd/system/esphome-dashboard.service <<EOF
+    [Unit]
+    Description=ESPHome Dashboard
+    After=network.target
+
+    [Service]
+    WorkingDirectory=$ESPHOME_DIR
+    ExecStart=$ESPHOME_DIR/venv/bin/esphome dashboard $ESPHOME_DIR/config --port 6052
+    Restart=always
+    User=$USER
+
+    [Install]
+    WantedBy=multi-user.target
+EOF
+    check_success "Failed to create the ESPHome Dashboard systemd service file."
+
+    # Reload systemd and enable the service
+    echo -n "$(timestamp) [openHABian] Reloading systemd daemon and enabling the ESPHome Dashboard service..."
+    systemctl daemon-reload
+    check_success "Failed to reload systemd daemon."
+
+    systemctl enable esphome-dashboard.service
+    check_success "Failed to enable ESPHome Dashboard service."
+ 
+    # Start the ESPHome Dashboard service
+    echo -n "$(timestamp) [openHABian] Starting the ESPHome Dashboard service..."
+    systemctl start esphome-dashboard.service
+    check_success "Failed to start ESPHome Dashboard service."
+
+    # Final message
+    echo -n "$(timestamp) [openHABian] ESPHome Dashboard setup complete!"
+    echo -n "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:6052"
+    return ;
+  fi
+ 
+}
+
+
