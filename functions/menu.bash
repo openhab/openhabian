@@ -160,7 +160,7 @@ show_main_menu() {
       *Remove\ EVCC*) install_evcc "remove";;
       *Setup\ EVCC*) setup_evcc;;
       2E\ *) install_esphomedashboard "install";;
-      *Remove\ ESPHome dashboard*) install_esphomedashboard "remove";;
+      *Remove\ ESPHome\ dashboard*) install_esphomedashboard "remove";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
