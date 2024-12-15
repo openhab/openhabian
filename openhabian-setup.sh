@@ -117,8 +117,6 @@ if [[ -n "$UNATTENDED" ]]; then
   srv_bind_mounts
   samba_setup
   clean_config_userpw
-  frontail_setup
-  custom_frontail_log "add" "$custom_log_files"
   jsscripting_npm_install "openhab_rules_tools"
   zram_setup
   exim_setup
@@ -134,6 +132,7 @@ else
   openhabian_update_check
   jsscripting_npm_check "openhab"
   jsscripting_npm_check "openhab_rules_tools"
+  frontail_remove # remove old frontail service if present can be removed in future
   while show_main_menu; do
     true
   done

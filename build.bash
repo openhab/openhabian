@@ -353,12 +353,6 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
     firemotd_download "${buildFolder}/root/opt" &> /dev/null
   )
 
-  # Cache frontail for offline install.
-  (
-    echo_process "Downloading frontail..."
-    frontail_download "${buildFolder}/root/opt" &> /dev/null
-  )
-
   sync
   umount_image_file_root "$imageFile" "$buildFolder"
 
