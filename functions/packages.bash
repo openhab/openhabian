@@ -866,7 +866,7 @@ install_esphomedashboard() {
     echo "$(timestamp) [openHABian] Starting ESPHome Dashboard setup..."
 
     # Ensure the script is run with sudo
-    if [ "$EUID" -ne 0 ]; then
+    if [ "$EUID" -ne 0 ]; then 
       echo "$(timestamp) [openHABian] Please run this script as root or with sudo."
       return
     fi
@@ -926,13 +926,10 @@ install_esphomedashboard() {
       return
     fi
 
-    if ! systemctl enable esphome-dashboard.service; then
-      echo "$(timestamp) [openHABian] Error: Failed to enable ESPHome Dashboard service."
-      return
-    fi
-
-    if ! systemctl start esphome-dashboard.service; then
-      echo "$(timestamp) [openHABian] Error: Failed to start ESPHome Dashboard service."
+    # Enable and start the ESPHome Dashboard service
+    echo "$(timestamp) [openHABian] Enabling and starting the ESPHome Dashboard service..."
+    if ! systemctl enable --now esphome-dashboard.service; then
+      echo "$(timestamp) [openHABian] Error: Failed to enable and start ESPHome Dashboard service."
       return
     fi
 
