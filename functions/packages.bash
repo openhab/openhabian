@@ -859,7 +859,7 @@ install_esphomedashboard() {
     return
   fi
 
-  if [[ $1 != "install" ]]; then 
+  if [[ $1 == "install" ]]; then 
     if [[ -n $INTERACTIVE ]]; then
       whiptail --title "ESPhome dashboard installation" --msgbox "$installText" 8 80
     fi
