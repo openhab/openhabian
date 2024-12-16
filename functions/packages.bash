@@ -803,7 +803,7 @@ setup_evcc() {
 ## The function must be invoked UNATTENDED.
 ## Valid arguments: "install" or "remove"
 ##
-##   install_esphomedashboard(String action)
+##  install_esphomedashboard(String action)
 ##
 ##
 install_esphomedashboard() {
