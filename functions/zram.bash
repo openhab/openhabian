@@ -115,7 +115,8 @@ init_zram_mounts() {
     if ! cond_redirect rm -rf /usr/local/lib/zram-config; then echo "FAILED (zram-config lib)"; return 1; fi
     if ! cond_redirect rm -f /var/log/zram-config; then echo "FAILED (zram-config link)"; return 1; fi
     if cond_redirect rm -f /etc/logrotate.d/zram-config; then echo "OK"; else echo "FAILED (logrotate)"; return 1; fi
-  elif zram_is_installed && [[ -z $zram_reset ]]; then
+  elif zram_is_installed; then
+    if [[ $1 == "autoupdate" ]] && [[ -n $zram_reset ]]; then return 0; fi
     echo -n "$(timestamp) [openHABian] Updating zram service... "
     if ! cond_redirect systemctl stop zram-config.service; then echo "FAILED (stop zram)"; return 1; fi
     if ! cond_redirect mkdir -p /usr/local/lib/zram-config/; then echo "FAILED (create directory)"; return 1; fi
