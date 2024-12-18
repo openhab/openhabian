@@ -462,7 +462,6 @@ install_extras() {
   local consoleProperties="${OPENHAB_USERDATA:-/var/lib/openhab}/etc/org.apache.karaf.shell.cfg"
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local deckey="/etc/ssl/private/ems.key"
-  local destdir="/usr/share/openhab/addons/"
   local sudoersFile="011_ems"
   local sudoersPath="/etc/sudoers.d"
   local addonsCfg="${OPENHAB_CONF:-/etc/openhab}/services/addons.cfg"
