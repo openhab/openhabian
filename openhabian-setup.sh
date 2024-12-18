@@ -133,7 +133,7 @@ else
   zram_is_installed && init_zram_mounts "autoupdate" && echo "zram_reset=done" >> /etc/openhabian.conf  # update zram to fix potential issues
   jsscripting_npm_check "openhab"
   jsscripting_npm_check "openhab_rules_tools"
-  frontail_remove # remove old frontail service if present can be removed in future
+  #frontail_remove # remove old frontail service if present can be removed in future
   while show_main_menu; do
     true
   done
