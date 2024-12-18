@@ -901,7 +901,7 @@ install_esphomedashboard() {
     # Set up a virtual environment and install ESPHome
     echo "$(timestamp) [openHABian] Setting up a virtual environment in $ESPHOME_DIR..."
     cd "$ESPHOME_DIR" || return
-    if ! sudo -u "$USER" python3 -m venv venv; then
+    if ! sudo -u "$USER" python3 -m venv "$ESPHOME_DIR/venv"; then
       echo "$(timestamp) [openHABian] Error: Failed to create a Python virtual environment."
       return
     fi
