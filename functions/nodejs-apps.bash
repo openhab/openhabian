@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2181
 
-## Function for installing NodeJS for frontail and other addons.
+## Function for installing NodeJS for Node-RED and other addons.
 ##
 ##    nodejs_setup()
 ##
@@ -54,109 +54,32 @@ nodejs_setup() {
   fi
 }
 
-## Function for downloading frontail to current system
+## Function for removing frontail as its insecure and not maintained.
 ##
-##    frontail_download(String prefix)
+##    frontail_remove()
 ##
-frontail_download() {
-  echo -n "$(timestamp) [openHABian] Downloading frontail... "
-  if ! [[ -d "${1}/frontail" ]]; then
-    cond_echo "\\nFresh Installation... "
-    if cond_redirect git clone https://github.com/Interstellar0verdrive/frontail_AEM.git "${1}/frontail"; then echo "OK"; else echo "FAILED (git clone)"; return 1; fi
-  else
-    cond_echo "\\nUpdate... "
-    if cond_redirect update_git_repo "${1}/frontail" "master"; then echo "OK"; else echo "FAILED (update git repo)"; return 1; fi
-  fi
-}
-
-## Function for installing frontail to enable the openHAB log viewer web application.
-##
-##    frontail_setup()
-##
-frontail_setup() {
+frontail_remove() {
   local frontailBase
-  local frontailUser="frontail"
-
-  if ! node_is_installed || is_armv6l; then
-    echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
-    if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
-  fi
+  local frontailDir="/opt/frontail"
 
   frontailBase="$(npm list -g | head -n 1)/node_modules/frontail"
 
-  if ! (id -u ${frontailUser} &> /dev/null || cond_redirect useradd --groups "${username:-openhabian}",openhab -s /bin/bash -d /var/tmp ${frontailUser}); then echo "FAILED (adduser)"; return 1; fi
+  if ! [[ $(openhab-cli info | grep "Version" | xargs | cut -d ' ' -f 2) =~ 4.[3-9]* ]]; then return 0; fi
 
-  echo -n "$(timestamp) [openHABian] Installing openHAB Log Viewer (frontail)... "
-  if [[ -d $frontailBase ]]; then
-    cond_echo "Removing any old installations... "
-    cond_redirect npm uninstall -g frontail
-  fi
-
-  if ! cond_redirect frontail_download "/opt"; then echo "FAILED (download)"; return 1; fi
-  cd /opt/frontail || (echo "FAILED (cd)"; return 1)
-  # npm arguments explained:
-  #   --omit=dev ignores the dev dependencies (we do not require them for production usage)
-  # Do NOT catch exit 1 for npm audit fix, because it's thrown when a vulnerability can't be fixed. Happens when a fix requires an upgrade to a new major release with possible breaking changes.
-  cond_redirect npm audit fix --omit=dev
-  if ! cond_redirect npm update --audit=false --omit=dev; then echo "FAILED (update)"; return 1; fi
-  if cond_redirect npm install --global --audit=false --omit=dev; then echo "OK"; else echo "FAILED (install)"; return 1; fi
-
-  echo -n "$(timestamp) [openHABian] Setting up openHAB Log Viewer (frontail) service... "
-  if ! (sed -e "s|%FRONTAILBASE|${frontailBase}|g" "${BASEDIR:-/opt/openhabian}"/includes/frontail.service > /etc/systemd/system/frontail.service); then echo "FAILED (service file creation)"; return 1; fi
-  if ! cond_redirect chmod 644 /etc/systemd/system/frontail.service; then echo "FAILED (permissions)"; return 1; fi
-  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
-  if ! cond_redirect systemctl enable --now frontail.service; then echo "FAILED (enable service)"; return 1; fi
-  if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi # Restart the service to make the change visible
-
-  if openhab_is_installed; then
-    dashboard_add_tile "frontail"
-  fi
-}
-
-## Function for adding/removing a user specifed log to/from frontail
-##
-##    custom_frontail_log()
-##
-custom_frontail_log() {
-  local frontailService="/etc/systemd/system/frontail.service"
-  local addLog
-  local removeLog
-  local array
-
-  if ! [[ -f $frontailService ]]; then
-    whiptail --title "Frontail not installed" --msgbox "Frontail is not installed!\\n\\nCanceling operation!" 9 80
-    return 0
-  fi
-
-  if [[ $1 == "add" ]]; then
-    if [[ -n $INTERACTIVE ]]; then
-      if ! addLog="$(whiptail --title "Enter file path" --inputbox "\\nEnter the path to the logfile that you would like to add to frontail:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-    else
-      if [[ -n $2 ]]; then addLog="$2"; else return 0; fi
+  if [[ -d $frontailBase ]] || [[ -d $frontailDir ]]; then
+    echo -n "$(timestamp) [openHABian] Removing openHAB Log Viewer frontail... "
+    if [[ $(systemctl is-active frontail.service) == "active" ]]; then
+      if ! cond_redirect systemctl stop frontail.service; then echo "FAILED (stop service)"; return 1; fi
     fi
+    cond_redirect npm uninstall -g frontail
+    rm -f /etc/systemd/system/frontail.service
+    rm -rf /var/log/frontail
+    rm -rf /opt/frontail
 
-    for log in "${addLog[@]}"; do
-      if [[ -f $log ]]; then
-        echo -n "$(timestamp) [openHABian] Adding '${log}' to frontail... "
-        if ! cond_redirect sed -i -e "/^ExecStart/ s|$| ${log}|" "$frontailService"; then echo "FAILED (add log)"; return 1; fi
-        if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
-        if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
-      else
-        if [[ -n $INTERACTIVE ]]; then
-          whiptail --title "File does not exist" --msgbox "The specifed file path does not exist!\\n\\nCanceling operation!" 9 80
-          return 0
-        else
-          echo "$(timestamp) [openHABian] Adding '${log}' to frontail... FAILED (file does not exist)"
-        fi
-      fi
-    done
-  elif [[ $1 == "remove" ]] && [[ -n $INTERACTIVE ]]; then
-    readarray -t array < <(grep -e "^ExecStart.*$" "$frontailService" | awk '{for (i=12; i<=NF; i++) {printf "%s\n\n", $i}}')
-    ((count=${#array[@]} + 6))
-    removeLog="$(whiptail --title "Select log to remove" --cancel-button Cancel --ok-button Select --menu "\\nPlease choose the log that you would like to remove from frontail:\\n" "$count" 80 0 "${array[@]}" 3>&1 1>&2 2>&3)"
-    if ! cond_redirect sed -i -e "s|${removeLog}||" -e '/^ExecStart/ s|[[:space:]]\+| |g' "$frontailService"; then echo "FAILED (remove log)"; return 1; fi
-    if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
-    if cond_redirect systemctl restart frontail.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
+    if grep -qs "frontail-link" "/etc/openhab/services/runtime.cfg"; then
+      cond_redirect sed -i -e "/^frontail-link-*$/d" "/etc/openhab/services/runtime.cfg"
+    fi
+    if cond_redirect systemctl -q daemon-reload; then echo "OK"; else echo "FAILED (daemon-reload)"; return 1; fi
   fi
 }
 
@@ -174,7 +97,7 @@ nodered_setup() {
   local temp
 
   if ! node_is_installed || is_armv6l; then
-    echo -n "$(timestamp) [openHABian] Installing Frontail prerequsites (NodeJS)... "
+    echo -n "$(timestamp) [openHABian] Installing Node-RED prerequsites (NodeJS)... "
     if cond_redirect nodejs_setup; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if ! dpkg -s 'build-essential' &> /dev/null; then

@@ -2,7 +2,7 @@
 
 # shellcheck disable=SC2154
 
-## Generate systemd dependencies for zram, Frontail and others to start together with OH
+## Generate systemd dependencies for zram and others to start together with OH
 ## This is done using /etc/systemd/system/openhab.service.d/override.conf
 ##
 ##    create_systemd_dependencies()
@@ -243,7 +243,7 @@ openhab_misc() {
 }
 
 ## Create a openHAB dashboard title and image for the input application.
-## Valid arguments: "grafana", "frontail", "nodered", "find", or "openhabiandocs"
+## Valid arguments: "grafana", "nodered", "find", or "openhabiandocs"
 ##
 ##    dashboard_add_tile(String application)
 ##
@@ -267,7 +267,7 @@ dashboard_add_tile() {
   echo -n "$(timestamp) [openHABian] Adding an openHAB dashboard tile for '${application}'... "
 
   case $application in
-    grafana|frontail|nodered|find3|openhabiandocs)
+    grafana|nodered|find3|openhabiandocs)
       true ;;
     *)
       echo "FAILED (tile name not valid)"; return 1 ;;
