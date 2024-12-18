@@ -64,6 +64,8 @@ frontail_remove() {
 
   frontailBase="$(npm list -g | head -n 1)/node_modules/frontail"
 
+  if ! [[ $(openhab-cli info | grep "Version" | xargs | cut -d ' ' -f 2) =~ 4.[3-9]* ]]; then return 0; fi
+
   if [[ -d $frontailBase ]] || [[ -d $frontailDir ]]; then
     echo -n "$(timestamp) [openHABian] Removing openHAB Log Viewer frontail... "
     if [[ $(systemctl is-active frontail.service) == "active" ]]; then
