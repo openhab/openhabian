@@ -462,10 +462,6 @@ install_extras() {
   local consoleProperties="${OPENHAB_USERDATA:-/var/lib/openhab}/etc/org.apache.karaf.shell.cfg"
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
   local deckey="/etc/ssl/private/ems.key"
-  local entsoeJAR=org.openhab.binding.entsoe-4.0.5-SNAPSHOT.jar
-  local solarmanJAR=org.openhab.binding.solarman-0.3.2.jar
-  #local entsoePKG="https://github.com/gitMiguel/openhab-addons/releases/download/EntsoE-4.1.0-SNAPTSHOT/${entsoeJAR}"
-  local solarmanPKG="https://github.com/catalinsanda/org.openhab.binding.solarman/releases/download/v0.3.2/${solarmanJAR}"
   local destdir="/usr/share/openhab/addons/"
   local sudoersFile="011_ems"
   local sudoersPath="/etc/sudoers.d"
@@ -501,8 +497,6 @@ install_extras() {
 
   cond_redirect install -m 640 "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
 
-  if ! cond_redirect wget -nv -O "${destdir}/${solarmanJAR}" "${solarmanPKG}"; then echo "FAILED (download inofficial solarman binding)"; rm -f "${destdir}/${solarmanJAR}"; fi
-  if ! cond_redirect install -m 644 --owner="${username:-admin}" --group="${groupname:-openhab}" "${BASEDIR:-/opt/openhabian}"/includes/JARs/${entsoeJAR} ${destdir}/${entsoeJAR}; then echo "FAILED (Entso-E jar)"; return 1; fi
 
   cond_redirect install -m 644 "${includesDir}/openhab_rsa.pub" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
   cond_redirect install -m 600 "${includesDir}/openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
