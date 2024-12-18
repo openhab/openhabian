@@ -871,16 +871,9 @@ install_esphomedashboard() {
       return
     fi
 
-    # Update system packages
-    echo "$(timestamp) [openHABian] Updating system packages..."
-    if ! apt update && apt upgrade -y; then
-      echo "$(timestamp) [openHABian] Error: Failed to update system packages."
-      return
-    fi
-
     # Install Python 3 and pip
     echo "$(timestamp) [openHABian] Installing Python 3 and pip..."
-    if ! apt install -y python3 python3-pip python3-venv; then
+    if ! apt install -y python3-venv; then
       echo "$(timestamp) [openHABian] Error: Failed to install Python 3 and pip."
       return
     fi
