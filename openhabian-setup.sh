@@ -132,6 +132,7 @@ else
   load_create_config
   openhabian_console_check
   openhabian_update_check
+  zram_is_installed && init_zram_mounts "update"  # update zram to fix potential issues
   jsscripting_npm_check "openhab"
   jsscripting_npm_check "openhab_rules_tools"
   while show_main_menu; do
