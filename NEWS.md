@@ -2,7 +2,7 @@ Hit tab to unselect buttons and scroll through the text using UP/DOWN or
 PGUP/PGDN. All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md`
 for you to lookup.
 
-## Frontail removed ## December XX, 2024
+## Frontail removed ## December 17, 2024
 We have removed the frontail log-viewer package and deleted it from all
 systems with openHAB 4.3 or later installed. As of openHAB 4.3 a log-viewer
 is built in to openHAB, and frontail has serious security vulnerabilities
