@@ -460,6 +460,7 @@ In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` 
 openHABian comes with a number of additional tools to quickly install and set up additional home automation related software.
 You'll find all of these in the [openHABian Configuration Tool](#openhabian-configuration-tool), menu option 20.
 
+-   DEPRECATED [Frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openhabian:9001](http://openhabian:9001) (only provided as is)
 -   [InfluxDB and Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openhabian:3000](http://openhabian:3000)
 -   [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
 -   [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things". Access at [http://openhabian:1880](http://openhabian:1880).
