@@ -28,6 +28,7 @@ It provides:
     - ZRAM
     - [SD card mirroring](#sd-mirroring)
     - [Amanda backup system](openhabian-amanda.md)
+-   Web based openHAB Log Viewer (based on [frontail](https://github.com/mthenw/frontail))
 -   [Tailscale](https://tailscale.com/blog/how-tailscale-works/) VPN and [WireGuard](https://www.wireguard.com/) for remote VPN access
 -   Samba file sharing [pre-configured ready to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
 -   Login information screen, powered by [FireMotD](https://github.com/OutsideIT/FireMotD)
@@ -167,6 +168,7 @@ The whole process will take some minutes, then openHAB and all other tools requi
 -   Insert the SD card into your Raspberry Pi. Connect your Ethernet. If you want to use Wi-Fi instead, [configure Wi-Fi](#wi-fi-based-setup-notes) before booting  or use the hotspot function later on. **Do not attach a keyboard**. Power on and wait approximately 10-30 minutes for openHABian to do its magic. The system will be accessible by its IP or via the local DNS name `openhabian` and you can watch the install progress in your browser at [http://openhabian:81](http://openhabian:81). If for whatever reason networking does not work, openHABian will launch a [hotspot](#Wi-Fi-Hotspot) so if you see that, something's up with your networking.
 -   Connect to the openHAB UI at [http://openhabian:8080](http://openhabian:8080)
 -   [Connect to the Samba network shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
+-   Connect to the openHAB Log Viewer (frontail): [http://openhabian:9001](http://openhabian:9001)
 -   **If you encounter any setup problem, [please continue here](#successful)**
 
 When openHABian has installed and configured your openHAB system, you can start to use it right away.
@@ -460,6 +462,7 @@ In `openhabian.conf`, uncomment and complete the lines reading `hw=`, `hwarch=` 
 openHABian comes with a number of additional tools to quickly install and set up additional home automation related software.
 You'll find all of these in the [openHABian Configuration Tool](#openhabian-configuration-tool), menu option 20.
 
+-   [Frontail](https://github.com/mthenw/frontail) - openHAB Log Viewer accessible from [http://openhabian:9001](http://openhabian:9001)
 -   [InfluxDB and Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - persistence and graphing available from [http://openhabian:3000](http://openhabian:3000)
 -   [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
 -   [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things". Access at [http://openhabian:1880](http://openhabian:1880).
