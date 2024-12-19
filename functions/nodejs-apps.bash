@@ -69,6 +69,41 @@ frontail_download() {
   fi
 }
 
+## Function for removing frontail as its insecure and not maintained.
+##
+##    frontail_remove()
+##
+frontail_remove() {
+  local frontailBase
+  local frontailDir="/opt/frontail"
+  local removeText="Frontail is a log viewer that is not maintained and has security issues. As of openHAB 4.3 there is a built in log viewer which replaces it.\\n\\nWould you like to remove it from your system? If not, be aware that it is not recommended to use it and is no longer a supported feature of openHABian."
+
+  frontailBase="$(npm list -g | head -n 1)/node_modules/frontail"
+
+  if ! dpkg --compare-versions "$(sed -n 's/openhab-distro\s*: //p' /var/lib/openhab/etc/version.properties)" gt "4.3.0"; then return 0; fi
+  if [[ -z $INTERACTIVE ]]; then return 0; fi
+
+
+  if [[ -d $frontailBase ]] || [[ -d $frontailDir ]]; then
+    if (whiptail --title "Frontail Removal" --yes-button "Remove" --no-button "Keep" --defaultyes --scrolltext --yesno "$removeText" 27 84); then
+      echo -n "$(timestamp) [openHABian] Removing openHAB Log Viewer frontail... "
+      if [[ $(systemctl is-active frontail.service) == "active" ]]; then
+        if ! cond_redirect systemctl stop frontail.service; then echo "FAILED (stop service)"; return 1; fi
+      fi
+      if ! cond_redirect systemctl disable frontail.service; then echo "FAILED (disable service)"; return 1; fi
+      cond_redirect npm uninstall -g frontail
+      rm -f /etc/systemd/system/frontail.service
+      rm -rf /var/log/frontail
+      rm -rf /opt/frontail
+
+      if grep -qs "frontail-link" "/etc/openhab/services/runtime.cfg"; then
+        cond_redirect sed -i -e "/frontail-link/d" "/etc/openhab/services/runtime.cfg"
+      fi
+      if cond_redirect systemctl -q daemon-reload; then echo "OK"; else echo "FAILED (daemon-reload)"; return 1; fi
+    fi
+  fi
+}
+
 ## Function for installing frontail to enable the openHAB log viewer web application.
 ##
 ##    frontail_setup()
@@ -124,7 +159,7 @@ custom_frontail_log() {
   local array
 
   if ! [[ -f $frontailService ]]; then
-    whiptail --title "Frontail not installed" --msgbox "Frontail is not installed!\\n\\nCanceling operation!" 9 80
+    if [[ -n $INTERACTIVE ]]; then  whiptail --title "Frontail not installed" --msgbox "Frontail is not installed!\\n\\nCanceling operation!" 9 80; fi
     return 0
   fi
 

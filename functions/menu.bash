@@ -112,9 +112,9 @@ show_main_menu() {
 
   elif [[ "$choice" == "20"* ]]; then
     choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Optional Components" 24 118 16 --cancel-button Back --ok-button Execute \
-    "21 | Log Viewer"             "openHAB Log Viewer webapp (frontail)" \
-    "   | Add log to viewer"      "Add a custom log to openHAB Log Viewer (frontail)" \
-    "   | Remove log from viewer" "Remove a custom log from openHAB Log Viewer (frontail)" \
+    "21 | Log Viewer"             "[DEPRECATED] openHAB Log Viewer webapp (frontail)" \
+    "   | Add log to viewer"      "[DEPRECATED] Add a custom log to openHAB Log Viewer (frontail)" \
+    "   | Remove log from viewer" "[DEPRECATED] Remove a custom log from openHAB Log Viewer (frontail)" \
     "22 | miflora-mqtt-daemon"    "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
     "23 | Mosquitto"              "MQTT broker Eclipse Mosquitto" \
     "24 | InfluxDB+Grafana"       "A powerful persistence and graphing solution" \
