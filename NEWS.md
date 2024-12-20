@@ -9,8 +9,8 @@ is no longer supported and is provided as is. The reasoning for removal is
 that frontail has serious security vulnerabilities present and is no longer
 maintained.
 
-You can look forward to the builtin logviewer becoming even more capable
-over the coming months as it is refined as well.
+openHAB 4.3 adds a new builtin logviewer. You can look forward to it
+becoming even more capable over the coming months as it is refined as well.
 
 ## Legacy openHAB 2 support removed ## November 23, 2024
 We have removed legacy support for the openHAB 2 systems. Please upgrade to
