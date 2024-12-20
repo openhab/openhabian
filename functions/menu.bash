@@ -112,21 +112,24 @@ show_main_menu() {
 
   elif [[ "$choice" == "20"* ]]; then
     choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Optional Components" 24 118 16 --cancel-button Back --ok-button Execute \
-    "21 | miflora-mqtt-daemon"    "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
-    "22 | Mosquitto"              "MQTT broker Eclipse Mosquitto" \
-    "23 | InfluxDB+Grafana"       "A powerful persistence and graphing solution" \
-    "24 | Node-RED"               "Flow-based programming for the Internet of Things" \
-    "25 | Homegear"               "Homematic specific, the CCU2 emulation software Homegear" \
-    "26 | knxd"                   "KNX specific, the KNX router/gateway daemon knxd" \
-    "27 | 1wire"                  "1wire specific, owserver and related packages" \
-    "28 | deCONZ"                 "deCONZ / Phoscon companion app for Conbee/Raspbee controller" \
-    "29 | Zigbee2MQTT"            "Install or Update Zigbee2MQTT" \
+    "21 | Log Viewer"             "[DEPRECATED] openHAB Log Viewer webapp (frontail)" \
+    "   | Add log to viewer"      "[DEPRECATED] Add a custom log to openHAB Log Viewer (frontail)" \
+    "   | Remove log from viewer" "[DEPRECATED] Remove a custom log from openHAB Log Viewer (frontail)" \
+    "22 | miflora-mqtt-daemon"    "Xiaomi Mi Flora Plant Sensor MQTT Client/Daemon" \
+    "23 | Mosquitto"              "MQTT broker Eclipse Mosquitto" \
+    "24 | InfluxDB+Grafana"       "A powerful persistence and graphing solution" \
+    "25 | Node-RED"               "Flow-based programming for the Internet of Things" \
+    "26 | Homegear"               "Homematic specific, the CCU2 emulation software Homegear" \
+    "27 | knxd"                   "KNX specific, the KNX router/gateway daemon knxd" \
+    "28 | 1wire"                  "1wire specific, owserver and related packages" \
+    "29 | deCONZ"                 "deCONZ / Phoscon companion app for Conbee/Raspbee controller" \
+    "2A | Zigbee2MQTT"            "Install or Update Zigbee2MQTT" \
     "   | Remove Zigbee2MQTT"     "Remove Zigbee2MQTT from this system" \
-    "2A | FIND 3"                 "Framework for Internal Navigation and Discovery" \
+    "2B | FIND 3"                 "Framework for Internal Navigation and Discovery" \
     "   | Monitor Mode"           "Patch firmware to enable monitor mode (ALPHA/DANGEROUS)" \
-    "2B | Install HABApp"         "Python 3 integration and rule engine for openHAB" \
+    "2C | Install HABApp"         "Python 3 integration and rule engine for openHAB" \
     "   | Remove HABApp"          "Remove HABApp from this system" \
-    "2C | Install EVCC"           "Deploy Electric Vehicle Charge Controller" \
+    "2D | Install EVCC"           "Deploy Electric Vehicle Charge Controller" \
     "   | Remove EVCC"            "Uninstall EVCC" \
     "   | Setup EVCC"             "Setup EVCC from command line (German only)" \
     3>&1 1>&2 2>&3)
@@ -134,21 +137,24 @@ show_main_menu() {
     if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
     wait_for_apt_to_finish_update
     case "$choice2" in
-      21\ *) miflora_setup ;;
-      22\ *) mqtt_setup ;;
-      23\ *) influxdb_grafana_setup ;;
-      24\ *) nodered_setup ;;
-      25\ *) homegear_setup ;;
-      26\ *) knxd_setup ;;
-      27\ *) 1wire_setup ;;
-      28\ *) deconz_setup ;;
-      29\ *) zigbee2mqtt_setup "install";;
+      21\ *) frontail_setup;;
+      *Add\ log\ to\ viewer*) custom_frontail_log "add";;
+      *Remove\ log\ from\ viewer*) custom_frontail_log "remove";;
+      22\ *) miflora_setup ;;
+      23\ *) mqtt_setup ;;
+      24\ *) influxdb_grafana_setup ;;
+      25\ *) nodered_setup ;;
+      26\ *) homegear_setup ;;
+      27\ *) knxd_setup ;;
+      28\ *) 1wire_setup ;;
+      29\ *) deconz_setup ;;
+      2A\ *) zigbee2mqtt_setup "install";;
       *Remove\ Zigbee2MQTT*) zigbee2mqtt_setup "remove";;
-      2A\ *) find3_setup ;;
+      2B\ *) find3_setup ;;
       *Monitor\ Mode) setup_monitor_mode ;;
-      2B\ *) habapp_setup "install";;
+      2C\ *) habapp_setup "install";;
       *Remove\ HABApp*) habapp_setup "remove";;
-      2C\ *) install_evcc "install";;
+      2D\ *) install_evcc "install";;
       *Remove\ EVCC*) install_evcc "remove";;
       *Setup\ EVCC*) setup_evcc;;
       "") return 0 ;;
