@@ -211,22 +211,120 @@ If you don't know what an option does, probably don't change it as the default o
 
 The available options combined with examples are listed below for convenience:
 
-### Wi-Fi settings
+### System Configuration
+
+#### `hostname`
+
+Set a custom hostname for the system.
+
+::: details Example
+```
+hostname="openhabian"
+```
+:::
+
+#### `username`
+
+Set a custom primary username for the system.
+
+::: details Example
+```
+username="openhabian"
+```
+:::
+
+#### `adminkeyurl`
+
+Download a public SSH key from a given URL and authorize the owner of the key to login as the admin user (i.e. the user configured by `username`).
+
+::: details Example
+```
+adminkeyurl="https://example.com/mysshkey.pub"
+```
+:::
+
+#### `timezone`
+
+Timezone to set the system to.
+Typically should be set to your current timezone following the "Region/City" general format, see the Debian documentation for more information.
+
+::: details Example
+```
+timezone="America/Denver"
+```
+:::
+
+#### `locales`
+
+Set the locales to install for your machine in a space separated list (i.e. the languages to install on system).
+See the Debian documentation for more information.
+
+::: details Example
+```
+locales="en_US.UTF-8 de_DE.UTF-8"
+```
+:::
+
+#### `system_default_locale`
+
+Set the default locale for the system.
+See the Debian documentation for more information.
+
+::: details Example
+```
+system_default_locale="en_US.UTF-8"
+```
+:::
+
+#### `ipv6`
+
+Enable or disable IPv6 support on your system.
+
+::: details Example
+```
+ipv6="enable"
+```
+:::
+
+#### `framebuffer`
+
+Enable or disable the Raspberry Pi framebuffer.
+
+::: details Example
+```
+framebuffer="enable"
+```
+:::
+
+### Wi-Fi Settings
 
 #### `wifi_ssid`
 
 Just the name of your Wi-Fi network that you want to connect to.
 
-Example:
+::: details Example
 ```
 wifi_ssid="myWifiNetwork"
 ```
+:::
 
 #### `wifi_password`
 
 The password for your Wi-Fi network.
 
-Example:
+::: details Example
 ```
 wifi_password="mySuperSecretPassword"
 ```
+:::
+
+#### `wifi_country`
+
+The two letter country code for your current location.
+Set this according to your current location or you may risk violating regulatory restrctions.
+
+::: details Example
+```
+wifi_country="US"
+```
+:::

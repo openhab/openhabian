@@ -1,6 +1,6 @@
 ---
 layout: documentation
-title: openHABian
+title: openHABian Troubleshooting
 source: https://github.com/openhab/openhabian/blob/main/docs/openhabian-DEBUG.md
 ---
 
