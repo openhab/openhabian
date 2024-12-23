@@ -465,3 +465,86 @@ osrelease="raspios"
 ```
 :::
 
+### Other Settings
+
+#### `zraminstall`
+
+Enable or disable ZRAM installation.
+
+::: details Example
+```
+zraminstall="enable"
+```
+:::
+
+#### `hotspot`
+
+Enable or disable hotspot support when internet is not reachable.
+
+::: details Example
+```
+hotspot="enable"
+```
+:::
+
+#### `hotspotpw`
+
+Password to connect to the hotspot when internet is not reachable.
+
+::: details Example
+```
+hotspotpw="openhabian"
+```
+:::
+
+### Backup Settings
+
+#### `backupdrive`
+
+Storage device to configure for backup.
+
+::: details Example
+```
+backupdrive="/dev/sda"
+```
+:::
+
+#### `storageconfig`
+
+Name of the backup configuration to configure for openHAB.
+
+::: details Example
+```
+storageconfig="openhab-dir"
+```
+:::
+
+#### `storagedir`
+
+Directory to mount the storage device to.
+
+::: details Example
+```
+storagedir="/storage"
+```
+:::
+
+#### `storagetapes`
+
+The number of Amanda storage tapes to configure for the backup.
+
+::: details Example
+```
+storagetapes="15"
+```
+:::
+
+#### `storagecapacity`
+
+The capacity of Amanda storage tapes to configure for the backup.
+
+::: details Example
+```
+storagecapacity="1024"
+```
+:::
