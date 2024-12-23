@@ -391,3 +391,77 @@ Java version to install, valid options are: `17`, `Zulu21-64`, or `BellSoft21`.
 java_opt="17"
 ```
 :::
+
+### Fake Hardware
+
+#### `hw`
+
+Force treating your installation as if it was a specific type of hardware.
+
+::: details Valid Options
+-   `pi5`
+-   `pi4`
+-   `pi4_8gb`
+-   `cm4`
+-   `pi400`
+-   `pi3`
+-   `cm3`
+-   `pi3+`
+-   `cm3+`
+-   `pi2`
+-   `pi1`
+-   `cm1`
+-   `pi0`
+-   `pi0w`
+-   `pi0w2`
+-   `x86`
+:::
+
+::: details Example
+```
+hw="pi5"
+```
+:::
+
+#### `hwarch`
+
+Force treating your installation as if it was a specific architecture.
+
+::: details Valid Options
+-   `x86_64`
+-   `amd64`
+-   `armv6l`
+-   `armv7l`
+-   `aarch64`
+-   `arm64`
+:::
+
+::: details Example
+```
+hwarch="x86_64"
+```
+:::
+
+#### `osrelease`
+
+Force treating your installation as if it was a specific OS release.
+
+::: details Valid Options
+-   `raspios`
+-   `raspbian`
+-   `debian`
+-   `ubuntu`
+-   `stretch`
+-   `buster`
+-   `bullseye`
+-   `bookworm`
+-   `bionic`
+-   `focal`
+:::
+
+::: details Example
+```
+osrelease="raspios"
+```
+:::
+
