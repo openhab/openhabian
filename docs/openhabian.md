@@ -328,3 +328,66 @@ Set this according to your current location or you may risk violating regulatory
 wifi_country="US"
 ```
 :::
+
+### openHABian Settings
+
+#### `repositoryurl`
+
+The repository to clone openHABian from.
+This is typically only used by developers to test changes.
+
+::: details Example
+```
+repositoryurl="https://github.com/openhab/openhabian.git"
+```
+:::
+
+#### `clonebranch`
+
+The branch of the repository to use for openHABian.
+
+::: details Example
+```
+clonebranch="openHAB"
+```
+
+#### `initialconfig`
+
+An initial configuration file to import when setting up openHAB.
+This file must be a `.zip` archive created by `openhab-cli backup`.
+
+::: details Example
+```
+initialconfig="/boot/initial.zip"
+```
+:::
+
+#### `debugmode`
+
+Debug log level for openHABian, valid options are: `off`, `on` (verbose output in log), or `maximum` (show every command in log).
+
+::: details Example
+```
+debugmode="off"
+```
+:::
+
+#### `apttimeout`
+
+APT timeout to wait for lock when multiple install actions are going on.
+
+::: details Example
+```
+apttimeout="60"
+```
+:::
+
+#### `java_opt`
+
+Java version to install, valid options are: `17`, `Zulu21-64`, or `BellSoft21`.
+
+::: details Example
+```
+java_opt="17"
+```
+:::
