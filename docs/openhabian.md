@@ -49,6 +49,7 @@ With that being said, we can't and won't stop you from doing whatever you want, 
 
 Our current recommendation is to get a Raspberry Pi model 4 or 5 with 2 or 4 GB of RAM, whatever you can get for a good price.
 Older RPi models (or models with less RAM) can be sufficient to run a smallish openHAB setup.
+Please note that running 64bit mode on RPi's with only 1 GB of RAM tends not to work super well.
 
 You will need an SD card to go along with your Raspberry Pi, SD cards labelled "Endurance" are best for openHABian.
 Cards labelled "Endurance" can handle more write cycles and will typically last longer for openHAB's use conditions.
@@ -78,6 +79,9 @@ This will help you and those you will want to ask for help on the forum focus on
 Any RPi 3 or newer supports 64 bit operation.
 Unless you really know what you are doing and have a compelling reason to do so, stick with the 64 bit image.
 If you do install a 32 bit image, please note that you will be unable to upgrade to openHAB 5 in the future.
+
+On systems with only 1 GB of RAM running the 64 bit image may cause issues as there may not be sufficient RAM.
+If you observe issues please consider upgrading to a model with more that 1 GB of RAM.
 
 ### Networking
 
