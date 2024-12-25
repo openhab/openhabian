@@ -198,6 +198,19 @@ A quick note on menu navigation:
 Use the cursor keys to navigate, <kbd>Enter</kbd> to execute, <kbd>Space</kbd> to select and <kbd>Tab</kbd> to jump to the actions on the bottom of the screen.
 Press <kbd>Esc</kbd> twice to exit the configuration tool.
 
+### Actually Using openHAB
+
+By this point, you should already have a fully functional openHAB setup running on your system.
+See [Getting Started - First Steps]({{base}}/tutorial/first_steps.html) for what to do next with openHAB.
+
+### First Steps with Linux
+
+You may be thinking that this computer is a little different than your typical desktop machine.
+That is because this machine runs on Linux, if you want more information on how to do things on a headless Linux system check out some of the resources linked below.
+
+-   "Learn the ways of Linux-fu, for free." at [linuxjourney.com](https://linuxjourney.com)
+-   "Now what?" what to do with the terminal at [linuxcommand.org](https://linuxcommand.org)
+-   Raspberry Pi official documentation at [raspberrypi.org](https://raspberrypi.org)
 
 ## First boot configuration
 
@@ -546,5 +559,79 @@ The capacity of Amanda storage tapes to configure for the backup.
 ::: details Example
 ```
 storagecapacity="1024"
+```
+:::
+
+### Mail Relay Settings
+
+#### `adminmail`
+
+Mail account to use for the admin account.
+
+::: details Example
+```
+adminmail="john.doe@example.com"
+```
+:::
+
+#### `relayuser`
+
+User account to use for the from address.
+
+::: details Example
+```
+relayuser="john.doe@example.com"
+```
+:::
+
+#### `relaypass`
+
+Password to authenticate with the relay service.
+
+::: details Example
+```
+relaypass="mySuperSecretPassword"
+```
+:::
+
+#### `smarthost`
+
+Host of the mail relay service.
+
+::: details Example
+```
+smarthost="smtp.gmail.com"
+```
+:::
+
+#### `smartport`
+
+Port to connect to the mail relay service.
+
+::: details Example
+```
+smartport="587"
+```
+:::
+
+### Tailscale Settings
+
+#### `preauthkey`
+
+A pre-configured key to connect to your tailscale network.
+
+::: details Example
+```
+preauthkey="tskey-xxxxxxxxxxxxxxxxx"
+```
+:::
+
+#### `tstags`
+
+Tags for the machine corresponding to the tailscale network.
+
+::: details Example
+```
+tstags="tag:client"
 ```
 :::
