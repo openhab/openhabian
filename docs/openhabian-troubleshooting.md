@@ -1,34 +1,48 @@
 ---
 layout: documentation
 title: openHABian Troubleshooting
-source: https://github.com/openhab/openhabian/blob/main/docs/openhabian-DEBUG.md
+source: https://github.com/openhab/openhabian/blob/main/docs/openhabian-troubleshooting.md
 ---
 
-<!-- Attention authors: Do not edit directly. Please add your changes to the appropriate source repository -->
+# openHABian Troubleshooting
 
-This document is meant to give a guiding hand to users when their openHABian install fails either on initial image installation or later on when running menu options that install or configure optional components.
-
-::: tip
-[TLDR](https://www.howtogeek.com/435266/what-does-tldr-mean-and-how-do-you-use-it/)
-Set `debugmode=maximum`in `/etc/openhabian.conf` and see `/boot/first-boot.log` for image installation else record the terminal output.
-:::
-
+::: important
 **Please do not ask for help on the forum unless you have read this guide.**
-
-::: tip
-**Attention:**
-If you do not use the image but use `openhabian-config` manually - either to run `openhabian-config unattended` or interactive use -, **there is no logfile**.
-To record output in this case, you need to configure your terminal client to record and save the command line output.
-In PuTTy there's a field called 'Lines of scrollback' under the 'Window' option in settings that you should increase to at least some thousand lines else you might not capture everything you need to. Configure any other terminal client likewise.
 :::
 
-Keep in mind that parts of the following information such as for example Wi-Fi and IPv6 setup don't apply to manually installed systems because they happen at or before boot time.
+First off sorry that you had to come here, ideally this would never happen but technology and openHABian are both imperfect so here we are.
+Hopefully the information in this guide will help and your system will be up and running in no time.
 
-## Prerequisites
-First, please make sure you use the proper host hardware that is supported as per [README](https://github.com/openhab/openhabian/blob/main/README.md).
+## Quick Checks
 
-openHABian requires a minimum of 1GB of RAM to run well. While you can get away with 512MB when your box has enough CPU power like a RPi0W2, you must not run anything other than openHAB itself, in particular do **not** run memory hogs such as InfluxDB or Grafana.
+First things first, do a sanity check on a couple of simple things.
 
+### Hardware
+
+openHABian may not always perform as expected if running on unsupported or insufficient hardware.
+Make sure that your system follows the current guidance given in the main documentation [here](./openhabian.md#hardware).
+
+After checking your hardware, a couple of things to be aware of:
+
+#### Less than 1 GB of RAM
+
+If you are running on a system with less than 1 GB of RAM you will likely experience issues.
+You may think you can get away with less than 1 GB of RAM but you won't have enough memory to run much other than openHAB.
+If you experience issues then be aware it is unlikely that there will be much we can do to help, we have been unable to figure out how to magically give more RAM to you by an update.
+In our experience it typically requires purchasing new hardware and starting with a fresh install of openHABian.
+
+#### 1 GB of RAM
+
+For systems with 1 GB of RAM then you will probably be fine with most things and even be able to run a couple of extra components.
+Your system still has limits and they will be easily reached if you get a bunch of things going to be conservative.
+
+Additionally, running a 64 bit image on only 1 GB of RAM tends to result in the same situation as running on a system with [less than 1 GB of RAM](#less-than-1-gb-of-ram) so probably don't try to do that either.
+
+#### 2+ GB of RAM
+
+You probably have enough RAM to run all the packages you want unless you are going crazy so you should probably keep reading to see what else could be going wrong.
+
+### TODO: THE REST LOL
 openHABian requires you to provide direct Internet access for the duration of the installation.
 Using private IP addresses is fine as long as your router properly provides NAT (Network Address Translation) services.
 Either Ethernet or WiFi is supported at install time. WiFi requires either user configuration prior to the first boot of openHABian or to use the [hotspot](openhabian.md#wi-fi-hotspot) which will be launched whenever there's no Internet connectivity.
