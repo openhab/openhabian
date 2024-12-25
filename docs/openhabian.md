@@ -212,6 +212,20 @@ That is because this machine runs on Linux, if you want more information on how 
 -   "Now what?" what to do with the terminal at [linuxcommand.org](https://linuxcommand.org)
 -   Raspberry Pi official documentation at [raspberrypi.org](https://raspberrypi.org)
 
+### Additional Optional Components
+
+There are a number of additional tools included with openHABian to enable additional functionality that can be installed.
+Each of these are included as a part of `openhabian-config` menu option 20.
+
+-   [InfluxDB and Grafana](https://community.openhab.org/t/influxdb-grafana-persistence-and-graphing/13761/1) - Persistence and Graphing at [http://openhabian:3000](http://openhabian:3000)
+-   [Eclipse Mosquitto](http://mosquitto.org) - Open Source MQTT v3.1/v3.1.1 Broker
+-   [Node-RED](https://nodered.org) - "Flow-based programming for the Internet of Things" at [http://openhabian:1880](http://openhabian:1880)
+-   [Homegear](https://www.homegear.eu/index.php/Main_Page) - Homematic control unit emulation
+-   [KNXd](http://michlstechblog.info/blog/raspberry-pi-eibknx-ip-gateway-and-router-with-knxd) - KNX daemon running at `224.0.23.12:3671/UDP`
+-   [OWServer](https://owfs.org) - 1-Wire system of Dallas/Maxim
+-   [FIND](https://www.internalpositioning.com/) - Framework for Internal Navigation and Discovery
+-   Mi Flora MQTT daemon
+
 ## First boot configuration
 
 Many settings are configurable prior to the first boot of openHABian by changing the key value pairs in the `/boot/openhabian.conf` file on the SD card once you have flashed the initial image onto it.
