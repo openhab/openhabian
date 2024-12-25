@@ -4,10 +4,6 @@ title: openHABian
 source: https://github.com/openhab/openhabian/blob/main/docs/openhabian.md
 ---
 
-{% include base.html %}
-
-<!-- Attention authors: Do not edit directly. Please add your changes to the source repository -->
-
 # openHABian - Hassle-free openHAB Setup
 
 You just discovered openHAB and now you are eager to start but you're afraid of setting up a standalone system for it?
@@ -25,7 +21,7 @@ A fresh install provides:
 -   Complete **SD-card images pre-configured with openHAB** for the Raspberry Pi line of small single-board computers
 -   The openHABian configuration tool to set up and configure openHAB and many related things on any Debian based system
 -   Fully automated hassle-free setup without a need for a display or keyboard, connected via Ethernet or Wi-Fi (see [networking](#wi-fi-based-setup-notes))
--   Samba file sharing [pre-configured ready to use shares](https://www.openhab.org/docs/installation/linux.html#mounting-locally)
+-   Samba file sharing [pre-configured ready to use shares]({{base}}/installation/linux.html#mounting-locally)
 -   [ZRAM](https://www.github.com/ecdye/zram-config) to reduce wear on SD cards
 
 With many more optional features available in the `openhabian-config` menu.
@@ -54,7 +50,7 @@ Please note that running 64bit mode on RPi's with only 1 GB of RAM tends not to 
 You will need an SD card to go along with your Raspberry Pi, SD cards labelled "Endurance" are best for openHABian.
 Cards labelled "Endurance" can handle more write cycles and will typically last longer for openHAB's use conditions.
 
-Ideally you should purchase two SD cards, and a USB adapter for the second card so that you can make use of the [SD mirroring](#sd-mirroring) feature.
+Ideally you should purchase two SD cards, and a USB adapter for the second card so that you can make use of the [SD mirroring](./openhabian-backup.md#sd-mirroring) feature.
 This will give you a ready to go drop in replacement in the case of any hardware issues later on.
 
 #### Hardware Support
