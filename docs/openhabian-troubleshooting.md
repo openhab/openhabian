@@ -42,62 +42,41 @@ Additionally, running a 64 bit image on only 1 GB of RAM tends to result in the 
 
 You probably have enough RAM to run all the packages you want unless you are going crazy so you should probably keep reading to see what else could be going wrong.
 
-### TODO: THE REST LOL
-openHABian requires you to provide direct Internet access for the duration of the installation.
-Using private IP addresses is fine as long as your router properly provides NAT (Network Address Translation) services.
-Either Ethernet or WiFi is supported at install time. WiFi requires either user configuration prior to the first boot of openHABian or to use the [hotspot](openhabian.md#wi-fi-hotspot) which will be launched whenever there's no Internet connectivity.
-To configure WiFi, edit the `wifi_password=`, `wifi_ssid=` and `wifi_country=`fields in the `boot/openhabian.conf` file on your new SD card.
+### Network Access
 
-Your router (or a separate device) needs to provide properly configured DHCP services so your openHABian box gets an IP address assigned when you boot it for the first time.
-The DHCP server also has to announce which DNS resolver to use so the box we install knows how to translate DNS names into IP addresses.
-It also needs to announce which IP address to use as the default gateway to the internet - a typical access router is also the DHCP server and will announce it's own address here.
-Finally, the DHCP server should also announce the NTP server(s) to use for proper time services.
-Lack thereof will not break the installation procedure but can lead to all sorts of long term issues so we recommend to setup DHCP to announce a reachable and working NTP server.
+openHABian requires direct Internet access for the duration of the installation.
+Ensure that your openHABian box has access to the internet and is not being blocked by any settings configured in your router.
+Both Ethernet and Wi-Fi are both supported at install time.
 
-A note on fixed IP addressing: openHABian does NOT support setting fixed IP address. That'll interfere with the other methods to configure networking. Don't mess with the Linux config files even if you are proficient in Linux. If you want to have a static IP, instead get the MAC address of your box and configure your DHCP server to map that MAC to the very specific IP you would like to obtain.
+If none of the things listed below work you are going to need to do more research on your own.
+Networking is highly complex and there are many different things that could be the issue.
 
-A note on IPv6: openHABian was reported failing to boot in some environments that make use of IPv6.
-If basic IP initialization fails (you cannot `ping` your box) or installation gets stuck trying to download software packages, you might want to try disabling IPv6.
-You can also do that before the very first install attempt if you're sure you don't need any IPv6 connectivity on your openHABian box.
-See [this section of openhabian.md](https://github.com/openhab/openhabian/blob/main/docs/openhabian.md#ipv6-notes) how to disable IPv6 on your system.
+#### Wi-Fi
 
-Note that this is just a summary to cover the most commonly encountered cases.
-The full boot procedure and how to obtain IP addresses, DNS resolver, default route and NTP server addresses are highly complex and widely customizable and a comprehensive description on how to properly configure your Internet access and router are out of scope of openHABian docs.
-Please use an internet search to find more on your own.
+WiFi requires user configuration prior to the first boot of openHABian.
+For more information on how to configure Wi-Fi before first boot see [Wi-Fi Settings](./openhabian.md#wi-fi-settings)
 
-## Install
-Proceed to installation: Flash-whatever the image to an SD card. Use the Raspi Imager or Etcher.
+If you would rather not try to do any additional configuration before first boot you can try to make use of the [hotspot](./openhabian.md#wi-fi-hotspot) feature.
+Note that if you observe issues after configuring Wi-Fi with hotspot you should attempt to configure it manually as mentioned above just to be safe.
 
-NOW, read [openhabian.md](https://github.com/openhab/openhabian/blob/main/docs/openhabian.md#openhabianconf) how to access your SD card and how to modify the openHABian config file on there.
-Some parameters are self-explanatory but some are not so please nonetheless read their full explanation in the linked document.
-Given that you're already reading the debug guide, the most important parameter to set is likely `debugmode=maximum`.
-Once you have passed the first time boot initialization phase and you can login to the system, `/etc/openhabian.conf` will be used from there on.
-You can change it at any time to get output on future boot runs or if you use `openhabian-config` interactively.
+#### DHCP
 
-_At this stage, read the first paragraph on the logfile and interactive use again._
-To see debug output during the image installation process, you need to use the procedure from your PC **before** you power your box on.
+If you don't know what DHCP is and your network is working fine for everything else you probably have the correct setup and don't need to do any more.
+If you do know what it is and have done any configuration of it in the past, go make sure that none of the settings are not blocking anything.
+If you think this might be your issue but don't know what it is you should probably do some research about how to change the settings on your router.
 
-If you have a console available (monitor and keyboard), you may attach it to follow the install process **but** be aware that attaching a keyboard may cause the installation to fail.
-Now insert the SD card and turn on your system.
-If you don't have any console, access the web console at `http://<yourhostip>:81/`.
-It will display the contents of `/boot/first-log.boot` at intervals of some seconds while installing.
-Mind you that if installation fails, network access may or may not be possible so you might need to access the box via console anyway in order to find out what went wrong.
+::: tip Note
+If you want to set a static IP address you need to do it through your router.
+Configuring a static IP through openHABian is not supported.
+:::
 
-Login to your box via network using `ssh openhabian@<hostname>`.
-The default hostname is `openhabian`, and the default username and password both are `openhabian` unless you changed either of these in `openhabian.conf` before you started the installation run.
-If that step fails, try to `ping openhabian`.
-If that's failing, find out the system's IP address (usually by looking at your router's running configuration or using the command `arp -a` which is available on either Windows or Linux).
-If you can login, there probably is an issue with your DHCP server.
-If you cannot ping the system's IP address, try to login on the console.
-In this case you will have to resort to debug the network setup which is beyond the scope of this document.
-There's nothing specific about networking though - openHABian just uses the setup of the underlying OS, Raspi OS for RPis that is or whatever OS you chose to manually install upon.
-So again, use an internet search to find more on your own.
+#### IPv6
 
-Once logged in, enter `sudo bash` to become the root user.
-Check if your install fails at some stage (also if it seems to hang forever): there will exist a file either `/opt/openHABian-install-failed` or `/opt/openHABian-install-inprogress` to reflect these states (to check, `ls -l /opt/openHABian-install*`).
-As a first troubleshooting step, you should reboot your box to see if the same problems occurs on a second attempt.
+There have been reports of occasional issues when IPv6 support is enabled in openHABian.
+If you observe issues you may try disabling support see IPv6 settings [here](./openhabian.md#ipv6).
 
-## Debug
+## TODO:
+
 If the problem persists after booting succeeded at least in principle, login and check `/boot/first-boot.log` to get an indication what went wrong in the install process.
 You can avoid openHABian to start reinstalling on future reboots by removing the status file, i.e. `rm -f /opt/openHABian-install*`, **but** be aware that your installation is incomplete and that you should not run openHAB on a box in that state.
 You can use this state to debug, you can also use the menu options in `openhabian-config` to manually install everything that failed or is missing.
