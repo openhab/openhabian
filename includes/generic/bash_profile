@@ -9,10 +9,10 @@ if [ -f "/opt/openHABian-install-failed" ]; then
   echo -e "are high setup will succeed on the second try.\\n"
   echo "In order to find the cause of the problem, have a look at the installation log:"
   echo -e "   \e[90;01msudo cat /boot/first-boot.log\e[39;49;00m\\n"
-  echo "In order to restart the installation run:"
+  echo "You can try to restart the installation by running:"
   echo -e "   \e[90;01msudo rm -f /opt/openHABian*; sudo reboot\e[39;49;00m\\n"
-  echo "If the error persists, please read the debug guide at:"
-  echo -e "\e[94;04mhttps://github.com/openhab/openhabian/blob/master/docs/openhabian-DEBUG.md\e[39;49;00m\\n"
+  echo "If the error persists, please read the troubleshooting guide at:"
+  echo -e "\e[94;04mhttps://github.com/openhab/openhabian/blob/main/docs/openhabian-troubleshooting.md\e[39;49;00m\\n"
   return 0
 elif [ -f "/opt/openHABian-install-inprogress" ]; then
   echo -e -n "\\n\e[36;01mAttention! \e[39;49;00m"
