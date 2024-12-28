@@ -75,29 +75,24 @@ Configuring a static IP through openHABian is not supported.
 There have been reports of occasional issues when IPv6 support is enabled in openHABian.
 If you observe issues you may try disabling support see IPv6 settings [here](./openhabian.md#ipv6).
 
-## TODO:
+## Preparing Debug Logs / Reporting Issues
 
-If the problem persists after booting succeeded at least in principle, login and check `/boot/first-boot.log` to get an indication what went wrong in the install process.
-You can avoid openHABian to start reinstalling on future reboots by removing the status file, i.e. `rm -f /opt/openHABian-install*`, **but** be aware that your installation is incomplete and that you should not run openHAB on a box in that state.
-You can use this state to debug, you can also use the menu options in `openhabian-config` to manually install everything that failed or is missing.
-See `/opt/openhabian/openhabian-setup.sh` and the corresponding code in `/opt/openhabian/functions/*.bash` what usually gets installed on an unattended installation.
-Note that if you keep or recreate the status file (just `touch /opt/openhabian-install-failed`), you can reboot at any time to continue unattended installation.
-So if say Java install fails (Java being a prerequisite to installation of openHAB), you can use `openhabian-config` or manual install, then continue installation by rebooting.
-Should you succeed at some point in time - great! Let us know what you did to make it work please through a Github issue (see below).
-As we cannot be sure everything on your box is 100% the same what an unattended install gets you, please also do a complete reinstall before you start operating openHAB.
-If possible start with the flash step.
-If that does not work, at least delete all the packages that openhabian-setup had installed before you reboot.
-Use `apt purge` (and not just `apt remove`).
+If you've tried the advice up to this point and its still failed to install, its time to dive deeper and enable debug logging.
 
-### Create a debug log
-You can put openHABian into a more verbose debug level **at any time** after the very first installation run: edit the config file `/etc/openhabian.conf` using the editor of your choice (use `nano` if you have no idea) and change the `debugmode` parameter to either `on` or `maximum` right away (default is `off`).
-Specifying `maximum` is usually your best choice as it will have `openhabian-config` show every single command it executes so you might spot the problem right away.
-If you open an issue, always provide the maintainers with a logfile at `maximum` detail level.
+### Enabling Debug Logs
 
-Your next boot run will also exhibit much more verbose logging.
-Remember boot time output will be appended to `/boot/first-boot.log`.
-If installation still fails to finish, please retrieve that file from your box, open a GitHub issue (see next paragraph), thoroughly describe the environment conditions and your findings so far and upload the log.
+Before your first boot, you will need to edit `/boot/openhabian.conf` and `debugmode` to `on`.
+If you want even more logging you could also use `maximum` to increase the output (it will show the output of every command run by `openhabian-config`).
+See [`debugmode`](./openhabian.md#debugmode) for more information.
 
+After setting `debugmode` boot your system for the first time (yeah again).
+Wait for it to complete the setup process, then login and check `/boot/first-boot.log` for the detailed logs.
+If you are impatient, you can try and follow along with the installation logs in the web browser at [http://openhabian:81](http://openhabian:81).
+
+If you want to try and salvage a failed install, you will be on your own.
+The only option that we can support is a complete reinstall, sorry, there are just too many potential issues to support anything more than that
+
+## TODO
 ### How to open a Github issue
 While written for openHAB, the guideline at <https://community.openhab.org/t/how-to-file-an-issue/68464> also applies to openHABian issues.
 Please proceed as told there.
