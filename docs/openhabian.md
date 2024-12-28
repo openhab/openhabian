@@ -169,6 +169,13 @@ openhabian-config unattended
 
 When openHABian has installed and configured your openHAB system, you can start to use it right away.
 
+### Failed Installs
+
+![openHABian install failed](./images/openHABian-install-failed.png)
+
+If you see something like this image when you try to log in, we're sorry!
+We hoped this would never happen, please jump over to [openHABian Troubleshooting](./openhabian-troubleshooting.md) and start there for next steps.
+
 ## Going further with openHABian
 
 ### openHABian Configuration Tool
