@@ -92,44 +92,33 @@ If you are impatient, you can try and follow along with the installation logs in
 If you want to try and salvage a failed install, you will be on your own.
 The only option that we can support is a complete reinstall, sorry, there are just too many potential issues to support anything more than that
 
-## TODO
-### How to open a Github issue
-While written for openHAB, the guideline at <https://community.openhab.org/t/how-to-file-an-issue/68464> also applies to openHABian issues.
-Please proceed as told there.
-openHABian has its own repository at <https://github.com/openhab/openhabian>.
-Search the issues listed there first if 'your' problem has already been seen and eventually opened as an issue by someone else (you should remove the `is:open` filter from the search bar to let you see closed issues).
-If so, you may leave a "me too" comment there but please do not open another issue to avoid duplicates.
-You can reference other issues (eventually also request to reopen closed ones) and Pull Requests by their number (just type #XXX along with your text, GitHub will insert the proper link).
-If you open an issue, we kindly ask you to deliver as much information as possible.
-It is awkward and annoying if we need to spend time asking and asking what the real problem is about.
-Please avoid that situation, be proactive and tell us in the first place.
-Once you opened the issue, copy `/boot/first-boot.log` from your openHABian box over to your desktop and upload it to GitHub.
-If you succeed logging on and get to see a banner with system information, please also copy that as part of your issue.
+### Opening Github Issues
 
-If you're able to help in producing a fix to problems, we happily take any Pull Request.
-Explaining git and Github unfortunately is out of our scope (the internet is your friend).
-See the guidelines outlined in [CONTRIBUTING.md](https://github.com/openhab/openhabian/blob/main/CONTRIBUTING.md) as well.
-For simple fixes to a single file only, you can click through the source starting at <https://github.com/openhab/openhabian> and edit the file online, GitHub will then offer to create the PR.
-You can also clone the openHABian repository, make your changes locally and use git to check in your changes and upload them to a repo copy of yours, then follow the git-offered link to create the PR.
+Some helpful general guidance on opening issues for anything openHAB related is given [here](https://community.openhab.org/t/how-to-file-an-issue/68464).
+Please take a moment to read through this thread to get a good background on what will come next first.
 
-## Checkpoint
-Remember to always let `openhabian-config` update itself on start.
+When you have read the thread above, please be sure to use the openHABian repository located at [openhab/openhabian](https://github.com/openhab/openhabian).
+Make sure to search current and closed issues to check if others may have had a similar problem that may offer a solution to you as well.
+If you find an issue that matches yours please share your experience and any relevant logs on that issue rather than opening a new issue.
+If you are having a hard time seeing closed issues, be sure to remove the `is:open` filter at the start of the search bar.
 
-If you want to change anything to work around some not yet fixed bug, you can directly edit the files in and below `/opt/openhabian` on your box.
-Just do not let `openhabian-config` update itself on start as that would overwrite your changes.
-You can also clone (download) a different openHABian version than the most current one, e.g. if a maintainer or contributor to openHABian offers or asks you to test-drive a development version.
-Set the `clonebranch` parameter in `/etc/openhabian.conf` to the branch name to load, then update `openhabian-config` on start.
-**Note**: You must not modify `repositoryurl` to point elsewhere than the official repo.
-openHABian will only ever update from there so you can only test drive a test branch that a developer has provided you on the official site.
 
-The main program is in `openhabian-setup.sh`.
-If the initial unattended install fails again and again at the same step (say Java installation), you may try to comment that step out.
-But mind the code in `build-image/first-boot.bash` towards the end starting with `git clone`.
-This is where openHABian updates itself.
-If you don't comment that out as well, it'll overwrite your changes on the next install run.
+If you need to open a new issue, please provide as much information as possible.
+We have created an issue template that you can fill out when opening a new issue, please follow it and provide all that it asks for.
+If possible, please attach a copy of `/boot/first-boot.log` when opening a new issue so that maintainers can look over it.
 
-## Disclaimer
-For obvious reasons, changing openHABian code is not a supported procedure.
-We just want to give you a hint what you _could_ try doing if your install fails and you're sitting there, desperately looking for a fix.
-Search the internet and learn for yourself how to edit a file, learn to understand shell programming basics, you're on your own here.
-If you change openHABian code on your box, remember for the time it takes to get openHABian officially fixed, you must not let `openhabian-config` update itself on start as that would overwrite your changes.
+If you feel like you know the solution to your issue and would like to contribute it, please open a Pull Request.
+Explaining `git` and GitHub unfortunately is out of our scope but the internet is your friend.
+Double check the guidelines in [CONTRIBUTING.md](https://github.com/openhab/openhabian/blob/main/CONTRIBUTING.md) as well.
+
+## Final Notes
+
+Hopefully something in this guide was helpful and resolved your issue.
+
+Some final things to note:
+
+We cannot support any personal changes you have made to openHABian, so if you encounter an issue because of personal modifications, you will be on your own.
+
+Remember that openHAB and openHABian are both maintained by volunteers, please be patient, we are doing our best and really want to make this a system that you love.
+
+If you discover something that you find useful and want to contribute it back to openHABian, please open an issue and we would be happy to discuss its inclusion (no promises though).
