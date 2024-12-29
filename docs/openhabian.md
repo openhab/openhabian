@@ -201,6 +201,22 @@ A quick note on menu navigation:
 Use the cursor keys to navigate, <kbd>Enter</kbd> to execute, <kbd>Space</kbd> to select and <kbd>Tab</kbd> to jump to the actions on the bottom of the screen.
 Press <kbd>Esc</kbd> twice to exit the configuration tool.
 
+#### Settings to Adjust
+
+We try to setup everything for you so that you don't have to do any additional configuration if you don't want to, however there are a couple things that sometimes don't quite work so it is always good to double check them:
+
+-   **Timezone**: Your timezone is typically set by your network, but if it appears to be the wrong time you can use menu option 33 to set it manually.
+-   **Language**: By default we set the `locale` setting to `en_US.UTF8` as this tends to be the best for error messages, it can be changed using menu option 32.
+-   **Passwords**: You should change the default password using menu option 34.
+
+##### Default Passwords
+
+For reference, the default username and passwords are as follows:
+
+-   Main user (e.g. `ssh` or `sudo`): `openhabian:openhabian`
+-   Samba share: `openhabian:openhabian`
+-   openHAB remote console: `openhab:habopen`
+
 ### Actually Using openHAB
 
 By this point, you should already have a fully functional openHAB setup running on your system.
