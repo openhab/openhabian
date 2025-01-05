@@ -26,6 +26,10 @@ Since you probably won't actually do that (but you should) here are some simple 
 One of the most common points of failure in a Raspberry Pi is an SD card failing.
 This is why we *strongly* recommend using SD cards that are labelled "Endurance" as they are made for applications like this.
 
+#### SD Mirroring
+
+We have a bultin option to mirror SD cards so that you can always have a backup ready.
+
 If you plan to mirror you SD card using the auto-backup features in openHAB, you should purchase 2 of the same model of SD card when you setup your system.
 A different model of SD card may work, but sometimes models differ slightly in size causing issues.
 If you can't find the same model, play it safe and buy a model larger than what you currently have to use for your backup.
