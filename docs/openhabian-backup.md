@@ -114,40 +114,31 @@ Installation tasks including edits of the Amanda config files, require the use t
 Any ordinary user (such as your personal one) can execute commands on behalf of root (and with root permission) by prepending `sudo` to the command.
 As yourself, prepend `sudo -u backup` to execute the following commands as the "backup" user.
 
-# TODO:
 ### Storage Preparation
 
-Now once you read up on all of this and feel you have understood this stuff, the next step will be to prepare your storage.
+Now once you have read up on all of this and feel you have understood this stuff, the next step will be to prepare your storage.
 
-***
-HEADS UP: You need to provide your storage BEFORE you install Amanda.
-***
+::: important
+You need to provide your storage *before* you install Amanda.
+:::
 
-That is, you have to mount the USB stick or disk from your NAS to a directory that is LOCAL to your openHABian box.
-Specifically for Windows users: if you are not familiar with the UNIX filesystem concept and what it means 'to mount' storage, read up on it NOW.
-Various tutorials can be found on the net such as [https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux](http://web.archive.org/web/20210128074026/https://linoxide.com/linux-how-to/how-to-mount-drive-in-linux/).
-The Internet is your friend, but make sure you search for specific terms such as “how to mount a NAS disk on a Raspberry Pi” to match your use case.
-So NOW, prepare your storage by creating a directory somewhere and by then mounting the USB device or disk you've previously exported (= shared, i.e. made available for mounting) on that directory.
-This is your mountpoint.
+You have to mount the USB stick or disk from your NAS to a directory on your openHABian box.
+If you don't know what this means in UNIX terms, please do some internet searches now to learn more.
+Your mountpoint should be a directory on your Raspberry Pi with the USB device or NAS mounted to.
 
-*For Windows fans: Let's be clear here.
-This only works if client AND server side are UNIX machines.
-And it only works to use NFS.
-If you want to use Windows sharing (CIFS), you can try to use the `nounix` mount option in /etc/fstab of your openHAB machine, but this is known to not work in various cases and to cause trouble.
-You are COMPLETELY on your own here.
-Using CIFS is **NOT SUPPORTED**.
-Let alone it also does not make sense as NFS can do the same but any Windows machine will not run 24x7 as a RPi or NAS will do.
+If you are a Windows user, please note that CIFS shares are not supported and almost certainly will not work.
+You should use a properly formatted UNIX shares if you are mounting from a NAS.
 
 Another specific thing to watch out for when configuring your export share on the NFS server is to add the `no_root_squash` option (that's the name on a generic Linux box, depending on your server OS or UI it might have a different name but it'll be available, too).
 Its function is to NOT map accesses of userID 0 (root) to some other UID as your server will do by default.
 
 Here's examples how to mount a NAS (to have the DNS name "nas" and IP address 192.168.1.100) and two partitions from an attached USB stick identified as `/dev/sda8` (Linux ext4) and `/dev/sda1` and Windows vfat(FAT-32) filesystems.
 
-HEADS UP: These are just EXAMPLES.
+HEADS UP: These are just **examples**.
 Device and directory names will be different on your system.
 Do not deploy these commands unless you are fully aware what they will do to your system, using a command with a wrong device name can destroy your system.
 
-### NAS mount example
+#### NAS Mount Example
 
 ```
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do! ----- EXAMPLE ONLY -----
@@ -167,11 +158,12 @@ root@pi:/home/pi#
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do! ----- EXAMPLE ONLY -----
 ```
 
-### USB storage mount example
+#### USB Mount Example
+
 You cannot use Windows FAT formatting (which is the standard on USB sticks).
 You must use the ext4 native Linux filesystem on your stick or USB-attached hard drive.
 Remember that the storage area has to be physically (plugged in) and logically (mounted) available anytime Amanda runs.
-That's why we do not recommend to use removable media, but if you nonetheless do, the non-Windows filesystem will actually also help you in not accidentially unplugging the storage stick.
+That's why we do not recommend using removable media, but if you nonetheless do, the non-Windows filesystem will actually also help you in not accidentially unplugging the storage stick.
 
 ```
 root@pi:/home/pi# fdisk -l /dev/sda
@@ -213,44 +205,50 @@ Filesystem     1K-blocks    Used Available  Use% Mounted on
 root@pi:/home/pi#
 ```
 
-## Software installation
+### Amanda Installation
 
 First, mount/prepare your storage (see examples).
-Next, double check that your `backup` user has write access to all of the storage area (preferrably, he **owns** the directory): _Create_ a file there (`touch /path/to/storage/file`), check its ownership (`ls -l /path/to/storage/file`), then delete it
-(`rm /path/to/storage/file`).
-If that does not work as expected (to produce a file that is owned by the `backup` user), you need to change export options on your NAS/NFS server.
-See also [paragraph on `no_root_squash`](#storage-preparation) above.
+Next, double check that your `backup` user has write access to all of the storage area (preferrably `backup` should **own** the directory).
 
-Now finally, install Amanda using the openHABian menu.
-When you start the Amanda installation from the openHABian menu, the install routine will create a directory/link structure in the directory you tell it.
-Your local user named "backup" will need to have write access there.
-Amanda install routine should do that for you, but it only CAN do it for you if you created/mounted it before you ran the installation.
+You can do this by creating a file there: `touch /path/to/storage/test_file`.
+Then check its ownership by running: `ls -l /path/to/storage/test_file`.
+Finally you can then delete it: `rm /path/to/storage/test_file`.
+
+If that does not produce a file that is owned by the `backup` user, you need to change export options on your NAS/NFS server.
+Also ensure you have [no_root_squash`](#storage-preparation) set correctly.
+
+Now finally, install Amanda using the openHABian menu using option 50.
+The installation procedure should create the appropriate directory structure in the directory you point it to (which should be the directory your storage is mounted on).
+Your local user named `backup` will need to have write access there.
+Amanda install routine should do that for you, but it can only do it for you if you created/mounted it before you ran the installation.
 
 Installation will ask you a couple of questions.
-*   "What's the directory to store backups into?"
-    Here you need to enter the _local_ directory of your openHABian box, also known as _the mount point_.
+-   "What's the directory to store backups into?"
+    Here you need to enter the *local* directory of your openHABian box, also known as the *mount point*.
     This is where you have mounted your USB storage or NAS disk share (which in above example for the NAS is `/storage/server` and for the USB stick is `/storage/usbstick-linux`).
-*   "How much storage do you want to dedicate to your backup in megabytes?"
+-   "How much storage do you want to dedicate to your backup in megabytes?"
     Amanda will use at most this number of megabytes in total as its storage for backup.
     If you choose to include the raw device in the backup cycle (next question), that means you should enter 3 times the size of your SD disk NOW.
     If you choose not to include it (or selected the AWS S3 variant which omits raw SD backups per default), it's a lot less data and you need to estimate it by adding up the size of the config directories that are listed in the `disklist` file.
     If you don't have any idea and chose to NOT backup your SD card, enter 1024 (= 1 GByte).
     If you chose to backup it, the number should be larger than the SD capacity in megabytes plus 1024.
     You can change it in the Amanda config file at any later time (the entry below the line reading `define tapetype DIRECTORY {`).
-*   "Backup raw SD card?" (not asked if you selected AWS S3 storage)
+-   "Backup raw SD card?" (not asked if you selected AWS S3 storage)
     Answer "yes" if you want to create raw disk backups of your SD card.
     This is only recommended if your SD card is 8GB or less in size, otherwise the backup can take too long.
     You can always add/remove this by editing `${confdir}/disklist` at a later time.
 
 All of your input will be used to create the initial Amanda config files, but you are free to change them later on.
-HEADS UP: if you re-run the install routine, it will OVERWRITE the config files at any time so if you make changes there, remember these changes and store them elsewhere, too.
-Once you're done installing openHABian and Amanda, proceed to the usage guide chapter below.
 
-Finally, another HEADS UP: The first thing you should do after your first backup run ended successfully is to create a clone of your active server SD card by restoring the backup to a blank SD card as shown below as an `amfetchdump` example for recovery of a raw device's contents.
+::: tip
+If you re-run the install routine, it will **overwrite** the config files at any time so if you make changes manually, make sure to save them.
+:::
+
+The first thing you should do after your first backup run ended successfully is to create a clone of your active server SD card by restoring the backup to a blank SD card as shown below as an `amfetchdump` example for recovery of a raw device's contents.
 `/dev/mmcblk0` is the RPi's internal SD reader device, and from an Amanda perspective, this is a raw device to be backed up to have that same name.
 You will have two Amanda config directories (located in `/etc/amanda`) called `openhab-dir` and `openhab-AWS` if you choose to setup both of them.
-If any of your Amanda backup or recovery runs fail (particularly if you try to use the S3 backup), you should try getting it to work following the guides and knowledge base available on the web at <http://www.amanda.org/>.
-There's online documentation including tutorials and FAQs at <http://wiki.zmanda.com/index.php/User_documentation>.
+If any of your Amanda backup or recovery runs fail (particularly if you try to use the S3 backup), you should try getting it to work following the guides and knowledge base available on the web at [amanda.org](https://www.amanda.org).
+There's online documentation including tutorials and FAQs at <https://wiki.zmanda.com/index.php/User_documentation>.
 In case you come across inherent problems or improvements, please let us (openHABian authors) know through a GitHub issue, but please don't expect us to guide you through Amanda, which is a rather complex system, and we're basically just users only, too.
 
 
