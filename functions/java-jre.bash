@@ -73,17 +73,13 @@ adoptium_install_apt() {
 ##
 openjdk_fetch_apt() {
   if ! apt-cache show "openjdk-${1}-jre-headless" &> /dev/null; then
-    if is_pi; then
-      echo "deb http://archive.raspberrypi.org/debian/ ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/java.list
-    else
-      echo "deb http://deb.debian.org/debian/ stable main" > /etc/apt/sources.list.d/java.list
-    fi
+    echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/java.list
     cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
     cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
 
     # important to avoid release mixing:
     # prevent RPi from using the Debian distro for normal Raspbian packages
-    # echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
+    echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
   fi
 
   dpkg --configure -a

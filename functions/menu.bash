@@ -219,9 +219,10 @@ show_main_menu() {
     "42 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
     "43 | Clean cache"                    "Clean the cache for openHAB" \
     "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
-    "45 | Temurin 17"                     "Install and activate Temurin 17 as Java provider (now default)" \
-    "   | Temurin 21"                     "Install and activate Temurin 21 as Java provider (upcoming default)" \
-    "   | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (old default)" \
+    "45 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (default)" \
+    "45 | OpenJDK 21"                     "Install and activate OpenJDK 21 as Java provider (upcoming default)" \
+    "   | Temurin 17"                     "Install and activate Temurin 17 as Java provider (default alternative)" \
+    "   | Temurin 21"                     "Install and activate Temurin 21 as Java provider (upcoming alternative default)" \
     "   | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider (legacy)" \
     "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
     "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of openHAB JavaScript library" \
@@ -240,9 +241,10 @@ show_main_menu() {
       42\ *) openhab_shell_interfaces;;
       43\ *) openhab_clean_cache;;
       44\ *) nginx_setup;;
+      *OpenJDK\ 17) update_config_java "17" && java_install "17";;
+      *OpenJDK\ 21) update_config_java "21" && java_install "21";;
       *Temurin\ 17) update_config_java "Temurin17" && java_install "Temurin17";;
       *Temurin\ 21) update_config_java "Temurin21" && java_install "Temurin21";;
-      *OpenJDK\ 17) update_config_java "17" && java_install "17";;
       *OpenJDK\ 11) update_config_java "11" && java_install "11";;
       46\ *) jsscripting_npm_install "openhab";;
       *Uninstall\ openhab-js) jsscripting_npm_install "openhab" "uninstall";;
