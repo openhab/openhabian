@@ -35,6 +35,7 @@ adoptium_fetch_apt() {
     local keyName="adoptium"
 
     if ! add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then return 1; fi
+    cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 843C48A565F8F04B
 
     echo -n "$(timestamp) [openHABian] Adding Adoptium repository to apt... "
     if ! echo "deb https://packages.adoptium.net/artifactory/deb ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/adoptium.list; then echo "FAILED"; return 1; fi
