@@ -220,7 +220,7 @@ show_main_menu() {
     "43 | Clean cache"                    "Clean the cache for openHAB" \
     "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
     "45 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (default)" \
-    "45 | OpenJDK 21"                     "Install and activate OpenJDK 21 as Java provider (upcoming default)" \
+    "   | OpenJDK 21"                     "Install and activate OpenJDK 21 as Java provider (upcoming default)" \
     "   | Temurin 17"                     "Install and activate Temurin 17 as Java provider (default alternative)" \
     "   | Temurin 21"                     "Install and activate Temurin 21 as Java provider (upcoming alternative default)" \
     "   | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider (legacy)" \
