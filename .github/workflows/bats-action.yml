@@ -47,6 +47,13 @@ jobs:
     strategy:
       matrix:
         platform: [rpi4, amd64]
+        include:
+          - platform: rpi4
+            buildx_platform: linux/arm64
+            continue-on-error: true # We want to test platforms independently
+          - platform: amd64
+            buildx_platform: linux/amd64
+            continue-on-error: true # We want to test platforms independently
 
     steps:
       - name: Checkout repository
@@ -70,12 +77,13 @@ jobs:
           file: ./tests/Dockerfile.${{ matrix.platform }}-BATS
           builder: ${{ steps.buildx.outputs.name }}
           tags: localhost:5000/openhabian/${{ matrix.platform }}-openhabian:latest
+          platforms: ${{ matrix.buildx_platform }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           push: true
       - name: BATS tests on ${{ matrix.platform }} platform
         run: |
-          docker run --rm --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}-openhabian
+          docker run --rm --name "openhabian-${{ matrix.platform }}" --platform ${{ matrix.buildx_platform }} -d localhost:5000/openhabian/${{ matrix.platform }}-openhabian
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "development-." .'
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "unit-." .'
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "installation-." .'

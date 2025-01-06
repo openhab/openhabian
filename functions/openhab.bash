@@ -65,7 +65,7 @@ openhab_setup() {
     repo="deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main"
     echo -n "$(timestamp) [openHABian] Beginning install of latest $ohPkgName release (stable repo)... "
   elif [[ $1 == "milestone" || $1 == "testing" ]]; then
-    introText="You are about to install or change to the latest milestone $ohPkgName build. Note this is openHAB 4!\\n\\nMilestones contain the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue in the proper place.\\n\\nPlease be aware that downgrading from a newer build is not supported!\\n\\nPlease consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
+    introText="You are about to install or change to the latest milestone $ohPkgName build. Note this is openHAB 5!\\n\\nMilestones contain the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue in the proper place.\\n\\nPlease be aware that downgrading from a newer build is not supported!\\n\\nPlease consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
     successText="The testing release of $ohPkgName is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg testing main"
     echo -n "$(timestamp) [openHABian] Beginning install of latest $ohPkgName milestone build (testing repo)... "
@@ -98,6 +98,14 @@ openhab_setup() {
     openhabVersion="${2:-$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)}"
     if [[ -n $openhabVersion ]]; then
       installVersion="${ohPkgName}=${openhabVersion} ${ohPkgName}-addons=${openhabVersion}"
+      if dpkg --compare-versions "$installVersion" ge "5.0.0"; then
+        if [[ -n $INTERACTIVE ]]; then
+          if ! (whiptail --title "openHAB software change" --msgbox "openHAB 5 requires Java 21.\\n\\nPlease use menu option 45 to install Java 21." 20 80); then echo "CANCELED"; return 1; fi
+        else
+          echo "FAILED (openHAB 5 requires Java 21)"
+          return 1
+        fi
+      fi
     else
       installVersion="${ohPkgName} ${ohPkgName}-addons"
     fi
