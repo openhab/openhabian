@@ -71,7 +71,7 @@ jobs:
       - name: Setup environment
         run: |
           sudo -E ./tests/ci-setup.bash github
-          sed -i 's|^java_opt=.*$|java_opt=${{ matrix.java_opt }}|' build-image/openhabian.conf
+          sed -i 's|^java_opt=.*$|java_opt='"${{ matrix.java_opt }}"'|' build-image/openhabian.conf
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3.8.0

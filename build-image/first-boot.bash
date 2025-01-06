@@ -40,7 +40,7 @@ if ! is_bookworm; then
   rfkill unblock wifi   # Wi-Fi is blocked by Raspi OS default since bullseye(?)
 fi
 webserver=/boot/webserver.bash
-[[ -f /boot/firmware/webserver.bash ]] && ln -s /boot/firmware/webserver.bash "$webserver"
+[[ -f /boot/firmware/webserver.bash ]] && ln -sfn /boot/firmware/webserver.bash "$webserver"
 
 if [[ "${debugmode:-on}" == "on" ]]; then
   unset SILENT
@@ -91,7 +91,7 @@ hotSpot=${hotspot:-enable}
 wifiSSID="$wifi_ssid"
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 wifiPassword="$wifi_password"
-if is_pi && is_bookworm; then
+if ! running_in_docker && is_bookworm; then
   echo -n "$(timestamp) [openHABian] Setting up NetworkManager and Wi-Fi connection... "
   systemctl enable --now NetworkManager
   nmcli r wifi on
@@ -217,7 +217,7 @@ fi
 
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Updating myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-openHAB} branch... "
-if [[ $(eval "$(openhabian_update "${clonebranch:-openHAB}" &> /dev/null)") -eq 0 ]]; then
+if running_in_docker || [[ $(eval "$(openhabian_update "${clonebranch:-openHAB}" &> /dev/null)") -eq 0 ]]; then
   echo "OK"
 else
   echo "FAILED"
@@ -252,7 +252,17 @@ if running_in_docker; then
     ps -auxq "$(cat "$PID")" | awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
   else
     echo -e "\\n${COL_RED}Karaf PID missing, openHAB process not running (yet?).${COL_DEF}"
-    exit 1
+    cat /var/log/openhab/openhab.log
+    systemctl restart openhab.service
+    systemctl status openhab.service
+    journalctl -xeu openhab.service
+    sleep 30
+    if [[ -f "$PID" ]]; then
+      ps -auxq "$(cat "$PID")" | awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
+    else
+      echo -e "\\n${COL_RED}Karaf PID still missing, openHAB process not running.${COL_DEF}"
+      exit 1
+    fi
   fi
   echo -e "$COL_DEF"
 fi

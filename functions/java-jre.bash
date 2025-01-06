@@ -2,7 +2,7 @@
 
 ## Install Java version from dpkg repositories dynamically.
 ## This function is a wrapper for the OpenJDK and Adoptium Eclipse Temurin JDK install functions.
-## Valid arguments: "11", "17", "Temurin17", "Temurin21"
+## Valid arguments: "17", "21", "Temurin17", "Temurin21", 11 (legacy)
 ##
 ## java_install(String version)
 ##
@@ -16,7 +16,7 @@ java_install() {
     rm -rf /opt/jdk
   fi
   if [[ $1 == Temurin* ]]; then
-    adoptium_fetch_apt "${1/Temurin/}"
+    adoptium_install_apt "${1/Temurin/}"
   else
     openjdk_install_apt "$1"
   fi
@@ -31,18 +31,14 @@ java_install() {
 ##    adoptium_fetch_apt()
 ##
 adoptium_fetch_apt() {
-  if ! apt-cache show "temurin-${1}-jre" &> /dev/null; then
-    local keyName="adoptium"
-
-    if ! add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then return 1; fi
-    cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 843C48A565F8F04B
-
-    echo -n "$(timestamp) [openHABian] Adding Adoptium repository to apt... "
-    if ! echo "deb https://packages.adoptium.net/artifactory/deb ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/adoptium.list; then echo "FAILED"; return 1; fi
-    if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; return 1; fi
-  fi
+  local keyName="adoptium"
 
   echo -n "$(timestamp) [openHABian] Fetching Adoptium Eclipse Temurin JDK... "
+  if ! cond_redirect add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then echo "FAILED (add keys)"; return 1; fi
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/adoptium.list
+
+  if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+  if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
   if cond_redirect apt-get install --download-only --yes "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
@@ -56,7 +52,7 @@ adoptium_install_apt() {
     echo -n "$(timestamp) [openHABian] Installing Adoptium Eclipse Temurin JDK... "
     cond_redirect java_alternatives_reset
     if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
-  elif dpkg -s "temurin-${1}-jre" &> /dev/null; then
+  else
     echo -n "$(timestamp) [openHABian] Reconfiguring Adoptium Eclipse Temurin JDK... "
     cond_redirect java_alternatives_reset
     if cond_redirect dpkg-reconfigure "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
@@ -73,19 +69,22 @@ adoptium_install_apt() {
 ##    openjdk_fetch_apt()
 ##
 openjdk_fetch_apt() {
-  if ! apt-cache show "openjdk-${1}-jre-headless" &> /dev/null; then
-    echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/java.list
-    cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-    cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
+  local keyName="debian-bookworm"
 
-    # important to avoid release mixing:
-    # prevent RPi from using the Debian distro for normal Raspbian packages
-    echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
-  fi
-
-  dpkg --configure -a
   echo -n "$(timestamp) [openHABian] Fetching OpenJDK ${1}... "
-  if cond_redirect apt-get install --download-only --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+  if [[ $1 == "21" ]]; then
+    if ! cond_redirect add_keys "https://ftp-master.debian.org/keys/archive-key-12.asc" "$keyName"; then echo "FAILED (add keys)"; return 1; fi # Add keys for older systems that need them
+    echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg]  http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/java.list
+    # Avoid release mixing: prevent RPi from using the Debian distro for normal Raspbian packages
+    echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
+    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+
+    if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+    if cond_redirect apt-get install --download-only --yes -t unstable "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED (download)"; return 1; fi
+  else
+    if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+    if cond_redirect apt-get install --download-only --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED (download)"; return 1; fi
+  fi
 }
 
 ## Install OpenJDK using APT repository.
@@ -97,8 +96,12 @@ openjdk_install_apt() {
     openjdk_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing OpenJDK ${1}... "
     cond_redirect java_alternatives_reset
-    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
-  elif dpkg -s "openjdk-${1}-jre-headless" &> /dev/null; then
+    if [[ $1 == "21" ]]; then
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" -t unstable "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+    else
+      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
+    fi
+  else
     echo -n "$(timestamp) [openHABian] Reconfiguring OpenJDK ${1}... "
     cond_redirect java_alternatives_reset
     if cond_redirect dpkg-reconfigure "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
