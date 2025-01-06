@@ -681,8 +681,8 @@ deconz_setup() {
   if ! add_keys "http://phoscon.de/apt/deconz.pub.key" "$keyName"; then return 1; fi
 
   myOS="$(lsb_release -si)"
-  myRelease="$(lsb_release -sc)"
-  if [[ "$myRelease" == "n/a" ]]; then
+  myRelease="$(lsb_release -sc | head -1)"
+  if [[ "$myRelease" == "n/a" ]] || running_in_docker; then
     myRelease=${osrelease:-bookworm}
   fi
 
@@ -856,7 +856,7 @@ install_esphomedashboard() {
     return
   fi
 
-  if [[ $1 == "install" ]]; then 
+  if [[ $1 == "install" ]]; then
     if [[ -n $INTERACTIVE ]]; then
       whiptail --title "ESPhome dashboard installation" --msgbox "$installText" 8 80
     fi
@@ -922,5 +922,3 @@ install_esphomedashboard() {
     return
   fi
 }
-
-

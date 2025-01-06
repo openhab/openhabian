@@ -31,7 +31,6 @@ Menu 50 provides options to backup and restore either your openHAB configuration
 show_main_menu() {
   local choice
   local version
-  local javaVersion
 
 
   choice=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Setup Options" 24 118 16 --cancel-button Exit --ok-button Execute \
@@ -74,13 +73,6 @@ show_main_menu() {
         return 255
     fi
 
-    javaVersion="$(java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1|cut -d '.' -f1)"
-    if [[ $(apt-cache madison openhab | head -n 1 | awk '{ print $3 }' | cut -d'.' -f1) = 4 ]]; then
-      if [[ $javaVersion -lt 17 ]] ; then
-        update_config_java "17"
-        java_install "17"
-      fi
-    fi
     repo=$(apt-cache madison openhab | head -n 1 | awk '{ print $6 }' |cut -d'/' -f1)
     # shellcheck disable=SC2154
     openhab_setup "${repo:-release}" "${openhabpkgversion}"

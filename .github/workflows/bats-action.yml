@@ -38,11 +38,6 @@ jobs:
   bats-tests:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
 
     strategy:
       matrix:
@@ -76,14 +71,12 @@ jobs:
           context: .
           file: ./tests/Dockerfile.${{ matrix.platform }}-BATS
           builder: ${{ steps.buildx.outputs.name }}
-          tags: localhost:5000/openhabian/${{ matrix.platform }}-openhabian:latest
+          tags: openhabian/${{ matrix.platform }}-openhabian:latest
           platforms: ${{ matrix.buildx_platform }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          push: true
+          load: true
       - name: BATS tests on ${{ matrix.platform }} platform
         run: |
-          docker run --rm --name "openhabian-${{ matrix.platform }}" --platform ${{ matrix.buildx_platform }} -d localhost:5000/openhabian/${{ matrix.platform }}-openhabian
+          docker run --rm --name "openhabian-${{ matrix.platform }}" --platform ${{ matrix.buildx_platform }} -d openhabian/${{ matrix.platform }}-openhabian
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "development-." .'
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "unit-." .'
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "installation-." .'

@@ -318,6 +318,8 @@ system_check_default_password() {
 ##    config_ipv6()
 ##
 config_ipv6() {
+  if running_in_docker; then echo "$(timestamp) [openHABian] Making sure router advertisements are available... SKIPPED"; return 0; fi
+
   local aptConf="/etc/apt/apt.conf.d/S90force-ipv4"
   local sysctlConf="/etc/sysctl.d/99-sysctl.conf"
 

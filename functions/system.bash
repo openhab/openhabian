@@ -36,7 +36,7 @@ system_upgrade() {
   # bad packages may require interactive input despite of this setting so do not mask output (no cond_redirect)
   if ! apt-get upgrade --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; then echo "FAILED"; return 1; fi
   if ! cond_redirect java -version &> /dev/null; then
-    update_config_java "11" && java_install "11"
+    update_config_java "17" && java_install "17"
   fi
   unset DEBIAN_FRONTEND
 }
@@ -69,7 +69,6 @@ needed_packages() {
     moreutils python3 python3-pip python3-wheel python3-setuptools sysstat \
     fontconfig; \
   then echo "OK"; else echo "FAILED"; return 1; fi
-  echo -n "$(timestamp) [openHABian] Installing additional Python packages... "
   if is_pi_wlan && [[ -z $PREOFFLINE ]]; then
     echo -n "$(timestamp) [openHABian] Installing python3 serial package... "
     if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" python3-smbus python3-serial; then echo "OK"; else echo "FAILED"; return 1; fi

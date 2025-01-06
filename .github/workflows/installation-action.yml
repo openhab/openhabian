@@ -32,11 +32,6 @@ jobs:
   installation-tests:
     runs-on: ubuntu-latest
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
 
     strategy:
       matrix:
@@ -76,7 +71,7 @@ jobs:
       - name: Setup environment
         run: |
           sudo -E ./tests/ci-setup.bash github
-          sed -i 's|^java_opt=.*$|java_opt=${{ matrix.java_opt }}|' build-image/openhabian.conf
+          sed -i 's|java_opt=.*$|java_opt='"${{ matrix.java_opt }}"'|' build-image/openhabian.conf
       - name: Set up QEMU
         if: ${{ matrix.qemu_platform != '' }}
         uses: docker/setup-qemu-action@v3.3.0
@@ -93,13 +88,11 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           builder: ${{ steps.buildx.outputs.name }}
-          tags: localhost:5000/openhabian/${{ matrix.platform }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: openhabian/${{ matrix.platform }}:latest
           platforms: ${{ matrix.buildx_platform }}
-          push: true
+          load: true
       - name: openHABian installation test with ${{ matrix.platform }}
         run: |
-          docker run --privileged --rm --platform ${{ matrix.buildx_platform }} --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}
+          docker run --privileged --rm --platform ${{ matrix.buildx_platform }} --name "openhabian-${{ matrix.platform }}" -d openhabian/${{ matrix.platform }}
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c './build.bash local-test && /boot/first-boot.bash'
         shell: bash
