@@ -232,10 +232,14 @@ install_tailscale() {
 ##
 setup_tailscale() {
   local preAuthKey="${1:-${preauthkey}}"
+  local tskeyFile="/opt/openhabian/includes/${preAuthKey}"
   local tags="${2:-${tstags}}"
   local consoleProperties="${OPENHAB_USERDATA:-/var/lib/openhab}/etc/org.apache.karaf.shell.cfg"
   local tailscaleIP
 
+  if [[ -f ${tskeyFile} ]]; then
+    preAuthKey=$(unzip -p -P "${userpw}" "${tskeyFile}")
+  fi
   if [[ -n $UNATTENDED ]] && [[ -z $preAuthKey ]]; then
     echo "$(timestamp) [openHABian] Installing tailscale VPN... SKIPPED (no pre auth key provided)"
     return 0
