@@ -31,7 +31,7 @@ java_install() {
 ##    adoptium_fetch_apt()
 ##
 adoptium_fetch_apt() {
-  if ! apt-cache show $pkgname &> /dev/null; then
+  if ! apt-cache show "temurin-${1}-jre" &> /dev/null; then
     local keyName="adoptium"
 
     if ! add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then return 1; fi
