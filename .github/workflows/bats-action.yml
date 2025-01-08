@@ -55,7 +55,7 @@ jobs:
         run: sudo -E ./tests/ci-setup.bash github
       - name: Set up QEMU
         if: ${{ matrix.platform == 'rpi4' }}
-        uses: docker/setup-qemu-action@v3.2.0
+        uses: docker/setup-qemu-action@v3.3.0
         with:
           platforms: arm64
       - name: Set up Docker Buildx

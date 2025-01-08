@@ -70,7 +70,7 @@ jobs:
           sed -i 's|^java_opt=.*$|java_opt=${{ matrix.java_opt }}|' build-image/openhabian.conf
       - name: Set up QEMU
         if: ${{ matrix.qemu_platform != '' }}
-        uses: docker/setup-qemu-action@v3.2.0
+        uses: docker/setup-qemu-action@v3.3.0
         with:
           platforms: ${{ matrix.qemu_platform }}
       - name: Set up Docker Buildx
