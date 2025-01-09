@@ -328,7 +328,7 @@ permissions_corrections() {
     mkdir -p "$evccFolder"
   fi
   if ! cond_redirect chgrp openhab "$evccFolder"; then echo "FAILED (chown evcc folder)"; retval=1; fi
-  if ! cond_redirect chmod g+ws "$evccFolder"; then echo "FAILED (setgid evcc folder)"; retval=1; fi
+  if ! cond_redirect chmod g+w "$evccFolder"; then echo "FAILED (set group writable evcc folder)"; retval=1; fi
 
   if zigbee2mqtt_is_installed; then
     if ! cond_redirect fix_permissions /var/log/zigbee2mqtt "${username:-openhabian}:openhab" 644 755; then echo "FAILED (zigbee2mqtt log permissions)"; retval=1; fi
