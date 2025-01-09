@@ -41,6 +41,7 @@ delayed_rules() {
 
 ## Function to install / upgrade / downgrade the installed openHAB version
 ## Valid argument 1: "release", "milestone" or "testing", or "snapshot" or "unstable"
+## Valid argument 2 (optional): Linux package name to install
 ##
 ##    openhab_setup(String release)
 ##
@@ -94,7 +95,7 @@ openhab_setup() {
     echo -n "$(timestamp) [openHABian] Installing openHAB... "
     if ! apt-get clean --yes -o DPkg::Lock::Timeout="$APTTIMEOUT"; then echo "FAILED (apt cache clean)"; return 1; fi
     cond_redirect apt-get update -o DPkg::Lock::Timeout="$APTTIMEOUT"
-    openhabVersion="${3:-$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)}"
+    openhabVersion="${2:-$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)}"
     if [[ -n $openhabVersion ]]; then
       installVersion="${ohPkgName}=${openhabVersion} ${ohPkgName}-addons=${openhabVersion}"
     else
