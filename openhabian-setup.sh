@@ -108,7 +108,7 @@ if [[ -n "$UNATTENDED" ]]; then
   add_admin_ssh_key
   firemotd_setup
   java_install "${java_opt:-17}"
-  openhab_setup "release"
+  openhab_setup "release" "${openhabpkgversion}"
   import_openhab_config
   openhab_shell_interfaces && setup_tailscale
   vim_openhab_syntax

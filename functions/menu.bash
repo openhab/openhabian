@@ -82,7 +82,7 @@ show_main_menu() {
       fi
     fi
     repo=$(apt-cache madison openhab | head -n 1 | awk '{ print $6 }' |cut -d'/' -f1)
-    openhab_setup "${repo:-release}"
+    openhab_setup "${repo:-release}" "${openhabpkgversion}"
 
   elif [[ "$choice" == "04"* ]]; then
     import_openhab_config
