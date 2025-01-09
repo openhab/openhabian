@@ -391,9 +391,9 @@ zigbee2mqtt_setup() {
 
   echo -n "$(timestamp) [openHABian] Zigbee2MQTT install & config... "
   cd /opt/zigbee2mqtt || (echo "FAILED (cd)"; return 1)
-  if ! cond_redirect sudo -u "${username:-openhabian}" git checkout 1.42.0; then echo "FAILED git checkout"; return 1; fi
   if ! cond_redirect sudo -u "${username:-openhabian}" git fetch origin; then echo "FAILED git fetch"; return 1; fi
   if ! cond_redirect sudo -u "${username:-openhabian}" git fetch --tags; then echo "FAILED git fetch"; return 1; fi
+  if ! cond_redirect sudo -u "${username:-openhabian}" git checkout 1.42.0; then echo "FAILED git checkout"; return 1; fi
   if ! cond_redirect sudo -u "${username:-openhabian}" npm ci ; then echo "FAILED (npm ci)"; return 1; fi
 
   if ! cond_redirect install -o "${username:-openhabian}" -g openhab -m 644 "${BASEDIR:-/opt/openhabian}/includes/zigbee2mqtt/configuration.yaml" /opt/zigbee2mqtt/data/; then echo "FAILED (install configuration.yaml)"; return 1; fi
