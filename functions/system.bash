@@ -276,7 +276,8 @@ permissions_corrections() {
   local openhabFolders=("/etc/openhab" "/var/lib/openhab" "/var/log/openhab" "/usr/share/openhab")
   local openhabHome="/var/lib/openhab"
   local backupsFolder="${OPENHAB_BACKUPS:-/var/lib/openhab/backups}"
-  local privkey=/var/lib/openhab/etc/openhab_rsa
+  local evccFolder="/var/lib/evcc"
+  local privkey="/var/lib/openhab/etc/openhab_rsa"
   local retval=0
 
   echo -n "$(timestamp) [openHABian] Applying file permissions recommendations... "
@@ -322,9 +323,17 @@ permissions_corrections() {
     if ! cond_redirect fix_permissions /etc/mosquitto/passwd "mosquitto:${username:-openhabian}" 640 750; then echo "FAILED (mosquitto passwd permissions)"; retval=1; fi
     if ! cond_redirect fix_permissions /var/log/mosquitto "mosquitto:${username:-openhabian}" 644 755; then echo "FAILED (mosquitto log permissions)"; retval=1; fi
   fi
+
+  if ! [[ -d "$evccFolder" ]]; then
+    mkdir -p "$evccFolder"
+  fi
+  if ! cond_redirect chgrp openhab "$evccFolder"; then echo "FAILED (chown evcc folder)"; retval=1; fi
+  if ! cond_redirect chmod g+ws "$evccFolder"; then echo "FAILED (setgid evcc folder)"; retval=1; fi
+
   if zigbee2mqtt_is_installed; then
     if ! cond_redirect fix_permissions /var/log/zigbee2mqtt "${username:-openhabian}:openhab" 644 755; then echo "FAILED (zigbee2mqtt log permissions)"; retval=1; fi
   fi
+
   if zram_is_installed; then
     if influxdb_is_installed; then
        if ! cond_redirect fix_permissions /opt/zram/influxdb.bind influxdb:influxdb 664 775; then echo "FAILED (InfluxDB storage on zram)"; retval=1; fi
