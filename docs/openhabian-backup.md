@@ -16,10 +16,11 @@ We will provide some basic guidance below, please take the time to implement it,
 
 ## What to Prepare For
 
-In an ideal world, you should have a spare for *every* component that you use in you smart home system.
+In an ideal world, you should have a spare for *every* component that you use in your smart home system.
 This means having a backup SD card, RPi, router, switch, and any external addons (e.g. ZWave stick).
 
 Since you probably won't actually do that (but you should) here are some simple things that can reduce the headache if it is simply a part of your openHABian instance fails.
+But in all reality, we **strongly** recommend getting a ZWave or Zigbee stick of the same model if you use those devices.
 
 ### SD Card Failure
 
@@ -34,11 +35,20 @@ If you plan to mirror you SD card using the auto-backup features in openHAB, you
 A different model of SD card may work, but sometimes models differ slightly in size causing issues.
 If you can't find the same model, play it safe and buy a model larger than what you currently have to use for your backup.
 
-::: caution Moving the Root Filesystem
+We also provide a couple of different options to allow you to backup your system to a local NAS, cloud storage, or a second SD card.
+For more information on these options, please see [Storage Preparation](#storage-preparation).
+
+##### Moving the Root Filesystem
+
 Moving your system root to a USB stick or SSD is unsupported and dangerous.
-Besides USB sticks in particular suffer from the same issues as SD cards.
-SSD's do as well but to a lesser extent.
-In summary, just don't do it!
+It may seem appealing but it cannot be supported by the openHABian maintainers and will not provide a significant amount of additional reliability.
+
+Besides USB sticks and SSD devices still suffer from the same issues as SD cards in the long run.
+Overall don't try to do this unless you are confident in what you are doing.
+
+::: danger Moving the Root Filesystem
+If you choose to proceed and move your root filesystem, you are on your own!
+It is very easy to break your system so proceed with **extreme** caution.
 :::
 
 ## Builtin Protections
@@ -130,8 +140,19 @@ You have to mount the USB stick or disk from your NAS to a directory on your ope
 If you don't know what this means in UNIX terms, please do some internet searches now to learn more.
 Your mountpoint should be a directory on your Raspberry Pi with the USB device or NAS mounted to.
 
-If you are a Windows user, please note that CIFS shares are not supported and almost certainly will not work.
+#### Networked Storage Warnings
+
+If you have a NAS, you should typically export the storage shares using the NFS protocol.
+
+::: warning
+If you are a Windows user, please note that CIFS shares are not supported and will not work.
 You should use a properly formatted UNIX shares if you are mounting from a NAS.
+:::
+
+Amanda does not work with CIFS because of issues with symlinks.
+Additionally it doesn't make sense to use a Windows protocol to share a disk from a UNIX server (which is any NAS) to a UNIX client (openHABian) at all.
+If you don't have a NAS, **do not** use your Windows box as the storage server.
+Attach a USB stick to your Pi instead for storage.
 
 Another specific thing to watch out for when configuring your export share on the NFS server is to add the `no_root_squash` option (that's the name on a generic Linux box, depending on your server OS or UI it might have a different name but it'll be available, too).
 Its function is to NOT map accesses of userID 0 (root) to some other UID as your server will do by default.
