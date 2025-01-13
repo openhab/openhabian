@@ -7,7 +7,7 @@ on:
 
 jobs:
   triggerWorkflowDispatch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Repository Dispatch
         uses: peter-evans/repository-dispatch@v3
