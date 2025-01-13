@@ -28,8 +28,9 @@ After checking your hardware, a couple of things to be aware of:
 
 If you are running on a system with less than 1 GB of RAM you will likely experience issues.
 You may think you can get away with less than 1 GB of RAM but you won't have enough memory to run much other than openHAB.
-If you experience issues then be aware it is unlikely that there will be much we can do to help, we have been unable to figure out how to magically give more RAM to you by an update.
-In our experience it typically requires purchasing new hardware and starting with a fresh install of openHABian.
+If you experience issues then be aware it is unlikely that there will be much we can do to help.
+There can be many different problems that having a minimal amount of RAM will cause (slowness, exceptions, unforced reboots, etc.).
+There is not one thing you can check so be aware of that.
 
 #### 1 GB of RAM
 
@@ -37,6 +38,9 @@ For systems with 1 GB of RAM then you will probably be fine with most things and
 Your system still has limits and they will be easily reached if you get a bunch of things going to be conservative.
 
 Additionally, running a 64 bit image on only 1 GB of RAM tends to result in the same situation as running on a system with [less than 1 GB of RAM](#less-than-1-gb-of-ram) so probably don't try to do that either.
+
+If you are running an older 32 bit system on 1 GB of RAM is typically fine.
+Be aware that when openHAB 5 releases, 32 bit support will be dropped so you won't be able to upgrade to openHAB 5 without switching over to a 64 bit system.
 
 #### 2+ GB of RAM
 
@@ -77,11 +81,11 @@ If you observe issues you may try disabling support see IPv6 settings [here](./o
 
 ## Preparing Debug Logs / Reporting Issues
 
-If you've tried the advice up to this point and its still failed to install, its time to dive deeper and enable debug logging.
+If you've tried the advice up to this point and it has still failed to install, it is time to dive deeper and enable debug logging.
 
 ### Enabling Debug Logs
 
-Before your first boot, you will need to edit `/boot/openhabian.conf` and `debugmode` to `on`.
+Before your first boot, you will need to edit `/boot/openhabian.conf` and `debugmode` to `maximum` (or optionally `on` if you think you only need minimal debugging).
 If you want even more logging you could also use `maximum` to increase the output (it will show the output of every command run by `openhabian-config`).
 See [`debugmode`](./openhabian.md#debugmode) for more information.
 
@@ -90,7 +94,7 @@ Wait for it to complete the setup process, then login and check `/boot/first-boo
 If you are impatient, you can try and follow along with the installation logs in the web browser at [http://openhabian:81](http://openhabian:81).
 
 If you want to try and salvage a failed install, you will be on your own.
-The only option that we can support is a complete reinstall, sorry, there are just too many potential issues to support anything more than that
+The only option that we can support is a complete reinstall, sorry, there are just too many potential issues to support anything more than that.
 
 ### Opening Github Issues
 
