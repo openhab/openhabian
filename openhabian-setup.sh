@@ -14,7 +14,7 @@
 # überschreibt defaults in openhabian.conf
 
 # 4.3 hat noch ungeklärte Probleme mit dem rule engine
-openhabForcePkg=4.2.3-1	# 4.3.1-1
+openhabForcePkg=4.3.2-1	# 4.3.1-1
 evccForcePkg=		# 0.132.0
 
 
