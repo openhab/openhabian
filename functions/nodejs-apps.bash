@@ -85,7 +85,7 @@ frontail_remove() {
 
 
   if [[ -d $frontailBase ]] || [[ -d $frontailDir ]]; then
-    if (whiptail --title "Frontail Removal" --yes-button "Remove" --no-button "Keep" --defaultyes --scrolltext --yesno "$removeText" 27 84); then
+    if (whiptail --title "Frontail Removal" --yes-button "Remove" --no-button "Keep" --yesno "$removeText" 27 84); then
       echo -n "$(timestamp) [openHABian] Removing openHAB Log Viewer frontail... "
       if [[ $(systemctl is-active frontail.service) == "active" ]]; then
         if ! cond_redirect systemctl stop frontail.service; then echo "FAILED (stop service)"; return 1; fi
