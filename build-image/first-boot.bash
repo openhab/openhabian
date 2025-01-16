@@ -96,13 +96,13 @@ wifiPassword="$wifi_password"
 if is_bookworm; then
   echo -n "$(timestamp) [openHABian] Setting up NetworkManager and Wi-Fi connection... "
   systemctl enable --now NetworkManager
+  nmcli r wifi on
 
   if [[ -n $wifiSSID ]]; then
     # Setup WiFi via NetworkManager
     # shellcheck source=/etc/openhabian.conf disable=SC2154
     nmcli -w 30 d wifi connect "${wifiSSID}" password "${wifiPassword}" ifname wlan0
   fi
-#elif [[ -z $wifiSSID ]]; then
 elif grep -qs "up" /sys/class/net/eth0/operstate; then
   # Actually check if ethernet is working
   echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
