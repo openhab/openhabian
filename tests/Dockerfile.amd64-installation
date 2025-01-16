@@ -29,5 +29,6 @@ ENTRYPOINT ["./tests/entry.sh"]
 
 # Setup openHABian environment
 COPY . /opt/openhabian/
+COPY ./build-image/webserver.bash /boot/firmware/webserver.bash
 WORKDIR /opt/openhabian/
 RUN install -m 755 ./tests/runlevel /sbin/runlevel
