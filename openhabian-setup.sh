@@ -126,6 +126,7 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   add_admin_ssh_key
   java_install "${java_opt:-17}"
+  # shellcheck disable=SC2154
   openhab_setup "release" "${openhabpkgversion}"
   install_extras
   replace_logo
