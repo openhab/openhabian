@@ -228,11 +228,11 @@ openhab_misc() {
 
   echo -n "$(timestamp) [openHABian] Optimizing openHAB to run on low memory single board computers... "
   if has_lowmem; then
-    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m -Xss1024k -XX:-TieredCompilation -XX:+ExitOnOutOfMemoryError -Dxtext.qn.interning=true"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m -Xss1024k -XX:-TieredCompilation -XX:TieredStopAtLevel=1 -XX:+ExitOnOutOfMemoryError -Dxtext.qn.interning=true"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   elif has_highmem; then
-    if cond_redirect sed -i -e '/^[^#]/ s/\(^.*EXTRA_JAVA_OPTS=.*$\)/EXTRA_JAVA_OPTS="-Xms192m -Xmx768m -XX:-TieredCompilation -XX:+ExitOnOutOfMemoryError -Dxtext.qn.interning=true"/' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e '/^[^#]/ s/\(^.*EXTRA_JAVA_OPTS=.*$\)/EXTRA_JAVA_OPTS="-Xms192m -Xmx768m -XX:-TieredCompilation -XX:TieredStopAtLevel=1 -XX:+ExitOnOutOfMemoryError -Dxtext.qn.interning=true"/' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   else
-    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx384m -XX:-TieredCompilation -XX:+ExitOnOutOfMemoryError -Dxtext.qn.interning=true"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx384m -XX:-TieredCompilation -XX:TieredStopAtLevel=1 -XX:+ExitOnOutOfMemoryError -Dxtext.qn.interning=true"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Setting openHAB HTTP/HTTPS ports... "
