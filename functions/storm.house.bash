@@ -422,10 +422,9 @@ setup_forecastsolar() {
   local thing=forecastsolar.things
   local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
   local srcfile="${dir}/STORE/vorhersage/${thing}"
-  local destfile="${dir}/${thing}"
 
 
-  sed -e "s|%AZIMUTH|${1:-${azimuth}}|;s|%DECLINATION|${2:-${declination}}|;s|%KWP|${3:-${kwp}}|" "${srcfile}" > "${destfile}"
+  sed -i "s|azimuth=.*|azimuth=${1:-${azimuth}},|;s|declination=.*|declination=${2:-${declination}},|;s|kwp=.*|kwp=${3:-${kwp}}|" "${destfile}"
 }
 
 
