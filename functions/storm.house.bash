@@ -207,18 +207,23 @@ setup_whitegood_config() {
 ## #10 car 1 VIN Vehicle Identification Number
 ## #11 car 1 username in car manufacturer's online portal
 ## #12 car 1 password for account in car manufacturer's online portal
-## #13 car 2 type (from EVCC)
+## #13 car 1 hcaptcha token for account in car manufacturer's online portal
+## #14 car 2 type (from EVCC)
 ## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
-## #14 car 2 name
-## #15 car 2 capacity
-## #16 car 2 VIN Vehicle Identification Number
-## #17 car 2 username in car manufacturer's online portal
-## #18 car 2 password for account in car manufacturer's online portal
-## #19 grid usage cost per kWh in EUR ("0.40")
-## #20 grid feedin compensation cost per kWh in EUR
-## #21 excess power required to start charging 
-## #22 max power to get from grid while charging 
+## #15 car 2 name
+## #16 car 2 capacity
+## #17 car 2 VIN Vehicle Identification Number
+## #18 car 2 username in car manufacturer's online portal
+## #19 car 2 password for account in car manufacturer's online portal
+## #20 car 2 hcaptcha token for account in car manufacturer's online portal
+## #21 grid usage cost per kWh in EUR ("0.40")
+## #22 grid feedin compensation cost per kWh in EUR
+## #23 excess power required to start charging 
+## #24 max power to get from grid while charging 
+##
+## NOTE #13 #20 are new and not called with everywhere yet
+## => only used if >22 arguments
 ##
 ##    setup_wb_config(String wallbox typ, .... )  - all arguments are of type String
 ##
@@ -288,7 +293,12 @@ setup_wb_config() {
   fi
   temp="$(mktemp "${TMPDIR:-/tmp}"/evcc.XXXXX)"
   cp "${includesDir}/EVCC/evcc.yaml-template" "$temp"
-  sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBUSER|${3:-${wallboxuser}}|;s|%WBPASS|${4:-${wallboxpass}}|;s|%WBID|${5:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${7:-${cartype1:-offline}}|;s|%CARNAME1|${8:-${carname1:-meinEAuto1}}|;s|%VIN1|${9:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${10:-${carcapacity1:-50}}|;s|%CARUSER1|${11:-${caruser1:-user}}|;s|%CARPASS1|${12:-${carpass1:-pass}}|;s|%CARTYPE2|${13:-${cartype2:-offline}}|;s|%CARNAME2|${14:-${carname2:-meinEAuto2}}|;s|%VIN2|${15:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${16:-${carcapacity2:-50}}|;s|%CARUSER2|${17:-${caruser2:-user}}|;s|%CARPASS2|${18:-${carpass2:-pass}}|;s|%GRIDCOST|${19:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${20:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${21:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${21:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
+
+  if [[ $# -gt 22 ]]; then
+    sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBUSER|${3:-${wallboxuser}}|;s|%WBPASS|${4:-${wallboxpass}}|;s|%WBID|${5:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${7:-${cartype1:-offline}}|;s|%CARNAME1|${8:-${carname1:-meinEAuto1}}|;s|%VIN1|${9:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${10:-${carcapacity1:-50}}|;s|%CARUSER1|${11:-${caruser1:-user}}|;s|%CARPASS1|${12:-${carpass1:-pass}}|;s|#%CARTOKEN1|${13:-${cartoken1}}|;s|%CARTYPE2|${14:-${cartype2:-offline}}|;s|%CARNAME2|${15:-${carname2:-meinEAuto2}}|;s|%VIN2|${16:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${17:-${carcapacity2:-50}}|;s|%CARUSER2|${18:-${caruser2:-user}}|;s|%CARPASS2|${19:-${carpass2:-pass}}|;s|#%CARTOKEN2|${20:-${cartoken2}}|;s|%GRIDCOST|${21:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${22:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${23:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${24:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
+  else
+    sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBUSER|${3:-${wallboxuser}}|;s|%WBPASS|${4:-${wallboxpass}}|;s|%WBID|${5:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${7:-${cartype1:-offline}}|;s|%CARNAME1|${8:-${carname1:-meinEAuto1}}|;s|%VIN1|${9:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${10:-${carcapacity1:-50}}|;s|%CARUSER1|${11:-${caruser1:-user}}|;s|%CARPASS1|${12:-${carpass1:-pass}}|;s|%CARTYPE2|${13:-${cartype2:-offline}}|;s|%CARNAME2|${14:-${carname2:-meinEAuto2}}|;s|%VIN2|${15:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${16:-${carcapacity2:-50}}|;s|%CARUSER2|${17:-${caruser2:-user}}|;s|%CARPASS2|${18:-${carpass2:-pass}}|;s|%GRIDCOST|${19:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${20:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${21:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${22:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
+  fi
   rm -f "${temp}"
 
   if ! grep -Eq "[[:space:]]certificate" "${evccConfig}"; then

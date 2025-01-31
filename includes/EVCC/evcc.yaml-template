@@ -74,6 +74,7 @@ vehicles:
   vin: %VIN1
   user: %CARUSER1
   password: %CARPASS1
+  #hcaptcha: %CARTOKEN1
   capacity: %CARCAPACITY1
 #  language: de
   name: meinEAuto1
@@ -85,6 +86,7 @@ vehicles:
   vin: %VIN2
   user: %CARUSER2
   password: %CARPASS2
+  #hcaptcha: %CARTOKEN2
   capacity: %CARCAPACITY2
 
 loadpoints:
