@@ -313,6 +313,14 @@ setup_wb_config() {
   if [[ ${4:-${wallboxpass}} != "" && ${4:-${wallboxpass}} != "NULL" ]]; then
     uncomment "#AUTHPASS" "${evccConfig}"
   fi
+  if [[ $# -gt 22 ]]; then
+    if [[ ${13:-${cartoken1}} != "" && ${13:-${cartoken1}} != "NULL" ]]; then
+      uncomment "#CAPTCHA1" "${evccConfig}"
+    fi
+    if [[ ${20:-${cartoken2}} != "" && ${20:-${cartoken2}} != "NULL" ]]; then
+      uncomment "#CAPTCHA2" "${evccConfig}"
+    fi
+  fi
   if [[ ${1:-${wallboxtype}} == "demo" ]]; then
     rm -f "$evccConfig"
   fi
