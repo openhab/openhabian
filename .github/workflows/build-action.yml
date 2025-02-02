@@ -24,7 +24,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
     steps:
@@ -38,7 +38,7 @@ jobs:
          run: |
            sudo -E bash -c set
            sudo apt-get update
-           sudo apt-get install --yes libarchive-zip-perl dos2unix systemd-container qemu-user-static qemu-utils
+           sudo apt-get install --yes libarchive-zip-perl dos2unix systemd-container qemu-utils
            echo "image32=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
            echo "image64=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
        - name: Cache Raspberry Pi OS 32bit image
