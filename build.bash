@@ -148,11 +148,12 @@ offline_install_modifications() {
 
   if running_on_github; then
     echo_process "Caching packages for offline install..."
-    set -x
     loopPrefix="$(kpartx -asv "$imageFile" | grep -oE "loop([0-9]+)" | head -n 1)"
     mount -o rw -t ext4 "/dev/mapper/${loopPrefix}p2" "$mountFolder"
     mount -o rw -t vfat "/dev/mapper/${loopPrefix}p1" "${mountFolder}/boot"
-    systemd-nspawn --directory="$2" /opt/openhabian/build-image/offline-install-modifications.bash &> /dev/null
+    set -x
+    #systemd-nspawn --directory="$2" /opt/openhabian/build-image/offline-install-modifications.bash &> /dev/null
+    /opt/openhabian/build-image/offline-install-modifications.bash &> /dev/null
     sync
     df -h "$mountFolder"
     df -h "${mountFolder}/boot"
