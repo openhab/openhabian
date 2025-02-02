@@ -154,8 +154,8 @@ offline_install_modifications() {
     set -x
     #systemd-nspawn --directory="$2" /opt/openhabian/build-image/offline-install-modifications.bash &> /dev/null
     pwd
+    echo "dirname $2"
     ls -l
-    ls -l build-image
     build-image/offline-install-modifications.bash
     systemd-nspawn --directory="$2" build-image/offline-install-modifications.bash 
     sync
