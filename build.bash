@@ -153,11 +153,11 @@ offline_install_modifications() {
     mount -o rw -t vfat "/dev/mapper/${loopPrefix}p1" "${mountFolder}/boot"
     set -x
     #systemd-nspawn --directory="$2" /opt/openhabian/build-image/offline-install-modifications.bash &> /dev/null
-    #systemd-nspawn --directory="$2" /opt/openhabian/build-image/offline-install-modifications.bash 
     pwd
     ls -l
-    ls -l /opt/openhabian/build-image/offline-install-modifications.bash
-    /opt/openhabian/build-image/offline-install-modifications.bash -x
+    ls -l build-image
+    build-image/offline-install-modifications.bash
+    systemd-nspawn --directory="$2" build-image/offline-install-modifications.bash 
     sync
     df -h "$mountFolder"
     df -h "${mountFolder}/boot"
