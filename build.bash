@@ -19,8 +19,7 @@ cleanup_build() {
   guestunmount --no-retry "${buildFolder}/boot" &> /dev/null || true
   guestunmount --no-retry "${buildFolder}/root" &> /dev/null || true
 
-  #rm -rf "$buildFolder"
-  #exit 0
+  rm -rf "$buildFolder"
 }
 
 ##########################
