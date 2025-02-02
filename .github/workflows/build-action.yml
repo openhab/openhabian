@@ -62,9 +62,9 @@ jobs:
            sudo -E ./tests/ci-setup.bash github ${{ github.ref_name }}
            sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.conf
            sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
-           sudo -E ./build.bash rpi latest
-           mv openhabian-raspios32*.img.xz storm.house-$(date +%Y%m%d%H%M).img.xz
-           echo "image32=$(ls storm.house-*.img.xz)" >> $GITHUB_OUTPUT
+             #sudo -E ./build.bash rpi latest
+             #mv openhabian-raspios32*.img.xz storm.house-$(date +%Y%m%d%H%M).img.xz
+             #echo "image32=$(ls storm.house-*.img.xz)" >> $GITHUB_OUTPUT
            sudo -E ./build.bash rpi64 latest
            mv openhabian-raspios64*.img.xz storm.house-neu-$(date +%Y%m%d%H%M).img.xz
            echo "imageNeu=$(ls storm.house-neu*.img.xz)" >> $GITHUB_OUTPUT
