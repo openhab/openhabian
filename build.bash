@@ -155,7 +155,8 @@ offline_install_modifications() {
     #systemd-nspawn --directory="$2" /opt/openhabian/build-image/offline-install-modifications.bash &> /dev/null
     pwd
     ls -l ./build-image/offline-install-modifications.bash 
-    systemd-nspawn --directory="$2" "pwd; ls -l build-image/offline-install-modifications.bash"
+    systemd-nspawn --directory="$2" "pwd"
+    systemd-nspawn --directory="$2" "ls -l build-image/offline-install-modifications.bash"
     #systemd-nspawn --directory="$2" ./build-image/offline-install-modifications.bash 
     sync
     df -h "$mountFolder"
