@@ -69,7 +69,6 @@ needed_packages() {
     moreutils python3 python3-pip python3-wheel python3-setuptools sysstat \
     fontconfig; \
   then echo "OK"; else echo "FAILED"; return 1; fi
-  echo -n "$(timestamp) [openHABian] Installing additional Python packages... "
   if is_pi_wlan && [[ -z $PREOFFLINE ]]; then
     echo -n "$(timestamp) [openHABian] Installing python3 serial package... "
     if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" python3-smbus python3-serial; then echo "OK"; else echo "FAILED"; return 1; fi

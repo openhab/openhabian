@@ -103,7 +103,7 @@ if is_pi && is_bookworm; then
   fi
 elif grep -qs "up" /sys/class/net/eth0/operstate; then
   # Actually check if ethernet is working
-  echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
+  echo "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
 elif [[ -n $wifiSSID ]] && grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
   echo -n "$(timestamp) [openHABian] Checking if WiFi is working... "
   if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
