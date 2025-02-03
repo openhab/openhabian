@@ -17,7 +17,7 @@ echo "deb [signed-by=/usr/share/keyrings/openhab.gpg] https://openhab.jfrog.io/a
 # comitup hotspot
 wget -nv "${debfileurl}/${debfile}_${debfilelatest}" || wget -nv "${debfileurl}/${debfile}_${debfilestatic}"
 dpkg -i --force-all "${debfile}*.deb"
-rm -f "$${debfile}*.deb"
+rm -f "${debfile}*.deb"
 if [[ ! -f ${comituprepofile} ]]; then
   echo "deb [signed-by=/usr/share/keyrings/davesteele-archive-keyring.gpg] http://davesteele.github.io/comitup/repo comitup main" > $comituprepofile
 fi
