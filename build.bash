@@ -345,6 +345,7 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
   mount_image_file_boot "$imageFile" "$buildFolder"
 
   echo_process "Injecting 'first-boot.bash', 'webserver.bash', and 'openhabian.conf'... "
+  mkdir -p "$buildFolder"/boot/firmware
   cp "$sourceFolder"/first-boot.bash "$buildFolder"/boot/firmware/first-boot.bash
   touch "$buildFolder"/boot/first-boot.log
   if [[ -f "${sourceFolder}/openhabian.${hwPlatform}.conf" ]]; then
