@@ -65,7 +65,7 @@ openhab_setup() {
     repo="deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main"
     echo -n "$(timestamp) [openHABian] Beginning install of latest $ohPkgName release (stable repo)... "
   elif [[ $1 == "milestone" || $1 == "testing" ]]; then
-    introText="You are about to install or change to the latest milestone $ohPkgName build. Note this is openHAB 4!\\n\\nMilestones contain the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue in the proper place.\\n\\nPlease be aware that downgrading from a newer build is not supported!\\n\\nPlease consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
+    introText="You are about to install or change to the latest milestone $ohPkgName build. Note this is openHAB 5!\\n\\nMilestones contain the latest features and is supposed to run stable, but if you experience bugs or incompatibilities, please help with enhancing openHAB by posting them on the community forum or by raising a GitHub issue in the proper place.\\n\\nPlease be aware that downgrading from a newer build is not supported!\\n\\nPlease consult with the documentation or community forum and be sure to take a full openHAB configuration backup first!"
     successText="The testing release of $ohPkgName is now installed on your system.\\n\\nPlease test the correct behavior of your setup. You might need to adapt your configuration, if available. If you made changes to the files in '/var/lib/${ohPkgName}' they were replaced, but you can restore them from backup files next to the originals.\\n\\nCheck the \"openHAB Release Notes\" and the official announcements to learn about additons, fixes and changes."
     repo="deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg testing main"
     echo -n "$(timestamp) [openHABian] Beginning install of latest $ohPkgName milestone build (testing repo)... "
@@ -95,7 +95,21 @@ openhab_setup() {
     echo -n "$(timestamp) [openHABian] Installing openHAB... "
     if ! apt-get clean --yes -o DPkg::Lock::Timeout="$APTTIMEOUT"; then echo "FAILED (apt cache clean)"; return 1; fi
     cond_redirect apt-get update -o DPkg::Lock::Timeout="$APTTIMEOUT"
-    openhabVersion="${2:-$(apt-cache madison ${ohPkgName} | head -n 1 | cut -d'|' -f2 | xargs)}"
+    openhabVersion="${2:-$(apt-cache madison ${ohPkgName} | head -n 1 | awk '{ print $3 }')}"
+    openhabMajorVersion="$(echo "$openhabVersion" | cut -d'.' -f1)"
+    javaVersion="$(java -version |& head -1 | awk -F'"' '{ print $2 }' | cut -d '.' -f1)"
+    if [[ $openhabMajorVersion = 4 ]]; then
+      if [[ $javaVersion -lt 17 ]] ; then
+        update_config_java "17"
+        java_install "17"
+      fi
+    elif [[ $openhabMajorVersion = 5 ]]; then
+      if [[ $javaVersion -lt 21 ]] ; then
+        update_config_java "21"
+        java_install "21"
+      fi
+    fi
+
     if [[ -n $openhabVersion ]]; then
       installVersion="${ohPkgName}=${openhabVersion} ${ohPkgName}-addons=${openhabVersion}"
     else
@@ -116,7 +130,8 @@ openhab_setup() {
 
   echo -n "$(timestamp) [openHABian] Setting up openHAB service... "
   if ! cond_redirect zram_dependency install ${ohPkgName}; then return 1; fi
-  if cond_redirect systemctl enable ${ohPkgName}.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
+  if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (reload)"; return 1; fi
+  if cond_redirect systemctl enable --now ${ohPkgName}.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   openhab_misc
   create_systemd_dependencies
@@ -124,12 +139,6 @@ openhab_setup() {
     delayed_rules "yes"
   fi
   dashboard_add_tile "openhabiandocs"
-
-  # see https://github.com/openhab/openhab-core/issues/1937
-  echo -n "$(timestamp) [openHABian] Restarting openHAB service the hard way to play it safe... "
-  if cond_redirect systemctl restart ${ohPkgName}.service; then echo "OK"; else echo "FAILED (restart service)"; return 1; fi
-  sleep 60
-  pkill -9 java
 
   if [[ -n $INTERACTIVE ]]; then
     unset DEBIAN_FRONTEND

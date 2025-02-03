@@ -31,7 +31,6 @@ Menu 50 provides options to backup and restore either your openHAB configuration
 show_main_menu() {
   local choice
   local version
-  local javaVersion
 
 
   choice=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Setup Options" 24 118 16 --cancel-button Exit --ok-button Execute \
@@ -74,13 +73,6 @@ show_main_menu() {
         return 255
     fi
 
-    javaVersion="$(java -version |& grep -m 1 -o "[0-9]\{0,3\}\.[0-9]\{0,3\}\.[0-9]\{0,3\}[\.+][0-9]\{0,3\}" | head -1|cut -d '.' -f1)"
-    if [[ $(apt-cache madison openhab | head -n 1 | awk '{ print $3 }' | cut -d'.' -f1) = 4 ]]; then
-      if [[ $javaVersion -lt 17 ]] ; then
-        update_config_java "17"
-        java_install "17"
-      fi
-    fi
     repo=$(apt-cache madison openhab | head -n 1 | awk '{ print $6 }' |cut -d'/' -f1)
     # shellcheck disable=SC2154
     openhab_setup "${repo:-release}" "${openhabpkgversion}"
@@ -219,12 +211,11 @@ show_main_menu() {
     "42 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
     "43 | Clean cache"                    "Clean the cache for openHAB" \
     "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
-    "45 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (now default)" \
-    "   | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider" \
-    "   | Zulu 11 OpenJDK 32-bit"         "Install Zulu 11 32-bit OpenJDK as Java provider" \
-    "   | Zulu 11 OpenJDK 64-bit"         "Install Zulu 11 64-bit OpenJDK as Java provider" \
-    "   | Zulu 21 OpenJDK 64-bit"         "Install Zulu 21 64-bit OpenJDK as Java provider" \
-    "   | BellSoft Liberica JDK 21"       "Install BellSoft Liberica JDK 21, supports 32bit RPi (EXPERIMENTAL)" \
+    "45 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (default)" \
+    "   | OpenJDK 21"                     "Install and activate OpenJDK 21 as Java provider (upcoming default)" \
+    "   | Temurin 17"                     "Install and activate Temurin 17 as Java provider (default alternative)" \
+    "   | Temurin 21"                     "Install and activate Temurin 21 as Java provider (upcoming alternative default)" \
+    "   | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider (legacy)" \
     "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
     "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of openHAB JavaScript library" \
     "47 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \
@@ -243,11 +234,10 @@ show_main_menu() {
       43\ *) openhab_clean_cache;;
       44\ *) nginx_setup;;
       *OpenJDK\ 17) update_config_java "17" && java_install "17";;
+      *OpenJDK\ 21) update_config_java "21" && java_install "21";;
+      *Temurin\ 17) update_config_java "Temurin17" && java_install "Temurin17";;
+      *Temurin\ 21) update_config_java "Temurin21" && java_install "Temurin21";;
       *OpenJDK\ 11) update_config_java "11" && java_install "11";;
-      *Zulu\ 11\ OpenJDK\ 32-bit) update_config_java "Zulu11-32" && java_install_or_update "Zulu11-32";;
-      *Zulu\ 11\ OpenJDK\ 64-bit) update_config_java "Zulu11-64" && java_install_or_update "Zulu11-64";;
-      *Zulu\ 21\ OpenJDK\ 64-bit) update_config_java "Zulu21-64" && java_install_or_update "Zulu21-64";;
-      *BellSoft\ Liberica\ JDK\ 21) update_config_java "BellSoft21" && java_install_or_update "BellSoft21";;
       46\ *) jsscripting_npm_install "openhab";;
       *Uninstall\ openhab-js) jsscripting_npm_install "openhab" "uninstall";;
       47\ *) jsscripting_npm_install "openhab_rules_tools";;

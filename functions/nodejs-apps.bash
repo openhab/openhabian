@@ -14,9 +14,9 @@ nodejs_setup() {
   local temp
 
 
-  myDistro="$(lsb_release -sc)"
-  if [[ "$myDistro" == "n/a" ]]; then
-    myDistro=${osrelease:-bullseye}
+  myDistro="$(lsb_release -sc | head -1)"
+  if [[ "$myDistro" == "n/a" ]] || running_in_docker; then
+    myDistro=${osrelease:-bookworm}
   fi
   temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
 
