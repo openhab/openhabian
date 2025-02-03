@@ -40,18 +40,22 @@ jobs:
           - platform: rpi5-openjdk17
             dockerfile: ./tests/Dockerfile.rpi5-installation
             runner: ubuntu-24.04-arm
+            buildx_platform: linux/arm64
             java_opt: 17
           - platform: rpi3-openjdk17
             dockerfile: ./tests/Dockerfile.rpi3-installation
             runner: ubuntu-24.04-arm
+            buildx_platform: linux/arm/v7
             java_opt: 17
           - platform: amd64-openjdk17
             dockerfile: ./tests/Dockerfile.amd64-installation
             runner: ubuntu-24.04
+            buildx_platform: linux/amd64
             java_opt: 17
           - platform: rpi3-bellsoft21
             dockerfile: ./tests/Dockerfile.rpi3-installation
             runner: ubuntu-24.04-arm
+            buildx_platform: linux/arm/v7
             java_opt: BellSoft21
             continue-on-error: true # Experimental currently
 
@@ -73,6 +77,7 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           builder: ${{ steps.buildx.outputs.name }}
+          platforms: ${{ matrix.buildx_platform }}
           tags: openhabian/${{ matrix.platform }}:latest
           load: true
       - name: openHABian installation test with ${{ matrix.platform }}
