@@ -131,7 +131,7 @@ openhab_setup() {
   echo -n "$(timestamp) [openHABian] Setting up openHAB service... "
   if ! cond_redirect zram_dependency install ${ohPkgName}; then return 1; fi
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (reload)"; return 1; fi
-  if cond_redirect systemctl enable --now ${ohPkgName}.service; then echo "OK"; else echo "FAILED (enable service)"; journalctl -xeu openhab.service; systemctl status openhab.service; return 1; fi
+  if cond_redirect systemctl enable --now ${ohPkgName}.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
   openhab_misc
   create_systemd_dependencies

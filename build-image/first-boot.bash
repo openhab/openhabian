@@ -40,7 +40,7 @@ if ! is_bookworm; then
   rfkill unblock wifi   # Wi-Fi is blocked by Raspi OS default since bullseye(?)
 fi
 webserver=/boot/webserver.bash
-[[ -f /boot/firmware/webserver.bash ]] && ln -sfn /boot/firmware/webserver.bash "$webserver"
+[[ -f /boot/firmware/webserver.bash ]] && ln -s /boot/firmware/webserver.bash "$webserver"
 
 if [[ "${debugmode:-on}" == "on" ]]; then
   unset SILENT
@@ -91,7 +91,7 @@ hotSpot=${hotspot:-enable}
 wifiSSID="$wifi_ssid"
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 wifiPassword="$wifi_password"
-if ! running_in_docker && is_bookworm; then
+if is_pi && is_bookworm; then
   echo -n "$(timestamp) [openHABian] Setting up NetworkManager and Wi-Fi connection... "
   systemctl enable --now NetworkManager
   nmcli r wifi on
