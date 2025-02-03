@@ -307,17 +307,9 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" "$buildFolder"/root/etc/hosts
   echo "$hostname" > "$buildFolder"/root/etc/hostname
 
-  echo_process "Injecting 'openhabian-installer.service', 'first-boot.bash' and 'openhabian.conf'... "
+  echo_process "Injecting 'openhabian-installer.service'... "
   cp "${sourceFolder}/openhabian-installer.service" "$buildFolder/root/etc/systemd/system/"
   ln -s "${buildFolder}/root/etc/systemd/system/openhabian-installer.service" "$buildFolder"/root/etc/systemd/system/multi-user.target.wants/openhabian-installer.service
-  cp "$sourceFolder"/first-boot.bash "$buildFolder"/boot/firmware/first-boot.bash
-  touch "$buildFolder"/boot/first-boot.log
-  if [[ -f "${sourceFolder}/openhabian.${hwPlatform}.conf" ]]; then
-    unix2dos -q -n "${sourceFolder}/openhabian.${hwPlatform}.conf" "$buildFolder"/boot/firmware/openhabian.conf
-  else
-    unix2dos -q -n "$sourceFolder"/openhabian.conf "$buildFolder"/boot/firmware/openhabian.conf
-  fi
-  cp "$sourceFolder"/webserver.bash "$buildFolder"/boot/webserver.bash
 
   # Open subshell to make sure we don't hurt the host system if for some reason $buildFolder is not properly set
   echo_process "Setting default runlevel multiuser.target and disabling autologin... "
@@ -351,6 +343,16 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
   umount_image_file_root "$imageFile" "$buildFolder"
 
   mount_image_file_boot "$imageFile" "$buildFolder"
+
+  echo_process "Injecting 'first-boot.bash', 'webserver.bash', and 'openhabian.conf'... "
+  cp "$sourceFolder"/first-boot.bash "$buildFolder"/boot/firmware/first-boot.bash
+  touch "$buildFolder"/boot/first-boot.log
+  if [[ -f "${sourceFolder}/openhabian.${hwPlatform}.conf" ]]; then
+    unix2dos -q -n "${sourceFolder}/openhabian.${hwPlatform}.conf" "$buildFolder"/boot/firmware/openhabian.conf
+  else
+    unix2dos -q -n "$sourceFolder"/openhabian.conf "$buildFolder"/boot/firmware/openhabian.conf
+  fi
+  cp "$sourceFolder"/webserver.bash "$buildFolder"/boot/firmware/webserver.bash
 
   echo_process "Reactivating SSH... "
   touch "$buildFolder"/boot/ssh
