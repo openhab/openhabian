@@ -411,11 +411,13 @@ misc_system_settings() {
     cond_echo "Keeping at most 30 days of systemd journal entries"
     if ! cond_redirect journalctl --vacuum-time=30d; then echo "FAILED (journalctl)"; return 1; fi
 
-    # enable I2C port
-    if ! grep -qs "^[[:space:]]*dtparam=i2c_arm=" "${CONFIGTXT}"; then echo "dtparam=i2c_arm=on" >> "${CONFIGTXT}"; fi
-    if ! grep -qs "^[[:space:]]*dtparam=i2c1=" "${CONFIGTXT}"; then echo "dtparam=i2c1=on" >> "${CONFIGTXT}"; fi
-    modprobe i2c_dev
-    cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/INA219.py /usr/local/bin/waveshare_ups
+    if ! running_in_docker; then
+      cond_echo "Enabling I2C port"
+      if ! grep -qs "^[[:space:]]*dtparam=i2c_arm=" "${CONFIGTXT}"; then echo "dtparam=i2c_arm=on" >> "${CONFIGTXT}"; fi
+      if ! grep -qs "^[[:space:]]*dtparam=i2c1=" "${CONFIGTXT}"; then echo "dtparam=i2c1=on" >> "${CONFIGTXT}"; fi
+      modprobe i2c_dev
+      cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/INA219.py /usr/local/bin/waveshare_ups
+    fi
   fi
   # A distinguishable apt User-Agent
   cond_echo "Setting a distinguishable apt User-Agent"
