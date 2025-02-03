@@ -197,10 +197,12 @@ elif [ "$1" == "rpi64" ]; then
 
 elif [ "$1" == "local-test" ]; then
   echo_process "Preparing local system for installation"
-  cp ./build-image/first-boot.bash /boot/first-boot.bash
-  cp ./build-image/webserver.bash /boot/webserver.bash
-  cp ./build-image/openhabian.conf /boot/openhabian.conf
-  sed -e "s|/boot/firmware|/boot|" "./build-image/openhabian-installer.service" > /etc/systemd/system/openhabian-installer.service
+  mkdir -p /boot/firmware
+  ln -s /boot/config.txt /boot/firmware/config.txt
+  cp ./build-image/first-boot.bash /boot/firmware/first-boot.bash
+  cp ./build-image/webserver.bash /boot/firmware/webserver.bash
+  cp ./build-image/openhabian.conf /boot/firmware/openhabian.conf
+  cp "./build-image/openhabian-installer.service"  /etc/systemd/system/
   ln -sf /etc/systemd/system/openhabian-installer.service /etc/systemd/system/multi-user.target.wants/openhabian-installer.service
   rm -f /opt/openHABian-install-successful
   rm -f /opt/openHABian-install-inprogress
@@ -209,8 +211,8 @@ elif [ "$1" == "local-test" ]; then
   if ! running_in_docker; then
     sed -i 's|$(eval "$(openhabian_update "${clonebranch:-openHAB}" &> /dev/null)") -eq 0|true|' /boot/first-boot.bash
   fi
-  chmod +x /boot/first-boot.bash
-  chmod +x /boot/webserver.bash
+  chmod +x /boot/firmware/first-boot.bash
+  chmod +x /boot/firmware/webserver.bash
   echo_process "Local system ready for installation test.\\n                                     Run 'systemctl start openhabian-installer' or reboot to initiate!"
   exit 0
 else
