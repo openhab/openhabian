@@ -36,6 +36,7 @@ jobs:
        - name: Setup environment
          id: setup
          run: |
+           sudo apt-get update
            sudo apt-get install --yes libarchive-zip-perl dos2unix systemd-container qemu-utils
            echo "image32=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
            echo "image64=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
