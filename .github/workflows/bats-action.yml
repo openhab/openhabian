@@ -5,59 +5,39 @@ on:
     paths:
       - 'tests/Dockerfile.*-BATS'
       - 'functions/*.bats'
-      - 'functions/*.bash'
-      - '!functions/wifi.bash'
-      - '!functions/system.bash'
-      - '!functions/openhab.bash'
-      - '!functions/openhabian.bash'
-      - '!functions/menu.bash'
-      - '!functions/find.bash'
-      - '!functions/ext-storage.bash'
-      - '!functions/config.bash'
-      - '!functions/backup.bash'
-      - '!functions/auth.bash'
+      - 'functions/habapp.bash'
+      - 'functions/helpers.bash'
+      - 'functions/influxdb+grafana.bash'
+      - 'functions/java-jre.bash'
+      - 'functions/nodejs-apps.bash'
+      - 'functions/packages.bash'
+      - 'functions/vpn.bash'
+      - 'functions/zram.bash'
       - '.github/workflows/bats-action.yml'
   pull_request:
     paths:
       - 'tests/Dockerfile.*-BATS'
       - 'functions/*.bats'
-      - 'functions/*.bash'
-      - '!functions/wifi.bash'
-      - '!functions/system.bash'
-      - '!functions/openhab.bash'
-      - '!functions/openhabian.bash'
-      - '!functions/menu.bash'
-      - '!functions/find.bash'
-      - '!functions/ext-storage.bash'
-      - '!functions/config.bash'
-      - '!functions/backup.bash'
-      - '!functions/auth.bash'
+      - 'functions/habapp.bash'
+      - 'functions/helpers.bash'
+      - 'functions/influxdb+grafana.bash'
+      - 'functions/java-jre.bash'
+      - 'functions/nodejs-apps.bash'
+      - 'functions/packages.bash'
+      - 'functions/vpn.bash'
+      - 'functions/zram.bash'
       - '.github/workflows/bats-action.yml'
 
 jobs:
-  bats-tests:
-    runs-on: ubuntu-latest
+  x86-bats:
+    runs-on: ubuntu-24.04
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
-
-    strategy:
-      matrix:
-        platform: [rpi4, amd64]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Setup environment
         run: sudo -E ./tests/ci-setup.bash github
-      - name: Set up QEMU
-        if: ${{ matrix.platform == 'rpi4' }}
-        uses: docker/setup-qemu-action@v3.3.0
-        with:
-          platforms: arm64
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3.8.0
@@ -67,18 +47,48 @@ jobs:
         uses: docker/build-push-action@v6.13.0
         with:
           context: .
-          file: ./tests/Dockerfile.${{ matrix.platform }}-BATS
+          file: ./tests/Dockerfile.amd64-BATS
           builder: ${{ steps.buildx.outputs.name }}
-          tags: localhost:5000/openhabian/${{ matrix.platform }}-openhabian:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          push: true
-      - name: BATS tests on ${{ matrix.platform }} platform
+          tags: openhabian/amd64-openhabian:latest
+          load: true
+      - name: BATS tests on amd64 platform
         run: |
-          docker run --rm --name "openhabian-${{ matrix.platform }}" -d localhost:5000/openhabian/${{ matrix.platform }}-openhabian
-          docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "development-." .'
-          docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "unit-." .'
-          docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "installation-." .'
-          docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "destructive-." .'
-          docker stop "openhabian-${{ matrix.platform }}"
+          docker run --rm --name "openhabian-amd64" -d openhabian/amd64-openhabian
+          docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "development-." .'
+          docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "unit-." .'
+          docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "installation-." .'
+          docker exec -i "openhabian-amd64" bash -c 'bats --tap --recursive --filter "destructive-." .'
+          docker stop "openhabian-amd64"
+        shell: bash
+
+  arm-bats:
+    runs-on: ubuntu-24.04-arm
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup environment
+        run: sudo -E ./tests/ci-setup.bash github
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v3.8.0
+        with:
+          driver-opts: network=host
+      - name: Build Docker image
+        uses: docker/build-push-action@v6.13.0
+        with:
+          context: .
+          file: ./tests/Dockerfile.rpi4-BATS
+          builder: ${{ steps.buildx.outputs.name }}
+          tags: openhabian/rpi4-openhabian:latest
+          load: true
+      - name: BATS tests on rpi4 platform
+        run: |
+          docker run --rm --name "openhabian-rpi4" -d openhabian/rpi4-openhabian
+          docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "development-." .'
+          docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "unit-." .'
+          docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "installation-." .'
+          docker exec -i "openhabian-rpi4" bash -c 'bats --tap --recursive --filter "destructive-." .'
+          docker stop "openhabian-rpi4"
         shell: bash
