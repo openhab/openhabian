@@ -343,15 +343,14 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
   mount_image_file_boot "$imageFile" "$buildFolder"
 
   echo_process "Injecting 'first-boot.bash', 'webserver.bash', and 'openhabian.conf'... "
-  mkdir -p "$buildFolder"/boot/firmware
-  cp "$sourceFolder"/first-boot.bash "$buildFolder"/boot/firmware/first-boot.bash
+  cp "$sourceFolder"/first-boot.bash "$buildFolder"/boot/first-boot.bash
   touch "$buildFolder"/boot/first-boot.log
   if [[ -f "${sourceFolder}/openhabian.${hwPlatform}.conf" ]]; then
-    unix2dos -q -n "${sourceFolder}/openhabian.${hwPlatform}.conf" "$buildFolder"/boot/firmware/openhabian.conf
+    unix2dos -q -n "${sourceFolder}/openhabian.${hwPlatform}.conf" "$buildFolder"/boot/openhabian.conf
   else
-    unix2dos -q -n "$sourceFolder"/openhabian.conf "$buildFolder"/boot/firmware/openhabian.conf
+    unix2dos -q -n "$sourceFolder"/openhabian.conf "$buildFolder"/boot/openhabian.conf
   fi
-  cp "$sourceFolder"/webserver.bash "$buildFolder"/boot/firmware/webserver.bash
+  cp "$sourceFolder"/webserver.bash "$buildFolder"/boot/webserver.bash
 
   echo_process "Reactivating SSH... "
   touch "$buildFolder"/boot/ssh
