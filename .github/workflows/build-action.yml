@@ -7,14 +7,14 @@ on:
       - 'build.bash'
       - 'build-image/openhabian-installer.service'
       - 'build-image/first-boot.bash'
-      - 'includes/offline-image-modifications.bash'
+      - 'build-image/offline-image-modifications.bash'
       - '.github/workflows/build-action.yml'
   pull_request:
     paths:
       - 'build.bash'
       - 'build-image/openhabian-installer.service'
       - 'build-image/first-boot.bash'
-      - 'includes/offline-image-modifications.bash'
+      - 'build-image/offline-image-modifications.bash'
       - '.github/workflows/build-action.yml'
   workflow_dispatch:
     inputs:
@@ -24,7 +24,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
     if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
 
     steps:
@@ -36,9 +36,8 @@ jobs:
        - name: Setup environment
          id: setup
          run: |
-           sudo -E bash -c set
            sudo apt-get update
-           sudo apt-get install --yes libarchive-zip-perl dos2unix systemd-container qemu-user-static qemu-utils
+           sudo apt-get install --yes libarchive-zip-perl dos2unix systemd-container qemu-utils
            echo "image32=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
            echo "image64=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
        - name: Cache Raspberry Pi OS 32bit image
@@ -55,25 +54,14 @@ jobs:
          id: build
          run: |
            sudo -E ./tests/ci-setup.bash github ${{ github.ref_name }}
-           for f in "openhabian.conf openhabian.pi-raspios32.conf openhabian.pi-raspios64.conf"; do
-             if [[ -f build-image/$f ]]; then
-               sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/$f
-             fi
-           done
+           sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.conf
            sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
            cp build-image/template_rpi-imager-openhab.json rpi-imager-openhab.json
-           sudo -E ./build.bash rpi oldstable
-           sudo -E ./build.bash rpi latest
-           sudo -E ./build.bash rpi64 latest
-           echo "image32old=$(ls openhabian-raspios32-oldstable*.img.xz)" >> $GITHUB_OUTPUT
+           sudo -E ./build.bash rpi
+           sudo -E ./build.bash rpi64
            echo "image32=$(ls openhabian-raspios32-latest*.img.xz)" >> $GITHUB_OUTPUT
            echo "image64=$(ls openhabian-raspios64-latest*.img.xz)" >> $GITHUB_OUTPUT
            echo "json_image=$(ls rpi-imager-openhab.json)" >> $GITHUB_OUTPUT
-       - name: Archive openHABian 32bit bullseye image
-         uses: actions/upload-artifact@v4
-         with:
-           name: ${{ steps.build.outputs.image32old }}
-           path: ${{ steps.build.outputs.image32old }}
        - name: Archive openHABian 32bit Debian 12 bookworm image
          uses: actions/upload-artifact@v4
          with:
@@ -100,7 +88,6 @@ jobs:
            prerelease: false
            draft: true
            files: |
-             ${{ steps.build.outputs.image32old }}
              ${{ steps.build.outputs.image32 }}
              ${{ steps.build.outputs.image64 }}
              ${{ steps.build.outputs.json_image }}

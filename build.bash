@@ -197,10 +197,12 @@ elif [ "$1" == "rpi64" ]; then
 
 elif [ "$1" == "local-test" ]; then
   echo_process "Preparing local system for installation"
-  cp ./build-image/first-boot.bash /boot/first-boot.bash
-  cp ./build-image/webserver.bash /boot/webserver.bash
-  cp ./build-image/openhabian.conf /boot/openhabian.conf
-  cp "./build-image/openhabian-installer.service$release" /etc/systemd/system/
+  mkdir -p /boot/firmware
+  ln -s /boot/config.txt /boot/firmware/config.txt
+  cp ./build-image/first-boot.bash /boot/firmware/first-boot.bash
+  cp ./build-image/webserver.bash /boot/firmware/webserver.bash
+  cp ./build-image/openhabian.conf /boot/firmware/openhabian.conf
+  cp "./build-image/openhabian-installer.service"  /etc/systemd/system/
   ln -sf /etc/systemd/system/openhabian-installer.service /etc/systemd/system/multi-user.target.wants/openhabian-installer.service
   rm -f /opt/openHABian-install-successful
   rm -f /opt/openHABian-install-inprogress
@@ -209,24 +211,13 @@ elif [ "$1" == "local-test" ]; then
   if ! running_in_docker; then
     sed -i 's|$(eval "$(openhabian_update "${clonebranch:-openHAB}" &> /dev/null)") -eq 0|true|' /boot/first-boot.bash
   fi
-  chmod +x /boot/first-boot.bash
-  chmod +x /boot/webserver.bash
+  chmod +x /boot/firmware/first-boot.bash
+  chmod +x /boot/firmware/webserver.bash
   echo_process "Local system ready for installation test.\\n                                     Run 'systemctl start openhabian-installer' or reboot to initiate!"
   exit 0
 else
   usage
   exit 0
-fi
-
-getstable="oldstable_"
-if [ -n "$2" ]; then
-  if [ "$2" == "latest" ]; then
-    getstable=""
-    release=.since_bookworm
-  elif [ "$2" != "oldstable" ]; then
-    usage
-    exit 1
-  fi
 fi
 
 trap cleanup_build EXIT ERR
@@ -254,10 +245,10 @@ extraSize="1000"			# grow image root by this number of MB
 # Build Raspberry Pi image
 if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
   if [ "$hwPlatform" == "raspios64" ]; then
-    baseURL="https://downloads.raspberrypi.org/raspios_${getstable}lite_arm64_latest"
+    baseURL="https://downloads.raspberrypi.org/raspios_lite_arm64_latest"
     bits="64"
   else
-    baseURL="https://downloads.raspberrypi.org/raspios_${getstable}lite_armhf_latest"
+    baseURL="https://downloads.raspberrypi.org/raspios_lite_armhf_latest"
     bits="32"
   fi
   xzURL="$(curl "$baseURL" -s -L -I  -o /dev/null -w '%{url_effective}')"
@@ -292,10 +283,6 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
     cp "$xzFile" "${buildFolder}/${xzFile}"
   fi
 
-  #echo_process "Verifying signature of downloaded image... "
-  #curl -s -L "$xzURL".sig -o "$buildFolder"/"$xzFile".sig
-  #if ! gpg -q --keyserver keyserver.ubuntu.com --recv-key 0x8738CD6B956F460C; then echo "FAILED (download public key)"; exit 1; fi
-  #if gpg -q --trust-model always --verify "${buildFolder}/${xzFile}".sig "${buildFolder}/${xzFile}"; then echo "OK"; else echo "FAILED (signature)"; exit 1; fi
   curl -s -L "${baseURL}.sha256" -o "${xzFile}.sha256"
   if sha256sum -c "${xzFile}.sha256"; then echo "OK"; else echo "FAILED (download image checksum fail)"; exit 1; fi
 
@@ -320,10 +307,9 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
   sed -i "s/127.0.1.1.*/127.0.1.1 $hostname/" "$buildFolder"/root/etc/hosts
   echo "$hostname" > "$buildFolder"/root/etc/hostname
 
-  installer=openhabian-installer.service
-  echo_process "Injecting 'openhabian-installer.service', 'first-boot.bash' and 'openhabian.conf'... "
-  cp "${sourceFolder}/${installer}$release" "$buildFolder/root/etc/systemd/system/${installer}"
-  ln -s "${buildFolder}/root/etc/systemd/system/${installer}" "$buildFolder"/root/etc/systemd/system/multi-user.target.wants/${installer}
+  echo_process "Injecting 'openhabian-installer.service'... "
+  cp "${sourceFolder}/openhabian-installer.service" "$buildFolder/root/etc/systemd/system/"
+  ln -s "${buildFolder}/root/etc/systemd/system/openhabian-installer.service" "$buildFolder"/root/etc/systemd/system/multi-user.target.wants/openhabian-installer.service
 
   # Open subshell to make sure we don't hurt the host system if for some reason $buildFolder is not properly set
   echo_process "Setting default runlevel multiuser.target and disabling autologin... "
@@ -335,7 +321,7 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
   )
 
   echo_process "Cloning myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-openHAB} branch... "
-  if ! [[ -d ${buildFolder}/root/opt/openhabian ]]; then
+  if ! [[ -d "${buildFolder}/root/opt/openhabian" ]]; then
     git clone "${repositoryurl:-https://github.com/openhab/openhabian.git}" "$buildFolder"/root/opt/openhabian &> /dev/null
     git -C "$buildFolder"/root/opt/openhabian checkout "${clonebranch:-openHAB}" &> /dev/null
   fi
@@ -358,16 +344,19 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
 
   mount_image_file_boot "$imageFile" "$buildFolder"
 
+  echo_process "Injecting 'first-boot.bash', 'webserver.bash', and 'openhabian.conf'... "
+  mkdir -p "$buildFolder"/boot/firmware
+  cp "$sourceFolder"/first-boot.bash "$buildFolder"/boot/firmware/first-boot.bash
+  touch "$buildFolder"/boot/first-boot.log
+  if [[ -f "${sourceFolder}/openhabian.${hwPlatform}.conf" ]]; then
+    unix2dos -q -n "${sourceFolder}/openhabian.${hwPlatform}.conf" "$buildFolder"/boot/firmware/openhabian.conf
+  else
+    unix2dos -q -n "$sourceFolder"/openhabian.conf "$buildFolder"/boot/firmware/openhabian.conf
+  fi
+  cp "$sourceFolder"/webserver.bash "$buildFolder"/boot/firmware/webserver.bash
+
   echo_process "Reactivating SSH... "
   touch "$buildFolder"/boot/ssh
-  cp "$sourceFolder"/first-boot.bash "$buildFolder"/boot/first-boot.bash
-  touch "$buildFolder"/boot/first-boot.log
-  if [[ -f "$sourceFolder"/openhabian.${hwPlatform}.conf ]]; then
-    unix2dos -q -n "$sourceFolder"/openhabian.${hwPlatform}.conf "$buildFolder"/boot/openhabian.conf
-  else
-    unix2dos -q -n "$sourceFolder"/openhabian.conf "$buildFolder"/boot/openhabian.conf
-  fi
-  cp "$sourceFolder"/webserver.bash "$buildFolder"/boot/webserver.bash
 
   encryptedPassword=$(echo "${defaultPassword:-openhabian}" | openssl passwd -6 -stdin)
   echo "${defaultUser:-openhabian}:${encryptedPassword}" > "$buildFolder"/boot/userconf.txt
@@ -380,7 +369,6 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
 fi
 
 echo_process "Moving image and cleaning up... "
-#shorthash="$(git log --pretty=format:'%h' -n 1)"
 crc32checksum="$(crc32 "$imageFile")"
 destination="openhabian-${hwPlatform}-${2:-latest}-${timestamp}-crc${crc32checksum}.img"
 mv -v "$imageFile" "$destination"
@@ -390,13 +378,11 @@ echo_process "Compressing image $destination... "
 # speedup compression, T0 will use all cores and should be supported by reasonably new versions of xz
 xz --verbose --compress --keep -9 -T0 "$destination"
 crc32checksum="$(crc32 "${destination}.xz")"
-#mv "${destination}.xz" "openhabian-${hwPlatform}-${2:-latest}-${timestamp}-crc${crc32checksum}.img.xz"
 
 # generate json-file for integration in raspberry-imager
 pathDownload="https://github.com/openhab/openhabian/releases/latest/download"
 release_date=$(date "+%Y-%m-%d")
 fileE="${destination}"
-#fileZ="openhabian-${hwPlatform}-${timestamp}-git${shorthash}-crc${crc32checksum}.img.xz"
 fileZ="openhabian-${hwPlatform}-${2:-latest}-${timestamp}-crc${crc32checksum}.img.xz"
 mv "${destination}.xz" "$fileZ"
 

@@ -37,12 +37,10 @@ if ! source "/opt/openhabian/functions/wifi.bash"; then echo "FAILED (source wif
 if source "/opt/openhabian/functions/openhabian.bash"; then echo "OK"; else echo "FAILED (source openhabian)"; fail_inprogress; fi
 
 if ! is_bookworm; then
-#  webserver=/boot/firmware/webserver.bash
-#else
   rfkill unblock wifi   # Wi-Fi is blocked by Raspi OS default since bullseye(?)
 fi
 webserver=/boot/webserver.bash
-ln -s /boot/firmware/webserver.bash "$webserver"
+[[ -f /boot/firmware/webserver.bash ]] && ln -s /boot/firmware/webserver.bash "$webserver"
 
 if [[ "${debugmode:-on}" == "on" ]]; then
   unset SILENT
@@ -93,7 +91,7 @@ hotSpot=${hotspot:-enable}
 wifiSSID="$wifi_ssid"
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 wifiPassword="$wifi_password"
-if is_bookworm; then
+if is_pi && is_bookworm; then
   echo -n "$(timestamp) [openHABian] Setting up NetworkManager and Wi-Fi connection... "
   systemctl enable --now NetworkManager
   nmcli r wifi on
@@ -105,7 +103,7 @@ if is_bookworm; then
   fi
 elif grep -qs "up" /sys/class/net/eth0/operstate; then
   # Actually check if ethernet is working
-  echo -n "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
+  echo "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
 elif [[ -n $wifiSSID ]] && grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
   echo -n "$(timestamp) [openHABian] Checking if WiFi is working... "
   if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
