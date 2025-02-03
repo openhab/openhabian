@@ -78,4 +78,4 @@ jobs:
       - name: openHABian installation test with ${{ matrix.platform }}
         run: |
           docker run --privileged --rm --name "openhabian-${{ matrix.platform }}" -d openhabian/${{ matrix.platform }}
-          docker exec -i "openhabian-${{ matrix.platform }}" bash -c './build.bash local-test && /boot/first-boot.bash'
+          docker exec -i "openhabian-${{ matrix.platform }}" bash -c './build.bash local-test && /boot/firmware/first-boot.bash'
