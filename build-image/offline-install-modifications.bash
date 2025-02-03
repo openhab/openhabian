@@ -10,8 +10,7 @@ debfilelatest="latest.deb"
 debfilestatic="1.2_all.deb"
 comituprepofile=/etc/apt/sources.d/davesteele-comitup.list
 
-#source /opt/openhabian/functions/helpers.bash
-source functions/helpers.bash
+source /opt/openhabian/functions/helpers.bash
 add_keys "https://openhab.jfrog.io/artifactory/api/gpg/key/public" "openhab"
 echo "deb [signed-by=/usr/share/keyrings/openhab.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main" > /etc/apt/sources.list.d/openhab.list
 

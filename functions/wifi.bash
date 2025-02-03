@@ -117,8 +117,12 @@ configure_wifi() {
 ##
 ##    setup_hotspot(String option)
 ##
+
+
+
+
 setup_hotspot() {
-  local debfileurl="https://davesteele.github.io/comitup/latest"
+  local debfileurl="https://davesteele.github.io/comitup/deb"
   local debfile="davesteele-comitup-apt-source"
   local debfilelatest="latest.deb"
   local debfilestatic="1.2_all.deb"
@@ -134,7 +138,7 @@ setup_hotspot() {
       cond_redirect dpkg -i --force-all "${debfile}*.deb"
       cond_redirect apt-get --quiet update
     fi
-    rm -f "$debfile"
+    rm -f "${debfile}*.deb"
 
     if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
     # shellcheck disable=SC2154
