@@ -197,11 +197,9 @@ elif [ "$1" == "rpi64" ]; then
 
 elif [ "$1" == "local-test" ]; then
   echo_process "Preparing local system for installation"
-  mkdir -p /boot/firmware
-  ln -s /boot/config.txt /boot/firmware/config.txt
-  cp ./build-image/first-boot.bash /boot/firmware/first-boot.bash
-  cp ./build-image/webserver.bash /boot/firmware/webserver.bash
-  cp ./build-image/openhabian.conf /boot/firmware/openhabian.conf
+  cp ./build-image/first-boot.bash /boot/first-boot.bash
+  cp ./build-image/webserver.bash /boot/webserver.bash
+  cp ./build-image/openhabian.conf /boot/openhabian.conf
   cp "./build-image/openhabian-installer.service"  /etc/systemd/system/
   ln -sf /etc/systemd/system/openhabian-installer.service /etc/systemd/system/multi-user.target.wants/openhabian-installer.service
   rm -f /opt/openHABian-install-successful
@@ -211,8 +209,8 @@ elif [ "$1" == "local-test" ]; then
   if ! running_in_docker; then
     sed -i 's|$(eval "$(openhabian_update "${clonebranch:-openHAB}" &> /dev/null)") -eq 0|true|' /boot/first-boot.bash
   fi
-  chmod +x /boot/firmware/first-boot.bash
-  chmod +x /boot/firmware/webserver.bash
+  chmod +x /boot/first-boot.bash
+  chmod +x /boot/webserver.bash
   echo_process "Local system ready for installation test.\\n                                     Run 'systemctl start openhabian-installer' or reboot to initiate!"
   exit 0
 else
@@ -345,15 +343,14 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
   mount_image_file_boot "$imageFile" "$buildFolder"
 
   echo_process "Injecting 'first-boot.bash', 'webserver.bash', and 'openhabian.conf'... "
-  mkdir -p "$buildFolder"/boot/firmware
-  cp "$sourceFolder"/first-boot.bash "$buildFolder"/boot/firmware/first-boot.bash
+  cp "$sourceFolder"/first-boot.bash "$buildFolder"/boot/first-boot.bash
   touch "$buildFolder"/boot/first-boot.log
   if [[ -f "${sourceFolder}/openhabian.${hwPlatform}.conf" ]]; then
-    unix2dos -q -n "${sourceFolder}/openhabian.${hwPlatform}.conf" "$buildFolder"/boot/firmware/openhabian.conf
+    unix2dos -q -n "${sourceFolder}/openhabian.${hwPlatform}.conf" "$buildFolder"/boot/openhabian.conf
   else
-    unix2dos -q -n "$sourceFolder"/openhabian.conf "$buildFolder"/boot/firmware/openhabian.conf
+    unix2dos -q -n "$sourceFolder"/openhabian.conf "$buildFolder"/boot/openhabian.conf
   fi
-  cp "$sourceFolder"/webserver.bash "$buildFolder"/boot/firmware/webserver.bash
+  cp "$sourceFolder"/webserver.bash "$buildFolder"/boot/webserver.bash
 
   echo_process "Reactivating SSH... "
   touch "$buildFolder"/boot/ssh

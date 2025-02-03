@@ -118,10 +118,10 @@ configure_wifi() {
 ##    setup_hotspot(String option)
 ##
 setup_hotspot() {
-  local debfileurl="https://davesteele.github.io/comitup/latest"
-  local debfile="davesteele-comitup-apt-source"
-  local debfilelatest="latest.deb"
-  local debfilestatic="1.2_all.deb"
+  local debfileurl=https://davesteele.github.io/comitup/deb
+  local debfile=davesteele-comitup-apt-source
+  local debfilelatest=latest.deb
+  local debfilestatic=1.2_all.deb
 
 
   if [[ $1 == "install" ]]; then
@@ -130,11 +130,11 @@ setup_hotspot() {
     DEBIAN_FRONTEND=noninteractive apt install --yes network-manager &> /dev/null
     systemctl enable --now NetworkManager
 
-    if cond_redirect wget -nv "${debfileurl}/${debfile}_${debfilelatest}" || wget -nv "${debfileurl}/${debfile}_${debfilestatic}"; then
-      cond_redirect dpkg -i --force-all "${debfile}*.deb"
+    if cond_redirect wget -nv "${debfileurl}/${debfile}_${debfilelatest}" -O ${debfile}_${debfilelatest} || wget -nv "${debfileurl}/${debfile}_${debfilestatic} -O ${debfile}_${debfilelatest}"; then
+      cond_redirect dpkg -i --force-all "${debfile}_${debfilelatest}"
       cond_redirect apt-get --quiet update
     fi
-    rm -f "$debfile"
+    rm -f "${debfile}*.deb"
 
     if ! cp "${BASEDIR:-/opt/openhabian}"/includes/comitup.conf /etc/comitup.conf; then echo "FAILED (comitup config)"; return 1; fi
     # shellcheck disable=SC2154
