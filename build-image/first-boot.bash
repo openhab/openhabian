@@ -217,7 +217,7 @@ fi
 
 # shellcheck disable=SC2154
 echo -n "$(timestamp) [openHABian] Updating myself from ${repositoryurl:-https://github.com/openhab/openhabian.git}, ${clonebranch:-openHAB} branch... "
-if running_in_docker || [[ $(eval "$(openhabian_update "${clonebranch:-openHAB}" &> /dev/null)") -eq 0 ]]; then
+if [[ $(eval "$(openhabian_update "${clonebranch:-openHAB}" &> /dev/null)") -eq 0 ]]; then
   echo "OK"
 else
   echo "FAILED"
@@ -252,17 +252,7 @@ if running_in_docker; then
     ps -auxq "$(cat "$PID")" | awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
   else
     echo -e "\\n${COL_RED}Karaf PID missing, openHAB process not running (yet?).${COL_DEF}"
-    cat /var/log/openhab/openhab.log
-    systemctl restart openhab.service
-    systemctl status openhab.service
-    journalctl -xeu openhab.service
-    sleep 30
-    if [[ -f "$PID" ]]; then
-      ps -auxq "$(cat "$PID")" | awk '/openhab/ {print "size/res="$5"/"$6" KB"}'
-    else
-      echo -e "\\n${COL_RED}Karaf PID still missing, openHAB process not running.${COL_DEF}"
-      exit 1
-    fi
+    exit 1
   fi
   echo -e "$COL_DEF"
 fi
