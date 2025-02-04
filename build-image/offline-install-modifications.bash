@@ -9,7 +9,7 @@ debfileurl=https://davesteele.github.io/comitup/deb
 debfile=davesteele-comitup-apt-source
 debfilelatest=latest.deb
 debfilestatic=1.2_all.deb
-comituprepofile=/etc/apt/sources.d/davesteele-comitup.list
+comituprepofile=/etc/apt/sources.list.d/davesteele-comitup.list
 
 source /opt/openhabian/functions/helpers.bash
 add_keys "https://openhab.jfrog.io/artifactory/api/gpg/key/public" "openhab"
