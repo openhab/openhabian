@@ -117,10 +117,6 @@ configure_wifi() {
 ##
 ##    setup_hotspot(String option)
 ##
-
-
-
-
 setup_hotspot() {
   local debfileurl=https://davesteele.github.io/comitup/deb
   local debfile=davesteele-comitup-apt-source
