@@ -42,8 +42,8 @@ jobs:
             runner: ubuntu-24.04-arm
             buildx_platform: linux/arm64
             java_opt: 17
-          - platform: rpi3-openjdk17
-            dockerfile: ./tests/Dockerfile.rpi3-installation
+          - platform: rpi2-openjdk17
+            dockerfile: ./tests/Dockerfile.rpi2-installation
             runner: ubuntu-24.04-arm
             buildx_platform: linux/arm/v7
             java_opt: 17
