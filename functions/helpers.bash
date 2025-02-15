@@ -651,7 +651,7 @@ openhab2_is_installed() {
 openhab3_is_installed() {
   if [[ $(dpkg -s 'openhab' 2> /dev/null | grep -E '^Version' | cut -d ' ' -f2 | cut -d '.' -f1) = 3 ]]; then return 0; else return 1; fi
 }
-## Function to check if openHAB is installed on the current system. Returns
+## Function to check if openHAB 4 is installed on the current system. Returns
 ## 0 / true if openHAB is installed and 1 / false if not.
 ##
 ##    openhab_is_installed()
@@ -659,13 +659,22 @@ openhab3_is_installed() {
 openhab4_is_installed() {
   if [[ $(dpkg -s 'openhab' 2> /dev/null | grep -E '^Version' | cut -d ' ' -f2 | cut -d '.' -f1) = 4 ]]; then return 0; else return 1; fi
 }
+## Function to check if openHAB 5 is installed on the current system. Returns
+## 0 / true if openHAB is installed and 1 / false if not.
+##
+##    openhab_is_installed()
+##
+openhab5_is_installed() {
+  if [[ $(dpkg -s 'openhab' 2> /dev/null | grep -E '^Version' | cut -d ' ' -f2 | cut -d '.' -f1) = 5 ]]; then return 0; else return 1; fi
+}
+
 ## Function to check if openHAB is installed on the current system. Returns
 ## 0 / true if openHAB is installed and 1 / false if not.
 ##
 ##    openhab_is_installed()
 ##
 openhab_is_installed() {
-  if openhab2_is_installed || openhab3_is_installed || openhab4_is_installed; then return 0; else return 1; fi
+  if openhab2_is_installed || openhab3_is_installed || openhab4_is_installed || openhab5_is_installed; then return 0; else return 1; fi
 }
 
 ## Check if amanda is installed
