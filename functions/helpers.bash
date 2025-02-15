@@ -667,7 +667,6 @@ openhab4_is_installed() {
 openhab5_is_installed() {
   if [[ $(dpkg -s 'openhab' 2> /dev/null | grep -E '^Version' | cut -d ' ' -f2 | cut -d '.' -f1) = 5 ]]; then return 0; else return 1; fi
 }
-
 ## Function to check if openHAB is installed on the current system. Returns
 ## 0 / true if openHAB is installed and 1 / false if not.
 ##
