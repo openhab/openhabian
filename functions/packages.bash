@@ -510,7 +510,7 @@ nginx_setup() {
     if (whiptail --title "nginx installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 9 80); then echo "OK"; else echo "CANCELED"; return 0; fi
 
     echo "$(timestamp) [openHABian] Configuring nginx authentication options... "
-    if openhab4_is_installed || openhab3_is_installed || (whiptail --title "Authentication setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
+    if openhab_is_installed || (whiptail --title "Authentication setup" --yesno "Would you like to secure your openHAB interface with username and password?" 7 80); then
       auth="true"
     fi
     if [[ "$auth" == "true" ]]; then
