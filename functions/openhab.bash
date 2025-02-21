@@ -17,27 +17,6 @@ create_systemd_dependencies() {
   if cond_redirect systemctl -q daemon-reload; then echo "OK"; else echo "FAILED (reload configuration)"; return 1; fi
 }
 
-## Function to quickly rename openHAB rules back and forth after two minutes to
-## speed up startup of openHAB.
-## This is done using /etc/systemd/system/openhab.service.d/override.conf
-## Valid arguments: "yes" or "no"
-##
-##    delayed_rules()
-##
-delayed_rules() {
-  if ! openhab_is_installed; then return 0; fi
-
-  local targetDir="/etc/systemd/system/openhab.service.d"
-
-  if [[ $1 == "yes" ]]; then
-    echo -n "$(timestamp) [openHABian] Adding delay on loading openHAB rules... "
-    if (cat "${BASEDIR:-/opt/openhabian}"/includes/delayed-rules.conf >> "${targetDir}"/override.conf); then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
-  elif [[ $1 == "no" ]]; then
-    echo "$(timestamp) [openHABian] Removing delay on loading openHAB rules... OK"
-    rm -rf ${targetDir}/override.conf
-  fi
-  if ! cond_redirect systemctl -q daemon-reload; then return 1; fi
-}
 
 ## Function to install / upgrade / downgrade the installed openHAB version
 ## Valid argument 1: "release", "milestone" or "testing", or "snapshot" or "unstable"
@@ -135,9 +114,6 @@ openhab_setup() {
 
   openhab_misc
   create_systemd_dependencies
-  if ! [[ $ohPkgName == "openhab" ]]; then
-    delayed_rules "yes"
-  fi
   dashboard_add_tile "openhabiandocs"
 
   if [[ -n $INTERACTIVE ]]; then
@@ -239,7 +215,7 @@ openhab_misc() {
   if has_lowmem; then
     if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms16m -Xmx256m -Xss1024k -XX:-TieredCompilation -XX:TieredStopAtLevel=1 -XX:+ExitOnOutOfMemoryError -Dxtext.qn.interning=true"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   elif has_highmem; then
-    if cond_redirect sed -i -e '/^[^#]/ s/\(^.*EXTRA_JAVA_OPTS=.*$\)/EXTRA_JAVA_OPTS="-Xms192m -Xmx768m -XX:-TieredCompilation -XX:TieredStopAtLevel=1 -XX:+ExitOnOutOfMemoryError -Dxtext.qn.interning=true"/' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx768m -XX:-TieredCompilation -XX:TieredStopAtLevel=1 -XX:+ExitOnOutOfMemoryError -Dxtext.qn.interning=true"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   else
     if cond_redirect sed -i -e 's|^EXTRA_JAVA_OPTS=.*$|EXTRA_JAVA_OPTS="-Xms192m -Xmx384m -XX:-TieredCompilation -XX:TieredStopAtLevel=1 -XX:+ExitOnOutOfMemoryError -Dxtext.qn.interning=true"|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
