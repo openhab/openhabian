@@ -48,6 +48,7 @@ system_upgrade() {
 basic_packages() {
   echo -n "$(timestamp) [openHABian] Installing basic can't-be-wrong packages (screen, vim, ...)... "
   dpkg --configure -a --force-confnew  # just in case to ensure apt works
+  dpkg --configure -a  # just in case to ensure apt works
 
   # removed pkg software-properties-common
   if cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" install --yes \
