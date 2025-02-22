@@ -57,6 +57,7 @@ If neither Ethernet nor [static Wi-Fi configuration](#Wi-Fi) work and the Intern
 Use a mobile device to connect to it, select your home Wi-Fi or enter its name and password and openHABian will connect there permanently, i.e. safe across reboots.
 If none of the things listed below work you are going to need to do more research on your own.
 Networking is highly complex and there are many different things that could be the issue.
+
 #### Wi-Fi
 
 A non-interactive installation with static use of your home Wi-Fi requires user configuration action prior to the first boot of openHABian.
