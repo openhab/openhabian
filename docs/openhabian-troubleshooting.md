@@ -50,14 +50,16 @@ You probably have enough RAM to run all the packages you want unless you are goi
 
 openHABian requires direct Internet access for the duration of the installation.
 Ensure that your openHABian box has access to the internet and is not being blocked by any settings configured in your router.
-Both Ethernet and Wi-Fi are both supported at install time.
+Both Ethernet and Wi-Fi are supported at install time.
 
+openHABian will use Ethernet if connected.
+If neither Ethernet nor [static Wi-Fi configuration](#Wi-Fi) work and the Internet cannot be reached, the installer will fire up a hotspot with a wireless LAN named `openhabian-<n>`.
+Use a mobile device to connect to it, select your home Wi-Fi or enter its name and password and openHABian will connect there permanently, i.e. safe across reboots.
 If none of the things listed below work you are going to need to do more research on your own.
 Networking is highly complex and there are many different things that could be the issue.
-
 #### Wi-Fi
 
-WiFi requires user configuration prior to the first boot of openHABian.
+A non-interactive installation with static use of your home Wi-Fi requires user configuration action prior to the first boot of openHABian.
 For more information on how to configure Wi-Fi before first boot see [Wi-Fi Settings](./openhabian.md#wi-fi-settings)
 
 If you would rather not try to do any additional configuration before first boot you can try to make use of the [hotspot](./openhabian.md#wi-fi-hotspot) feature.
