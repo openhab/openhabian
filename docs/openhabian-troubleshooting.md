@@ -6,7 +6,11 @@ source: https://github.com/openhab/openhabian/blob/main/docs/openhabian-troubles
 
 # openHABian Troubleshooting
 
+<<<<<<< HEAD
 ::: warning
+=======
+::: important
+>>>>>>> 75433151d (Rewrite all documentation (#1936))
 **Please do not ask for help on the forum unless you have read this guide.**
 :::
 
@@ -88,11 +92,19 @@ If you've tried the advice up to this point and it has still failed to install, 
 
 ### Enabling Debug Logs
 
+<<<<<<< HEAD
 Before your first boot, you will need to edit `openhabian.conf` and set `debugmode` to `maximum` (or optionally `on` if you think you only need minimal debugging).
 To do so, you need to mount the first partition of your SD card. It's a Windows FAT filesystem so you can and should be doing that right after flashing your image to SD.
 See [`debugmode`](./openhabian.md#debugmode) for more information.
 
 After setting `debugmode` boot your system for the first time.
+=======
+Before your first boot, you will need to edit `/boot/openhabian.conf` and `debugmode` to `maximum` (or optionally `on` if you think you only need minimal debugging).
+If you want even more logging you could also use `maximum` to increase the output (it will show the output of every command run by `openhabian-config`).
+See [`debugmode`](./openhabian.md#debugmode) for more information.
+
+After setting `debugmode` boot your system for the first time (yeah again).
+>>>>>>> 75433151d (Rewrite all documentation (#1936))
 Wait for it to complete the setup process, then login and check `/boot/first-boot.log` for the detailed logs.
 If you are impatient, you can try and follow along with the installation logs in the web browser at [http://openhabian:81](http://openhabian:81).
 
