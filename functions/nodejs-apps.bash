@@ -102,7 +102,7 @@ frontail_remove() {
       fi
       if cond_redirect systemctl -q daemon-reload; then echo "OK"; else echo "FAILED (daemon-reload)"; return 1; fi
     elif (whiptail --title "Frontail Removal" --yes-button "Don't show again" --no-button "Keep showing" --yesno "$rememberChoice" 10 84); then
-        echo "frontail_remove=hide" >> /etc/openhabian.conf
+        sed -i -e "s/^.*frontail_remove.*$/frontail_remove=true/g" "/etc/openhabian.conf"
     fi
   fi
 }
