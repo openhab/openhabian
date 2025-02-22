@@ -77,11 +77,12 @@ frontail_remove() {
   local frontailBase
   local frontailDir="/opt/frontail"
   local removeText="Frontail is a log viewer that is not maintained and has security issues. As of openHAB 4.3 there is a built in log viewer which replaces it.\\n\\nWould you like to remove it from your system? If not, be aware that it is not recommended to use it and is no longer a supported feature of openHABian."
+  local rememberChoice="Would you like to remember this choice for future runs of openHABian?"
 
   frontailBase="$(npm list -g | head -n 1)/node_modules/frontail"
 
   if ! dpkg --compare-versions "$(sed -n 's/openhab-distro\s*: //p' /var/lib/openhab/etc/version.properties)" gt "4.3.0"; then return 0; fi
-  if [[ -z $INTERACTIVE ]]; then return 0; fi
+  if [[ -z $INTERACTIVE ]] || [[ -n $frontail_remove ]]; then return 0; fi
 
 
   if [[ -d $frontailBase ]] || [[ -d $frontailDir ]]; then
@@ -100,6 +101,9 @@ frontail_remove() {
         cond_redirect sed -i -e "/frontail-link/d" "/etc/openhab/services/runtime.cfg"
       fi
       if cond_redirect systemctl -q daemon-reload; then echo "OK"; else echo "FAILED (daemon-reload)"; return 1; fi
+    elif (whiptail --title "Frontail Removal" --yes-button "Don't show again" --no-button "Keep showing" --yesno "$rememberChoice" 10 84); then
+        # shellcheck source=/etc/openhabian.conf disable=SC2154
+        sed -i -e "s/^.*frontail_remove.*$/frontail_remove=true/g" "${configFile}"
     fi
   fi
 }
