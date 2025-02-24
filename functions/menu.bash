@@ -243,8 +243,8 @@ show_main_menu() {
     # shellcheck disable=SC2154
     case "$choice2" in
       41\ *) openhab_setup "release";;
-      *openHAB\ Milestone) openhab_setup "milestone";;
-      *openHAB\ Snapshot) openhab_setup "snapshot";;
+      *openHAB\ Milestone) cond_redirect apt-mark unhold openhab openhab-addons evcc && openhab_setup "milestone";;
+      *openHAB\ Snapshot) cond_redirect apt-mark unhold openhab openhab-addons evcc && openhab_setup "snapshot";;
       42\ *) openhab_shell_interfaces;;
       43\ *) openhab_clean_cache;;
       44\ *) nginx_setup;;
