@@ -72,7 +72,7 @@ fi
 
 echo -n "$(timestamp) [openHABian] Changing default username ... "
 # shellcheck disable=SC2154
-if [[ -v ${userName} ]] || ! id "$defaultUserAndGroup" &> /dev/null || id "$userName" &> /dev/null; then
+if [[ -n ${userName} ]] || ! id "$defaultUserAndGroup" &> /dev/null || id "$userName" &> /dev/null; then
   echo "SKIPPED"
 else
   usermod -l "$userName" "$defaultUserAndGroup"
@@ -82,7 +82,7 @@ else
 fi
 echo -n "$(timestamp) [openHABian] Changing default password... "
 # shellcheck disable=SC2154
-if [[ -v ${userpw} ]]; then
+if [[ -n ${userpw} ]]; then
   echo "SKIPPED"
 else
   echo "${userName}:${userpw}" | chpasswd
