@@ -70,7 +70,7 @@ if is_raspbian || is_raspios; then
   rm -f "/etc/sudoers.d/010_pi-nopasswd"
 fi
 
-echo -n "$(timestamp) [openHABian] Changing default username and password... "
+echo -n "$(timestamp) [openHABian] Changing default username ... "
 # shellcheck disable=SC2154
 if [[ -v ${userName} ]] || ! id "$defaultUserAndGroup" &> /dev/null || id "$userName" &> /dev/null; then
   echo "SKIPPED"
@@ -78,8 +78,14 @@ else
   usermod -l "$userName" "$defaultUserAndGroup"
   usermod -m -d "/home/$userName" "$userName"
   groupmod -n "$groupName" "$defaultUserAndGroup"
-  echo "${userName}:${userpw:-$userName}" | chpasswd
   echo "OK"
+fi
+echo -n "$(timestamp) [openHABian] Changing default password... "
+# shellcheck disable=SC2154
+if [[ -v ${userpw} ]]; then
+  echo "SKIPPED"
+else
+  echo "${userName}:${userpw}" | chpasswd
 fi
 
 # While setup: show log to logged in user, will be overwritten by openhabian-setup.sh
