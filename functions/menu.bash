@@ -87,10 +87,6 @@ show_main_menu() {
   elif [[ "$choice" == "04"* ]]; then
     import_openhab_config
 
-  elif [[ "$choice" == "05"* ]]; then
-    setup_pv_config
-    setup_wb_config
-
   elif [[ "$choice" == "10"* ]]; then
     choice2=$(whiptail --title "storm.house Configuration Tool $(get_git_revision)" --menu "Apply Improvements" 13 116 6 --cancel-button Back --ok-button Execute \
     "11 | Packages"               "Install needed and recommended system packages" \
@@ -243,8 +239,8 @@ show_main_menu() {
     # shellcheck disable=SC2154
     case "$choice2" in
       41\ *) openhab_setup "release";;
-      *openHAB\ Milestone) cond_redirect apt-mark unhold openhab openhab-addons evcc && openhab_setup "milestone";;
-      *openHAB\ Snapshot) cond_redirect apt-mark unhold openhab openhab-addons evcc && openhab_setup "snapshot";;
+      *openHAB\ Milestone) openhab_setup "milestone";;
+      *openHAB\ Snapshot) openhab_setup "snapshot";;
       42\ *) openhab_shell_interfaces;;
       43\ *) openhab_clean_cache;;
       44\ *) nginx_setup;;
