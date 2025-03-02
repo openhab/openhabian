@@ -84,8 +84,8 @@ openhab_setup() {
       fi
     elif [[ $openhabMajorVersion = 5 ]]; then
       if [[ $javaVersion -lt 21 ]] ; then
-        update_config_java "21"
-        java_install "21"
+        update_config_java "Temurin21"
+        java_install "Temurin21"
       fi
     fi
 
