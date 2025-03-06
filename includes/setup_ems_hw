@@ -15,6 +15,3 @@ source ${BASEDIR}/functions/storm.house.bash
 
 # Script wird als setup_xx_config aufgerufen mit xx=pv or xx=wb
 $(basename $0) "$@"
-retrieve_license "$@"
-setup_pv_config "$@"
-
