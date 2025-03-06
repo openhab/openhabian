@@ -307,6 +307,9 @@ setup_wb_config() {
   if [[ ${5:-${wallboxid}} != "" && ${5:-${wallboxid}} != "1234567890abcdef" ]] || [[ ${1:-${wallboxtype}} == "eebus" || ${1:-${wallboxtype}} == "elliconnect" || ${1:-${wallboxtype}} == "ellipro" ]]; then
     uncomment "#SKI" "${evccConfig}"
   fi
+  if [[ ${5:-${wallboxid}} != "" && ${5:-${wallboxid}} != "1234567890abcdef" ]] || [[ ${1:-${wallboxtype}} == "abb" || ${1:-${wallboxtype}} == "abl-em4" || ${1:-${wallboxtype}} == "ac-elwa-2" || ${1:-${wallboxtype}} == "ac-thor" || ${1:-${wallboxtype}} == "alfen" || ${1:-${wallboxtype}} == "amperfied" || ${1:-${wallboxtype}} == "amperfied-solar" || ${1:-${wallboxtype}} == "dadapower" || ${1:-${wallboxtype}} == "delta" || ${1:-${wallboxtype}} == "hesotec" || ${1:-${wallboxtype}} == "idm" || ${1:-${wallboxtype}} == "innogy-ebox" || ${1:-${wallboxtype}} == "keba-modbus" || ${1:-${wallboxtype}} == "lambda-zewotherm" || ${1:-${wallboxtype}} == "mennekes-hcc3" || ${1:-${wallboxtype}} == "nrggen2" || ${1:-${wallboxtype}} == "obo" || ${1:-${wallboxtype}} == "peblar" || ${1:-${wallboxtype}} == "phoenix-charx" || ${1:-${wallboxtype}} == "phoenix-em-eth" || ${1:-${wallboxtype}} == "phoenix-ev-eth" || ${1:-${wallboxtype}} == "pracht-alpha" || ${1:-${wallboxtype}} == "schneider-evlink-v3" || ${1:-${wallboxtype}} == "stiebel-lwa" || ${1:-${wallboxtype}} == "stiebel-wpm" || ${1:-${wallboxtype}} == "sungrow" || ${1:-${wallboxtype}} == "versicharge" || ${1:-${wallboxtype}} == "vestel" || ${1:-${wallboxtype}} == "victron" || ${1:-${wallboxtype}} == "victron-evcs" ]]; then
+    uncomment "#TCPMODBUS" "${evccConfig}"
+  fi
   if [[ ${3:-${wallboxuser}} != "" && ${3:-${wallboxuser}} != "NULL" ]]; then
     uncomment "#AUTHUSER" "${evccConfig}"
   fi

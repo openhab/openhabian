@@ -63,6 +63,7 @@ chargers:
 - type: template
   template: %WBTYPE
 #SKI  ski: %WBID
+#TCPMODBUS  modbus: tcpip
   host: %IP
   name: Wallbox
 #AUTHUSER  user: %WBUSER
