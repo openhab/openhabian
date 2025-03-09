@@ -29,7 +29,7 @@ This is why we *strongly* recommend using SD cards that are labelled "Endurance"
 
 #### SD Mirroring
 
-We have a bultin option to mirror SD cards so that you can always have a backup ready.
+We have a builtin option to mirror SD cards so that you can always have a backup ready.
 
 If you plan to mirror you SD card using the auto-backup features in openHAB, you should purchase 2 of the same model of SD card when you setup your system.
 A different model of SD card may work, but sometimes models differ slightly in size causing issues.
@@ -132,7 +132,7 @@ As yourself, prepend `sudo -u backup` to execute the following commands as the "
 
 Now once you have read up on all of this and feel you have understood this stuff, the next step will be to prepare your storage.
 
-::: important
+::: tip Important
 You need to provide your storage *before* you install Amanda.
 :::
 
