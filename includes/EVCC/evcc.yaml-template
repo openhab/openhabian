@@ -15,7 +15,7 @@ network:
 
   # per default, evcc should be available at http://evcc.local:7070
 
-interval: 30s # control cycle interval
+interval: 60s # control cycle interval
 
 log: debug	# bis auf weiteres nützlich
 levels:
@@ -95,8 +95,6 @@ loadpoints:
   charger: Wallbox
   mode: pv
   phases: 0
-  mincurrent: 6
-  maxcurrent: 16
   vehicle: meinEAuto1
   enable:
     # Laden einschalten, wenn 1 Minute lang mindestens %CHARGEMINEXCESS W Überschuss vorhanden ist
