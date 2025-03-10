@@ -57,7 +57,7 @@ This will give you a ready to go drop in replacement in the case of any hardware
 
 All Raspberry Pi models are supported by openHABian.
 
-::: info Note
+::: tip Note
 With the upcoming openHAB 5 release, we will drop support for anything older than an RPi 3 as openHAB 5 will require a 64 bit processor.
 :::
 

@@ -6,7 +6,7 @@ source: https://github.com/openhab/openhabian/blob/main/docs/openhabian-troubles
 
 # openHABian Troubleshooting
 
-::: important
+::: warning
 **Please do not ask for help on the forum unless you have read this guide.**
 :::
 
