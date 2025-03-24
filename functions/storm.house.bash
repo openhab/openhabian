@@ -391,6 +391,12 @@ setup_power_config() {
 ## Valid Arguments:
 ##
 ## #1 heat pump model
+## #2 IP address of heat pump controller or SGready actuator
+## #3 port of heat pump controller
+## #4 heat pump Modbus ID (if applicable)
+## #5 type of SGready actuator (if applicable)
+## #6 SGready actuator auth user (if applicable)
+## #7 SGready actuator auth password (if applicable)
 ##
 ##    setup_hp_config()
 ##
@@ -429,7 +435,49 @@ setup_hp_config() {
 }
 
 
-## setup OH config for heat pump selection
+####### TODO TODO ####### TODO TODO ####### TODO TODO ####### TODO TODO #########
+
+## setup OH config for FNN limits signalling §14a EnWG, §9 EEG
+##
+## Valid Arguments:
+##
+## #1 type of actuator for FNN signalling
+## #2 IP address of main FNN actuator
+## #3 type of secondary (LPP only) FNN actuator (if applicable)
+## #4 IP address of secondary (LPP only) FNN actuator (if applicable)
+## #5 actuator auth user (if applicable)
+## #6 actuator auth password (if applicable)
+##
+##    setup_fnn_config()
+##
+setup_fnn_config() {
+  local dir
+  local srcfile
+  local destfile
+  local fnnuser
+  local fnnpass
+
+
+  #for component in things items rules; do
+  for component in things items; do
+    dir="${OPENHAB_CONF:-/etc/openhab}/${component}/"
+    srcfile="${dir}/STORE/FNNSignalisierung.${component}"
+    destfile="${dir}/FNNSignalisierung.${component}"
+    if [[ ${1:-${fnnactuator}} == "custom" && -f ${destfile} ]]; then
+      break
+    fi
+
+    fnnuser=${5:-${fnnuser}}
+    if [[ $fnnuser == "NULL" ]]; then fnnuser=""; fi
+    fnnpass=${6:-${fnnpass}}
+    if [[ $fnnpass == "NULL" ]]; then fnnpass=""; fi
+
+    sed -e "s|%RELAY1|${1:-${fnnactuator1}}|;s|%IP1|${2:-${fnnactuator1ip}}|;s|%RELAY2|${3:-${fnnactuator2}}|;s|%IP2|${4:-${fnnactuator2ip}}|;s|%USER|${fnnuser}|;s|%PASS|${fnnpass}|" "${srcfile}" > "${destfile}"
+  done
+}
+
+
+## setup OH config for solar forecast
 ##
 ## Valid Arguments:
 ##
@@ -505,6 +553,9 @@ install_extras() {
     fi
     if [[ ! -f /usr/local/sbin/setup_whitegood_config ]]; then
       if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_whitegood_config; then echo "FAILED (install setup_whitegood_config script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/fnn_config ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_fnn_config; then echo "FAILED (install setup_fnn_config script)"; return 1; fi
     fi
     if [[ ! -f /usr/local/sbin/setup_hp_config ]]; then
       if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_hp_config; then echo "FAILED (install setup_hp_config script)"; return 1; fi
