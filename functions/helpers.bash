@@ -331,17 +331,10 @@ is_raspios() {
   [[ "$(cat /boot/issue.txt)" =~ "Raspberry Pi reference" ]]
   return $?
 }
-# Debian/Raspbian oldoldoldstable
-is_stretch() {
-  if [[ "$osrelease" == "stretch" ]]; then return 0; fi
-  [[ $(cat /etc/*release*) =~ "stretch" ]]
-  return $?
-}
-# Debian/Raspbian oldoldstable
-is_buster() {
-  if [[ "$osrelease" == "buster" ]]; then return 0; fi
-  [[ $(cat /etc/*release*) =~ "buster" ]]
-  return $?
+# Represents the current OS versions we officially support
+is_supported() {
+  if is_bullseye || is_bookworm || is_sid || is_jellyfish || is_noble; then return 0; fi
+  return 1;
 }
 # Debian/Raspbian oldstable
 is_bullseye() {
@@ -361,28 +354,16 @@ is_sid() {
   [[ $(cat /etc/*release*) =~ "sid" ]]
   return $?
 }
-# Ubuntu 16, deprecated
-is_xenial() {
-  if [[ "$osrelease" == "xenial" ]]; then return 0; fi
-  [[ $(cat /etc/*release*) =~ "xenial" ]]
-  return $?
-}
-# Ubuntu 18.04 LTS
-is_bionic() {
-  if [[ "$osrelease" == "bionic" ]]; then return 0; fi
-  [[ $(cat /etc/*release*) =~ "bionic" ]]
-  return $?
-}
-# Ubuntu 20.04 LTS
-is_focal() {
-  if [[ "$osrelease" == "focal" ]]; then return 0; fi
-  [[ $(cat /etc/*release*) =~ "focal" ]]
-  return $?
-}
 # Ubuntu 22.04 LTS
 is_jellyfish() {
   if [[ "$osrelease" == "jellyfish" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "jellyfish" ]]
+  return $?
+}
+# Ubuntu 24.04 LTS
+is_noble() {
+  if [[ "$osrelease" == "noble" ]]; then return 0; fi
+  [[ $(cat /etc/*release*) =~ "noble" ]]
   return $?
 }
 running_in_docker() {
