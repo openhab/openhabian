@@ -45,22 +45,8 @@ install_wireguard() {
     add-apt-repository ppa:wireguard/wireguard
   else
     if is_pi || is_raspbian || is_raspios; then
-      if is_buster; then
-        echo "deb http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/wireguard.list
-        cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 04EE7237B7D453EC
-        cond_redirect apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138
-
-        # important to avoid release mixing:
-        # prevent RPi from using the Debian distro for normal Raspbian packages
-        echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
-      fi
-
       # headers required for wireguard-dkms module to be built "live"
       cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" raspberrypi-kernel-headers
-    else
-      if is_buster; then
-        echo 'deb http://deb.debian.org/debian buster-backports main contrib non-free' > /etc/apt/sources.list.d/wireguard.list
-      fi
     fi
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   fi
