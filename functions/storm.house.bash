@@ -127,7 +127,7 @@ setup_pv_config() {
 
 # TBV: wie leere user/pass abfangen ?
 setup_charger() {
-  local thing=generisch.things
+  local thing=ladeziegel.things
   local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
   local srcfile="${dir}/STORE/${thing}"
   local destfile="${dir}/${thing}"
@@ -140,8 +140,36 @@ setup_charger() {
   cpass=${3:-${chargeractuatorpass}}
   if [[ $cpass == "NULL" ]]; then cpass=""; fi
 
-  #sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${2:-${chargeractuatoruser}}|;s|%PASS|${3:-${chargeractuatorpass}}|" "${srcfile}" > "${destfile}"
   sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${cuser}}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
+}
+
+
+## Generate/copy openHAB config for heating rod
+## valid arguments:
+## #1 IP address of heating rod actuator
+## #2 user name to access Shelly actuator
+## #3 password to access Shelly actuator
+##
+##    setup_heatingrod(String heating rod actuator IP,String actuator user name,String actuator password)
+##
+
+
+# TBV: wie leere user/pass abfangen ?
+setup_heatingrod() {
+  local thing=heizstab.things
+  local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
+  local srcfile="${dir}/STORE/${thing}"
+  local destfile="${dir}/${thing}"
+  local cuser
+  local cpass
+
+
+  cuser=${2:-${heatingrodactuatoruser}}
+  if [[ $cuser == "NULL" ]]; then cuser=""; fi
+  cpass=${3:-${heatingrodactuatorpass}}
+  if [[ $cpass == "NULL" ]]; then cpass=""; fi
+
+  sed -e "s|%IP|${1:-${heatingrodactuatorip}}|;s|%USER|${cuser}}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
 }
 
 
@@ -550,6 +578,9 @@ install_extras() {
     fi
     if [[ ! -f /usr/local/sbin/setup_charger ]]; then
       if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_charger; then echo "FAILED (install setup_charger script)"; return 1; fi
+    fi
+    if [[ ! -f /usr/local/sbin/setup_heatingrod ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_heatingrod; then echo "FAILED (install setup_heatingrod script)"; return 1; fi
     fi
     if [[ ! -f /usr/local/sbin/setup_whitegood_config ]]; then
       if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_whitegood_config; then echo "FAILED (install setup_whitegood_config script)"; return 1; fi

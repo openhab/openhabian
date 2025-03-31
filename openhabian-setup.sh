@@ -13,9 +13,8 @@
 # für storm.house immer diese package-Versionen installieren
 # überschreibt defaults in openhabian.conf
 
-# 4.3 hat noch ungeklärte Probleme mit dem rule engine
-openhabForcePkg=4.3.3-1		# 4.3.3-1
-evccForcePkg=0.200.4		# 0.200.4
+openhabForcePkg=4.3.4-1		# 4.3.4-1
+evccForcePkg=0.202.1		# 0.202.1
 
 
 configFile="/etc/openhabian.conf"
