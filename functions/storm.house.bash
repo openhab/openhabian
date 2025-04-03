@@ -127,31 +127,19 @@ setup_pv_config() {
 
 # TBV: wie leere user/pass abfangen ?
 setup_charger() {
-  local dir
-  local srcfile
-  local destfile
+  local thing=ladeziegel.things
+  local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
+  local srcfile="${dir}/STORE/${thing}"
+  local destfile="${dir}/${thing}"
   local cuser
   local cpass
 
-  for component in items rules things; do
-    dir="${OPENHAB_CONF:-/etc/openhab}/${component}/"
-    srcfile="${dir}/STORE/ladeziegel.${component}"
-    destfile="${dir}/ladeziegel.${component}"
-    if [[ -f ${srcfile} ]]; then
-      cp -p "${srcfile}" "${destfile}"
-      if [[ $(whoami) == "root" ]]; then
-        chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/ladeziegel.${component}"
-        chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/ladeziegel.${component}"
-      fi
-    fi
-  done
 
   cuser=${2:-${chargeractuatoruser}}
   if [[ $cuser == "NULL" ]]; then cuser=""; fi
   cpass=${3:-${chargeractuatorpass}}
   if [[ $cpass == "NULL" ]]; then cpass=""; fi
 
-  # srcfile und destfile stehen auf .things
   sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${cuser}}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
 }
 
@@ -168,31 +156,18 @@ setup_charger() {
 
 # TBV: wie leere user/pass abfangen ?
 setup_heatingrod() {
-  local dir
-  local srcfile
-  local destfile
+  local thing=heizstab.things
+  local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
+  local srcfile="${dir}/STORE/${thing}"
+  local destfile="${dir}/${thing}"
   local cuser
   local cpass
-
-  for component in items rules things; do
-    dir="${OPENHAB_CONF:-/etc/openhab}/${component}/"
-    srcfile="${dir}/STORE/heizstab.${component}"
-    destfile="${dir}/heizstab.${component}"
-    if [[ -f ${srcfile} ]]; then
-      cp -p "${srcfile}" "${destfile}"
-      if [[ $(whoami) == "root" ]]; then
-        chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/heizstab.${component}"
-        chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/heizstab.${component}"
-      fi
-    fi
-  done
 
   cuser=${2:-${heatingrodactuatoruser}}
   if [[ $cuser == "NULL" ]]; then cuser=""; fi
   cpass=${3:-${heatingrodactuatorpass}}
   if [[ $cpass == "NULL" ]]; then cpass=""; fi
 
-  # srcfile und destfile stehen auf .things
   sed -e "s|%IP|${1:-${heatingrodactuatorip}}|;s|%USER|${cuser}}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
 }
 
