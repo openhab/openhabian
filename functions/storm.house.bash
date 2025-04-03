@@ -156,13 +156,24 @@ setup_charger() {
 
 # TBV: wie leere user/pass abfangen ?
 setup_heatingrod() {
-  local thing=heizstab.things
-  local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
-  local srcfile="${dir}/STORE/${thing}"
-  local destfile="${dir}/${thing}"
+  local dir
+  local srcfile
+  local destfile
   local cuser
   local cpass
 
+  for component in things items rules; do
+    dir="${OPENHAB_CONF:-/etc/openhab}/${component}/"
+    srcfile="${dir}/STORE/heizstab.${component}"
+    destfile="${dir}/heizstab.${component}"
+    if [[ -f ${srcfile} ]]; then
+      cp -p "${srcfile}" "${destfile}"
+      if [[ $(whoami) == "root" ]]; then
+        chown "${username:-openhabian}:openhab" "${OPENHAB_CONF:-/etc/openhab}/${component}/heizstab.${component}"
+        chmod 664 "${OPENHAB_CONF:-/etc/openhab}/${component}/heizstab.${component}"
+      fi
+    fi
+  done
 
   cuser=${2:-${heatingrodactuatoruser}}
   if [[ $cuser == "NULL" ]]; then cuser=""; fi
