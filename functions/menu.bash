@@ -68,7 +68,7 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
-    if is_buster || is_stretch; then
+    if ! is_supported; then
         whiptail --title "outdated OS" --msgbox "You are running a too old version of your Operating System.\\n\\nOpenHAB 4 and Java 17 require that you upgrade to Debian 11 (bullseye) first." 8 80
         return 255
     fi
