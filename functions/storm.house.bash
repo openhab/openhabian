@@ -156,19 +156,25 @@ setup_charger() {
 
 # TBV: wie leere user/pass abfangen ?
 setup_heatingrod() {
-  local thing=heizstab.things
-  local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
-  local srcfile="${dir}/STORE/${thing}"
-  local destfile="${dir}/${thing}"
+  local dir
+  local srcfile
+  local destfile
   local cuser
   local cpass
 
-  cuser=${2:-${heatingrodactuatoruser}}
-  if [[ $cuser == "NULL" ]]; then cuser=""; fi
-  cpass=${3:-${heatingrodactuatorpass}}
-  if [[ $cpass == "NULL" ]]; then cpass=""; fi
 
-  sed -e "s|%ACTUATOR|${1:-${heatingrodactuator}}|;s|%IP|${1:-${heatingrodactuatorip}}|;s|%USER|${cuser}}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
+  for component in things items rules; do
+    dir="${OPENHAB_CONF:-/etc/openhab}/${component}/"
+    srcfile="${dir}/STORE/heizstab.${component}"
+    destfile="${dir}/heizstab.${component}"
+
+    cuser=${2:-${heatingrodactuatoruser}}
+    if [[ $cuser == "NULL" ]]; then cuser=""; fi
+    cpass=${3:-${heatingrodactuatorpass}}
+    if [[ $cpass == "NULL" ]]; then cpass=""; fi
+
+    sed -e "s|%ACTUATOR|${1:-${heatingrodactuator}}|;s|%IP|${1:-${heatingrodactuatorip}}|;s|%USER|${cuser}}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
+  done
 }
 
 
