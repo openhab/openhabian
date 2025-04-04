@@ -168,7 +168,7 @@ setup_heatingrod() {
   cpass=${3:-${heatingrodactuatorpass}}
   if [[ $cpass == "NULL" ]]; then cpass=""; fi
 
-  sed -e "s|%IP|${1:-${heatingrodactuatorip}}|;s|%USER|${cuser}}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
+  sed -e "s|%ACTUATOR|${1:-${heatingrodactuator}}|;s|%IP|${1:-${heatingrodactuatorip}}|;s|%USER|${cuser}}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
 }
 
 
