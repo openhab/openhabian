@@ -140,7 +140,7 @@ setup_charger() {
   cpass=${3:-${chargeractuatorpass}}
   if [[ $cpass == "NULL" ]]; then cpass=""; fi
 
-  sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${cuser}}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
+  sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${cuser}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
 }
 
 
@@ -159,6 +159,7 @@ setup_heatingrod() {
   local dir
   local srcfile
   local destfile
+  local type
   local cuser
   local cpass
 
@@ -168,12 +169,22 @@ setup_heatingrod() {
     srcfile="${dir}/STORE/heizstab.${component}"
     destfile="${dir}/heizstab.${component}"
 
-    cuser=${2:-${heatingrodactuatoruser}}
+    type=${1:-${heatingrodactuator}}
+    if [[ $type == "NULL" ]] || [[ $type == "kein" ]]; then
+      if [[ $component == "rules" ]]; then
+        rm -f "${destfile}"
+	return 0	# damit heizstab.rules nicht erzeugt wird => rules muss als letzte der 3 Komponenten durchlaufen werden
+      fi
+      if [[ $component == "items" ]]; then
+        type=shellypro2-relay
+      fi
+    fi
+    cuser=${3:-${heatingrodactuatoruser}}
     if [[ $cuser == "NULL" ]]; then cuser=""; fi
-    cpass=${3:-${heatingrodactuatorpass}}
+    cpass=${4:-${heatingrodactuatorpass}}
     if [[ $cpass == "NULL" ]]; then cpass=""; fi
 
-    sed -e "s|%ACTUATOR|${1:-${heatingrodactuator}}|;s|%IP|${1:-${heatingrodactuatorip}}|;s|%USER|${cuser}}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
+    sed -e "s|%ACTUATOR|${type}|;s|%IP|${2:-${heatingrodactuatorip}}|;s|%USER|${cuser}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
   done
 }
 
