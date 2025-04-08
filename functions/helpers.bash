@@ -333,7 +333,7 @@ is_raspios() {
 }
 # Represents the current OS versions we officially support
 is_supported() {
-  if is_bullseye || is_bookworm || is_sid || is_jellyfish || is_noble; then return 0; fi
+  if is_bullseye || is_bookworm || is_jellyfish || is_noble; then return 0; fi
   return 1;
 }
 # Debian/Raspbian oldstable
