@@ -25,7 +25,10 @@ But in all reality, we **strongly** recommend getting a ZWave or Zigbee stick of
 ### SD Card Failure
 
 One of the most common points of failure in a Raspberry Pi is an SD card failing.
-This is why we *strongly* recommend using SD cards that are labelled "Endurance" as they are made for applications like this.
+Please make sure to use SD cards that are labelled "Endurance" as they are made for write-intensive applications like this.
+
+We also *strongly* recommend to use [ZRAM](#zram) AND to set up [SD mirroring](#sd-mirroring).
+ZRAM is enabled by default. SD mirroring you need set up manually using menu option 53.
 
 #### SD Mirroring
 
@@ -132,7 +135,7 @@ As yourself, prepend `sudo -u backup` to execute the following commands as the "
 
 Now once you have read up on all of this and feel you have understood this stuff, the next step will be to prepare your storage.
 
-::: tip Important
+::: tip
 You need to provide your storage *before* you install Amanda.
 :::
 
@@ -146,7 +149,7 @@ If you have a NAS, you should typically export the storage shares using the NFS 
 
 ::: warning
 If you are a Windows user, please note that CIFS shares are not supported and will not work.
-You should use a properly formatted UNIX shares if you are mounting from a NAS.
+You should use a properly formatted UNIX share if you are mounting from a NAS.
 :::
 
 Amanda does not work with CIFS because of issues with symlinks.
