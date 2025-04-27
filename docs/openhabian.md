@@ -401,10 +401,11 @@ clonebranch="openHAB"
 
 An initial configuration file to import when setting up openHAB.
 This file must be a `.zip` archive created by `openhab-cli backup`.
+ATTENTION: keep /boot/firmware as the directory if you provide an absolute path
 
 ::: details Example
 ```
-initialconfig="/boot/initial.zip"
+initialconfig="/boot/firmware/initial.zip"
 ```
 :::
 
