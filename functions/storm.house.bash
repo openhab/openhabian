@@ -610,6 +610,9 @@ install_extras() {
     if [[ ! -f /usr/local/sbin/setup_forecastsolar ]]; then
       if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_forecastsolar; then echo "FAILED (install setup_forecastsolar script)"; return 1; fi
     fi
+    if [[ ! -f /usr/local/sbin/setup_license ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_license; then echo "FAILED (install setup_license script)"; return 1; fi
+    fi
   fi
 
   cond_redirect install -m 640 "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
@@ -744,7 +747,6 @@ set_lic() {
 ## * enable|disable
 ##
 ems_lic() {
-  local licfile="/etc/openhab/services/license"
   local disablerTimer=lcban
   local disableCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost bundle:stop org.openhab.binding.modbus"
   local enableCommand="/usr/bin/ssh -p 8101 -o StrictHostKeyChecking=no -i /var/lib/openhab/etc/openhab_rsa openhab@localhost bundle:start org.openhab.binding.modbus"
@@ -770,53 +772,27 @@ ems_lic() {
 }
 
 
-## Retrieve licensing file from server
-## valid arguments: username, password
-## Webserver will return an self-encrypted script to contain file with the evcc sponsorship token
+## Decodes license key
+## valid arguments: encoded license string
+## returns decoded license string
 ##
-##    retrieve_license(String username, String password)
-##
-retrieve_license() {
-  local licsrc="https://storm.house/licchk"
-  local temp
-  #local deckey="/etc/openhab/services/ems.key"
-  local deckey="/etc/ssl/private/ems.key"
-  local lifetimekey="lifetime"
-  local licuser=${1}
-  local licfile="/etc/openhab/services/license"
-  local httpuser=dummyuser
-  local httppass=dummypass
-  local licdir
+setup_license() {
+    local encoded_string="$1"
+    local password="storm.house"
+    local decoded
 
+    if [ -z "$encoded_string" ] || [ -z "$password" ]; then
+        echo "Error: Both encoded string and password are required for decoding."
+        return 1
+    fi
 
-  if [[ $licuser == "" ]]; then
-    licuser=$(curl -X GET  http://localhost:8080/rest/items/LizenzUser|jq '.state' | tr -d '"')
-  fi
-  licdir="$(mktemp -d "${TMPDIR:-/tmp}"/lic.XXXXX)"
-  ( cd "$licdir" || exit; 
-  if ! cond_redirect wget -nv --http-user="${httpuser}" --http-password="${httppass}" "${licsrc}/${licuser}-LIC"; then echo "FAILED (download licensing file)"; rm -f "$licuser"; return 1; fi
-  if [[ -f "${licuser}-LIC" ]]; then
-    # decrypten mit public Key der dazu in includes liegen muss
-    # XOR mitgeliefert ist (durch rsaCrypt)
-    mv "${licuser}-LIC" "${licuser}.enc.sh"
-    chmod +x "${licuser}.enc.sh"
-    # shellcheck disable=SC2091
-    $(./"${licuser}.enc.sh" -i "$deckey")
-    cp "${licuser}" "${licfile}"
-  fi
-  )
+    decoded=$(echo "$encoded_string" | openssl enc -d -aes-256-cbc -a -salt -pbkdf2 -pass pass:"$password")
+    # shellcheck disable=SC2181
+    if [ $? -ne 0 ]; then
+        echo "Error: Decryption failed. Incorrect password or corrupted data."
+        return 1
+    fi
 
-  if grep -qs "^sponsortoken:[[:space:]]" "$licfile"; then
-    token=$(grep -E '^evcctoken' "$licfile" |cut -d' '  -f2)
-    curl -X POST --header "Content-Type: text/plain" --header "Accept: application/json" -d "$token" "http://{hostname}:8080/rest/items/EVCCtoken"
-  fi
-
-  # wenn licfile im laufenden Monat heruntergeladen wird muss darin (nach Entschlüsseln) der 
-  lic=$(grep -E '^emsuser' "$licfile" |cut -d' '  -f2)
-  if [[ "$lic" != "$licuser" && "$lic" != "$lifetimekey" ]]; then
-    ems_lic disable
-  else
-    ems_lic enable
-  fi
+    echo "$decoded"
 }
 
