@@ -225,8 +225,8 @@ openhab_misc() {
   if cond_redirect sed -i -e 's|^#*.*OPENHAB_HTTPS_PORT=.*$|OPENHAB_HTTPS_PORT=8443|g' /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting openHAB timezone... "
-  # tz sources order: 1) /etc/timezone 2) /etc/openhabian.conf 3) default UTC
-  tz=$(cat /etc/timezone 2>/dev/null); timezone=${tz:=$timezone}
+  # tz sources order: 1) /etc/openhabian.conf  2) /etc/timezone  3) default UTC
+  tz=$(cat /etc/timezone 2>/dev/null); timezone=${timezone:=$tz}
   if cond_redirect sed -ri "s|^(EXTRA_JAVA_OPTS.*?)(interning=true)?\"|\1\2 -Duser.timezone=${timezone:-UTC}\"|g" /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
