@@ -616,7 +616,7 @@ install_extras() {
   fi
 
   cond_redirect install -m 640 "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
-  if ! cond_redirect sed -i -e 's|^#.*sshHost = .*$|sshHost = 0.0.0.0|g' "$consoleProperties"; then echo "FAILED (sshHost in shell.cfg)"; fi
+  if ! cond_redirect sed -i -e 's|^sshHost = .*$|sshHost = 0.0.0.0|g' "$consoleProperties"; then echo "FAILED (sshHost in shell.cfg)"; fi
 
   cond_redirect install -m 644 "${includesDir}/openhab_rsa.pub" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
   cond_redirect install -m 600 "${includesDir}/openhab_rsa" "${OPENHAB_USERDATA:-/var/lib/openhab}/etc/"
