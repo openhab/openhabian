@@ -777,16 +777,22 @@ ems_lic() {
 ## returns decoded license string
 ##
 setup_license() {
-    local encoded_string="$1"
-    local password="storm.house"
+    local includesDir="${BASEDIR:-/opt/openhabian}/includes"
+    local encoded_file="$1"
+    #local password="storm.house"
+    local pubkey="${includesDir}/publiclic.key"
     local decoded
 
-    if [ -z "$encoded_string" ] || [ -z "$password" ]; then
-        echo "Error: Both encoded string and password are required for decoding."
-        return 1
-    fi
+    #if [ -z "$encoded_string" ] || [ -z "$password" ]; then
+    #    echo "Error: Both encoded string and password are required for decoding."
+    #    return 1
+    #fi
 
-    decoded=$(echo "$encoded_string" | openssl enc -d -aes-256-cbc -a -salt -pbkdf2 -pass pass:"$password")
+    #decoded=$(echo "$encoded_string" | openssl enc -d -aes-256-cbc -a -salt -pbkdf2 -pass pass:"$password")
+    #decoded=$(echo "${encoded_string}" | openssl pkeyutl -verifyrecover -pubin -inkey "$pubkey")	# -pubin ist korrekt!  -rawin nötig? nicht in openssl 1.1.1w bekannt erst später
+    decoded=$(openssl pkeyutl -verifyrecover -in "${encoded_file}" -pubin -inkey "$pubkey")	# -pubin ist korrekt!  -rawin nötig? nicht in openssl 1.1.1w bekannt erst später
+    rm -f "${encoded_file}"
+
     # shellcheck disable=SC2181
     if [ $? -ne 0 ]; then
         echo "Error: Decryption failed. Incorrect password or corrupted data."
