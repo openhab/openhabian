@@ -295,7 +295,7 @@ grafana_install(){
 grafana_debug_info() {
   local temp
 
-  temp="$(pgrep -a grafana)"
+  temp="$(pgrep -f -a grafana)"
 
   echo -e "\\n$(timestamp)\\n---"
   tail -n40 /var/log/grafana/grafana.log | sed 's|^|DEBUG  |'

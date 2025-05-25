@@ -443,7 +443,7 @@ mirror_SD() {
   fi
 
   if [[ "$1" == "diff" ]]; then
-    if pgrep "dd if=${src}"; then
+    if pgrep -f "dd if=${src}"; then
       echo "FAILED (raw device dump of ${dest} is running)"
       return 1
     fi
