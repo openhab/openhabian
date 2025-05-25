@@ -277,5 +277,5 @@ show_main_menu() {
 
   # shellcheck disable=SC2154,SC2181
   RET=$?
-  if [ $RET -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-DEBUG.md or https://github.com/openhab/openhabian/blob/main/docs/openhabian-DEBUG.md how to proceed." 14 80; return 0; fi
+  if [ $RET -ne 0 ]; then whiptail --msgbox "There was an error or interruption during the execution of:\\n  \"$choice\"\\n\\nPlease try again. If the error persists, please read /opt/openhabian/docs/openhabian-troubleshooting.md or https://www.openhab.org/docs/installation/openhabian-troubleshooting.html how to proceed." 14 80; return 0; fi
 }
