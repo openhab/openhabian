@@ -603,39 +603,13 @@ install_extras() {
     if [[ ! -f /usr/local/sbin/upgrade_ems ]]; then
       if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/upgrade_ems; then echo "FAILED (install upgrade_ems script)"; fi
     fi
-    if [[ ! -f /usr/local/sbin/setup_pv_config ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_pv_config; then echo "FAILED (install setup_pv_config script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_wb_config ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_wb_config; then echo "FAILED (install setup_wb_config script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_power_config ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_power_config; then echo "FAILED (install setup_power_config script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_charger ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_charger; then echo "FAILED (install setup_charger script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_heatingrod ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_heatingrod; then echo "FAILED (install setup_heatingrod script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_whitegood_config ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_whitegood_config; then echo "FAILED (install setup_whitegood_config script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/fnn_config ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_fnn_config; then echo "FAILED (install setup_fnn_config script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_hp_config ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_hp_config; then echo "FAILED (install setup_hp_config script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_forecastsolar ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_forecastsolar; then echo "FAILED (install setup_forecastsolar script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_telegram ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_telegram; then echo "FAILED (install setup_telegram script)"; return 1; fi
-    fi
-    if [[ ! -f /usr/local/sbin/setup_license ]]; then
-      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_license; then echo "FAILED (install setup_license script)"; return 1; fi
-    fi
+
+    # shellcheck disable=SC2013
+    for z in $(grep -E '^setup_.*\(\) \{$' /opt/openhabian/functions/storm.house.bash |cut -d'(' -f1); do
+      if [[ ! -f /usr/local/sbin/$z ]]; then
+        if ! cond_redirect echo ln -fs "${includesDir}/setup_ems_hw" "/usr/local/sbin/$z"; then echo "FAILED (install $z script)"; return 1; fi
+      fi
+    done
   fi
 
   cond_redirect install -m 640 "${BASEDIR:-/opt/openhabian}/includes/${sudoersFile}" "${sudoersPath}/"
