@@ -629,6 +629,9 @@ install_extras() {
     if [[ ! -f /usr/local/sbin/setup_forecastsolar ]]; then
       if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_forecastsolar; then echo "FAILED (install setup_forecastsolar script)"; return 1; fi
     fi
+    if [[ ! -f /usr/local/sbin/setup_telegram ]]; then
+      if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_telegram; then echo "FAILED (install setup_telegram script)"; return 1; fi
+    fi
     if [[ ! -f /usr/local/sbin/setup_license ]]; then
       if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" /usr/local/sbin/setup_license; then echo "FAILED (install setup_license script)"; return 1; fi
     fi
