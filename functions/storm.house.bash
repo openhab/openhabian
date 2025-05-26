@@ -541,6 +541,25 @@ setup_forecastsolar() {
 }
 
 
+## setup OH config for Telegram
+##
+## Valid Arguments:
+##
+## #1 bot token
+## #2 chat ID(s)
+##
+##    setup_forecastsolar()
+##
+setup_telegram() {
+  local thing=telegram.things
+  local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
+  local srcfile="${dir}/STORE/${thing}"
+
+
+  sed -e "s|%BOTTOKEN|${1:-${telegrambottoken}}|;s|%CHATIDS|${2:-${telegramchatids}}|" "${srcfile}" > "${destfile}"
+}
+
+
 ## replace OH logo
 ## Attention needs to work across versions, logo has to be SVG (use inkscape to embed PNG in SVG)
 ##
