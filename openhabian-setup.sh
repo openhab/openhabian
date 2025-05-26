@@ -14,7 +14,7 @@
 # überschreibt defaults in openhabian.conf
 
 openhabForcePkg=4.3.5-1		# 4.3.5-1
-evccForcePkg=0.202.1		# 0.202.1
+evccForcePkg=0.203.6		# 0.203.6
 
 
 configFile="/etc/openhabian.conf"
