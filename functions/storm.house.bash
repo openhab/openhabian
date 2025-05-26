@@ -554,6 +554,7 @@ setup_telegram() {
   local thing=telegram.things
   local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
   local srcfile="${dir}/STORE/${thing}"
+  local destfile="${dir}/${thing}"
 
 
   sed -e "s|%BOTTOKEN|${1:-${telegrambottoken}}|;s|%CHATIDS|${2:-${telegramchatids}}|" "${srcfile}" > "${destfile}"
