@@ -139,8 +139,8 @@ openhab_shell_interfaces() {
 
   if [[ -n $INTERACTIVE ]]; then
     while [[ -z $sshPass ]]; do
-      if ! sshPass1="$(whiptail --title "Authentication setup" --passwordbox "$introText" 15 80 "$sshPass1" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-      if ! sshPass2="$(whiptail --title "Authentication setup" --passwordbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! sshPass1="$(whiptail --title "Authentication setup" --inputbox "$introText" 15 80 "$sshPass1" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+      if ! sshPass2="$(whiptail --title "Authentication setup" --inputbox "\\nPlease confirm the password:" 9 80 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
       if [[ $sshPass1 == "$sshPass2" ]] && [[ ${#sshPass1} -ge 7 ]] && [[ ${#sshPass2} -ge 7 ]]; then
         sshPass="$sshPass1"
       else
