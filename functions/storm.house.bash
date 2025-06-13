@@ -607,7 +607,7 @@ install_extras() {
     # shellcheck disable=SC2013
     for z in $(grep -E '^setup_.*\(\) \{$' /opt/openhabian/functions/storm.house.bash |cut -d'(' -f1); do
       if [[ ! -f /usr/local/sbin/$z ]]; then
-        if ! cond_redirect echo ln -fs "${includesDir}/setup_ems_hw" "/usr/local/sbin/$z"; then echo "FAILED (install $z script)"; return 1; fi
+        if ! cond_redirect ln -fs "${includesDir}/setup_ems_hw" "/usr/local/sbin/$z"; then echo "FAILED (install $z script)"; return 1; fi
       fi
     done
   fi
