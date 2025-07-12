@@ -812,6 +812,7 @@ install_esphomedashboard() {
   local removeText="This will remove ESPhome dashboard"
 
   ESPHOME_DIR="/opt/esphomedashboard"
+  ESPHOME_CONFIG_DIR="/opt/esphomedashboard/config"
   SERVICE_TEMPLATE="${BASEDIR:-/opt/openhabian}/includes/esphome-dashboard.service.template" # Update with the actual path
 
   if [[ $1 == "remove" ]]; then
@@ -865,81 +866,114 @@ install_esphomedashboard() {
     if [[ -n $INTERACTIVE ]]; then
       whiptail --title "ESPhome dashboard installation" --msgbox "$installText" 8 80
     fi
-    echo "$(timestamp) [openHABian] Starting ESPHome Dashboard setup..."
+  echo "$(timestamp) [openHABian] Starting ESPHome Dashboard install / update..."
 
-    # Install Python 3 and pip
-    echo "$(timestamp) [openHABian] Installing Python 3 and pip..."
-    if ! cond_redirect apt install -y python3-venv; then
-      echo "$(timestamp) [openHABian] Error: Failed to install Python 3 and pip."
-      return
-    fi
-
-   # Create the /opt/esphomedashboard directory and set permissions
-    echo "$(timestamp) [openHABian] Creating directory at $ESPHOME_DIR..."
-    if ! mkdir -p "$ESPHOME_DIR/config"; then
-      echo "$(timestamp) [openHABian] Error: Failed to create $ESPHOME_DIR and its config directory."
-      return
-    fi
-
-    if ! chown -R "$LOGNAME:$LOGNAME" "$ESPHOME_DIR"; then
-      echo "$(timestamp) [openHABian] Error: Failed to set ownership of $ESPHOME_DIR to $USER."
-      return
-    fi
-
-    # Set up a virtual environment and install ESPHome
-    echo "$(timestamp) [openHABian] Setting up a virtual environment in $ESPHOME_DIR..."
-    if ! python3 -m venv venv "$ESPHOME_DIR/venv"; then
-      echo "$(timestamp) [openHABian] Error: Failed to create a Python virtual environment."
-      return
-    fi
-
-    echo "$(timestamp) [openHABian] Activating the virtual environment..."
-    if ! source "$ESPHOME_DIR/venv/bin/activate"; then
-      echo "$(timestamp) [openHABian] Error: Failed to activate a Python virtual environment."
-      return
-    fi
-
-    echo "$(timestamp) [openHABian] installing ESPHome..."
-    if !  pip3 install esphome; then
-      echo "$(timestamp) [openHABian] Error: Failed to install ESPHome."
-      return
-    fi
-
-    # Copy the systemd service file
-    echo "$(timestamp) [openHABian] Installing systemd service file..."
-    if ! cond_redirect install -m 755 "$SERVICE_TEMPLATE" /etc/systemd/system/esphome-dashboard.service; then
-        echo "$(timestamp) [openHABian] Error: Failed to install systemd service file."
+    # Check if ESPHome dashboard is already installed
+    echo "$(timestamp) [openHABian] Check if the esphome-dashboard.service is already running..."
+    if systemctl is-active --quiet esphome-dashboard.service; then
+      echo "$(timestamp) [openHABian] ESPHome Service detectet start with the update";
+       
+      # activate the virtual environment and install ESPHome
+      echo "$(timestamp) [openHABian] Activating the virtual environment..."
+      if ! source "$ESPHOME_DIR/venv/bin/activate"; then
+        echo "$(timestamp) [openHABian] Error: Failed to activate a Python virtual environment."
         return
-    fi
+      fi
 
-  echo "Benutzer: $LOGNAME";
-  echo "Pfad: $ESPHOME_DIR";
+      # start the ESPhome Update
+          echo "$(timestamp) [openHABian] updating ESPHome..."
+      if ! pip3 install esphome -U; then
+        echo "$(timestamp) [openHABian] Error: Failed to update ESPHome."
+        return
+      fi;
 
-    # modify the systemd service file
-    echo "$(timestamp) [openHABian] modifying systemd service file..."
-    #use + as separator in sed instead of / because in the path are / included
-    if ! sed -i "s+<replace-with-username>+$LOGNAME+g; s+<replace-with-esphome-directory>+$ESPHOME_DIR+g; s+# dynamically replaced in script++g" /etc/systemd/system/esphome-dashboard.service; then
-      echo "$(timestamp) [openHABian] Error: Failed to modify systemd service file."  
-      return
-    fi
+    else
 
-    # Reload systemd and enable/start the service
-    echo "$(timestamp) [openHABian] Reloading systemd daemon and starting the ESPHome Dashboard service..."
-    if ! cond_redirect systemctl daemon-reload; then
-      echo "$(timestamp) [openHABian] Error: Failed to reload systemd daemon."
-      return
-    fi
+      echo "$(timestamp) [openHABian] ESPHome Service not detectet start with the install...";
 
-    # Enable and start the ESPHome Dashboard service
-    echo "$(timestamp) [openHABian] Enabling and starting the ESPHome Dashboard service..."
+      # Install Python 3 and pip
+      echo "$(timestamp) [openHABian] Installing Python 3 and pip..."
+      if ! cond_redirect apt install -y python3-venv; then
+        echo "$(timestamp) [openHABian] Error: Failed to install Python 3 and pip."
+        return
+      fi
 
-    if ! cond_redirect systemctl enable --now esphome-dashboard.service; then
-      echo "$(timestamp) [openHABian] Error: Failed to enable and start ESPHome Dashboard service."
-      return
-    fi
+      # Create the ESPHOME_DIR directory and set permissions
+      echo "$(timestamp) [openHABian] Creating directory at $ESPHOME_DIR"
+      if ! mkdir -p "$ESPHOME_DIR"; then
+        echo "$(timestamp) [openHABian] Error: Failed to create $ESPHOME_DIR"
+        return
+      fi
 
-    echo "$(timestamp) [openHABian] ESPHome Dashboard setup complete!"
-    echo "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:6052"
+      if ! chown -R "$LOGNAME:$LOGNAME" "$ESPHOME_DIR"; then
+        echo "$(timestamp) [openHABian] Error: Failed to set ownership of $ESPHOME_DIR to $USER."
+        return
+      fi
+
+      # Create the ESPHOME_CONFIG_DIR directory and set permissions
+      echo "$(timestamp) [openHABian] Creating directory at $ESPHOME_CONFIG_DIR"
+      if ! mkdir -p "$ESPHOME_CONFIG_DIR"; then
+        echo "$(timestamp) [openHABian] Error: Failed to create $ESPHOME_CONFIG_DIR"
+        return
+      fi
+
+      if ! chown -R "$LOGNAME:$LOGNAME" "$ESPHOME_CONFIG_DIR"; then
+        echo "$(timestamp) [openHABian] Error: Failed to set ownership of $ESPHOME_CONFIG_DIR to $USER."
+        return
+      fi
+
+      # Set up a virtual environment and install ESPHome
+      echo "$(timestamp) [openHABian] Setting up a virtual environment in $ESPHOME_DIR"
+      if ! python3 -m venv venv "$ESPHOME_DIR/venv"; then
+        echo "$(timestamp) [openHABian] Error: Failed to create a Python virtual environment."
+        return
+      fi
+
+      echo "$(timestamp) [openHABian] Activating the virtual environment..."
+      if ! source "$ESPHOME_DIR/venv/bin/activate"; then
+        echo "$(timestamp) [openHABian] Error: Failed to activate a Python virtual environment."
+        return
+      fi
+
+      echo "$(timestamp) [openHABian] installing ESPHome..."
+      if !  pip3 install esphome; then
+        echo "$(timestamp) [openHABian] Error: Failed to install ESPHome."
+        return
+      fi
+
+      # Copy the systemd service file
+      echo "$(timestamp) [openHABian] Installing systemd service file..."
+      if ! cond_redirect install -m 755 "$SERVICE_TEMPLATE" /etc/systemd/system/esphome-dashboard.service; then
+          echo "$(timestamp) [openHABian] Error: Failed to install systemd service file."
+          return
+      fi
+
+      # modify the systemd service file
+      echo "$(timestamp) [openHABian] modifying systemd service file..."
+      #use + as separator in sed instead of / because in the path are / included
+      if ! sed -i "s+<replace-with-username>+$LOGNAME+g; s+<replace-with-esphome-directory>+$ESPHOME_DIR+g; s+<replace-with-esphome-config-directory>+$ESPHOME_CONFIG_DIR+g; s+# dynamically replaced in script++g" /etc/systemd/system/esphome-dashboard.service; then
+        echo "$(timestamp) [openHABian] Error: Failed to modify systemd service file."  
+        return
+      fi
+
+      # Reload systemd and enable/start the service
+      echo "$(timestamp) [openHABian] Reloading systemd daemon and starting the ESPHome Dashboard service..."
+      if ! cond_redirect systemctl daemon-reload; then
+        echo "$(timestamp) [openHABian] Error: Failed to reload systemd daemon."
+        return
+      fi
+
+      # Enable and start the ESPHome Dashboard service
+      echo "$(timestamp) [openHABian] Enabling and starting the ESPHome Dashboard service..."
+
+      if ! cond_redirect systemctl enable --now esphome-dashboard.service; then
+        echo "$(timestamp) [openHABian] Error: Failed to enable and start ESPHome Dashboard service."
+        return
+      fi
+
+      echo "$(timestamp) [openHABian] ESPHome Dashboard setup complete!"
+      echo "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:6052";
     return
+    fi
   fi
 }
