@@ -247,7 +247,8 @@ Each of these are included as a part of `openhabian-config` menu option 20.
 
 ## First boot configuration
 
-Many settings are configurable prior to the first boot of openHABian by changing the key value pairs in the `/boot/openhabian.conf` file on the SD card once you have flashed the initial image onto it.
+Many settings are configurable prior to the first boot of openHABian by changing the key value pairs in the `openhabian.conf` file. Once you have flashed the initial image onto it, the file is located on the first partition of the SD card.
+It's a Windows partition that later on, when installation has finished, will also be accessible as `/boot/` from within openHABian Linux.
 
 The openHABian configuration file uses key value pairs, essentially a list of `option=value` settings in a plain text file.
 All supported options are already in the file but unused options and optional components are commented out by default.
@@ -399,9 +400,8 @@ clonebranch="openHAB"
 
 #### `initialconfig`
 
-An initial configuration file to import when setting up openHAB.
-This file must be a `.zip` archive created by `openhab-cli backup`.
-ATTENTION: keep /boot/firmware as the directory if you provide an absolute path
+An initial configuration file to import when setting up openHAB. Use the `firmware` directory (create it if needed) to place this into. The file must be a `.zip` archive created by `openhab-cli backup`.
+ATTENTION: keep `/boot/firmware` as the directory if you provide an absolute path
 
 ::: details Example
 ```
