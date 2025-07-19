@@ -31,6 +31,7 @@ openhab_setup() {
   local installVersion
   local repo
   local successText
+  local noJVMText="We were unable to install/upgrade your system to openHAB 5.\\nThis requires Java version 21, and we have been unable to identify and install a suitable Java JVM package for your hardware-OS combo."
   local ohPkgName="openhab"
 
   if [[ $1 == "snapshot" || $1 == "unstable" ]]; then
@@ -58,7 +59,7 @@ openhab_setup() {
   fi
 
   # date needs to be > Apr 1, 24 for openhab repo signing key to be valid
-  # note RPi have no RTC
+  # note RPis have no real time clock
   if [[ $(date +%y%m%d) -lt 240401 ]]; then
     systemctl stop systemd-timesyncd
     timedatectl set-time "2024-04-09 00:00:00"
@@ -87,6 +88,19 @@ openhab_setup() {
         update_config_java "Temurin21"
         java_install "Temurin21"
       fi
+    fi
+
+    javaVersionNeu="$(java -version |& head -1 | awk -F'"' '{ print $2 }' | cut -d '.' -f1)"
+    if [[ $openhabMajorVersion = 5 ]] && [[ $javaVersionNeu -lt 21 ]] ; then
+      echo "FAILED (could not install required Java 21)"
+      if [[ -n $INTERACTIVE ]]; then
+        unset DEBIAN_FRONTEND
+        if [[ "$(getconf LONG_BIT)" == "32" ]]; then
+          noJVMText+="\\nThere is currently no suitable JVM package for ARM processors that works with a 32 bit OS image."
+        fi
+        whiptail --title "Operation failed!" --msgbox "$noJVMText" 9 80
+      fi
+      return 1
     fi
 
     if [[ -n $openhabVersion ]]; then
