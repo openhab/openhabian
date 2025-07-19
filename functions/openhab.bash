@@ -98,7 +98,7 @@ openhab_setup() {
         if [[ "$(getconf LONG_BIT)" == "32" ]]; then
           noJVMText+="\\nThere is currently no suitable JVM package for ARM processors that works with a 32 bit OS image."
         fi
-        whiptail --title "Operation failed!" --msgbox "$noJVMText" 9 80
+        whiptail --title "Operation failed!" --msgbox "$noJVMText" 10 80
       fi
       return 1
     fi
