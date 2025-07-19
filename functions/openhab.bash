@@ -33,6 +33,7 @@ openhab_setup() {
   local successText
   local noJVMText="We were unable to install/upgrade your system to openHAB 5.\\nThis requires Java version 21, and we have been unable to identify and install a suitable Java JVM package for your hardware-OS combo."
   local ohPkgName="openhab"
+  local textsize=9
 
   if [[ $1 == "snapshot" || $1 == "unstable" ]]; then
     introText="Proceed with caution!\\n\\nYou are about to switch over to the latest $ohPkgName unstable snapshot build. The daily snapshot builds contain the latest features and improvements but might also suffer from bugs or incompatibilities. Please be sure to take a full openHAB configuration backup first!\\n\\nBeware that downgrading will not be possible, you can only re-install old software and re-important the config backup you should have made before the upgrade."
@@ -95,10 +96,11 @@ openhab_setup() {
       echo "FAILED (could not install required Java 21)"
       if [[ -n $INTERACTIVE ]]; then
         unset DEBIAN_FRONTEND
-        if [[ "$(getconf LONG_BIT)" == "32" ]]; then
-          noJVMText+="\\nThere is currently no suitable JVM package for ARM processors that works with a 32 bit OS image."
+        if is_arm && [[ "$(getconf LONG_BIT)" == "32" ]]; then
+          noJVMText+="\\n\\nThere is currently no suitable JVM package for ARM processors that works\\nwith a 32 bit OS image."
+	  textsize=12
         fi
-        whiptail --title "Operation failed!" --msgbox "$noJVMText" 10 80
+        whiptail --title "Operation failed!" --msgbox "$noJVMText" ${textsize} 80
       fi
       return 1
     fi
