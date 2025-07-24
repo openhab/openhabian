@@ -643,7 +643,7 @@ upgrade_ems() {
 
   tempdir="$(mktemp -d "${TMPDIR:-/tmp}"/updatedir.XXXXX)"
   temp="$(mktemp "${tempdir:-/tmp}"/updatefile.XXXXX)"
-  echo  backup_openhab_config
+  backup_openhab_config
 
   # user credentials retten
   cp "${OPENHAB_USERDATA:-/var/lib/openhab}/jsondb/users.json" "${tempdir}/"
