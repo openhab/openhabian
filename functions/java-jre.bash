@@ -50,11 +50,9 @@ adoptium_install_apt() {
   if ! dpkg -s "temurin-${1}-jre" &> /dev/null; then # Check if already is installed
     adoptium_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing Adoptium Eclipse Temurin JDK... "
-    cond_redirect java_alternatives_reset
     if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Reconfiguring Adoptium Eclipse Temurin JDK... "
-    cond_redirect java_alternatives_reset
     if cond_redirect dpkg-reconfigure "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
     if is_aarch64; then
       update-alternatives --set java /usr/lib/jvm/temurin-"${1}"-jre-arm64/bin/java
@@ -95,7 +93,6 @@ openjdk_install_apt() {
   if ! dpkg -s "openjdk-${1}-jre-headless" &> /dev/null; then # Check if already is installed
     openjdk_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing OpenJDK ${1}... "
-    cond_redirect java_alternatives_reset
     if [[ $1 == "21" ]]; then
       if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" -t unstable "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
     else
@@ -103,7 +100,6 @@ openjdk_install_apt() {
     fi
   else
     echo -n "$(timestamp) [openHABian] Reconfiguring OpenJDK ${1}... "
-    cond_redirect java_alternatives_reset
     if cond_redirect dpkg-reconfigure "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
     if is_aarch64; then
       update-alternatives --set java /usr/lib/jvm/java-"${1}"-openjdk-arm64/bin/java
