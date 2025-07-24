@@ -121,6 +121,9 @@ java_alternatives_reset() {
   local jdkBin
 
   jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
+  if [[ -z "$jdkBin" ]]; then
+    return 0
+  fi
 
   # shellcheck disable=SC2016
   cond_redirect find "$jdkBin" -maxdepth 1 -perm -111 -type f -exec bash -c 'update-alternatives --quiet --remove-all $(basename {})' \;
