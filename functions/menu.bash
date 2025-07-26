@@ -125,8 +125,7 @@ show_main_menu() {
     "2D | Install EVCC"           "Deploy Electric Vehicle Charge Controller" \
     "   | Remove EVCC"            "Uninstall EVCC" \
     "   | Setup EVCC"             "Setup EVCC from command line (German only)" \
-    "2E | Install / Update ESPHome"           "Deploy / Update ESPHome dashboard" \
-    "   | Remove ESPHome"            "Uninstall ESPHome dashboard" \
+    "2E | Setup ESPHome"           "Deploy / Update ESPHome dashboard" \
     3>&1 1>&2 2>&3)
     RET=$?
     if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
@@ -152,8 +151,7 @@ show_main_menu() {
       2D\ *) install_evcc "install";;
       *Remove\ EVCC*) install_evcc "remove";;
       *Setup\ EVCC*) setup_evcc;;
-      2E\ *) install_esphomedashboard "install";;
-      *Remove\ ESPHome*) install_esphomedashboard "remove";;
+      2E\ *) setup_esphomedashboard;;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
