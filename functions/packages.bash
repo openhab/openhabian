@@ -799,181 +799,250 @@ setup_evcc() {
   if cond_redirect systemctl restart evcc.service; then echo "OK"; else echo "FAILED"; fi
 }
 
-## Function for (un)installing ESPhome dashboard
-## The function must be invoked UNATTENDED.
-## Valid arguments: "install" or "remove"
+## Function for (un)installing / update ESPhome dashboard
+## The function can be invoked INTERACTIVE only.
 ##
-##  install_esphomedashboard(String action)
+##  setup_esphomedashboard
 ##
 ##
-install_esphomedashboard() {
+setup_esphomedashboard() {
+   
+  # texts for whiptail messages 
+  local install_start_Text="No ESPHome dashboard service detectet\n--> starting installation"
+  local install_end_Text="ESPHome dashboard installation complete.\nUse the web interface on port $port to access ESPHome dashboard."
+  local update_start_Text="ESPHome dashboard service detectet\n--> starting update"
+  local update_end_Text="ESPHome dashboard update complete.\nUse the web interface on port $port to access ESPHome dashboard."
+  local uninstall_start_Text="Starting ESPHome Dashboard uninstallation..."
+  local uninstall_end_Text="ESPHome dashboard uninstallation complete."
+  local error_Text="An Error occured!\nFor Details please have a look at the shell messages."
+  
+  # Variables
+  local ESPHOME_DIR="/opt/esphomedashboard"
+  local ESPHOME_CONFIG_DIR="/etc/openhab/ESPhome"
+  local SERVICE_TEMPLATE="${BASEDIR:-/opt/openhabian}/includes/esphome-dashboard.service.template"
+  local Setup_Mode=""
   local port=6052
-  local installText="This will install ESPhome dashboard\nUse the web interface on port $port to access ESPhome dashboard web interface."
-  local removeText="This will remove ESPhome dashboard"
 
-  ESPHOME_DIR="/opt/esphomedashboard"
-  ESPHOME_CONFIG_DIR="/opt/esphomedashboard/config"
-  SERVICE_TEMPLATE="${BASEDIR:-/opt/openhabian}/includes/esphome-dashboard.service.template" # Update with the actual path
-
-  if [[ $1 == "remove" ]]; then
-    if [[ -n $INTERACTIVE ]]; then
-      whiptail --title "ESPhome dashboard removal" --msgbox "$removeText" 7 80
+  # Start with the action ;)
+  CHOICE=$(whiptail --title "ESPHome dashboard setup" --menu "" 10 60 2 \
+    "1)" "Install / Update ESPHome dashboard" \
+    "2)" "Uninstall ESPHome dashboard" \
+    3>&1 1>&2 2>&3
+  )
+  case $CHOICE in
+    "1)")   
+      echo "$(timestamp) [openHABian] The option installation / update was selected"
+      # Check if ESPHome dashboard is already installed
+      echo "$(timestamp) [openHABian] Check if the esphome-dashboard.service is already running..."
+      if systemctl is-active --quiet esphome-dashboard.service; then
+        # Start update procedure
+        Setup_Mode="update"
+        echo "$(timestamp) [openHABian] $update_start_Text";
+        if [[ -n $INTERACTIVE ]]; then
+          TERM=ansi whiptail --title "ESPhome dashboard update" --infobox "$update_start_Text" 8 60
+          sleep 2
+        fi
+      else 
+        # Start instalation procedure
+        Setup_Mode="installation" 
+        echo "$(timestamp) [openHABian] $install_start_Text";
+        if [[ -n $INTERACTIVE ]]; then
+          TERM=ansi whiptail --title "ESPhome dashboard installation" --infobox "$install_start_Text" 8 60
+          sleep 2 
+        fi
       fi
-      echo "$(timestamp) [openHABian] Starting ESPHome Dashboard uninstallation..."
 
-      # Stop the ESPHome Dashboard service
-      echo -n "$(timestamp) [openHABian] Stopping the ESPHome Dashboard service... "
-      if ! cond_redirect systemctl stop esphome-dashboard.service; then echo "FAILED (stop service)"; return 1; fi
+      if [ $Setup_Mode = "installation" ]; then
+        # Install Python 3 and pip
+        echo "$(timestamp) [openHABian] Installing Python 3 and pip..."
+        if ! cond_redirect apt install -y python3-venv; then
+          echo "$(timestamp) [openHABian] Error: Failed to install Python 3 and pip."
+          Setup_Mode="error"
+        fi     
+      fi
 
-      # Disable the ESPHome Dashboard service
-      echo "$(timestamp) [openHABian] Disabling the ESPHome Dashboard service..."
-      if ! cond_redirect systemctl disable esphome-dashboard.service; then
-        echo "$(timestamp) [openHABian] Error: Failed to disable ESPHome Dashboard service."
-        return
+      if [ $Setup_Mode = "installation" ]; then
+        # Create the ESPhome directory and set permissions
+        echo "$(timestamp) [openHABian] Creating directory at $ESPHOME_DIR"
+        if ! mkdir -p "$ESPHOME_DIR"; then
+          echo "$(timestamp) [openHABian] Error: Failed to create $ESPHOME_DIR"
+          Setup_Mode="error"
+        fi
+        if ! chown -R "$LOGNAME:$LOGNAME" "$ESPHOME_DIR"; then
+          echo "$(timestamp) [openHABian] Error: Failed to set ownership of $ESPHOME_DIR to $USER."
+          Setup_Mode="error"
+        fi
+      fi
+
+      if [ $Setup_Mode = "installation" ]; then
+        # Create the ESPHome config directory and set permissions
+        echo "$(timestamp) [openHABian] Creating directory at $ESPHOME_CONFIG_DIR"
+        if ! mkdir -p "$ESPHOME_CONFIG_DIR"; then
+          echo "$(timestamp) [openHABian] Error: Failed to create $ESPHOME_CONFIG_DIR"
+          Setup_Mode="error"
+        fi
+        if ! chown -R "$LOGNAME:$LOGNAME" "$ESPHOME_CONFIG_DIR"; then
+          echo "$(timestamp) [openHABian] Error: Failed to set ownership of $ESPHOME_CONFIG_DIR to $USER."
+          Setup_Mode="error"
+        fi
+      fi
+
+      if [ $Setup_Mode = "installation" ]; then  
+        # Set up a virtual environment and install ESPHome
+        echo "$(timestamp) [openHABian] Setting up a virtual environment in $ESPHOME_DIR"
+        if ! python3 -m venv venv "$ESPHOME_DIR/venv"; then
+          echo "$(timestamp) [openHABian] Error: Failed to create a Python virtual environment."
+          Setup_Mode="error"
+        fi
+      fi
+
+      # Activate the virtual environment
+      #This is neccesary for installation and update
+      echo "$(timestamp) [openHABian] Activating the virtual environment."
+      if ! source "$ESPHOME_DIR/venv/bin/activate"; then
+        echo "$(timestamp) [openHABian] Error: Failed to activate a Python virtual environment."
+          Setup_Mode="error"
+      fi
+
+      if [ $Setup_Mode = "installation" ]; then  
+        echo "$(timestamp) [openHABian] installing ESPHome."
+        if !  pip3 install esphome; then
+          echo "$(timestamp) [openHABian] Error: Failed to install ESPHome."
+          Setup_Mode="error"
+        fi
+      fi
+
+      if [ $Setup_Mode = "update" ]; then  
+        # Start ESPHhome Update
+        echo "$(timestamp) [openHABian] updating ESPHome..."
+        if ! pip3 install esphome -U; then
+          echo "$(timestamp) [openHABian] Error: Failed to update ESPHome."
+          Setup_Mode="error"
+        fi
+      fi
+
+      if [ $Setup_Mode = "installation" ]; then  
+        # Copy the systemd service file
+        echo "$(timestamp) [openHABian] Installing systemd service file..."
+        if ! cond_redirect install -m 755 "$SERVICE_TEMPLATE" /etc/systemd/system/esphome-dashboard.service; then
+          echo "$(timestamp) [openHABian] Error: Failed to install systemd service file."
+          Setup_Mode="error"
+        fi
+      fi
+
+      if [ $Setup_Mode = "installation" ]; then  
+        # Modify the systemd service file
+        echo "$(timestamp) [openHABian] modifying systemd service file..."
+        # Use + as separator in sed instead of / because in the path are / included
+        if ! sed -i "s+<replace-with-username>+$LOGNAME+g; s+<replace-with-esphome-directory>+$ESPHOME_DIR+g; s+<replace-with-esphome-config-directory>+$ESPHOME_CONFIG_DIR+g; s+# dynamically replaced in script++g" /etc/systemd/system/esphome-dashboard.service; then
+          echo "$(timestamp) [openHABian] Error: Failed to modify systemd service file."  
+          Setup_Mode="error"
+        fi
+      fi
+
+      if [ $Setup_Mode = "installation" ]; then  
+        # Reload systemd
+        echo "$(timestamp) [openHABian] Reloading systemd daemon and starting the ESPHome Dashboard service..."
+        if ! cond_redirect systemctl daemon-reload; then
+          echo "$(timestamp) [openHABian] Error: Failed to reload systemd daemon."
+          Setup_Mode="error"
+        fi
+      fi
+
+      if [ $Setup_Mode = "installation" ]; then        
+        # Enable and start the ESPHome Dashboard service
+        echo "$(timestamp) [openHABian] Enabling and starting the ESPHome Dashboard service..."
+        if ! cond_redirect systemctl enable --now esphome-dashboard.service; then
+          echo "$(timestamp) [openHABian] Error: Failed to enable and start ESPHome Dashboard service."
+          Setup_Mode error
+        fi
+      fi
+      ;;
+
+    "2)")   
+      echo "$(timestamp) [openHABian] The option uninstallation was selected"
+      echo "$(timestamp) [openHABian] $uninstall_start_Text"
+      Setup_Mode="uninstallation"
+
+      # Check if the esphome-dashboard.service is active. If YES stop and disable the service
+      # This check is neccesary to prevent a failure after an unsucsessful instalation
+      if systemctl is-active --quiet esphome-dashboard.service; then
+        # Stop the ESPHome Dashboard service
+        echo -n "$(timestamp) [openHABian] Stopping the ESPHome Dashboard service. "
+        if ! cond_redirect systemctl stop esphome-dashboard.service; then 
+          echo "$(timestamp) [openHABian] Error: Failed to stop ESPHome Dashboard service."
+          Setup_Mode="error"
+        fi
+
+        # Disable the ESPHome Dashboard service
+        echo "$(timestamp) [openHABian] Disabling the ESPHome Dashboard service."
+        if ! cond_redirect systemctl disable esphome-dashboard.service; then
+          echo "$(timestamp) [openHABian] Error: Failed to disable ESPHome Dashboard service."
+          Setup_Mode="error"
+        fi
       fi
 
       # Remove the ESPHome Dashboard service file
-      echo "$(timestamp) [openHABian] Removing the ESPHome Dashboard systemd service file..."
+      echo "$(timestamp) [openHABian] Removing the ESPHome Dashboard systemd service file."
       if ! cond_redirect rm -f /etc/systemd/system/esphome-dashboard.service; then
         echo "$(timestamp) [openHABian] Error: Failed to remove systemd service file."
-        return
+        Setup_Mode="error"
       fi
 
       # Reload systemd daemon
-      echo "$(timestamp) [openHABian] Reloading systemd daemon..."
+      echo "$(timestamp) [openHABian] Reloading systemd daemon."
       if ! cond_redirect systemctl daemon-reload; then
         echo "$(timestamp) [openHABian] Error: Failed to reload systemd daemon."
-        return
+        Setup_Mode="error"
       fi
 
-      # If you cannot understand this, read Bash_Shell_Scripting/Conditional_Expressions again.
-      if whiptail --title "Example Dialog" --yesno "This is an example of a yes/no box." 8 78; then
-            # Remove the ESPHome installation directory
-          echo "$(timestamp) [openHABian] Removing ESPHome directory at $ESPHOME_DIR..."
+      # Delete Venv directory
+      echo "$(timestamp) [openHABian] Removing ESPHome directory at $ESPHOME_DIR."
           if ! rm -rf "$ESPHOME_DIR"; then
             echo "$(timestamp) [openHABian] Error: Failed to remove $ESPHOME_DIR."
-            return
+            Setup_Mode="error"
           fi
-          echo "User directory is removed."
+
+      # Ask if the Config files should be removed or not
+      if ! whiptail --title "device config files" --yesno "What should I do with the existing device config files?" --no-button "delete it" --yes-button "keep it" 8 60; then
+        # Remove the ESPHome config directory
+        echo "$(timestamp) [openHABian] Removing ESPHome config directory at $ESPHOME_CONFIG_DIR..."
+        if ! rm -rf "$ESPHOME_CONFIG_DIR"; then
+          echo "$(timestamp) [openHABian] Error: Failed to remove $ESPHOME_CONFIG_DIR."
+          Setup_Mode="error"
+        fi
       else
-          echo "User directory is not removed."
+        # Remove just the build folders in ESPHome config directory
+        echo "$(timestamp) [openHABian] Removing ESPHome build directory at $ESPHOME_CONFIG_DIR..."
+        if ! rm -rf "$ESPHOME_CONFIG_DIR/.esphome/"; rm "$ESPHOME_CONFIG_DIR/.gitignore"; then
+          echo "$(timestamp) [openHABian] Error: Failed to remove build folders in $ESPHOME_CONFIG_DIR."
+          Setup_Mode="error"
+        fi
       fi
-          echo "$(timestamp) [openHABian] Uninstallation complete!"
-          return
-    fi
+        echo "$(timestamp) [openHABian] Uninstallation complete!"
 
-  if [[ $1 == "install" ]]; then
-    if [[ -n $INTERACTIVE ]]; then
-      whiptail --title "ESPhome dashboard installation" --msgbox "$installText" 8 80
-    fi
-  echo "$(timestamp) [openHABian] Starting ESPHome Dashboard install / update..."
-
-    # Check if ESPHome dashboard is already installed
-    echo "$(timestamp) [openHABian] Check if the esphome-dashboard.service is already running..."
-    if systemctl is-active --quiet esphome-dashboard.service; then
-      echo "$(timestamp) [openHABian] ESPHome Service detectet start with the update";
-       
-      # activate the virtual environment and install ESPHome
-      echo "$(timestamp) [openHABian] Activating the virtual environment..."
-      if ! source "$ESPHOME_DIR/venv/bin/activate"; then
-        echo "$(timestamp) [openHABian] Error: Failed to activate a Python virtual environment."
-        return
-      fi
-
-      # start the ESPhome Update
-          echo "$(timestamp) [openHABian] updating ESPHome..."
-      if ! pip3 install esphome -U; then
-        echo "$(timestamp) [openHABian] Error: Failed to update ESPHome."
-        return
-      fi;
-
-    else
-
-      echo "$(timestamp) [openHABian] ESPHome Service not detectet start with the install...";
-
-      # Install Python 3 and pip
-      echo "$(timestamp) [openHABian] Installing Python 3 and pip..."
-      if ! cond_redirect apt install -y python3-venv; then
-        echo "$(timestamp) [openHABian] Error: Failed to install Python 3 and pip."
-        return
-      fi
-
-      # Create the ESPHOME_DIR directory and set permissions
-      echo "$(timestamp) [openHABian] Creating directory at $ESPHOME_DIR"
-      if ! mkdir -p "$ESPHOME_DIR"; then
-        echo "$(timestamp) [openHABian] Error: Failed to create $ESPHOME_DIR"
-        return
-      fi
-
-      if ! chown -R "$LOGNAME:$LOGNAME" "$ESPHOME_DIR"; then
-        echo "$(timestamp) [openHABian] Error: Failed to set ownership of $ESPHOME_DIR to $USER."
-        return
-      fi
-
-      # Create the ESPHOME_CONFIG_DIR directory and set permissions
-      echo "$(timestamp) [openHABian] Creating directory at $ESPHOME_CONFIG_DIR"
-      if ! mkdir -p "$ESPHOME_CONFIG_DIR"; then
-        echo "$(timestamp) [openHABian] Error: Failed to create $ESPHOME_CONFIG_DIR"
-        return
-      fi
-
-      if ! chown -R "$LOGNAME:$LOGNAME" "$ESPHOME_CONFIG_DIR"; then
-        echo "$(timestamp) [openHABian] Error: Failed to set ownership of $ESPHOME_CONFIG_DIR to $USER."
-        return
-      fi
-
-      # Set up a virtual environment and install ESPHome
-      echo "$(timestamp) [openHABian] Setting up a virtual environment in $ESPHOME_DIR"
-      if ! python3 -m venv venv "$ESPHOME_DIR/venv"; then
-        echo "$(timestamp) [openHABian] Error: Failed to create a Python virtual environment."
-        return
-      fi
-
-      echo "$(timestamp) [openHABian] Activating the virtual environment..."
-      if ! source "$ESPHOME_DIR/venv/bin/activate"; then
-        echo "$(timestamp) [openHABian] Error: Failed to activate a Python virtual environment."
-        return
-      fi
-
-      echo "$(timestamp) [openHABian] installing ESPHome..."
-      if !  pip3 install esphome; then
-        echo "$(timestamp) [openHABian] Error: Failed to install ESPHome."
-        return
-      fi
-
-      # Copy the systemd service file
-      echo "$(timestamp) [openHABian] Installing systemd service file..."
-      if ! cond_redirect install -m 755 "$SERVICE_TEMPLATE" /etc/systemd/system/esphome-dashboard.service; then
-          echo "$(timestamp) [openHABian] Error: Failed to install systemd service file."
-          return
-      fi
-
-      # modify the systemd service file
-      echo "$(timestamp) [openHABian] modifying systemd service file..."
-      #use + as separator in sed instead of / because in the path are / included
-      if ! sed -i "s+<replace-with-username>+$LOGNAME+g; s+<replace-with-esphome-directory>+$ESPHOME_DIR+g; s+<replace-with-esphome-config-directory>+$ESPHOME_CONFIG_DIR+g; s+# dynamically replaced in script++g" /etc/systemd/system/esphome-dashboard.service; then
-        echo "$(timestamp) [openHABian] Error: Failed to modify systemd service file."  
-        return
-      fi
-
-      # Reload systemd and enable/start the service
-      echo "$(timestamp) [openHABian] Reloading systemd daemon and starting the ESPHome Dashboard service..."
-      if ! cond_redirect systemctl daemon-reload; then
-        echo "$(timestamp) [openHABian] Error: Failed to reload systemd daemon."
-        return
-      fi
-
-      # Enable and start the ESPHome Dashboard service
-      echo "$(timestamp) [openHABian] Enabling and starting the ESPHome Dashboard service..."
-
-      if ! cond_redirect systemctl enable --now esphome-dashboard.service; then
-        echo "$(timestamp) [openHABian] Error: Failed to enable and start ESPHome Dashboard service."
-        return
-      fi
-
-      echo "$(timestamp) [openHABian] ESPHome Dashboard setup complete!"
-      echo "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:6052";
-    return
-    fi
+      ;;
+  esac
+  
+  if [ $Setup_Mode = "installation" ]; then  
+    echo "$(timestamp) [openHABian] ESPHome Dashboard installation complete!"
+    echo "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:6052";
+    whiptail --title "ESPHome installation complete" --msgbox "$install_end_Text" 8 90
   fi
+      
+  if [ $Setup_Mode = "update" ]; then  
+    echo "$(timestamp) [openHABian] ESPHome Dashboard update complete!"
+    echo "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:6052";
+    whiptail --title "ESPHome update complete" --msgbox "$update_end_Text" 8 90
+  fi
+
+  if [ $Setup_Mode = "uninstallation" ]; then  
+    echo "$(timestamp) [openHABian] ESPHome Dashboard uninstallation complete!"
+        whiptail --title "Uninstallation complete" --msgbox "$uninstall_end_Text" 8 60
+  fi
+
+  if [ $Setup_Mode = "error" ]; then  
+    echo "$(timestamp) [openHABian] ESPHome Dashboard ERROR detectet!"
+    whiptail --title "ESPHome ERROR" --msgbox "$error_Text" 8 90
+  fi 
 }
