@@ -72,7 +72,7 @@ openhab_setup() {
     rm -f /etc/apt/sources.list.d/openhab*.list
     echo "$repo" > /etc/apt/sources.list.d/openhab.list
 
-    dpkg --configure -a
+    dpkg --configure -a --force-confnew
     echo -n "$(timestamp) [openHABian] Installing openHAB... "
     if ! apt-get clean --yes -o DPkg::Lock::Timeout="$APTTIMEOUT"; then echo "FAILED (apt cache clean)"; return 1; fi
     cond_redirect apt-get update -o DPkg::Lock::Timeout="$APTTIMEOUT"
