@@ -333,19 +333,25 @@ is_raspios() {
 }
 # Represents the current OS versions we officially support
 is_supported() {
-  if is_bullseye || is_bookworm || is_jellyfish || is_noble; then return 0; fi
+  if is_bullseye || is_bookworm || is_trixie || is_jellyfish || is_noble; then return 0; fi
   return 1;
 }
-# Debian/Raspbian oldstable
+# Debian/Raspbian oldoldstable
 is_bullseye() {
   if [[ "$osrelease" == "bullseye" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "bullseye" ]]
   return $?
 }
-# Debian/Raspbian stable
+# Debian/Raspbian oldstable
 is_bookworm() {
   if [[ "$osrelease" == "bookworm" ]]; then return 0; fi
   [[ $(cat /etc/*release*) =~ "bookworm" ]]
+  return $?
+}
+# Debian/Raspbian stable
+is_trixie() {
+  if [[ "$osrelease" == "trixie" ]]; then return 0; fi
+  [[ $(cat /etc/*release*) =~ "trixie" ]]
   return $?
 }
 # Debian/Raspbian unstable
