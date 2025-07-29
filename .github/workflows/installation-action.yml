@@ -47,6 +47,7 @@ jobs:
               #            runner: ubuntu-24.04-arm
               #            buildx_platform: linux/arm/v7
               #            java_opt: 17
+              #            continue-on-error: true
           - platform: amd64-openjdk17
             dockerfile: ./tests/Dockerfile.amd64-installation
             runner: ubuntu-24.04
