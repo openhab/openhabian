@@ -32,7 +32,7 @@ curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.l
 adoptium_fetch_apt
 
 apt-get --quiet update
-apt-get --quiet upgrade --yes
+apt-get --quiet upgrade --yes --force-confnew
 apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \
   openhab openhab-addons samba amanda-common amanda-server amanda-client exim4 \
   dnsutils mailutils gdisk screen vim nano mc vfu bash-completion coreutils \
