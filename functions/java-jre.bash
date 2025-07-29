@@ -38,7 +38,7 @@ adoptium_fetch_apt() {
   echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/adoptium.list
 
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+  if ! cond_redirect dpkg --configure -a --force-confnew; then echo "FAILED (dpkg)"; return 1; fi
   if cond_redirect apt-get install --download-only --yes "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
@@ -79,10 +79,10 @@ openjdk_fetch_apt() {
     echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
 
-    if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+    if ! cond_redirect dpkg --configure -a --force-confnew; then echo "FAILED (dpkg)"; return 1; fi
     if cond_redirect apt-get install --download-only --yes -t unstable "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED (download)"; return 1; fi
   else
-    if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+    if ! cond_redirect dpkg --configure -a --force-confnew; then echo "FAILED (dpkg)"; return 1; fi
     if cond_redirect apt-get install --download-only --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED (download)"; return 1; fi
   fi
 }
