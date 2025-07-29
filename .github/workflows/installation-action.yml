@@ -42,17 +42,16 @@ jobs:
             runner: ubuntu-24.04-arm
             buildx_platform: linux/arm64
             java_opt: 17
-          - platform: rpi2-openjdk17
+          - platform: rpi2-temurin21
             dockerfile: ./tests/Dockerfile.rpi2-installation
             runner: ubuntu-24.04-arm
             buildx_platform: linux/arm/v7
-            java_opt: 17
-            continue-on-error: true
-          - platform: amd64-openjdk17
+            java_opt: Temurin21
+          - platform: amd64-openjdk21
             dockerfile: ./tests/Dockerfile.amd64-installation
             runner: ubuntu-24.04
             buildx_platform: linux/amd64
-            java_opt: 17
+            java_opt: 21
           - platform: rpi5-openjdk21
             dockerfile: ./tests/Dockerfile.rpi5-installation
             runner: ubuntu-24.04-arm
