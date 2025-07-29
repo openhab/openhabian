@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC1091
-
+set -x
 export BASEDIR="/opt/openhabian"
 export DEBIAN_FRONTEND="noninteractive"
 export PREOFFLINE="1"
@@ -28,7 +28,7 @@ curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | tee /
 curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
 
 apt-get --quiet update
-apt-get --quiet upgrade --yes
+apt-get --quiet upgrade --yes --force-confnew
 apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \
   openhab openhab-addons samba amanda-common amanda-server amanda-client exim4 \
   dnsutils mailutils gdisk screen vim nano mc vfu bash-completion coreutils \
