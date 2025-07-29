@@ -39,15 +39,14 @@ adoptium_fetch_apt() {
 
 
   echo -n "$(timestamp) [openHABian] Fetching Adoptium Eclipse Temurin JDK... "
-  # some command missing here for authorization or so ...
+  if ! cond_redirect add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then echo "FAILED (add keys)"; return 1; fi
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/adoptium.list
+  if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+
   # if on 32 bit OS, install unsupported Adoptium 32 bit from OpenEMS community project
   if [[ $(getconf LONG_BIT) == 32 ]]; then
     if ! cond_redirect wget -nv -O "${cachedir}/${cachefile}" "${URL}/${pkgfile}"; then echo "FAILED (download JVM pkg)"; rm -f "${cachedir}/${cachefile}"; return 1; fi
   else
-    if ! cond_redirect add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then echo "FAILED (add keys)"; return 1; fi
-    echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/adoptium.list
-
-    if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
     if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
     if cond_redirect apt-get install --download-only --yes "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
@@ -58,14 +57,16 @@ adoptium_fetch_apt() {
 ##    adoptium_install_apt()
 ##
 adoptium_install_apt() {
-	local Java32bitMsg="You are still running a 32 bit operating system. There is no regular Java Virtual machine available.\\nWe've installed an experimental package for you but note this is unsupported by openHABian and the openHAB project.\\nWe ask you to migrate (reinstall) to a 64bit OS as soon as possible. See openHAB 5 release notes."
+  local cachedir="/var/cache/apt/archives"
+  local cachefile="temurin-21-jre_21.0.6+2_armhf.deb"
+  local Java32bitMsg="You are still running a 32 bit operating system. There is no regular Java Virtual machine available.\\nWe've installed an experimental package for you but note this is unsupported by openHABian and the openHAB project.\\nWe ask you to migrate (reinstall) to a 64bit OS as soon as possible. See openHAB 5 release notes."
 
 
   if ! dpkg -s "temurin-${1}-jre" &> /dev/null; then # Check if already is installed
     adoptium_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing Adoptium Eclipse Temurin JDK... "
     cond_redirect java_alternatives_reset
-    if ! cond_redirect apt-get install adoptium-ca-certificates; then echo "FAILED (install Java certificate)"; return 1; fi
+    if ! cond_redirect apt-get --yes install adoptium-ca-certificates; then echo "FAILED (install Java certificate)"; return 1; fi
 
     if [[ $(getconf LONG_BIT) == 32 ]]; then
       if ! cond_redirect dpkg -i "${cachedir}/${cachefile}"; then echo "FAILED (install experimental JVM pkg)"; return 1; fi
