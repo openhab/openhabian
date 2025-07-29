@@ -140,7 +140,7 @@ setup_hotspot() {
     # shellcheck disable=SC2154
     sed -i -e "s|ap_password:.*$|ap_password: ${hotspotpw}|g" /etc/comitup.conf
 
-    DEBIAN_FRONTEND=noninteractive dpkg --configure -a &>/dev/null
+    DEBIAN_FRONTEND=noninteractive dpkg --configure -a --force-confnew &>/dev/null
     DEBIAN_FRONTEND=noninteractive apt install --yes -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' comitup &>/dev/null
     systemctl enable --now comitup
     comitup-cli d
