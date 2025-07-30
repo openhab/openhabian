@@ -373,7 +373,7 @@ Set this according to your current location or you may risk violating regulatory
 
 ::: details Example
 ```
-wifi_country="US"
+wifi_country="DE"
 ```
 :::
 
@@ -392,11 +392,11 @@ repositoryurl="https://github.com/openhab/openhabian.git"
 
 #### `clonebranch`
 
-The branch of the repository to use for openHABian.
+The branch of the repository to use for openHABian. Use branch openHAB4 or openHAB3 to get OH 4 or 3 installed right from the start.
 
 ::: details Example
 ```
-clonebranch="openHAB"
+clonebranch="openHAB4"
 ```
 :::
 
@@ -419,7 +419,7 @@ Debug log level for openHABian, valid options are: `off`, `on` (verbose output i
 
 ::: details Example
 ```
-debugmode="off"
+debugmode="maximum"
 ```
 :::
 
@@ -435,11 +435,11 @@ apttimeout="60"
 
 #### `java_opt`
 
-Java version to install, valid options are: `17`, `Zulu21-64`, or `BellSoft21`.
+Java version to install, valid options are: 17, 21, Temurin17, Temurin21, 11 (legacy)
 
 ::: details Example
 ```
-java_opt="17"
+java_opt="Temurin21"
 ```
 :::
 
