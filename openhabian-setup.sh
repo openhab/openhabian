@@ -9,6 +9,9 @@
 # Discussion: https://community.openhab.org/t/13379
 #
 
+# this branch is to permanently install latest patch release OH openHAB 4.3
+openhabpkgversion=$(apt-cache madison openhab | grep 4.3 head -n 1 | awk '{ print $3 }')
+
 configFile="/etc/openhabian.conf"
 if ! [[ -f $configFile ]]; then
   cp /opt/openhabian/build-image/openhabian.conf "$configFile"

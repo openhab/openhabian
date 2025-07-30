@@ -25,8 +25,8 @@ There's no genuine reason why this wouldn't work. The openHABian image is really
 
 
 ## On openHAB 4 and older
-openHABian will install **openHAB 4** and Java 17 by default.
-The openHABian image will install openHAB 4 by default, to have it install openHAB 3 right from the beginning, set `clonebranch=openHAB3` in `openhabian.conf` before first boot. Use `clonebranch=legacy` to get openHAB 2.
+openHABian will install **openHAB 5** and Java 21 by default.
+To have it install openHAB 4 or openHAB 3 right from the beginning, set `clonebranch=openHAB4` or `clonebranch=openHAB3`, respectively, in `openhabian.conf` before first boot. Use `clonebranch=legacy` to get openHAB 2.
 
 ## Hardware
 ### Hardware recommendation
