@@ -67,7 +67,7 @@ adoptium_install_apt() {
     echo -n "$(timestamp) [openHABian] Installing Adoptium Eclipse Temurin JDK... "
     cond_redirect java_alternatives_reset
     if ! cond_redirect apt-get --yes install adoptium-ca-certificates; then echo "FAILED (install Java certificate)"; return 1; fi
-
+    if ! cond_redirect apt-get --yes install java-common libxi6 libxrender1 libxtst6 ; then echo "FAILED (install Java commons)"; return 1; fi
     if [[ $(getconf LONG_BIT) == 32 ]]; then
       if ! cond_redirect dpkg -i "${cachedir}/${cachefile}"; then echo "FAILED (install experimental JVM pkg)"; return 1; fi
       if [[ -n "$INTERACTIVE" ]]; then
