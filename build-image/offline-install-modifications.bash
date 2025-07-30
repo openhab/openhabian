@@ -12,6 +12,7 @@ debfilestatic=1.2_all.deb
 comituprepofile=/etc/apt/sources.list.d/davesteele-comitup.list
 
 source /opt/openhabian/functions/helpers.bash
+source /opt/openhabian/functions/java-jre.bash
 add_keys "https://openhab.jfrog.io/artifactory/api/gpg/key/public" "openhab"
 echo "deb [signed-by=/usr/share/keyrings/openhab.gpg] https://openhab.jfrog.io/artifactory/openhab-linuxpkg stable main" > /etc/apt/sources.list.d/openhab.list
 
@@ -27,8 +28,11 @@ fi
 curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
 curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
 
+# OpenEMS JVM 21 32bit
+adoptium_fetch_apt
+
 apt-get --quiet update
-apt-get --quiet upgrade --yes
+apt-get --quiet upgrade --yes --force-confnew
 apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \
   openhab openhab-addons samba amanda-common amanda-server amanda-client exim4 \
   dnsutils mailutils gdisk screen vim nano mc vfu bash-completion coreutils \
