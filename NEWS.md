@@ -2,18 +2,23 @@ Hit tab to unselect buttons and scroll through the text using UP/DOWN or
 PGUP/PGDN. All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md`
 for you to lookup.
 
-## Recommended Java providers ## March 9, 2025
-As we approach the release of openHAB 5 in the summer, we have added
-support for Java 21, which will be a prerequisite for openHAB 5. With that
-we recommend installing your distribution's stable version of Java 21 from
-the openJDK package, when possible.
+## Recommended 32/64 bit Java providers ## July 31, 2025
 
-At the time of writing, there is no stable version of Java 21 available for
-RaspiOS, as such our recommended alternative is to use the Temurin 21 build
-of Java which is know to be well supported and stable.
+For 64bit, the default in openHABian will Temurin 21.
+For 32 bit, there is no officially version of Java 21 available that
+is known to be well supported and stable. Check your OS for 32/64 bitness
+using getconf LONG_BIT and read the openHAB release notes at
+https://github.com/openhab/openhab-distro/releases/tag/5.0.0#openhabian
+to find out how to proceed with your openHAB upgrade to version 5.
 
-These are the supported ways of installing Java for openHAB on openHABian
-and both can be executed from Menu option 45.
+
+## openHAB 5 released ## July 21, 2025
+openHAB 5 was released!
+
+Note that unless you explicitly changed it, openHABian by default will be
+installing or upgrading to latest openHAB release so you will be getting
+openHAB 5 now. Note that that requires to upgrade your JVM to Java 21.
+
 
 ## Frontail removed ## December 18, 2024
 We suggest removal of the frontail log-viewer package on all systems with
