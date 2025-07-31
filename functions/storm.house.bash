@@ -346,7 +346,7 @@ setup_wb_config() {
   rm -f "${temp}"
 
   if ! grep -Eq "[[:space:]]certificate" "${evccConfig}"; then
-    evcc eebus-cert -c "${evccConfig}" | tail +6 >> "$evccConfig"
+    evcc eebus-cert -c "${evccConfig}" | tail +5 >> "$evccConfig"
   fi
   if [[ ${5:-${wallboxid}} != "" && ${5:-${wallboxid}} != "1234567890abcdef" ]] && [[ ${1:-${wallboxtype}} == "eebus" || ${1:-${wallboxtype}} == "elliconnect" || ${1:-${wallboxtype}} == "ellipro" ]]; then
     uncomment "#SKI" "${evccConfig}"
