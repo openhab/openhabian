@@ -73,7 +73,7 @@ show_main_menu() {
         return 255
     fi
     if is_arm && [[ "$(getconf LONG_BIT)" == "32" ]]; then
-        whiptail --title "32 bit OS" --msgbox "You are running a 32 bit Operating System.\\nOpenHAB 5 and Java 21 require that you upgrade your OS to a 64 bit version.\\nYou can manually install via menus 45 and 41." 9 80
+        whiptail --title "32 bit OS" --msgbox "You are running a 32 bit Operating System.\\nOpenHAB 5 and Java 21 require that you upgrade your OS to a 64 bit version, please read the release notes at\\nhttps://github.com/openhab/openhab-distro/releases/tag/5.0.0#openhabian\\nYou can still manually install via menus 45 and 41." 10 80
         return 255
     fi
 
