@@ -69,7 +69,11 @@ show_main_menu() {
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
     if ! is_supported; then
-        whiptail --title "outdated OS" --msgbox "You are running a too old version of your Operating System.\\n\\nOpenHAB 4 and Java 17 require that you upgrade to Debian 11 (bullseye) first." 8 80
+        whiptail --title "outdated OS" --msgbox "You are running a too old version of your Operating System.\\n\\nYou need to upgrade to be running at least Debian 11 (bullseye).\\nWe do NOT recommend to dist-upgrade but to re-install using the openHABian 64 bit image." 9 80
+        return 255
+    fi
+    if is_arm && [[ "$(getconf LONG_BIT)" == "32" ]]; then
+        whiptail --title "32 bit OS" --msgbox "You are running a 32 bit Operating System.\\n\\nOpenHAB 5 and Java 21 require that you upgrade to a 64 bit version." 8 80
         return 255
     fi
 

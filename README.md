@@ -59,18 +59,22 @@ We provide code that is reported "as-is" to run on Ubuntu but we do not support 
 Several optional components such as WireGuard or Homegear are known to expose problems on Ubuntu.
 
 Note with openHAB 4 and Java 17, `buster` and older distros are no longer supported and there'll be issues when you attempt upgrading Java 11->17.
+Note openHAB 5 and Java 21 require a 64 bit image.
 Should you still be running an older distribution, we recommend not to upgrade the distro but to re-install using the latest openHABian image and import your config instead.
 
-### 64 bit?
-RPi 3 and newer have a 64 bit processor. There's openHABian images available in both, 32 and 64 bit.
-Choose yours based on your hardware and primary use case. Please be aware that you cannot change once you decided in favor of either 32 or 64 bit. Should you need to revoke your choice, export/backup your config and install a fresh system, then import your config there.
 
-Use the 64 bit image versions but please be aware that 64 bit always has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like Raspberries. If you want to go with 64 bit, ensure your RPi has a minimum of 2 GB, 4 will put you on the safe side.
-You can use the 32 bit version for older or non official addons that will not work on 64 bit yet.
-Note there's a known issue on 32 bit, JS rules are reported to be annoyingly slow on first startup and in some Blockly use cases.
-If you consider using the (newer but still experimental) Java version 21, if possible choose 64 bit.
+### on 64 bit
+openHAB 5 requires to run on a 64 bit OS and Java 21 version so the recommended openHABian image is the 64 bit version.
 
-On x86 hardware, it's all 64 bit but that in turn once more increases memory usage. A NUC to run on should have no less than 8 GB.
+Many RPi users are still on a 32 bit based Linux OS. You can check bitness using the command `getconf LONG_BIT`.
+64 bit has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like older Raspberries. So if you want to go with 64 bit, ensure your RPi has a minimum of 2 GB, 4 will put you on the safe side.
+On x86 hardware, it's all 64 bit but that in turn once more increases memory usage. A NUC to run on should have no less than 4 GB, 8 are better.
+
+You can *temporarily* use the 32 bit version if you want to stay with openHAB 4 or if you cannot upgrade your HW or OS at the very moment, BUT
+ATTENTION: RUNNING openHAB 5 on any 32 bit OS image IS NOT SUPPORTED ANY MORE and known to have issues with some functions like JS scripting.
+Please don't ask for help if you nonetheless run in 32 and hit trouble.
+You cannot change your OS once you decided in favor of either 32 or 64 bit, so should you decide to upgrade, export/backup your config and install a fresh system, then import your config there.
+
 
 
 ## Installation and Setup

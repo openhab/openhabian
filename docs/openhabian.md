@@ -45,7 +45,7 @@ With that being said, we can't and won't stop you from doing whatever you want, 
 
 Our current recommendation is to get a Raspberry Pi model 4 or 5 with 2 or 4 GB of RAM, whatever you can get for a good price.
 Older RPi models (or models with less RAM) can be sufficient to run a smallish openHAB setup.
-Please note that running 64bit mode on RPi's with only 1 GB of RAM tends not to work super well.
+Please note that running 64bit mode on RPi with only 1 GB of RAM tends not to work super well.
 
 You will need an SD card to go along with your Raspberry Pi, SD cards labelled "Endurance" are best for openHABian.
 Cards labelled "Endurance" can handle more write cycles and will typically last longer for openHAB's use conditions.
@@ -58,11 +58,16 @@ This will give you a ready to go drop in replacement in the case of any hardware
 All Raspberry Pi models are supported by openHABian.
 
 ::: tip Note
-With the upcoming openHAB 5 release, we will drop support for anything older than an RPi 3 as openHAB 5 will require a 64 bit processor.
+With openHAB 5 release, we have dropped support for anything older than an RPi 3 as openHAB 5 requires a 64 bit processor.
 :::
+
+
+Running in 64 bit has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like older Raspberries. Ensure your RPi has a minimum of 2 GB, 4 will put you on the safe side.
+For older hardware, you can attempt to use the 32 bit image we still provide, it should work but we do not support running openHAB 5.
 
 openHABian can run on x86 based systems but you will need to install debian yourself.
 See [installation on other Linux systems](#installation-on-other-linux-systems) for directions on what to do.
+On x86 hardware, it's all 64 bit but that in turn once more increases memory usage. A NUC to run on should have no less than 4 GB, 8 are better.
 
 All other system combinations do not have official support.
 We do not actively prohibit installation on any hardware, including unsupported systems, *but we will **not** offer support for any issues you encounter*.
@@ -72,13 +77,19 @@ This will help you and those you will want to ask for help on the forum focus on
 
 ##### 32/64 Bit Image Support
 
-Any RPi 3 or newer supports 64 bit operation.
-Unless you really know what you are doing and have a compelling reason to do so, stick with the 64 bit image.
-If you do install a 32 bit image, please note that you will be unable to upgrade to openHAB 5 in the future.
+openHAB 5 requires to run on a 64 bit OS and Java 21 version so the recommended openHABian image is the 64 bit version.
 
-On systems with only 1 GB of RAM running the 64 bit image may cause issues as there may not be sufficient RAM.
-If you observe issues please consider upgrading to a model with more that 1 GB of RAM.
+Many RPi users are still on a 32 bit based Linux OS.
+(You can check bitness using the command `getconf LONG_BIT`)
 
+You can *temporarily* use the 32 bit version if you want to stay with openHAB 4 or if you cannot upgrade your HW or OS at the very moment, BUT
+ATTENTION: RUNNING openHAB 5 on any 32 bit OS image IS NOT SUPPORTED ANY MORE.
+You will be having issues with some functions like JS Scripting. Reinstall your OS to 64 bit or stay with openHAB 4.
+Should you decide to upgrade, check the openHAB 5 release notes how to export/backup your config and install a fresh system.
+https://github.com/openhab/openhab-distro/releases/tag/5.0.0#openhabian
+
+
+## Installation and Setup
 ### Networking
 
 You need to connect your Raspberry Pi to the network by Ethernet or configure Wi-Fi settings before first boot.
