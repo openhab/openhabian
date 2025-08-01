@@ -69,7 +69,11 @@ show_main_menu() {
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
     if ! is_supported; then
-        whiptail --title "outdated OS" --msgbox "You are running a too old version of your Operating System.\\n\\nOpenHAB 4 and Java 17 require that you upgrade to Debian 11 (bullseye) first." 8 80
+        whiptail --title "outdated OS" --msgbox "You are running a too old version of your Operating System.\\nYou need to upgrade to be running at least Debian 11 (bullseye).\\nWe do NOT recommend to dist-upgrade but to re-install using the openHABian 64 bit image." 9 80
+        return 255
+    fi
+    if is_arm && [[ "$(getconf LONG_BIT)" == "32" ]]; then
+        whiptail --title "32 bit OS" --msgbox "You are running a 32 bit Operating System. THIS IS NOT SUPPORTED ANY LONGER.\\nOpenHAB 5 and Java 21 require that you upgrade your OS to a 64 bit version, please read the release notes at\\nhttps://github.com/openhab/openhab-distro/releases/tag/5.0.0#openhabian\\nYou can still install manually via menus 45 and 41 if in vain but remember that will be an UNSUPPORTED setup.\\nPlease reinstall your system with the 64 bit image of openHABian." 11 80
         return 255
     fi
 
@@ -211,11 +215,11 @@ show_main_menu() {
     "42 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
     "43 | Clean cache"                    "Clean the cache for openHAB" \
     "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
-    "45 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (default)" \
-    "   | OpenJDK 21"                     "Install and activate OpenJDK 21 as Java provider (DO NOT USE WILL BREAK SYSTEM - upcoming default when fixed)" \
-    "   | Temurin 17"                     "Install and activate Temurin 17 as Java provider (default alternative)" \
-    "   | Temurin 21"                     "Install and activate Temurin 21 as Java provider (upcoming alternative, currently preferred)" \
-    "   | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider (legacy)" \
+    "45 | OpenJDK 17"                     "Install + activate OpenJDK 17 as Java provider (default for OH versions 4 and older)" \
+    "   | OpenJDK 21"                     "Install + activate OpenJDK 21 as Java provider (DO NOT USE WILL BREAK SYSTEM)" \
+    "   | Temurin 17"                     "Install + activate Temurin 17 as Java provider (fallback for OH versions 4 and older)" \
+    "   | Temurin 21"                     "Install + activate Temurin 21 as Java provider (default)" \
+    "   | OpenJDK 11"                     "Install + activate OpenJDK 11 as Java provider (legacy)" \
     "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
     "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of openHAB JavaScript library" \
     "47 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \

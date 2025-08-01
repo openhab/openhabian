@@ -2,14 +2,19 @@ Hit tab to unselect buttons and scroll through the text using UP/DOWN or
 PGUP/PGDN. All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md`
 for you to lookup.
 
-## Recommended 32/64 bit Java providers ## July 31, 2025
+## 64 bit OS support only ## Aug 1, 2025
 
-For 64bit, the default in openHABian will Temurin 21.
-For 32 bit, there is no officially version of Java 21 available that
-is known to be well supported and stable. Check your OS for 32/64 bitness
-using getconf LONG_BIT and read the openHAB release notes at
+With openHAB 5, we are sorry but we have to drop support for 32 bit systems.
+There is no officially supported and stable version of Java 21 available that
+runs on ARM hardware with a 32 bit Linux.
+Check your OS for 32/64 bit using getconf LONG_BIT and read the release notes
 https://github.com/openhab/openhab-distro/releases/tag/5.0.0#openhabian
 to find out how to proceed with your openHAB upgrade to version 5.
+Starting with openHABian v1.11, the upgrade menu function (03) will no longer
+work if you are still on an 32 bit system.
+You can still manually select to install Temurin 21 Java and openHAB 
+but be aware that you will be running an unsupported version of openHAB so
+if you run into any trouble, please do not ask for help but upgrade to 64.
 
 
 ## openHAB 5 released ## July 21, 2025
