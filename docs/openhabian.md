@@ -79,8 +79,7 @@ This will help you and those you will want to ask for help on the forum focus on
 
 openHAB 5 requires to run on a 64 bit OS and Java 21 version so the recommended openHABian image is the 64 bit version.
 
-Many RPi users are still on a 32 bit based Linux OS.
-(You can check bitness using the command `getconf LONG_BIT`)
+Many RPi users are still on a 32 bit based Linux OS (you can check bitness using the command `getconf LONG_BIT`).
 
 You can *temporarily* use the 32 bit version if you want to stay with openHAB 4 or if you cannot upgrade your HW or OS at the very moment, BUT
 ATTENTION: RUNNING openHAB 5 on any 32 bit OS image IS NOT SUPPORTED ANY MORE.
