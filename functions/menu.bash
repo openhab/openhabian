@@ -10,7 +10,7 @@ openHAB ${version} - $(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version
 \\nThis tool provides a little help to make your openHAB experience as comfortable as possible.
 Make sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
 \\nMenu 01 will allow you to select the standard (\"openHAB\") or the very latest (\"main\") openHABian version.
-Menu 02 will upgrade all of your OS and applications to the latest versions, including openHAB.
+Menu 02 will upgrade all of your OS and applications to the latest versions.
 Menu 03 will install or upgrade openHAB to the latest version available.
 Menu 10 provides a number of system tweaks. These are already active after a standard installation.
 Menu 20 allows you to install some supported optional components often used with openHAB.
@@ -37,7 +37,7 @@ show_main_menu() {
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
-  "02 | Upgrade System"          "Update all installed software packages (incl. openHAB) to their latest version" \
+  "02 | Upgrade System"          "Update all OS software packages (but not openHAB) to latest versions" \
   "03 | Install openHAB"         "Install or upgrade to latest openHAB" \
   "04 | Import config"           "Import an openHAB configuration from file or URL" \
   "" "" \
@@ -64,7 +64,9 @@ show_main_menu() {
 
   elif [[ "$choice" == "02"* ]]; then
     wait_for_apt_to_finish_update
+    cond_redirect apt-mark hold openhab openhab-addons
     system_upgrade
+    cond_redirect apt-mark unhold openhab openhab-addons
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
