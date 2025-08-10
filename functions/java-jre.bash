@@ -38,7 +38,7 @@ adoptium_fetch_apt() {
   echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/adoptium.list
 
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
-  if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+  if ! cond_redirect dpkg --configure -a --force-confnew; then echo "FAILED (dpkg)"; return 1; fi
   if cond_redirect apt-get install --download-only --yes "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
@@ -50,11 +50,9 @@ adoptium_install_apt() {
   if ! dpkg -s "temurin-${1}-jre" &> /dev/null; then # Check if already is installed
     adoptium_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing Adoptium Eclipse Temurin JDK... "
-    cond_redirect java_alternatives_reset
     if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Reconfiguring Adoptium Eclipse Temurin JDK... "
-    cond_redirect java_alternatives_reset
     if cond_redirect dpkg-reconfigure "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
     if is_aarch64; then
       update-alternatives --set java /usr/lib/jvm/temurin-"${1}"-jre-arm64/bin/java
@@ -79,10 +77,10 @@ openjdk_fetch_apt() {
     echo -e "Package: *\\nPin: release a=unstable\\nPin-Priority: 90\\n" > /etc/apt/preferences.d/limit-unstable
     if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
 
-    if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+    if ! cond_redirect dpkg --configure -a --force-confnew; then echo "FAILED (dpkg)"; return 1; fi
     if cond_redirect apt-get install --download-only --yes -t unstable "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED (download)"; return 1; fi
   else
-    if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+    if ! cond_redirect dpkg --configure -a --force-confnew; then echo "FAILED (dpkg)"; return 1; fi
     if cond_redirect apt-get install --download-only --yes "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED (download)"; return 1; fi
   fi
 }
@@ -95,7 +93,6 @@ openjdk_install_apt() {
   if ! dpkg -s "openjdk-${1}-jre-headless" &> /dev/null; then # Check if already is installed
     openjdk_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing OpenJDK ${1}... "
-    cond_redirect java_alternatives_reset
     if [[ $1 == "21" ]]; then
       if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" -t unstable "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
     else
@@ -103,7 +100,6 @@ openjdk_install_apt() {
     fi
   else
     echo -n "$(timestamp) [openHABian] Reconfiguring OpenJDK ${1}... "
-    cond_redirect java_alternatives_reset
     if cond_redirect dpkg-reconfigure "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
     if is_aarch64; then
       update-alternatives --set java /usr/lib/jvm/java-"${1}"-openjdk-arm64/bin/java
@@ -121,6 +117,9 @@ java_alternatives_reset() {
   local jdkBin
 
   jdkBin="$(find /opt/jdk/*/bin ... -print -quit)"
+  if [[ -z "$jdkBin" ]]; then
+    return 0
+  fi
 
   # shellcheck disable=SC2016
   cond_redirect find "$jdkBin" -maxdepth 1 -perm -111 -type f -exec bash -c 'update-alternatives --quiet --remove-all $(basename {})' \;
