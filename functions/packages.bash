@@ -807,7 +807,15 @@ setup_evcc() {
 ##
 setup_esphomedashboard() {
    
-  # texts for whiptail messages 
+
+  # Variables
+  local ESPHOME_DIR="/opt/esphomedashboard"
+  local ESPHOME_CONFIG_DIR="/etc/openhab/ESPhome"
+  local SERVICE_TEMPLATE="${BASEDIR:-/opt/openhabian}/includes/esphome-dashboard.service.template"
+  local Setup_Mode=""
+  local port=6052
+  
+    # texts for whiptail messages 
   local install_start_Text="No ESPHome dashboard service detectet\n--> starting installation"
   local install_end_Text="ESPHome dashboard installation complete.\nUse the web interface on port $port to access ESPHome dashboard."
   local update_start_Text="ESPHome dashboard service detectet\n--> starting update"
@@ -816,13 +824,6 @@ setup_esphomedashboard() {
   local uninstall_end_Text="ESPHome dashboard uninstallation complete."
   local error_Text="An Error occured!\nFor Details please have a look at the shell messages."
   
-  # Variables
-  local ESPHOME_DIR="/opt/esphomedashboard"
-  local ESPHOME_CONFIG_DIR="/etc/openhab/ESPhome"
-  local SERVICE_TEMPLATE="${BASEDIR:-/opt/openhabian}/includes/esphome-dashboard.service.template"
-  local Setup_Mode=""
-  local port=6052
-
   # Start with the action ;)
   CHOICE=$(whiptail --title "ESPHome dashboard setup" --menu "" 10 60 2 \
     "1)" "Install / Update ESPHome dashboard" \
@@ -973,66 +974,73 @@ setup_esphomedashboard() {
           echo "$(timestamp) [openHABian] Error: Failed to stop ESPHome Dashboard service."
           Setup_Mode="error"
         fi
-
-        # Disable the ESPHome Dashboard service
-        echo "$(timestamp) [openHABian] Disabling the ESPHome Dashboard service."
-        if ! cond_redirect systemctl disable esphome-dashboard.service; then
-          echo "$(timestamp) [openHABian] Error: Failed to disable ESPHome Dashboard service."
-          Setup_Mode="error"
-        fi
-      fi
-
-      # Remove the ESPHome Dashboard service file
-      echo "$(timestamp) [openHABian] Removing the ESPHome Dashboard systemd service file."
-      if ! cond_redirect rm -f /etc/systemd/system/esphome-dashboard.service; then
-        echo "$(timestamp) [openHABian] Error: Failed to remove systemd service file."
-        Setup_Mode="error"
-      fi
-
-      # Reload systemd daemon
-      echo "$(timestamp) [openHABian] Reloading systemd daemon."
-      if ! cond_redirect systemctl daemon-reload; then
-        echo "$(timestamp) [openHABian] Error: Failed to reload systemd daemon."
-        Setup_Mode="error"
-      fi
-
-      # Delete Venv directory
-      echo "$(timestamp) [openHABian] Removing ESPHome directory at $ESPHOME_DIR."
-          if ! rm -rf "$ESPHOME_DIR"; then
-            echo "$(timestamp) [openHABian] Error: Failed to remove $ESPHOME_DIR."
+        if [ $Setup_Mode = "uninstallation" ]; then  
+          # Disable the ESPHome Dashboard service
+          echo "$(timestamp) [openHABian] Disabling the ESPHome Dashboard service."
+          if ! cond_redirect systemctl disable esphome-dashboard.service; then
+            echo "$(timestamp) [openHABian] Error: Failed to disable ESPHome Dashboard service."
             Setup_Mode="error"
           fi
-
-      # Ask if the Config files should be removed or not
-      if ! whiptail --title "device config files" --yesno "What should I do with the existing device config files?" --no-button "delete it" --yes-button "keep it" 8 60; then
-        # Remove the ESPHome config directory
-        echo "$(timestamp) [openHABian] Removing ESPHome config directory at $ESPHOME_CONFIG_DIR..."
-        if ! rm -rf "$ESPHOME_CONFIG_DIR"; then
-          echo "$(timestamp) [openHABian] Error: Failed to remove $ESPHOME_CONFIG_DIR."
-          Setup_Mode="error"
         fi
-      else
-        # Remove just the build folders in ESPHome config directory
-        echo "$(timestamp) [openHABian] Removing ESPHome build directory at $ESPHOME_CONFIG_DIR..."
-        if ! rm -rf "$ESPHOME_CONFIG_DIR/.esphome/"; rm "$ESPHOME_CONFIG_DIR/.gitignore"; then
-          echo "$(timestamp) [openHABian] Error: Failed to remove build folders in $ESPHOME_CONFIG_DIR."
+      fi
+
+      if [ $Setup_Mode = "uninstallation" ]; then
+        # Remove the ESPHome Dashboard service file
+        echo "$(timestamp) [openHABian] Removing the ESPHome Dashboard systemd service file."
+        if ! cond_redirect rm -f /etc/systemd/system/esphome-dashboard.service; then
+          echo "$(timestamp) [openHABian] Error: Failed to remove systemd service file."
           Setup_Mode="error"
         fi
       fi
-        echo "$(timestamp) [openHABian] Uninstallation complete!"
 
-      ;;
+      if [ $Setup_Mode = "uninstallation" ]; then
+        # Reload systemd daemon
+        echo "$(timestamp) [openHABian] Reloading systemd daemon."
+        if ! cond_redirect systemctl daemon-reload; then
+          echo "$(timestamp) [openHABian] Error: Failed to reload systemd daemon."
+          Setup_Mode="error"
+        fi
+      fi
+
+      if [ $Setup_Mode = "uninstallation" ]; then
+        # Delete Venv directory
+        echo "$(timestamp) [openHABian] Removing ESPHome directory at $ESPHOME_DIR."
+            if ! rm -rf "$ESPHOME_DIR"; then
+              echo "$(timestamp) [openHABian] Error: Failed to remove $ESPHOME_DIR."
+              Setup_Mode="error"
+            fi
+      fi
+
+      if [ $Setup_Mode = "uninstallation" ]; then
+        # Ask if the Config files should be removed or not
+        if ! whiptail --title "device config files" --yesno "What should I do with the existing device config files?" --no-button "delete it" --yes-button "keep it" 8 60; then
+          # Remove the ESPHome config directory
+          echo "$(timestamp) [openHABian] Removing ESPHome config directory at $ESPHOME_CONFIG_DIR..."
+          if ! rm -rf "$ESPHOME_CONFIG_DIR"; then
+            echo "$(timestamp) [openHABian] Error: Failed to remove $ESPHOME_CONFIG_DIR."
+            Setup_Mode="error"
+          fi
+        else
+          # Remove just the build folders in ESPHome config directory
+          echo "$(timestamp) [openHABian] Removing ESPHome build directory at $ESPHOME_CONFIG_DIR..."
+          if ! (rm -rf "$ESPHOME_CONFIG_DIR/.esphome/" && rm -f "$ESPHOME_CONFIG_DIR/.gitignore"); then
+            echo "$(timestamp) [openHABian] Error: Failed to remove build folders in $ESPHOME_CONFIG_DIR."
+            Setup_Mode="error"
+          fi
+        fi
+      fi
+    ;;
   esac
   
   if [ $Setup_Mode = "installation" ]; then  
     echo "$(timestamp) [openHABian] ESPHome Dashboard installation complete!"
-    echo "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:6052";
+    echo "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:$port";
     whiptail --title "ESPHome installation complete" --msgbox "$install_end_Text" 8 90
   fi
       
   if [ $Setup_Mode = "update" ]; then  
     echo "$(timestamp) [openHABian] ESPHome Dashboard update complete!"
-    echo "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:6052";
+    echo "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:$port";
     whiptail --title "ESPHome update complete" --msgbox "$update_end_Text" 8 90
   fi
 
@@ -1043,6 +1051,6 @@ setup_esphomedashboard() {
 
   if [ $Setup_Mode = "error" ]; then  
     echo "$(timestamp) [openHABian] ESPHome Dashboard ERROR detectet!"
-    whiptail --title "ESPHome ERROR" --msgbox "$error_Text" 8 90
+    whiptail --title "ESPHome ERROR" --msgbox "$error_Text" 8 60
   fi 
 }
