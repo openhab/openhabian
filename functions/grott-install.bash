@@ -49,7 +49,7 @@ install_grott() {
     sudo apt install -y python3 python3-pip
     sudo pip3 install paho-mqtt requests # paho-mqtt is a required dependency (even if disabled)
 
-    # Prepare installation directory and pouplate it with Grott files
+    # Prepare installation directory and populate it with Grott files
     sudo -u "$USERNAME" mkdir -p "$INSTALL_DIR"
     if [ ! -d "$INSTALL_DIR" ]; then
       echo "Error: Installation directory $INSTALL_DIR does not exist."
@@ -131,13 +131,24 @@ download_grott_files() {
     "grottserver.py"
     "grottsniffer.py"
   )
+  GROTT_EXT_PY_FILE="grottext.py"
 
+  # Download Grott main program Python files
   for file in "${GROTT_PY_FILES[@]}"; do
-    FILE_URL="${GROTT_FILE_URL}/${file}"
-    echo "Downloading $file..."
-    curl -fsSL "$FILE_URL" -o "${INSTALL_DIR}/${file}" || {
+    url="${GROTT_FILE_URL}/${file}"
+    echo "Downloading $file"
+    curl -fsSL "$url" -o "${INSTALL_DIR}/${file}" || {
         echo "Failed to download $file"
-         return 1
+        return 1
     }
   done
+
+  # Download Grott extension Python file
+  file=$GROTT_EXT_PY_FILE
+  url="${GROTT_FILE_URL}/examples/Extensions/${file}"
+  echo "Downloading $file"
+  curl -fsSL "$url" -o "${INSTALL_DIR}/${file}" || {
+      echo "Failed to download $file"
+      return 1
+  }
 }
