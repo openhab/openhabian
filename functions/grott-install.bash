@@ -26,7 +26,7 @@ install_grott() {
     exit 1
   fi
   USERNAME="$2"
-  INSTALL_DIR="/home/$USERNAME/grott"
+  INSTALL_DIR="/home/${2}/grott"
 
   SERVICE_FILE="/etc/systemd/system/grott.service"
 
@@ -40,7 +40,7 @@ install_grott() {
       echo "Error: Invalid IP address format: $3"
       exit 1
     fi
-    EXT_URL="http://$3:8080/growatt"
+    EXT_URL="http://${3}:8080/growatt"
 
     echo -n "[openHABian] Installing Grott Proxy with extension URL: $EXT_URL "
 
@@ -71,7 +71,7 @@ install_grott() {
 
     # Create grott.ini file from template
     if ! sed -e "s|%EXT_URL|$EXT_URL|g" \
-            "${BASEDIR:-/opt/openhabian}/includes/grott.ini" > "$INSTALL_DIR/grott.ini"; then
+            "${BASEDIR:-/opt/openhabian}/includes/grott.ini" > "${INSTALL_DIR}/grott.ini"; then
         echo "FAILED (sed substitution)"
         return 1
     fi
