@@ -2,7 +2,7 @@
 
 ## Install the Grott proxy server on the current system
 ##
-##   install_grott(String openhab-ip-address, String username, String interactive)
+##   install_grott(String install|remove, String username, String openhab-ip-address)
 ##
 install_grott() {
   # Validate install type argument
@@ -43,7 +43,7 @@ install_grott() {
     EXT_URL="http://$3:8080/growatt"
 
     echo -n "[openHABian] Installing Grott Proxy with extension URL: $EXT_URL "
-    
+
     # Update system and install dependencies
     sudo apt update
     sudo apt install -y python3 python3-pip
@@ -55,10 +55,10 @@ install_grott() {
       echo "Error: Installation directory $INSTALL_DIR does not exist."
       exit 1
     fi
-    
-    download_grott_files || { 
-        echo "Failed to download Grott files. Exiting." 
-        return 1 
+
+    download_grott_files || {
+        echo "Failed to download Grott files. Exiting."
+        return 1
     }
 
     # Create grott.service systemd file from template
@@ -67,14 +67,14 @@ install_grott() {
             "${BASEDIR:-/opt/openhabian}/includes/grott.service" > "$SERVICE_FILE"; then
         echo "FAILED (sed substitution)"
         return 1
-    fi    
-    
+    fi
+
     # Create grott.ini file from template
     if ! sed -e "s|%EXT_URL|$EXT_URL|g" \
             "${BASEDIR:-/opt/openhabian}/includes/grott.ini" > "$INSTALL_DIR/grott.ini"; then
         echo "FAILED (sed substitution)"
         return 1
-    fi    
+    fi
 
     # Enable and start service
     sudo systemctl daemon-reexec
@@ -86,10 +86,10 @@ install_grott() {
     fi
 
     return 0
-  
+
   elif [[ $INSTALL_TYPE == "remove" ]]; then
     echo -n "[openHABian] Removing Grott Proxy... "
-    
+
     # Stop and disable systemd service
     if sudo systemctl is-active --quiet grott; then
       sudo systemctl stop grott
@@ -116,7 +116,7 @@ install_grott() {
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Grott Proxy removed" --msgbox "We removed Grott Proxy from your system." 7 80
     fi
- 
+
     return 0
   fi
 }
