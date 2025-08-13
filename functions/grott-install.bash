@@ -33,7 +33,7 @@ install_grott() {
     fi
     local EXT_URL="http://${ipAddress}:8080/growatt"
 
-    echo -n "[openHABian] Installing Grott Proxy with extension URL: $EXT_URL "
+    echo "$(timestamp) [openHABian] Installing Grott Proxy with extension URL: $EXT_URL "
 
     # Update system and install dependencies
     sudo apt update
@@ -80,7 +80,7 @@ install_grott() {
     return 0
 
   elif [[ $INSTALL_TYPE == "remove" ]]; then
-    echo -n "[openHABian] Removing Grott Proxy... "
+    echo "$(timestamp) [openHABian] Removing Grott Proxy... "
 
     # Stop and disable systemd service
     if sudo systemctl is-active --quiet grott; then
