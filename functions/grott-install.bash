@@ -2,45 +2,35 @@
 
 ## Install the Grott proxy server on the current system
 ##
-##   install_grott(String install|remove, String username, String openhab-ip-address)
+##   install_grott(String install|remove)
 ##
 install_grott() {
+  # Fail on errors
+  set -e
+  
   # Validate install type argument
   if [ "$#" -lt 1 ]; then
     echo "Error: Please supply install type."
-    echo "Usage: $0 <install|remove> <username> (<openhab-ip>)"
+    echo "Usage: $0 <install|remove>"
     exit 1
   elif [[ "$1" != "install" && "$1" != "remove" ]]; then
     echo "Error: Invalid install type '$1'. Use 'install' or 'remove'."
     exit 1
   fi
-  INSTALL_TYPE="$1"
 
-  # Validate user name argument
-  if [ "$#" -lt 2 ]; then
-    echo "Error: Please supply user name."
-    echo "Usage: $0 <install|remove> <username> (<openhab-ip>)"
-    exit 1
-  elif ! id "$2" &>/dev/null; then
-    echo "Error: User '$2' does not exist."
-    exit 1
-  fi
-  USERNAME="$2"
-  INSTALL_DIR="/home/${2}/grott"
-
-  SERVICE_FILE="/etc/systemd/system/grott.service"
+  local INSTALL_TYPE="$1"
+  local USERNAME=${username:-openhabian}
+  local INSTALL_DIR="/home/${USERNAME}/grott"
+  local SERVICE_FILE="/etc/systemd/system/grott.service"
 
   if [[ $INSTALL_TYPE == "install" ]]; then
-    # Validate openhab ip address argument
-    if [ "$#" -lt 3 ]; then
-      echo "Error: Please supply openHAB IP address."
-      echo "Usage: $0 <install|remove> <username> <openhab-ip>"
-      exit 1
-    elif ! [[ "$3" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-      echo "Error: Invalid IP address format: $3"
+    # Get default IPv4 address
+    local ipAddress="$(ip route get 8.8.8.8 | awk '{print $7}' | xargs)"
+    if ! [[ "$ipAddress" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+      echo "Error: Invalid IP address format: $ipAddress"
       exit 1
     fi
-    EXT_URL="http://${3}:8080/growatt"
+    local EXT_URL="http://${ipAddress}:8080/growatt"
 
     echo -n "[openHABian] Installing Grott Proxy with extension URL: $EXT_URL "
 
@@ -49,16 +39,17 @@ install_grott() {
     sudo apt install -y python3 python3-pip
     sudo pip3 install paho-mqtt requests # paho-mqtt is a required dependency (even if disabled)
 
-    # Prepare installation directory and populate it with Grott files
-    sudo -u "$USERNAME" mkdir -p "$INSTALL_DIR"
+    # Prepare installation directory
+    sudo -u "$USERNAME" mkdir -p -m 755 "$INSTALL_DIR"
     if [ ! -d "$INSTALL_DIR" ]; then
       echo "Error: Installation directory $INSTALL_DIR does not exist."
       exit 1
     fi
 
-    download_grott_files || {
-        echo "Failed to download Grott files. Exiting."
-        return 1
+    # Download Grott Python files to installation directory
+    download_grott_files "$INSTALL_DIR" || {
+      echo "Failed to download Grott files. Exiting."
+      return 1
     }
 
     # Create grott.service systemd file from template
@@ -121,34 +112,40 @@ install_grott() {
   fi
 }
 
+## Download the Grott Proxy Python files
+##
+##   download_grott_files(String install_directory)
+##
 download_grott_files() {
-  GROTT_FILE_URL="https://raw.githubusercontent.com/johanmeijer/grott/master"
-  GROTT_PY_FILES=(
-    "grott.py"
-    "grottconf.py"
-    "grottdata.py"
-    "grottproxy.py"
-    "grottserver.py"
-    "grottsniffer.py"
+  local INSTALL_DIR="$1"
+  local GROTT_FILE_URL="https://raw.githubusercontent.com/johanmeijer/grott/master"
+  local GROTT_PY_FILES=(
+      "grott.py"
+      "grottconf.py"
+      "grottdata.py"
+      "grottproxy.py"
+      "grottserver.py"
+      "grottsniffer.py"
   )
-  GROTT_EXT_PY_FILE="grottext.py"
-
+  local GROTT_EXT_PY_FILE="grottext.py"
+  local file url
+    
   # Download Grott main program Python files
   for file in "${GROTT_PY_FILES[@]}"; do
     url="${GROTT_FILE_URL}/${file}"
     echo "Downloading $file"
     curl -fsSL "$url" -o "${INSTALL_DIR}/${file}" || {
-        echo "Failed to download $file"
-        return 1
+      echo "Failed to download $file"
+      return 1
     }
   done
-
+    
   # Download Grott extension Python file
-  file=$GROTT_EXT_PY_FILE
+  file="$GROTT_EXT_PY_FILE"
   url="${GROTT_FILE_URL}/examples/Extensions/${file}"
   echo "Downloading $file"
   curl -fsSL "$url" -o "${INSTALL_DIR}/${file}" || {
-      echo "Failed to download $file"
-      return 1
+    echo "Failed to download $file"
+    return 1
   }
 }
