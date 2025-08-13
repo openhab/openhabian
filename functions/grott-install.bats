@@ -9,8 +9,8 @@ setup_file() {
 
 teardown_file() {
   unset BASEDIR
-  # Stop grott.service
-  systemctl kill grott.service || true
+  # Stop grott service
+  systemctl kill grott || true
 }
 
 @test "destructive-grott_install" {
@@ -21,13 +21,13 @@ teardown_file() {
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Grott Proxy installation successful.${COL_DEF}" >&3
 
-  # Wait for grott.service start
+  # Await grott service
   sleep 5s
 
-  ## Check grott.service is running
+  ## Check grott service is running
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Grott Proxy service is running...${COL_DEF}" >&3
-  run systemctl is-active --quiet grott.service
-  if [ "$status" -ne 0 ]; then systemctl status grott.service; fi
+  run systemctl is-active --quiet grott
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Grott Proxy service is running.${COL_DEF}" >&3
 }

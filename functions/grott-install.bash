@@ -69,9 +69,8 @@ install_grott() {
     fi
 
     # Enable and start service
-    sudo systemctl daemon-reexec
-    sudo systemctl enable grott
-    sudo systemctl start grott
+    sudo systemctl enable grott --now
+    sudo systemctl daemon-reload
 
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Grott Proxy installed" --msgbox "We installed Grott Proxy on your system." 7 80
