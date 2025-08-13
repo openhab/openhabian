@@ -35,10 +35,9 @@ install_grott() {
 
     echo "$(timestamp) [openHABian] Installing Grott Proxy with extension URL: $EXT_URL "
 
-    # Update system and install dependencies
+    # Update system and install dependencies. NOTE: paho-mqtt is a required dependency (even if disabled)
     sudo apt update
-    sudo apt install -y python3 python3-pip
-    sudo pip3 install paho-mqtt requests # paho-mqtt is a required dependency (even if disabled)
+    sudo apt install -y python3 python3-pip python3-paho-mqtt python3-requests
 
     # Prepare installation directory
     sudo -u "$USERNAME" mkdir -p -m 755 "$INSTALL_DIR"
@@ -129,6 +128,8 @@ download_grott_files() {
   )
   local GROTT_EXT_PY_FILE="grottext.py"
   local file url
+
+  echo "Installing files to $INSTALL_DIR "
 
   # Download Grott main program Python files
   for file in "${GROTT_PY_FILES[@]}"; do

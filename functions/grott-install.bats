@@ -26,15 +26,7 @@ teardown_file() {
 
   ## Check grott service is running
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Grott Proxy service is running...${COL_DEF}" >&3
-  run systemctl status grott
-  echo "Grott service status: $status"
-  echo "Grott service status: $output"
-
   run systemctl is-active --quiet grott
-  run systemctl is-active grott
-  echo "Grott service is-active returned: $status"
-  [ "$status" -eq 0 ] || { echo "Grott Proxy service failed to start"; systemctl status grott; exit 1; }
-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Grott Proxy service is running.${COL_DEF}" >&3
