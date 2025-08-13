@@ -7,7 +7,7 @@
 install_grott() {
   # Fail on errors
   set -e
-  
+
   # Validate install type argument
   if [ "$#" -lt 1 ]; then
     echo "Error: Please supply install type."
@@ -25,7 +25,8 @@ install_grott() {
 
   if [[ $INSTALL_TYPE == "install" ]]; then
     # Get default IPv4 address
-    local ipAddress="$(ip route get 8.8.8.8 | awk '{print $7}' | xargs)"
+    local ipAddress
+    ipAddress="$(ip route get 8.8.8.8 | awk '{print $7}' | xargs)"
     if ! [[ "$ipAddress" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
       echo "Error: Invalid IP address format: $ipAddress"
       exit 1
@@ -129,7 +130,7 @@ download_grott_files() {
   )
   local GROTT_EXT_PY_FILE="grottext.py"
   local file url
-    
+
   # Download Grott main program Python files
   for file in "${GROTT_PY_FILES[@]}"; do
     url="${GROTT_FILE_URL}/${file}"
@@ -139,7 +140,7 @@ download_grott_files() {
       return 1
     }
   done
-    
+
   # Download Grott extension Python file
   file="$GROTT_EXT_PY_FILE"
   url="${GROTT_FILE_URL}/examples/Extensions/${file}"
