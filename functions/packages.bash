@@ -940,7 +940,7 @@ install_grott() {
   local installType="$1"
 
   # Constants for local system
-  local _user=${username:-openhabian}
+  local _user="${username:-openhabian}"
   local grottFolder="/home/${_user}/grott"
   local iniName="grott.ini"
   local serviceName="grott.service"
@@ -979,18 +979,41 @@ install_grott() {
     if ! cond_redirect chmod -R 755 "$grottFolder"; then echo "FAILED (chmod ${grottFolder})"; return 1; fi
 
     # Download Grott Python files into Grott folder
-    for _file in "${grottSourceFiles[@]}"; do
-      if ! cond_redirect curl -fsSL "${grottSourceUrl}/${_file}" -o "${grottFolder}/${_file}"; then echo "FAILED (download ${_file})"; return 1; fi
+    local src tgt
+    for file in "${grottSourceFiles[@]}"; do
+      src="${grottSourceUrl}/${file}"
+      tgt="${grottFolder}/${file}"
+      curl -fsSL "${src}" -o "${tgt}" || {
+        echo "FAILED (download ${file})"
+        return 1
+      }
     done
 
     # Download Grott extension file into Grott folder
-    if ! cond_redirect curl -fsSL "${grottExtUrl}/${grottExtFile}" -o "${grottFolder}/${grottExtFile}"; then echo "FAILED (download ${grottExtFile})"; return 1; fi
+    src="${grottExtUrl}/${grottExtFile}"
+    tgt="${grottFolder}/${grottExtFile}"
+    curl -fsSL "${src}" -o "${tgt}" || {
+      echo "FAILED (download ${grottExtFile})"
+      return 1
+    }
 
-    # Create grott.ini file from template into Grott folder
-    if ! cond_redirect sed -e "s|%URL|${extUrl}|g" "$iniTemplate" > "$iniFile"; then echo "FAILED (create ${iniName})"; return 1; fi
+    # Create grott.ini configuration by modifying the template
+    if ! sed \
+      -e "s|%URL|$extUrl|g" \
+      "$iniTemplate" > "$iniFile"; then
+        echo "FAILED (configure ${iniName})"
+        return 1
+    fi
 
-    # Create grott.service systemd file from template into Grott folder
-    if ! cond_redirect sed -e "s|%DIRECTORY|${grottFolder}|g" -e "s|%USERNAME|${_user}|g" -e "s|%RUNSCRIPT|${runScript}|g" "$serviceTemplate" > "$serviceFile"; then echo "FAILED (create ${serviceName})"; return 1; fi
+     # Create grott.service systemd configuration by modifying the template
+    if ! sed \
+      -e "s|%USERNAME|$_user|g" \
+      -e "s|%DIRECTORY|$grottFolder|g" \
+      -e "s|%RUNSCRIPT|$runScript|g" \
+      "$serviceTemplate" > "$serviceFile"; then
+        echo "FAILED (configure ${serviceName})"
+        return 1
+    fi
 
     # Enable and start Grott service
     if ! cond_redirect systemctl enable --now "${serviceName}"; then echo "FAILED (enable ${serviceName})"; return 1; fi
