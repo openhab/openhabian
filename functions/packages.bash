@@ -948,6 +948,7 @@ install_grott() {
   local serviceFile="/etc/systemd/system/${serviceName}"
   local iniTemplate="${BASEDIR:-/opt/openhabian}/includes/${iniName}"
   local serviceTemplate="${BASEDIR:-/opt/openhabian}/includes/${serviceName}"
+  local runScript="grott.py"
 
   local extUrl="http://127.0.0.1:8080/growatt"
 
@@ -989,7 +990,7 @@ install_grott() {
     if ! cond_redirect sed -e "s|%URL|${extUrl}|g" "$iniTemplate" > "$iniFile"; then echo "FAILED (create ${iniName})"; return 1; fi
 
     # Create grott.service systemd file from template into Grott folder
-    if ! cond_redirect sed -e "s|%DIR|${grottFolder}|g" -e "s|%USR|${_user}|g" "$serviceTemplate" > "$serviceFile"; then echo "FAILED (create ${serviceName})"; return 1; fi
+    if ! cond_redirect sed -e "s|%DIRECTORY|${grottFolder}|g" -e "s|%USERNAME|${_user}|g" -e "s|%RUNSCRIPT|${runScript}|g" "$serviceTemplate" > "$serviceFile"; then echo "FAILED (create ${serviceName})"; return 1; fi
 
     # Enable and start Grott service
     if ! cond_redirect systemctl enable --now "${serviceName}"; then echo "FAILED (enable ${serviceName})"; return 1; fi

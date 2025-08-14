@@ -1,12 +1,22 @@
 [Unit]
 Description=Grott Proxy Service
+After=syslog.target
 After=network.target
+#Wants=systemd-networkd-wait-online.service
+#Wants=mosquitto.service
 
 [Service]
-ExecStart=/usr/bin/python3 -u %DIR/grott.py -v
-WorkingDirectory=%DIR
-Restart=on-failure
-User=%USR
+SyslogIdentifier=grott
+Type=simple
+User=%USERNAME
+WorkingDirectory=%DIRECTORY
+ExecStart=-/usr/bin/python3 -u %DIRECTORY/%RUNSCRIPT
+StandardOutput=journal
+Restart=always
+RestartSec=1
+StartLimitInterval=10
+StartLimitBurst=5
+TimeoutSec=120
 
 [Install]
 WantedBy=multi-user.target
