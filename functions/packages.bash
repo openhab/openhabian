@@ -950,8 +950,6 @@ install_grott() {
   local serviceTemplate="${BASEDIR:-/opt/openhabian}/includes/${serviceName}"
   local runScript="grott.py"
 
-  local extUrl="http://127.0.0.1:8080/growatt"
-
   # Constants Grott GitHub files
   local grottSourceUrl="https://raw.githubusercontent.com/johanmeijer/grott/master"
   local grottSourceFiles=(
@@ -968,6 +966,14 @@ install_grott() {
   ## Install Grott Proxy
   if [[ $installType == "install" ]]; then # Corrected: Use $installType
     echo "$(timestamp) [openHABian] Installing Grott Proxy..."
+
+    # Get default IPv4 address
+    local ipAddress="$(ip route get 8.8.8.8 | awk '{print $7}' | xargs)"
+    if ! [[ "$ipAddress" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "FAILED (invalid ip address ${ipAddress})"
+        exit 1
+    fi
+    local extUrl="http://${ipAddress}:8080/growatt"
 
     # Update system and install dependencies. NOTE: paho-mqtt is a required dependency (even if disabled)
     if ! cond_redirect apt-get update; then echo "FAILED (apt update)"; return 1; fi
