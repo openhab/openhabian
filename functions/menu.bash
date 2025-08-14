@@ -110,7 +110,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Optional Components" 33 118 25 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Optional Components" 32 118 24 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer"             "[DEPRECATED] openHAB Log Viewer webapp (frontail)" \
     "   | Add log to viewer"      "[DEPRECATED] Add a custom log to openHAB Log Viewer (frontail)" \
     "   | Remove log from viewer" "[DEPRECATED] Remove a custom log from openHAB Log Viewer (frontail)" \
