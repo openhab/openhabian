@@ -929,9 +929,6 @@ install_esphomedashboard() {
 ##   install_grott(String install|remove)
 ##
 install_grott() {
-  # Fail on errors
-  set -e
-
   # Validate install type argument
   if [ "$#" -lt 1 ]; then
     echo "FAILED (missing install type - usage: $0 <install|remove>)"
