@@ -922,3 +922,104 @@ install_esphomedashboard() {
     return
   fi
 }
+
+## Function for (un)installing Grott proxy server on the current system
+## Valid arguments: "install" or "remove"
+##
+##   install_grott(String install|remove)
+##
+install_grott() {
+  # Fail on errors
+  set -e
+
+  # Validate install type argument
+  if [ "$#" -lt 1 ]; then
+    echo "FAILED (missing install type - usage: $0 <install|remove>)"
+    return 1
+  elif [[ "$1" != "install" && "$1" != "remove" ]]; then
+    echo "FAILED (invalid install type $1 - usage: $0 <install|remove>)"
+    return 1
+  fi
+  local installType="$1"
+
+  # Constants for local system
+  local _user=${username:-openhabian}
+  local grottFolder="/home/${_user}/grott"
+  local iniName="grott.ini"
+  local serviceName="grott.service"
+  local iniFile="${grottFolder}/${iniName}"
+  local serviceFile="/etc/systemd/system/${serviceName}"
+  local iniTemplate="${BASEDIR:-/opt/openhabian}/includes/${iniName}"
+  local serviceTemplate="${BASEDIR:-/opt/openhabian}/includes/${serviceName}"
+
+  local extUrl="http://127.0.0.1:8080/growatt"
+
+  # Constants Grott GitHub files
+  local grottSourceUrl="https://raw.githubusercontent.com/johanmeijer/grott/master"
+  local grottSourceFiles=(
+      "grott.py"
+      "grottconf.py"
+      "grottdata.py"
+      "grottproxy.py"
+      "grottserver.py"
+      "grottsniffer.py"
+    )
+  local grottExtUrl="${grottSourceUrl}/examples/Extensions"
+  local grottExtFile="grottext.py"
+
+  ## Install Grott Proxy
+  if [[ $installType == "install" ]]; then # Corrected: Use $installType
+    echo "$(timestamp) [openHABian] Installing Grott Proxy..."
+
+    # Update system and install dependencies. NOTE: paho-mqtt is a required dependency (even if disabled)
+    if ! cond_redirect apt-get update; then echo "FAILED (apt update)"; return 1; fi
+    if ! cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" python3 python3-pip python3-paho-mqtt python3-requests; then echo "FAILED (install Python or dependencies)"; return 1; fi
+
+    # Prepare Grott folder
+    if ! cond_redirect mkdir -p "$grottFolder"; then echo "FAILED (create ${grottFolder})"; return 1; fi
+    if ! cond_redirect chown -R "$_user" "$grottFolder"; then echo "FAILED (chown ${grottFolder})"; return 1; fi
+    if ! cond_redirect chmod -R 755 "$grottFolder"; then echo "FAILED (chmod ${grottFolder})"; return 1; fi
+
+    # Download Grott Python files into Grott folder
+    for _file in "${grottSourceFiles[@]}"; do
+      if ! cond_redirect curl -fsSL "${grottSourceUrl}/${_file}" -o "${grottFolder}/${_file}"; then echo "FAILED (download ${_file})"; return 1; fi
+    done
+
+    # Download Grott extension file into Grott folder
+    if ! cond_redirect curl -fsSL "${grottExtUrl}/${grottExtFile}" -o "${grottFolder}/${grottExtFile}"; then echo "FAILED (download ${grottExtFile})"; return 1; fi
+
+    # Create grott.ini file from template into Grott folder
+    if ! cond_redirect sed -e "s|%URL|${extUrl}|g" "$iniTemplate" > "$iniFile"; then echo "FAILED (create ${iniName})"; return 1; fi
+
+    # Create grott.service systemd file from template into Grott folder
+    if ! cond_redirect sed -e "s|%DIR|${grottFolder}|g" -e "s|%USR|${_user}|g" "$serviceTemplate" > "$serviceFile"; then echo "FAILED (create ${serviceName})"; return 1; fi
+
+    # Enable and start Grott service
+    if ! cond_redirect systemctl enable --now "${serviceName}"; then echo "FAILED (enable ${serviceName})"; return 1; fi
+
+    if [[ -n "$INTERACTIVE" ]]; then
+      whiptail --title "Grott Proxy installed" --msgbox "We installed Grott Proxy on your system." 7 80
+    fi
+  fi
+
+  ## Remove Grott Proxy
+  if [[ $installType == "remove" ]]; then # Corrected: Use $installType
+    echo "$(timestamp) [openHABian] Removing Grott Proxy... "
+
+    # Stop and disable systemd service
+    if ! cond_redirect systemctl disable --now "${serviceName}"; then echo "FAILED (disable ${serviceName})"; return 1; fi
+    cond_redirect systemctl daemon-reload
+
+    # Remove systemd service file
+    if ! cond_redirect rm -f "$serviceFile"; then echo "FAILED (remove ${serviceFile})"; return 1; fi
+
+    # Remove grott folder
+    if ! cond_redirect rm -rf "$grottFolder"; then echo "FAILED (remove ${grottFolder})"; return 1; fi
+
+    if [[ -n "$INTERACTIVE" ]]; then
+      whiptail --title "Grott Proxy removed" --msgbox "We removed Grott Proxy from your system." 7 80
+    fi
+  fi
+
+  return 0
+}

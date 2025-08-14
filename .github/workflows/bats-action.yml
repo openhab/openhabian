@@ -5,7 +5,6 @@ on:
     paths:
       - 'tests/Dockerfile.*-BATS'
       - 'functions/*.bats'
-      - 'functions/grott-install.bash'
       - 'functions/habapp.bash'
       - 'functions/helpers.bash'
       - 'functions/influxdb+grafana.bash'
@@ -19,7 +18,6 @@ on:
     paths:
       - 'tests/Dockerfile.*-BATS'
       - 'functions/*.bats'
-      - 'functions/grott-install.bash'
       - 'functions/habapp.bash'
       - 'functions/helpers.bash'
       - 'functions/influxdb+grafana.bash'
