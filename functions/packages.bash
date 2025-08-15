@@ -950,7 +950,7 @@ install_grott() {
   local serviceTemplate="${BASEDIR:-/opt/openhabian}/includes/${serviceName}"
   local runScript="grott.py"
 
-  # Constants Grott GitHub files
+  # Constants for Grott GitHub files
   local grottSourceUrl="https://raw.githubusercontent.com/johanmeijer/grott/master"
   local grottSourceFiles=(
       "grott.py"
@@ -964,7 +964,7 @@ install_grott() {
   local grottExtFile="grottext.py"
 
   ## Install Grott Proxy
-  if [[ $installType == "install" ]]; then # Corrected: Use $installType
+  if [[ $installType == "install" ]]; then
     echo "$(timestamp) [openHABian] Installing Grott Proxy..."
 
     # Get default IPv4 address
@@ -1004,7 +1004,7 @@ install_grott() {
       return 1
     }
 
-    # Create grott.ini configuration by modifying the template
+    # Create grott.ini configuration in Grott folder by modifying the template
     if ! sed \
       -e "s|%URL|$extUrl|g" \
       "$iniTemplate" > "$iniFile"; then
@@ -1012,7 +1012,7 @@ install_grott() {
         return 1
     fi
 
-     # Create grott.service systemd configuration by modifying the template
+     # Create grott.service configuration in systemd folder by modifying the template
     if ! sed \
       -e "s|%USERNAME|$_user|g" \
       -e "s|%DIRECTORY|$grottFolder|g" \
@@ -1031,7 +1031,7 @@ install_grott() {
   fi
 
   ## Remove Grott Proxy
-  if [[ $installType == "remove" ]]; then # Corrected: Use $installType
+  if [[ $installType == "remove" ]]; then
     echo "$(timestamp) [openHABian] Removing Grott Proxy... "
 
     # Stop and disable systemd service
@@ -1041,7 +1041,7 @@ install_grott() {
     # Remove systemd service file
     if ! cond_redirect rm -f "$serviceFile"; then echo "FAILED (remove ${serviceFile})"; return 1; fi
 
-    # Remove grott folder
+    # Remove Grott folder
     if ! cond_redirect rm -rf "$grottFolder"; then echo "FAILED (remove ${grottFolder})"; return 1; fi
 
     if [[ -n "$INTERACTIVE" ]]; then
