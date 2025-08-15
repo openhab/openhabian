@@ -968,7 +968,8 @@ install_grott() {
     echo "$(timestamp) [openHABian] Installing Grott Proxy..."
 
     # Get default IPv4 address
-    local ipAddress="$(ip route get 8.8.8.8 | awk '{print $7}' | xargs)"
+    local ipAddress
+    ipAddress="$(ip route get 8.8.8.8 | awk '{print $7}' | xargs)"
     if ! [[ "$ipAddress" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         echo "FAILED (invalid ip address ${ipAddress})"
         exit 1
