@@ -1026,7 +1026,7 @@ install_grott() {
     if ! cond_redirect systemctl enable --now "${serviceName}"; then echo "FAILED (enable ${serviceName})"; return 1; fi
 
     if [[ -n "$INTERACTIVE" ]]; then
-      whiptail --title "Grott Proxy installed" --msgbox "We installed Grott Proxy on your system." 7 80
+      whiptail --title "Grott Proxy Installed" --msgbox "We installed Grott Proxy on your system." 7 80
     fi
   fi
 
@@ -1045,7 +1045,7 @@ install_grott() {
     if ! cond_redirect rm -rf "$grottFolder"; then echo "FAILED (remove ${grottFolder})"; return 1; fi
 
     if [[ -n "$INTERACTIVE" ]]; then
-      whiptail --title "Grott Proxy removed" --msgbox "We removed Grott Proxy from your system." 7 80
+      whiptail --title "Grott Proxy Removed" --msgbox "We removed Grott Proxy from your system." 7 80
     fi
   fi
 
