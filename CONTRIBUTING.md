@@ -18,6 +18,16 @@ Get in contact early in the development to propose your idea.
 Fork the repo and make changes on your fork in a feature branch.
 Then be sure to also provide or update the documentation right when creating or modifying features.
 
+* if adding a new function, see which of the functions/*.bash files it fits in best
+* create install_xxx() routine and make it work with arguments "install" and "remove"
+* Make sure install_xxx() works in interactive as well as non-interactive (unattended) mode
+  If user input is required, create another parameter in openhabian.conf (source for that is in build-image/)
+  To test:
+  source functions/helpers.bash; source functions/packages.bash; set -x
+  install_xxx arg1 arg2 ... argn
+* add BATS tests for "install" and "remove"
+
+
 ### Code architecture
 Always write clean, modular and testable code.
 We have a simple [code-style](#codestyle) which in combination with the static linter [ShellCheck](https://www.shellcheck.net/) works as our coding guidelines.
