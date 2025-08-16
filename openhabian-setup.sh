@@ -123,6 +123,7 @@ if [[ -n "$UNATTENDED" ]]; then
   nut_setup
   permissions_corrections
   setup_mirror_SD "install"
+  install_grott "install"
   install_cleanup
 else
   apt_update

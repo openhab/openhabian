@@ -939,6 +939,12 @@ install_grott() {
   fi
   local installType="$1"
 
+  # In non- interactive mode, skip setup unless openhabian.config grottSetupEnabled == true
+  if [[ -z "$INTERACTIVE" ]] && ( [[ -z "$grottSetupEnabled" ]] || [[ "$grottSetupEnabled" != "true" ]] ); then
+    echo "$(timestamp) [openHABian] Setup Grott Proxy... SKIPPED (setup not enabled)"
+    return 0
+  fi
+
   # Constants for local system
   local _user="${username:-openhabian}"
   local grottFolder="/home/${_user}/grott"
@@ -1027,6 +1033,8 @@ install_grott() {
 
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Grott Proxy Installed" --msgbox "We installed Grott Proxy on your system." 7 80
+    else
+      echo "$(timestamp) [openHABian] Installed Grott Proxy."
     fi
   fi
 
@@ -1046,6 +1054,8 @@ install_grott() {
 
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Grott Proxy Removed" --msgbox "We removed Grott Proxy from your system." 7 80
+    else
+      echo "$(timestamp) [openHABian] Removed Grott Proxy."
     fi
   fi
 
