@@ -929,6 +929,14 @@ install_esphomedashboard() {
 ##   install_grott(String install|remove)
 ##
 install_grott() {
+  echo -n "$(timestamp) [openHABian] Setup Grott Proxy... "
+
+  # Skip setup if in un-attended mode and openhabian.config grottSetupEnabled is missing or not true
+  if [[ -n "$UNATTENDED" ]] && { [[ -z "$grottSetupEnabled" ]] || [[ "$grottSetupEnabled" != "true" ]]; }; then
+    echo "SKIPPED (setup not enabled)"
+    return 0
+  fi
+
   # Validate install type argument
   if [ "$#" -lt 1 ]; then
     echo "FAILED (missing install type - usage: $0 <install|remove>)"
@@ -938,12 +946,6 @@ install_grott() {
     return 1
   fi
   local installType="$1"
-
-  # Skip setup if in un-attended mode and openhabian.config grottSetupEnabled is missing or not true
-  if [[ -n "$UNATTENDED" ]] && { [[ -z "$grottSetupEnabled" ]] || [[ "$grottSetupEnabled" != "true" ]]; }; then
-    echo "$(timestamp) [openHABian] Setup Grott Proxy... SKIPPED (setup not enabled)"
-    return 0
-  fi
 
   # Constants for local system
   local _user="${username:-openhabian}"
@@ -971,7 +973,7 @@ install_grott() {
 
   ## Install Grott Proxy
   if [[ $installType == "install" ]]; then
-    echo -n "$(timestamp) [openHABian] Installing Grott Proxy... "
+    echo "INSTALLING... "
 
     # Get default IPv4 address
     local ipAddress
@@ -1034,13 +1036,11 @@ install_grott() {
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Grott Proxy Installed" --msgbox "We installed Grott Proxy on your system." 7 80
     fi
-    echo "DONE"
-    return 0
   fi
 
   ## Remove Grott Proxy
   if [[ $installType == "remove" ]]; then
-    echo -n "$(timestamp) [openHABian] Removing Grott Proxy... "
+    echo "REMOVING... "
 
     # Stop and disable systemd service
     if ! cond_redirect systemctl disable --now "${serviceName}"; then echo "FAILED (disable ${serviceName})"; return 1; fi
@@ -1055,7 +1055,7 @@ install_grott() {
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Grott Proxy Removed" --msgbox "We removed Grott Proxy from your system." 7 80
     fi
-    echo "DONE"
-    return 0
   fi
+
+  return 0
 }
