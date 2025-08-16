@@ -67,9 +67,6 @@ teardown_file() {
 }
 
 @test "destructive-grott_install" {
-  # Force unattended install
-  grottSetupEnabled=true
-
   ## Confirm Grott Proxy install completes without error
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Grott Proxy installation starting...${COL_DEF}" >&3
   run install_grott "install" 3>&-
