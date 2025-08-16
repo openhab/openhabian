@@ -940,7 +940,7 @@ install_grott() {
   local installType="$1"
 
   # In non- interactive mode, skip setup unless openhabian.config grottSetupEnabled == true
-  if [[ -z "$INTERACTIVE" ]] && ( [[ -z "$grottSetupEnabled" ]] || [[ "$grottSetupEnabled" != "true" ]] ); then
+  if [[ -z "$INTERACTIVE" ]] && { [[ -z "$grottSetupEnabled" ]] || [[ "$grottSetupEnabled" != "true" ]]; }; then
     echo "$(timestamp) [openHABian] Setup Grott Proxy... SKIPPED (setup not enabled)"
     return 0
   fi
