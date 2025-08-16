@@ -971,14 +971,14 @@ install_grott() {
 
   ## Install Grott Proxy
   if [[ $installType == "install" ]]; then
-    echo "$(timestamp) [openHABian] Installing Grott Proxy..."
+    echo -n "$(timestamp) [openHABian] Installing Grott Proxy... "
 
     # Get default IPv4 address
     local ipAddress
     ipAddress="$(ip route get 8.8.8.8 | awk '{print $7}' | xargs)"
     if ! [[ "$ipAddress" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
         echo "FAILED (invalid ip address ${ipAddress})"
-        exit 1
+        return 1
     fi
     local extUrl="http://${ipAddress}:8080/growatt"
 
@@ -1033,14 +1033,12 @@ install_grott() {
 
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Grott Proxy Installed" --msgbox "We installed Grott Proxy on your system." 7 80
-    else
-      echo "$(timestamp) [openHABian] Installed Grott Proxy."
     fi
   fi
 
   ## Remove Grott Proxy
   if [[ $installType == "remove" ]]; then
-    echo "$(timestamp) [openHABian] Removing Grott Proxy... "
+    echo -n "$(timestamp) [openHABian] Removing Grott Proxy... "
 
     # Stop and disable systemd service
     if ! cond_redirect systemctl disable --now "${serviceName}"; then echo "FAILED (disable ${serviceName})"; return 1; fi
@@ -1054,10 +1052,9 @@ install_grott() {
 
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Grott Proxy Removed" --msgbox "We removed Grott Proxy from your system." 7 80
-    else
-      echo "$(timestamp) [openHABian] Removed Grott Proxy."
     fi
   fi
 
+  echo "DONE"
   return 0
 }
