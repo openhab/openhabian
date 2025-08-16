@@ -1034,6 +1034,8 @@ install_grott() {
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Grott Proxy Installed" --msgbox "We installed Grott Proxy on your system." 7 80
     fi
+    echo "DONE"
+    return 0
   fi
 
   ## Remove Grott Proxy
@@ -1053,8 +1055,7 @@ install_grott() {
     if [[ -n "$INTERACTIVE" ]]; then
       whiptail --title "Grott Proxy Removed" --msgbox "We removed Grott Proxy from your system." 7 80
     fi
+    echo "DONE"
+    return 0
   fi
-
-  echo "DONE"
-  return 0
 }
