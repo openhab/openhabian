@@ -787,7 +787,7 @@ setup_license() {
   base64 -d <<< "$encoded_string" > $tmp1
   echo -n "$license_string" > $tmp2
   #decoded=$(openssl dgst -sha256 -verify /opt/openhabian/includes/licensepublic_key.pem -signature /tmp/sign.bin /tmp/sign.verification)
-  decoded=$(openssl dgst -sha256 -verify ${pubkey} -signature /tmp/sign.bin /tmp/sign.verification)
+  decoded=$(openssl dgst -sha256 -verify ${pubkey} -signature ${tmp1} ${tmp2})
 
   # shellcheck disable=SC2181
   if [ $? -ne 0 ]; then
