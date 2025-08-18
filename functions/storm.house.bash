@@ -773,6 +773,9 @@ ems_lic() {
 ## returns decoded license string
 ##
 setup_license() {
+  local pubkey=/opt/openhabian/includes/license-public_key.pem
+  local tmp1=/tmp/sign.bin
+  local tmp2=/tmp/sign.verification
   local encoded_string="$1"
   local license_string="$2"
   if [ -z "$encoded_string" ] ; then
@@ -780,10 +783,11 @@ setup_license() {
     return 1
   fi
 
-  #ORIG: echo $(base64 -d <<< "$encoded_string" > /tmp/sign.bin)
-  base64 -d <<< "$encoded_string" > /tmp/sign.bin
-  echo -n "$license_string" > /tmp/sign.verification
-  decoded=$(openssl dgst -sha256 -verify /opt/openhabian/includes/licensepublic_key.pem -signature /tmp/sign.bin /tmp/sign.verification)
+  # ORIG: echo $(base64 -d <<< "$encoded_string" > /tmp/sign.bin)
+  base64 -d <<< "$encoded_string" > $tmp1
+  echo -n "$license_string" > $tmp2
+  #decoded=$(openssl dgst -sha256 -verify /opt/openhabian/includes/licensepublic_key.pem -signature /tmp/sign.bin /tmp/sign.verification)
+  decoded=$(openssl dgst -sha256 -verify ${pubkey} -signature /tmp/sign.bin /tmp/sign.verification)
 
   # shellcheck disable=SC2181
   if [ $? -ne 0 ]; then
@@ -791,5 +795,7 @@ setup_license() {
     return 1
   fi
   echo "$decoded"
+
+  rm -f $tmp1 $tmp2
 }
 
