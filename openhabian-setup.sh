@@ -121,9 +121,9 @@ if [[ -n "$UNATTENDED" ]]; then
   zram_setup
   exim_setup
   nut_setup
+  install_grott "install"
   permissions_corrections
   setup_mirror_SD "install"
-  install_grott "install"
   install_cleanup
 else
   apt_update

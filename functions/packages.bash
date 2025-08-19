@@ -929,10 +929,10 @@ install_esphomedashboard() {
 ##   install_grott(String install|remove)
 ##
 install_grott() {
-  echo -n "$(timestamp) [openHABian] Setup Grott Proxy... "
+  echo "$(timestamp) [openHABian] Setup Grott proxy... "
 
   # Skip setup if in un-attended mode and openhabian.config grottSetupEnabled is missing or not true
-  if [[ -n "$UNATTENDED" ]] && { [[ -z "$grottSetupEnabled" ]] || [[ "$grottSetupEnabled" != "true" ]]; }; then
+  if [[ -n "$UNATTENDED" ]] && [[ "$grottSetupEnabled" != "true" ]]; then
     echo "SKIPPED (setup not enabled)"
     return 0
   fi
@@ -948,8 +948,7 @@ install_grott() {
   local installType="$1"
 
   # Constants for local system
-  local _user="${username:-openhabian}"
-  local grottFolder="/home/${_user}/grott"
+  local grottFolder="/home/${username:-openhabian}/grott"
   local iniName="grott.ini"
   local serviceName="grott.service"
   local iniFile="${grottFolder}/${iniName}"
@@ -971,9 +970,9 @@ install_grott() {
   local grottExtUrl="${grottSourceUrl}/examples/Extensions"
   local grottExtFile="grottext.py"
 
-  ## Install Grott Proxy
+  ## Install Grott proxy
   if [[ $installType == "install" ]]; then
-    echo "INSTALLING... "
+    echo "$(timestamp) [openHABian] Installing Grott proxy... "
 
     # Get default IPv4 address
     local ipAddress
@@ -990,7 +989,7 @@ install_grott() {
 
     # Prepare Grott folder
     if ! cond_redirect mkdir -p "$grottFolder"; then echo "FAILED (create ${grottFolder})"; return 1; fi
-    if ! cond_redirect chown -R "$_user" "$grottFolder"; then echo "FAILED (chown ${grottFolder})"; return 1; fi
+    if ! cond_redirect chown -R "${username:-openhabian}" "$grottFolder"; then echo "FAILED (chown ${grottFolder})"; return 1; fi
     if ! cond_redirect chmod -R 755 "$grottFolder"; then echo "FAILED (chmod ${grottFolder})"; return 1; fi
 
     # Download Grott Python files into Grott folder
@@ -1022,7 +1021,7 @@ install_grott() {
 
      # Create grott.service configuration in systemd folder by modifying the template
     if ! sed \
-      -e "s|%USERNAME|$_user|g" \
+      -e "s|%USERNAME|${username:-openhabian}|g" \
       -e "s|%DIRECTORY|$grottFolder|g" \
       -e "s|%RUNSCRIPT|$runScript|g" \
       "$serviceTemplate" > "$serviceFile"; then
@@ -1034,13 +1033,13 @@ install_grott() {
     if ! cond_redirect systemctl enable --now "${serviceName}"; then echo "FAILED (enable ${serviceName})"; return 1; fi
 
     if [[ -n "$INTERACTIVE" ]]; then
-      whiptail --title "Grott Proxy Installed" --msgbox "We installed Grott Proxy on your system." 7 80
+      whiptail --title "Grott Proxy Installed" --msgbox "We installed Grott proxy on your system." 7 80
     fi
   fi
 
-  ## Remove Grott Proxy
+  ## Remove Grott proxy
   if [[ $installType == "remove" ]]; then
-    echo "REMOVING... "
+    echo "$(timestamp) [openHABian] Removing Grott Proxy... "
 
     # Stop and disable systemd service
     if ! cond_redirect systemctl disable --now "${serviceName}"; then echo "FAILED (disable ${serviceName})"; return 1; fi
@@ -1053,9 +1052,10 @@ install_grott() {
     if ! cond_redirect rm -rf "$grottFolder"; then echo "FAILED (remove ${grottFolder})"; return 1; fi
 
     if [[ -n "$INTERACTIVE" ]]; then
-      whiptail --title "Grott Proxy Removed" --msgbox "We removed Grott Proxy from your system." 7 80
+      whiptail --title "Grott Proxy Removed" --msgbox "We removed Grott proxy from your system." 7 80
     fi
   fi
 
+  echo "OK"
   return 0
 }
