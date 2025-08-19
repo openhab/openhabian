@@ -1,0 +1,13 @@
+[Unit]
+Description=Grott Proxy Service
+After=network.target
+
+[Service]
+SyslogIdentifier=grott
+User=%USERNAME
+WorkingDirectory=%DIRECTORY
+ExecStart=-/usr/bin/python3 -u %DIRECTORY/%RUNSCRIPT
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

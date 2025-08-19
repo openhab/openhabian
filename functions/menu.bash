@@ -110,7 +110,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Optional Components" 24 118 16 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Optional Components (scroll to see more)" 24 118 16 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer"             "[DEPRECATED] openHAB Log Viewer webapp (frontail)" \
     "   | Add log to viewer"      "[DEPRECATED] Add a custom log to openHAB Log Viewer (frontail)" \
     "   | Remove log from viewer" "[DEPRECATED] Remove a custom log from openHAB Log Viewer (frontail)" \
@@ -133,6 +133,8 @@ show_main_menu() {
     "   | Setup EVCC"             "Setup EVCC from command line (German only)" \
     "2E | Install ESPHome dashboard"           "Deploy ESPHome dashboard" \
     "   | Remove ESPHome dashboard"            "Uninstall ESPHome dashboard" \
+    "2F | Install Grott"          "Install Grott Proxy server (for Growatt binding)" \
+    "   | Remove Grott"           "Uninstall Grott Proxy server (for Growatt binding)" \
     3>&1 1>&2 2>&3)
     RET=$?
     if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
@@ -160,6 +162,8 @@ show_main_menu() {
       *Setup\ EVCC*) setup_evcc;;
       2E\ *) install_esphomedashboard "install";;
       *Remove\ ESPHome\ dashboard*) install_esphomedashboard "remove";;
+      2F\ *) install_grott "install";;
+      *Remove\ Grott*) install_grott "remove";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -217,13 +221,13 @@ show_main_menu() {
     "42 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
     "43 | Clean cache"                    "Clean the cache for openHAB" \
     "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
-    "45 | OpenJDK 17"                     "Install + activate OpenJDK 17 as Java provider (default for OH versions 4 and older)" \
-    "   | OpenJDK 21"                     "Install + activate OpenJDK 21 as Java provider (DO NOT USE WILL BREAK SYSTEM)" \
-    "   | Temurin 17"                     "Install + activate Temurin 17 as Java provider (fallback for OH versions 4 and older)" \
-    "   | Temurin 21"                     "Install + activate Temurin 21 as Java provider (default)" \
-    "   | OpenJDK 11"                     "Install + activate OpenJDK 11 as Java provider (legacy)" \
-    "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
-    "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of openHAB JavaScript library" \
+    "45 | OpenJDK 17"                     "Setup OpenJDK 17 as Java provider (default for OH v4 and older)" \
+    "   | OpenJDK 21"                     "Setup OpenJDK 21 as Java provider (DO NOT USE WILL BREAK SYSTEM)" \
+    "   | Temurin 17"                     "Setup Temurin 17 as Java provider (fallback for OH v4 and older)" \
+    "   | Temurin 21"                     "Setup Temurin 21 as Java provider (default)" \
+    "   | OpenJDK 11"                     "Setup OpenJDK 11 as Java provider (legacy)" \
+    "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of JavaScript library (advanced)" \
+    "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of JavaScript library" \
     "47 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \
     "   | Uninstall openhab_rules_tools"  "JS Scripting: Uninstall openhab_rules_tools" \
     3>&1 1>&2 2>&3)
