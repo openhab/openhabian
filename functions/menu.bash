@@ -67,15 +67,6 @@ show_main_menu() {
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
-    if ! is_supported; then
-        whiptail --title "outdated OS" --msgbox "You are running a too old version of your Operating System.\\nYou need to upgrade to be running at least Debian 11 (bullseye).\\nWe do NOT recommend to dist-upgrade but to re-install using the openHABian 64 bit image." 9 80
-        return 255
-    fi
-    if is_arm && [[ "$(getconf LONG_BIT)" == "32" ]]; then
-        whiptail --title "32 bit OS" --msgbox "You are running a 32 bit Operating System. THIS IS NOT SUPPORTED ANY LONGER.\\nOpenHAB 5 and Java 21 require that you upgrade your OS to a 64 bit version, please read the release notes at\\nhttps://github.com/openhab/openhab-distro/releases/tag/5.0.0#openhabian\\nYou can still install manually via menus 45 and 41 if in vain but remember that will be an UNSUPPORTED setup.\\nPlease reinstall your system with the 64 bit image of openHABian." 13 80
-        return 255
-    fi
-
     repo=$(apt-cache madison openhab | head -n 1 | awk '{ print $6 }' |cut -d'/' -f1)
     cond_redirect apt-mark unhold openhab openhab-addons evcc
     # shellcheck disable=SC2154
