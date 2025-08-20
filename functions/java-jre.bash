@@ -47,7 +47,7 @@ adoptium_fetch_apt() {
   if [[ $(getconf LONG_BIT) == 32 ]]; then
     if ! cond_redirect wget -nv -O "${cachedir}/${cachefile}" "${URL}/${pkgfile}"; then echo "FAILED (download JVM pkg)"; rm -f "${cachedir}/${cachefile}"; return 1; fi
   else
-    if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+    if ! cond_redirect dpkg --configure -a --confnew; then echo "FAILED (dpkg)"; return 1; fi
     if cond_redirect apt-get install --download-only --yes "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 }
