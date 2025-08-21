@@ -44,7 +44,7 @@ adoptium_fetch_apt() {
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
 
   # if on 32 bit OS, install unsupported Adoptium 32 bit from OpenEMS community project
-  if [[ $(getconf LONG_BIT) == 32 ]]; then
+  if [[ $1 == "21" ]] && [[ $(getconf LONG_BIT) == 32 ]]; then
     if ! cond_redirect wget -nv -O "${cachedir}/${cachefile}" "${URL}/${pkgfile}"; then echo "FAILED (download JVM pkg)"; rm -f "${cachedir}/${cachefile}"; return 1; fi
   else
     if ! cond_redirect dpkg --configure -a --confnew; then echo "FAILED (dpkg)"; return 1; fi
