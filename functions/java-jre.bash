@@ -32,11 +32,6 @@ java_install() {
 ##
 adoptium_fetch_apt() {
   local keyName="adoptium"
-  local URL="https://openems.io/download/"
-  local cachedir="/var/cache/apt/archives"
-  local pkgfile="temurin-21-jre-armhf_21.0.6+2.deb"
-  local cachefile="temurin-21-jre_21.0.6+2_armhf.deb"
-
 
   echo -n "$(timestamp) [openHABian] Fetching Adoptium Eclipse Temurin JDK... "
   if ! cond_redirect add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then echo "FAILED (add keys)"; return 1; fi
