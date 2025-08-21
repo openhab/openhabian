@@ -32,17 +32,10 @@ java_install() {
 ##
 adoptium_fetch_apt() {
   local keyName="adoptium"
-  local URL="https://openems.io/download/"
-  local cachedir="/var/cache/apt/archives"
-  local pkgfile="temurin-21-jre-armhf_21.0.6+2.deb"
-  local cachefile="temurin-21-jre_21.0.6+2_armhf.deb"
-
 
   echo -n "$(timestamp) [openHABian] Fetching Adoptium Eclipse Temurin JDK... "
   if ! cond_redirect add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then echo "FAILED (add keys)"; return 1; fi
-  # no trixie pkg yet !
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-trixie} main" > /etc/apt/sources.list.d/adoptium.list
-  if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/adoptium.list
 
   if ! cond_redirect apt-get install --download-only --yes "adoptium-ca-certificates"; then echo "FAILED"; return 1; fi
 
@@ -60,26 +53,10 @@ adoptium_fetch_apt() {
 ##    adoptium_install_apt()
 ##
 adoptium_install_apt() {
-  local cachedir="/var/cache/apt/archives"
-  local cachefile="temurin-21-jre_21.0.6+2_armhf.deb"
-  local Java32bitMsg="You are still running a 32 bit operating system. There is no regular Java Virtual machine available.\\nWe've installed an experimental package for you but note this is unsupported by openHABian and the openHAB project.\\nWe ask you to migrate (reinstall) to a 64bit OS as soon as possible. See openHAB 5 release notes."
-
-
   if ! dpkg -s "temurin-${1}-jre" &> /dev/null; then # Check if already is installed
     adoptium_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing Adoptium Eclipse Temurin JDK... "
-    cond_redirect java_alternatives_reset
-    if ! cond_redirect apt-get --yes install adoptium-ca-certificates; then echo "FAILED (install Java certificate)"; return 1; fi
-    if ! cond_redirect apt-get --yes install java-common libxi6 libxrender1 libxtst6 ; then echo "FAILED (install Java commons)"; return 1; fi
-    if [[ $(getconf LONG_BIT) == 32 ]]; then
-      if ! cond_redirect dpkg -i "${cachedir}/${cachefile}"; then echo "FAILED (install experimental JVM pkg)"; return 1; fi
-      if [[ -n "$INTERACTIVE" ]]; then
-        whiptail --title "unsupported JVM was installed" --msgbox "${Java32bitMsg}" 9 80
-      fi
-    else
-      # this will NOT work when cached pkg file is there but not indexed by apt
-      if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
-    fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
   else
     echo -n "$(timestamp) [openHABian] Reconfiguring Adoptium Eclipse Temurin JDK... "
     if cond_redirect dpkg-reconfigure "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
