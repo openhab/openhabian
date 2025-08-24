@@ -38,7 +38,7 @@ show_main_menu() {
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
   "02 | Upgrade System"          "Update all OS software packages (but not openHAB) to latest versions" \
-  "03 | Install openHAB"         "Install or upgrade to latest openHAB" \
+  "03 | Install openHAB"         "Install or upgrade to latest openHAB (including Java)" \
   "04 | Import config"           "Import an openHAB configuration from file or URL" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \

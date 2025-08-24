@@ -18,8 +18,8 @@ whiptail_check() {
 ##    system_upgrade()
 ##
 system_upgrade() {
-  local upgradeText="ATTENTION !\\n\\nYou chose upgrade ALL of your software packages in one go.\\nNote this will include upgrading openHAB itself to its latest version which might be a major upgrade and can break your working system.\\n\\n Are you sure this is what you want?\\n"
-  local OH4upgradeText="ATTENTION !\\n\\nYou chose to upgrade ALL of your software packages\\nThis is not possible when you are not on the current major version of openHAB, OH4, or the version under development, OH5.\\n\\nIn order to upgrade to openHAB 4 first, use the next menu option."
+  local upgradeText="ATTENTION !\\n\\nYou chose upgrade ALL of your operating system software packages in one go.\\nNote this will be a major upgrade and can break your working system.\\n\\n Are you sure this is what you want?\\n"
+  local OH4upgradeText="ATTENTION !\\n\\nYou chose to upgrade ALL of your software packages\\nThis is not possible when you are not on one of the current major version of openHAB, OH4 or OH5.\\n\\nIn order to upgrade to openHAB 4 first, use the next menu option 03."
 
   echo "$(timestamp) [openHABian] Updating repositories and upgrading installed packages..."
   if [[ -n "$INTERACTIVE" ]]; then
