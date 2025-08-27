@@ -696,7 +696,7 @@ upgrade_ems() {
 ##    finalize_setup
 ##
 finalize_setup() {
-  local serviceTargetDir="/etc/systemd/system"
+  #local serviceTargetDir="/etc/systemd/system"
   local includesDir="${BASEDIR:-/opt/openhabian}/includes"
 
 
