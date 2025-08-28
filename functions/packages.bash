@@ -900,7 +900,7 @@ setup_esphome_device_builder() {
       # Activate the virtual environment
       if [ $Setup_Mode = "installation" ] || [ $Setup_Mode = "update" ]; then
         echo "$(timestamp) [openHABian] Activating the virtual environment."
-        # shellcheck source=$ESPHOME_DIR/venv/bin/activate
+        # shellcheck source=/opt/esphome_device_builder/venv/bin/activate
         if ! source "$ESPHOME_DIR/venv/bin/activate"; then
           echo "$(timestamp) [openHABian] Error: Failed to activate a Python virtual environment."
             Setup_Mode="error"
