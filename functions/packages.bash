@@ -799,48 +799,48 @@ setup_evcc() {
   if cond_redirect systemctl restart evcc.service; then echo "OK"; else echo "FAILED"; fi
 }
 
-## Function for (un)installing / update ESPhome dashboard
+## Function for (un)installing / update ESPHome Device Builder
 ## The function can be invoked INTERACTIVE only.
 ##
-##  setup_esphomedashboard
+##  setup_esphome_device_builder
 ##
 ##
-setup_esphomedashboard() {
+setup_esphome_device_builder() {
    
-
   # Variables
-  local ESPHOME_DIR="/opt/esphomedashboard"
-  local ESPHOME_CONFIG_DIR="/etc/openhab/ESPhome"
-  local SERVICE_TEMPLATE="${BASEDIR:-/opt/openhabian}/includes/esphome-dashboard.service.template"
+  local ESPHOME_DIR="/opt/esphome_device_builder"
+  local ESPHOME_CONFIG_DIR="/etc/openhab/ESPHome"
+  local SERVICE_TEMPLATE="${BASEDIR:-/opt/openhabian}/includes/esphome-device-builder.service.template"
   local Setup_Mode=""
   local port=6052
   
-    # texts for whiptail messages 
-  local install_start_Text="No ESPHome dashboard service detectet\n--> starting installation"
-  local install_end_Text="ESPHome dashboard installation complete.\nUse the web interface on port $port to access ESPHome dashboard."
-  local update_start_Text="ESPHome dashboard service detectet\n--> starting update"
-  local update_end_Text="ESPHome dashboard update complete.\nUse the web interface on port $port to access ESPHome dashboard."
-  local uninstall_start_Text="Starting ESPHome Dashboard uninstallation..."
-  local uninstall_end_Text="ESPHome dashboard uninstallation complete."
+  # Whiptail messages 
+  local whiptail_title="ESPHome Device Builder - Setup"
+  local install_start_Text="No ESPHome Device Builder service detectet\n--> starting installation"
+  local install_end_Text="ESPHome Device Builder installation complete.\nUse the web interface on port $port"
+  local update_start_Text="ESPHome Device Builder service detectet\n--> starting update"
+  local update_end_Text="ESPHome Device Builder update complete.\nUse the web interface on port $port"
+  local uninstall_start_Text="Starting ESPHome Device Builder uninstallation..."
+  local uninstall_end_Text="ESPHome Device Builder uninstallation complete."
   local error_Text="An Error occured!\nFor Details please have a look at the shell messages."
-  
+
   # Start with the action ;)
-  CHOICE=$(whiptail --title "ESPHome dashboard setup" --menu "" 10 60 2 \
-    "1)" "Install / Update ESPHome dashboard" \
-    "2)" "Uninstall ESPHome dashboard" \
+  CHOICE=$(whiptail --title "$whiptail_title" --menu "" 10 60 2 \
+    "1)" "Install / Update ESPHome Device Builder" \
+    "2)" "Uninstall ESPHome Device Builder" \
     3>&1 1>&2 2>&3
   )
   case $CHOICE in
     "1)")   
       echo "$(timestamp) [openHABian] The option installation / update was selected"
-      # Check if ESPHome dashboard is already installed
-      echo "$(timestamp) [openHABian] Check if the esphome-dashboard.service is already running..."
-      if systemctl is-active --quiet esphome-dashboard.service; then
+      # Check if ESPHome Device Builder is already installed
+      echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
+      if systemctl is-active --quiet esphome-device-builder.service; then
         # Start update procedure
         Setup_Mode="update"
         echo "$(timestamp) [openHABian] $update_start_Text";
         if [[ -n $INTERACTIVE ]]; then
-          TERM=ansi whiptail --title "ESPhome dashboard update" --infobox "$update_start_Text" 8 60
+          TERM=ansi whiptail --title "$whiptail_title" --infobox "$update_start_Text" 8 60
           sleep 2
         fi
       else 
@@ -848,7 +848,7 @@ setup_esphomedashboard() {
         Setup_Mode="installation" 
         echo "$(timestamp) [openHABian] $install_start_Text";
         if [[ -n $INTERACTIVE ]]; then
-          TERM=ansi whiptail --title "ESPhome dashboard installation" --infobox "$install_start_Text" 8 60
+          TERM=ansi whiptail --title "$whiptail_title" --infobox "$install_start_Text" 8 60
           sleep 2 
         fi
       fi
@@ -857,39 +857,39 @@ setup_esphomedashboard() {
         # Install Python 3 and pip
         echo "$(timestamp) [openHABian] Installing Python 3 and pip..."
         if ! cond_redirect apt install -y python3-venv; then
-          echo "$(timestamp) [openHABian] Error: Failed to install Python 3 and pip."
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install Python 3 and pip.${COL_DEF}"
           Setup_Mode="error"
         fi     
       fi
 
       if [ $Setup_Mode = "installation" ]; then
-        # Create the ESPhome directory and set permissions
+        # Create the ESPHome Device Builder directory and set permissions
         echo "$(timestamp) [openHABian] Creating directory at $ESPHOME_DIR"
         if ! mkdir -p "$ESPHOME_DIR"; then
-          echo "$(timestamp) [openHABian] Error: Failed to create $ESPHOME_DIR"
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create $ESPHOME_DIR${COL_DEF}"
           Setup_Mode="error"
         fi
         if ! chown -R "$LOGNAME:$LOGNAME" "$ESPHOME_DIR"; then
-          echo "$(timestamp) [openHABian] Error: Failed to set ownership of $ESPHOME_DIR to $USER."
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to set ownership of $ESPHOME_DIR to $USER.${COL_DEF}"
           Setup_Mode="error"
         fi
       fi
 
       if [ $Setup_Mode = "installation" ]; then
-        # Create the ESPHome config directory and set permissions
+        # Create the ESPHome Device Builder config directory and set permissions
         echo "$(timestamp) [openHABian] Creating directory at $ESPHOME_CONFIG_DIR"
         if ! mkdir -p "$ESPHOME_CONFIG_DIR"; then
-          echo "$(timestamp) [openHABian] Error: Failed to create $ESPHOME_CONFIG_DIR"
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create $ESPHOME_CONFIG_DIR${COL_DEF}"
           Setup_Mode="error"
         fi
         if ! chown -R "$LOGNAME:$LOGNAME" "$ESPHOME_CONFIG_DIR"; then
-          echo "$(timestamp) [openHABian] Error: Failed to set ownership of $ESPHOME_CONFIG_DIR to $USER."
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to set ownership of $ESPHOME_CONFIG_DIR to $USER.${COL_DEF}"
           Setup_Mode="error"
         fi
       fi
 
       if [ $Setup_Mode = "installation" ]; then  
-        # Set up a virtual environment and install ESPHome
+        # Set up a virtual environment and install ESPHome Device Builder
         echo "$(timestamp) [openHABian] Setting up a virtual environment in $ESPHOME_DIR"
         if ! python3 -m venv venv "$ESPHOME_DIR/venv"; then
           echo "$(timestamp) [openHABian] Error: Failed to create a Python virtual environment."
@@ -898,26 +898,28 @@ setup_esphomedashboard() {
       fi
 
       # Activate the virtual environment
-      #This is neccesary for installation and update
-      echo "$(timestamp) [openHABian] Activating the virtual environment."
-      if ! source "$ESPHOME_DIR/venv/bin/activate"; then
-        echo "$(timestamp) [openHABian] Error: Failed to activate a Python virtual environment."
-          Setup_Mode="error"
+      if [ $Setup_Mode = "installation" ] || [ $Setup_Mode = "update" ]; then
+        echo "$(timestamp) [openHABian] Activating the virtual environment."
+        if ! source "$ESPHOME_DIR/venv/bin/activate"; then
+          echo "$(timestamp) [openHABian] Error: Failed to activate a Python virtual environment."
+            Setup_Mode="error"
+        fi
       fi
 
       if [ $Setup_Mode = "installation" ]; then  
-        echo "$(timestamp) [openHABian] installing ESPHome."
+        # Start ESPHome Device Builder installation
+        echo "$(timestamp) [openHABian] installing ESPHome Device Builder."
         if !  pip3 install esphome; then
-          echo "$(timestamp) [openHABian] Error: Failed to install ESPHome."
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install ESPHome Device Builder.${COL_DEF}"
           Setup_Mode="error"
         fi
       fi
 
       if [ $Setup_Mode = "update" ]; then  
-        # Start ESPHhome Update
-        echo "$(timestamp) [openHABian] updating ESPHome..."
+        # Start ESPHome Device Builder update
+        echo "$(timestamp) [openHABian] updating ESPHome Device Builder..."
         if ! pip3 install esphome -U; then
-          echo "$(timestamp) [openHABian] Error: Failed to update ESPHome."
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update ESPHome Device Builder.${COL_DEF}"
           Setup_Mode="error"
         fi
       fi
@@ -925,8 +927,8 @@ setup_esphomedashboard() {
       if [ $Setup_Mode = "installation" ]; then  
         # Copy the systemd service file
         echo "$(timestamp) [openHABian] Installing systemd service file..."
-        if ! cond_redirect install -m 755 "$SERVICE_TEMPLATE" /etc/systemd/system/esphome-dashboard.service; then
-          echo "$(timestamp) [openHABian] Error: Failed to install systemd service file."
+        if ! cond_redirect install -m 755 "$SERVICE_TEMPLATE" /etc/systemd/system/esphome-device-builder.service; then
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install systemd service file.${COL_DEF}"
           Setup_Mode="error"
         fi
       fi
@@ -935,26 +937,26 @@ setup_esphomedashboard() {
         # Modify the systemd service file
         echo "$(timestamp) [openHABian] modifying systemd service file..."
         # Use + as separator in sed instead of / because in the path are / included
-        if ! sed -i "s+<replace-with-username>+$LOGNAME+g; s+<replace-with-esphome-directory>+$ESPHOME_DIR+g; s+<replace-with-esphome-config-directory>+$ESPHOME_CONFIG_DIR+g; s+# dynamically replaced in script++g" /etc/systemd/system/esphome-dashboard.service; then
-          echo "$(timestamp) [openHABian] Error: Failed to modify systemd service file."  
+        if ! sed -i "s+<username>+$LOGNAME+g; s+<esphome-directory>+$ESPHOME_DIR+g; s+<esphome-config-directory>+$ESPHOME_CONFIG_DIR+g; s+# dynamically replaced in script++g" /etc/systemd/system/esphome-device-builder.service; then
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to modify systemd service file.${COL_DEF}"  
           Setup_Mode="error"
         fi
       fi
 
       if [ $Setup_Mode = "installation" ]; then  
         # Reload systemd
-        echo "$(timestamp) [openHABian] Reloading systemd daemon and starting the ESPHome Dashboard service..."
+        echo "$(timestamp) [openHABian] Reloading systemd daemon and starting the ESPHome Device Builder service..."
         if ! cond_redirect systemctl daemon-reload; then
-          echo "$(timestamp) [openHABian] Error: Failed to reload systemd daemon."
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to reload systemd daemon.${COL_DEF}"
           Setup_Mode="error"
         fi
       fi
 
       if [ $Setup_Mode = "installation" ]; then        
-        # Enable and start the ESPHome Dashboard service
-        echo "$(timestamp) [openHABian] Enabling and starting the ESPHome Dashboard service..."
-        if ! cond_redirect systemctl enable --now esphome-dashboard.service; then
-          echo "$(timestamp) [openHABian] Error: Failed to enable and start ESPHome Dashboard service."
+        # Enable and start the ESPHome Device Builder service
+        echo "$(timestamp) [openHABian] Enabling and starting the ESPHome Device Builder service..."
+        if ! cond_redirect systemctl enable --now esphome-device-builder.service; then
+          echo -e"$(timestamp) [openHABian] ${COL_RED}Error: Failed to enable and start ESPHome Device Builder service.${COL_DEF}"
           Setup_Mode error
         fi
       fi
@@ -965,30 +967,30 @@ setup_esphomedashboard() {
       echo "$(timestamp) [openHABian] $uninstall_start_Text"
       Setup_Mode="uninstallation"
 
-      # Check if the esphome-dashboard.service is active. If YES stop and disable the service
+      # Check if the esphome-device-builder.service is active. If YES stop and disable the service
       # This check is neccesary to prevent a failure after an unsucsessful instalation
-      if systemctl is-active --quiet esphome-dashboard.service; then
+      if systemctl is-active --quiet esphome-device-builder.service; then
         # Stop the ESPHome Dashboard service
-        echo -n "$(timestamp) [openHABian] Stopping the ESPHome Dashboard service. "
-        if ! cond_redirect systemctl stop esphome-dashboard.service; then 
-          echo "$(timestamp) [openHABian] Error: Failed to stop ESPHome Dashboard service."
+        echo -n "$(timestamp) [openHABian] Stopping the ESPHome Device Builder service. "
+        if ! cond_redirect systemctl stop esphome-device-builder.service; then 
+          echo "$(timestamp) [openHABian] Error: Failed to stop ESPHome Device Builder service."
           Setup_Mode="error"
         fi
         if [ $Setup_Mode = "uninstallation" ]; then  
-          # Disable the ESPHome Dashboard service
-          echo "$(timestamp) [openHABian] Disabling the ESPHome Dashboard service."
-          if ! cond_redirect systemctl disable esphome-dashboard.service; then
-            echo "$(timestamp) [openHABian] Error: Failed to disable ESPHome Dashboard service."
+          # Disable the ESPHome Device Builder service
+          echo "$(timestamp) [openHABian] Disabling the ESPHome Device Builder service."
+          if ! cond_redirect systemctl disable esphome-device-builder.service; then
+            echo "$(timestamp) [openHABian] Error: Failed to disable ESPHome Device Builder service."
             Setup_Mode="error"
           fi
         fi
       fi
 
       if [ $Setup_Mode = "uninstallation" ]; then
-        # Remove the ESPHome Dashboard service file
-        echo "$(timestamp) [openHABian] Removing the ESPHome Dashboard systemd service file."
-        if ! cond_redirect rm -f /etc/systemd/system/esphome-dashboard.service; then
-          echo "$(timestamp) [openHABian] Error: Failed to remove systemd service file."
+        # Remove the ESPHome Device Builder service file
+        echo "$(timestamp) [openHABian] Removing the ESPHome Device Builder systemd service file."
+        if ! cond_redirect rm -f /etc/systemd/system/esphome-device-builder.service; then
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove the ESPHome Device Builder systemd service file.${COL_DEF}"
           Setup_Mode="error"
         fi
       fi
@@ -997,34 +999,34 @@ setup_esphomedashboard() {
         # Reload systemd daemon
         echo "$(timestamp) [openHABian] Reloading systemd daemon."
         if ! cond_redirect systemctl daemon-reload; then
-          echo "$(timestamp) [openHABian] Error: Failed to reload systemd daemon."
+          echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to reload systemd daemon.${COL_DEF}"
           Setup_Mode="error"
         fi
       fi
 
       if [ $Setup_Mode = "uninstallation" ]; then
         # Delete Venv directory
-        echo "$(timestamp) [openHABian] Removing ESPHome directory at $ESPHOME_DIR."
+        echo "$(timestamp) [openHABian] Removing ESPHome Device Builder directory at $ESPHOME_DIR."
             if ! rm -rf "$ESPHOME_DIR"; then
-              echo "$(timestamp) [openHABian] Error: Failed to remove $ESPHOME_DIR."
+              echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove ESPHome Device Builder directory at $ESPHOME_DIR.${COL_DEF}"
               Setup_Mode="error"
             fi
       fi
 
       if [ $Setup_Mode = "uninstallation" ]; then
         # Ask if the Config files should be removed or not
-        if ! whiptail --title "device config files" --yesno "What should I do with the existing device config files?" --no-button "delete it" --yes-button "keep it" 8 60; then
-          # Remove the ESPHome config directory
-          echo "$(timestamp) [openHABian] Removing ESPHome config directory at $ESPHOME_CONFIG_DIR..."
+        if ! whiptail --title "$whiptail_title" --yesno "What should I do with the existing device config files?" --no-button "delete it" --yes-button "keep it" 8 60; then
+          # Remove the ESPHome Device Builder config directory
+          echo "$(timestamp) [openHABian] Removing ESPHome Device Builder config directory at $ESPHOME_CONFIG_DIR..."
           if ! rm -rf "$ESPHOME_CONFIG_DIR"; then
-            echo "$(timestamp) [openHABian] Error: Failed to remove $ESPHOME_CONFIG_DIR."
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove ESPHome Device Builder config directory at $ESPHOME_CONFIG_DIR.${COL_DEF}"
             Setup_Mode="error"
           fi
         else
-          # Remove just the build folders in ESPHome config directory
-          echo "$(timestamp) [openHABian] Removing ESPHome build directory at $ESPHOME_CONFIG_DIR..."
+          # Remove just the build folders in ESPHome Device Builder config directory
+          echo "$(timestamp) [openHABian] Removing ESPHome Device Builder build directory at $ESPHOME_CONFIG_DIR..."
           if ! (rm -rf "$ESPHOME_CONFIG_DIR/.esphome/" && rm -f "$ESPHOME_CONFIG_DIR/.gitignore"); then
-            echo "$(timestamp) [openHABian] Error: Failed to remove build folders in $ESPHOME_CONFIG_DIR."
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove ESPHome Device Builder build folders at $ESPHOME_CONFIG_DIR.${COL_DEF}"
             Setup_Mode="error"
           fi
         fi
@@ -1033,24 +1035,24 @@ setup_esphomedashboard() {
   esac
   
   if [ $Setup_Mode = "installation" ]; then  
-    echo "$(timestamp) [openHABian] ESPHome Dashboard installation complete!"
-    echo "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:$port";
-    whiptail --title "ESPHome installation complete" --msgbox "$install_end_Text" 8 90
+    echo -e "$(timestamp) [openHABian] ${COL_GREEN}ESPHome Device Builder installation complete!${COL_DEF}"
+    echo -e "$(timestamp) [openHABian] ${COL_GREEN}Access the webinterface at http://<your-ip>:$port${COL_DEF}";
+    whiptail --title "$whiptail_title" --msgbox "$install_end_Text" 8 90
   fi
       
   if [ $Setup_Mode = "update" ]; then  
-    echo "$(timestamp) [openHABian] ESPHome Dashboard update complete!"
-    echo "$(timestamp) [openHABian] Access your ESPHome Dashboard at http://<your-ip>:$port";
-    whiptail --title "ESPHome update complete" --msgbox "$update_end_Text" 8 90
+    echo -e "$(timestamp) [openHABian] ${COL_GREEN}ESPHome Device Builder update complete!${COL_DEF}"
+    echo -e "$(timestamp) [openHABian] ${COL_GREEN}Access the webinterface at http://<your-ip>:$port${COL_DEF}";
+    whiptail --title "$whiptail_title" --msgbox "$update_end_Text" 8 90
   fi
 
   if [ $Setup_Mode = "uninstallation" ]; then  
-    echo "$(timestamp) [openHABian] ESPHome Dashboard uninstallation complete!"
-        whiptail --title "Uninstallation complete" --msgbox "$uninstall_end_Text" 8 60
+    echo -e "$(timestamp) [openHABian] ${COL_GREEN}ESPHome Device Builder uninstallation complete!${COL_DEF}"
+        whiptail --title "$whiptail_title" --msgbox "$uninstall_end_Text" 8 60
   fi
 
   if [ $Setup_Mode = "error" ]; then  
-    echo "$(timestamp) [openHABian] ESPHome Dashboard ERROR detectet!"
-    whiptail --title "ESPHome ERROR" --msgbox "$error_Text" 8 60
+    echo -e "$(timestamp) [openHABian] ${COL_RED}ESPHome Device Builder Setup - ERROR detectet!${COL_DEF}"
+    whiptail --title "$whiptail_title" --msgbox "$error_Text" 8 60
   fi 
 }
