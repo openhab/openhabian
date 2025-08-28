@@ -10,7 +10,7 @@ openHAB ${version} - $(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version
 \\nThis tool provides a little help to make your openHAB experience as comfortable as possible.
 Make sure you have read the README and know about the Debug and Backup guides in /opt/openhabian/docs.
 \\nMenu 01 will allow you to select the standard (\"openHAB\") or the very latest (\"main\") openHABian version.
-Menu 02 will upgrade all of your OS and applications to the latest versions, including openHAB.
+Menu 02 will upgrade all of your OS and applications to the latest versions.
 Menu 03 will install or upgrade openHAB to the latest version available.
 Menu 10 provides a number of system tweaks. These are already active after a standard installation.
 Menu 20 allows you to install some supported optional components often used with openHAB.
@@ -37,8 +37,8 @@ show_main_menu() {
   "00 | About openHABian"        "Information about the openHABian project and this tool" \
   "" "" \
   "01 | Select Branch"           "Select the openHABian config tool version (\"branch\") to run" \
-  "02 | Upgrade System"          "Update all installed software packages (incl. openHAB) to their latest version" \
-  "03 | Install openHAB"         "Install or upgrade to latest openHAB" \
+  "02 | Upgrade System"          "Update all OS software packages (but not openHAB) to latest versions" \
+  "03 | Install openHAB"         "Install or upgrade to latest openHAB (including Java)" \
   "04 | Import config"           "Import an openHAB configuration from file or URL" \
   "" "" \
   "10 | Apply Improvements"      "Apply the latest improvements to the basic openHABian setup ►" \
@@ -64,12 +64,18 @@ show_main_menu() {
 
   elif [[ "$choice" == "02"* ]]; then
     wait_for_apt_to_finish_update
+    cond_redirect apt-mark hold openhab openhab-addons
     system_upgrade
+    cond_redirect apt-mark unhold openhab openhab-addons
 
   elif [[ "$choice" == "03"* ]]; then
     wait_for_apt_to_finish_update
     if ! is_supported; then
-        whiptail --title "outdated OS" --msgbox "You are running a too old version of your Operating System.\\n\\nOpenHAB 4 and Java 17 require that you upgrade to Debian 11 (bullseye) first." 8 80
+        whiptail --title "outdated OS" --msgbox "You are running a too old version of your Operating System.\\nYou need to upgrade to be running at least Debian 11 (bullseye).\\nWe do NOT recommend to dist-upgrade but to re-install using the openHABian 64 bit image." 9 80
+        return 255
+    fi
+    if is_arm && [[ "$(getconf LONG_BIT)" == "32" ]]; then
+        whiptail --title "32 bit OS" --msgbox "You are running a 32 bit Operating System. THIS IS NOT SUPPORTED ANY LONGER.\\nOpenHAB 5 and Java 21 require that you upgrade your OS to a 64 bit version, please read the release notes at\\nhttps://github.com/openhab/openhab-distro/releases/tag/5.0.0#openhabian\\nYou can still install manually via menus 45 and 41 if in vain but remember that will be an UNSUPPORTED setup.\\nPlease reinstall your system with the 64 bit image of openHABian." 13 80
         return 255
     fi
 
@@ -104,7 +110,7 @@ show_main_menu() {
     esac
 
   elif [[ "$choice" == "20"* ]]; then
-    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Optional Components" 24 118 16 --cancel-button Back --ok-button Execute \
+    choice2=$(whiptail --title "openHABian Configuration Tool — $(get_git_revision)" --menu "Optional Components (scroll to see more)" 24 118 16 --cancel-button Back --ok-button Execute \
     "21 | Log Viewer"             "[DEPRECATED] openHAB Log Viewer webapp (frontail)" \
     "   | Add log to viewer"      "[DEPRECATED] Add a custom log to openHAB Log Viewer (frontail)" \
     "   | Remove log from viewer" "[DEPRECATED] Remove a custom log from openHAB Log Viewer (frontail)" \
@@ -126,6 +132,8 @@ show_main_menu() {
     "   | Remove EVCC"            "Uninstall EVCC" \
     "   | Setup EVCC"             "Setup EVCC from command line (German only)" \
     "2E | Setup ESPHome"          "deploy / update / uninstall ESPHome Device Builder" \
+    "2F | Install Grott"          "Install Grott Proxy server (for Growatt binding)" \
+    "   | Remove Grott"           "Uninstall Grott Proxy server (for Growatt binding)" \
     3>&1 1>&2 2>&3)
     RET=$?
     if [ $RET -eq 1 ] || [ $RET -eq 255 ]; then return 0; fi
@@ -152,6 +160,8 @@ show_main_menu() {
       *Remove\ EVCC*) install_evcc "remove";;
       *Setup\ EVCC*) setup_evcc;;
       2E\ *) setup_esphome_device_builder;;
+      2F\ *) install_grott "install";;
+      *Remove\ Grott*) install_grott "remove";;
       "") return 0 ;;
       *) whiptail --msgbox "An unsupported option was selected (probably a programming error):\\n  \"$choice2\"" 8 80 ;;
     esac
@@ -209,13 +219,13 @@ show_main_menu() {
     "42 | Remote Console"                 "Bind the openHAB SSH console to all external interfaces" \
     "43 | Clean cache"                    "Clean the cache for openHAB" \
     "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
-    "45 | OpenJDK 17"                     "Install and activate OpenJDK 17 as Java provider (default)" \
-    "   | OpenJDK 21"                     "Install and activate OpenJDK 21 as Java provider (DO NOT USE WILL BREAK SYSTEM - upcoming default when fixed)" \
-    "   | Temurin 17"                     "Install and activate Temurin 17 as Java provider (default alternative)" \
-    "   | Temurin 21"                     "Install and activate Temurin 21 as Java provider (upcoming alternative, currently preferred)" \
-    "   | OpenJDK 11"                     "Install and activate OpenJDK 11 as Java provider (legacy)" \
-    "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of openHAB JavaScript library (advanced)" \
-    "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of openHAB JavaScript library" \
+    "45 | OpenJDK 17"                     "Setup OpenJDK 17 as Java provider (default for OH v4 and older)" \
+    "   | OpenJDK 21"                     "Setup OpenJDK 21 as Java provider (DO NOT USE WILL BREAK SYSTEM)" \
+    "   | Temurin 17"                     "Setup Temurin 17 as Java provider (fallback for OH v4 and older)" \
+    "   | Temurin 21"                     "Setup Temurin 21 as Java provider (default)" \
+    "   | OpenJDK 11"                     "Setup OpenJDK 11 as Java provider (legacy)" \
+    "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of JavaScript library (advanced)" \
+    "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of JavaScript library" \
     "47 | Install openhab_rules_tools"    "JS Scripting: Manually install openhab_rules_tools (auto-installed)" \
     "   | Uninstall openhab_rules_tools"  "JS Scripting: Uninstall openhab_rules_tools" \
     3>&1 1>&2 2>&3)
