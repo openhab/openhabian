@@ -244,7 +244,8 @@ Each of these are included as a part of `openhabian-config` menu option 20.
 -   [OWServer](https://owfs.org) - 1-Wire system of Dallas/Maxim
 -   [FIND](https://www.internalpositioning.com/) - Framework for Internal Navigation and Discovery
 -   Mi Flora MQTT daemon
--   [ESPHome Device Builder](https://esphome.io/guides/getting_started_hassio.html#device-builder-interface) - Webinterface for easy configuration, installation and updating of ESPHome devices at [http://openhabian:6052](http://openhabian:6052)
+-   [ESPHome Device Builder](https://esphome.io/guides/getting_started_hassio.html#device-builder-interface) - Webinterface for easy configuration, installation and updating of ESPHome devices at [http://openhabian:6052](http://openhabian:6052) <br/>
+**Please pay attention, that automatic updates are not implemented in OpenHABian. <br/> --> to do this, use the openhbaian-config update function under menu option 20**
 
 ## First boot configuration
 
