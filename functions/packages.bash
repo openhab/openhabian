@@ -900,7 +900,8 @@ setup_esphome_device_builder() {
       # Activate the virtual environment
       if [ $Setup_Mode = "installation" ] || [ $Setup_Mode = "update" ]; then
         echo "$(timestamp) [openHABian] Activating the virtual environment."
-        # shellcheck source=/opt/esphome_device_builder/venv/bin/activate.sh
+       	# the following shellcheck is neccesary becaue of error SC1091
+		# shellcheck source=/dev/null
         if ! source "$ESPHOME_DIR/venv/bin/activate"; then
           echo "$(timestamp) [openHABian] Error: Failed to activate a Python virtual environment."
             Setup_Mode="error"
