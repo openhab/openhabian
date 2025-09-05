@@ -804,7 +804,6 @@ setup_evcc() {
 ##
 ##  setup_esphome_device_builder
 ##
-##
 setup_esphome_device_builder() {
    
   # Variables
