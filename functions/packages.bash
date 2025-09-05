@@ -802,7 +802,7 @@ setup_evcc() {
 ## Function for (un)installing / update ESPHome Device Builder
 ## The function can be invoked INTERACTIVE only.
 ##
-##  setup_esphome_device_builder 
+##  setup_esphome_device_builder
 ##
 
 setup_esphome_device_builder() {
