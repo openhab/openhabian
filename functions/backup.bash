@@ -7,17 +7,13 @@
 ##    backup_openhab_config()
 ##
 backup_openhab_config() {
-  if ! openhab_is_installed; then
-    echo "$(timestamp) [openHABian] openHAB is not installed! Canceling openHAB config backup creation!"
-    return 0
-  fi
-
   local filePath
-  local introText="This will create an export (a backup) of your openHAB configuration using openHAB's builtin openhab-cli tool.\\n\\nWould you like to proceed?"
   local successText
 
-  if [[ -n "$INTERACTIVE" ]] && [[ $# == 0 ]]; then
-    if (whiptail --title "openHAB config export" --yes-button "Continue" --no-button "Skip" --yesno "$introText" 10 80); then echo "OK"; else echo "SKIPPED"; return 0; fi
+
+  if ! openhab_is_installed; then
+    echo "$(timestamp) [openHABian] openHAB is not installed! Cancelling openHAB config backup creation!"
+    return 0
   fi
 
   echo -n "$(timestamp) [openHABian] Creating openHAB config backup... "
