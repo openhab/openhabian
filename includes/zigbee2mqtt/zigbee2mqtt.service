@@ -7,7 +7,7 @@ Type=simple
 User=%user%
 WorkingDirectory=/opt/zigbee2mqtt
 EnvironmentFile=/opt/zigbee2mqtt/data/zigbee2mqtt.env
-ExecStart=/usr/local/bin/pnpm start --frozen-lockfile --ignore-scripts=false
+ExecStart= pnpm start --frozen-lockfile --ignore-scripts=false
 Restart=on-failure
 RestartSec=5s
 

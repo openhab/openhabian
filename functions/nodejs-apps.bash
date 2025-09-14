@@ -317,7 +317,7 @@ EOF
   sed -i -e "s|%user%|${username:-openhabian}|g" "/etc/systemd/system/zigbee2mqtt.service"
 
   # Install node_modules inkl. prepack scripts
-  cd /opt/zigbee2mqtt
+  cd /opt/zigbee2mqtt || (echo "FAILED (cd)"; return 1)
   cond_redirect sudo -u "${username:-openhabian}" pnpm install --frozen-lockfile --ignore-scripts=false
 
   systemctl daemon-reload
