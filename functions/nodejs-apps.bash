@@ -261,10 +261,10 @@ zigbee2mqtt_setup() {
         return 0
       fi
     fi
-    systemctl disable --now zigbee2mqtt.service &>/dev/null
+    systemctl disable --now zigbee2mqtt.service &>/dev/null || true
     rm -f /etc/systemd/system/zigbee2mqtt.service /opt/zigbee2mqtt/data/zigbee2mqtt.env
     rm -rf /opt/zigbee2mqtt /var/log/zigbee2mqtt
-    systemctl daemon-reload
+    systemctl daemon-reload || true
     [[ -n $INTERACTIVE ]] && whiptail --title "Zigbee2MQTT removed" --msgbox "Zigbee2MQTT was removed." 7 80
     return 0
   fi
@@ -325,8 +325,8 @@ EOF
   cd /opt/zigbee2mqtt || (echo "FAILED (cd)"; return 1)
   cond_redirect sudo -u "${username:-openhabian}" pnpm install --frozen-lockfile --ignore-scripts=false
 
-  systemctl daemon-reload
-  systemctl enable --now zigbee2mqtt.service
+  systemctl daemon-reload || true
+  systemctl enable --now zigbee2mqtt.service || true
 
   [[ -n $INTERACTIVE ]] && whiptail --title "Operation successful" --msgbox "$installSuccessText" 15 80
 }
