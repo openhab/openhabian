@@ -255,7 +255,12 @@ zigbee2mqtt_setup() {
 
   # Remove mode
   if [[ $1 == "remove" ]]; then
-    [[ -n $INTERACTIVE ]] && whiptail --title "Zigbee2MQTT Uninstall" --yes-button "Continue" --no-button "Cancel" --yesno "$uninstallText" 7 80 || { echo "CANCELED"; return 0; }
+    if [[ -n $INTERACTIVE ]]; then
+      if ! whiptail --title "Zigbee2MQTT Uninstall" --yes-button "Continue" --no-button "Cancel" --yesno "$uninstallText" 7 80; then
+        echo "CANCELED"
+        return 0
+      fi
+    fi
     systemctl disable --now zigbee2mqtt.service &>/dev/null
     rm -f /etc/systemd/system/zigbee2mqtt.service /opt/zigbee2mqtt/data/zigbee2mqtt.env
     rm -rf /opt/zigbee2mqtt /var/log/zigbee2mqtt
