@@ -479,7 +479,8 @@ wait_for_apt_to_be_ready() {
 ##    apt_update()
 ##
 apt_update() {
-  nohup apt-get update &> /dev/null & export PID_APT=$!
+  #nohup 
+  apt-get update &> /dev/null & export PID_APT=$!
 }
 
 ## Wait for background 'apt-get update' process to finish or
@@ -695,7 +696,7 @@ grafana_is_installed() {
 ##    node_is_installed
 ##
 node_is_installed() {
-  if [[ -x $(command -v npm) ]] && [[ $(node --version) =~ v1[6-9]* ]]; then return 0; fi
+  if [[ -x $(command -v npm) ]] && [[ $(node --version) =~ v2.* ]]; then return 0; fi
   return 1
 }
 
