@@ -222,6 +222,7 @@ zigbee2mqtt_download() {
 
   if ! cond_redirect mkdir -p /opt/zigbee2mqtt; then echo "FAILED (mkdir -p /opt/zigbee2mqtt)"; fi
   if ! cond_redirect chown "${username:-openhabian}:openhab" /opt/zigbee2mqtt; then echo "FAILED (chown /opt/zigbee2mqtt)"; fi
+  cd /opt/zigbee2mqtt || (echo "FAILED (cd)"; return 1)
   if ! cond_redirect sudo -u "${username:-openhabian}" git clone --depth 1 https://github.com/Koenkk/zigbee2mqtt.git "/opt/zigbee2mqtt"; then echo "FAILED (git clone)"; return 1; fi
   if ! cond_redirect sed -i -e "s|8080|8081|g" "/opt/zigbee2mqtt/lib/util/onboarding.ts"; then echo "FAILED (change z2m onboarding port)"; fi
 }
@@ -233,21 +234,17 @@ zigbee2mqtt_download() {
 ##    zigbee2mqtt_setup()
 ##
 zigbee2mqtt_setup() {
-  local mqttUser mqttPW serverIP z2mVersion
-  local mqttDefaultUser="${username:-openhabian}"
+  local serverIP z2mVersion
   local installSuccessText updateSuccessText
   local z2mInstalledText="A configuration for Zigbee2MQTT is already existing.\\n\\nWould you like to update Zigbee2MQTT to the latest version with this configuration?"
-  local introText="A MQTT-server is required for Zigbee2mqtt. If you haven't installed one yet, please select <cancel> and come back after installing one (e.g. Mosquitto).\\n\\nZigbee2MQTT will be installed from the official repository.\\n\\nDuration is about 4 minutes... "
-  local installText="Zigbee2MQTT is installed from the official repository.\\n\\nPlease wait about 4 minutes... "
+  local introText="A MQTT-server is required for Zigbee2mqtt. If you haven't installed one yet, please select <cancel> and come back after installing one (e.g. Mosquitto).\\n\\nZigbee2MQTT will be installed from the official repository.\\n\\nDuration is about 2 minutes... "
   local uninstallText="Zigbee2MQTT will be completely removed from the system."
-  local mqttUserText="\\nPlease enter your MQTT-User (default = openhabian):"
-  local mqttPWText="\\nIf your MQTT-server requires a password, please enter it here:"
   local updateManualText="The update to v2 has to be done manually due to some breaking changes in v2. \\nSee details unter \\n\\nhttps://github.com/Koenkk/zigbee2mqtt/discussions/24198"
 
   z2mVersion=$(jq -r .version /opt/zigbee2mqtt/package.json 2>/dev/null || echo "0")
   serverIP=$(hostname -I | awk '{print $1}')
-  installSuccessText="Setup was successful. Zigbee2MQTT is now up and running.\\n\\nFrontend: http://${serverIP}:8081\\nDocs: https://www.zigbee2mqtt.io/guide/configuration"
-  updateSuccessText="Update successful.\\n\\nFrontend: http://${serverIP}:8081\\nDocs: https://www.zigbee2mqtt.io/guide/configuration"
+  installSuccessText="Setup was successful. Wait 1 minute and Zigbee2MQTT is up and running.\\n\\nPlease complete the initial configuration in the onboarding frontend at \\n\\nhttp://${serverIP}:8081\\n\\n\\nFurther docs see: https://www.zigbee2mqtt.io/guide/configuration"
+  updateSuccessText="Update successful.\\n\\nFrontend: http://${serverIP}:8081\\n\\nnDocs: https://www.zigbee2mqtt.io/guide/configuration"
 
   # Remove mode
   if [[ $1 == "remove" ]]; then
@@ -282,12 +279,6 @@ zigbee2mqtt_setup() {
   # Interactive input
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "Zigbee2MQTT installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 14 80 || return 0
-    mqttUser=$(whiptail --title "MQTT User" --inputbox "$mqttUserText" 10 80 "$mqttDefaultUser" 3>&1 1>&2 2>&3) || return 0
-    mqttPW=$(whiptail --title "MQTT password" --passwordbox "$mqttPWText" 10 80 3>&1 1>&2 2>&3) || return 0
-    whiptail --title "Installation" --infobox "$installText" 14 80
-  else
-    mqttUser="$mqttDefaultUser"
-    : "${mqttPW:=}"
   fi
 
   # Dependencies & download
@@ -299,8 +290,6 @@ zigbee2mqtt_setup() {
   chown "${username:-openhabian}:openhab" /var/log/zigbee2mqtt /opt/zigbee2mqtt/data
 
   cat <<EOF >/opt/zigbee2mqtt/data/zigbee2mqtt.env
-ZIGBEE2MQTT_CONFIG_MQTT_USER=$mqttUser
-ZIGBEE2MQTT_CONFIG_MQTT_PASSWORD=$mqttPW
 ZIGBEE2MQTT_CONFIG_FRONTEND_ENABLED=true
 ZIGBEE2MQTT_CONFIG_FRONTEND_PORT=8081
 ZIGBEE2MQTT_CONFIG_FRONTEND_PACKAGE=zigbee2mqtt-frontend
