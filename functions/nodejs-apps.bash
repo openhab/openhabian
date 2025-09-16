@@ -308,7 +308,7 @@ EOF
 
   # Install node_modules inkl. prepack scripts
   cd /opt/zigbee2mqtt || (echo "FAILED (cd)"; return 1)
-  cond_redirect sudo -u "${username:-openhabian}" pnpm install --frozen-lockfile --ignore-scripts=false
+  cond_redirect sudo -u "${username:-openhabian}" /usr/bin/pnpm install --frozen-lockfile --ignore-scripts=false
 
   systemctl daemon-reload
   systemctl enable --now zigbee2mqtt.service
