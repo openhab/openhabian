@@ -310,10 +310,10 @@ EOF
   cd /opt/zigbee2mqtt || (echo "FAILED (cd)"; return 1)
   cond_redirect sudo -u "${username:-openhabian}" pnpm install --frozen-lockfile --ignore-scripts=false
 
-  if systemctl >/dev/null 2>&1; then
+  if [ "$(basename "$(ps -o comm= 1)")" = "systemd" ]; then
     systemctl daemon-reload
+    systemctl enable --now zigbee2mqtt.service
   fi
-  systemctl enable --now zigbee2mqtt.service
 
   [[ -n $INTERACTIVE ]] && whiptail --title "Operation successful" --msgbox "$installSuccessText" 15 80
 }
