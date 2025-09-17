@@ -314,6 +314,7 @@ EOF
   systemctl enable --now zigbee2mqtt.service
 
   [[ -n $INTERACTIVE ]] && whiptail --title "Operation successful" --msgbox "$installSuccessText" 15 80
+  return 0
 }
 
 
