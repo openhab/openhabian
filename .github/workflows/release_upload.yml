@@ -1,0 +1,49 @@
+name: Build and Upload Fork Images to Release
+
+on:
+  release:
+    types: [published]    # automatisch bei Release
+  workflow_dispatch:      # optional manuell starten
+
+jobs:
+  build_and_upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes libarchive-zip-perl dos2unix systemd-container qemu-utils
+
+      - name: Build 32bit and 64bit Images
+        run: |
+          sudo -E ./tests/ci-setup.bash github ${{ github.ref_name }}
+          sed -i -e "s|^userpw=.*$|userpw=\"${{secrets.USERPW}}\"|g" build-image/openhabian.conf
+          sed -i -e "s|ap_password:.*$|ap_password: ${{secrets.HOTSPOTPW}}|g" includes/comitup.conf
+          cp build-image/template_rpi-imager-openhab.json rpi-imager-openhab.json
+          sudo -E ./build.bash rpi      # 32bit
+          sudo -E ./build.bash rpi64    # 64bit
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            openhabian-raspios32-latest*.img.xz
+            openhabian-raspios64-latest*.img.xz
+            rpi-imager-openhab.json
+
+      - name: Download build artifacts for release
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: ./dist
+
+      - name: Upload artifacts to Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: ./dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
