@@ -559,19 +559,19 @@ prepare_serial_port() {
     else
       if ! (echo "enable_uart=1" >> "${CONFIGTXT}"); then echo "FAILED (uart)"; return 1; fi
     fi
-    if ! cond_redirect cp /boot/cmdline.txt /boot/cmdline.txt.bak; then echo "FAILED (backup cmdline.txt)"; return 1; fi
-    if ! cond_redirect sed -i -e 's|console=tty.*console=tty1|console=tty1|g' /boot/cmdline.txt; then echo "FAILED (console)"; return 1; fi
-    if ! cond_redirect sed -i -e 's|console=serial.*console=tty1|console=tty1|g' /boot/cmdline.txt; then echo "FAILED (serial)"; return 1; fi
+    if ! cond_redirect cp "${CMDLINETXT}" "${CMDLINETXT}.bak"; then echo "FAILED (backup cmdline.txt)"; return 1; fi
+    if ! cond_redirect sed -i -e 's|console=tty.*console=tty1|console=tty1|g' "${CMDLINETXT}"; then echo "FAILED (console)"; return 1; fi
+    if ! cond_redirect sed -i -e 's|console=serial.*console=tty1|console=tty1|g' "${CMDLINETXT}"; then echo "FAILED (serial)"; return 1; fi
     cond_echo "Disabling serial-getty service"
     if ! cond_redirect systemctl disable --now serial-getty@ttyAMA0.service; then echo "FAILED (disable serial-getty@ttyAMA0.service)"; return 1; fi
     if ! cond_redirect systemctl disable --now serial-getty@serial0.service; then echo "FAILED (disable serial-getty@serial0.service)"; return 1; fi
     if cond_redirect systemctl disable --now serial-getty@ttyS0.service; then echo "OK (reboot required)"; else echo "FAILED (disable serial-getty@ttyS0.service)"; return 1; fi
   else
-    if [[ -f /boot/cmdline.txt.bak ]]; then
+    if [[ -f "${CMDLINETXT}.bak" ]]; then
       echo -n "$(timestamp) [openHABian] Disabling serial port and enabling serial console... "
       if ! cond_redirect sed -i -e '/^#*.*enable_uart=.*$/d' "${CONFIGTXT}"; then echo "FAILED (uart)"; return 1; fi
-      if ! cond_redirect cp /boot/cmdline.txt.bak /boot/cmdline.txt; then echo "FAILED (restore cmdline.txt)"; return 1; fi
-      if ! cond_redirect rm -f /boot/cmdline.txt.bak; then echo "FAILED (remove backup)"; return 1; fi
+      if ! cond_redirect cp "${CMDLINETXT}.bak" "${CMDLINETXT}"; then echo "FAILED (restore cmdline.txt)"; return 1; fi
+      if ! cond_redirect rm -f "${CMDLINETXT}.bak"; then echo "FAILED (remove backup)"; return 1; fi
       cond_echo "Enabling serial-getty service"
       if ! cond_redirect systemctl enable --now serial-getty@ttyAMA0.service; then echo "FAILED (enable serial-getty@ttyAMA0.service)"; return 1; fi
       if ! cond_redirect systemctl enable --now serial-getty@serial0.service; then echo "FAILED (enable serial-getty@serial0.service)"; return 1; fi
