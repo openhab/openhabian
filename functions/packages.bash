@@ -804,7 +804,7 @@ setup_evcc() {
 ## Valid arguments: "install" / "update" or "remove"
 ##
 ##  setup_esphome_device_builder(String install|update|remove)
-##
+## 
 
 setup_esphome_device_builder() {
    
