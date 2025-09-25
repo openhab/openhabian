@@ -255,7 +255,8 @@ Each of these are included as a part of `openhabian-config` menu option 20.
 -   [FIND](https://www.internalpositioning.com/) - Framework for Internal Navigation and Discovery
 -   Mi Flora MQTT daemon
 -   [ESPHome Device Builder](https://esphome.io/guides/getting_started_hassio.html#device-builder-interface) - Webinterface for easy configuration, installation and updating of ESPHome devices at [http://openhabian:6052](http://openhabian:6052) <br/>
-**Please pay attention, that automatic updates are not implemented in OpenHABian. <br/> --> to do this, use the openhbaian-config update function under menu option 20**
+The ESPHome configuration files are secured by the openHABbian backup function. <br/>
+**Please note that automatic updates are not implemented in OpenHABian. <br/> &rarr; to do this, use the openhbaian-config update function in menu 20**
 -   Grott Proxy server for [Growatt binding](https://www.openhab.org/addons/bindings/growatt/#grott-application-installation-and-setup)
 
 ## First boot configuration

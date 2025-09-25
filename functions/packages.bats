@@ -66,12 +66,27 @@ teardown_file() {
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] 1wire installation successful.${COL_DEF}" >&3
 }
 
-@test "setup_esphome_device_builder" {
-  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] 1wire installation starting...${COL_DEF}" >&3
-  run setup_esphome_device_builde 3>&-
+@test "destructive-setup_esphome_device_builder" {
+  ## Confirm ESPHome Device builder install completes without error
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] ESPHome Device builder installation starting...${COL_DEF}" >&3
+  run setup_esphome_device_builder "install" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] 1wire installation successful.${COL_DEF}" >&3
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] ESPHome Device builder installation successful.${COL_DEF}" >&3
+
+  ## Confirm ESPHome Device builder service is running
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if ESPHome Device builder service is running...${COL_DEF}" >&3
+  run systemctl is-active --quiet esphome-device-builder.service
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] ESPHome Device builder service is running.${COL_DEF}" >&3
+
+  ## Confirm ESPHome Device builder uninstall completes without error
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] ESPHome Device builder uninstallation starting...${COL_DEF}" >&3
+  run setup_esphome_device_builder "remove" 3>&-
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] ESPHome Device builder uninstallation successful.${COL_DEF}" >&3
 }
 
 @test "destructive-grott_install" {
