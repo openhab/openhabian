@@ -479,8 +479,7 @@ wait_for_apt_to_be_ready() {
 ##    apt_update()
 ##
 apt_update() {
-  #nohup 
-  apt-get update &> /dev/null & export PID_APT=$!
+  nohup apt-get update &> /dev/null & export PID_APT=$!
 }
 
 ## Wait for background 'apt-get update' process to finish or
