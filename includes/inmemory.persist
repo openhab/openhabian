@@ -2,7 +2,7 @@ Strategies {
 }
 
 Items {
-    // persist items on every change and every minute
-    memPersist*,dynStromtarif* : strategy = everyChange, forecast
+    //memPersist*,dynStromtarif* : strategy = everyChange, forecast	// persist items on every change *and* forecast
+    memPersist*,dynStromtarif* : strategy = forecast
 }
 
