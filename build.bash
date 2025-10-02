@@ -250,6 +250,11 @@ if [[ $hwPlatform == "raspios32" ]] || [[ $hwPlatform == "raspios64" ]]; then
     baseURL="https://downloads.raspberrypi.org/raspios_lite_armhf_latest"
     bits="32"
   fi
+  if [[ ${2:-latest} == "oldstable" ]]; then
+    baseURL=http://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2025-05-13/2025-05-13-raspios-bookworm-arm64-lite.img.xz
+    bits="64"
+  fi
+
   xzURL="$(curl "$baseURL" -s -L -I  -o /dev/null -w '%{url_effective}')"
   xzFile="$(basename "$xzURL")"
 
