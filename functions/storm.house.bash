@@ -585,7 +585,6 @@ replace_logo() {
 }
 
 
-## Install non-standard bindings etc
 ##
 ##    install_extras()
 ##
