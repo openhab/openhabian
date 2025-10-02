@@ -128,4 +128,5 @@ site:
 
 sponsortoken: %TOKEN
 
+eebus:
   shipid: %WBID
