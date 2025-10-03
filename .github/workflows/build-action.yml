@@ -8,7 +8,7 @@ on:
       - 'build-image/openhabian-installer.service'
       - 'build-image/first-boot.bash'
       - 'build-image/openhabian.conf'
-      - 'build-image/offline-image-modifications.bash'
+      - 'build-image/offline-install-modifications.bash'
       - '.github/workflows/build-action.yml'
   pull_request:
     paths:
@@ -16,7 +16,7 @@ on:
       - 'build-image/openhabian-installer.service'
       - 'build-image/first-boot.bash'
       - 'build-image/openhabian.conf'
-      - 'build-image/offline-image-modifications.bash'
+      - 'build-image/offline-install-modifications.bash'
       - '.github/workflows/build-action.yml'
   workflow_dispatch:
     inputs:
