@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=SC2016,SC1090,SC1091
 set -e
+set -x
 
 ####################################################################
 #### dummy: changed this line 19 times to force another image build
