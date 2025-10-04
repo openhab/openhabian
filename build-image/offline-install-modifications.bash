@@ -50,10 +50,8 @@ apt-get --quiet install --download-only --yes
   python3-itsdangerous python3-jinja2 python3-markupsafe \
   python3-networkmanager python3-pyinotify python3-simplejson python3-werkzeug \
   python3 python3-pip python3-wheel python3-setuptools \
-  samba screen sysstat tailscale temurin-21-jre usbutils util-linux \
-  unzip vfu vim wget whiptail xz-utils zip zlib1g
-
-  nmap-common screen telnet vfu vfu-yascreen vim vim-runtime
+  samba screen sysstat tailscale telnet temurin-21-jre usbutils util-linux \
+  unzip vfu vfu-yascreen vim vim-runtime wget whiptail xz-utils zip zlib1g
 
   source /opt/openhabian/functions/nodejs-apps.bash
 nodejs_setup
