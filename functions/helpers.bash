@@ -695,7 +695,7 @@ grafana_is_installed() {
 ##    node_is_installed
 ##
 node_is_installed() {
-  if [[ -x $(command -v npm) ]] && [[ $(node --version) =~ v1[6-9]* ]]; then return 0; fi
+  if [[ -x $(command -v npm) ]] && [[ $(node --version) =~ v2.* ]]; then return 0; fi
   return 1
 }
 
