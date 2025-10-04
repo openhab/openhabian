@@ -33,7 +33,6 @@ adoptium_fetch_apt
 
 apt-get --quiet update
 apt-get --quiet upgrade --yes --force-confnew
-
 apt-get --quiet install --download-only --yes
   openhab openhab-addons \
   acl amanda-common amanda-server amanda-client apt-transport-https arping \
