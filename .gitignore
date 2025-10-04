@@ -2,3 +2,4 @@
 *.img
 *.img.xz
 .DS_Store
+license-private_key.*
