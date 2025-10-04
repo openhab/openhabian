@@ -34,21 +34,25 @@ adoptium_fetch_apt
 apt-get --quiet update
 apt-get --quiet upgrade --yes --force-confnew
 apt-get --quiet install --download-only --yes libc6 libstdc++6 zlib1g make \
-  openhab openhab-addons samba amanda-common amanda-server amanda-client exim4 \
-  dnsutils mailutils gdisk screen nano mc vfu bash-completion coreutils \
-  curl multitail git util-linux man-db whiptail usbutils dirmngr \
-  acl apt-transport-https arping avahi-daemon bc bzip2 comitup fontconfig jq moreutils \
-  dns-root-data dnsmasq-base htop iotop javascript-common libcairo2 libgudev-1.0-0 \
-  libjs-jquery libmbim-glib4 libmbim-proxy libmm-glib0 libndp0 libnm0 \
-  libpixman-1-0 libqmi-glib5 libqmi-proxy libteamdctl0 libxcb-render0 \
-  libxcb-shm0 libxrender1 modemmanager network-manager python3-blinker \
-  python3-cairo python3-click python3-colorama python3-flask \
+  openhab openhab-addons \
+  acl amanda-common amanda-server amanda-client apt-transport-https arping \
+  avahi-daemon bash-completion bc bzip2 comitup coreutils curl \
+  dnsutils dns-root-data dnsmasq-base dirmngr exim4 fontconfig gdisk git \
+  htop iotop javascript-common jq \
+  libcairo2 libgudev-1.0-0 libjs-jquery libmbim-glib4 libmbim-proxy libmm-glib0 \
+  libndp0 libnm0 libpixman-1-0 libqmi-glib5 libqmi-proxy libteamdctl0 \
+  libxcb-render0 libxcb-shm0 libxrender1 \
+  mc mailutils modemmanager moreutils man-db multitail nano network-manager \
+  python3-blinker python3-cairo python3-click python3-colorama python3-flask \
   python3-itsdangerous python3-jinja2 python3-markupsafe \
   python3-networkmanager python3-pyinotify python3-simplejson python3-werkzeug \
   python3 python3-pip python3-wheel python3-setuptools \
-  sysstat tailscale temurin-21-jre unzip vim wget xz-utils zip
+  samba screen sysstat tailscale temurin-21-jre usbutils util-linux \
+  unzip vfu vim wget whiptail xz-utils zip
+
 source /opt/openhabian/functions/nodejs-apps.bash
 nodejs_setup
+
 apt-get --quiet autoremove --yes
 rm -f /var/lib/apt/lists/lock
 rm -f /var/cache/apt/archives/lock
