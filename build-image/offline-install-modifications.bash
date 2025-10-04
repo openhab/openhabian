@@ -53,7 +53,7 @@ apt-get --quiet install --download-only --yes
   samba screen sysstat tailscale telnet temurin-21-jre usbutils util-linux \
   unzip vfu vfu-yascreen vim vim-runtime wget whiptail xz-utils zip zlib1g
 
-  source /opt/openhabian/functions/nodejs-apps.bash
+source /opt/openhabian/functions/nodejs-apps.bash
 nodejs_setup
 
 apt-get --quiet autoremove --yes
