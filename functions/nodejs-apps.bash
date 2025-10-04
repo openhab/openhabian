@@ -250,7 +250,7 @@ zigbee2mqtt_setup() {
   if [[ $1 == "remove" ]]; then
     if [[ -n $INTERACTIVE ]]; then
       if ! whiptail --title "Zigbee2MQTT Uninstall" --yes-button "Continue" --no-button "Cancel" --yesno "$uninstallText" 7 80; then
-        echo "CANCELED"
+        echo "CANCELLED"
         return 0
       fi
     fi
