@@ -38,11 +38,14 @@ apt-get --quiet install --download-only --yes
   acl amanda-common amanda-server amanda-client apt-transport-https arping \
   avahi-daemon bash-completion bc bzip2 comitup coreutils curl \
   dnsutils dns-root-data dnsmasq-base dirmngr exim4 fontconfig gdisk git \
-  htop iotop javascript-common jq \
-  libc6 libcairo2 libgudev-1.0-0 libjs-jquery libmbim-glib4 libmbim-proxy \
-  libmm-glib0 libndp0 libnm0 libpixman-1-0 libqmi-glib5 libqmi-proxy libstdc++6 \
-  libteamdctl0 libxcb-render0 libxcb-shm0 libxrender1 \
-  make man-db mc mailutils modemmanager moreutils multitail nano network-manager \
+  htop inetutils-telnet iotop javascript-common jq \
+  libblas3 libc6 libcairo2 libgudev-1.0-0 libjs-jquery libmbim-glib4 libgpm2 \
+  liblinear4 liblua5.4-0 libmbim-proxy \
+  libmm-glib0 libndp0 libnet1 libnm0 libpcre2-32-0 \
+  libpixman-1-0 libqmi-glib5 libqmi-proxy libsodium23i libstdc++6 \
+  libteamdctl0 libxcb-render0 libxcb-shm0 libxrender1 libyascreen0 \
+  make man-db mc mc-data mailcap mailutils modemmanager moreutils multitail \
+  nano network-manager nmap nmap-common \
   python3-blinker python3-cairo python3-click python3-colorama python3-flask \
   python3-itsdangerous python3-jinja2 python3-markupsafe \
   python3-networkmanager python3-pyinotify python3-simplejson python3-werkzeug \
@@ -50,7 +53,9 @@ apt-get --quiet install --download-only --yes
   samba screen sysstat tailscale temurin-21-jre usbutils util-linux \
   unzip vfu vim wget whiptail xz-utils zip zlib1g
 
-source /opt/openhabian/functions/nodejs-apps.bash
+  nmap-common screen telnet vfu vfu-yascreen vim vim-runtime
+
+  source /opt/openhabian/functions/nodejs-apps.bash
 nodejs_setup
 
 apt-get --quiet autoremove --yes
