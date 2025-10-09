@@ -141,7 +141,7 @@ setup_hotspot() {
     sed -i -e "s|ap_password:.*$|ap_password: ${hotspotpw}|g" /etc/comitup.conf
 
     DEBIAN_FRONTEND=noninteractive dpkg --configure -a --force-confnew &>/dev/null
-    DEBIAN_FRONTEND=noninteractive apt install --yes -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' comitup &>/dev/null
+    DEBIAN_FRONTEND=noninteractive apt install --yes -o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold' dnsmasq comitup &>/dev/null
     systemctl enable --now comitup
     comitup-cli d
     sed -i '3 i dhcp=internal' /etc/NetworkManager/NetworkManager.conf
