@@ -849,7 +849,7 @@ setup_esphome_device_builder() {
         return 1
       fi   
     else
-      echo "$(timestamp) [openHABian] Python 3 and pip are already available --> skip instalation"
+      echo "$(timestamp) [openHABian] Python 3 and pip are already available --> skip installation"
     fi 
         
     echo "$(timestamp) [openHABian] Creating directory at $esphomeDir and set permissions"
