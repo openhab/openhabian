@@ -33,8 +33,8 @@ fi
 (FireMotD --theme Gray > ~/.firemotd-cache &) &>/dev/null      # does not use cache; might get removed in the near future
 
 OHPKG="openhab"
-OHVERSION="$(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties)"
-OHBUILD="$(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties)"
+OHVERSION="$(sed -n 's/openhab-distro\s*: //p' /var/lib/${OHPKG}/etc/version.properties 2>/dev/null)"
+OHBUILD="$(sed -n 's/build-no\s*: //p' /var/lib/${OHPKG}/etc/version.properties 2>/dev/null)"
 
 echo -e "\\n$(sed -e 's|$OHVERSION|'"${OHVERSION}"'|g' -e 's|$OHBUILD|'"${OHBUILD}"'|g' -e 's|${HOSTNAME}|'"${HOSTNAME}"'|g' /opt/openhabian/includes/${OHPKG}logo)\\n"
 
