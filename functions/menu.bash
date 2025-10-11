@@ -131,8 +131,8 @@ show_main_menu() {
     "2D | Install EVCC"           "Deploy Electric Vehicle Charge Controller" \
     "   | Remove EVCC"            "Uninstall EVCC" \
     "   | Setup EVCC"             "Setup EVCC from command line (German only)" \
-    "2E | Install ESPHome dashboard"           "Deploy ESPHome dashboard" \
-    "   | Remove ESPHome dashboard"            "Uninstall ESPHome dashboard" \
+    "2E | Install ESPHome "       "Deploy / Update ESPHome Device Builder" \
+    "   | Remove ESPHome "        "Uninstall ESPHome Device Builder" \
     "2F | Install Grott"          "Install Grott Proxy server (for Growatt binding)" \
     "   | Remove Grott"           "Uninstall Grott Proxy server (for Growatt binding)" \
     3>&1 1>&2 2>&3)
@@ -160,8 +160,8 @@ show_main_menu() {
       2D\ *) install_evcc "install";;
       *Remove\ EVCC*) install_evcc "remove";;
       *Setup\ EVCC*) setup_evcc;;
-      2E\ *) install_esphomedashboard "install";;
-      *Remove\ ESPHome\ dashboard*) install_esphomedashboard "remove";;
+      2E\ *) setup_esphome_device_builder "install";;
+      *Remove\ ESPHome*) setup_esphome_device_builder "remove";;
       2F\ *) install_grott "install";;
       *Remove\ Grott*) install_grott "remove";;
       "") return 0 ;;
