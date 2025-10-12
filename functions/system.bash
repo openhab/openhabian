@@ -561,7 +561,7 @@ prepare_serial_port() {
     else
       if ! (echo "enable_uart=1" >> "${CONFIGTXT}"); then echo "FAILED (uart)"; return 1; fi
     fi
-    if ! cond_redirect cp "${CMDLINETXT}" "${CMDLINETXT}.bak"; then echo "FAILED (backup cmdline.txt)"; return 1; fi
+    if ! cond_redirect cp "${CMDLINETXT}" "${CMDLINETXT}.bak"; then echo "FAILED (backup cmdline.txt)"; return 1; fi 
     if ! cond_redirect sed -i -e 's|console=tty.*console=tty1|console=tty1|g' "${CMDLINETXT}"; then echo "FAILED (console)"; return 1; fi
     if ! cond_redirect sed -i -e 's|console=serial.*console=tty1|console=tty1|g' "${CMDLINETXT}"; then echo "FAILED (serial)"; return 1; fi
     cond_echo "Disabling serial-getty service"
