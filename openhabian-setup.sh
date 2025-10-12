@@ -77,17 +77,12 @@ OLDWD="$(pwd)"
 cd /opt || exit 1
 
 CONFIGTXT=/boot/config.txt
+CMDLINETXT=/boot/cmdline.txt
 if is_bookworm; then
   CONFIGTXT=/boot/firmware/config.txt
-fi
-export CONFIGTXT
-
-CMDLINETXT=/boot/cmdline.txt
-echo -n "CMDLINETXT: $(CMDLINETXT)"
-if [ -e /boot/firmware/cmdline.txt ] ; then
   CMDLINETXT=/boot/firmware/cmdline.txt
 fi
-echo -n "CMDLINETXT: $(CMDLINETXT)"
+export CONFIGTXT
 export CMDLINETXT
 
 # update openhabian.conf to have latest set of parameters
