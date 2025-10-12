@@ -3,6 +3,11 @@
 
 CONFIGFILE="/etc/openhabian.conf"
 
+CONFIGTXT=/boot/config.txt
+if [ -e /boot/firmware/config.txt ] ; then
+  CONFIGTXT=/boot/firmware/config.txt
+fi
+
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND="noninteractive"
 export SILENT="1"
@@ -110,7 +115,7 @@ if is_pi && is_bookworm; then
 elif grep -qs "up" /sys/class/net/eth0/operstate; then
   # Actually check if ethernet is working
   echo "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
-elif [[ -n $wifiSSID ]] && grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
+elif [[ -n $wifiSSID ]] && grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" "${CONFIGTXT}"; then
   echo -n "$(timestamp) [openHABian] Checking if WiFi is working... "
   if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
     ip link set wlan0 up
