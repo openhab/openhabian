@@ -205,6 +205,7 @@ nodered_setup() {
   if cond_redirect npm update -g node-red-contrib-openhab3; then echo "OK"; else echo "FAILED (update openhab3 addon)"; return 1; fi
 
   echo -n "$(timestamp) [openHABian] Setting up Node-RED service... "
+  if ! cond_redirect install -o openhabian -g openhabian -m 755 "${BASEDIR:-/opt/openhabian}"/includes/nodered-override.conf /etc/systemd/system/; then echo "FAILED (systemd setup)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now nodered.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
