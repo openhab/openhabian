@@ -97,7 +97,7 @@ hotSpot=${hotspot:-enable}
 wifiSSID="$wifi_ssid"
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 wifiPassword="$wifi_password"
-if is_pi && is_bookworm; then
+if is_pi; then
   echo -n "$(timestamp) [openHABian] Setting up NetworkManager and Wi-Fi connection... "
   systemctl enable --now NetworkManager
   nmcli r wifi on
