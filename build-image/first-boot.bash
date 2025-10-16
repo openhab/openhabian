@@ -106,6 +106,8 @@ if is_trixie || is_bookworm && is_pi; then	# attention no brackets => left-assoc
   echo -n "$(timestamp) [openHABian] Setting up NetworkManager and Wi-Fi connection... "
   systemctl enable --now NetworkManager
   nmcli r wifi on
+  nmcli g
+  nmcli r wifi on
 
   if [[ -n $wifiSSID ]]; then
     # Setup WiFi via NetworkManager
