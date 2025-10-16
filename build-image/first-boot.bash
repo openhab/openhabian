@@ -105,6 +105,7 @@ wifiPassword="$wifi_password"
 if is_trixie || is_bookworm && is_pi; then	# attention no brackets => left-associative ordering so put && last
   echo -n "$(timestamp) [openHABian] Setting up NetworkManager and Wi-Fi connection... "
   systemctl enable --now NetworkManager
+  nmcli g
   nmcli r wifi on
   nmcli g
   nmcli r wifi on
@@ -113,6 +114,7 @@ if is_trixie || is_bookworm && is_pi; then	# attention no brackets => left-assoc
   if [[ -n $wifiSSID ]]; then
     # Setup WiFi via NetworkManager
     # shellcheck source=/etc/openhabian.conf disable=SC2154
+    nmcli g
     nmcli -w 30 d wifi connect "${wifiSSID}" password "${wifiPassword}" ifname wlan0
     nmcli g
     nmcli -w 30 d wifi connect "${wifiSSID}" password "${wifiPassword}" ifname wlan0
