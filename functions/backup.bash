@@ -477,7 +477,7 @@ setup_mirror_SD() {
   local minStorageSize=4000000000                  # 4 GB
   local sdIncludesDir="${BASEDIR:-/opt/openhabian}/includes/SD"
   local serviceTargetDir="/etc/systemd/system"
-  local sizeError="Your destination SD card does not have enough space!\\n\\nMost of the time it works nonetheless, but this is in no way guaranteed so proceed at your own risk.\\nDo not forget to afterwards validate that booting from your new SD copy actually works!"
+  local sizeError="Your destination SD card does not have enough space!\\n\\nMost of the time it works nonetheless, but this is in no way guaranteed so proceed at your own risk.\\nDo not forget to afterwards validate that booting from your new SD copy actually works!\\n\\nAre you sure you want to proceed?"
   local storageDir="${storagedir:-/storage}"
   local sDir=${storageDir:1}
   local storageRemovalQuery="Do you also want to remove the storage mount for ${storageDir}?\\nIf you do not but remove the physical device it is located on, you will have trouble every time you restart your system.\\nRemember though it might also contain data you might want to keep such as your Amanda backup data. If ${storageDir} is not where your mount is, stop now and enter your mountpoint in /etc/openhabian.conf as the storagedir= parameter."
@@ -545,9 +545,9 @@ setup_mirror_SD() {
   destSize="$(blockdev --getsize64 "$dest")"
   if [[ "$destSize" -lt "$srcSize" ]]; then
     if [[ -n "$INTERACTIVE" ]]; then
-      whiptail --title "insufficient space" --msgbox "$sizeError" 12 80
+      if ! (whiptail --title "Insufficient space on SD" --yes-button "Continue" --no-button "Cancel" --yesno "$sizeError" 14 80); then echo "CANCELED"; return 0; fi
     else
-      echo "FAILED (insufficient space)"; return 1;
+      echo "FAILED (insufficient space on mirror SD)"; return 1;
     fi
   fi
 
