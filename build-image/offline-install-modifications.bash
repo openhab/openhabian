@@ -29,7 +29,7 @@ curl -fsSL https://pkgs.tailscale.com/stable/debian/trixie.noarmor.gpg | tee /us
 curl -fsSL https://pkgs.tailscale.com/stable/debian/trixie.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
 
 # OpenEMS JVM 21 32bit
-adoptium_fetch_apt
+adoptium_fetch_apt 21
 
 apt-get --quiet update
 apt-get --quiet upgrade --yes
