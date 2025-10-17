@@ -32,7 +32,7 @@ curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.l
 adoptium_fetch_apt
 
 apt-get --quiet update
-apt-get --quiet upgrade --yes --force-confnew
+apt-get --quiet upgrade --yes
 apt-get --quiet install --download-only --yes openhab openhab-addons \
   acl amanda-common amanda-server amanda-client apt-transport-https arping \
   avahi-daemon bash-completion bc bzip2 comitup coreutils curl \
@@ -41,7 +41,7 @@ apt-get --quiet install --download-only --yes openhab openhab-addons \
   libblas3 libc6 libcairo2 libgudev-1.0-0 libjs-jquery libmbim-glib4 libgpm2 \
   liblinear4 liblua5.4-0 libmbim-proxy \
   libmm-glib0 libndp0 libnet1 libnm0 libpcre2-32-0 \
-  libpixman-1-0 libqmi-glib5 libqmi-proxy libsodium23i libstdc++6 \
+  libpixman-1-0 libqmi-glib5 libqmi-proxy libstdc++6 \
   libteamdctl0 libxcb-render0 libxcb-shm0 libxrender1 libyascreen0 \
   make man-db mc mc-data mailcap mailutils modemmanager moreutils multitail \
   nano network-manager nmap nmap-common \
@@ -51,6 +51,8 @@ apt-get --quiet install --download-only --yes openhab openhab-addons \
   python3 python3-pip python3-wheel python3-setuptools \
   samba screen sysstat tailscale telnet temurin-21-jre usbutils util-linux \
   unzip vfu vfu-yascreen vim vim-runtime wget whiptail xz-utils zip zlib1g
+
+ls -l /var/cache/apt/archives/
 
 source /opt/openhabian/functions/nodejs-apps.bash
 nodejs_setup
