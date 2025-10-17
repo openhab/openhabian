@@ -40,15 +40,18 @@ adoptium_fetch_apt() {
 
   echo -n "$(timestamp) [openHABian] Fetching Adoptium Eclipse Temurin JDK... "
   if ! cond_redirect add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then echo "FAILED (add keys)"; return 1; fi
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/adoptium.list
+  # no trixie pkg yet !
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-trixie} main" > /etc/apt/sources.list.d/adoptium.list
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+
+  if ! cond_redirect apt-get install --download-only --yes "adoptium-ca-certificates"; then echo "FAILED"; return 1; fi
 
   # if on 32 bit OS, install unsupported Adoptium 32 bit from OpenEMS community project
   if [[ $1 == "21" ]] && [[ $(getconf LONG_BIT) == 32 ]]; then
     if ! cond_redirect wget -nv -O "${cachedir}/${cachefile}" "${URL}/${pkgfile}"; then echo "FAILED (download JVM pkg)"; rm -f "${cachedir}/${cachefile}"; return 1; fi
   else
     if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
-    if cond_redirect apt-get install --download-only --yes "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --download-only --yes "temurin-${1:-21}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 }
 
