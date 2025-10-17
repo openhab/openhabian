@@ -40,7 +40,8 @@ adoptium_fetch_apt() {
 
   echo -n "$(timestamp) [openHABian] Fetching Adoptium Eclipse Temurin JDK... "
   if ! cond_redirect add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then echo "FAILED (add keys)"; return 1; fi
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-trixie} main" > /etc/apt/sources.list.d/adoptium.list
+  # no trixie pkg yet !
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/adoptium.list
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
 
   # if on 32 bit OS, install unsupported Adoptium 32 bit from OpenEMS community project
