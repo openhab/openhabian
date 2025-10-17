@@ -38,6 +38,7 @@ adoptium_fetch_apt() {
   local cachefile="temurin-21-jre_21.0.6+2_armhf.deb"
 
 
+  set -x
   echo -n "$(timestamp) [openHABian] Fetching Adoptium Eclipse Temurin JDK... "
   if ! cond_redirect add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then echo "FAILED (add keys)"; return 1; fi
   # no trixie pkg yet !
