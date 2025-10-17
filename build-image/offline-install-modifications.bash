@@ -52,8 +52,6 @@ apt-get --quiet install --download-only --yes openhab openhab-addons \
   samba screen sysstat tailscale telnet temurin-21-jre usbutils util-linux \
   unzip vfu vfu-yascreen vim vim-runtime wget whiptail xz-utils zip zlib1g
 
-ls -l /var/cache/apt/archives/
-
 source /opt/openhabian/functions/nodejs-apps.bash
 nodejs_setup
 
