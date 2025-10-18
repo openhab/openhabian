@@ -42,30 +42,22 @@ With that being said, we can't and won't stop you from doing whatever you want, 
 ### Hardware
 
 #### Hardware Recommendation
-
-Our current recommendation is to get a Raspberry Pi model 4 or 5 with 2 or 4 GB of RAM, whatever you can get for a good price.
-Older RPi models (or models with less RAM) can be sufficient to run a smallish openHAB setup.
-Please note that running 64bit mode on RPi with only 1 GB of RAM tends not to work super well.
-
-You will need an SD card to go along with your Raspberry Pi, SD cards labelled "Endurance" are best for openHABian.
-Cards labelled "Endurance" can handle more write cycles and will typically last longer for openHAB's use conditions.
-
-Ideally you should purchase two SD cards, and a USB adapter for the second card so that you can make use of the [SD mirroring](./openhabian-backup.md#sd-mirroring) feature.
-This will give you a ready to go drop in replacement in the case of any hardware issues later on.
+Let's put this first: You can run openHABian on any system with a native Debian Linux distribution.
+Any old x86 server or desktop system will do, all you will need is 1 GB of *free* RAM. Used laptop systems are great because of the backup capabilities that the integrated battery provides.
+While you can install additional software on top of an openHABian server, we recommend against doing so.
+Run your home automation on a system that you dedicate to this task and prepare to run it 24 hours a day, 7 days a week.
+Our current recommendation is to get a RPi model 4 or 5 with 2 or 4 GB of RAM, whatever you can get hold of for a good price, plus an "Endurance" SD card. If you want to be on the safe side, order the official 3A power supply, else any old mobile charger will usually do.
+Cards named "Endurance" can handle more write cycles and will be more enduring under openHAB\'s use conditions.
+Prepare to make use of the [SD mirroring feature](openhabian.md#SD-mirroring), get a 2nd SD card right away, same model or at least the size of your internal one, plus a USB card reader.
 
 #### Hardware Support
 
-All Raspberry Pi models are supported by openHABian.
+The openHABian image supports all Raspberry Pi models.
 
-::: tip Note
-With openHAB 5 release, we have dropped support for anything older than an RPi 3 as openHAB 5 requires a 64 bit processor.
-:::
-
-
-Running in 64 bit has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like older Raspberries. Ensure your RPi has a minimum of 2 GB, 4 will put you on the safe side.
+Running in 64 bit on ARM has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like older Raspberries. Ensure your RPi has a minimum of 2 GB.
 For older hardware, you can attempt to use the 32 bit image we still provide, it should work but we do not support running openHAB 5.
 
-openHABian can run on x86 based systems but you will need to install debian yourself.
+openHABian can run on x86 based systems but you will need to install the Debian OS yourself.
 See [installation on other Linux systems](#installation-on-other-linux-systems) for directions on what to do.
 On x86 hardware, it's all 64 bit but that in turn once more increases memory usage. A NUC to run on should have no less than 4 GB, 8 are better.
 
