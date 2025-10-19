@@ -135,12 +135,12 @@ setup_charger() {
   local cpass
 
 
-  cuser=${2:-${chargeractuatoruser}}
+  cuser=${3:-${chargeractuatoruser}}
   if [[ $cuser == "NULL" ]]; then cuser=""; fi
-  cpass=${3:-${chargeractuatorpass}}
+  cpass=${4:-${chargeractuatorpass}}
   if [[ $cpass == "NULL" ]]; then cpass=""; fi
 
-  sed -e "s|%IP|${1:-${chargeractuatorip}}|;s|%USER|${cuser}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
+  sed -e "s|%ACTUATOR|${1:-${chargeractuator}}|;s|%IP|${2:-${chargeractuatorip}}|;s|%USER|${cuser}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
 }
 
 
