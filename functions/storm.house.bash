@@ -248,8 +248,8 @@ setup_whitegood_config() {
 ## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
 ## #9 car 1 name
-## #10 car 1 capacity
-## #11 car 1 VIN Vehicle Identification Number
+## #10 car 1 VIN Vehicle Identification Number
+## #11 car 1 capacity
 ## #12 car 1 username in car manufacturer's online portal
 ## #13 car 1 password for account in car manufacturer's online portal
 ## #14 car 1 hcaptcha token for account in car manufacturer's online portal
@@ -257,8 +257,8 @@ setup_whitegood_config() {
 ## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
 ## #16 car 2 name
-## #17 car 2 capacity
-## #18 car 2 VIN Vehicle Identification Number
+## #17 car 2 VIN Vehicle Identification Number
+## #18 car 2 capacity
 ## #19 car 2 username in car manufacturer's online portal
 ## #20 car 2 password for account in car manufacturer's online portal
 ## #21 car 2 hcaptcha token for account in car manufacturer's online portal
