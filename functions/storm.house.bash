@@ -239,35 +239,36 @@ setup_whitegood_config() {
 ## abl cfos easee eebus evsewifi go-e go-e-v3 heidelberg keba mcc nrgkick-bluetooth nrgkick-connect
 ## openwb phoenix-em-eth phoenix-ev-eth phoenix-ev-ser simpleevse wallbe warp
 ## #2 IP address of wallbox
-## #3 Wallbox Auth user
-## #4 Wallbox Auth password
-## #5 Wallbox ID z.B. SKI
-## #6 EVCC token
-## #7 car 1 type (from EVCC)
+## #3 Modbus ID (address) of wallbox
+## #4 Wallbox Auth user
+## #5 Wallbox Auth password
+## #6 Wallbox ID z.B. SKI
+## #7 EVCC token
+## #8 car 1 type (from EVCC)
 ## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
-## #8 car 1 name
-## #9 car 1 capacity
-## #10 car 1 VIN Vehicle Identification Number
-## #11 car 1 username in car manufacturer's online portal
-## #12 car 1 password for account in car manufacturer's online portal
-## #13 car 1 hcaptcha token for account in car manufacturer's online portal
-## #14 car 2 type (from EVCC)
+## #9 car 1 name
+## #10 car 1 capacity
+## #11 car 1 VIN Vehicle Identification Number
+## #12 car 1 username in car manufacturer's online portal
+## #13 car 1 password for account in car manufacturer's online portal
+## #14 car 1 hcaptcha token for account in car manufacturer's online portal
+## #15 car 2 type (from EVCC)
 ## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
-## #15 car 2 name
-## #16 car 2 capacity
-## #17 car 2 VIN Vehicle Identification Number
-## #18 car 2 username in car manufacturer's online portal
-## #19 car 2 password for account in car manufacturer's online portal
-## #20 car 2 hcaptcha token for account in car manufacturer's online portal
-## #21 grid usage cost per kWh in EUR ("0.40")
-## #22 grid feedin compensation cost per kWh in EUR
-## #23 excess power required to start charging 
-## #24 max power to get from grid while charging 
+## #16 car 2 name
+## #17 car 2 capacity
+## #18 car 2 VIN Vehicle Identification Number
+## #19 car 2 username in car manufacturer's online portal
+## #20 car 2 password for account in car manufacturer's online portal
+## #21 car 2 hcaptcha token for account in car manufacturer's online portal
+## #22 grid usage cost per kWh in EUR ("0.40")
+## #23 grid feedin compensation cost per kWh in EUR
+## #24 excess power required to start charging 
+## #25 max power to get from grid while charging 
 ##
-## NOTE #13 #20 are new and not called with everywhere yet
-## => only used if >22 arguments
+## NOTE #14 #21 are new and not called with everywhere yet
+## => only use if >23 arguments
 ##
 ##    setup_wb_config(String wallbox typ, .... )  - all arguments are of type String
 ##
@@ -292,15 +293,6 @@ setup_wb_config() {
   if [[ -n "$UNATTENDED" ]]; then
     echo -n "$(timestamp) [storm.house] wallbox installation... "
     if [[ -z "${1:-$wallboxtype}" ]]; then echo "SKIPPED (no wallbox defined)"; return 1; fi
-  fi
-
-  if [[ -n "$INTERACTIVE" ]]; then
-    if [[ -z "${1:-$wallboxtype}" ]]; then
-      if ! wallboxtype="$(whiptail --title "Wallbox Auswahl" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Wallboxtyp aus" 12 80 0 "abl" "ABL eMH1" "go-e" "go-E Charger" "keba" "KEBA KeContact P20/P30 und BMW Wallboxen" "wbcustom" "manuelle Konfiguration" "demo" "Demo-Konfiguration mit zwei fake E-Autos" 3>&1 1>&2 2>&3)"; then unset wallboxtype wallboxip cartype1 carname1; return 1; fi
-    fi
-    if ! wallboxip=$(whiptail --title "Wallbox IP" --inputbox "Welche IP-Adresse hat die Wallbox ?" 10 60 "${wallboxip:-192.168.178.200}" 3>&1 1>&2 2>&3); then unset wallboxtype wallboxip cartype1 carname1; return 1; fi
-    if ! cartype1="$(whiptail --title "Auswahl Autohersteller" --cancel-button Cancel --ok-button Select --menu "\\nWählen Sie den Hersteller Ihres Fahrzeugs aus" 12 80 0 "audi" "Audi" "bmw" "BMW" "carwings" "Nissan z.B. Leaf vor 2019" "citroen" "Citroen" "dacia" "Dacia" "ds" "DS" "opel" "Opel" "peugeot" "Peugeot" "fiat" "Fiat, Alfa Romeo" "ford" "Ford" "kia" "Kia Motors" "hyundai" "Hyundai" "mini" "Mini" "nissan" "neue Nissan Modelle ab 2019" "niu" "NIU" "tesla" "Tesla Motors" "renault" "Renault" "porsche" "Porsche" "seat" "Seat" "skoda" "Skoda Auto" "enyaq" "Skoda Enyac" "vw" "Volkswagen ausser ID-Modelle" "id" "Volkswagen ID-Modelle" "volvo" "Volvo" 3>&1 1>&2 2>&3)"; then unset wallboxtype wallboxip cartype1 carname1; return 1; fi
-    if ! carname1=$(whiptail --title "Auto Modell" --inputbox "Automodell" 10 60 "${carname1:-tesla}" 3>&1 1>&2 2>&3); then unset wallboxtype wallboxip cartype1 carname1; return 1; fi
   fi
 
   for component in things items rules; do
@@ -331,40 +323,40 @@ setup_wb_config() {
     chmod 664 "$wallboxPNG"
   fi
 
-  token=${6:-${evcctoken}}
+  token=${7:-${evcctoken}}
   if [[ $token = "NULL" ]]; then
     token=${evcctoken}
   fi
   temp="$(mktemp "${TMPDIR:-/tmp}"/evcc.XXXXX)"
   cp "${includesDir}/EVCC/evcc.yaml-template" "$temp"
 
-  if [[ $# -gt 22 ]]; then
-    sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBUSER|${3:-${wallboxuser}}|;s|%WBPASS|${4:-${wallboxpass}}|;s|%WBID|${5:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${7:-${cartype1:-offline}}|;s|%CARNAME1|${8:-${carname1:-meinEAuto1}}|;s|%VIN1|${9:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${10:-${carcapacity1:-50}}|;s|%CARUSER1|${11:-${caruser1:-user}}|;s|%CARPASS1|${12:-${carpass1:-pass}}|;s|%CARTOKEN1|${13:-${cartoken1}}|;s|%CARTYPE2|${14:-${cartype2:-offline}}|;s|%CARNAME2|${15:-${carname2:-meinEAuto2}}|;s|%VIN2|${16:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${17:-${carcapacity2:-50}}|;s|%CARUSER2|${18:-${caruser2:-user}}|;s|%CARPASS2|${19:-${carpass2:-pass}}|;s|%CARTOKEN2|${20:-${cartoken2}}|;s|%GRIDCOST|${21:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${22:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${23:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${24:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
+  if [[ $# -gt 23 ]]; then
+    sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%MBID|${3:-${wallboxmodbusid}}|;s|%WBUSER|${4:-${wallboxuser}}|;s|%WBPASS|${5:-${wallboxpass}}|;s|%WBID|${6:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${8:-${cartype1:-offline}}|;s|%CARNAME1|${9:-${carname1:-meinEAuto1}}|;s|%VIN1|${10:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${11:-${carcapacity1:-50}}|;s|%CARUSER1|${12:-${caruser1:-user}}|;s|%CARPASS1|${13:-${carpass1:-pass}}|;s|%CARTOKEN1|${14:-${cartoken1}}|;s|%CARTYPE2|${15:-${cartype2:-offline}}|;s|%CARNAME2|${16:-${carname2:-meinEAuto2}}|;s|%VIN2|${17:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${18:-${carcapacity2:-50}}|;s|%CARUSER2|${19:-${caruser2:-user}}|;s|%CARPASS2|${20:-${carpass2:-pass}}|;s|%CARTOKEN2|${21:-${cartoken2}}|;s|%GRIDCOST|${22:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${23:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${24:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${25:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
   else
-    sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%WBUSER|${3:-${wallboxuser}}|;s|%WBPASS|${4:-${wallboxpass}}|;s|%WBID|${5:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${7:-${cartype1:-offline}}|;s|%CARNAME1|${8:-${carname1:-meinEAuto1}}|;s|%VIN1|${9:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${10:-${carcapacity1:-50}}|;s|%CARUSER1|${11:-${caruser1:-user}}|;s|%CARPASS1|${12:-${carpass1:-pass}}|;s|%CARTYPE2|${13:-${cartype2:-offline}}|;s|%CARNAME2|${14:-${carname2:-meinEAuto2}}|;s|%VIN2|${15:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${16:-${carcapacity2:-50}}|;s|%CARUSER2|${17:-${caruser2:-user}}|;s|%CARPASS2|${18:-${carpass2:-pass}}|;s|%GRIDCOST|${19:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${20:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${21:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${22:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
+    sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%MBID|${3:-${wallboxmodbusid}}|;s|%WBUSER|${4:-${wallboxuser}}|;s|%WBPASS|${5:-${wallboxpass}}|;s|%WBID|${6:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${8:-${cartype1:-offline}}|;s|%CARNAME1|${9:-${carname1:-meinEAuto1}}|;s|%VIN1|${10:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${11:-${carcapacity1:-50}}|;s|%CARUSER1|${12:-${caruser1:-user}}|;s|%CARPASS1|${13:-${carpass1:-pass}}|;s|%CARTYPE2|${14:-${cartype2:-offline}}|;s|%CARNAME2|${15:-${carname2:-meinEAuto2}}|;s|%VIN2|${16:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${17:-${carcapacity2:-50}}|;s|%CARUSER2|${18:-${caruser2:-user}}|;s|%CARPASS2|${19:-${carpass2:-pass}}|;s|%GRIDCOST|${20:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${21:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${22:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${23:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
   fi
   rm -f "${temp}"
 
   if ! grep -Eq "[[:space:]]certificate" "${evccConfig}"; then
     evcc eebus-cert -c "${evccConfig}" | tail +5 >> "$evccConfig"
   fi
-  if [[ ${5:-${wallboxid}} != "" && ${5:-${wallboxid}} != "1234567890abcdef" ]] && [[ ${1:-${wallboxtype}} == "eebus" || ${1:-${wallboxtype}} == "elliconnect" || ${1:-${wallboxtype}} == "ellipro" ]]; then
+  if [[ ${6:-${wallboxid}} != "" && ${6:-${wallboxid}} != "1234567890abcdef" ]] && [[ ${1:-${wallboxtype}} == "eebus" || ${1:-${wallboxtype}} == "elliconnect" || ${1:-${wallboxtype}} == "ellipro" ]]; then
     uncomment "#SKI" "${evccConfig}"
   fi
-  if [[ ${5:-${wallboxid}} != "" && ${5:-${wallboxid}} != "1234567890abcdef" ]] && [[ ${1:-${wallboxtype}} == "abb" || ${1:-${wallboxtype}} == "abl-em4" || ${1:-${wallboxtype}} == "ac-elwa-2" || ${1:-${wallboxtype}} == "ac-thor" || ${1:-${wallboxtype}} == "alfen" || ${1:-${wallboxtype}} == "amperfied" || ${1:-${wallboxtype}} == "amperfied-solar" || ${1:-${wallboxtype}} == "dadapower" || ${1:-${wallboxtype}} == "delta" || ${1:-${wallboxtype}} == "hesotec" || ${1:-${wallboxtype}} == "idm" || ${1:-${wallboxtype}} == "innogy-ebox" || ${1:-${wallboxtype}} == "keba-modbus" || ${1:-${wallboxtype}} == "lambda-zewotherm" || ${1:-${wallboxtype}} == "mennekes-compact" || ${1:-${wallboxtype}} == "mennekes-hcc3" || ${1:-${wallboxtype}} == "nrggen2" || ${1:-${wallboxtype}} == "obo" || ${1:-${wallboxtype}} == "peblar" || ${1:-${wallboxtype}} == "phoenix-charx" || ${1:-${wallboxtype}} == "phoenix-em-eth" || ${1:-${wallboxtype}} == "phoenix-ev-eth" || ${1:-${wallboxtype}} == "pracht-alpha" || ${1:-${wallboxtype}} == "schneider-evlink-v3" || ${1:-${wallboxtype}} == "stiebel-lwa" || ${1:-${wallboxtype}} == "stiebel-wpm" || ${1:-${wallboxtype}} == "sungrow" || ${1:-${wallboxtype}} == "versicharge" || ${1:-${wallboxtype}} == "vestel" || ${1:-${wallboxtype}} == "victron" || ${1:-${wallboxtype}} == "victron-evcs" ]]; then
+  if [[ ${6:-${wallboxid}} != "" && ${6:-${wallboxid}} != "1234567890abcdef" ]] && [[ ${1:-${wallboxtype}} == "abb" || ${1:-${wallboxtype}} == "abl-em4" || ${1:-${wallboxtype}} == "ac-elwa-2" || ${1:-${wallboxtype}} == "ac-thor" || ${1:-${wallboxtype}} == "alfen" || ${1:-${wallboxtype}} == "amperfied" || ${1:-${wallboxtype}} == "amperfied-solar" || ${1:-${wallboxtype}} == "dadapower" || ${1:-${wallboxtype}} == "delta" || ${1:-${wallboxtype}} == "hesotec" || ${1:-${wallboxtype}} == "idm" || ${1:-${wallboxtype}} == "innogy-ebox" || ${1:-${wallboxtype}} == "keba-modbus" || ${1:-${wallboxtype}} == "lambda-zewotherm" || ${1:-${wallboxtype}} == "mennekes-compact" || ${1:-${wallboxtype}} == "mennekes-hcc3" || ${1:-${wallboxtype}} == "nrggen2" || ${1:-${wallboxtype}} == "obo" || ${1:-${wallboxtype}} == "peblar" || ${1:-${wallboxtype}} == "phoenix-charx" || ${1:-${wallboxtype}} == "phoenix-em-eth" || ${1:-${wallboxtype}} == "phoenix-ev-eth" || ${1:-${wallboxtype}} == "pracht-alpha" || ${1:-${wallboxtype}} == "schneider-evlink-v3" || ${1:-${wallboxtype}} == "stiebel-lwa" || ${1:-${wallboxtype}} == "stiebel-wpm" || ${1:-${wallboxtype}} == "sungrow" || ${1:-${wallboxtype}} == "versicharge" || ${1:-${wallboxtype}} == "vestel" || ${1:-${wallboxtype}} == "victron" || ${1:-${wallboxtype}} == "victron-evcs" ]]; then
     uncomment "#TCPMODBUS" "${evccConfig}"
   fi
-  if [[ ${3:-${wallboxuser}} != "" && ${3:-${wallboxuser}} != "NULL" ]]; then
+  if [[ ${4:-${wallboxuser}} != "" && ${4:-${wallboxuser}} != "NULL" ]]; then
     uncomment "#AUTHUSER" "${evccConfig}"
   fi
-  if [[ ${4:-${wallboxpass}} != "" && ${4:-${wallboxpass}} != "NULL" ]]; then
+  if [[ ${5:-${wallboxpass}} != "" && ${5:-${wallboxpass}} != "NULL" ]]; then
     uncomment "#AUTHPASS" "${evccConfig}"
   fi
-  if [[ $# -gt 22 ]]; then
-    if [[ ${13:-${cartoken1}} != "" && ${13:-${cartoken1}} != "NULL" ]]; then
+  if [[ $# -gt 23 ]]; then
+    if [[ ${14:-${cartoken1}} != "" && ${14:-${cartoken1}} != "NULL" ]]; then
       uncomment "#CAPTCHA1" "${evccConfig}"
     fi
-    if [[ ${20:-${cartoken2}} != "" && ${20:-${cartoken2}} != "NULL" ]]; then
+    if [[ ${21:-${cartoken2}} != "" && ${21:-${cartoken2}} != "NULL" ]]; then
       uncomment "#CAPTCHA2" "${evccConfig}"
     fi
   fi
