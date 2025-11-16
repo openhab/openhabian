@@ -62,6 +62,9 @@ setup_pv_config() {
     fi
 
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/STORE/${device}/${file:-${default}}.${configdomain}"
+    if [[ ${2:-${default}} == "custom" ]] && [[ ! -f ${srcfile} ]]; then
+      srcfile="${srcfile}-template"
+    fi
     destfile="${OPENHAB_CONF:-/etc/openhab}/${configdomain}/${device}.${configdomain}"
     if [[ ${2:-${default}} != "custom" ]]; then rm -f "$destfile"; fi
 
@@ -203,7 +206,6 @@ setup_heatingrod() {
 ##
 
 
-# TBV: wie leere user/pass abfangen ?
 setup_whitegood_config() {
   local dir
   local srcfile
@@ -216,8 +218,8 @@ setup_whitegood_config() {
     dir="${OPENHAB_CONF:-/etc/openhab}/${component}/"
     srcfile="${dir}/STORE/weisseWare.${component}"
     destfile="${dir}/weisseWare.${component}"
-    if [[ ${1:-${whitegoodactuator}} == "custom" && -f ${destfile} ]]; then
-      break
+    if [[ ${1:-${whitegoodactuator}} == "custom" ]] && [[ ! -f "${srcfile}" ]]; then
+	srcfile="${srcfile}-template"
     fi
 
     wuser=${6:-${whitegooduser}}
@@ -299,8 +301,8 @@ setup_wb_config() {
     rm -f "${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
     srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/${1:-${wallboxtype}}.${component}"
     destfile="${OPENHAB_CONF:-/etc/openhab}/${component}/wb.${component}"
-    if [[ ${1:-${wallboxtype}} == "wbcustom" && -f ${destfile} ]]; then
-      break
+    if [[ ${1:-${wallboxtype}} == "wbcustom" ]] && [[ ! -f ${srcfile} ]]; then
+      srcfile="${srcfile}-template"
     fi
     if ! [[ -f ${srcfile} ]]; then
       srcfile="${OPENHAB_CONF:-/etc/openhab}/${component}/STORE/evcc.${component}"
@@ -494,13 +496,12 @@ setup_fnn_config() {
   local fnnpass
 
 
-  #for component in things items rules; do
   for component in things items; do
     dir="${OPENHAB_CONF:-/etc/openhab}/${component}/"
     srcfile="${dir}/STORE/FNNSignalisierung.${component}"
     destfile="${dir}/FNNSignalisierung.${component}"
-    if [[ ${1:-${fnnactuator}} == "custom" && -f ${destfile} ]]; then
-      break
+    if [[ ${1:-${fnnactuator}} == "custom" ]] && [[ ! -f ${srcfile} ]]; then
+      srcfile="${srcfile}-template"
     fi
 
     fnnuser=${5:-${fnnuser}}
