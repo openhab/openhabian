@@ -130,7 +130,7 @@ setup_pv_config() {
 
 # TBV: wie leere user/pass abfangen ?
 setup_charger() {
-  local thing=ladeziegel.things
+  local thing=Ladeziegel.things
   local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
   local srcfile="${dir}/STORE/${thing}"
   local destfile="${dir}/${thing}"
