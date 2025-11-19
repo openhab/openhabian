@@ -130,10 +130,10 @@ setup_pv_config() {
 
 # TBV: wie leere user/pass abfangen ?
 setup_charger() {
-  local thing=Ladeziegel.things
-  local dir="${OPENHAB_CONF:-/etc/openhab}/things/"
-  local srcfile="${dir}/STORE/${thing}"
-  local destfile="${dir}/${thing}"
+  local dir
+  local srcfile
+  local destfile
+  local type
   local cuser
   local cpass
 
@@ -143,7 +143,13 @@ setup_charger() {
   cpass=${4:-${chargeractuatorpass}}
   if [[ $cpass == "NULL" ]]; then cpass=""; fi
 
-  sed -e "s|%ACTUATOR|${1:-${chargeractuator}}|;s|%IP|${2:-${chargeractuatorip}}|;s|%USER|${cuser}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
+  for component in things items; do
+    dir="${OPENHAB_CONF:-/etc/openhab}/${component}/"
+    srcfile="${dir}/STORE/Ladeziegel.${component}"
+    destfile="${dir}/Ladeziegel.${component}"
+
+    sed -e "s|%ACTUATOR|${1:-${chargeractuator}}|;s|%IP|${2:-${chargeractuatorip}}|;s|%USER|${cuser}|;s|%PASS|${cpass}|" "${srcfile}" > "${destfile}"
+  done
 }
 
 
