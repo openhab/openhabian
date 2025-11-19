@@ -113,7 +113,7 @@ if [[ -n "$UNATTENDED" ]]; then
   misc_system_settings
   add_admin_ssh_key
   firemotd_setup
-  java_install "${java_opt:-Temurin21}"
+  java_install "${java_opt:-17}"
   openhab_setup "release" "${openhabpkgversion}"
   import_openhab_config
   openhab_shell_interfaces && setup_tailscale
