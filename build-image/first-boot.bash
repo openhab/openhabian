@@ -107,6 +107,15 @@ if is_trixie || is_bookworm && is_pi; then	# attention no brackets => left-assoc
   systemctl enable --now NetworkManager
   nmcli g
   nmcli r wifi on
+  
+  # Wait until Wi-Fi scan results become available
+  echo "$(timestamp) [openHABian] Waiting for Wi-Fi scan readiness..."
+  tryUntil "nmcli -t -f SSID dev wifi | grep -q ." 10 3
+
+  # Apply Wi-Fi country code once Wi-Fi subsystem is ready
+  if [[ -n "$wifi_country" ]]; then
+    raspi-config nonint do_wifi_country "$wifi_country"
+  fi
 
   if [[ -n $wifiSSID ]]; then
     # Setup WiFi via NetworkManager
