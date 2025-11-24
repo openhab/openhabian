@@ -75,6 +75,10 @@ if is_raspbian || is_raspios; then
   rm -f "/etc/sudoers.d/010_pi-nopasswd"
 fi
 
+# Wait until user exists
+echo "$(timestamp) [openHABian] Waiting for user creation..."
+tryUntil "id -u $userName >/dev/null 2>&1" 120 1
+
 echo -n "$(timestamp) [openHABian] Changing default username ... "
 # shellcheck disable=SC2154
 if [[ -z ${userName} ]] || ! id "$defaultUserAndGroup" &> /dev/null || id "$userName" &> /dev/null; then
