@@ -3,6 +3,11 @@
 
 CONFIGFILE="/etc/openhabian.conf"
 
+CONFIGTXT=/boot/config.txt
+if [ -e /boot/firmware/config.txt ] ; then
+  CONFIGTXT=/boot/firmware/config.txt
+fi
+
 # apt/dpkg commands will not try interactive dialogs
 export DEBIAN_FRONTEND="noninteractive"
 export SILENT="1"
@@ -36,8 +41,8 @@ if ! source "/opt/openhabian/functions/helpers.bash"; then echo "FAILED (source 
 if ! source "/opt/openhabian/functions/wifi.bash"; then echo "FAILED (source wifi)"; fail_inprogress; fi
 if source "/opt/openhabian/functions/openhabian.bash"; then echo "OK"; else echo "FAILED (source openhabian)"; fail_inprogress; fi
 
-if ! is_bookworm; then
-  rfkill unblock wifi   # Wi-Fi is blocked by Raspi OS default since bullseye(?)
+if ! is_trixie || ! is_bookworm; then
+  rfkill unblock wifi   # Wi-Fi is blocked by Raspi OS default since bullseye
 fi
 webserver=/boot/webserver.bash
 [[ -f /boot/firmware/webserver.bash ]] && ln -s /boot/firmware/webserver.bash "$webserver"
@@ -70,6 +75,10 @@ if is_raspbian || is_raspios; then
   rm -f "/etc/sudoers.d/010_pi-nopasswd"
 fi
 
+# Wait until user exists
+echo "$(timestamp) [openHABian] Waiting for user creation..."
+tryUntil "id -u $userName >/dev/null 2>&1" 120 1
+
 echo -n "$(timestamp) [openHABian] Changing default username ... "
 # shellcheck disable=SC2154
 if [[ -z ${userName} ]] || ! id "$defaultUserAndGroup" &> /dev/null || id "$userName" &> /dev/null; then
@@ -97,20 +106,31 @@ hotSpot=${hotspot:-enable}
 wifiSSID="$wifi_ssid"
 # shellcheck source=/etc/openhabian.conf disable=SC2154
 wifiPassword="$wifi_password"
-if is_pi; then
+if is_trixie || is_bookworm && is_pi; then	# attention no brackets => left-associative ordering so put && last
   echo -n "$(timestamp) [openHABian] Setting up NetworkManager and Wi-Fi connection... "
   systemctl enable --now NetworkManager
+  nmcli g
   nmcli r wifi on
+  
+  # Wait until Wi-Fi scan results become available
+  echo "$(timestamp) [openHABian] Waiting for Wi-Fi scan readiness..."
+  tryUntil "nmcli -t -f SSID dev wifi | grep -q ." 10 3
+
+  # Apply Wi-Fi country code once Wi-Fi subsystem is ready
+  if [[ -n "$wifi_country" ]]; then
+    raspi-config nonint do_wifi_country "$wifi_country"
+  fi
 
   if [[ -n $wifiSSID ]]; then
     # Setup WiFi via NetworkManager
     # shellcheck source=/etc/openhabian.conf disable=SC2154
+    nmcli g
     nmcli -w 30 d wifi connect "${wifiSSID}" password "${wifiPassword}" ifname wlan0
   fi
 elif grep -qs "up" /sys/class/net/eth0/operstate; then
   # Actually check if ethernet is working
   echo "$(timestamp) [openHABian] Setting up Ethernet connection... OK"
-elif [[ -n $wifiSSID ]] && grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" /boot/config.txt; then
+elif [[ -n $wifiSSID ]] && grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplicant.conf && ! grep -qsE "^[[:space:]]*dtoverlay=(pi3-)?disable-wifi" "${CONFIGTXT}"; then
   echo -n "$(timestamp) [openHABian] Checking if WiFi is working... "
   if iwlist wlan0 scan |& grep -qs "Interface doesn't support scanning"; then
     ip link set wlan0 up

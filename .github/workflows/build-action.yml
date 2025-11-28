@@ -10,6 +10,8 @@ on:
       - 'build-image/openhabian.conf'
       - 'build-image/offline-install-modifications.bash'
       - '.github/workflows/build-action.yml'
+      - 'functions/helpers.bash'
+      - 'functions/java-jre.bash'
   pull_request:
     paths:
       - 'build.bash'
@@ -18,6 +20,8 @@ on:
       - 'build-image/openhabian.conf'
       - 'build-image/offline-install-modifications.bash'
       - '.github/workflows/build-action.yml'
+      - 'functions/helpers.bash'
+      - 'functions/java-jre.bash'
   workflow_dispatch:
     inputs:
       comments:
@@ -31,7 +35,7 @@ jobs:
 
     steps:
        - name: Checkout repository
-         uses: actions/checkout@v5
+         uses: actions/checkout@v6
          with:
            repository: ${{ github.event.pull_request.head.repo.full_name }}
            ref: ${{ github.event.pull_request.head.ref }}
@@ -65,17 +69,17 @@ jobs:
            echo "image64=$(ls openhabian-raspios64-latest*.img.xz)" >> $GITHUB_OUTPUT
            echo "json_image=$(ls rpi-imager-openhab.json)" >> $GITHUB_OUTPUT
        - name: Archive openHABian 32bit Debian 13 trixie image
-         uses: actions/upload-artifact@v4
+         uses: actions/upload-artifact@v5
          with:
            name: ${{ steps.build.outputs.image32 }}
            path: ${{ steps.build.outputs.image32 }}
        - name: Archive openHABian 64bit Debian 13 trixie image
-         uses: actions/upload-artifact@v4
+         uses: actions/upload-artifact@v5
          with:
            name: ${{ steps.build.outputs.image64 }}
            path: ${{ steps.build.outputs.image64 }}
        - name: Archive openHABian json of image download
-         uses: actions/upload-artifact@v4
+         uses: actions/upload-artifact@v5
          with:
            name: ${{ steps.build.outputs.json_image }}
            path: ${{ steps.build.outputs.json_image }}

@@ -25,11 +25,10 @@ if [[ ! -f ${comituprepofile} ]]; then
 fi
 
 # tailscale VPN
-curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
-curl -fsSL https://pkgs.tailscale.com/stable/debian/bookworm.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
+curl -fsL https://pkgs.tailscale.com/stable/debian/trixie.noarmor.gpg | tee /usr/share/keyrings/tailscale-archive-keyring.gpg >/dev/null
+curl -fsL https://pkgs.tailscale.com/stable/debian/trixie.tailscale-keyring.list | tee /etc/apt/sources.list.d/tailscale.list
 
-# OpenEMS JVM 21 32bit
-adoptium_fetch_apt
+adoptium_fetch_apt 21
 
 apt-get --quiet update
 apt-get --quiet upgrade --yes
@@ -49,7 +48,7 @@ apt-get --quiet install --download-only --yes openhab openhab-addons \
   python3-itsdangerous python3-jinja2 python3-markupsafe \
   python3-networkmanager python3-pyinotify python3-simplejson python3-werkzeug \
   python3 python3-pip python3-wheel python3-setuptools \
-  samba screen sysstat tailscale telnet temurin-21-jre usbutils util-linux \
+  samba screen sysstat tailscale telnet usbutils util-linux \
   unzip vfu vfu-yascreen vim vim-runtime wget whiptail xz-utils zip zlib1g
 
 source /opt/openhabian/functions/nodejs-apps.bash
