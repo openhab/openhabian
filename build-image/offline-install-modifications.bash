@@ -35,7 +35,7 @@ apt-get --quiet upgrade --yes
 apt-get --quiet install --download-only --yes openhab openhab-addons \
   acl amanda-common amanda-server amanda-client apt-transport-https arping \
   avahi-daemon bash-completion bc bzip2 comitup coreutils curl \
-  dnsutils dns-root-data dnsmasq-base dirmngr exim4 fontconfig gdisk git \
+  dnsmasq dnsutils dns-root-data dnsmasq-base dirmngr exim4 fontconfig gdisk git \
   htop inetutils-telnet iotop javascript-common jq \
   libblas3 libc6 libcairo2 libgudev-1.0-0 libjs-jquery libmbim-glib4 libgpm2 \
   liblinear4 liblua5.4-0 libmbim-proxy \
