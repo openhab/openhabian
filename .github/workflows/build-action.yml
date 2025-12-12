@@ -47,12 +47,12 @@ jobs:
            echo "image32=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
            echo "image64=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
        - name: Cache Raspberry Pi OS 32bit image
-         uses: actions/cache@v4
+         uses: actions/cache@v5
          with:
            path: ${{ steps.setup.outputs.image32 }}
            key: ${{ steps.setup.outputs.image32 }}
        - name: Cache Raspberry Pi OS 64bit image
-         uses: actions/cache@v4
+         uses: actions/cache@v5
          with:
            path: ${{ steps.setup.outputs.image64 }}
            key: ${{ steps.setup.outputs.image64 }}
