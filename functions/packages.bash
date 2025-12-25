@@ -224,7 +224,7 @@ homegear_setup() {
   # Add Homegear's repository to APT - need to use testing repo
   if ! is_pi; then
     # x86:
-    echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/bookworm/homegear/stable/ bookworm main' > /etc/apt/sources.list.d/homegear.list
+    echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/${osrelease}/homegear/stable/ ${osrelease} main" > /etc/apt/sources.list.d/homegear.list
   else
     if [[ "$(dpkg --print-architecture)" == 'arm64' ]]; then
       # 64-bit Raspberry Pi OS:
