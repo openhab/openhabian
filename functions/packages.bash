@@ -223,8 +223,9 @@ homegear_setup() {
 
   # Add Homegear's repository to APT - need to use testing repo
   if ! is_pi; then
+    myRelease=trixie
     # x86:
-    echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/${myRelease}/homegear/stable/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
+    echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/${myRelease}/homegear/testing/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
     cat /etc/apt/sources.list.d/homegear.list
   else
     if [[ "$(dpkg --print-architecture)" == 'arm64' ]]; then
