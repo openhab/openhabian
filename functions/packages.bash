@@ -229,10 +229,10 @@ homegear_setup() {
   else
     if [[ "$(dpkg --print-architecture)" == 'arm64' ]]; then
       # 64-bit Raspberry Pi OS:
-      echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/${myRelease}/homegear/testing/ ${myRelease} main' > /etc/apt/sources.list.d/homegear.list
+      echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/${myRelease}/homegear/testing/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
     else
       # 32-bit Raspberry Pi OS
-      echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/${myRelease}/homegear/testing/ ${myRelease} main' > /etc/apt/sources.list.d/homegear.list
+      echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/${myRelease}/homegear/testing/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
     fi
   fi
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
