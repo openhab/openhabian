@@ -439,7 +439,7 @@ has_lowmem() {
 ## Returns 0 / true if device has more than 1500MB of total memory
 ## Returns 1 / false if device has less than 1500MB of total memory
 ##
-##    has_hasmem()
+##    has_highmem()
 ##
 has_highmem() {
   local totalMemory
@@ -448,6 +448,20 @@ has_highmem() {
 
   if [[ -z $totalMemory ]]; then return 1; fi # assume that device does not have high memory
   if [[ $totalMemory -gt 1500000 ]]; then return 0; else return 1; fi
+}
+
+## Returns 0 / true if device has more than 3000MB of total memory
+## Returns 1 / false if device has less than 3000MB of total memory
+##
+##    has_veryhighmem()
+##
+has_veryhighmem() {
+  local totalMemory
+
+  totalMemory="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
+
+  if [[ -z $totalMemory ]]; then return 1; fi # assume that device does not have very high memory
+  if [[ $totalMemory -gt 3000000 ]]; then return 0; else return 1; fi
 }
 
 ## Attempt to update apt package lists 10 times
