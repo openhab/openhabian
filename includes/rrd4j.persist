@@ -1,0 +1,25 @@
+// persistence strategies have a name and a definition and are referred to in the "Items" section
+Strategies {
+	everyMinute	: "1 * * * * ?"
+	everyHour	: "5 1 * * * ?"
+	everyDay	: "10 2 1 * * ?"
+}
+
+/*
+ * Each line in this section defines for which item(s) which strategy(ies) should be applied.
+ * You can list single items, use "*" for all items or "groupitem*" for all members of a group
+ * item (excl. the group item itself).
+ */
+
+Items {
+	Szene, Nachtschaltung, Anwesenheitsmodus, Alarmmodus, Tageslicht, Dreambox, Fensteroeffnung_ueberpruefen, Ferien, FerienName, EG_Kabuff_Leiste6 : strategy = everyChange, everyHour
+	Einstellungen*,SonnenschutzEinstellungen* : strategy = everyChange, everyHour
+	TempInnen*, TempAussen*, TempTerrasseRohwerte*, TempTerrasse* : strategy = everyChange, everyMinute
+	Lichter*, Fenster*, Praesenz*, AussenTueren*, InnenTueren* : strategy = everyChange, everyMinute
+	Alarmkontakte*, Batterien*, Sensoren*, Lichtsensoren*, Bewegungsmelder* : strategy = everyChange, everyMinute
+	Strombedarf*, Heizung*, SteuerTemp*, SollTempBoden*, SollTempTherm*, KorrekturTemp*, Abwasser*, Lueftung*, Energie*, Sonnenschutz*, PV* : strategy = everyChange, everyMinute
+
+	Lasten*,MaschineEntprellen*,PV*,Verbraucher*,Wetter* : strategy = everyChange,everyMinute
+	VerbraucherConfig*,EnergieEinstellungen*,PVEinstellungen*,LadeziegelEinstellungen*,FNNEinstellungen*,AutoEinstellungen*,HausgeraeteEinstellungen*,HeizstabEinstellungen* : strategy = everyChange,everyHour
+}
+
