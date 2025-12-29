@@ -12,7 +12,7 @@ Strategies {
  */
 
 Items {
-	dynStromtarif*,Lasten*,MaschineEntprellen*,PV*,Verbraucher*,Wetter* : strategy = everyChange,everyMinute
-	AutoEinstellungen*,dynStromtarif*,EnergieEinstellungen*,FNNEinstellungen*,HausgeraeteEinstellungen*,HeizstabEinstellungen*,LadeziegelEinstellungen*,memPersist*,PVEinstellungen*,RechnungEinstellungen*,VerbraucherConfig* : strategy = everyChange,everyHour
+	dynStromtarif*,Lasten*,MaschineEntprellen*,memPersist*,PV*,Verbraucher*,Wetter* : strategy = everyChange,everyMinute
+	AutoEinstellungen*,EnergieEinstellungen*,FNNEinstellungen*,HausgeraeteEinstellungen*,HeizstabEinstellungen*,LadeziegelEinstellungen*,PVEinstellungen*,RechnungEinstellungen*,VerbraucherConfig* : strategy = everyChange,everyHour
 }
 
