@@ -12,14 +12,7 @@ Strategies {
  */
 
 Items {
-	Szene, Nachtschaltung, Anwesenheitsmodus, Alarmmodus, Tageslicht, Dreambox, Fensteroeffnung_ueberpruefen, Ferien, FerienName, EG_Kabuff_Leiste6 : strategy = everyChange, everyHour
-	Einstellungen*,SonnenschutzEinstellungen* : strategy = everyChange, everyHour
-	TempInnen*, TempAussen*, TempTerrasseRohwerte*, TempTerrasse* : strategy = everyChange, everyMinute
-	Lichter*, Fenster*, Praesenz*, AussenTueren*, InnenTueren* : strategy = everyChange, everyMinute
-	Alarmkontakte*, Batterien*, Sensoren*, Lichtsensoren*, Bewegungsmelder* : strategy = everyChange, everyMinute
-	Strombedarf*, Heizung*, SteuerTemp*, SollTempBoden*, SollTempTherm*, KorrekturTemp*, Abwasser*, Lueftung*, Energie*, Sonnenschutz*, PV* : strategy = everyChange, everyMinute
-
 	dynStromtarif*,Lasten*,MaschineEntprellen*,PV*,Verbraucher*,Wetter* : strategy = everyChange,everyMinute
-	VerbraucherConfig*,EnergieEinstellungen*,PVEinstellungen*,LadeziegelEinstellungen*,FNNEinstellungen*,AutoEinstellungen*,HausgeraeteEinstellungen*,HeizstabEinstellungen* : strategy = everyChange,everyHour
+	AutoEinstellungen*,dynStromtarif*,EnergieEinstellungen*,FNNEinstellungen*,HausgeraeteEinstellungen*,HeizstabEinstellungen*,LadeziegelEinstellungen*,memPersist*,PVEinstellungen*,RechnungEinstellungen*,VerbraucherConfig* : strategy = everyChange,everyHour
 }
 
