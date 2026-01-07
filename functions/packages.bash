@@ -676,6 +676,7 @@ nginx_setup() {
 ##
 deconz_setup() {
   local port="${1:-8081}"
+  local wsPort="${2:-8088}"
   local keyName="deconz"
   local appData="/var/lib/openhab/persistence/deCONZ"
   local introText="This will install deCONZ as a web service, the companion app to support Dresden Elektronik Conbee and Raspbee Zigbee controllers.\\nUse the web interface on port 8081 to pair your sensors.\\nNote the port is changed to 8081 as the default 80 wouldn't be right with openHAB itself running on 8080."
@@ -706,6 +707,7 @@ deconz_setup() {
 
   if [[ -n $INTERACTIVE ]]; then
     if ! port="$(whiptail --title "Enter Phoscon port number" --inputbox "\\nPlease enter the port you want the Phoscon web application to run on:" 11 80 "$port" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! wsPort="$(whiptail --title "Enter Phoscon websocket port" --inputbox "\\nPlease enter the websocket port you want Phoscon to run on:" 11 80 "$wsPort" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
   # remove unneeded parts so they cannot interfere with openHABian
   cond_redirect systemctl disable --now deconz-gui.service deconz-homebridge.service deconz-homebridge-install.service deconz-init.service deconz-wifi.service
@@ -713,7 +715,7 @@ deconz_setup() {
   cond_redirect systemctl daemon-reload
 
   # change default port deCONZ runs on (80)
-  if ! cond_redirect sed -i -e 's|http-port=80$|http-port='"${port}"' --ws-port='"${port}"'|g' /lib/systemd/system/deconz.service; then echo "FAILED (replace port in service start)"; return 1; fi
+  if ! cond_redirect sed -i -e 's|http-port=80$|http-port='"${port}"' --ws-port='"${wsPort}"'|g' /lib/systemd/system/deconz.service; then echo "FAILED (replace port in service start)"; return 1; fi
   if cond_redirect systemctl enable deconz.service && cond_redirect systemctl restart deconz.service; then echo "OK"; else echo "FAILED (service restart with modified port)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
