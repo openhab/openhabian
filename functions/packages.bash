@@ -670,9 +670,9 @@ nginx_setup() {
 ## Function for installing deCONZ, the companion web app to the popular Conbee/Raspbee Zigbee controller
 ## The function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
 ##
-##    deconz_setup(int port)
+##    deconz_setup(int port, int wsPort)
 ##
-## Valid argument: port to run Phoscon app on
+## Valid arguments: port to run Phoscon app on, websocket port
 ##
 deconz_setup() {
   local port="${1:-8081}"
