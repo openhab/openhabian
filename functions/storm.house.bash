@@ -673,6 +673,7 @@ upgrade_ems() {
   fi
 
   install_extras
+  # shellcheck disable=SC2154
   install_evcc "install" "${evccpkgversion}"
   permissions_corrections   # sicherheitshalber falls Dateien durch git nicht mehr openhab gehören
 
