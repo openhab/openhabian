@@ -672,19 +672,22 @@ nginx_setup() {
 ##
 ##    deconz_setup(int port, int wsPort)
 ##
-## Valid arguments: port to run Phoscon app on, websocket port
+## Valid arguments: Phoscon Web UI (HTTP) port, deCONZ WebSocket API port
 ##
 deconz_setup() {
-  local port="${1:-8081}"
-  local wsPort="${2:-8088}"
+  local defaultPort=8081
+  local defaultWsPort=8088
+  local port="${1:-$defaultPort}"
+  local wsPort="${2:-$defaultWsPort}"
   local keyName="deconz"
   local appData="/var/lib/openhab/persistence/deCONZ"
-  local introText="This will install deCONZ as a web service, the companion app to support Dresden Elektronik Conbee and Raspbee Zigbee controllers.\\nUse the web interface on port 8081 to pair your sensors.\\nNote the port is changed to 8081 as the default 80 wouldn't be right with openHAB itself running on 8080."
-  local successText="The deCONZ API plugin and the Phoscon companion web app were successfully installed on your system.\\nUse the web interface on port ${port} to pair your sensors with Conbee or Raspbee Zigbee controllers.\\nNote the port has been changed from its default 80 to 8081."
+  local introText="This will install deCONZ to support Dresden Elektronik Conbee and Raspbee Zigbee controllers.\\nThe Phoscon Web UI and the deCONZ WebSocket API are provided by deCONZ.\\nNext step: choose HTTP/WS ports; avoid conflicts with openHAB (default 8080)."
+  local successText=""
   local repo="/etc/apt/sources.list.d/deconz.list"
 
-
-  if ! (whiptail --title "deCONZ installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then return 0; fi
+  if [[ -n $INTERACTIVE ]]; then
+    if ! (whiptail --title "deCONZ installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then return 0; fi
+  fi
 
   if ! add_keys "http://phoscon.de/apt/deconz.pub.key" "$keyName"; then return 1; fi
 
@@ -706,18 +709,28 @@ deconz_setup() {
   if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" deconz; then echo "OK"; else echo "FAILED (install deCONZ package)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
-    if ! port="$(whiptail --title "Enter Phoscon port number" --inputbox "\\nPlease enter the port you want the Phoscon web application to run on:" 11 80 "$port" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
-    if ! wsPort="$(whiptail --title "Enter Phoscon websocket port" --inputbox "\\nPlease enter the websocket port you want Phoscon to run on:" 11 80 "$wsPort" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! port="$(whiptail --title "Enter Phoscon Web UI (HTTP) port" --inputbox "\\nPlease enter the port you want the Phoscon Web UI to run on:" 11 80 "$port" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! wsPort="$(whiptail --title "Enter deCONZ WebSocket API port" --inputbox "\\nPlease enter the WebSocket port you want deCONZ to run on:" 11 80 "$wsPort" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
+  if ! [[ "$port" =~ ^[0-9]+$ ]] || (( port < 1 || port > 65535 )); then
+    echo "$(timestamp) [openHABian] WARN (invalid deCONZ HTTP port: $port, using default ${defaultPort})"
+    port="$defaultPort"
+  fi
+  if ! [[ "$wsPort" =~ ^[0-9]+$ ]] || (( wsPort < 1 || wsPort > 65535 )); then
+    echo "$(timestamp) [openHABian] WARN (invalid deCONZ WebSocket port: $wsPort, using default ${defaultWsPort})"
+    wsPort="$defaultWsPort"
+  fi
+  
   # remove unneeded parts so they cannot interfere with openHABian
   cond_redirect systemctl disable --now deconz-gui.service deconz-homebridge.service deconz-homebridge-install.service deconz-init.service deconz-wifi.service
   cond_redirect rm -f "/lib/systemd/system/deconz-{homebridge,homebridge-install,init,wifi}.service"
   cond_redirect systemctl daemon-reload
 
-  # change default port deCONZ runs on (80)
+  # set deCONZ HTTP port and WebSocket API port
   if ! cond_redirect sed -i -e 's|http-port=80$|http-port='"${port}"' --ws-port='"${wsPort}"'|g' /lib/systemd/system/deconz.service; then echo "FAILED (replace port in service start)"; return 1; fi
   if cond_redirect systemctl enable deconz.service && cond_redirect systemctl restart deconz.service; then echo "OK"; else echo "FAILED (service restart with modified port)"; return 1; fi
 
+  successText="deCONZ installed. Phoscon Web UI is available on port ${port} and the deCONZ WebSocket API on port ${wsPort}."
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "deCONZ install successfull" --msgbox "$successText" 11 80
   fi

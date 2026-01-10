@@ -125,6 +125,10 @@ if [[ -n "$UNATTENDED" ]]; then
   exim_setup
   nut_setup
   install_grott "install"
+  # Install deCONZ (provides Phoscon Web UI + WebSocket API) when enabled
+  if [[ "${deconz_install}" == "enable" ]]; then
+    deconz_setup "${deconz_port}" "${deconz_wsport}"
+  fi
   permissions_corrections
   setup_mirror_SD "install"
   install_cleanup
