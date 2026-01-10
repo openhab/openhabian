@@ -689,7 +689,7 @@ deconz_setup() {
     if ! (whiptail --title "deCONZ installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then return 0; fi
   fi
 
-  if ! add_keys "http://phoscon.de/apt/deconz.pub.key" "$keyName"; then return 1; fi
+  if ! add_keys "https://phoscon.de/apt/deconz.pub.key" "$keyName"; then return 1; fi
 
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc | head -1)"
@@ -705,8 +705,14 @@ deconz_setup() {
   if ! cond_redirect mkdir "${appData}" && fix_permissions "${appData}" "${username:-openhabian}:${username:-openhabian}" 664 775 && ln -sf "${appData}" /home/"${username:-openhabian}"/.local; then echo "FAILED (deCONZ database on zram)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Preparing deCONZ repository ... "
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; fi
+  
+  local deconzPkg="deconz"
+  if [[ "$myRelease" == "bookworm" || "$myRelease" == "trixie" ]] && apt-cache show deconz-qt6 > /dev/null 2>&1; then
+    deconzPkg="deconz-qt6"
+  fi
+
   echo -n "$(timestamp) [openHABian] Installing deCONZ ... "
-  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" deconz; then echo "OK"; else echo "FAILED (install deCONZ package)"; return 1; fi
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "$deconzPkg"; then echo "OK"; else echo "FAILED (install deCONZ package)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
     if ! port="$(whiptail --title "Enter Phoscon Web UI (HTTP) port" --inputbox "\\nPlease enter the port you want the Phoscon Web UI to run on:" 11 80 "$port" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
