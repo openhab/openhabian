@@ -2,6 +2,24 @@ Hit tab to unselect buttons and scroll through the text using UP/DOWN or
 PGUP/PGDN. All announcements are stored in `/opt/openhabian/docs/CHANGELOG.md`
 for you to lookup.
 
+## Welcome trixie! ## January 14, 2025
+
+The new openHABian image for Raspberry Pi systems is now based on the most
+recent Debian 13 known as "trixie".
+It incorporates the Raspi OS image from December 2025.
+
+## Back to the roots: openJDK 21 ## January 14, 2025
+Recent Debian bookworm based versions of openHABian provided and actually
+pre-configured your system with Temurin Java version 21.
+For the most part, the reason for was that there was and still is no good
+openJDK for the bookworm distributions on ARM hardware.
+Starting with openHABian version 1.12, there now is and we returned and now
+by default provide all new openHABian installations with openJDK 21.
+
+## openHAB 5.1 released ## December 21, 2025
+openHAB 5.1 was released!
+
+
 ## 64 bit OS support only ## Aug 1, 2025
 
 With openHAB 5, we are sorry but we have to drop support for 32 bit systems.
@@ -17,20 +35,3 @@ but be aware that you will be running an unsupported version of openHAB so
 if you run into any trouble, please do not ask for help but upgrade to 64.
 
 
-## openHAB 5 released ## July 21, 2025
-openHAB 5 was released!
-
-Note that unless you explicitly changed it, openHABian by default will be
-installing or upgrading to latest openHAB release so you will be getting
-openHAB 5 now. Note that that requires to upgrade your JVM to Java 21.
-
-
-## Frontail removed ## December 18, 2024
-We suggest removal of the frontail log-viewer package on all systems with
-openHAB 4.3+. There is still an option to keep it or install it however it
-is no longer supported and is provided as is. The reasoning for removal is
-that frontail has serious security vulnerabilities present and is no longer
-maintained.
-
-openHAB 4.3 adds a new builtin logviewer. You can look forward to it
-becoming even more capable over the coming months as it is refined as well.
