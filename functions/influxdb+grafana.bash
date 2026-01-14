@@ -200,7 +200,8 @@ influxdb_install() {
   fi
 
   if ! influxdb_is_installed; then
-    if ! add_keys "https://repos.influxdata.com/influxdata-archive_compat.key" "$keyName"; then return 1; fi
+    # key changed Jan 6, 2026
+    if ! add_keys "https://repos.influxdata.com/influxdata-archive_compat-exp2029.key" "$keyName"; then return 1; fi
 
     echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://repos.influxdata.com/${myOS,,} ${myRelease,,} stable" > /etc/apt/sources.list.d/influxdb.list
 
