@@ -685,6 +685,11 @@ deconz_setup() {
   local successText=""
   local repo="/etc/apt/sources.list.d/deconz.list"
 
+  if [[ -n "$UNATTENDED" ]] && [[ "${deconz_install:-enable}" == "disable" ]]; then
+    echo -n "$(timestamp) [openHABian] Skipping deCONZ install as requested."
+    return 1
+  fi
+
   if [[ -n $INTERACTIVE ]]; then
     if ! (whiptail --title "deCONZ installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then return 0; fi
   fi

@@ -556,7 +556,7 @@ hotspotpw="openhabian"
 
 #### `deconz_install`
 
-Enable unattended deCONZ software / Phoscon companion app installation.
+Enable or disable deCONZ software / Phoscon companion app installation.
 
 ::: details Example
 ```
