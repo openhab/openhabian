@@ -194,10 +194,7 @@ influxdb_install() {
   else
     myOS="$(lsb_release -si)"
   fi
-  myRelease="$(lsb_release -sc | head -1)"
-  if [[ "$myRelease" == "n/a" ]] || running_in_docker; then
-    myRelease=${osrelease:-bookworm}
-  fi
+  myRelease=stable
 
   if ! influxdb_is_installed; then
     # key changed Jan 6, 2026
