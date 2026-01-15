@@ -422,9 +422,9 @@ miflora_setup() {
   local mifloraDir="/opt/miflora-mqtt-daemon"
   local successText="Setup was successful.\\n\\nThe Daemon was installed and the systemd service was set up just as described in it's README. Please add your MQTT broker settings in '${mifloraDir}/config.ini' and add your Mi Flora sensors. After that be sure to restart the daemon to reload it's configuration.\\n\\nAll details can be found under: https://github.com/ThomDietrich/miflora-mqtt-daemon\\nThe article also contains instructions regarding openHAB integration."
 
-  if ! dpkg -s 'git' 'python3' 'python3-pip' 'bluetooth' 'bluez' &> /dev/null; then
+  if ! dpkg -s 'git' 'python3' 'python3-pip' 'bluetooth' 'bluez' 'build-essential' 'pkg-config' 'libglib2.0-dev' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing miflora-mqtt-daemon required packages... "
-    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" git python3 python3-pip bluetooth bluez; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" git python3 python3-pip bluetooth bluez build-essential pkg-config libglib2.0-dev; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning setup of miflora-mqtt-daemon... "
@@ -455,10 +455,11 @@ miflora_setup() {
   cond_echo "Installing required python packages"
   cond_redirect "$mifloraDir"/env/bin/pip3 install -r "$mifloraDir"/requirements.txt
 ## deactivate venv to avoid conflicts with other functions
-  cond_redirect "$mifloraDir"/env/bin/deactivate
+  cond_redirect deactivate
 ## original code from here
   echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon service... "
   if ! cond_redirect install -m 644 "$mifloraDir"/template.service /etc/systemd/system/miflora.service; then echo "FAILED (copy service)"; return 1; fi
+  if ! cond_redirect sed -i -e "s|^ExecStart=.*|ExecStart=${mifloraDir}/env/bin/python3 ${mifloraDir}/miflora-mqtt-daemon.py|" /etc/systemd/system/miflora.service; then echo "FAILED (service ExecStart)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now miflora.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
