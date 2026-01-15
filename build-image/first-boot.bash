@@ -174,6 +174,12 @@ elif [[ -n $wifiSSID ]] && grep -qs "openHABian" /etc/wpa_supplicant/wpa_supplic
   fi
 fi
 
+# Scrub Wi-Fi password from config files once it's been used
+if [[ -n $wifiPassword ]]; then
+  echo -n "$(timestamp) [openHABian] Removing Wi-Fi password from openhabian.conf... "
+  if sed -i -e 's|^wifi_password=.*$|wifi_password="***" # cleared after first boot|' "$CONFIGFILE" "${confdir}/openhabian.conf" 2>/dev/null; then echo "OK"; else echo "FAILED"; fi
+fi
+
 # fix eventually wrong date (it is the kernel compile date on Raspi OS !) to have valid repo keys
 if [[ $(date +%y%m%d) -lt 240410 ]]; then
   systemctl stop systemd-timesyncd
