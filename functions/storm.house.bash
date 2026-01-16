@@ -673,7 +673,6 @@ upgrade_ems() {
   fi
 
   install_extras
-  # shellcheck disable=SC2154
   install_evcc "install" "${evccpkgversion}"
   permissions_corrections   # sicherheitshalber falls Dateien durch git nicht mehr openhab gehören
 
@@ -776,7 +775,6 @@ setup_license() {
     return 1
   fi
 
-  # ORIG: echo $(base64 -d <<< "$encoded_string" > /tmp/sign.bin)
   base64 -d <<< "$encoded_string" > $tmp1
   echo -n "$license_string" > $tmp2
   #decoded=$(openssl dgst -sha256 -verify /opt/openhabian/includes/licensepublic_key.pem -signature /tmp/sign.bin /tmp/sign.verification)

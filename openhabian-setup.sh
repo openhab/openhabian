@@ -13,11 +13,8 @@
 # für storm.house immer diese package-Versionen installieren
 # überschreibt defaults in openhabian.conf
 
-if [[ "$(getconf LONG_BIT)" == "32" ]]; then
-  openhabForcePkg=4.3.9-1
-  evccForcePkg=0.206.1
-fi
 #openhabForcePkg=5.0.3-1
+#evccForcePkg=0.206.1		# ab 0.207.1 API Änderung, erfordert OH5.1
 #openhabForcePkg=5.1.1-1
 #evccForcePkg=0.300.2		# ab 0.207.1 API Änderung, erfordert OH5.1
 
