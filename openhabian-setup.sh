@@ -125,6 +125,7 @@ if [[ -n "$UNATTENDED" ]]; then
   exim_setup
   nut_setup
   install_grott "install"
+  deconz_setup "${deconz_port}" "${deconz_wsport}"
   permissions_corrections
   setup_mirror_SD "install"
   install_cleanup

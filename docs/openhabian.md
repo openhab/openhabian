@@ -554,6 +554,36 @@ hotspotpw="openhabian"
 ```
 :::
 
+#### `deconz_install`
+
+Enable or disable deCONZ software / Phoscon companion app installation.
+
+::: details Example
+```
+deconz_install="enable"
+```
+:::
+
+#### `deconz_port`
+
+Set the Phoscon Web UI (HTTP) port provided by deCONZ. Default: 8081.
+
+::: details Example
+```
+deconz_port="8081"
+```
+:::
+
+#### `deconz_wsport`
+
+Set the deCONZ WebSocket API port. Default: 8088.
+
+::: details Example
+```
+deconz_wsport="8088"
+```
+:::
+
 ### Backup Settings
 
 #### `backupdrive`
