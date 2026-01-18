@@ -183,7 +183,7 @@ openhabian_update() {
   if [[ $# == 1 ]]; then
     branch="$1"
   elif [[ -n $INTERACTIVE ]]; then
-    radioOptions=("release" "most recommended version that supports openHAB 4 (openHAB branch)" "OFF")
+    radioOptions=("release" "most recommended version that supports openHAB 5 (openHAB branch)" "OFF")
     radioOptions+=("latest" "the latest of openHABian, not well tested (main branch)" "OFF")
 
     case "$current" in
