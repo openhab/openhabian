@@ -222,9 +222,9 @@ show_main_menu() {
     "43 | Clean cache"                    "Clean the cache for openHAB" \
     "44 | Nginx Proxy"                    "Setup reverse and forward web proxy" \
     "45 | OpenJDK 17"                     "Setup OpenJDK 17 as Java provider (default for OH v4 and older)" \
-    "   | OpenJDK 21"                     "Setup OpenJDK 21 as Java provider (DO NOT USE WILL BREAK SYSTEM)" \
+    "   | OpenJDK 21"                     "Setup OpenJDK 21 as Java provider (default)" \
     "   | Temurin 17"                     "Setup Temurin 17 as Java provider (fallback for OH v4 and older)" \
-    "   | Temurin 21"                     "Setup Temurin 21 as Java provider (default)" \
+    "   | Temurin 21"                     "Setup Temurin 21 as Java provider (fallback for OH v5)" \
     "   | OpenJDK 11"                     "Setup OpenJDK 11 as Java provider (legacy)" \
     "46 | Install openhab-js"             "JS Scripting: Upgrade to latest version of JavaScript library (advanced)" \
     "   | Uninstall openhab-js"           "JS Scripting: Switch back to included version of JavaScript library" \
