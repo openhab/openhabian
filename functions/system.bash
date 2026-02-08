@@ -36,7 +36,7 @@ system_upgrade() {
   # bad packages may require interactive input despite of this setting so do not mask output (no cond_redirect)
   if ! apt-get upgrade --yes --allow-downgrades -o DPkg::Lock::Timeout="$APTTIMEOUT" -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold"; then echo "FAILED"; return 1; fi
   if ! cond_redirect java -version &> /dev/null; then
-    update_config_java "Temurin21" && java_install "Temurin21"
+    update_config_java "21" && java_install "21"
   fi
   unset DEBIAN_FRONTEND
 }
