@@ -122,7 +122,7 @@ openjdk_install_apt() {
   if ! dpkg -s "openjdk-${1}-jre-headless" &> /dev/null; then # Check if already is installed
     openjdk_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing OpenJDK ${1}... "
-    if [[ $1 == "21" ]]; then
+    if is_bookworm && [[ $1 == "21" ]]; then
       if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" -t unstable "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
     else
       if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
