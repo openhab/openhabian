@@ -983,7 +983,7 @@ setup_esphome_device_builder() {
     echo "$(timestamp) [openHABian] $uninstallStartText"
       
     # Check if the esphome-device-builder.service is active. If YES stop and disable the service
-    # This check is neccesary to prevent a failure after an unsucsessful instalation
+    # This check is neccesary to prevent a failure after an unsucsessful installation
     if systemctl is-active --quiet esphome-device-builder.service; then
       echo "$(timestamp) [openHABian] Stopping the ESPHome Device Builder service."
       if ! SILENT=1 cond_redirect systemctl stop esphome-device-builder.service; then 
