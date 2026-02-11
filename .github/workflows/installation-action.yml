@@ -78,7 +78,7 @@ jobs:
         with:
           driver-opts: network=host
       - name: Build Docker image
-        uses: docker/build-push-action@v6.18.0
+        uses: docker/build-push-action@v6.19.0
         with:
           context: .
           file: ${{ matrix.dockerfile }}
