@@ -144,6 +144,7 @@ if [[ -n "$UNATTENDED" ]]; then
   install_grott "install"
   permissions_corrections
   setup_mirror_SD "install"
+  # shellcheck disable=SC2154
   install_evcc "install" "${evccpkgversion}"; setup_evcc
   systemctl stop openhab
   setup_pv_config pv "${invertertype:-custom}" "${inverterip:-192.168.178.100}" "${invertermodbusid:-1}"
