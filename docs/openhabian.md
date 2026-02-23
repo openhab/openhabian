@@ -406,6 +406,17 @@ clonebranch="openHAB4"
 ```
 :::
 
+#### `openhabpkgversion`
+
+To install a specific version of openhab and openhab-addons packages, use the package version string.
+Leaving this empty will install the latest available packages from the release repo.
+
+::: details Example
+```
+openhabpkgversion=5.1.2-1
+```
+:::
+
 #### `initialconfig`
 
 An initial configuration file to import when setting up openHAB.
