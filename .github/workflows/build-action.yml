@@ -69,17 +69,17 @@ jobs:
            echo "image64=$(ls openhabian-raspios64-latest*.img.xz)" >> $GITHUB_OUTPUT
            echo "json_image=$(ls rpi-imager-openhab.json)" >> $GITHUB_OUTPUT
        - name: Archive openHABian 32bit Debian 13 trixie image
-         uses: actions/upload-artifact@v6
+         uses: actions/upload-artifact@v7
          with:
            name: ${{ steps.build.outputs.image32 }}
            path: ${{ steps.build.outputs.image32 }}
        - name: Archive openHABian 64bit Debian 13 trixie image
-         uses: actions/upload-artifact@v6
+         uses: actions/upload-artifact@v7
          with:
            name: ${{ steps.build.outputs.image64 }}
            path: ${{ steps.build.outputs.image64 }}
        - name: Archive openHABian json of image download
-         uses: actions/upload-artifact@v6
+         uses: actions/upload-artifact@v7
          with:
            name: ${{ steps.build.outputs.json_image }}
            path: ${{ steps.build.outputs.json_image }}
