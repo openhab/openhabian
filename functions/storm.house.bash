@@ -46,7 +46,7 @@ setup_pv_config() {
       pv) default=${2:-$invertertype}; ip=${3:-inverterip}; mbid=${4:-${invertermodbusid}};
 	  if [[ ${default} == "sofarsolar" ]]; then model=${4:-${pvmodel}}; serial=${5:-${pvserial}}; fi
 	  ;;
-      bat) default=${batterytype}; ip=${3:-batteryip}; mbid=${4:-${batterymodbusid}};;
+      bat) default=${batterytype}; ip=${3:-batteryip}; mbid=${4:-${batterymodbusid}}; authToken=${6:-${batteryauthtoken}};;
       meter) default=${metertype}; ip=${3:-meterip}; mbid=${4:-${metermodbusid}}; serial=${6:-${meterserial}}; muser=${7:-${meteruserid}}; mpass=${8:-${meterpassid}};;
     esac
 
@@ -85,7 +85,7 @@ setup_pv_config() {
         mbid="${5:-${loggermodbusid}}"  # diese ID muss angesprochen werden
       fi
 
-      sed -i "s|%IP|${ip}|;s|%MBID|${mbid}|" "${destfile}"
+      sed -i "s|%IP|${ip}|;s|%MBID|${mbid}|;s|%TOKEN|${authToken}|" "${destfile}"
       if [[ "${device}" == "meter" && $# -ge 6 ]]; then
         if [[ $serial == "NULL" ]]; then serial=""; fi
         if [[ $muser == "NULL" ]]; then muser=""; fi
@@ -673,6 +673,7 @@ upgrade_ems() {
   fi
 
   install_extras
+  # shellcheck disable=SC2154
   install_evcc "install" "${evccpkgversion}"
   permissions_corrections   # sicherheitshalber falls Dateien durch git nicht mehr openhab gehören
 
