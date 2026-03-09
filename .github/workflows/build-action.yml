@@ -62,7 +62,7 @@ jobs:
            mv openhabian-raspios64*.img.xz storm.house-64-$(date +%Y%m%d%H%M).img.xz
            echo "image64=$(ls storm.house-64-*.img.xz)" >> $GITHUB_OUTPUT
        - name: Archive storm.house 64bit image
-         uses: actions/upload-artifact@v6
+         uses: actions/upload-artifact@v7
          with:
            name: ${{ steps.build.outputs.image64 }}
            path: ${{ steps.build.outputs.image64 }}
