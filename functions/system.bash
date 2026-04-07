@@ -431,29 +431,10 @@ misc_system_settings() {
 ##
 change_swapsize() {
   if ! is_pi; then return 0; fi
+  if ! is_trixie; then return 0; fi
 
-  local free
-  local minFree
-  local swap
-  local totalMemory
-
-  totalMemory="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
-  if [[ -z $totalMemory ]]; then return 1; fi
-  swap="$((2*totalMemory))"
-  minFree="$((2*swap))"
-  free="$(df -hk / | awk '/dev/ { print $4 }')"
-  if [[ $free -ge "$minFree" ]]; then
-    size="$swap"
-  elif [[ $free -ge "$swap" ]]; then
-    size="$totalMemory"
-  else
-    return 0
-  fi
-  ((size/=1024))
-
-  echo -n "$(timestamp) [openHABian] Adjusting swap size to $size MB... "
-  # TBD
-  # dphys-swapfile is no longer available in trixie
+  echo -n "$(timestamp) [openHABian] Enabling rpi-swap... "
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" rpi-swap; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
 ## Reduce the RPi GPU memory to the minimum to allow for the system to utilize
@@ -557,7 +538,7 @@ prepare_serial_port() {
     else
       if ! (echo "enable_uart=1" >> "${CONFIGTXT}"); then echo "FAILED (uart)"; return 1; fi
     fi
-    if ! cond_redirect cp "${CMDLINETXT}" "${CMDLINETXT}.bak"; then echo "FAILED (backup cmdline.txt)"; return 1; fi 
+    if ! cond_redirect cp "${CMDLINETXT}" "${CMDLINETXT}.bak"; then echo "FAILED (backup cmdline.txt)"; return 1; fi
     if ! cond_redirect sed -i -e 's|console=tty.*console=tty1|console=tty1|g' "${CMDLINETXT}"; then echo "FAILED (console)"; return 1; fi
     if ! cond_redirect sed -i -e 's|console=serial.*console=tty1|console=tty1|g' "${CMDLINETXT}"; then echo "FAILED (serial)"; return 1; fi
     cond_echo "Disabling serial-getty service"
