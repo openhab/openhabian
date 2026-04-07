@@ -433,7 +433,7 @@ change_swapsize() {
   if ! is_pi; then return 0; fi
   if ! is_trixie; then return 0; fi
 
-  echo -n "$(timestamp) [openHABian] Adjusting swap size to $size MB... "
+  echo -n "$(timestamp) [openHABian] Enabling rpi-swap... "
   if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" rpi-swap; then echo "OK"; else echo "FAILED"; return 1; fi
 }
 
