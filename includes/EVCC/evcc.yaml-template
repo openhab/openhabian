@@ -72,24 +72,33 @@ chargers:
 
 vehicles:
 - type: template
-  template: %CARTYPE1
-  vin: %VIN1
-  user: %CARUSER1
-  password: %CARPASS1
-#CAPTCHA1  hcaptcha: %CARTOKEN1
-  capacity: %CARCAPACITY1
-#  language: de
+  template: %CAR1TYPE
   name: meinEAuto1
-  title: %CARNAME1
+  title: %CAR1NAME
+  vin: %CAR1VIN
+#CAR1USERPASS  user: %CAR1USER
+#CAR1USERPASS  password: %CAR1PASS
+#CAR1PARAM1  %CAR1PARAM1: %CAR1VALUE1
+#CAR1PARAM2  %CAR1PARAM2: %CAR1VALUE2
+#CAR1PARAM3  %CAR1PARAM3: %CAR1VALUE3
+#CAR1PARAM4  %CAR1PARAM4: %CAR1VALUE4
+#CAR1PARAM5  %CAR1PARAM5: %CAR1VALUE5
+  capacity: %CAR1CAPACITY
+#  language: de
+
 - type: template
-  template: %CARTYPE2
+  template: %CAR2TYPE
   name: meinEAuto2
-  title: %CARNAME2
-  vin: %VIN2
-  user: %CARUSER2
-  password: %CARPASS2
-#CAPTCHA2  hcaptcha: %CARTOKEN2
-  capacity: %CARCAPACITY2
+  title: %CAR2NAME
+  vin: %CAR2VIN
+#CAR2USERPASS  user: %CAR2USER
+#CAR2USERPASS  password: %CAR2PASS
+#CAR2PARAM1  %CAR2PARAM1: %CAR2VALUE1
+#CAR2PARAM2  %CAR2PARAM2: %CAR2VALUE2
+#CAR2PARAM3  %CAR2PARAM3: %CAR2VALUE3
+#CAR2PARAM4  %CAR2PARAM4: %CAR2VALUE4
+#CAR2PARAM5  %CAR2PARAM5: %CAR2VALUE5
+  capacity: %CAR2CAPACITY
 
 loadpoints:
 - title: Wallbox

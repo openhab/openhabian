@@ -260,23 +260,22 @@ setup_whitegood_config() {
 ## #11 car 1 capacity
 ## #12 car 1 username in car manufacturer's online portal
 ## #13 car 1 password for account in car manufacturer's online portal
-## #14 car 1 hcaptcha token for account in car manufacturer's online portal
-## #15 car 2 type (from EVCC)
+## #14/#15-#22/#23 car 1 generic parameter #1-5 and values #1-5
+## e.g. for car 1 specific parameters CAR1PARAM[1-5] and values CAR1VALUE[1-5] like for tokens in car manufacturer's online portal
+## #24 car 2 type (from EVCC)
 ## audi bmw carwings citroen ds opel peugeot fiat ford kia hyundai mini nissan niu tesla
 ## renault ovms porsche seat skoda enyaq vw id volvo tronity
-## #16 car 2 name
-## #17 car 2 VIN Vehicle Identification Number
-## #18 car 2 capacity
-## #19 car 2 username in car manufacturer's online portal
-## #20 car 2 password for account in car manufacturer's online portal
-## #21 car 2 hcaptcha token for account in car manufacturer's online portal
-## #22 grid usage cost per kWh in EUR ("0.40")
-## #23 grid feedin compensation cost per kWh in EUR
-## #24 excess power required to start charging 
-## #25 max power to get from grid while charging 
+## #25 car 2 name
+## #26 car 2 VIN Vehicle Identification Number
+## #27 car 2 capacity
+## #28 car 2 username in car manufacturer's online portal
+## #29 car 2 password for account in car manufacturer's online portal
+## #30/#31 - #38/#39 car 2 generic parameter #1-5 e.g. for car 2 specific parameters CAR2PARAM[1-5] and values CAR2VALUE[1-5]
+## #40 grid usage cost per kWh in EUR ("0.40")
+## #41 grid feedin compensation cost per kWh in EUR
+## #42 excess power required to start charging 
+## #43 max power to get from grid while charging 
 ##
-## NOTE #14 #21 are new and not called with everywhere yet
-## => only use if >23 arguments
 ##
 ##    setup_wb_config(String wallbox typ, .... )  - all arguments are of type String
 ##
@@ -338,11 +337,12 @@ setup_wb_config() {
   temp="$(mktemp "${TMPDIR:-/tmp}"/evcc.XXXXX)"
   cp "${includesDir}/EVCC/evcc.yaml-template" "$temp"
 
-  if [[ $# -gt 23 ]]; then
-    sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%MBID|${3:-${wallboxmodbusid}}|;s|%WBUSER|${4:-${wallboxuser}}|;s|%WBPASS|${5:-${wallboxpass}}|;s|%WBID|${6:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${8:-${cartype1:-offline}}|;s|%CARNAME1|${9:-${carname1:-meinEAuto1}}|;s|%VIN1|${10:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${11:-${carcapacity1:-50}}|;s|%CARUSER1|${12:-${caruser1:-user}}|;s|%CARPASS1|${13:-${carpass1:-pass}}|;s|%CARTOKEN1|${14:-${cartoken1}}|;s|%CARTYPE2|${15:-${cartype2:-offline}}|;s|%CARNAME2|${16:-${carname2:-meinEAuto2}}|;s|%VIN2|${17:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${18:-${carcapacity2:-50}}|;s|%CARUSER2|${19:-${caruser2:-user}}|;s|%CARPASS2|${20:-${carpass2:-pass}}|;s|%CARTOKEN2|${21:-${cartoken2}}|;s|%GRIDCOST|${22:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${23:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${24:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${25:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
-  else
-    sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%MBID|${3:-${wallboxmodbusid}}|;s|%WBUSER|${4:-${wallboxuser}}|;s|%WBPASS|${5:-${wallboxpass}}|;s|%WBID|${6:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CARTYPE1|${8:-${cartype1:-offline}}|;s|%CARNAME1|${9:-${carname1:-meinEAuto1}}|;s|%VIN1|${10:-${vin1:-0000000000}}|;s|%CARCAPACITY1|${11:-${carcapacity1:-50}}|;s|%CARUSER1|${12:-${caruser1:-user}}|;s|%CARPASS1|${13:-${carpass1:-pass}}|;s|%CARTYPE2|${14:-${cartype2:-offline}}|;s|%CARNAME2|${15:-${carname2:-meinEAuto2}}|;s|%VIN2|${16:-${vin2:-0000000000}}|;s|%CARCAPACITY2|${17:-${carcapacity2:-50}}|;s|%CARUSER2|${18:-${caruser2:-user}}|;s|%CARPASS2|${19:-${carpass2:-pass}}|;s|%GRIDCOST|${20:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${21:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${22:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${23:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
-  fi
+
+
+  #sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%MBID|${3:-${wallboxmodbusid}}|;s|%WBUSER|${4:-${wallboxuser}}|;s|%WBPASS|${5:-${wallboxpass}}|;s|%WBID|${6:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CAR1TYPE|${8:-${car1type:-offline}}|;s|%CAR1NAME|${9:-${car1name:-meinEAuto1}}|;s|%CAR1VIN|${10:-${car1vin:-0000000000}}|;s|%CAR1CAPACITY|${11:-${car1capacity:-50}}|;s|%CAR1USER|${12:-${car1user:-user}}|;s|%CAR1PASS|${13:-${car1pass:-pass}}|;s|%CAR1PARAM1|${14:-${car1param1}}|;s|%CAR1PARAM2|${15:-${car1param2}}|;s|%CAR1PARAM3|${16:-${car1param3}}|;s|%CAR1PARAM4|${17:-${car1param4}}|;s|%CAR1PARAM5|${18:-${car1param5}}|;s|%CAR2TYPE|${19:-${car2type:-offline}}|;s|%CAR2NAME|${20:-${car2name:-meinEAuto2}}|;s|%CAR2VIN|${21:-${car2vin:-0000000000}}|;s|%CAR2CAPACITY|${22:-${car2capacity:-50}}|;s|%CAR2USER|${23:-${car2user:-user}}|;s|%CAR2PASS|${24:-${car2pass:-pass}}|;s|%CAR2PARAM1|${25:-${car2param1}}|;s|%CAR2PARAM2|${26:-${car2param2}}|;s|%CAR2PARAM3|${27:-${car2param3}}|;s|%CAR2PARAM4|${28:-${car2param4}}|;s|%CAR2PARAM5|${29:-${car2param5}}|;s|%GRIDCOST|${30:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${31:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${32:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${33:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
+
+  sed -e "s|%WBTYPE|${1:-${wallboxtype:-demo}}|;s|%IP|${2:-${wallboxip:-192.168.178.200}}|;s|%MBID|${3:-${wallboxmodbusid}}|;s|%WBUSER|${4:-${wallboxuser}}|;s|%WBPASS|${5:-${wallboxpass}}|;s|%WBID|${6:-${wallboxid}}|;s|%TOKEN|${token}|;s|%CAR1TYPE|${8:-${car1type:-offline}}|;s|%CAR1NAME|${9:-${car1name:-meinEAuto1}}|;s|%CAR1VIN|${10:-${car1vin:-0000000000}}|;s|%CAR1CAPACITY|${11:-${car1capacity:-50}}|;s|%CAR1USER|${12:-${car1user:-user}}|;s|%CAR1PASS|${13:-${car1pass:-pass}}|;s|%CAR1PARAM1|${14:-${car1param1}}|;s|%CAR1VALUE1|${15:-${car1value1}}|;s|%CAR1PARAM2|${16:-${car1param2}}|;s|%CAR1VALUE2|${17:-${car1value2}}|;s|%CAR1PARAM3|${18:-${car1param3}}|;s|%CAR1VALUE3|${19:-${car1value3}}|;s|%CAR1PARAM4|${20:-${car1param4}}|;s|%CAR1VALUE4|${21:-${car1value4}}|;s|%CAR1PARAM5|${22:-${car1param5}}|;s|%CAR1VALUE5|${23:-${car1value5}}|;s|%CAR2TYPE|${24:-${car2type:-offline}}|;s|%CAR2NAME|${25:-${car2name:-meinEAuto2}}|;s|%CAR2VIN|${26:-${car2vin:-0000000000}}|;s|%CAR2CAPACITY|${27:-${car2capacity:-50}}|;s|%CAR2USER|${28:-${car2user:-user}}|;s|%CAR2PASS|${29:-${car2pass:-pass}}|;s|%CAR2PARAM1|${30:-${car2param1}}|;s|%CAR2VALUE1|${31:-${car2value1}}|;s|%CAR2PARAM2|${32:-${car2param2}}|;s|%CAR2VALUE2|${33:-${car2value2}}|;s|%CAR2PARAM3|${34:-${car2param3}}|;s|%CAR2VALUE3|${35:-${car2value3}}|;s|%CAR2PARAM4|${36:-${car2param4}}|;s|%CAR2VALUE4|${37:-${car2value4}}|;s|%CAR2PARAM5|${38:-${car2param5}}|;s|%CAR2VALUE5|${39:-${car2value5}}|;s|%GRIDCOST|${40:-${gridcost:-40}}|;s|%FEEDINCOMPENSATION|${41:-${feedincompensation:-8.2}}|;s|%CHARGEMINEXCESS|${42:-${chargeminexcess:-2000}}|;s|%CHARGEMAXGRID|${43:-${chargemaxgrid:-2000}}|" "$temp" | grep -Evi ': NULL$' > "$evccConfig"
+
   rm -f "${temp}"
 
   if ! grep -Eq "[[:space:]]certificate" "${evccConfig}"; then
@@ -360,14 +360,49 @@ setup_wb_config() {
   if [[ ${5:-${wallboxpass}} != "" && ${5:-${wallboxpass}} != "NULL" ]]; then
     uncomment "#AUTHPASS" "${evccConfig}"
   fi
-  if [[ $# -gt 23 ]]; then
-    if [[ ${14:-${cartoken1}} != "" && ${14:-${cartoken1}} != "NULL" ]]; then
-      uncomment "#CAPTCHA1" "${evccConfig}"
-    fi
-    if [[ ${21:-${cartoken2}} != "" && ${21:-${cartoken2}} != "NULL" ]]; then
-      uncomment "#CAPTCHA2" "${evccConfig}"
-    fi
+
+  if [[ ${14:-${car1param1}} != "" && ${14:-${car1param1}} != "NULL" ]]; then
+    uncomment "#CAR1PARAM1" "${evccConfig}"
   fi
+  if [[ ${15:-${car1param2}} != "" && ${15:-${car1param2}} != "NULL" ]]; then
+    uncomment "#CAR1PARAM2" "${evccConfig}"
+  fi
+  if [[ ${16:-${car1param3}} != "" && ${16:-${car1param3}} != "NULL" ]]; then
+    uncomment "#CAR1PARAM3" "${evccConfig}"
+  fi
+  if [[ ${17:-${car1param4}} != "" && ${17:-${car1param4}} != "NULL" ]]; then
+    uncomment "#CAR1PARAM4" "${evccConfig}"
+  fi
+  if [[ ${18:-${car1param5}} != "" && ${18:-${car1param5}} != "NULL" ]]; then
+    uncomment "#CAR1PARAM5" "${evccConfig}"
+  fi
+  if [[ ${25:-${car2param1}} != "" && ${25:-${car2param1}} != "NULL" ]]; then
+    uncomment "#CAR2PARAM1" "${evccConfig}"
+  fi
+  if [[ ${26:-${car2param2}} != "" && ${26:-${car2param2}} != "NULL" ]]; then
+    uncomment "#CAR2PARAM2" "${evccConfig}"
+  fi
+  if [[ ${27:-${car2param3}} != "" && ${27:-${car2param3}} != "NULL" ]]; then
+    uncomment "#CAR2PARAM3" "${evccConfig}"
+  fi
+  if [[ ${28:-${car2param4}} != "" && ${28:-${car2param4}} != "NULL" ]]; then
+    uncomment "#CAR2PARAM4" "${evccConfig}"
+  fi
+  if [[ ${29:-${car2param5}} != "" && ${29:-${car2param5}} != "NULL" ]]; then
+    uncomment "#CAR2PARAM5" "${evccConfig}"
+  fi
+
+  # ACHTUNG: Beim Aufruf aus Grundfunktionen.rules 
+  # für den Normalfall (= kein Autotyp, der besonderer Parameter bedarf) muss user/password angegeben werden
+  # bei manchen Autotypen dürfen diese aber nicht benutzt werde (evcc startet dann mit "invalid parameter" nicht)
+  # => user/pw aus param #12/#13 bzw. #28/#29 checken und nur uncommenten, wenn nicht NULL
+  if [[ ${12:-${car1user}} != "" && ${12:-${car1user}} != "NULL" ]]; then
+    uncomment "#CAR1USERPASS" "${evccConfig}"
+  fi
+  if [[ ${28:-${car2user}} != "" && ${28:-${car2user}} != "NULL" ]]; then
+    uncomment "#CAR2USERPASS" "${evccConfig}"
+  fi
+
   if [[ ${1:-${wallboxtype}} == "demo" ]]; then
     rm -f "$evccConfig"
   fi
@@ -568,19 +603,22 @@ setup_telegram() {
 replace_logo() {
   local JAR
   # shellcheck disable=SC2125
-  local logoInJAR=app/images/openhab-logo.svg
+  #local logoInJAR=app/assets/openhab-logo*.svg
+  local logoInJAR="app/images/openhab-logo*.svg app/assets/openhab-logo*.svg"
   local logoNew="${BASEDIR:-/opt/openhabian}/includes"/logo.svg
 
 
   # shellcheck disable=SC2012
-  JAR=$(ls -1t /usr/share/openhab/runtime/system/org/openhab/ui/bundles/org.openhab.ui/*/org.openhab.ui-*|sort -ru|head -1)
-  rm -rf "app"		#rm -rf "$logoInJAR"
+  JAR=$(ls -1t /usr/share/openhab/runtime/system/org/openhab/ui/bundles/org.openhab.ui/*/org.openhab.ui-*.jar | sort -ru | head -1)
+  rm -rf "app"
   # shellcheck disable=SC2086
-  unzip -qq $JAR "$logoInJAR"
-  cp "$logoNew" "$logoInJAR"
-  # shellcheck disable=SC2086
-  if ! cond_redirect zip -r $JAR "$logoInJAR"; then echo "FAILED (replace logo)"; fi
-  rm -rf "$logoInJAR"
+  unzip -qq "$JAR" $logoInJAR
+  # shellcheck disable=SC2045,SC2086
+  for s in $(ls -1 $logoInJAR 2>/dev/null); do
+    cp "$logoNew" "$s"
+  done
+  if ! cond_redirect zip -r "$JAR" app; then echo "FAILED (replace logo)"; fi
+  rm -rf app
 }
 
 
