@@ -95,6 +95,12 @@ timezone_setting() {
   if [[ -n $INTERACTIVE ]]; then
     echo -n "$(timestamp) [openHABian] Setting timezone based on user choice... "
     if dpkg-reconfigure tzdata; then echo "OK ($(cat /etc/timezone))"; else echo "FAILED"; return 1; fi
+      echo -n "$(timestamp) [openHABian] Setting openHAB timezone... "
+
+      # tz sources order: 1) /etc/openhabian.conf  2) /etc/timezone  3) default UTC
+      tz=$(cat /etc/timezone 2>/dev/null); timezone=${timezone:=$tz}
+      if cond_redirect sed -ri "s|^(EXTRA_JAVA_OPTS.*?)(interning=true)?\"|\1\2 -Duser.timezone=${timezone:-UTC}\"|g" /etc/default/openhab; then echo "OK"; else echo "FAILED"; return 1; fi
+
   elif [[ -n $timezone ]]; then
     echo -n "$(timestamp) [openHABian] Setting timezone based on openhabian.conf... "
     if ! running_in_docker && ! running_on_github; then
