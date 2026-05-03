@@ -111,7 +111,7 @@ amanda_install() {
 
   if ! amanda_is_installed; then
     echo -n "$(timestamp) [openHABian] Installing Amanda backup system... "
-    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" amanda-common amanda-server amanda-client; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" amanda-common amanda-server amanda-client nfs-common; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
   if ! dpkg -s 'exim4' &> /dev/null; then
     if ! exim_setup; then return 1; fi
