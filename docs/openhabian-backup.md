@@ -172,13 +172,14 @@ Do not deploy these commands unless you are fully aware what they will do to you
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do! ----- EXAMPLE ONLY -----
 
 pi@pi:~ $ sudo bash
+pi@pi:~ $ apt-get install nfs-common
 root@pi:/home/pi# host nas
 nas.fritz.box has address 192.168.1.100
 root@pi:/home/pi#
 root@pi:/home/pi# mkdir -p /storage/server
 root@pi:/home/pi# echo "192.168.1.100://share/freespace     /storage/server    nfs     nolock,noatime  0       0" >> /etc/fstab
 root@pi:/home/pi# mount /storage/server
-root@pi:/home/pi# df -k /server
+root@pi:/home/pi# df -k /storage/server
 Filesystem                       1K-blocks       Used Available  Use% Mounted on
 192.168.1.100://share/freespace 2882740768 2502091488 380649280   87% /storage/server
 root@pi:/home/pi#
