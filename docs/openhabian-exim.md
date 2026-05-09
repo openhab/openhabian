@@ -1,3 +1,9 @@
+---
+layout: documentation
+title: openHABian Mail Configuration
+source: https://github.com/openhab/openhabian/blob/main/docs/openhabian-exim.md
+---
+
 ## Mail Transfer Agent configuration
 
 When you choose the "Mail Transfer Agent" install option in `openhabian-config` menu to install `exim4` as the mail transfer agent on your system, you will be presented with a number of questions on how to relay emails through a public service such as Google gmail.
