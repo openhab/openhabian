@@ -172,7 +172,6 @@ Do not deploy these commands unless you are fully aware what they will do to you
 ----- EXAMPLE ONLY ----- Don't use unless you understand what these commands do! ----- EXAMPLE ONLY -----
 
 pi@pi:~ $ sudo bash
-pi@pi:~ $ apt-get install nfs-common
 root@pi:/home/pi# host nas
 nas.fritz.box has address 192.168.1.100
 root@pi:/home/pi#
