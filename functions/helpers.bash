@@ -578,17 +578,29 @@ is_wifi_connected() {
 ##    zram_dependency
 ##
 zram_dependency() {
-  local zramServiceConfig="/etc/systemd/system/zram.service.d/override.conf"
+  local zramServiceConfig="/etc/systemd/system/zram-config.service.d/override.conf"
   local install="yes"
 
   if ! [[ -f /etc/ztab ]]; then return 0; fi
   if [[ "$1" == "install" ]]; then shift 1; fi
   if [[ "$1" == "remove" ]]; then install="no"; shift 1; fi
 
+  # Dependencies used to be written to zram.service.d which systemd never
+  # applied to zram-config.service (drop-in directory name must match the unit
+  # name), migrate any existing configuration to the correct location.
+  if [[ -d /etc/systemd/system/zram.service.d ]]; then
+    echo -n "$(timestamp) [openHABian] Migrating zram service dependencies... "
+    if ! [[ -f $zramServiceConfig ]]; then
+      if ! cond_redirect mkdir -p /etc/systemd/system/zram-config.service.d; then echo "FAILED (prepare directory)"; return 1; fi
+      if ! cond_redirect mv /etc/systemd/system/zram.service.d/override.conf "$zramServiceConfig"; then echo "FAILED (migrate configuration)"; return 1; fi
+    fi
+    if cond_redirect rm -rf /etc/systemd/system/zram.service.d; then echo "OK"; else echo "FAILED (remove old directory)"; return 1; fi
+  fi
+
   if ! [[ -f $zramServiceConfig ]]; then
     echo -n "$(timestamp) [openHABian] Setting up zram service... "
-    if ! cond_redirect mkdir -p /etc/systemd/system/zram.service.d; then echo "FAILED (prepare directory)"; return 1; fi
-    if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/zram-override.conf /etc/systemd/system/zram.service.d/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
+    if ! cond_redirect mkdir -p /etc/systemd/system/zram-config.service.d; then echo "FAILED (prepare directory)"; return 1; fi
+    if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/zram-override.conf "$zramServiceConfig"; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
   fi
 
   for arg in "$@"; do

@@ -139,6 +139,8 @@ else
   jsscripting_npm_check "openhab"
   jsscripting_npm_check "openhab_rules_tools"
   frontail_remove
+  # one time fix of /srv bind mount order vs zram and zram service dependencies (#2060)
+  [[ -z $srvmount_fix ]] && openhab_is_installed && srv_bind_mounts && zram_dependency install && echo "srvmount_fix=done" >> /etc/openhabian.conf
   while show_main_menu; do
     true
   done
