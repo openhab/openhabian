@@ -85,6 +85,12 @@ fi
 export CONFIGTXT
 export CMDLINETXT
 
+# one time fix of /srv bind mount order vs zram and zram service dependencies (#2060)
+# must run before update_openhabian_conf as that sets $srv_mount_fix from the reference config
+if [[ -n $INTERACTIVE ]] && [[ -z $srv_mount_fix ]] && openhab_is_installed; then
+  srv_bind_mounts && zram_dependency install
+fi
+
 # update openhabian.conf to have latest set of parameters
 update_openhabian_conf
 
@@ -139,8 +145,6 @@ else
   jsscripting_npm_check "openhab"
   jsscripting_npm_check "openhab_rules_tools"
   frontail_remove
-  # one time fix of /srv bind mount order vs zram and zram service dependencies (#2060)
-  [[ -z $srvmount_fix ]] && openhab_is_installed && srv_bind_mounts && zram_dependency install && echo "srvmount_fix=done" >> /etc/openhabian.conf
   while show_main_menu; do
     true
   done
