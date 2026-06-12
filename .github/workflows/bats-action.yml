@@ -108,7 +108,12 @@ jobs:
             docker exec -i openhabian-rpi4-systemd systemctl list-jobs || true
             return 1
           }
-          sudo modprobe zram
+          # the Azure kernels on the GitHub runners ship zram in the extra modules package
+          if ! sudo modprobe zram; then
+            sudo apt-get update -qq
+            sudo apt-get install --yes -qq "linux-modules-extra-$(uname -r)"
+            sudo modprobe zram
+          fi
           docker run --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
               -v /dev:/dev --tmpfs /run --tmpfs /run/lock --name openhabian-rpi4-systemd \
               -d openhabian/rpi4-systemd-openhabian
