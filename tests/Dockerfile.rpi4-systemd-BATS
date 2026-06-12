@@ -1,0 +1,45 @@
+# Note RPi4 base WITH 64bit OS, booted with real systemd as PID 1 to be able
+# to test mount units and zram, which the Docker systemctl replacement used by
+# the other BATS images does not support. Run privileged with the host /dev
+# and a zram capable host kernel ('modprobe zram' on the host first), e.g.:
+#
+#   docker run --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
+#       -v /dev:/dev --tmpfs /run --tmpfs /run/lock -d <image>
+
+FROM debian:bookworm
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Keep the apt lists, the zram install routine installs packages at test time
+RUN apt-get update -qq && \
+    apt-get install --yes -qq --no-install-recommends systemd systemd-sysv \
+        dbus kmod util-linux mount procps psmisc git wget curl \
+        ca-certificates gnupg jq acl apt-utils apt-transport-https \
+        build-essential lsb-release python3 python3-pip
+
+RUN git clone https://github.com/bats-core/bats-core.git --branch v1.5.0 && \
+    cd bats-core && \
+    ./install.sh /usr/local && \
+    cd .. && rm -rf bats-core
+
+RUN adduser openhabian --gecos "openHABian,,," --disabled-password && \
+    adduser openhab --gecos "openHABian,,," --disabled-password && \
+    echo "openhabian:openhabian" | chpasswd && \
+    echo "openhab:openhabian" | chpasswd
+
+COPY . /opt/openhabian/
+WORKDIR /opt/openhabian/
+
+# Stub for networking.service so that network.target is ordered into the boot
+# transaction like on a real system. Without it an ordering cycle through
+# network.target (see #2060) cannot be detected by the boot order tests.
+RUN printf '%s\n' '[Unit]' 'Description=CI stub for networking.service' \
+        'Before=network.target' 'Wants=network.target' '' '[Service]' \
+        'Type=oneshot' 'RemainAfterExit=yes' 'ExecStart=/bin/true' '' \
+        '[Install]' 'WantedBy=multi-user.target' \
+        > /etc/systemd/system/ci-networking.service && \
+    systemctl enable ci-networking.service
+
+RUN systemctl set-default multi-user.target
+
+CMD ["/lib/systemd/systemd"]

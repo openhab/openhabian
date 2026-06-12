@@ -387,6 +387,12 @@ running_on_github() {
   [[ -n "$GITHUB_RUN_ID" ]]
   return $?
 }
+## Check if systemd is the running init system, e.g. mount units only work on a
+## systemd booted system, not with the Docker systemctl replacement.
+is_systemd_booted() {
+  [[ -d /run/systemd/system ]] && [[ "$(ps --no-headers -o comm 1)" == "systemd" ]]
+  return $?
+}
 
 ## Attempt a command "$1" for either a default of 10 times or
 ## for "$2" times unless "$1" evaulates to 0.

@@ -223,8 +223,9 @@ vimrc_copy() {
 ##    create_mount(String source, String destination)
 ##
 create_mount() {
-  # Docker systemctl replacement does not support mount services
-  if running_in_docker; then
+  # Docker systemctl replacement does not support mount services, but a
+  # container booted with real systemd (e.g. systemd BATS tests) does
+  if running_in_docker && ! is_systemd_booted; then
     echo "$(timestamp) [openHABian] Creating mount $2 in '/srv/openhab-${1}'... SKIPPED"
     return 0
   fi

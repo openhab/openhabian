@@ -122,11 +122,11 @@ check_zram_removal() {
   rm -rf "$backupDir"
 }
 
-@test "inactive-srv-mounts" {
-  if running_in_docker; then skip "Not executing srv mount test because Docker does not support mount units."; fi
-  if ! openhab_is_installed; then skip "Not executing srv mount test because openHAB is not installed."; fi
+@test "systemdsetup-srv-mounts" {
+  if ! is_systemd_booted; then skip "Not executing srv mount test because systemd is not the running init system."; fi
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] srv mount test starting...${COL_DEF}" >&3
+  mkdir -p /etc/openhab /var/lib/openhab/persistence /usr/share/openhab/addons
   run srv_bind_mounts 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
@@ -136,12 +136,64 @@ check_zram_removal() {
     [ "$status" -eq 0 ]
   done
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Availability of /srv bind mounts verified.${COL_DEF}" >&3
+}
+
+@test "systemdsetup-zram" {
+  if ! is_systemd_booted; then skip "Not executing zram setup test because systemd is not the running init system."; fi
+  if ! is_arm; then skip "Not executing zram setup test because not on native ARM architecture hardware."; fi
+  if ! [[ -d /sys/class/zram-control ]] && ! modprobe zram &> /dev/null; then skip "Not executing zram setup test because the zram kernel module is not available."; fi
+
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] zram setup test starting...${COL_DEF}" >&3
+  if ! zram_is_installed; then
+    run init_zram_mounts "install" 3>&-
+    if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+    [ "$status" -eq 0 ]
+  fi
+  if ! grep -qs "/var/lib/openhab/persistence" /etc/ztab; then
+    # without openHAB installed the persistence entry was removed, restore it
+    # to be able to test overlay propagation into the /srv bind mounts
+    printf 'dir\tzstd\t\t150M\t\t350M\t\t/var/lib/openhab/persistence\t/persistence.bind\n' >> /etc/ztab
+    run systemctl restart zram-config.service
+    [ "$status" -eq 0 ]
+  fi
+  run check_zram_mounts
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Availability of zram mounts verified.${COL_DEF}" >&3
 
   # the zram overlay mounts must propagate into the /srv bind mounts so that
   # Samba shares show live data instead of the stale lower directory (#2060)
-  if grep -qs "/var/lib/openhab/persistence" /etc/ztab && [ "$(systemctl is-active zram-config.service)" = "active" ]; then
+  [ "$(stat -f -c %T /srv/openhab-userdata/persistence)" = "overlayfs" ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Propagation of zram overlay into /srv bind mounts verified.${COL_DEF}" >&3
+}
+
+@test "systemdboot-zram-srv-mounts" {
+  if ! is_systemd_booted; then skip "Not executing boot order test because systemd is not the running init system."; fi
+  if ! [[ -f "/etc/systemd/system/srv-openhab\x2duserdata.mount" ]]; then skip "Not executing boot order test because the /srv mounts are not set up."; fi
+
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] boot order test starting...${COL_DEF}" >&3
+  for srvDir in sys conf userdata addons; do
+    run mountpoint -q "/srv/openhab-${srvDir}"
+    if [ "$status" -ne 0 ]; then echo "# $(basename "$0") error: /srv/openhab-${srvDir} is not mounted after boot." >&3; fi
+    [ "$status" -eq 0 ]
+  done
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Availability of /srv bind mounts after boot verified.${COL_DEF}" >&3
+
+  # ordering the /srv mounts before zram-config.service must not create an
+  # ordering cycle that makes systemd drop zram-config.service from the boot
+  # transaction (#2060), an enabled but inactive service after boot means its
+  # start job was deleted to break a cycle
+  run bash -c "journalctl -b | grep -i 'ordering cycle' | grep -E 'zram-config|srv-openhab'"
+  if [ "$status" -eq 0 ]; then echo "$output" >&3; fi
+  [ "$status" -ne 0 ]
+  if [ "$(systemctl is-enabled zram-config.service 2> /dev/null)" = "enabled" ]; then
+    [ "$(systemctl is-active zram-config.service)" = "active" ]
+  fi
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] No ordering cycle on zram-config.service after boot verified.${COL_DEF}" >&3
+
+  if grep -qs "/var/lib/openhab/persistence" /etc/ztab; then
     [ "$(stat -f -c %T /srv/openhab-userdata/persistence)" = "overlayfs" ]
-    echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Propagation of zram overlay into /srv bind mounts verified.${COL_DEF}" >&3
+    echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Propagation of zram overlay into /srv bind mounts after boot verified.${COL_DEF}" >&3
   fi
 }
 
