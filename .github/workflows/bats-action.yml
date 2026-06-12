@@ -11,6 +11,7 @@ on:
       - 'functions/java-jre.bash'
       - 'functions/nodejs-apps.bash'
       - 'functions/packages.bash'
+      - 'functions/system.bash'
       - 'functions/vpn.bash'
       - 'functions/zram.bash'
       - '.github/workflows/bats-action.yml'
@@ -24,6 +25,7 @@ on:
       - 'functions/java-jre.bash'
       - 'functions/nodejs-apps.bash'
       - 'functions/packages.bash'
+      - 'functions/system.bash'
       - 'functions/vpn.bash'
       - 'functions/zram.bash'
       - '.github/workflows/bats-action.yml'
@@ -70,3 +72,55 @@ jobs:
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "installation-." .'
           docker exec -i "openhabian-${{ matrix.platform }}" bash -c 'bats --tap --recursive --filter "destructive-." .'
           docker stop "openhabian-${{ matrix.platform }}"
+
+  systemd-bats-tests:
+    name: rpi4 systemd BATS
+    runs-on: ubuntu-24.04-arm
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name != github.event.pull_request.base.repo.full_name
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Setup environment
+        run: sudo -E ./tests/ci-setup.bash github
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v4.1.0
+        with:
+          driver-opts: network=host
+      - name: Build Docker image
+        uses: docker/build-push-action@v7.2.0
+        with:
+          context: .
+          file: ./tests/Dockerfile.rpi4-systemd-BATS
+          builder: ${{ steps.buildx.outputs.name }}
+          tags: openhabian/rpi4-systemd-openhabian:latest
+          load: true
+      - name: systemd BATS tests on rpi4 platform
+        run: |
+          waitForSystemd() {
+            for i in $(seq 1 30); do
+              state="$(docker exec -i openhabian-rpi4-systemd systemctl is-system-running 2>/dev/null || true)"
+              if [ "$state" = "running" ] || [ "$state" = "degraded" ]; then return 0; fi
+              sleep 2
+            done
+            echo "systemd in container did not finish booting (state: ${state})"
+            docker exec -i openhabian-rpi4-systemd systemctl list-jobs || true
+            return 1
+          }
+          # the Azure kernels on the GitHub runners ship zram in the extra modules package
+          if ! sudo modprobe zram; then
+            sudo apt-get update -qq
+            sudo apt-get install --yes -qq "linux-modules-extra-$(uname -r)"
+            sudo modprobe zram
+          fi
+          docker run --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
+              -v /dev:/dev --tmpfs /run --tmpfs /run/lock --name openhabian-rpi4-systemd \
+              -d openhabian/rpi4-systemd-openhabian
+          waitForSystemd
+          docker exec -i openhabian-rpi4-systemd bash -c 'cd /opt/openhabian && bats --tap --recursive --filter "systemdsetup-." .'
+          docker restart openhabian-rpi4-systemd
+          waitForSystemd
+          docker exec -i openhabian-rpi4-systemd bash -c 'cd /opt/openhabian && bats --tap --recursive --filter "systemdboot-." .'
+          docker stop openhabian-rpi4-systemd
+          docker rm -f openhabian-rpi4-systemd || true
