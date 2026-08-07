@@ -24,7 +24,7 @@ move_root2usb() {
   local srcSize
   local destSize
 
-  rootPart="$(tr ' ' '\n' < /boot/cmdline.txt | grep 'root=PARTUUID=' | cut -d'=' -f2-)"
+  rootPart="$(tr ' ' '\n' < "${CMDLINETXT}" | grep 'root=PARTUUID=' | cut -d'=' -f2-)"
   srcSize="$(blockdev --getsize64 /dev/mmcblk0)"
   destSize="$(blockdev --getsize64 "$newRootDev")"
 
@@ -100,8 +100,8 @@ move_root2usb() {
   if ! cond_redirect sed -i 's|'"${rootPart}"'|'"${newRootPart}"'|' /mnt/etc/fstab; then echo "FAILED (fstab)"; return 1; fi
 
   cond_echo "\\nAdjusting system root in cmdline.txt"
-  if ! cond_redirect cp /boot/cmdline.txt /boot/cmdline.txt.sdcard; then echo "FAILED (backup cmdline.txt)"; return 1; fi
-  if cond_redirect sed -i 's|root='"${rootPart}"'|root='"${newRootPart}"'|' /boot/cmdline.txt; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
+  if ! cond_redirect cp "${CMDLINETXT}" "${CMDLINETXT}.sdcard"; then echo "FAILED (backup cmdline.txt)"; return 1; fi
+  if cond_redirect sed -i 's|root='"${rootPart}"'|root='"${newRootPart}"'|' "${CMDLINETXT}"; then echo "OK (reboot required)"; else echo "FAILED"; return 1; fi
 
   whiptail --title "Operation successful" --msgbox "The system root has successfully been moved to the USB. PLEASE REBOOT!\\n\\nIn the unlikely case that the reboot does not succeed, please put the SD card into another device and copy back '/boot/cmdline.txt.sdcard' to '/boot/cmdline.txt'." 11 80
 }

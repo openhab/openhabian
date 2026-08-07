@@ -42,30 +42,22 @@ With that being said, we can't and won't stop you from doing whatever you want, 
 ### Hardware
 
 #### Hardware Recommendation
-
-Our current recommendation is to get a Raspberry Pi model 4 or 5 with 2 or 4 GB of RAM, whatever you can get for a good price.
-Older RPi models (or models with less RAM) can be sufficient to run a smallish openHAB setup.
-Please note that running 64bit mode on RPi with only 1 GB of RAM tends not to work super well.
-
-You will need an SD card to go along with your Raspberry Pi, SD cards labelled "Endurance" are best for openHABian.
-Cards labelled "Endurance" can handle more write cycles and will typically last longer for openHAB's use conditions.
-
-Ideally you should purchase two SD cards, and a USB adapter for the second card so that you can make use of the [SD mirroring](./openhabian-backup.md#sd-mirroring) feature.
-This will give you a ready to go drop in replacement in the case of any hardware issues later on.
+Let's put this first: You can run openHABian on any system with a native Debian Linux distribution.
+Any old x86 server or desktop system will do, all you will need is 1 GB of *free* RAM. Used laptop systems are great because of the backup capabilities that the integrated battery provides.
+While you can install additional software on top of an openHABian server, we recommend against doing so.
+Run your home automation on a system that you dedicate to this task and prepare to run it 24 hours a day, 7 days a week.
+Our current recommendation is to get a RPi model 4 or 5 with 2 or 4 GB of RAM, whatever you can get hold of for a good price, plus an "Endurance" SD card. If you want to be on the safe side, order the official 3A power supply, else any old mobile charger will usually do.
+Cards named "Endurance" can handle more write cycles and will be more enduring under openHAB\'s use conditions.
+Prepare to make use of the [SD mirroring feature](openhabian.md#SD-mirroring), get a 2nd SD card right away, same model or at least the size of your internal one, plus a USB card reader.
 
 #### Hardware Support
 
-All Raspberry Pi models are supported by openHABian.
+The openHABian image supports all Raspberry Pi models.
 
-::: tip Note
-With openHAB 5 release, we have dropped support for anything older than an RPi 3 as openHAB 5 requires a 64 bit processor.
-:::
-
-
-Running in 64 bit has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like older Raspberries. Ensure your RPi has a minimum of 2 GB, 4 will put you on the safe side.
+Running in 64 bit on ARM has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like older Raspberries. Ensure your RPi has a minimum of 2 GB.
 For older hardware, you can attempt to use the 32 bit image we still provide, it should work but we do not support running openHAB 5.
 
-openHABian can run on x86 based systems but you will need to install debian yourself.
+openHABian can run on x86 based systems but you will need to install the Debian OS yourself.
 See [installation on other Linux systems](#installation-on-other-linux-systems) for directions on what to do.
 On x86 hardware, it's all 64 bit but that in turn once more increases memory usage. A NUC to run on should have no less than 4 GB, 8 are better.
 
@@ -219,6 +211,9 @@ We try to setup everything for you so that you don't have to do any additional c
 -   **Language**: By default we set the `locale` setting to `en_US.UTF8` as this tends to be the best for error messages, it can be changed using menu option 32.
 -   **Passwords**: You should change the default password using menu option 34.
 
+NOTE: You should have been configuring timezone and locale at installation time via `openhabian.conf` settings.
+
+
 ##### Default Passwords
 
 For reference, the default username and passwords are as follows:
@@ -262,6 +257,9 @@ The ESPHome configuration files are secured by the openHABbian backup function. 
 ## First boot configuration
 
 Many settings are configurable prior to the first boot of openHABian by changing the key value pairs in the `/boot/openhabian.conf` file on the SD card once you have flashed the initial image onto it.
+
+Most notably you should be setting the timezone and locale this way if yours differ from the defaults.
+Also make sure to read the [Networking] section and eventually preconfigure your Wi-Fi setup before you boot for the first time.
 
 Please note that - in case you use a Windows system for writing the SD card - the `/boot/` partition will be mounted to a drive named `bootfs`. So, e.g. if this drive has the letter `D:`, `/boot/openhabian.conf` will be found as `D:\openhabian.conf`.
 
@@ -414,6 +412,17 @@ clonebranch="openHAB4"
 ```
 :::
 
+#### `openhabpkgversion`
+
+To install a specific version of openhab and openhab-addons packages, use the package version string.
+Leaving this empty will install the latest available packages from the release repo.
+
+::: details Example
+```
+openhabpkgversion=5.1.2-1
+```
+:::
+
 #### `initialconfig`
 
 An initial configuration file to import when setting up openHAB.
@@ -559,6 +568,36 @@ Password to connect to the hotspot when internet is not reachable.
 ::: details Example
 ```
 hotspotpw="openhabian"
+```
+:::
+
+#### `deconz_install`
+
+Enable or disable deCONZ software / Phoscon companion app installation.
+
+::: details Example
+```
+deconz_install="enable"
+```
+:::
+
+#### `deconz_port`
+
+Set the Phoscon Web UI (HTTP) port provided by deCONZ. Default: 8081.
+
+::: details Example
+```
+deconz_port="8081"
+```
+:::
+
+#### `deconz_wsport`
+
+Set the deCONZ WebSocket API port. Default: 8088.
+
+::: details Example
+```
+deconz_wsport="8088"
 ```
 :::
 

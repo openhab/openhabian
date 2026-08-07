@@ -30,7 +30,11 @@ To have it install openHAB 4 or openHAB 3 right from the beginning, set `clonebr
 
 ## Hardware
 ### Hardware recommendation
-Let's put this first: our current recommendation is to get a RPi model 4 or 5 with 2 or 4 GB of RAM, whatever you can get hold of for a good price, plus an "Endurance" SD card. If you want to be on the safe side, order the official 3A power supply, else any old mobile charger will usually do.
+Let's put this first: You can run openHABan on any system with a native Debian Linux distribution.
+Any old x86 server or desktop system will do, all you will need is 1 GB of *free* RAM. Used laptop systems are great because of the backup capabilities that the integrated battery provides.
+While you can install additional software on top of an openHABian server, we recommend against doing so.
+Run your home automation on a system that you dedicate to this task and prepare to run it 24 hours a day, 7 days a week.
+Our current recommendation is to get a RPi model 4 or 5 with 2 or 4 GB of RAM, whatever you can get hold of for a good price, plus an "Endurance" SD card. If you want to be on the safe side, order the official 3A power supply, else any old mobile charger will usually do.
 Cards named "Endurance" can handle more write cycles and will be more enduring under openHAB\'s use conditions.
 Prepare to make use of the [SD mirroring feature](openhabian.md#SD-mirroring), get a 2nd SD card right away, same model or at least the size of your internal one, plus a USB card reader.
 

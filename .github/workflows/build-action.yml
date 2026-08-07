@@ -8,16 +8,20 @@ on:
       - 'build-image/openhabian-installer.service'
       - 'build-image/first-boot.bash'
       - 'build-image/openhabian.conf'
-      - 'build-image/offline-image-modifications.bash'
+      - 'build-image/offline-install-modifications.bash'
       - '.github/workflows/build-action.yml'
+      - 'functions/helpers.bash'
+      - 'functions/java-jre.bash'
   pull_request:
     paths:
       - 'build.bash'
       - 'build-image/openhabian-installer.service'
       - 'build-image/first-boot.bash'
       - 'build-image/openhabian.conf'
-      - 'build-image/offline-image-modifications.bash'
+      - 'build-image/offline-install-modifications.bash'
       - '.github/workflows/build-action.yml'
+      - 'functions/helpers.bash'
+      - 'functions/java-jre.bash'
   workflow_dispatch:
     inputs:
       comments:
@@ -31,7 +35,7 @@ jobs:
 
     steps:
        - name: Checkout repository
-         uses: actions/checkout@v5
+         uses: actions/checkout@v7
          with:
            repository: ${{ github.event.pull_request.head.repo.full_name }}
            ref: ${{ github.event.pull_request.head.ref }}
@@ -43,12 +47,12 @@ jobs:
            echo "image32=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_armhf_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
            echo "image64=$(basename "$(curl "https://downloads.raspberrypi.org/raspios_lite_arm64_latest" -s -L -I  -o /dev/null -w '%{url_effective}')")" >> $GITHUB_OUTPUT
        - name: Cache Raspberry Pi OS 32bit image
-         uses: actions/cache@v4
+         uses: actions/cache@v6
          with:
            path: ${{ steps.setup.outputs.image32 }}
            key: ${{ steps.setup.outputs.image32 }}
        - name: Cache Raspberry Pi OS 64bit image
-         uses: actions/cache@v4
+         uses: actions/cache@v6
          with:
            path: ${{ steps.setup.outputs.image64 }}
            key: ${{ steps.setup.outputs.image64 }}
@@ -64,25 +68,25 @@ jobs:
            echo "image32=$(ls openhabian-raspios32-latest*.img.xz)" >> $GITHUB_OUTPUT
            echo "image64=$(ls openhabian-raspios64-latest*.img.xz)" >> $GITHUB_OUTPUT
            echo "json_image=$(ls rpi-imager-openhab.json)" >> $GITHUB_OUTPUT
-       - name: Archive openHABian 32bit Debian 12 bookworm image
-         uses: actions/upload-artifact@v4
+       - name: Archive openHABian 32bit Debian 13 trixie image
+         uses: actions/upload-artifact@v7
          with:
            name: ${{ steps.build.outputs.image32 }}
            path: ${{ steps.build.outputs.image32 }}
-       - name: Archive openHABian 64bit Debian 12 bookworm image
-         uses: actions/upload-artifact@v4
+       - name: Archive openHABian 64bit Debian 13 trixie image
+         uses: actions/upload-artifact@v7
          with:
            name: ${{ steps.build.outputs.image64 }}
            path: ${{ steps.build.outputs.image64 }}
        - name: Archive openHABian json of image download
-         uses: actions/upload-artifact@v4
+         uses: actions/upload-artifact@v7
          with:
            name: ${{ steps.build.outputs.json_image }}
            path: ${{ steps.build.outputs.json_image }}
 
        - name: Create release template
          if: ${{ success() && github.ref_type == 'tag' && startsWith(github.ref_name, 'v') }}
-         uses: "softprops/action-gh-release@v2"
+         uses: "softprops/action-gh-release@v3"
          env:
            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
          with:

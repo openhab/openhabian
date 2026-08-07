@@ -387,6 +387,12 @@ running_on_github() {
   [[ -n "$GITHUB_RUN_ID" ]]
   return $?
 }
+## Check if systemd is the running init system, e.g. mount units only work on a
+## systemd booted system, not with the Docker systemctl replacement.
+is_systemd_booted() {
+  [[ -d /run/systemd/system ]] && [[ "$(ps --no-headers -o comm 1)" == "systemd" ]]
+  return $?
+}
 
 ## Attempt a command "$1" for either a default of 10 times or
 ## for "$2" times unless "$1" evaulates to 0.
@@ -439,7 +445,7 @@ has_lowmem() {
 ## Returns 0 / true if device has more than 1500MB of total memory
 ## Returns 1 / false if device has less than 1500MB of total memory
 ##
-##    has_hasmem()
+##    has_highmem()
 ##
 has_highmem() {
   local totalMemory
@@ -448,6 +454,20 @@ has_highmem() {
 
   if [[ -z $totalMemory ]]; then return 1; fi # assume that device does not have high memory
   if [[ $totalMemory -gt 1500000 ]]; then return 0; else return 1; fi
+}
+
+## Returns 0 / true if device has more than 3000MB of total memory
+## Returns 1 / false if device has less than 3000MB of total memory
+##
+##    has_veryhighmem()
+##
+has_veryhighmem() {
+  local totalMemory
+
+  totalMemory="$(awk '/MemTotal/ {print $2}' /proc/meminfo)"
+
+  if [[ -z $totalMemory ]]; then return 1; fi # assume that device does not have very high memory
+  if [[ $totalMemory -gt 3000000 ]]; then return 0; else return 1; fi
 }
 
 ## Attempt to update apt package lists 10 times
@@ -564,17 +584,29 @@ is_wifi_connected() {
 ##    zram_dependency
 ##
 zram_dependency() {
-  local zramServiceConfig="/etc/systemd/system/zram.service.d/override.conf"
+  local zramServiceConfig="/etc/systemd/system/zram-config.service.d/override.conf"
   local install="yes"
 
   if ! [[ -f /etc/ztab ]]; then return 0; fi
   if [[ "$1" == "install" ]]; then shift 1; fi
   if [[ "$1" == "remove" ]]; then install="no"; shift 1; fi
 
+  # Dependencies used to be written to zram.service.d which systemd never
+  # applied to zram-config.service (drop-in directory name must match the unit
+  # name), migrate any existing configuration to the correct location.
+  if [[ -d /etc/systemd/system/zram.service.d ]]; then
+    echo -n "$(timestamp) [openHABian] Migrating zram service dependencies... "
+    if ! [[ -f $zramServiceConfig ]]; then
+      if ! cond_redirect mkdir -p /etc/systemd/system/zram-config.service.d; then echo "FAILED (prepare directory)"; return 1; fi
+      if ! cond_redirect mv /etc/systemd/system/zram.service.d/override.conf "$zramServiceConfig"; then echo "FAILED (migrate configuration)"; return 1; fi
+    fi
+    if cond_redirect rm -rf /etc/systemd/system/zram.service.d; then echo "OK"; else echo "FAILED (remove old directory)"; return 1; fi
+  fi
+
   if ! [[ -f $zramServiceConfig ]]; then
     echo -n "$(timestamp) [openHABian] Setting up zram service... "
-    if ! cond_redirect mkdir -p /etc/systemd/system/zram.service.d; then echo "FAILED (prepare directory)"; return 1; fi
-    if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/zram-override.conf /etc/systemd/system/zram.service.d/override.conf; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
+    if ! cond_redirect mkdir -p /etc/systemd/system/zram-config.service.d; then echo "FAILED (prepare directory)"; return 1; fi
+    if cond_redirect cp "${BASEDIR:-/opt/openhabian}"/includes/zram-override.conf "$zramServiceConfig"; then echo "OK"; else echo "FAILED (copy configuration)"; return 1; fi
   fi
 
   for arg in "$@"; do
@@ -695,7 +727,7 @@ grafana_is_installed() {
 ##    node_is_installed
 ##
 node_is_installed() {
-  if [[ -x $(command -v npm) ]] && [[ $(node --version) =~ v1[6-9]* ]]; then return 0; fi
+  if [[ -x $(command -v npm) ]] && [[ $(node --version) =~ v2.* ]]; then return 0; fi
   return 1
 }
 

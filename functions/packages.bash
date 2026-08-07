@@ -221,13 +221,20 @@ homegear_setup() {
   if ! add_keys "https://apt.homegear.eu/Release.key" "$keyName"; then return 1; fi
 
 
-  # Add Homegear's repository to APT - need to use testing repo
-  if ! is_pi || [[ "$(dpkg --print-architecture)" == 'arm64' ]]; then
-    # 64-bit Raspberry Pi OS:
-    echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/bookworm/homegear/testing/ bookworm main' > /etc/apt/sources.list.d/homegear.list
+  # Add Homegear's repository to APT - needed to use testing repo, now needs stable
+  if ! is_pi; then
+    myRelease=trixie
+    # x86:
+    echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/${myRelease}/homegear/stable/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
+    cat /etc/apt/sources.list.d/homegear.list
   else
-    # 32-bit Raspberry Pi OS
-    echo 'deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/bookworm/homegear/testing/ bookworm main' > /etc/apt/sources.list.d/homegear.list
+    if [[ "$(dpkg --print-architecture)" == 'arm64' ]]; then
+      # 64-bit Raspberry Pi OS:
+      echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/${myRelease}/homegear/stable/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
+    else
+      # 32-bit Raspberry Pi OS
+      echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/${myRelease}/homegear/stable/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
+    fi
   fi
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
@@ -415,9 +422,9 @@ miflora_setup() {
   local mifloraDir="/opt/miflora-mqtt-daemon"
   local successText="Setup was successful.\\n\\nThe Daemon was installed and the systemd service was set up just as described in it's README. Please add your MQTT broker settings in '${mifloraDir}/config.ini' and add your Mi Flora sensors. After that be sure to restart the daemon to reload it's configuration.\\n\\nAll details can be found under: https://github.com/ThomDietrich/miflora-mqtt-daemon\\nThe article also contains instructions regarding openHAB integration."
 
-  if ! dpkg -s 'git' 'python3' 'python3-pip' 'bluetooth' 'bluez' &> /dev/null; then
+  if ! dpkg -s 'git' 'python3' 'python3-pip' 'bluetooth' 'bluez' 'build-essential' 'pkg-config' 'libglib2.0-dev' &> /dev/null; then
     echo -n "$(timestamp) [openHABian] Installing miflora-mqtt-daemon required packages... "
-    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" git python3 python3-pip bluetooth bluez; then echo "OK"; else echo "FAILED"; return 1; fi
+    if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" git python3 python3-pip bluetooth bluez build-essential pkg-config libglib2.0-dev; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning setup of miflora-mqtt-daemon... "
@@ -448,10 +455,11 @@ miflora_setup() {
   cond_echo "Installing required python packages"
   cond_redirect "$mifloraDir"/env/bin/pip3 install -r "$mifloraDir"/requirements.txt
 ## deactivate venv to avoid conflicts with other functions
-  cond_redirect "$mifloraDir"/env/bin/deactivate
+  cond_redirect deactivate
 ## original code from here
   echo -n "$(timestamp) [openHABian] Setting up miflora-mqtt-daemon service... "
   if ! cond_redirect install -m 644 "$mifloraDir"/template.service /etc/systemd/system/miflora.service; then echo "FAILED (copy service)"; return 1; fi
+  if ! cond_redirect sed -i -e "s|^ExecStart=.*|ExecStart=${mifloraDir}/env/bin/python3 ${mifloraDir}/miflora-mqtt-daemon.py|" /etc/systemd/system/miflora.service; then echo "FAILED (service ExecStart)"; return 1; fi
   if ! cond_redirect systemctl -q daemon-reload; then echo "FAILED (daemon-reload)"; return 1; fi
   if cond_redirect systemctl enable --now miflora.service; then echo "OK"; else echo "FAILED (enable service)"; return 1; fi
 
@@ -663,22 +671,31 @@ nginx_setup() {
 ## Function for installing deCONZ, the companion web app to the popular Conbee/Raspbee Zigbee controller
 ## The function can be invoked either INTERACTIVE with userinterface or UNATTENDED.
 ##
-##    deconz_setup(int port)
+##    deconz_setup(int port, int wsPort)
 ##
-## Valid argument: port to run Phoscon app on
+## Valid arguments: Phoscon Web UI (HTTP) port, deCONZ WebSocket API port
 ##
 deconz_setup() {
-  local port="${1:-8081}"
+  local defaultPort=8081
+  local defaultWsPort=8088
+  local port="${1:-$defaultPort}"
+  local wsPort="${2:-$defaultWsPort}"
   local keyName="deconz"
   local appData="/var/lib/openhab/persistence/deCONZ"
-  local introText="This will install deCONZ as a web service, the companion app to support Dresden Elektronik Conbee and Raspbee Zigbee controllers.\\nUse the web interface on port 8081 to pair your sensors.\\nNote the port is changed to 8081 as the default 80 wouldn't be right with openHAB itself running on 8080."
-  local successText="The deCONZ API plugin and the Phoscon companion web app were successfully installed on your system.\\nUse the web interface on port ${port} to pair your sensors with Conbee or Raspbee Zigbee controllers.\\nNote the port has been changed from its default 80 to 8081."
+  local introText="This will install deCONZ to support Dresden Elektronik Conbee and Raspbee Zigbee controllers.\\nThe Phoscon Web UI and the deCONZ WebSocket API are provided by deCONZ.\\nNext step: choose HTTP/WS ports; avoid conflicts with openHAB (default 8080)."
+  local successText=""
   local repo="/etc/apt/sources.list.d/deconz.list"
 
+  if [[ -n "$UNATTENDED" ]] && [[ "${deconz_install:-disable}" != "enable" ]]; then
+    echo -n "$(timestamp) [openHABian] Skipping deCONZ install as requested."
+    return 1
+  fi
 
-  if ! (whiptail --title "deCONZ installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then return 0; fi
+  if [[ -n $INTERACTIVE ]]; then
+    if ! (whiptail --title "deCONZ installation" --yes-button "Continue" --no-button "Cancel" --yesno "$introText" 11 80); then return 0; fi
+  fi
 
-  if ! add_keys "http://phoscon.de/apt/deconz.pub.key" "$keyName"; then return 1; fi
+  if ! add_keys "https://phoscon.de/apt/deconz.pub.key" "$keyName"; then return 1; fi
 
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc | head -1)"
@@ -691,24 +708,41 @@ deconz_setup() {
   fi
   echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg${arch}] http://phoscon.de/apt/deconz generic main" > $repo
 
-  if ! cond_redirect mkdir "${appData}" && fix_permissions "${appData}" "${username:-openhabian}:${username:-openhabian}" 664 775 && ln -sf "${appData}" /home/"${username:-openhabian}"/.local; then echo "FAILED (deCONZ database on zram)"; return 1; fi
+  if ! cond_redirect mkdir -p "${appData}" && fix_permissions "${appData}" "${username:-openhabian}:${username:-openhabian}" 664 775 && ln -sf "${appData}" /home/"${username:-openhabian}"/.local; then echo "FAILED (deCONZ database on zram)"; return 1; fi
   echo -n "$(timestamp) [openHABian] Preparing deCONZ repository ... "
   if cond_redirect apt-get update; then echo "OK"; else echo "FAILED (update apt lists)"; fi
+  
+  local deconzPkg="deconz"
+  if [[ "$myRelease" == "bookworm" || "$myRelease" == "trixie" ]] && apt-cache show deconz-qt6 > /dev/null 2>&1; then
+    deconzPkg="deconz-qt6"
+  fi
+
   echo -n "$(timestamp) [openHABian] Installing deCONZ ... "
-  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" deconz; then echo "OK"; else echo "FAILED (install deCONZ package)"; return 1; fi
+  if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "$deconzPkg"; then echo "OK"; else echo "FAILED (install deCONZ package)"; return 1; fi
 
   if [[ -n $INTERACTIVE ]]; then
-    if ! port="$(whiptail --title "Enter Phoscon port number" --inputbox "\\nPlease enter the port you want the Phoscon web application to run on:" 11 80 "$port" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! port="$(whiptail --title "Enter Phoscon Web UI (HTTP) port" --inputbox "\\nPlease enter the port you want the Phoscon Web UI to run on:" 11 80 "$port" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
+    if ! wsPort="$(whiptail --title "Enter deCONZ WebSocket API port" --inputbox "\\nPlease enter the WebSocket port you want deCONZ to run on:" 11 80 "$wsPort" 3>&1 1>&2 2>&3)"; then echo "CANCELED"; return 0; fi
   fi
+  if ! [[ "$port" =~ ^[0-9]+$ ]] || (( port < 1 || port > 65535 )); then
+    echo "$(timestamp) [openHABian] WARN (invalid deCONZ HTTP port: $port, using default ${defaultPort})"
+    port="$defaultPort"
+  fi
+  if ! [[ "$wsPort" =~ ^[0-9]+$ ]] || (( wsPort < 1 || wsPort > 65535 )); then
+    echo "$(timestamp) [openHABian] WARN (invalid deCONZ WebSocket port: $wsPort, using default ${defaultWsPort})"
+    wsPort="$defaultWsPort"
+  fi
+  
   # remove unneeded parts so they cannot interfere with openHABian
   cond_redirect systemctl disable --now deconz-gui.service deconz-homebridge.service deconz-homebridge-install.service deconz-init.service deconz-wifi.service
   cond_redirect rm -f "/lib/systemd/system/deconz-{homebridge,homebridge-install,init,wifi}.service"
   cond_redirect systemctl daemon-reload
 
-  # change default port deCONZ runs on (80)
-  if ! cond_redirect sed -i -e 's|http-port=80$|http-port='"${port}"' --ws-port='"${port}"'|g' /lib/systemd/system/deconz.service; then echo "FAILED (replace port in service start)"; return 1; fi
+  # set deCONZ HTTP port and WebSocket API port
+  if ! cond_redirect sed -i -e 's|http-port=80$|http-port='"${port}"' --ws-port='"${wsPort}"'|g' /lib/systemd/system/deconz.service; then echo "FAILED (replace port in service start)"; return 1; fi
   if cond_redirect systemctl enable deconz.service && cond_redirect systemctl restart deconz.service; then echo "OK"; else echo "FAILED (service restart with modified port)"; return 1; fi
 
+  successText="deCONZ installed. Phoscon Web UI is available on port ${port} and the deCONZ WebSocket API on port ${wsPort}."
   if [[ -n $INTERACTIVE ]]; then
     whiptail --title "deCONZ install successfull" --msgbox "$successText" 11 80
   fi
@@ -814,102 +848,41 @@ setup_esphome_device_builder() {
   local serviceTemplate="${BASEDIR:-/opt/openhabian}/includes/esphome-device-builder.service.template"
   local setupMode="$1"
   local port=6052
+  local installText="This will install ESPhome dashboard\nUse the web interface on port $port to access ESPhome dashboard web interface."
+  local removeText="This will remove ESPhome dashboard"
 
-  # Whiptail / Console messages 
-  local whiptailTitle="ESPHome Device Builder - Setup"
-  local installStartText="No ESPHome Device Builder service detectet --> start installation"
-  local installEndText="ESPHome Device Builder has been completely installed"
-  local updateStartText="ESPHome Device Builder service detectet --> start update"
-  local updateEndText="ESPHome Device Builder has been completely updated"
-  local uninstallStartText="Start uninstalling the ESPHome Device Builder"
-  local uninstallEndText="ESPHome Device Builder has been completely uninstalled"
-  local errorText="An Error occured!\nFor Details please have a look at the shell messages"
-  local portText="Access the webinterface at http://<your-ip>:$port"
+  ESPHOME_DIR="/opt/esphomedashboard"
+  SERVICE_TEMPLATE="${BASEDIR:-/opt/openhabian}/includes/esphome-dashboard.service.template" # Update with the actual path
 
+  if [[ $1 == "remove" ]]; then
+    if [[ -n $INTERACTIVE ]]; then
+      whiptail --title "ESPhome dashboard removal" --msgbox "$removeText" 7 80
+    fi
+    echo "$(timestamp) [openHABian] Starting ESPHome Dashboard uninstallation..."
 
-  echo "$(timestamp) [openHABian] ##########################################################################################################"
-  echo "$(timestamp) [openHABian] ESPHome Setup"
-  
-  # This Precheck is neccesary to decide if install or update routine is neccesary
-  if [ "$setupMode" = "install" ]; then
-    echo "$(timestamp) [openHABian] The option installation / update was selected"
-    echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
-    if systemctl is-active --quiet esphome-device-builder.service; then
-      setupMode="update"
-    fi
-  fi
+    # Stop the ESPHome Dashboard service
+    echo -n "$(timestamp) [openHABian] Stopping the ESPHome Dashboard service... "
+    if ! cond_redirect systemctl stop esphome-dashboard.service; then echo "FAILED (stop service)"; return 1; fi
 
-  if [ "$setupMode" = "install" ]; then
-    echo "$(timestamp) [openHABian] $installStartText";
-    echo "$(timestamp) [openHABian] Check if Python 3 and pip are already installed..."
-    if ! dpkg -s python3-venv &>/dev/null; then
-      echo "$(timestamp) [openHABian] Installing Python 3 and pip..."
-      if ! cond_redirect apt install -y python3-venv; then
-        echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install Python 3 and pip.${COL_DEF}"
-        return 1
-      fi   
-    else
-      echo "$(timestamp) [openHABian] Python 3 and pip are already available --> skip installation"
-    fi 
-        
-    echo "$(timestamp) [openHABian] Creating directory at $esphomeDir and set permissions"
-    if ! mkdir -p "$esphomeDir"; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create $esphomeDir${COL_DEF}"
-      return 1
-    fi
-    if ! chown -R "$LOGNAME:$LOGNAME" "$esphomeDir"; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to set ownership of $esphomeDir to $USER.${COL_DEF}"
-      return 1
-    fi
-    
-    echo "$(timestamp) [openHABian] Creating directory at $esphomeConfigDir and set permissions"
-    if ! mkdir -p "$esphomeConfigDir"; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create $esphomeConfigDir${COL_DEF}"
-      return 1
-    fi
-    if ! chown -R "$LOGNAME:$LOGNAME" "$esphomeConfigDir"; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to set ownership of $esphomeConfigDir to $USER.${COL_DEF}"
-      return 1
-    fi
-    
-    echo "$(timestamp) [openHABian] Setting up a virtual environment ($esphomeDir) and install ESPHome Device Builder"
-    if ! python3 -m venv venv "$esphomeDir/venv"; then
-      echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create a Python virtual environment ($esphomeDir).${COL_DEF}"
-      return 1
-    fi
-    
-    echo "$(timestamp) [openHABian] Activating the virtual environment."
-    # the following shellcheck is neccesary because of error SC1091
-    # shellcheck source=/dev/null
-    if ! source "$esphomeDir/venv/bin/activate"; then
-      echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to activate the Python virtual environment.${COL_DEF}"
-      return 1
-    fi
-    
-    echo "$(timestamp) [openHABian] installing ESPHome Device Builder. This could take a few minutes!"
-    #if ! pip3 install esphome; then
-    if ! pip3 install "esphome-device-builder[esphome]"; then #new
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install ESPHome Device Builder.${COL_DEF}"
-      return 1
-    fi
-      
-    echo "$(timestamp) [openHABian] Installing systemd service file..."
-    if ! SILENT=1 cond_redirect install -m 755 "$serviceTemplate" /etc/systemd/system/esphome-device-builder.service; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install systemd service file.${COL_DEF}"
-      return 1
+    # Disable the ESPHome Dashboard service
+    echo "$(timestamp) [openHABian] Disabling the ESPHome Dashboard service..."
+    if ! cond_redirect systemctl disable esphome-dashboard.service; then
+      echo "$(timestamp) [openHABian] Error: Failed to disable ESPHome Dashboard service."
+      return
     fi
 
-    echo "$(timestamp) [openHABian] modifying systemd service file..."
-    # Use + as separator in sed instead of / because in the path are / included
-    if ! sed -i "s+<username>+$LOGNAME+g; s+<esphome-directory>+$esphomeDir+g; s+<esphome-config-directory>+$esphomeConfigDir+g; s+# dynamically replaced in script++g" /etc/systemd/system/esphome-device-builder.service; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to modify systemd service file.${COL_DEF}"  
-      return 1
+    # Remove the ESPHome Dashboard service file
+    echo "$(timestamp) [openHABian] Removing the ESPHome Dashboard systemd service file..."
+    if ! cond_redirect rm -f /etc/systemd/system/esphome-dashboard.service; then
+      echo "$(timestamp) [openHABian] Error: Failed to remove systemd service file."
+      return
     fi
-    
-    echo "$(timestamp) [openHABian] Reloading systemd daemon and starting the ESPHome Device Builder service..."
-    if ! SILENT=1 cond_redirect systemctl daemon-reload; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to reload systemd daemon.${COL_DEF}"
-      return 1
+
+    # Reload systemd daemon
+    echo "$(timestamp) [openHABian] Reloading systemd daemon..."
+    if ! cond_redirect systemctl daemon-reload; then
+      echo "$(timestamp) [openHABian] Error: Failed to reload systemd daemon."
+      return
     fi
     
     echo "$(timestamp) [openHABian] Enabling and starting the ESPHome Device Builder service..."
@@ -934,29 +907,25 @@ setup_esphome_device_builder() {
       return 1
     fi
 
-    echo "$(timestamp) [openHABian] updating ESPHome Device Builder..."
-    if ! pip3 install esphome -U; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update ESPHome Device Builder.${COL_DEF}"
-      return 1
+    # Create the /opt/esphomedashboard directory and set permissions
+    echo "$(timestamp) [openHABian] Creating directory at $ESPHOME_DIR..."
+    if ! mkdir -p "$ESPHOME_DIR/config"; then
+      echo "$(timestamp) [openHABian] Error: Failed to create $ESPHOME_DIR and its config directory."
+      return
     fi
 
-    echo -e "$(timestamp) [openHABian] ${COL_GREEN}$updateEndText${COL_DEF}"
-    echo -e "$(timestamp) [openHABian] ${COL_GREEN}$portText${COL_DEF}";
-    if [[ -n $INTERACTIVE ]]; then
-      whiptail --title "$whiptailTitle" --msgbox "$updateEndText\n$portText" 8 60
+    USER=$(logname)
+    if ! chown -R "$USER:$USER" "$ESPHOME_DIR"; then
+      echo "$(timestamp) [openHABian] Error: Failed to set ownership of $ESPHOME_DIR to $USER."
+      return
     fi
-  
-  elif [ "$setupMode" = "remove" ] ; then
-    echo "$(timestamp) [openHABian] $uninstallStartText"
-      
-    # Check if the esphome-device-builder.service is active. If YES stop and disable the service
-    # This check is neccesary to prevent a failure after an unsucsessful instalation
-    if systemctl is-active --quiet esphome-device-builder.service; then
-      echo "$(timestamp) [openHABian] Stopping the ESPHome Device Builder service."
-      if ! SILENT=1 cond_redirect systemctl stop esphome-device-builder.service; then 
-        echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to stop ESPHome Device Builder service.${COL_DEF}"
-        return 1
-      fi
+
+    # Set up a virtual environment and install ESPHome
+    echo "$(timestamp) [openHABian] Setting up a virtual environment in $ESPHOME_DIR..."
+    if ! sudo -u "$USER" python3 -m venv "$ESPHOME_DIR/venv"; then
+      echo "$(timestamp) [openHABian] Error: Failed to create a Python virtual environment."
+      return
+    fi
 
       echo "$(timestamp) [openHABian] Disabling the ESPHome Device Builder service."
       if ! SILENT=1 cond_redirect systemctl disable esphome-device-builder.service; then

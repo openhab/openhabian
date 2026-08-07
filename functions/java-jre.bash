@@ -40,15 +40,18 @@ adoptium_fetch_apt() {
 
   echo -n "$(timestamp) [openHABian] Fetching Adoptium Eclipse Temurin JDK... "
   if ! cond_redirect add_keys "https://packages.adoptium.net/artifactory/api/gpg/key/public" "$keyName"; then echo "FAILED (add keys)"; return 1; fi
-  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-bookworm} main" > /etc/apt/sources.list.d/adoptium.list
+  # no trixie pkg yet !
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://packages.adoptium.net/artifactory/deb ${osrelease:-trixie} main" > /etc/apt/sources.list.d/adoptium.list
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
+
+  if ! cond_redirect apt-get install --download-only --yes "adoptium-ca-certificates"; then echo "FAILED"; return 1; fi
 
   # if on 32 bit OS, install unsupported Adoptium 32 bit from OpenEMS community project
   if [[ $1 == "21" ]] && [[ $(getconf LONG_BIT) == 32 ]]; then
     if ! cond_redirect wget -nv -O "${cachedir}/${cachefile}" "${URL}/${pkgfile}"; then echo "FAILED (download JVM pkg)"; rm -f "${cachedir}/${cachefile}"; return 1; fi
   else
-    if ! cond_redirect dpkg --configure -a --confnew; then echo "FAILED (dpkg)"; return 1; fi
-    if cond_redirect apt-get install --download-only --yes "temurin-${1}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
+    if ! cond_redirect dpkg --configure -a; then echo "FAILED (dpkg)"; return 1; fi
+    if cond_redirect apt-get install --download-only --yes "temurin-${1:-21}-jre"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 }
 
@@ -96,7 +99,7 @@ openjdk_fetch_apt() {
   local keyName="debian-bookworm"
 
   echo -n "$(timestamp) [openHABian] Fetching OpenJDK ${1}... "
-  if [[ $1 == "21" ]]; then
+  if is_bookworm && [[ $1 == "21" ]]; then
     if ! cond_redirect add_keys "https://ftp-master.debian.org/keys/archive-key-12.asc" "$keyName"; then echo "FAILED (add keys)"; return 1; fi # Add keys for older systems that need them
     echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg]  http://deb.debian.org/debian/ unstable main" > /etc/apt/sources.list.d/java.list
     # Avoid release mixing: prevent RPi from using the Debian distro for normal Raspbian packages
@@ -119,7 +122,7 @@ openjdk_install_apt() {
   if ! dpkg -s "openjdk-${1}-jre-headless" &> /dev/null; then # Check if already is installed
     openjdk_fetch_apt "$1"
     echo -n "$(timestamp) [openHABian] Installing OpenJDK ${1}... "
-    if [[ $1 == "21" ]]; then
+    if is_bookworm && [[ $1 == "21" ]]; then
       if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" -t unstable "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi
     else
       if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" "openjdk-${1}-jre-headless"; then echo "OK"; else echo "FAILED"; return 1; fi

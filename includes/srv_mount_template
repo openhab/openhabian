@@ -1,8 +1,14 @@
 [Unit]
 Description=openhab-%DEST mount
 DefaultDependencies=no
-Before=smbd.service
-After=network.target zram-config.service
+# Bind mount must be in place before zram-config.service mounts its overlays so
+# that the overlay mounts propagate into /srv (a plain bind mount is not
+# recursive and would expose the stale lower directory instead, see #2060).
+# Do not order After=network.target - zram-config.service is part of early boot
+# (Before=sysinit.target) and waiting for the network would create an ordering
+# cycle that makes systemd drop zram-config.service from the boot transaction.
+Before=smbd.service zram-config.service
+After=local-fs.target
 
 [Mount]
 What=%SRC

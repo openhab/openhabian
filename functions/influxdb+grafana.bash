@@ -200,8 +200,8 @@ influxdb_install() {
   fi
 
   if ! influxdb_is_installed; then
-    if ! add_keys "https://repos.influxdata.com/influxdata-archive_compat.key" "$keyName"; then return 1; fi
-
+    # key changed Jan 6, 2026
+    if ! add_keys "https://repos.influxdata.com/influxdata-archive_compat-exp2029.key" "$keyName"; then return 1; fi
     echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] https://repos.influxdata.com/${myOS,,} ${myRelease,,} stable" > /etc/apt/sources.list.d/influxdb.list
 
     echo -n "$(timestamp) [openHABian] Installing InfluxDB... "
@@ -269,7 +269,7 @@ grafana_install(){
   # Password reset required if Grafana password was already set before (not first-time install)
   cond_echo "\\nResetting Grafana admin password... "
   if ! cond_redirect chsh --shell /bin/bash "grafana"; then echo "FAILED (chsh grafana)"; return 1; fi
-  if ! cond_redirect grafana-cli admin reset-admin-password "${adminPassword}"; then echo "FAILED (admin password)"; return 1; fi
+  if ! cond_redirect grafana cli admin reset-admin-password "${adminPassword}"; then echo "FAILED (admin password)"; return 1; fi
 
   cond_echo "\\nUpdating Grafana configuration... "
   if ! cond_redirect sed -i -e '/^# disable user signup \/ registration/ { n ; s/^;allow_sign_up = true/allow_sign_up = false/ }' /etc/grafana/grafana.ini; then echo "FAILED (no user signup)"; return 1; fi

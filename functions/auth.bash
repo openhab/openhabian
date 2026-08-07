@@ -92,7 +92,7 @@ change_password() {
   fi
   if [[ $chosenAccounts == *"Grafana"* ]]; then
     echo -n "$(timestamp) [openHABian] Changing password for Grafana admininistration account \"admin\"... "
-    if grafana-cli admin reset-admin-password --homepath "/usr/share/grafana" --config "/etc/grafana/grafana.ini" "$pass"; then echo "OK"; else echo "FAILED"; return 1; fi
+    if grafana cli admin reset-admin-password --homepath "/usr/share/grafana" --config "/etc/grafana/grafana.ini" "$pass"; then echo "OK"; else echo "FAILED"; return 1; fi
   fi
 
   if [[ -n $INTERACTIVE ]]; then
