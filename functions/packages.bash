@@ -933,7 +933,7 @@ setup_esphome_device_builder() {
     fi
     
     echo "$(timestamp) [openHABian] installing ESPHome Device Builder. This could take a few minutes!"
-    #if ! pip3 install esphome; then
+   
     if ! pip3 install "esphome-device-builder[esphome]"; then
       echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install ESPHome Device Builder.${COL_DEF}"
       return 1
