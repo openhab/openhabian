@@ -1,0 +1,6 @@
+"files.associations": {
+    "*.bats": "shellscript"
+}
+"[shellscript]": {
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+}
