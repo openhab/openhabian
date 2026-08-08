@@ -968,7 +968,7 @@ setup_esphome_device_builder() {
     fi
 
     echo "$(timestamp) [openHABian] updating ESPHome Device Builder..."
-    if ! pip3 install esphome -U; then
+    if ! pip3 --upgrade esphome-device-builder; then
       echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update ESPHome Device Builder.${COL_DEF}"
       return 1
     fi
