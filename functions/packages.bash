@@ -859,7 +859,7 @@ setup_esphome_device_builder() {
   local uninstallEndText="ESPHome Device Builder has been completely uninstalled"
   local errorText="An Error occured!\nFor Details please have a look at the shell messages"
   local portText="Access the webinterface at http://<your-ip>:$port"
-  local majorUpdateText="A major update has been detected.\nThe ESPHome Device Builder will now be removed.\nThe ESPHome Device Builder configuration files will NOT be removed.\nOnce the process is complete, please run the installation function manually to complete the update."
+  local majorUpdateText="##################### Major update detected #####################\nThe ESPHome Device Builder will now be removed.\nThe ESPHome Device Builder configuration files will NOT be removed.\n\n############# Caution: Manual intervention required #############\nOnce the process is complete, please run the installation\nfunction manually to complete the update."
 
 
   echo "$(timestamp) [openHABian] ##########################################################################################################"
@@ -869,17 +869,15 @@ setup_esphome_device_builder() {
   if [ "$setupMode" = "install" ]; then
     echo "$(timestamp) [openHABian] The option installation / update was selected"
     echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
+    #This Precheck is neccesary to decide if a major update. 2026.5.0 and older --> newer versions
     if systemctl is-active --quiet esphome-device-builder.service; then
-        #if grep -q "6052" "$serviceTemplate"; then
-        if grep -q "6052" "/home/openhabian/test.txt"; then
-        echo "String gefunden"
-        if [[ -n $INTERACTIVE ]]; then
-            whiptail --title "$whiptailTitle" --msgbox "$uninstallEndText" 8 60
-        fi
-        setupMode="remove"
+        if grep -q "6052" "$serviceTemplate"; then
+            if [[ -n $INTERACTIVE ]]; then
+                whiptail --title "$whiptailTitle" --msgbox "$majorUpdateText" 14 69
+            fi
+            setupMode="remove"
         else
-        echo "String NICHT gefunden"
-        setupMode="update"
+            setupMode="update"
         fi
     fi
   fi
