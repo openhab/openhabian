@@ -54,7 +54,7 @@ There are simply too many combinations of SBCs, peripherals and OS flavors that 
 It means that to run on hardware other than RPi 2/3/4/5 or bare metal x86 Debian may work but is not a supported setup.
 Please stay with a supported version. This will help you and those you will want to ask for help on the forum focus on a known set of issues and solutions.
 
-For ARM hardware that we don't support, you can try any of the [fake hardware parameters](openhabian.md#fake-hardware-mode) to 'simulate' RPi hardware and Raspberry Pi OS.
+For ARM hardware that we don't support, you can try any of the [fake hardware parameters](https://github.com/openhab/openhabian/blob/main/docs/openhabian.md#fake-hardware) to 'simulate' RPi hardware and Raspberry Pi OS.
 
 
 ### OS support
