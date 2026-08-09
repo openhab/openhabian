@@ -253,7 +253,7 @@ Each of these are included as a part of `openhabian-config` menu option 20.
 The ESPHome configuration files are secured by the openHABbian backup function. <br/>
 **Please note that automatic updates are not implemented in OpenHABian.** <br/> &rarr; to do this, use the openhabian-config update function in menu 20<br/>
 **Major Upgrades from versions 2026.5.0 and earlier &rarr; 2026.6.0 and later.** <br/> The update script completely removes ESPHome during this process. The ESPHome configuration files are **NOT** removed. <br/>
-Afterward, the installation script must be run manually again to install the latest version of the ESP Home Device Builder. 
+Afterwards, the installation script must be run manually again to install the latest version of the ESP Home Device Builder. 
 -   Grott Proxy server for [Growatt binding](https://www.openhab.org/addons/bindings/growatt/#grott-application-installation-and-setup)
 
 ## First boot configuration
