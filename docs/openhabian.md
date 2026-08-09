@@ -57,7 +57,7 @@ The openHABian image supports all Raspberry Pi models.
 Running in 64 bit on ARM has one major drawback: increased memory usage. That is not a good idea on heavily memory constrained platforms like older Raspberries. Ensure your RPi has a minimum of 2 GB.
 For older hardware, you can attempt to use the 32 bit image we still provide, it should work but we do not support running openHAB 5.
 
-openHABian can run on x86 based systems but you will need to install the Debian OS yourself.
+openHABian can run on x86 based systems, too, but you will need to install the Debian OS yourself.
 See [installation on other Linux systems](#installation-on-other-linux-systems) for directions on what to do.
 On x86 hardware, it's all 64 bit but that in turn once more increases memory usage. A NUC to run on should have no less than 4 GB, 8 are better.
 
