@@ -871,12 +871,15 @@ setup_esphome_device_builder() {
     echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
     #This Precheck is neccesary to decide if a major update. 2026.5.0 and older --> newer versions
     if systemctl is-active --quiet esphome-device-builder.service; then
-        if grep -q "6052" "$serviceTemplate"; then
+        echo "$(timestamp) [openHABian] Check /etc/systemd/system/esphome-device-builder.service, if a major update is neccesary..."
+        if grep -q "6052" /etc/systemd/system/esphome-device-builder.service; then
+            echo "$(timestamp) [openHABian] major update detected..."
             if [[ -n $INTERACTIVE ]]; then
                 whiptail --title "$whiptailTitle" --msgbox "$majorUpdateText" 14 69
             fi
             setupMode="remove"
         else
+            echo "$(timestamp) [openHABian] No major update detected..."
             setupMode="update"
         fi
     fi
