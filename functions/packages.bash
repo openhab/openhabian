@@ -869,7 +869,14 @@ setup_esphome_device_builder() {
     echo "$(timestamp) [openHABian] The option installation / update was selected"
     echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
     if systemctl is-active --quiet esphome-device-builder.service; then
-      setupMode="update"
+      #if grep -q "6052" "$serviceTemplate"; then
+        if grep -q "6052" "/home/openhabian/test.txt"; then
+        echo "String gefunden"
+        #setupMode="remove"
+        else
+        echo "String NICHT gefunden"
+        #setupMode="update"
+        fi
     fi
   fi
 
