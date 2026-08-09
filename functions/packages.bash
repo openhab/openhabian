@@ -859,6 +859,7 @@ setup_esphome_device_builder() {
   local uninstallEndText="ESPHome Device Builder has been completely uninstalled"
   local errorText="An Error occured!\nFor Details please have a look at the shell messages"
   local portText="Access the webinterface at http://<your-ip>:$port"
+  local majorUpdateText="A major update has been detected.\nThe ESPHome Device Builder will now be removed.\nThe ESPHome Device Builder configuration files will NOT be removed.\nOnce the process is complete, please run the installation function manually to complete the update."
 
 
   echo "$(timestamp) [openHABian] ##########################################################################################################"
@@ -869,13 +870,16 @@ setup_esphome_device_builder() {
     echo "$(timestamp) [openHABian] The option installation / update was selected"
     echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
     if systemctl is-active --quiet esphome-device-builder.service; then
-      #if grep -q "6052" "$serviceTemplate"; then
+        #if grep -q "6052" "$serviceTemplate"; then
         if grep -q "6052" "/home/openhabian/test.txt"; then
         echo "String gefunden"
-        #setupMode="remove"
+        if [[ -n $INTERACTIVE ]]; then
+            whiptail --title "$whiptailTitle" --msgbox "$uninstallEndText" 8 60
+        fi
+        setupMode="remove"
         else
         echo "String NICHT gefunden"
-        #setupMode="update"
+        setupMode="update"
         fi
     fi
   fi
