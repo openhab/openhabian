@@ -42,7 +42,7 @@ We also provide a couple of different options to allow you to backup your system
 For more information on these options, please see [Storage Preparation](#storage-preparation).
 
 Note that the semiannual raw copy reads the SD card at the block level, so any log and persistence data still held in ZRAM (i.e. written since the last ZRAM sync or reboot) will not be part of the raw copy.
-The daily rsync run covers this by copying the live view of those directories, so a mirror card will at most be a day behind on ZRAM-held data.
+The rsync run which runs every 2 hours covers this by copying the live view of those directories, so a mirror card will at most be a couple of hours behind on ZRAM-held data.
 
 ##### Moving the Root Filesystem
 
