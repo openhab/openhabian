@@ -848,6 +848,7 @@ setup_esphome_device_builder() {
   local serviceTemplate="${BASEDIR:-/opt/openhabian}/includes/esphome-device-builder.service.template"
   local setupMode="$1"
   local port=6052
+  local min_python_version="3.12"
 
   # Whiptail / Console messages 
   local whiptailTitle="ESPHome Device Builder - Setup"
@@ -859,6 +860,7 @@ setup_esphome_device_builder() {
   local uninstallEndText="ESPHome Device Builder has been completely uninstalled"
   local errorText="An Error occured!\nFor Details please have a look at the shell messages"
   local portText="Access the webinterface at http://<your-ip>:$port"
+  local majorUpdateText="##################### Major update detected #####################\nThe ESPHome Device Builder will now be removed.\nThe ESPHome Device Builder configuration files will NOT be removed.\n\n############# Caution: Manual intervention required #############\nOnce the process is complete, please run the installation\nfunction manually to complete the update."
 
 
   echo "$(timestamp) [openHABian] ##########################################################################################################"
@@ -868,8 +870,19 @@ setup_esphome_device_builder() {
   if [ "$setupMode" = "install" ]; then
     echo "$(timestamp) [openHABian] The option installation / update was selected"
     echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
+    # this pre-check is neccesary to decide if it's a major update. 2026.5.0 and older --> newer versions
     if systemctl is-active --quiet esphome-device-builder.service; then
-      setupMode="update"
+        echo "$(timestamp) [openHABian] Check /etc/systemd/system/esphome-device-builder.service, if a major update is neccesary..."
+        if grep -q "6052" /etc/systemd/system/esphome-device-builder.service; then
+            echo "$(timestamp) [openHABian] major update detected..."
+            if [[ -n $INTERACTIVE ]]; then
+                whiptail --title "$whiptailTitle" --msgbox "$majorUpdateText" 14 69
+            fi
+            setupMode="remove"
+        else
+            echo "$(timestamp) [openHABian] No major update detected..."
+            setupMode="update"
+        fi
     fi
   fi
 
@@ -882,6 +895,13 @@ setup_esphome_device_builder() {
         echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install Python 3 and pip.${COL_DEF}"
         return 1
       fi   
+    echo "$(timestamp) [openHABian] Check if Python 3 and pip are already installed and up to date..."
+    elif ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3 -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
+      echo "$(timestamp) [openHABian] updating Python 3 and pip..."
+      if ! cond_redirect apt install -y python3; then
+        echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update Python 3 and pip.${COL_DEF}"
+        return 1
+      fi
     else
       echo "$(timestamp) [openHABian] Python 3 and pip are already available --> skip installation"
     fi 
@@ -921,7 +941,7 @@ setup_esphome_device_builder() {
     fi
     
     echo "$(timestamp) [openHABian] installing ESPHome Device Builder. This could take a few minutes!"
-    if ! pip3 install esphome; then
+    if ! pip3 install "esphome-device-builder[esphome]"; then
       echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install ESPHome Device Builder.${COL_DEF}"
       return 1
     fi
@@ -968,8 +988,8 @@ setup_esphome_device_builder() {
     fi
 
     echo "$(timestamp) [openHABian] updating ESPHome Device Builder..."
-    if ! pip3 install esphome -U; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update ESPHome Device Builder.${COL_DEF}"
+    if ! pip3 install --upgrade esphome-device-builder; then   
+        echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update ESPHome Device Builder.${COL_DEF}"
       return 1
     fi
 

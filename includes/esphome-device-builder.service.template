@@ -4,7 +4,7 @@ After=network.target
 
 [Service]
 WorkingDirectory=<esphome-directory>/venv # dynamically replaced in script
-ExecStart=<esphome-directory>/venv/bin/esphome dashboard <esphome-config-directory> --port 6052 # dynamically replaced in script
+ExecStart=<esphome-directory>/venv/bin/esphome-device-builder <esphome-config-directory>  # dynamically replaced in script
 Restart=always
 User=<username> # dynamically replaced in script
 Environment="PATH=<esphome-directory>/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" # dynamically replaced in script
