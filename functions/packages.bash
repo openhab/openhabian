@@ -848,6 +848,7 @@ setup_esphome_device_builder() {
   local serviceTemplate="${BASEDIR:-/opt/openhabian}/includes/esphome-device-builder.service.template"
   local setupMode="$1"
   local port=6052
+  local min_python_version="3.12"
 
   # Whiptail / Console messages 
   local whiptailTitle="ESPHome Device Builder - Setup"
@@ -894,6 +895,13 @@ setup_esphome_device_builder() {
         echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install Python 3 and pip.${COL_DEF}"
         return 1
       fi   
+    echo "$(timestamp) [openHABian] Check if Python 3 and pip are already installed..."
+    elif ! [ "$(printf "%s\n%s" "3.1" "$(python3 -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
+      echo "$(timestamp) [openHABian] updating Python 3 and pip..."
+      if ! cond_redirect apt install -y python3; then
+        echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update Python 3 and pip.${COL_DEF}"
+        return 1
+      fi
     else
       echo "$(timestamp) [openHABian] Python 3 and pip are already available --> skip installation"
     fi 
