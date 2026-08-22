@@ -895,8 +895,8 @@ setup_esphome_device_builder() {
         echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install Python 3 and pip.${COL_DEF}"
         return 1
       fi   
-    echo "$(timestamp) [openHABian] Check if Python 3 and pip are already installed..."
-    elif ! [ "$(printf "%s\n%s" "3.1" "$(python3 -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
+    echo "$(timestamp) [openHABian] Check if Python 3 and pip are already installed and up to date..."
+    elif ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3 -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
       echo "$(timestamp) [openHABian] updating Python 3 and pip..."
       if ! cond_redirect apt install -y python3; then
         echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update Python 3 and pip.${COL_DEF}"
