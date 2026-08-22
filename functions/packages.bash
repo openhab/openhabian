@@ -870,7 +870,7 @@ setup_esphome_device_builder() {
   if [ "$setupMode" = "install" ]; then
     echo "$(timestamp) [openHABian] The option installation / update was selected"
     echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
-    #This Precheck is neccesary to decide if a major update. 2026.5.0 and older --> newer versions
+    # this pre-check is neccesary to decide if it's a major update. 2026.5.0 and older --> newer versions
     if systemctl is-active --quiet esphome-device-builder.service; then
         echo "$(timestamp) [openHABian] Check /etc/systemd/system/esphome-device-builder.service, if a major update is neccesary..."
         if grep -q "6052" /etc/systemd/system/esphome-device-builder.service; then
