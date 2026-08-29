@@ -1,4 +1,4 @@
-FROM balenalib/generic-debian:bookworm-build
+FROM balenalib/generic-debian:trixie-build
 
 ENV DOCKER=1
 
