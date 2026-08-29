@@ -13,7 +13,7 @@ RUN apt-get update -qq && \
     apt-get dist-upgrade && \
     apt-get install --yes -qq --no-install-recommends git wget python3 \
         python3-pip apt-utils jq lsb-release apt-transport-https gnupg acl && \
-    apt-get install -y --only-upgrade libstdc++6 build-essential
+    apt-get install -y --only-upgrade libstdc++6 build-essential && \
     rm -rf /var/lib/apt/lists/*
 
 RUN git clone https://github.com/gdraheim/docker-systemctl-replacement && \
