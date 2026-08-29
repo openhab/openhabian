@@ -37,6 +37,13 @@ teardown_file() {
   run grafana_install "Password1234" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
   [ "$status" -eq 0 ]
+  # Skip systemd checks in non-systemd containers
+  if [ -e /run/systemd/system ]; then
+    echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Grafana service is running...${COL_DEF}" >&3
+    run systemctl is-active --quiet grafana-server.service
+    if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+    [ "$status" -eq 0 ]
+  fi
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Grafana installation successful.${COL_DEF}" >&3
 
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Grafana parameter allow_embedding...${COL_DEF}" >&3
