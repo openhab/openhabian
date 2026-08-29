@@ -12,7 +12,7 @@ teardown_file() {
   systemctl kill grafana-server.service || true
 }
 
-@test "destructive-influxDB_install" {
+@test "systemdsetup-influxDB_install" {
   echo -e "# ${COL_CYAN}$(timestamp) [openHABian] InfluxDB installation starting...${COL_DEF}" >&3
   run influxdb_install "admin" "Password1234" 3>&-
   if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
