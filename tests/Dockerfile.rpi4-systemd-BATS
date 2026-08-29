@@ -6,8 +6,8 @@
 #   docker run --privileged --cgroupns=host -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
 #       -v /dev:/dev --tmpfs /run --tmpfs /run/lock -d <image>
 
-FROM debian
-#FROM debian:trixie
+#FROM debian
+FROM debian:trixie
 
 ENV DEBIAN_FRONTEND=noninteractive
 
