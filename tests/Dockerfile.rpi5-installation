@@ -1,4 +1,4 @@
-FROM balenalib/raspberrypi5-debian:trixie-build
+FROM balenalib/raspberrypi5-debian
 
 ENV DOCKER=1
 ENV UDEV=1
