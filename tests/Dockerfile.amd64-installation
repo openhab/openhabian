@@ -1,5 +1,5 @@
-FROM balenalib/amd64-debian
-#FROM balenalib/amd64-debian:trixie-build
+#FROM balenalib/amd64-debian
+FROM debian:trixie
 
 ENV DOCKER=1
 ENV UDEV=1
