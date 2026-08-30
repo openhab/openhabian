@@ -203,7 +203,6 @@ homegear_setup() {
   myRelease="$(lsb_release -sc)"
 
   if [[ "$myRelease" == "n/a" ]]; then
-    #myRelease="${osrelease:-bookworm}"
     myRelease="${osrelease:-trixie}"
   fi
   # shellcheck disable=SC2078,SC2154
