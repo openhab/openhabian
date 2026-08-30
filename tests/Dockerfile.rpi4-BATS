@@ -1,6 +1,7 @@
 # Note RPi4 base WITH 64bit OS
 #FROM balenalib/raspberrypi4-64-debian
-FROM balenalib/raspberrypi5-debian
+#FROM balenalib/raspberrypi5-debian
+FROM balenalib/raspberrypi4-64-debian:trixie-build
 
 ENV DOCKER=1
 
