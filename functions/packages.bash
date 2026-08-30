@@ -908,8 +908,7 @@ setup_esphome_device_builder() {
     fi
     
     echo "$(timestamp) [openHABian] Setting up a virtual environment ($esphomeDir) and install ESPHome Device Builder"
-    if ! python3 -m venv "$esphomeDir/venv"; then
-    #if ! python3 -m venv venv "$esphomeDir/venv"; then
+    if ! python3 -m venv venv "$esphomeDir/venv"; then
       echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create a Python virtual environment ($esphomeDir).${COL_DEF}"
       return 1
     fi
