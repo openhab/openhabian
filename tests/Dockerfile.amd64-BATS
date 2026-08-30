@@ -1,4 +1,5 @@
-FROM balenalib/generic-debian:trixie-build
+#FROM balenalib/generic-debian:trixie-build
+FROM debian:trixie
 
 ENV DOCKER=1
 
