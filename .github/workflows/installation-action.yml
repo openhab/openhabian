@@ -37,16 +37,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - platform: rpi5-openjdk17
-            dockerfile: ./tests/Dockerfile.rpi5-installation
-            runner: ubuntu-24.04-arm
-            buildx_platform: linux/arm64
-            java_opt: 17
-              #          - platform: rpi2-openjdk17
-              #            dockerfile: ./tests/Dockerfile.rpi2-installation
-              #            runner: ubuntu-24.04-arm
-              #            buildx_platform: linux/arm/v7
-              #            java_opt: 17
           - platform: amd64-openjdk21
             dockerfile: ./tests/Dockerfile.amd64-installation
             runner: ubuntu-24.04
@@ -74,7 +64,7 @@ jobs:
           sed -i 's|^java_opt=.*$|java_opt='"${{ matrix.java_opt }}"'|' build-image/openhabian.conf
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v4.2.0
+        uses: docker/setup-buildx-action@v4.3.0
         with:
           driver-opts: network=host
       - name: Build Docker image

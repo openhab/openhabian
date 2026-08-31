@@ -416,6 +416,9 @@ mirror_SD() {
     if ! cond_redirect dd if="${src}p1" bs=1M of="${dest}1" status=progress; then echo "FAILED (raw device copy of ${dest}1)"; dirty="yes"; fi
     if ! cond_redirect dd if="${src}p2" bs=1M of="${dest}2" status=progress; then echo "FAILED (raw device copy of ${dest}2)"; dirty="yes"; fi
     sfdisk -d ${src} | grep -q "^${src}p3" && if ! cond_redirect dd if="${src}p3" bs=1M of="${dest}3" status=progress; then echo "FAILED (raw device copy of ${dest}3)"; dirty="yes"; fi
+    # flush kernel buffers and let udev settle so blkid/mount see the freshly written partitions
+    cond_redirect sync
+    cond_redirect udevadm settle
     origPartUUID="$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')"
     if ! partUUID="$(yes | set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }')"; then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
     if ! cond_redirect e2fsck -f -y "${dest}2"; then echo "FAILED (e2fsck)"; dirty="yes"; fi
@@ -428,6 +431,8 @@ mirror_SD() {
     mount "${dest}2" "$syncMount"
     sed -i "s|${origPartUUID}|${partUUID}|g" "$syncMount"/etc/fstab
     [[ -f "${syncMount}/etc/systemd/system/${storageDir}".mount ]] && sed -i 's|^What=.*|What=/dev/mmcblk0p3|g' "${syncMount}/etc/systemd/system/${storageDir}".mount
+    # remove zram state captured from the live system, else zram-config skips device creation on the clone's first boot
+    rm -f "${syncMount}/usr/local/lib/zram-config/zram-device-list"
     umount "$syncMount"
     if ! cond_redirect fsck -y -t ext4 "${dest}2"; then echo "OK (dirty bit on fsck ${dest}2 is normal)"; dirty="yes"; fi
     if [[ "$dirty" == "no" ]]; then
@@ -453,8 +458,12 @@ mirror_SD() {
     mount "$dest" "$syncMount"
     if ! (mountpoint -q "$syncMount"); then echo "FAILED (${dest} is not mounted as ${syncMount})"; return 1; fi
     cond_redirect rsync --one-file-system --exclude={'/etc/fstab','/etc/systemd/system/*.mount','/opt/zram','/srv/*'} --delete -aKRh "/" "$syncMount"
-    cond_redirect rsync --one-file-system --delete -aKh "/var/lib/openhab/persistence/" "${syncMount}/opt/zram/persistence.bind"
-    cond_redirect rsync --one-file-system --delete -aKh "/var/log/" "${syncMount}/opt/zram/log.bind"
+    # sync the live overlay (merged) view into the clone's lower dirs, i.e. the plain paths zram-config
+    # uses as lowerdir on boot; the *.bind mountpoints are shadowed by bind mounts and must not be targets
+    cond_redirect rsync --one-file-system --delete -aKh "/var/lib/openhab/persistence/" "${syncMount}/var/lib/openhab/persistence/"
+    cond_redirect rsync --one-file-system --delete -aKh "/var/log/" "${syncMount}/var/log/"
+    # remove zram state captured from the live system, else zram-config skips device creation on the clone's first boot
+    rm -f "${syncMount}/usr/local/lib/zram-config/zram-device-list"
     if ! (umount "$syncMount" &> /dev/null); then
       sleep 1
       umount -l "$syncMount" &> /dev/null
