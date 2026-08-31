@@ -1,4 +1,5 @@
-FROM balenalib/raspberrypi5-debian:bookworm-build
+#FROM balenalib/raspberrypi5-debian
+FROM debian:trixie
 
 ENV DOCKER=1
 ENV UDEV=1

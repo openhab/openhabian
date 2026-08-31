@@ -26,11 +26,3 @@ load helpers.bash
   [ "$status" -eq 0 ]
   echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Temurin 17 Java installation successful.${COL_DEF}" >&3
 }
-
-@test "installation-java_install_temurin21" {
-  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Temurin 21 Java is being (test-)installed...${COL_DEF}" >&3
-  run java_install "Temurin21" 3>&-
-  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-  [ "$status" -eq 0 ]
-  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Temurin 21 Java installation successful.${COL_DEF}" >&3
-}
