@@ -419,9 +419,9 @@ mirror_SD() {
     # flush kernel buffers and let udev settle so blkid/mount see the freshly written partitions
     cond_redirect sync
     cond_redirect udevadm settle
+    if ! cond_redirect e2fsck -f -y "${dest}2"; then echo "FAILED (e2fsck)"; dirty="yes"; fi
     origPartUUID="$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')"
     if ! partUUID="$(yes | set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }')"; then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
-    if ! cond_redirect e2fsck -f -y "${dest}2"; then echo "FAILED (e2fsck)"; dirty="yes"; fi
     if ! cond_redirect tune2fs "${dest}2" -U random; then echo "FAILED (set random UUID)"; dirty="yes"; fi
     while umount -q "${dest}1"; do : ; done
     mount "${dest}1" "$syncMount"
