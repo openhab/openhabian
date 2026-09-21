@@ -64,7 +64,7 @@ jobs:
           sed -i 's|^java_opt=.*$|java_opt='"${{ matrix.java_opt }}"'|' build-image/openhabian.conf
       - name: Set up Docker Buildx
         id: buildx
-        uses: docker/setup-buildx-action@v4.4.0
+        uses: docker/setup-buildx-action@v4.4.1
         with:
           driver-opts: network=host
       - name: Build Docker image
