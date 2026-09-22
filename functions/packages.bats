@@ -67,18 +67,18 @@ teardown_file() {
 }
 
 
-#@test "destructive-grott_install" {
-#  ## Confirm Grott Proxy install completes without error
-#  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Grott Proxy installation starting...${COL_DEF}" >&3
-#  run install_grott "install" 3>&-
-#  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-#  [ "$status" -eq 0 ]
-#  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Grott Proxy installation successful.${COL_DEF}" >&3
-#
-#  ## Confirm Grott service is running
-#  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Grott Proxy service is running...${COL_DEF}" >&3
-#  run systemctl is-active --quiet grott
-#  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
-#  [ "$status" -eq 0 ]
-#  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Grott Proxy service is running.${COL_DEF}" >&3
-#}
+@test "destructive-grott_install" {
+  ## Confirm Grott Proxy install completes without error
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Grott Proxy installation starting...${COL_DEF}" >&3
+  run install_grott "install" 3>&-
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Grott Proxy installation successful.${COL_DEF}" >&3
+
+  ## Confirm Grott service is running
+  echo -e "# ${COL_CYAN}$(timestamp) [openHABian] Checking if Grott Proxy service is running...${COL_DEF}" >&3
+  run systemctl is-active --quiet grott
+  if [ "$status" -ne 0 ]; then echo "$output" >&3; fi
+  [ "$status" -eq 0 ]
+  echo -e "# ${COL_GREEN}$(timestamp) [openHABian] Grott Proxy service is running.${COL_DEF}" >&3
+}
