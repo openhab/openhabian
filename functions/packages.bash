@@ -842,217 +842,249 @@ setup_evcc() {
 
 setup_esphome_device_builder() {
    
-  # Variables
-  local esphomeDir="/opt/esphome_device_builder"
-  local esphomeConfigDir="/etc/openhab/ESPHome"
-  local serviceTemplate="${BASEDIR:-/opt/openhabian}/includes/esphome-device-builder.service.template"
-  local setupMode="$1"
-  local port=6052
-  local min_python_version="3.12"
+# Variables
+local esphomeConfigDir_old="/etc/openhab/ESPHome"
+local esphomeDir="/opt/esphome_device_builder"
+local esphomeConfigDir="/opt/esphome_device_builder/config"
+local serviceTemplate="${BASEDIR:-/opt/openhabian}/includes/esphome-device-builder.service.template"
+local setupMode="$1"
+local port=6052
+local min_python_version="3.12"
 
-  # Whiptail / Console messages 
-  local whiptailTitle="ESPHome Device Builder - Setup"
-  local installStartText="No ESPHome Device Builder service detectet --> start installation"
-  local installEndText="ESPHome Device Builder has been completely installed"
-  local updateStartText="ESPHome Device Builder service detectet --> start update"
-  local updateEndText="ESPHome Device Builder has been completely updated"
-  local uninstallStartText="Start uninstalling the ESPHome Device Builder"
-  local uninstallEndText="ESPHome Device Builder has been completely uninstalled"
-  local errorText="An Error occured!\nFor Details please have a look at the shell messages"
-  local portText="Access the webinterface at http://<your-ip>:$port"
-  local majorUpdateText="##################### Major update detected #####################\nThe ESPHome Device Builder will now be removed.\nThe ESPHome Device Builder configuration files will NOT be removed.\n\n############# Caution: Manual intervention required #############\nOnce the process is complete, please run the installation\nfunction manually to complete the update."
+# Whiptail / Console messages 
+local whiptailTitle="ESPHome Device Builder - Setup"
+local installStartText="No ESPHome Device Builder service detectet --> start installation"
+local installEndText="ESPHome Device Builder has been completely installed"
+local updateStartText="ESPHome Device Builder service detectet --> start update"
+local updateEndText="ESPHome Device Builder has been completely updated"
+local uninstallStartText="Start uninstalling the ESPHome Device Builder"
+local uninstallEndText="ESPHome Device Builder has been completely uninstalled"
+local errorText="An Error occured!\nFor Details please have a look at the shell messages".
+local portText="Access the webinterface at http://<your-ip>:$port"
+local majorUpdateText_path="##################### Major update detected #####################\nThe ESPHome Device Builder configuration path has changed\n--> $esphomeConfigDir\n--> the configuration files are no longer included\n    in the openHABian backup function!\n\n############# Caution: Manual intervention required #############\n1. remove  ESPHome Device Builder manually via opeHABian\n2. move your config files (*.yaml) manually \n   from $esphomeConfigDir_old \n   to $esphomeConfigDir\n3. install ESPHome Device Builder manually via openHABian"
+local majorUpdateText_venv="##################### Major update detected #####################\nThe python Verson inside the venv has to be updatet.\n\n\n############# Caution: Manual intervention required #############\n1. remove  ESPHome Device Builder manually via opeHABian\n2. install ESPHome Device Builder manually via openHABian"
 
-
-  echo "$(timestamp) [openHABian] ##########################################################################################################"
-  echo "$(timestamp) [openHABian] ESPHome Setup"
+echo "$(timestamp) [openHABian] ##########################################################################################################"
+echo "$(timestamp) [openHABian] ESPHome Setup"
   
-  # This Precheck is neccesary to decide if install or update routine is neccesary
-  if [ "$setupMode" = "install" ]; then
+# This Precheck is neccesary to decide if install or update routine is neccesary and if the needed minimum python version is available for the system.
+if [ "$setupMode" = "install" ]; then
     echo "$(timestamp) [openHABian] The option installation / update was selected"
-    echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
-    # this pre-check is neccesary to decide if it's a major update. 2026.5.0 and older --> newer versions
+    echo "$(timestamp) [openHABian] Check if the minimum Python Version is available"
+    if ! apt-get update -qq; then
+        echo "$(timestamp) [openHABian] ${COL_RED} Error: Updating the newest package list was not sucessfull... ${COL_DEF}"
+        return 1
+    fi
+    # get Candidate-Version and remove Debian-Suffixe
+    system_python_version="$(apt-cache policy python3 | awk '/Candidate:/ {print $2}' | sed 's/[^0-9.].*//')"
+    if [ -z "$system_python_version" ]; then
+        echo "$(timestamp) [openHABian] ${COL_RED} Python release candidate was not found ${COL_DEF}"
+        return 1
+    fi
+    # Check if minimum Python version is available for the system
+    if ! [ "$(printf "%s\n%s" "$min_python_version" "$system_python_version" | sort -V | head -n1)" = "$min_python_version" ]; then
+        echo "$(timestamp) [openHABian] ${COL_RED} Error: The newest available Python version is below the minimum ($min_python_version). Please install it manually or upgrade your OS to an newer version. ${COL_DEF}"
+        if [[ -n $INTERACTIVE ]]; then
+            whiptail --title "$whiptailTitle" --msgbox "The newest available Python version is below the minimum ($min_python_version).\nPlease install it manually or upgrade your OS to an newer version." 8 69
+        fi
+        return 1
+    else
+        echo "$(timestamp) [openHABian] The minimum Python Version ($min_python_version) is available ($system_python_version)..."
+    fi
+        echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
     if systemctl is-active --quiet esphome-device-builder.service; then
         echo "$(timestamp) [openHABian] Check /etc/systemd/system/esphome-device-builder.service, if a major update is neccesary..."
-        if grep -q "6052" /etc/systemd/system/esphome-device-builder.service; then
+        if grep -q "$esphomeConfigDir_old" /etc/systemd/system/esphome-device-builder.service; then
             echo "$(timestamp) [openHABian] major update detected..."
             if [[ -n $INTERACTIVE ]]; then
-                whiptail --title "$whiptailTitle" --msgbox "$majorUpdateText" 14 69
+                whiptail --title "$whiptailTitle" --msgbox "$majorUpdateText_path" 14 69
             fi
-            setupMode="remove"
-        else
-            echo "$(timestamp) [openHABian] No major update detected..."
-            setupMode="update"
+            return 0
+        fi
+        setupMode="update"
+    else
+        setupMode="install" 
+    fi
+    # this check was implemented in case of changing the config file path from /etc/openhab/ESPHome to /opt/esphome_device_builder/config --> 09/2026
+    echo "$(timestamp) [openHABian] Check if config files are existing in the old config folder: $esphomeConfigDir_old ..."
+    if [ -d "$esphomeConfigDir_old" ] && \
+        find $esphomeConfigDir_old -maxdepth 1 -type f -name "*.yaml" | read -r; then
+        echo "$(timestamp) [openHABian] Configuraion files in the old config path found. Please move the config files manually into the new path. $esphomeConfigDir_old --> $esphomeConfigDir"
+        if [[ -n $INTERACTIVE ]]; then
+            whiptail --title "$whiptailTitle" --msgbox "Configuraion files in the old config path found.\nPlease move the config files manually into the new path.\n\n$esphomeConfigDir_old --> $esphomeConfigDir" 10 69
+        fi
+    else
+        echo "$(timestamp) [openHABian] no config files found at $esphomeConfigDir_old --> remove the folder..."
+        if ! rm -rf "$esphomeConfigDir_old"; then
+        echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove ESPHome Device Builder Config Folder (old path): $esphomeConfigDir_old.${COL_DEF}"
+        return 1
         fi
     fi
-  fi
-
-  if [ "$setupMode" = "install" ]; then
-    echo "$(timestamp) [openHABian] $installStartText";
-    echo "$(timestamp) [openHABian] Check if Python 3 and pip are already installed..."
-    if ! dpkg -s python3-venv &>/dev/null; then
-      echo "$(timestamp) [openHABian] Installing Python 3 and pip..."
-      if ! cond_redirect apt install -y python3-venv; then
-        echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install Python 3 and pip.${COL_DEF}"
-        return 1
-      fi   
-    echo "$(timestamp) [openHABian] Check if Python 3 and pip are already installed and up to date..."
-    elif ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3 -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
-      echo "$(timestamp) [openHABian] updating Python 3 and pip..."
-      if ! cond_redirect apt install -y python3; then
-        echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update Python 3 and pip.${COL_DEF}"
-        return 1
-      fi
-    else
-      echo "$(timestamp) [openHABian] Python 3 and pip are already available --> skip installation"
-    fi 
-        
-    echo "$(timestamp) [openHABian] Creating directory at $esphomeDir and set permissions"
-    if ! mkdir -p "$esphomeDir"; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create $esphomeDir${COL_DEF}"
-      return 1
-    fi
-    if ! chown -R "$LOGNAME:$LOGNAME" "$esphomeDir"; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to set ownership of $esphomeDir to $USER.${COL_DEF}"
-      return 1
-    fi
-    
-    echo "$(timestamp) [openHABian] Creating directory at $esphomeConfigDir and set permissions"
-    if ! mkdir -p "$esphomeConfigDir"; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create $esphomeConfigDir${COL_DEF}"
-      return 1
-    fi
-    if ! chown -R "$LOGNAME:$LOGNAME" "$esphomeConfigDir"; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to set ownership of $esphomeConfigDir to $USER.${COL_DEF}"
-      return 1
-    fi
-    
-    echo "$(timestamp) [openHABian] Setting up a virtual environment ($esphomeDir) and install ESPHome Device Builder"
-    if ! python3 -m venv venv "$esphomeDir/venv"; then
-      echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create a Python virtual environment ($esphomeDir).${COL_DEF}"
-      return 1
-    fi
-    
-    echo "$(timestamp) [openHABian] Activating the virtual environment."
-    # the following shellcheck is neccesary because of error SC1091
-    # shellcheck source=/dev/null
-    if ! source "$esphomeDir/venv/bin/activate"; then
-      echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to activate the Python virtual environment.${COL_DEF}"
-      return 1
-    fi
-    
-    echo "$(timestamp) [openHABian] installing ESPHome Device Builder. This could take a few minutes!"
-    if ! pip3 install "esphome-device-builder[esphome]"; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install ESPHome Device Builder.${COL_DEF}"
-      return 1
-    fi
-      
-    echo "$(timestamp) [openHABian] Installing systemd service file..."
-    if ! SILENT=1 cond_redirect install -m 755 "$serviceTemplate" /etc/systemd/system/esphome-device-builder.service; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install systemd service file.${COL_DEF}"
-      return 1
-    fi
-
-    echo "$(timestamp) [openHABian] modifying systemd service file..."
-    # Use + as separator in sed instead of / because in the path are / included
-    if ! sed -i "s+<username>+$LOGNAME+g; s+<esphome-directory>+$esphomeDir+g; s+<esphome-config-directory>+$esphomeConfigDir+g; s+# dynamically replaced in script++g" /etc/systemd/system/esphome-device-builder.service; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to modify systemd service file.${COL_DEF}"  
-      return 1
-    fi
-    
-    echo "$(timestamp) [openHABian] Reloading systemd daemon and starting the ESPHome Device Builder service..."
-    if ! SILENT=1 cond_redirect systemctl daemon-reload; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to reload systemd daemon.${COL_DEF}"
-      return 1
-    fi
-    
-    echo "$(timestamp) [openHABian] Enabling and starting the ESPHome Device Builder service..."
-    if ! SILENT=1 cond_redirect systemctl enable --now esphome-device-builder.service; then
-      echo -e"$(timestamp) [openHABian] ${COL_RED}Error: Failed to enable and start ESPHome Device Builder service.${COL_DEF}"
-      return 1
-    fi
-      
-    echo -e "$(timestamp) [openHABian] ${COL_GREEN}$installEndText${COL_DEF}"
-    echo -e "$(timestamp) [openHABian] ${COL_GREEN}$portText${COL_DEF}";
-    if [[ -n $INTERACTIVE ]]; then
-      whiptail --title "$whiptailTitle" --msgbox "$installEndText\n$portText" 8 60
-    fi
-  
-  elif [ "$setupMode" = "update" ] ; then
-    echo "$(timestamp) [openHABian] $updateStartText";
-    echo "$(timestamp) [openHABian] Activating the virtual environment."
-    # the following shellcheck is neccesary because of error SC1091
-    # shellcheck source=/dev/null
-    if ! source "$esphomeDir/venv/bin/activate"; then
-      echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to activate thr Python virtual environment.${COL_DEF}"
-      return 1
-    fi
-
-    echo "$(timestamp) [openHABian] updating ESPHome Device Builder..."
-    if ! pip3 install --upgrade esphome-device-builder; then   
-        echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update ESPHome Device Builder.${COL_DEF}"
-      return 1
-    fi
-
-    echo -e "$(timestamp) [openHABian] ${COL_GREEN}$updateEndText${COL_DEF}"
-    echo -e "$(timestamp) [openHABian] ${COL_GREEN}$portText${COL_DEF}";
-    if [[ -n $INTERACTIVE ]]; then
-      whiptail --title "$whiptailTitle" --msgbox "$updateEndText\n$portText" 8 60
-    fi
-  
-  elif [ "$setupMode" = "remove" ] ; then
-    echo "$(timestamp) [openHABian] $uninstallStartText"
-      
-    # Check if the esphome-device-builder.service is active. If YES stop and disable the service
-    # This check is neccesary to prevent a failure after an unsucsessful installation
-    if systemctl is-active --quiet esphome-device-builder.service; then
-      echo "$(timestamp) [openHABian] Stopping the ESPHome Device Builder service."
-      if ! SILENT=1 cond_redirect systemctl stop esphome-device-builder.service; then 
-        echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to stop ESPHome Device Builder service.${COL_DEF}"
-        return 1
-      fi
-
-      echo "$(timestamp) [openHABian] Disabling the ESPHome Device Builder service."
-      if ! SILENT=1 cond_redirect systemctl disable esphome-device-builder.service; then
-        echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to disable ESPHome Device Builder service.${COL_DEF}"
-        return 1
-      fi
-    fi
-
-    echo "$(timestamp) [openHABian] Removing the ESPHome Device Builder systemd service file."
-    if ! SILENT=1 cond_redirect rm -f /etc/systemd/system/esphome-device-builder.service; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove the ESPHome Device Builder systemd service file.${COL_DEF}"
-      return 1
-    fi
-
-    echo "$(timestamp) [openHABian] Reloading systemd daemon."
-    if ! SILENT=1 cond_redirect systemctl daemon-reload; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to reload systemd daemon.${COL_DEF}"
-      return 1
-    fi
-
-    echo "$(timestamp) [openHABian] Removing ESPHome Device Builder directory at $esphomeDir."
-    if ! rm -rf "$esphomeDir"; then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove ESPHome Device Builder directory at $esphomeDir.${COL_DEF}"
-      return 1
-    fi
-
-    echo "$(timestamp) [openHABian] Removing ESPHome Device Builder build directory at $esphomeConfigDir..."
-    if ! (rm -rf "$esphomeConfigDir/.esphome/" && rm -f "$esphomeConfigDir/.gitignore"); then
-      echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove ESPHome Device Builder build folders at $esphomeConfigDir.${COL_DEF}"
-      return 1
-    fi
-    echo "$(timestamp) [openHABian] ESPHome Device Builder config files are still available: $esphomeConfigDir"
-
-    echo -e "$(timestamp) [openHABian] ${COL_GREEN}ESPHome Device Builder uninstallation complete!${COL_DEF}"
-      if [[ -n $INTERACTIVE ]]; then
-        whiptail --title "$whiptailTitle" --msgbox "$uninstallEndText" 8 60
-      fi
-  else
-    echo "$(timestamp) [openHABian] ${COL_RED}An unknown parameter was sent by menu.bash${COL_DEF}"
+elif  [ "$setupMode" = "remove" ]; then
+    echo "$(timestamp) [openHABian] The option remove selected"
+else
+    echo "$(timestamp) [openHABian] ${COL_RED} An unknown parameter was sent by menu.bash ${COL_DEF}"
     return 1
-  fi
+fi
 
-  echo "$(timestamp) [openHABian] ##########################################################################################################"
+case "$setupMode" in
+    install)
+        echo "$(timestamp) [openHABian] $installStartText";
+                echo "$(timestamp) [openHABian] Check if Python 3 and pip are already installed and up to date..."
+        if ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3 -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
+            echo "$(timestamp) [openHABian] updating Python 3 and pip..."
+            if ! cond_redirect apt install -y python3; then
+                echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update Python 3 and pip.${COL_DEF}"
+                return 1
+            fi
+        else
+            echo "$(timestamp) [openHABian] Python 3 and pip are already installed and up to date --> skip python installation"
+        fi 
+        echo "$(timestamp) [openHABian] Creating directory at $esphomeDir and set permissions"
+        if ! mkdir -p "$esphomeDir"; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create $esphomeDir${COL_DEF}"
+            return 1
+        fi
+        if ! chown -R "$LOGNAME:$LOGNAME" "$esphomeDir"; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to set ownership of $esphomeDir to $USER.${COL_DEF}"
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] Creating directory at $esphomeConfigDir and set permissions"
+        if ! mkdir -p "$esphomeConfigDir"; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create $esphomeConfigDir${COL_DEF}"
+            return 1
+        fi
+        if ! chown -R "$LOGNAME:$LOGNAME" "$esphomeConfigDir"; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to set ownership of $esphomeConfigDir to $USER.${COL_DEF}"
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] Setting up a virtual environment ($esphomeDir/venv) and install ESPHome Device Builder"
+        if ! python3 -m venv venv "$esphomeDir/venv"; then
+            echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create a Python virtual environment ($esphomeDir).${COL_DEF}"
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] Activating the virtual environment."
+        # the following shellcheck is neccesary because of error SC1091
+        # shellcheck source=/dev/null
+        if ! source "$esphomeDir/venv/bin/activate"; then
+            echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to activate the Python virtual environment.${COL_DEF}"
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] installing ESPHome Device Builder. This could take a few minutes!"
+        if ! pip3 install "esphome-device-builder[esphome]" -qq; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install ESPHome Device Builder.${COL_DEF}"
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] Installing systemd service file..."
+        if ! SILENT=1 cond_redirect install -m 755 "$serviceTemplate" /etc/systemd/system/esphome-device-builder.service; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to install systemd service file.${COL_DEF}"
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] modifying systemd service file..."
+        # Use + as separator in sed instead of / because in the path are / included
+        if ! sed -i "s+<username>+$LOGNAME+g; s+<esphome-directory>+$esphomeDir+g; s+<esphome-config-directory>+$esphomeConfigDir+g; s+# dynamically replaced in script++g" /etc/systemd/system/esphome-device-builder.service; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to modify systemd service file.${COL_DEF}"  
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] Reloading systemd daemon and starting the ESPHome Device Builder service..."
+        if ! SILENT=1 cond_redirect systemctl daemon-reload; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to reload systemd daemon.${COL_DEF}"
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] Enabling and starting the ESPHome Device Builder service..."
+        if ! SILENT=1 cond_redirect systemctl enable --now esphome-device-builder.service; then
+            echo -e"$(timestamp) [openHABian] ${COL_RED}Error: Failed to enable and start ESPHome Device Builder service.${COL_DEF}"
+            return 1
+        fi
+        echo -e "$(timestamp) [openHABian] ${COL_GREEN}$installEndText${COL_DEF}"
+        echo -e "$(timestamp) [openHABian] ${COL_GREEN}$portText${COL_DEF}";
+        if [[ -n $INTERACTIVE ]]; then
+            whiptail --title "$whiptailTitle" --msgbox "$installEndText\n$portText" 8 60
+        fi
+        ;;
+    update)
+        echo "$(timestamp) [openHABian] $updateStartText";
+        echo "$(timestamp) [openHABian] Check python version inside venv, if a major update is neccesary..."
+        # read python version inside venv
+        venv_python_version_raw=$("$esphomeDir/venv/bin/python" -c "import sys; print(sys.version.split()[0])")
+        # remove suffix: everything after the first non-digit/dot
+        venv_python_version="${venv_python_version_raw%%[^0-9.]*}"
+        # compare versions inside venv with minimum version
+        if ! [ "$(printf "%s\n%s" "$min_python_version" "$venv_python_version" | sort -V | head -n1)" = "$min_python_version" ]; then
+            echo "python3 version inside venv is lower than minimum --> venv update needed."
+            echo "$(timestamp) [openHABian] major update detected..."
+            if [[ -n $INTERACTIVE ]]; then
+                whiptail --title "$whiptailTitle" --msgbox "$majorUpdateText_venv" 14 69
+            fi
+            return 0
+        else
+            echo "$(timestamp) [openHABian] python3 version inside venv ($venv_python_version) is higher than minimum ($min_python_version) --> no venv update needed."
+        fi
+        echo "$(timestamp) [openHABian] Activating the virtual environment."
+        # the following shellcheck is neccesary because of error SC1091
+        # shellcheck source=/dev/null
+        if ! source "$esphomeDir/venv/bin/activate"; then
+            echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to activate the Python virtual environment.${COL_DEF}"
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] updating ESPHome Device Builder..."
+        if ! pip3 install --upgrade esphome-device-builder -q; then   
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update ESPHome Device Builder.${COL_DEF}"
+        return 1
+        fi
+        echo -e "$(timestamp) [openHABian] ${COL_GREEN}$updateEndText${COL_DEF}"
+        echo -e "$(timestamp) [openHABian] ${COL_GREEN}$portText${COL_DEF}";
+        if [[ -n $INTERACTIVE ]]; then
+            whiptail --title "$whiptailTitle" --msgbox "$updateEndText\n$portText" 8 60
+        fi
+        ;;
+
+    remove)
+        echo "$(timestamp) [openHABian] $uninstallStartText"
+        
+        # Check if the esphome-device-builder.service is active. If YES stop and disable the service
+        # This check is neccesary to prevent a failure after an unsucsessful installation
+        if systemctl is-active --quiet esphome-device-builder.service; then
+            echo "$(timestamp) [openHABian] Stopping the ESPHome Device Builder service."
+            if ! SILENT=1 cond_redirect systemctl stop esphome-device-builder.service; then 
+                echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to stop ESPHome Device Builder service.${COL_DEF}"
+                return 1
+            fi
+            echo "$(timestamp) [openHABian] Disabling the ESPHome Device Builder service."
+            if ! SILENT=1 cond_redirect systemctl disable esphome-device-builder.service; then
+                echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to disable ESPHome Device Builder service.${COL_DEF}"
+                return 1
+            fi
+        fi
+        echo "$(timestamp) [openHABian] Removing the ESPHome Device Builder systemd service file."
+        if ! SILENT=1 cond_redirect rm -f /etc/systemd/system/esphome-device-builder.service; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove the ESPHome Device Builder systemd service file.${COL_DEF}"
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] Reloading systemd daemon."
+        if ! SILENT=1 cond_redirect systemctl daemon-reload; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to reload systemd daemon.${COL_DEF}"
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] Removing ESPHome Device Builder venv directory: $esphomeDir/venv..."
+        if ! rm -rf "$esphomeDir/venv"; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove ESPHome Device Builder venv directory: $esphomeDir/venv.${COL_DEF}"
+            return 1
+        fi
+        # check if the esphome_config exists to prevent an error message during an major upgrade     
+        if [ -d "$esphomeConfigDir" ] && \
+           ! find $esphomeConfigDir -mindepth 1 ! -name "*.yaml" -exec rm -rf {} +; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove all unneccesary files an folder: $esphomeConfigDir...${COL_DEF}"
+            return 1
+        fi
+        echo "$(timestamp) [openHABian] ESPHome Device Builder config files are still available: $esphomeConfigDir"
+        echo -e "$(timestamp) [openHABian] ${COL_GREEN}ESPHome Device Builder uninstallation complete!${COL_DEF}"
+        if [[ -n $INTERACTIVE ]]; then
+            whiptail --title "$whiptailTitle" --msgbox "$uninstallEndText" 8 60
+        fi
+        ;;
+    esac
+echo "$(timestamp) [openHABian] ##########################################################################################################"
 }
 
 ## Function for (un)installing Grott proxy server on the current system
