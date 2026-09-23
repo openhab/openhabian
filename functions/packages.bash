@@ -876,7 +876,7 @@ if [ "$setupMode" = "install" ]; then
         return 1
     fi
     # get Candidate-Version and remove Debian-Suffixe
-    system_python_version="$(apt-cache policy python3 | awk '/Candidate:/ {print $2}' | sed 's/[^0-9.].*//')"
+    system_python_version="$(apt-cache policy python3-venv | awk '/Candidate:/ {print $2}' | sed 's/[^0-9.].*//')"
     if [ -z "$system_python_version" ]; then
         echo "$(timestamp) [openHABian] ${COL_RED} Python release candidate was not found ${COL_DEF}"
         return 1
@@ -913,7 +913,7 @@ if [ "$setupMode" = "install" ]; then
         if [[ -n $INTERACTIVE ]]; then
             whiptail --title "$whiptailTitle" --msgbox "Configuraion files in the old config path found.\nPlease move the config files manually into the new path.\n\n$esphomeConfigDir_old --> $esphomeConfigDir" 10 69
         fi
-    else
+    elif [ -d "$esphomeConfigDir_old" ]; then
         echo "$(timestamp) [openHABian] no config files found at $esphomeConfigDir_old --> remove the folder..."
         if ! rm -rf "$esphomeConfigDir_old"; then
         echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove ESPHome Device Builder Config Folder (old path): $esphomeConfigDir_old.${COL_DEF}"
@@ -931,9 +931,9 @@ case "$setupMode" in
     install)
         echo "$(timestamp) [openHABian] $installStartText";
                 echo "$(timestamp) [openHABian] Check if Python 3 and pip are already installed and up to date..."
-        if ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3 -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
+        if ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3-venv -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
             echo "$(timestamp) [openHABian] updating Python 3 and pip..."
-            if ! cond_redirect apt install -y python3; then
+            if ! cond_redirect apt install -y python3-venv; then
                 echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update Python 3 and pip.${COL_DEF}"
                 return 1
             fi
@@ -959,7 +959,7 @@ case "$setupMode" in
             return 1
         fi
         echo "$(timestamp) [openHABian] Setting up a virtual environment ($esphomeDir/venv) and install ESPHome Device Builder"
-        if ! python3 -m venv venv "$esphomeDir/venv"; then
+        if ! python3 -m venv "$esphomeDir/venv"; then
             echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to create a Python virtual environment ($esphomeDir).${COL_DEF}"
             return 1
         fi
@@ -1011,7 +1011,7 @@ case "$setupMode" in
         venv_python_version="${venv_python_version_raw%%[^0-9.]*}"
         # compare versions inside venv with minimum version
         if ! [ "$(printf "%s\n%s" "$min_python_version" "$venv_python_version" | sort -V | head -n1)" = "$min_python_version" ]; then
-            echo "python3 version inside venv is lower than minimum --> venv update needed."
+            echo "python3 version inside venv is lower than minimum --> venv update needed"
             echo "$(timestamp) [openHABian] major update detected..."
             if [[ -n $INTERACTIVE ]]; then
                 whiptail --title "$whiptailTitle" --msgbox "$majorUpdateText_venv" 14 69
