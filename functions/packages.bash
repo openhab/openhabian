@@ -876,7 +876,7 @@ if [ "$setupMode" = "install" ]; then
         return 1
     fi
     # get Candidate-Version and remove Debian-Suffixe
-    system_python_version="$(apt-cache policy python3-venv | awk '/Candidate:/ {print $2}' | sed 's/[^0-9.].*//')"
+    system_python_version="$(apt-cache policy python3 | awk '/Candidate:/ {print $2}' | sed 's/[^0-9.].*//')"
     if [ -z "$system_python_version" ]; then
         echo "$(timestamp) [openHABian] ${COL_RED} Python release candidate was not found ${COL_DEF}"
         return 1
@@ -891,7 +891,7 @@ if [ "$setupMode" = "install" ]; then
     else
         echo "$(timestamp) [openHABian] The minimum Python Version ($min_python_version) is available ($system_python_version)..."
     fi
-        echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
+    echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
     if systemctl is-active --quiet esphome-device-builder.service; then
         echo "$(timestamp) [openHABian] Check /etc/systemd/system/esphome-device-builder.service, if a major update is neccesary..."
         if grep -q "$esphomeConfigDir_old" /etc/systemd/system/esphome-device-builder.service; then
@@ -907,38 +907,42 @@ if [ "$setupMode" = "install" ]; then
     fi
     # this check was implemented in case of changing the config file path from /etc/openhab/ESPHome to /opt/esphome_device_builder/config --> 09/2026
     echo "$(timestamp) [openHABian] Check if config files are existing in the old config folder: $esphomeConfigDir_old ..."
-    if [ -d "$esphomeConfigDir_old" ] && \
-        find $esphomeConfigDir_old -maxdepth 1 -type f -name "*.yaml" | read -r; then
-        echo "$(timestamp) [openHABian] Configuraion files in the old config path found. Please move the config files manually into the new path. $esphomeConfigDir_old --> $esphomeConfigDir"
-        if [[ -n $INTERACTIVE ]]; then
-            whiptail --title "$whiptailTitle" --msgbox "Configuraion files in the old config path found.\nPlease move the config files manually into the new path.\n\n$esphomeConfigDir_old --> $esphomeConfigDir" 10 69
-        fi
-    elif [ -d "$esphomeConfigDir_old" ]; then
-        echo "$(timestamp) [openHABian] no config files found at $esphomeConfigDir_old --> remove the folder..."
-        if ! rm -rf "$esphomeConfigDir_old"; then
-        echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove ESPHome Device Builder Config Folder (old path): $esphomeConfigDir_old.${COL_DEF}"
-        return 1
+    if [ -d "$esphomeConfigDir_old" ]; then 
+        if ! find $esphomeConfigDir_old -maxdepth 1 -type f -name "*.yaml" | read -r; then
+            echo "$(timestamp) [openHABian] Configuraion files in the old config path found. Please move the config files manually into the new path. $esphomeConfigDir_old --> $esphomeConfigDir"
+            if [[ -n $INTERACTIVE ]]; then
+                whiptail --title "$whiptailTitle" --msgbox "Configuraion files in the old config path found.\nPlease move the config files manually into the new path.\n\n$esphomeConfigDir_old --> $esphomeConfigDir" 10 69
+            fi
+        else
+            echo "$(timestamp) [openHABian] no config files found at $esphomeConfigDir_old --> remove the folder..."
+            if ! rm -rf "$esphomeConfigDir_old"; then
+            echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove ESPHome Device Builder Config Folder (old path): $esphomeConfigDir_old.${COL_DEF}"
+            return 1
         fi
     fi
+fi
 elif  [ "$setupMode" = "remove" ]; then
     echo "$(timestamp) [openHABian] The option remove selected"
+
 else
-    echo "$(timestamp) [openHABian] ${COL_RED} An unknown parameter was sent by menu.bash ${COL_DEF}"
+    echo "$(timestamp) [openHABian] ${COL_RED}An unknown parameter was sent by menu.bash${COL_DEF}"
     return 1
 fi
+
 
 case "$setupMode" in
     install)
         echo "$(timestamp) [openHABian] $installStartText";
-                echo "$(timestamp) [openHABian] Check if Python 3 and pip are already installed and up to date..."
-        if ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3-venv -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
+                echo "$(timestamp) [openHABian] Check if Python 3 - Venv and pip are already installed and up to date..."
+        if ! python3-venv -m venv --help >/dev/null 2>&1 ||\
+           ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3 -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
             echo "$(timestamp) [openHABian] updating Python 3 and pip..."
             if ! cond_redirect apt install -y python3-venv; then
                 echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update Python 3 and pip.${COL_DEF}"
                 return 1
             fi
         else
-            echo "$(timestamp) [openHABian] Python 3 and pip are already installed and up to date --> skip python installation"
+            echo "$(timestamp) [openHABian] Python 3 - Venv and pip are already installed and up to date --> skip python installation"
         fi 
         echo "$(timestamp) [openHABian] Creating directory at $esphomeDir and set permissions"
         if ! mkdir -p "$esphomeDir"; then
