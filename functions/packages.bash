@@ -867,15 +867,16 @@ local majorUpdateText_venv="##################### Major update detected ########
 echo "$(timestamp) [openHABian] ##########################################################################################################"
 echo "$(timestamp) [openHABian] ESPHome Setup"
   
-# This Precheck is neccesary to decide if install or update routine is neccesary and if the needed minimum python version is available for the system.
+# This pre-check is necessary to decide if install or update routine is neccesary and if the needed minimum python version is available for the system.
 if [ "$setupMode" = "install" ]; then
     echo "$(timestamp) [openHABian] The option installation / update was selected"
-    echo "$(timestamp) [openHABian] Check if the minimum Python Version is available"
+    echo "$(timestamp) [openHABian] Checking if the minimum required python version is available..."
     if ! apt-get update -qq; then
         echo "$(timestamp) [openHABian] ${COL_RED} Error: Updating the newest package list was not sucessfull... ${COL_DEF}"
         return 1
     fi
-    # get Candidate-Version and remove Debian-Suffixe
+    # get candidate version and remove Debian suffixes
+
     system_python_version="$(apt-cache policy python3 | awk '/Candidate:/ {print $2}' | sed 's/[^0-9.].*//')"
     if [ -z "$system_python_version" ]; then
         echo "$(timestamp) [openHABian] ${COL_RED} Python release candidate was not found ${COL_DEF}"
@@ -883,13 +884,13 @@ if [ "$setupMode" = "install" ]; then
     fi
     # Check if minimum Python version is available for the system
     if ! [ "$(printf "%s\n%s" "$min_python_version" "$system_python_version" | sort -V | head -n1)" = "$min_python_version" ]; then
-        echo "$(timestamp) [openHABian] ${COL_RED} Error: The newest available Python version is below the minimum ($min_python_version). Please install it manually or upgrade your OS to an newer version. ${COL_DEF}"
+        echo "$(timestamp) [openHABian] ${COL_RED} Error: The most recent available python version is older than the minimum required ($min_python_version). Please install it manually or upgrade your OS to an newer version. ${COL_DEF}"
         if [[ -n $INTERACTIVE ]]; then
-            whiptail --title "$whiptailTitle" --msgbox "The newest available Python version is below the minimum ($min_python_version).\nPlease install it manually or upgrade your OS to an newer version." 8 69
+            whiptail --title "$whiptailTitle" --msgbox "The most recent available python version is older than the minimum required  ($min_python_version).\nPlease install it manually or upgrade your OS to an newer version." 8 69
         fi
         return 1
     else
-        echo "$(timestamp) [openHABian] The minimum Python Version ($min_python_version) is available ($system_python_version)..."
+        echo "$(timestamp) [openHABian] The installed python version ($system_python_version) is more recent than the minimum requirement ($min_python_version)..."
     fi
     echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
     if systemctl is-active --quiet esphome-device-builder.service; then
