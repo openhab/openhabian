@@ -876,14 +876,13 @@ if [ "$setupMode" = "install" ]; then
         return 1
     fi
     # get candidate version and remove Debian suffixes
-
-    system_python_version="$(apt-cache policy python3 | awk '/Candidate:/ {print $2}' | sed 's/[^0-9.].*//')"
-    if [ -z "$system_python_version" ]; then
+    available_python_version="$(apt-cache policy python3 | awk '/Candidate:/ {print $2}' | sed 's/[^0-9.].*//')"
+    if [ -z "$available_python_version" ]; then
         echo "$(timestamp) [openHABian] ${COL_RED} Python release candidate was not found ${COL_DEF}"
         return 1
     fi
     # Check if minimum Python version is available for the system
-    if ! [ "$(printf "%s\n%s" "$min_python_version" "$system_python_version" | sort -V | head -n1)" = "$min_python_version" ]; then
+    if ! [ "$(printf "%s\n%s" "$min_python_version" "$available_python_version" | sort -V | head -n1)" = "$min_python_version" ]; then
         echo "$(timestamp) [openHABian] ${COL_RED} Error: The most recent available python version is older than the minimum required ($min_python_version). Please install it manually or upgrade your OS to an newer version. ${COL_DEF}"
         if [[ -n $INTERACTIVE ]]; then
             whiptail --title "$whiptailTitle" --msgbox "The most recent available python version is older than the minimum required  ($min_python_version).\nPlease install it manually or upgrade your OS to an newer version." 8 69
@@ -892,6 +891,7 @@ if [ "$setupMode" = "install" ]; then
     else
         echo "$(timestamp) [openHABian] The installed python version ($system_python_version) is more recent than the minimum requirement ($min_python_version)..."
     fi
+    
     echo "$(timestamp) [openHABian] Check if the esphome-device-builder.service is already running..."
     if systemctl is-active --quiet esphome-device-builder.service; then
         echo "$(timestamp) [openHABian] Check /etc/systemd/system/esphome-device-builder.service, if a major update is neccesary..."
@@ -909,7 +909,7 @@ if [ "$setupMode" = "install" ]; then
     # this check was implemented in case of changing the config file path from /etc/openhab/ESPHome to /opt/esphome_device_builder/config --> 09/2026
     echo "$(timestamp) [openHABian] Check if config files are existing in the old config folder: $esphomeConfigDir_old ..."
     if [ -d "$esphomeConfigDir_old" ]; then 
-        if ! find $esphomeConfigDir_old -maxdepth 1 -type f -name "*.yaml" | read -r; then
+        if find $esphomeConfigDir_old -maxdepth 1 -type f -name "*.yaml" | read -r; then
             echo "$(timestamp) [openHABian] Configuraion files in the old config path found. Please move the config files manually into the new path. $esphomeConfigDir_old --> $esphomeConfigDir"
             if [[ -n $INTERACTIVE ]]; then
                 whiptail --title "$whiptailTitle" --msgbox "Configuraion files in the old config path found.\nPlease move the config files manually into the new path.\n\n$esphomeConfigDir_old --> $esphomeConfigDir" 10 69
@@ -935,7 +935,7 @@ case "$setupMode" in
     install)
         echo "$(timestamp) [openHABian] $installStartText";
                 echo "$(timestamp) [openHABian] Check if Python 3 - Venv and pip are already installed and up to date..."
-        if ! python3-venv -m venv --help >/dev/null 2>&1 ||\
+        if ! python3 -m venv --help >/dev/null 2>&1 ||\
            ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3 -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
             echo "$(timestamp) [openHABian] updating Python 3 and pip..."
             if ! cond_redirect apt install -y python3-venv; then
