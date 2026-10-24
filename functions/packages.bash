@@ -934,9 +934,9 @@ fi
 case "$setupMode" in
     install)
         echo "$(timestamp) [openHABian] $installStartText";
-                echo "$(timestamp) [openHABian] Check if Python 3 - Venv and pip are already installed and up to date..."
-        if ! python3 -m venv --help >/dev/null 2>&1 ||\
-           ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3-venv -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
+        echo "$(timestamp) [openHABian] Check if Python 3 - Venv and pip are already installed and up to date..."
+        if ! python3-venv -m venv --help >/dev/null 2>&1 ||\
+           ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3 -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
             echo "$(timestamp) [openHABian] updating Python 3 and pip..."
             if ! cond_redirect apt install -y python3-venv; then
                 echo -e "$(timestamp) [openHABian] ${COL_RED}Error: Failed to update Python 3 and pip.${COL_DEF}"
