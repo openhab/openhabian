@@ -910,19 +910,20 @@ if [ "$setupMode" = "install" ]; then
     echo "$(timestamp) [openHABian] Check if config files are existing in the old config folder: $esphomeConfigDir_old ..."
     if [ -d "$esphomeConfigDir_old" ]; then 
     # explicit, quoted test: true if any top-level *.yaml exists  
-    if find "$esphomeConfigDir_old" -maxdepth 1 -type f -name '*.yaml' -print -quit | grep -q .; then  
-        # legacy configs found — do NOT remove; instruct user to move them  
-        echo "$(timestamp) [openHABian] Legacy ESPHome config files found in $esphomeConfigDir_old. Please move them to $esphomeConfigDir before proceeding."  
-        if [[ -n $INTERACTIVE ]]; then  
-            whiptail --title "$whiptailTitle" --msgbox "Legacy ESPHome config files were found in:\n\n$esphomeConfigDir_old\n\nPlease move your .yaml files to:\n\n$esphomeConfigDir\n\nThen re-run the installation." 12 70  
-        fi  
-    else  
-        # no yaml files — safe to remove the legacy folder  
-        if ! rm -rf "$esphomeConfigDir_old"; then  
-            echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove legacy folder $esphomeConfigDir_old${COL_DEF}"  
-            return 1  
-        fi  
-    fi  
+        if find "$esphomeConfigDir_old" -maxdepth 1 -type f -name '*.yaml' -print -quit | grep -q .; then  
+            # legacy configs found — do NOT remove; instruct user to move them  
+            echo "$(timestamp) [openHABian] Legacy ESPHome config files found in $esphomeConfigDir_old. Please move them to $esphomeConfigDir before proceeding."  
+            if [[ -n $INTERACTIVE ]]; then  
+                whiptail --title "$whiptailTitle" --msgbox "Legacy ESPHome config files were found in:\n\n$esphomeConfigDir_old\n\nPlease move your .yaml files to:\n\n$esphomeConfigDir\n\nThen re-run the installation." 12 70  
+            fi  
+        else  
+            # no yaml files — safe to remove the legacy folder  
+            if ! rm -rf "$esphomeConfigDir_old"; then  
+                echo "$(timestamp) [openHABian] ${COL_RED}Error: Failed to remove legacy folder $esphomeConfigDir_old${COL_DEF}"  
+                return 1  
+            fi  
+        fi
+    fi
 elif  [ "$setupMode" = "remove" ]; then
     echo "$(timestamp) [openHABian] The option remove selected"
 
