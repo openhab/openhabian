@@ -52,7 +52,7 @@ basic_packages() {
   # removed pkg software-properties-common
   if cond_redirect apt-get -o DPkg::Lock::Timeout="$APTTIMEOUT" install --yes \
     acl arping apt-utils bash-completion bzip2 coreutils \
-    curl dirmngr git htop man-db mc multitail nano nmap lsb-release screen \
+    curl dirmngr ethtool git htop man-db mc multitail nano nmap lsb-release screen \
     telnet usbutils util-linux vfu vim wget whiptail xz-utils zip; \
   then echo "OK"; else echo "FAILED"; exit 1; fi
 }
@@ -425,6 +425,11 @@ misc_system_settings() {
       modprobe i2c_dev
       cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/INA219.py /usr/local/bin/waveshare_ups
     fi
+  fi
+  # Energy Efficient Ethernet makes some links flap (e.g. RPi 5 with some switches), see #2172
+  if ! running_in_docker && [[ -d /etc/NetworkManager/dispatcher.d ]]; then
+    cond_echo "Disabling Energy Efficient Ethernet (EEE) on wired interfaces"
+    if ! cond_redirect install -m 755 "${BASEDIR:-/opt/openhabian}"/includes/generic/50-disable-eee /etc/NetworkManager/dispatcher.d/; then echo "FAILED (install EEE dispatcher)"; return 1; fi
   fi
   # A distinguishable apt User-Agent
   cond_echo "Setting a distinguishable apt User-Agent"
