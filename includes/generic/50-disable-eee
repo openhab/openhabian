@@ -1,0 +1,16 @@
+#!/bin/sh
+# NetworkManager dispatcher script installed by openHABian
+# Disable Energy Efficient Ethernet (EEE) on wired interfaces when they come up.
+# EEE makes some links flap every few seconds (e.g. RPi 5 macb with some switches),
+# see https://github.com/openhab/openhabian/issues/2172
+
+case "$1" in
+  eth*|en*) ;;
+  *) exit 0 ;;
+esac
+[ "$2" = "up" ] || exit 0
+command -v ethtool > /dev/null 2>&1 || exit 0
+if ethtool --show-eee "$1" 2> /dev/null | grep -q "EEE status: enabled"; then
+  ethtool --set-eee "$1" eee off
+fi
+exit 0
