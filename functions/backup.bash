@@ -367,6 +367,8 @@ mirror_SD() {
   local repartitionText
   local dumpInfoText="For your information as the operator of this openHABian system:\\nA timed background job to run semiannually has just created a full raw device copy of your RPI's internal SD card.\\nOnly partitions to contain openHABian (/boot and / partitions 1 & 2) were copied."
   local partUUID
+  local origPartUUID
+  local fsckResult
 
   if [[ $# -eq 1 ]] && [[ -n "$INTERACTIVE" ]]; then
     select_blkdev "^sd" "Setup SD mirroring" "Select USB device to copy the internal SD card data to"
@@ -419,17 +421,29 @@ mirror_SD() {
     # flush kernel buffers and let udev settle so blkid/mount see the freshly written partitions
     cond_redirect sync
     cond_redirect udevadm settle
-    if ! cond_redirect e2fsck -f -y "${dest}2"; then echo "FAILED (e2fsck)"; dirty="yes"; fi
-    origPartUUID="$(blkid "${src}p2" | sed -n 's|^.*PARTUUID="\(\S\+\)".*|\1|p' | sed -e 's/-02//g')"
-    if ! partUUID="$(yes | set-partuuid "${dest}2" random | awk '/^PARTUUID/ { print substr($7,1,length($7) - 3) }')"; then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
+    # the root fs was copied while mounted so its journal is inconsistent: repair it before anything
+    # (set-partuuid) mounts it, else that mount fails; e2fsck exit codes 1-3 mean "errors corrected"
+    fsckResult=0
+    cond_redirect e2fsck -f -y "${dest}2" || fsckResult=$?
+    if [[ $fsckResult -ge 4 ]]; then echo "FAILED (e2fsck)"; dirty="yes"; fi
     if ! cond_redirect tune2fs "${dest}2" -U random; then echo "FAILED (set random UUID)"; dirty="yes"; fi
+    origPartUUID="$(blkid -s PTUUID -o value "$src")"
+    if ! (yes | set-partuuid "${dest}2" random) &> /dev/null; then echo "FAILED (set random PARTUUID)"; dirty="yes"; fi
+    cond_redirect udevadm settle
+    # use the disk ID actually on the destination: set-partuuid may fail after it already changed it
+    partUUID="$(blkid -p -s PTUUID -o value "$dest")"
+    if ! [[ $partUUID =~ ^[[:xdigit:]]{8}$ ]] || [[ $partUUID == "$origPartUUID" ]]; then
+      echo "FAILED (no new PARTUUID on ${dest}, cmdline.txt and fstab left unchanged)"
+      dirty="yes"
+      partUUID=""
+    fi
     while umount -q "${dest}1"; do : ; done
     mount "${dest}1" "$syncMount"
-    sed -i "s|${origPartUUID}|${partUUID}|g" "$syncMount"/cmdline.txt
+    [[ -n $partUUID ]] && sed -i "s|PARTUUID=${origPartUUID}-|PARTUUID=${partUUID}-|g" "$syncMount"/cmdline.txt
     umount "$syncMount"
     while umount -q "${dest}2"; do : ; done
     mount "${dest}2" "$syncMount"
-    sed -i "s|${origPartUUID}|${partUUID}|g" "$syncMount"/etc/fstab
+    [[ -n $partUUID ]] && sed -i "s|PARTUUID=${origPartUUID}-|PARTUUID=${partUUID}-|g" "$syncMount"/etc/fstab
     [[ -f "${syncMount}/etc/systemd/system/${storageDir}".mount ]] && sed -i 's|^What=.*|What=/dev/mmcblk0p3|g' "${syncMount}/etc/systemd/system/${storageDir}".mount
     # remove zram state captured from the live system, else zram-config skips device creation on the clone's first boot
     rm -f "${syncMount}/usr/local/lib/zram-config/zram-device-list"
