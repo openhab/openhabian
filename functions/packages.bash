@@ -195,20 +195,16 @@ homegear_setup() {
   local keyName="homegear-archive-keyring"
   local myOS
   local myRelease
-  local temp
+  local myArch
+  local repoURL
   local successText="Setup was successful.\\n\\nHomegear is now up and running. Next you might want to edit the configuration file '/etc/homegear/families/homematicbidcos.conf' or adopt devices through the homegear console, reachable by 'homegear -r'.\\n\\nPlease read up on the homegear documentation for more details: https://doc.homegear.eu/data/homegear\\n\\nTo continue your integration in openHAB, please follow the instructions under: https://www.openhab.org/addons/bindings/homematic/"
 
-  temp="$(mktemp "${TMPDIR:-/tmp}"/openhabian.XXXXX)"
   myOS="$(lsb_release -si)"
   myRelease="$(lsb_release -sc)"
+  myArch="$(dpkg --print-architecture)"
 
-  if [[ "$myRelease" == "n/a" ]]; then
+  if [[ "$myRelease" == "n/a" ]] || [[ -z "$myRelease" ]]; then
     myRelease="${osrelease:-trixie}"
-  fi
-  # shellcheck disable=SC2078,SC2154
-  if [[ "${myOS,,}" == "debian" ]] && [[ is_arm || running_in_docker ]]; then
-      # Workaround for CI not actually reporting as Raspberry Pi OS
-      myOS="raspberry_pi_os"  # Workaround for Homegear's Raspios APT repo being broken
   fi
 
   echo -n "$(timestamp) [openHABian] Beginning Homematic CCU2 emulation software Homegear install... "
@@ -221,21 +217,22 @@ homegear_setup() {
   if ! add_keys "https://apt.homegear.eu/Release.key" "$keyName"; then return 1; fi
 
 
-  # Add Homegear's repository to APT - needed to use testing repo, now needs stable
-  if ! is_pi; then
-    myRelease=trixie
-    # x86:
-    echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/${myRelease}/homegear/stable/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
-    cat /etc/apt/sources.list.d/homegear.list
+  # Add Homegear's repository to APT
+  # Homegear's Debian and Ubuntu repositories carry amd64, arm64 and armhf (ARMv7) builds for any machine, Pis included.
+  # Only ARMv6 (RPi 1, Zero) needs the raspberry_pi_os repository.
+  if [[ "${myOS,,}" == "ubuntu" ]]; then
+    repoURL="https://apt.homegear.eu/ubuntu/${myRelease}/homegear/stable/"
+  elif is_armv6l; then
+    repoURL="https://apt.homegear.eu/raspberry_pi_os/${myRelease}/homegear/stable/"
   else
-    if [[ "$(dpkg --print-architecture)" == 'arm64' ]]; then
-      # 64-bit Raspberry Pi OS:
-      echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/debian/${myRelease}/homegear/stable/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
-    else
-      # 32-bit Raspberry Pi OS
-      echo "deb [signed-by=/usr/share/keyrings/homegear-archive-keyring.gpg] https://apt.homegear.eu/raspberry_pi_os/${myRelease}/homegear/stable/ ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
-    fi
+    repoURL="https://apt.homegear.eu/debian/${myRelease}/homegear/stable/"
   fi
+  if ! curl -fsSL "${repoURL}dists/${myRelease}/main/binary-${myArch}/Packages" 2> /dev/null | grep -qx "Package: homegear"; then
+    echo "FAILED (Homegear does not provide packages for ${myOS} ${myRelease} ${myArch} at ${repoURL})"
+    return 1
+  fi
+  echo "deb [signed-by=/usr/share/keyrings/${keyName}.gpg] ${repoURL} ${myRelease} main" > /etc/apt/sources.list.d/homegear.list
+  cond_redirect cat /etc/apt/sources.list.d/homegear.list
   echo -n "$(timestamp) [openHABian] Installing Homegear... "
   if ! cond_redirect apt-get update; then echo "FAILED (update apt lists)"; return 1; fi
   if cond_redirect apt-get install --yes -o DPkg::Lock::Timeout="$APTTIMEOUT" homegear homegear-homematicbidcos homegear-homematicwired homegear-max homegear-management; then echo "OK"; else echo "FAILED"; return 1; fi
