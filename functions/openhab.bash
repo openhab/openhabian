@@ -265,7 +265,7 @@ dashboard_add_tile() {
   local tileURL
 
   application="$1"
-  openhabConfig="/etc/openhab"
+  openhabConfig="${OPENHAB_CONF:-/etc/openhab}"
   dashboardConfig="${openhabConfig}/services/runtime.cfg"
   ipAddress="$(ip route get 8.8.8.8 | awk '{print $7}' | xargs)"
   tileDesc="$(grep "^[[:space:]]*tile_desc_${application}" "${BASEDIR:-/opt/openhabian}"/includes/dashboard-imagedata | sed 's|tile_desc_'"${application}"'=||g; s|"||g')"
@@ -286,9 +286,10 @@ dashboard_add_tile() {
   fi
 
   touch "$dashboardConfig"
-  if grep -qs "${application}-link" "$dashboardConfig"; then
+  # keys carry the PID prefix, so match it or an existing tile is never removed and every run appends another copy
+  if grep -qs "^org\.openhab\.core\.ui\.tiles:${application}-link-" "$dashboardConfig"; then
     echo -n "Replacing... "
-    cond_redirect sed -i -e "/^${application}-link-*$/d" "$dashboardConfig"
+    cond_redirect sed -i -e "/^org\.openhab\.core\.ui\.tiles:${application}-link-/d" "$dashboardConfig"
   fi
 
   if [[ -z $tileDesc ]] || [[ -z $tileURL ]] || [[ -z $tileImg ]]; then
