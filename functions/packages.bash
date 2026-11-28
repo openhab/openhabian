@@ -910,7 +910,7 @@ if [ "$setupMode" = "install" ]; then
     echo "$(timestamp) [openHABian] Check if config files are existing in the old config folder: $esphomeConfigDir_old ..."
     if [ -d "$esphomeConfigDir_old" ]; then 
     # explicit, quoted test: true if any top-level *.yaml exists  
-        if find "$esphomeConfigDir_old" -maxdepth 1 -type f -name '*.yaml' -print -quit | grep -q .; then  
+        if find "$esphomeConfigDir_old" -maxdepth 1 -type f \( -name '*.yaml' -o -name '*.yml' \) -print -quit | grep -q .; then  
             # legacy configs found — do NOT remove; instruct user to move them  
             echo "$(timestamp) [openHABian] Legacy ESPHome config files found in $esphomeConfigDir_old. Please move them to $esphomeConfigDir before proceeding."  
             if [[ -n $INTERACTIVE ]]; then  
@@ -937,7 +937,7 @@ case "$setupMode" in
     install)
         echo "$(timestamp) [openHABian] $installStartText";
         echo "$(timestamp) [openHABian] Check if Python 3 - Venv and pip are already installed and up to date..."
-        if ! python3-venv -m venv --help >/dev/null 2>&1 ||\
+        if ! python3 -m venv --help >/dev/null 2>&1;
            ! [ "$(printf "%s\n%s" "$min_python_version" "$(python3 -V 2>/dev/null | awk '{print $2}')" | sort -V | head -n1)" = "$min_python_version" ]; then
             echo "$(timestamp) [openHABian] updating Python 3 and pip..."
             if ! cond_redirect apt install -y python3-venv; then
